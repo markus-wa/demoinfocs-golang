@@ -1,0 +1,15 @@
+option cc_generic_services = false;
+option go_package = "msg";
+
+message CEngineGotvSyncPacket {
+	optional uint64 match_id = 1;
+	optional uint32 instance_id = 2;
+	optional uint32 signupfragment = 3;
+	optional uint32 currentfragment = 4;
+	optional float tickrate = 5;
+	optional uint32 tick = 6;
+	optional float rtdelay = 8;
+	optional float rcvage = 9;
+	optional float keyframe_interval = 10;
+}
+
