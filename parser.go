@@ -21,16 +21,15 @@ func main() {
 	d, _ := os.Open("C:\\Dev\\demo.dem")
 	p := NewParser(d)
 	p.ParseHeader()
-	p.parseTick()
+	p.ParseToEnd()
 }
 
 // FIXME: create struct GameState for all game-state relevant stuff
 type Parser struct {
 	bitstream            bs.BitReader
-	stParser             *st.Parser
 	dtParser             *dt.Parser
-	currentTick          uint
-	ingameTick           uint
+	currentTick          int
+	ingameTick           int
 	header               *DemoHeader
 	rawPlayers           [MaxPlayers]*PlayerInfo
 	players              map[int]*Player
@@ -76,11 +75,11 @@ func (p *Parser) Progress() float32 {
 	return float32(p.currentTick) / float32(p.header.playbackFrames)
 }
 
-func (p *Parser) CurrentTick() uint {
+func (p *Parser) CurrentTick() int {
 	return p.currentTick
 }
 
-func (p *Parser) IngameTick() uint {
+func (p *Parser) IngameTick() int {
 	return p.ingameTick
 }
 
@@ -105,7 +104,7 @@ func (p *Parser) ParseHeader() error {
 	if h.filestamp != "HL2DEMO" {
 		panic("Shit's fucked mate (Invalid File-Type; expecting HL2DEMO)")
 	}
-	fmt.Println(h)
+	fmt.Println("Header: ", h)
 	p.header = &h
 	return nil
 }
@@ -116,20 +115,70 @@ func (p *Parser) ParseToEnd() {
 }
 
 func (p *Parser) parseNextTick() bool {
-	return false
+	if p.header == nil {
+		panic("Tried to parse tick before parsing header")
+	}
+	b := p.parseTick()
+	// FIXME: we should do some more stuff here
+	return b
 }
 
 func (p *Parser) parseTick() bool {
 	cmd := DemoCommand(p.bitstream.ReadByte())
+
+	// Tick number
+	p.ingameTick = p.bitstream.ReadSignedInt(32)
+	// Skip 'player slot'
+	p.bitstream.ReadByte()
+
+	p.currentTick++
+
 	switch cmd {
 	case DC_Synctick:
-		break
+		// Ignore
 	case DC_Stop:
+		fmt.Println("We done it boys")
 		return false
+
 	case DC_ConsoleCommand:
-		return false
+		// Skip
+		p.bitstream.BeginChunk(p.bitstream.ReadSignedInt(32) * 8)
+		p.bitstream.EndChunk()
+
+	case DC_DataTables:
+		p.bitstream.BeginChunk(p.bitstream.ReadSignedInt(32) * 8)
+		p.bitstream.EndChunk()
+
+	case DC_StringTables:
+		p.bitstream.BeginChunk(p.bitstream.ReadSignedInt(32) * 8)
+		st.ParsePacket(p.bitstream)
+		p.bitstream.EndChunk()
+
+	case DC_UserCommand:
+		// Skip
+		p.bitstream.ReadInt(32)
+		p.bitstream.BeginChunk(p.bitstream.ReadSignedInt(32) * 8)
+		p.bitstream.EndChunk()
+
+	case DC_Signon:
+		fallthrough
+	case DC_Packet:
+		p.parseDemoPacket()
+	default:
+		panic("Canny handle it anymoe (command unknown)")
 	}
-	return false
+	return true
+}
+
+func (p *Parser) parseDemoPacket() {
+	// Booooring
+	parseCommandInfo(p.bitstream)
+	p.bitstream.ReadInt(32) // SeqNrIn
+	p.bitstream.ReadInt(32) // SeqNrOut
+
+	p.bitstream.BeginChunk(p.bitstream.ReadSignedInt(32) * 8)
+	// FIXME: Do actual parsing
+	p.bitstream.EndChunk()
 }
 
 func NewParser(demostream io.Reader) *Parser {

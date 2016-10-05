@@ -83,7 +83,7 @@ func (e *Entity) FindProperty(name string) (*PropertyEntry, error) {
 func NewEntity(id int, serverClass *ServerClass) *Entity {
 	props := make([]*PropertyEntry, len(serverClass.FlattenedProps))
 	for i, p := range serverClass.FlattenedProps {
-		props[i] = NewPropertyEntry(p, int(i))
+		props[i] = NewPropertyEntry(p, i)
 	}
 	return &Entity{Id: id, ServerClass: serverClass, props: props}
 }

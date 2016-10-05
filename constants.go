@@ -144,3 +144,10 @@ const (
 	DC_LastCommand  = DC_StringTables
 	DC_FirstCommand = DC_Signon
 )
+
+const (
+	FDEMO_NORMAL = iota + 1
+	FDEMO_USE_ORIGIN2
+	FDEMO_USE_ANGLES2
+	FDEMO_NOINTERP
+)
