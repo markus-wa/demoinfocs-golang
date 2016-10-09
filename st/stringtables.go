@@ -33,7 +33,7 @@ func getItOverWith(r bs.BitReader, name string) {
 			case "instancebaseline":
 				// FIXME: Do instancebaseline stuff
 			case "modelprecache":
-			// FIXME: Do modelprecache stuff
+				// FIXME: Do modelprecache stuff
 			default:
 				// FIXME: Unknown table
 			}

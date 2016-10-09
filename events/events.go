@@ -1,16 +1,12 @@
-package main
+package events
 
 import (
 	"github.com/golang/geo/r3"
+	"github.com/markus-wa/demoinfocs-golang/common"
 )
 
 // Header parsed
 type HeaderParsedEvent struct {
-	header *DemoHeader
-}
-
-func (hpe HeaderParsedEvent) Header() DemoHeader {
-	return *hpe.header
 }
 
 // Tick done
@@ -28,19 +24,19 @@ type RoundAnnounceMatchStartedEvent struct {
 // Round ended
 type RoundEndedEvent struct {
 	message string
-	reason  RoundEndReason
-	winner  Team
+	reason  common.RoundEndReason
+	winner  common.Team
 }
 
 func (e RoundEndedEvent) Message() string {
 	return e.message
 }
 
-func (e RoundEndedEvent) Reason() RoundEndReason {
+func (e RoundEndedEvent) Reason() common.RoundEndReason {
 	return e.reason
 }
 
-func (e RoundEndedEvent) Winner() Team {
+func (e RoundEndedEvent) Winner() common.Team {
 	return e.winner
 }
 
@@ -50,15 +46,15 @@ type RoundOfficialyEndedEvent struct {
 
 // Round MVP crowned
 type RoundMVPEvent struct {
-	player Player
-	reason RoundMVPReason
+	player common.Player
+	reason common.RoundMVPReason
 }
 
-func (e RoundMVPEvent) Player() Player {
+func (e RoundMVPEvent) Player() common.Player {
 	return e.player
 }
 
-func (e RoundMVPEvent) Reason() RoundMVPReason {
+func (e RoundMVPEvent) Reason() common.RoundMVPReason {
 	return e.reason
 }
 
@@ -99,22 +95,22 @@ type FreezetimeEndedEvent struct {
 
 // Player / team change event, occurs when a player swaps teams
 type PlayerTeamChangeEvent struct {
-	swapped Player
-	newTeam Team
-	oldTeam Team
+	player  common.Player
+	newTeam common.Team
+	oldTeam common.Team
 	silent  bool
 	isBot   bool
 }
 
-func (e PlayerTeamChangeEvent) Swapped() Player {
-	return e.swapped
+func (e PlayerTeamChangeEvent) Player() common.Player {
+	return e.player
 }
 
-func (e PlayerTeamChangeEvent) NewTeam() Team {
+func (e PlayerTeamChangeEvent) NewTeam() common.Team {
 	return e.newTeam
 }
 
-func (e PlayerTeamChangeEvent) OldTeam() Team {
+func (e PlayerTeamChangeEvent) OldTeam() common.Team {
 	return e.oldTeam
 }
 
@@ -128,27 +124,27 @@ func (e PlayerTeamChangeEvent) IsBot() bool {
 
 // Player killed
 type PlayerKilledEvent struct {
-	weapon            Equipment
-	victim            Player
-	killer            Player
-	assister          Player
+	weapon            common.Equipment
+	victim            common.Player
+	killer            common.Player
+	assister          common.Player
 	penetratedObjects int
 	isHeadshot        bool
 }
 
-func (e PlayerKilledEvent) Weapon() Equipment {
+func (e PlayerKilledEvent) Weapon() common.Equipment {
 	return e.weapon
 }
 
-func (e PlayerKilledEvent) Victim() Player {
+func (e PlayerKilledEvent) Victim() common.Player {
 	return e.victim
 }
 
-func (e PlayerKilledEvent) Killer() Player {
+func (e PlayerKilledEvent) Killer() common.Player {
 	return e.killer
 }
 
-func (e PlayerKilledEvent) Assister() Player {
+func (e PlayerKilledEvent) Assister() common.Player {
 	return e.assister
 }
 
@@ -162,36 +158,36 @@ func (e PlayerKilledEvent) IsHeadshot() bool {
 
 // Bot taken over
 type BotTakenOverEvent struct {
-	taker Player
+	taker common.Player
 }
 
-func (e BotTakenOverEvent) Taker() Player {
+func (e BotTakenOverEvent) Taker() common.Player {
 	return e.taker
 }
 
 // Weapon fired
 type WeaponFiredEvent struct {
-	shooter Player
-	weapon  Equipment
+	shooter common.Player
+	weapon  common.Equipment
 }
 
-func (e WeaponFiredEvent) Shooter() Player {
+func (e WeaponFiredEvent) Shooter() common.Player {
 	return e.shooter
 }
 
-func (e WeaponFiredEvent) Weapon() Equipment {
+func (e WeaponFiredEvent) Weapon() common.Equipment {
 	return e.weapon
 }
 
 // Nade exploded
 // TODO: velocity vector
 type NadeEvent struct {
-	nadeType EquipmentElement
+	nadeType common.EquipmentElement
 	position r3.Vector
-	thrower  Player
+	thrower  common.Player
 }
 
-func (e NadeEvent) NadeType() EquipmentElement {
+func (e NadeEvent) NadeType() common.EquipmentElement {
 	return e.nadeType
 }
 
@@ -199,35 +195,35 @@ func (e NadeEvent) Position() r3.Vector {
 	return e.position
 }
 
-func (e NadeEvent) Thrower() Player {
+func (e NadeEvent) Thrower() common.Player {
 	return e.thrower
 }
 
-func (e NadeEvent) IBPPlayer() Player {
+func (e NadeEvent) IBPPlayer() common.Player {
 	return e.thrower
 }
 
 // Flash exploded
 type FlashEvent struct {
 	nadeEvent      NadeEvent
-	flashedPlayers []Player
+	flashedPlayers []common.Player
 }
 
 func (e FlashEvent) NadeEvent() NadeEvent {
 	return e.nadeEvent
 }
 
-func (e FlashEvent) FlashedPlayers() []Player {
+func (e FlashEvent) FlashedPlayers() []common.Player {
 	return e.flashedPlayers
 }
 
 // Bomb event (planted or exploded???)
 type BombEvent struct {
-	planter Player
+	planter common.Player
 	site    rune
 }
 
-func (e BombEvent) Planter() Player {
+func (e BombEvent) Planter() common.Player {
 	return e.planter
 }
 
@@ -237,11 +233,11 @@ func (e BombEvent) Site() rune {
 
 // Bomb defused????? (Used to be BombDeEvent)
 type BombDefusedEvent struct {
-	defuser Player
+	defuser common.Player
 	site    rune
 }
 
-func (e BombDefusedEvent) Defuser() Player {
+func (e BombDefusedEvent) Defuser() common.Player {
 	return e.defuser
 }
 

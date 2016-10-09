@@ -3,10 +3,13 @@ package main
 import (
 	"fmt"
 	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
-	dt "github.com/markus-wa/demoinfocs-golang/dt"
-	st "github.com/markus-wa/demoinfocs-golang/st"
+	"github.com/markus-wa/demoinfocs-golang/common"
+	"github.com/markus-wa/demoinfocs-golang/dp"
+	"github.com/markus-wa/demoinfocs-golang/dt"
+	"github.com/markus-wa/demoinfocs-golang/st"
 	"io"
 	"os"
+	"time"
 )
 
 const (
@@ -17,11 +20,15 @@ const (
 	MaxWeapons    = 64
 )
 
+const MaxOsPath = 260
+
 func main() {
 	d, _ := os.Open("C:\\Dev\\demo.dem")
 	p := NewParser(d)
 	p.ParseHeader()
+	ts := time.Now().Unix()
 	p.ParseToEnd()
+	fmt.Println("took", time.Now().Unix()-ts)
 }
 
 // FIXME: create struct GameState for all game-state relevant stuff
@@ -31,32 +38,32 @@ type Parser struct {
 	currentTick          int
 	ingameTick           int
 	header               *DemoHeader
-	rawPlayers           [MaxPlayers]*PlayerInfo
-	players              map[int]*Player
-	additionalPlayerInfo [MaxPlayers]*AdditionalPlayerInformation
+	rawPlayers           [MaxPlayers]*common.PlayerInfo
+	players              map[int]*common.Player
+	additionalPlayerInfo [MaxPlayers]*common.AdditionalPlayerInformation
 	entities             [maxEntities]*dt.Entity
-	modelPreCache        []string               // Used to find out whether a weapon is a p250 or cz for example (same id)
-	weapons              [MaxWeapons]*Equipment // Used to remember what a weapon is (p250 / cz etc.)
-	tState               *TeamState
-	ctState              *TeamState
+	modelPreCache        []string                      // Used to find out whether a weapon is a p250 or cz for example (same id)
+	weapons              [MaxWeapons]*common.Equipment // Used to remember what a weapon is (p250 / cz etc.)
+	tState               *common.TeamState
+	ctState              *common.TeamState
 }
 
 func (p *Parser) Map() string {
 	return p.header.MapName()
 }
 
-func (p *Parser) Participants() []*Player {
-	r := make([]*Player, 0, len(p.players))
+func (p *Parser) Participants() []*common.Player {
+	r := make([]*common.Player, 0, len(p.players))
 	for _, ptcp := range p.players {
 		r = append(r, ptcp)
 	}
 	return r
 }
 
-func (p *Parser) PlayingParticipants() []*Player {
-	r := make([]*Player, 0, len(p.players))
+func (p *Parser) PlayingParticipants() []*common.Player {
+	r := make([]*common.Player, 0, len(p.players))
 	for _, ptcp := range p.players {
-		if ptcp.Team != Team_Spectators {
+		if ptcp.Team != common.Team_Spectators {
 			r = append(r, ptcp)
 		}
 	}
@@ -177,7 +184,7 @@ func (p *Parser) parseDemoPacket() {
 	p.bitstream.ReadInt(32) // SeqNrOut
 
 	p.bitstream.BeginChunk(p.bitstream.ReadSignedInt(32) * 8)
-	// FIXME: Do actual parsing
+	dp.ParsePacket(p.bitstream)
 	p.bitstream.EndChunk()
 }
 

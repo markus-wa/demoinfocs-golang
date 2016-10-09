@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	bufferSize = 2048 + sled
-	sled       = 4
+	bufferSize        = 2048 + sled
+	sled              = 4
+	kMaxVarintBytes   = 10
+	kMaxVarint32Bytes = 5
 )
 
 type BitReader interface {
@@ -22,22 +24,30 @@ type BitReader interface {
 	ReadCString(int) string
 	ReadSignedInt(uint) int
 	ReadInt(uint) uint
+	ReadVarInt32() uint32
 	ReadFloat() float32
 	BeginChunk(int)
 	EndChunk()
+	ChunkFinished() bool
 }
 
+// A simple int stack
 type stack []int
 
 func (s stack) Push(v int) stack {
 	return append(s, v)
 }
 
+// Pop returns the stack without the last added item as well as said item (seperately)
+// Attention: panics when the stack is empty
 func (s stack) Pop() (stack, int) {
 	// FIXME: CBA to handle empty stacks rn
-
 	l := len(s)
 	return s[:l-1], s[l-1]
+}
+
+func (s stack) Top() int {
+	return s[len(s)-1]
 }
 
 type bitReader struct {
@@ -167,6 +177,21 @@ func (r *bitReader) ReadFloat() float32 {
 	return math.Float32frombits(uint32(bits))
 }
 
+func (r *bitReader) ReadVarInt32() uint32 {
+	var res uint32 = 0
+	var b uint32 = 0x80
+
+	// do while hack
+	for count := uint(0); b&0x80 != 0; count++ {
+		if count == kMaxVarint32Bytes {
+			return res
+		}
+		b = uint32(r.ReadByte())
+		res |= (b & 0x7f) << (7 * count)
+	}
+	return res
+}
+
 func (r *bitReader) BeginChunk(length int) {
 	r.chunkTargets = r.chunkTargets.Push(r.ActualGlobalPosition() + length)
 }
@@ -208,6 +233,10 @@ func (r *bitReader) EndChunk() {
 			r.advance(uint(delta))
 		}
 	}
+}
+
+func (r *bitReader) ChunkFinished() bool {
+	return r.chunkTargets.Top() == r.ActualGlobalPosition()
 }
 
 func NewBitReader(underlying io.Reader) BitReader {
