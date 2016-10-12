@@ -2,6 +2,13 @@ package common
 
 import ()
 
+const (
+	MaxEditctBits = 11
+	IndexMask     = ((1 << MaxEditctBits) - 1)
+)
+
+const weaponPrefix = "weapon"
+
 type (
 	RoundMVPReason   byte
 	Hitgroup         byte
@@ -10,8 +17,6 @@ type (
 	EquipmentElement int
 	EquipmentClass   int
 )
-
-const weaponPrefix = "weapon"
 
 const (
 	MVPReason_MostEliminations RoundMVPReason = iota + 1

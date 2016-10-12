@@ -6,18 +6,42 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/msg"
 )
 
-func ParsePacket(r bs.BitReader) {
-	for !r.ChunkFinished() {
-		cmd := msg.SVC_Messages(r.ReadVarInt32())
-		size := int(r.ReadVarInt32())
+func ParsePacket(reader bs.BitReader, msgQueue chan interface{}) {
+	for !reader.ChunkFinished() {
+		cmd := int(reader.ReadVarInt32())
+		size := int(reader.ReadVarInt32())
 
-		r.BeginChunk(size * 8)
+		reader.BeginChunk(size * 8)
+		var m proto.Message
 		switch cmd {
-		case msg.SVC_Messages_svc_GameEvent:
-			ge := &msg.CSVCMsg_GameEvent{}
-			b := r.ReadBytes(size)
-			proto.Unmarshal(b, ge)
+		case int(msg.SVC_Messages_svc_PacketEntities):
+			m = &msg.CSVCMsg_PacketEntities{}
+
+		case int(msg.SVC_Messages_svc_GameEventList):
+			m = &msg.CSVCMsg_GameEventList{}
+
+		case int(msg.SVC_Messages_svc_GameEvent):
+			m = &msg.CSVCMsg_GameEvent{}
+
+		case int(msg.SVC_Messages_svc_CreateStringTable):
+			m = &msg.CSVCMsg_CreateStringTable{}
+
+		case int(msg.SVC_Messages_svc_UpdateStringTable):
+			m = &msg.CSVCMsg_UpdateStringTable{}
+
+		case int(msg.NET_Messages_net_Tick):
+			m = &msg.CNETMsg_Tick{}
+
+		case int(msg.SVC_Messages_svc_UserMessage):
+			m = &msg.CSVCMsg_UserMessage{}
+
+		default:
+			// We don't care about anything else for now
 		}
-		r.EndChunk()
+		if m != nil {
+			proto.Unmarshal(reader.ReadBytes(size), m)
+			msgQueue <- m
+		}
+		reader.EndChunk()
 	}
 }

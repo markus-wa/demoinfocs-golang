@@ -1,20 +1,32 @@
-package dt
+package st
 
 import ()
 
-// TODO: EntityCreatedEvent
-
 type ServerClass struct {
-	ClassId        int
-	DataTableId    int
-	Name           string
-	DTName         string
-	FlattenedProps []*FlattenedPropEntry
-	BaseClasses    []*ServerClass
+	ClassId               int
+	DataTableId           int
+	Name                  string
+	DTName                string
+	FlattenedProps        []*FlattenedPropEntry
+	BaseClasses           []*ServerClass
+	entityCreatedHandlers []EntityCreatedHandler
 }
 
 func (sc *ServerClass) String() string {
 	return sc.Name + " | " + sc.DTName
+}
+
+func (sc *ServerClass) FireEntityCreatedEvent(entity *Entity) {
+	for _, h := range sc.entityCreatedHandlers {
+		if h != nil {
+			e := EntityCreatedEvent{entity: entity, serverClass: sc}
+			h(&e)
+		}
+	}
+}
+
+func (sc *ServerClass) RegisterEntityCreatedHandler(handler EntityCreatedHandler) {
+	sc.entityCreatedHandlers = append(sc.entityCreatedHandlers, handler)
 }
 
 type FlattenedPropEntry struct {
@@ -58,9 +70,11 @@ type EntityCreatedEvent struct {
 	entity      *Entity
 }
 
-func (ece *EntityCreatedEvent) ServerClass() *ServerClass {
-	return ece.serverClass
+func (e *EntityCreatedEvent) ServerClass() *ServerClass {
+	return e.serverClass
 }
-func (ece *EntityCreatedEvent) Entity() *Entity {
-	return ece.entity
+func (e *EntityCreatedEvent) Entity() *Entity {
+	return e.entity
 }
+
+type EntityCreatedHandler func(*EntityCreatedEvent)

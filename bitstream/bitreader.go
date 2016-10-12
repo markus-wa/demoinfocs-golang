@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	bufferSize        = 2048 + sled
+	bufferSize        = (1024 * 1024) + sled
 	sled              = 4
 	kMaxVarintBytes   = 10
 	kMaxVarint32Bytes = 5
@@ -25,7 +25,9 @@ type BitReader interface {
 	ReadSignedInt(uint) int
 	ReadInt(uint) uint
 	ReadVarInt32() uint32
+	ReadSignedVarInt32() int32
 	ReadFloat() float32
+	ReadUBitInt() uint
 	BeginChunk(int)
 	EndChunk()
 	ChunkFinished() bool
@@ -138,7 +140,11 @@ func (r *bitReader) ReadBytes(bytes int) []byte {
 
 func (r *bitReader) ReadCString(chars int) string {
 	b := r.ReadBytes(chars)
-	return string(b[:bytes.IndexByte(b, 0)])
+	end := bytes.IndexByte(b, 0)
+	if end < 0 {
+		end = chars
+	}
+	return string(b[:end])
 }
 
 // ReadString reads a varaible length string
@@ -188,6 +194,24 @@ func (r *bitReader) ReadVarInt32() uint32 {
 		}
 		b = uint32(r.ReadByte())
 		res |= (b & 0x7f) << (7 * count)
+	}
+	return res
+}
+
+func (r *bitReader) ReadSignedVarInt32() int32 {
+	res := r.ReadVarInt32()
+	return int32((res >> 1) ^ -(res & 1))
+}
+
+func (r *bitReader) ReadUBitInt() uint {
+	res := r.ReadInt(6)
+	switch res & (16 | 32) {
+	case 16:
+		res = (res & 15) | (r.ReadInt(4) << 4)
+	case 32:
+		res = (res & 15) | (r.ReadInt(8) << 4)
+	case 48:
+		res = (res & 15) | (r.ReadInt(32-4) << 4)
 	}
 	return res
 }

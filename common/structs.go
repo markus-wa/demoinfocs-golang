@@ -2,7 +2,8 @@ package common
 
 import (
 	"github.com/golang/geo/r3"
-	"github.com/markus-wa/demoinfocs-golang/dt"
+	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
+	"github.com/markus-wa/demoinfocs-golang/st"
 )
 
 type PlayerInfo struct {
@@ -29,12 +30,12 @@ type PlayerInfo struct {
 type Player struct {
 	Name                        string
 	SteamId                     int64
-	Position                    r3.Vector
+	Position                    *r3.Vector
 	EntityId                    int
 	Hp                          int
 	Armor                       int
-	LastAlivePosition           r3.Vector
-	Velocity                    r3.Vector
+	LastAlivePosition           *r3.Vector
+	Velocity                    *r3.Vector
 	ViewDirectionX              float32
 	ViewDirectionY              float32
 	FlashDuration               float32
@@ -43,20 +44,28 @@ type Player struct {
 	FreezetimeEndEquipmentValue int
 	RoundStartEquipmentValue    int
 	IsDucking                   bool
-	Entity                      dt.Entity
+	Entity                      *st.Entity
 	IsDisconnected              bool
 	ActiveWeaponId              int
-	rawWeapons                  map[int]Equipment
-	Weapons                     []Equipment
+	RawWeapons                  map[int]*Equipment
+	Weapons                     []*Equipment
 	Team                        Team
 	HasDefuseKit                bool
+	HasHelmet                   bool
 	TeamId                      int
-	AmmoLeft                    []int
-	AdditionalPlayerInformation AdditionalPlayerInformation
+	AmmoLeft                    [32]int
+	AdditionalPlayerInformation *AdditionalPlayerInformation
 }
 
-func (p Player) IsAlive() bool {
+func (p *Player) IsAlive() bool {
 	return p.Hp > 0
+}
+
+func (p *Player) ActiveWeapon() *Equipment {
+	if p.ActiveWeaponId == IndexMask {
+		return nil
+	}
+	return p.RawWeapons[p.ActiveWeaponId]
 }
 
 type AdditionalPlayerInformation struct {
@@ -77,31 +86,8 @@ type Equipment struct {
 	SkinId         string
 	AmmoInMagazine int
 	AmmoType       int
-	Owner          Player
+	Owner          *Player
 	ReserveAmmo    int
-}
-
-type TeamState struct {
-	id       int
-	score    int
-	clanName string
-	flag     string
-}
-
-func (ts TeamState) Id() int {
-	return ts.id
-}
-
-func (ts TeamState) Score() int {
-	return ts.score
-}
-
-func (ts TeamState) ClanName() string {
-	return ts.clanName
-}
-
-func (ts TeamState) Flag() string {
-	return ts.flag
 }
 
 func (e Equipment) Class() EquipmentClass {
@@ -110,4 +96,13 @@ func (e Equipment) Class() EquipmentClass {
 
 func NewEquipment() *Equipment {
 	return &Equipment{Weapon: EE_Unknown}
+}
+
+func ParsePlayerInfo(reader bs.BitReader) *PlayerInfo {
+	res := &PlayerInfo{}
+	return res
+}
+
+func NewPlayer() *Player {
+	return &Player{RawWeapons: make(map[int]*Equipment)}
 }

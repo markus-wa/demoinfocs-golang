@@ -1,4 +1,4 @@
-package main
+package demoinfocs
 
 import (
 	"github.com/golang/geo/r3"
@@ -20,48 +20,71 @@ type DemoHeader struct {
 	signonLength    int
 }
 
-func (dh DemoHeader) Filestamp() string {
+func (dh *DemoHeader) Filestamp() string {
 	return dh.filestamp
 }
 
-func (dh DemoHeader) Protocol() int {
+func (dh *DemoHeader) Protocol() int {
 	return dh.protocol
 }
 
-func (dh DemoHeader) NetworkProtocol() int {
+func (dh *DemoHeader) NetworkProtocol() int {
 	return dh.networkProtocol
 }
 
-func (dh DemoHeader) ServerName() string {
+func (dh *DemoHeader) ServerName() string {
 	return dh.serverName
 }
 
-func (dh DemoHeader) ClientName() string {
+func (dh *DemoHeader) ClientName() string {
 	return dh.clientName
 }
 
-func (dh DemoHeader) MapName() string {
+func (dh *DemoHeader) MapName() string {
 	return dh.mapName
 }
 
-func (dh DemoHeader) GameDirectory() string {
+func (dh *DemoHeader) GameDirectory() string {
 	return dh.gameDirectory
 }
 
-func (dh DemoHeader) PlaybackTime() float32 {
+func (dh *DemoHeader) PlaybackTime() float32 {
 	return dh.playbackTime
 }
 
-func (dh DemoHeader) PlaybackTicks() int {
+func (dh *DemoHeader) PlaybackTicks() int {
 	return dh.playbackTicks
 }
 
-func (dh DemoHeader) PlaybackFrames() int {
+func (dh *DemoHeader) PlaybackFrames() int {
 	return dh.playbackFrames
 }
 
-func (dh DemoHeader) SignonLenght() int {
+func (dh *DemoHeader) SignonLenght() int {
 	return dh.signonLength
+}
+
+type TeamState struct {
+	id       int
+	score    int
+	clanName string
+	flag     string
+}
+
+func (ts *TeamState) Id() int {
+	return ts.id
+}
+
+func (ts *TeamState) Score() int {
+	return ts.score
+}
+
+func (ts *TeamState) ClanName() string {
+	return ts.clanName
+}
+
+func (ts *TeamState) Flag() string {
+	return ts.flag
 }
 
 type SEVector struct {
@@ -119,6 +142,18 @@ type CommandInfo struct {
 
 func (ci *CommandInfo) Splits() [2]*Split {
 	return ci.splits
+}
+
+type BoundingBoxInformation struct {
+	index int
+	min   r3.Vector
+	max   r3.Vector
+}
+
+func (bbi *BoundingBoxInformation) contains(point *r3.Vector) bool {
+	return point.X >= bbi.min.X && point.X <= bbi.max.X &&
+		point.Y >= bbi.min.Y && point.Y <= bbi.max.Y &&
+		point.Z >= bbi.min.Z && point.Z <= bbi.max.Z
 }
 
 func parseCommandInfo(r bs.BitReader) *CommandInfo {

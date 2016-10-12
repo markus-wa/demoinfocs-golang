@@ -1,8 +1,16 @@
-package main
+package demoinfocs
 
-import ()
+import (
+	"github.com/markus-wa/demoinfocs-golang/common"
+)
 
 type DemoCommand byte
+
+const (
+	maxEntities = (1 << common.MaxEditctBits)
+	MaxPlayers  = 64
+	MaxWeapons  = 64
+)
 
 const (
 	DC_Signon DemoCommand = iota + 1
