@@ -40,22 +40,24 @@ func (p *Parser) readEnterPVS(reader bs.BitReader, entityId int) *st.Entity {
 	newEntity.ServerClass.FireEntityCreatedEvent(newEntity)
 
 	if p.preprocessedBaselines[scId] != nil {
-		// FIXME: Impl
+		for _, bl := range p.preprocessedBaselines[scId] {
+			newEntity.Props()[bl.PropIndex()].FirePropertyUpdateEvent(bl.Value(), newEntity)
+		}
 	} else {
-		ppBase := make([]interface{}, 0)
+		ppBase := make([]*st.RecordedPropertyUpdate, 0)
 		if p.instanceBaselines[scId] != nil {
 			collectProperties(newEntity, ppBase)
 			newEntity.ApplyUpdate(bs.NewBitReader(bytes.NewReader(p.instanceBaselines[scId])))
-			p.preprocessedBaselines[scId] = append(p.preprocessedBaselines[scId], ppBase)
+			p.preprocessedBaselines[scId] = append(p.preprocessedBaselines[scId], ppBase...)
 		}
 	}
 
 	return newEntity
 }
 
-func collectProperties(entity *st.Entity, ppBase []interface{}) {
-	adder := func(val *st.PropertyUpdateEvent) {
-		ppBase = append(ppBase, val.Value())
+func collectProperties(entity *st.Entity, ppBase []*st.RecordedPropertyUpdate) {
+	adder := func(event *st.PropertyUpdateEvent) {
+		ppBase = append(ppBase, event.Record())
 	}
 
 	for _, p := range entity.Props() {

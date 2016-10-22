@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	bufferSize        = (1024 * 2) + sled
+	bufferSize        = (1024 * 16) + sled
 	sled              = 4
 	kMaxVarintBytes   = 10
 	kMaxVarint32Bytes = 5
@@ -105,6 +105,15 @@ func (r *bitReader) refillBuffer() {
 }
 
 func (r *bitReader) ReadByte() byte {
+	return r.readByteInternal(true)
+}
+
+func (r *bitReader) readByteInternal(bitLevel bool) byte {
+	if !bitLevel {
+		res := r.buffer[r.offset/8]
+		r.advance(8)
+		return res
+	}
 	return r.ReadBitsToByte(8)
 }
 
@@ -130,9 +139,10 @@ func (r *bitReader) peekInt(bits uint) uint {
 }
 
 func (r *bitReader) ReadBytes(bytes int) []byte {
+	bitLevel := r.offset%8 != 0
 	res := make([]byte, 0, bytes)
 	for i := 0; i < bytes; i++ {
-		b := r.ReadByte()
+		b := r.readByteInternal(bitLevel)
 		res = append(res, b)
 	}
 	return res

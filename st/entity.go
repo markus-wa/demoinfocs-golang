@@ -42,7 +42,7 @@ func (e *Entity) ApplyUpdate(reader bs.BitReader) {
 	}
 
 	for _, prop := range entries {
-		prop.FirePropertyUpdateEvent(propDecoder.decodeProp(prop.entry, reader), e)
+		prop.FirePropertyUpdateEvent(prop.decode(reader), e)
 	}
 }
 
@@ -88,25 +88,30 @@ func NewEntity(id int, serverClass *ServerClass) *Entity {
 type PropertyEntry struct {
 	index         int
 	entry         *FlattenedPropEntry
-	eventHandlers map[reflect.Type]PropertyUpdateHandler
+	eventHandlers map[reflect.Type][]PropertyUpdateHandler
 }
 
 func (pe *PropertyEntry) Entry() *FlattenedPropEntry {
 	return pe.entry
 }
 
+func (pe *PropertyEntry) decode(reader bs.BitReader) interface{} {
+	return propDecoder.decodeProp(pe.entry, reader)
+}
+
 func (pe *PropertyEntry) FirePropertyUpdateEvent(value interface{}, entity *Entity) {
-	h := pe.eventHandlers[reflect.TypeOf(value)]
-	if h != nil {
-		h(&PropertyUpdateEvent{value: value, entity: entity, property: pe})
+	for _, h := range pe.eventHandlers[reflect.TypeOf(value)] {
+		if h != nil {
+			h(&PropertyUpdateEvent{value: value, entity: entity, property: pe})
+		}
 	}
 }
 
 func (pe *PropertyEntry) RegisterPropertyUpdateHandler(valueType reflect.Type, handler PropertyUpdateHandler) {
 	if pe.eventHandlers == nil {
-		pe.eventHandlers = make(map[reflect.Type]PropertyUpdateHandler)
+		pe.eventHandlers = make(map[reflect.Type][]PropertyUpdateHandler)
 	}
-	pe.eventHandlers[valueType] = handler
+	pe.eventHandlers[valueType] = append(pe.eventHandlers[valueType], handler)
 }
 
 type PropertyUpdateEvent struct {
@@ -125,6 +130,23 @@ func (e *PropertyUpdateEvent) Entity() *Entity {
 
 func (e *PropertyUpdateEvent) Property() *PropertyEntry {
 	return e.property
+}
+
+func (e *PropertyUpdateEvent) Record() *RecordedPropertyUpdate {
+	return &RecordedPropertyUpdate{propIndex: e.property.index, value: e.value}
+}
+
+type RecordedPropertyUpdate struct {
+	propIndex int
+	value     interface{}
+}
+
+func (r *RecordedPropertyUpdate) PropIndex() int {
+	return r.propIndex
+}
+
+func (r *RecordedPropertyUpdate) Value() interface{} {
+	return r.value
 }
 
 type PropertyUpdateHandler func(*PropertyUpdateEvent)

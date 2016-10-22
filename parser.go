@@ -22,7 +22,7 @@ type Parser struct {
 	equipmentMapping      map[*st.ServerClass]common.EquipmentElement
 	rawPlayers            [MaxPlayers]*common.PlayerInfo
 	players               map[int]*common.Player
-	additionalPlayerInfo  [MaxPlayers]*common.AdditionalPlayerInformation
+	additionalPlayerInfo  [MaxPlayers]common.AdditionalPlayerInformation
 	entities              [maxEntities]*st.Entity
 	modelPreCache         []string                       // Used to find out whether a weapon is a p250 or cz for example (same id)
 	weapons               [maxEntities]*common.Equipment // Used to remember what a weapon is (p250 / cz etc.)
@@ -32,7 +32,7 @@ type Parser struct {
 	bombsiteBCenter       r3.Vector
 	triggers              []*BoundingBoxInformation
 	instanceBaselines     map[int][]byte
-	preprocessedBaselines map[int][]interface{}
+	preprocessedBaselines map[int][]*st.RecordedPropertyUpdate
 }
 
 func (p *Parser) Map() string {
@@ -103,7 +103,7 @@ func NewParser(demostream io.Reader) *Parser {
 	p.ctState = &TeamState{}
 	p.tState = &TeamState{}
 	p.instanceBaselines = make(map[int][]byte)
-	p.preprocessedBaselines = make(map[int][]interface{})
+	p.preprocessedBaselines = make(map[int][]*st.RecordedPropertyUpdate)
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
 	p.players = make(map[int]*common.Player)
 

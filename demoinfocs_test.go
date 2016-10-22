@@ -78,3 +78,21 @@ func TestDemoInfoCs(t *testing.T) {
 
 	f.Close()
 }
+
+func BenchmarkDemoInfoCs(b *testing.B) {
+	fmt.Println("Parsing sample demo", b.N, "times")
+	for i := 0; i < b.N; i++ {
+		var demPath string
+		if runtime.GOOS == "windows" {
+			demPath = "C:\\Dev\\demo.dem"
+		} else {
+			demPath = "/home/markus/Downloads/demo.dem"
+		}
+		f, _ := os.Open(demPath)
+
+		p := dem.NewParser(f)
+		p.ParseHeader()
+		p.ParseToEnd(nil)
+		f.Close()
+	}
+}

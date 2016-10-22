@@ -66,7 +66,7 @@ func (p *Parser) ParseNextTick() bool {
 		if pl := p.players[rp.UserId]; pl != nil {
 			pl.Name = rp.Name
 			pl.SteamId = rp.XUID
-			pl.AdditionalPlayerInformation = p.additionalPlayerInfo[pl.EntityId]
+			pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[pl.EntityId]
 
 			if pl.IsAlive() {
 				pl.LastAlivePosition = pl.Position
