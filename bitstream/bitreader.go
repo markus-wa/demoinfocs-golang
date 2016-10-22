@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	bufferSize        = (1024 * 1024) + sled
+	bufferSize        = (1024 * 2) + sled
 	sled              = 4
 	kMaxVarintBytes   = 10
 	kMaxVarint32Bytes = 5
