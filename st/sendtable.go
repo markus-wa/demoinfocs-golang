@@ -3,12 +3,12 @@ package st
 import ()
 
 type SendTable struct {
-	properties []*SendTableProperty
+	properties []SendTableProperty
 	Name       string
 	IsEnd      bool
 }
 
-func (st *SendTable) Properties() []*SendTableProperty {
+func (st SendTable) Properties() []SendTableProperty {
 	return st.properties
 }
 

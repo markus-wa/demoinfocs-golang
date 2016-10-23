@@ -5,10 +5,12 @@ import (
 	"encoding/binary"
 	"io"
 	"math"
+	"sync"
 )
 
 const (
-	bufferSize        = (1024 * 16) + sled
+	SmallBuffer       = 1024 * 2
+	LargeBuffer       = 1024 * 128
 	sled              = 4
 	kMaxVarintBytes   = 10
 	kMaxVarint32Bytes = 5
@@ -18,7 +20,7 @@ type BitReader interface {
 	LazyGlobalPosition() int
 	ActualGlobalPosition() int
 	ReadBit() bool
-	ReadByte() byte
+	ReadSingleByte() byte
 	ReadBytes(int) []byte
 	ReadString() string
 	ReadCString(int) string
@@ -31,6 +33,7 @@ type BitReader interface {
 	BeginChunk(int)
 	EndChunk()
 	ChunkFinished() bool
+	Close()
 }
 
 // A simple int stack
@@ -98,13 +101,13 @@ func (r *bitReader) refillBuffer() {
 	newBytes, _ := r.underlying.Read(r.buffer[sled:])
 
 	r.bitsInBuffer = newBytes * 8
-	if newBytes < bufferSize-sled {
+	if newBytes < len(r.buffer)-2*sled {
 		// we're done here, consume sled
 		r.bitsInBuffer += sled * 8
 	}
 }
 
-func (r *bitReader) ReadByte() byte {
+func (r *bitReader) ReadSingleByte() byte {
 	return r.readByteInternal(true)
 }
 
@@ -141,9 +144,15 @@ func (r *bitReader) peekInt(bits uint) uint {
 func (r *bitReader) ReadBytes(bytes int) []byte {
 	bitLevel := r.offset%8 != 0
 	res := make([]byte, 0, bytes)
-	for i := 0; i < bytes; i++ {
-		b := r.readByteInternal(bitLevel)
-		res = append(res, b)
+	if !bitLevel && r.offset+bytes*8 < r.bitsInBuffer {
+		// Shortcut if all bytes are already buffered
+		res = append(res, r.buffer[r.offset/8:r.offset/8+bytes]...)
+		r.advance(uint(bytes) * 8)
+	} else {
+		for i := 0; i < bytes; i++ {
+			b := r.readByteInternal(bitLevel)
+			res = append(res, b)
+		}
 	}
 	return res
 }
@@ -166,7 +175,7 @@ func (r *bitReader) ReadString() string {
 func (r *bitReader) readStringLimited(limit int, endOnNewLine bool) string {
 	result := make([]byte, 0, 512)
 	for i := 0; i < limit; i++ {
-		b := r.ReadByte()
+		b := r.ReadSingleByte()
 		if b == 0 || (endOnNewLine && b == '\n') {
 			break
 		}
@@ -202,7 +211,7 @@ func (r *bitReader) ReadVarInt32() uint32 {
 		if count == kMaxVarint32Bytes {
 			return res
 		}
-		b = uint32(r.ReadByte())
+		b = uint32(r.ReadSingleByte())
 		res |= (b & 0x7f) << (7 * count)
 	}
 	return res
@@ -273,8 +282,28 @@ func (r *bitReader) ChunkFinished() bool {
 	return r.chunkTargets.Top() == r.ActualGlobalPosition()
 }
 
-func NewBitReader(underlying io.Reader) BitReader {
-	br := &bitReader{underlying: underlying, buffer: make([]byte, bufferSize)}
+func (r *bitReader) Close() {
+	r.underlying = nil
+	r.offset = 0
+	r.bitsInBuffer = 0
+	r.chunkTargets = r.chunkTargets[:0]
+	r.lazyGlobalPosition = 0
+	bitReaderPool.Put(r)
+}
+
+var bitReaderPool sync.Pool = sync.Pool{
+	New: func() interface{} {
+		return &bitReader{}
+	},
+}
+
+func NewBitReader(underlying io.Reader, bufferSize int) BitReader {
+	br := bitReaderPool.Get().(*bitReader)
+	br.underlying = underlying
+	bufferSize += sled
+	if len(br.buffer) != bufferSize {
+		br.buffer = make([]byte, bufferSize)
+	}
 	br.refillBuffer()
 	br.offset = sled * 8
 	return BitReader(br)

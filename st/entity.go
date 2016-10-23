@@ -2,27 +2,27 @@ package st
 
 import (
 	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
-	"reflect"
+	"sync"
 )
 
 type Entity struct {
 	Id          int
 	ServerClass *ServerClass
-	props       []*PropertyEntry
+	props       []PropertyEntry
 }
 
-func (e *Entity) Props() []*PropertyEntry {
+func (e *Entity) Props() []PropertyEntry {
 	return e.props
 }
 
 func (e *Entity) FindProperty(name string) *PropertyEntry {
 	var prop *PropertyEntry
-	for _, p := range e.props {
-		if p.entry.name == name {
+	for i, _ := range e.props {
+		if e.props[i].entry.name == name {
 			if prop != nil {
 				panic("More than one property with name " + name + " found")
 			}
-			prop = p
+			prop = &e.props[i]
 		}
 	}
 	if prop == nil {
@@ -31,19 +31,35 @@ func (e *Entity) FindProperty(name string) *PropertyEntry {
 	return prop
 }
 
+type entryList struct {
+	slice []*PropertyEntry
+}
+
+var entryListPool sync.Pool = sync.Pool{
+	New: func() interface{} {
+		return &entryList{make([]*PropertyEntry, 0, 8)}
+	},
+}
+
 func (e *Entity) ApplyUpdate(reader bs.BitReader) {
 	idx := -1
-	entries := make([]*PropertyEntry, 0, 8)
+
+	backer := entryListPool.Get().(*entryList)
+	entries := backer.slice[:0]
 
 	newWay := reader.ReadBit()
 
 	for idx = e.readFileIndex(reader, idx, newWay); idx != -1; idx = e.readFileIndex(reader, idx, newWay) {
-		entries = append(entries, e.props[idx])
+		entries = append(entries, &e.props[idx])
 	}
 
 	for _, prop := range entries {
 		prop.FirePropertyUpdateEvent(prop.decode(reader), e)
 	}
+
+	// Defer has quite the overhead so we just fill the pool here
+	backer.slice = entries[:0]
+	entryListPool.Put(backer)
 }
 
 func (e *Entity) readFileIndex(reader bs.BitReader, lastIndex int, newWay bool) int {
@@ -77,10 +93,20 @@ func (e *Entity) readFileIndex(reader bs.BitReader, lastIndex int, newWay bool) 
 	return lastIndex + 1 + res
 }
 
+func (e *Entity) CollectProperties(ppBase *[]*RecordedPropertyUpdate) {
+	adder := func(event PropertyUpdateEvent) {
+		*ppBase = append(*ppBase, event.Record())
+	}
+
+	for i, _ := range e.props {
+		e.props[i].RegisterPropertyUpdateHandler(adder)
+	}
+}
+
 func NewEntity(id int, serverClass *ServerClass) *Entity {
-	props := make([]*PropertyEntry, len(serverClass.FlattenedProps))
-	for i, p := range serverClass.FlattenedProps {
-		props[i] = NewPropertyEntry(p, i)
+	props := make([]PropertyEntry, 0, len(serverClass.FlattenedProps))
+	for i, _ := range serverClass.FlattenedProps {
+		props = append(props, NewPropertyEntry(&serverClass.FlattenedProps[i], i))
 	}
 	return &Entity{Id: id, ServerClass: serverClass, props: props}
 }
@@ -88,39 +114,36 @@ func NewEntity(id int, serverClass *ServerClass) *Entity {
 type PropertyEntry struct {
 	index         int
 	entry         *FlattenedPropEntry
-	eventHandlers map[reflect.Type][]PropertyUpdateHandler
+	eventHandlers []PropertyUpdateHandler
 }
 
 func (pe *PropertyEntry) Entry() *FlattenedPropEntry {
 	return pe.entry
 }
 
-func (pe *PropertyEntry) decode(reader bs.BitReader) interface{} {
+func (pe *PropertyEntry) decode(reader bs.BitReader) PropValue {
 	return propDecoder.decodeProp(pe.entry, reader)
 }
 
-func (pe *PropertyEntry) FirePropertyUpdateEvent(value interface{}, entity *Entity) {
-	for _, h := range pe.eventHandlers[reflect.TypeOf(value)] {
+func (pe *PropertyEntry) FirePropertyUpdateEvent(value PropValue, entity *Entity) {
+	for _, h := range pe.eventHandlers {
 		if h != nil {
-			h(&PropertyUpdateEvent{value: value, entity: entity, property: pe})
+			h(PropertyUpdateEvent{value: value, entity: entity, property: pe})
 		}
 	}
 }
 
-func (pe *PropertyEntry) RegisterPropertyUpdateHandler(valueType reflect.Type, handler PropertyUpdateHandler) {
-	if pe.eventHandlers == nil {
-		pe.eventHandlers = make(map[reflect.Type][]PropertyUpdateHandler)
-	}
-	pe.eventHandlers[valueType] = append(pe.eventHandlers[valueType], handler)
+func (pe *PropertyEntry) RegisterPropertyUpdateHandler(handler PropertyUpdateHandler) {
+	pe.eventHandlers = append(pe.eventHandlers, handler)
 }
 
 type PropertyUpdateEvent struct {
-	value    interface{}
+	value    PropValue
 	entity   *Entity
 	property *PropertyEntry
 }
 
-func (e *PropertyUpdateEvent) Value() interface{} {
+func (e *PropertyUpdateEvent) Value() PropValue {
 	return e.value
 }
 
@@ -138,19 +161,19 @@ func (e *PropertyUpdateEvent) Record() *RecordedPropertyUpdate {
 
 type RecordedPropertyUpdate struct {
 	propIndex int
-	value     interface{}
+	value     PropValue
 }
 
 func (r *RecordedPropertyUpdate) PropIndex() int {
 	return r.propIndex
 }
 
-func (r *RecordedPropertyUpdate) Value() interface{} {
+func (r *RecordedPropertyUpdate) Value() PropValue {
 	return r.value
 }
 
-type PropertyUpdateHandler func(*PropertyUpdateEvent)
+type PropertyUpdateHandler func(PropertyUpdateEvent)
 
-func NewPropertyEntry(entry *FlattenedPropEntry, index int) *PropertyEntry {
-	return &PropertyEntry{index: index, entry: entry}
+func NewPropertyEntry(entry *FlattenedPropEntry, index int) PropertyEntry {
+	return PropertyEntry{index: index, entry: entry}
 }

@@ -1,7 +1,7 @@
 package st
 
 import (
-	"github.com/golang/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	"math"
@@ -9,7 +9,7 @@ import (
 )
 
 type Parser struct {
-	sendTables         []*SendTable
+	sendTables         []SendTable
 	serverClasses      []*ServerClass
 	currentExcludes    []*ExcludeEntry
 	currentBaseclasses []*ServerClass
@@ -24,7 +24,7 @@ func (p *Parser) ServerClasses() []*ServerClass {
 }
 
 func (p *Parser) ParsePacket(r bs.BitReader) {
-	for true {
+	for {
 		t := msg.SVC_Messages(r.ReadVarInt32())
 		if t != msg.SVC_Messages_svc_SendTable {
 			panic("Expected SendTable (" + string(msg.SVC_Messages_svc_SendTable) + "), got" + string(t))
@@ -62,59 +62,37 @@ func (p *Parser) ParsePacket(r bs.BitReader) {
 	}
 }
 
-func parseSendTable(r bs.BitReader) *SendTable {
+func parseSendTable(r bs.BitReader) SendTable {
 	size := int(r.ReadVarInt32())
 	r.BeginChunk(size * 8)
 	st := &msg.CSVCMsg_SendTable{}
 	proto.Unmarshal(r.ReadBytes(size), st)
 	r.EndChunk()
 
-	res := &SendTable{}
+	res := SendTable{}
 	for _, v := range st.GetProps() {
-		prop := &SendTableProperty{}
-		if v.DtName != nil {
-			prop.DataTableName = *v.DtName
-		}
-		if v.HighValue != nil {
-			prop.HighValue = *v.HighValue
-		}
-		if v.LowValue != nil {
-			prop.LowValue = *v.LowValue
-		}
-		if v.VarName != nil {
-			prop.Name = *v.VarName
-		}
-		if v.NumBits != nil {
-			prop.NumberOfBits = int(*v.NumBits)
-		}
-		if v.NumElements != nil {
-			prop.NumberOfElements = int(*v.NumElements)
-		}
-		if v.Priority != nil {
-			prop.Priority = int(*v.Priority)
-		}
-		if v.Flags != nil {
-			prop.RawFlags = int(*v.Flags)
-		}
-		if v.Type != nil {
-			prop.RawType = int(*v.Type)
-		}
+		prop := SendTableProperty{}
+		prop.DataTableName = v.DtName
+		prop.HighValue = v.HighValue
+		prop.LowValue = v.LowValue
+		prop.Name = v.VarName
+		prop.NumberOfBits = int(v.NumBits)
+		prop.NumberOfElements = int(v.NumElements)
+		prop.Priority = int(v.Priority)
+		prop.RawFlags = int(v.Flags)
+		prop.RawType = int(v.Type)
 
 		res.properties = append(res.properties, prop)
 	}
 
-	if st.NetTableName != nil {
-		res.Name = *st.NetTableName
-	}
-	if st.IsEnd != nil {
-		res.IsEnd = *st.IsEnd
-	}
+	res.Name = st.NetTableName
+	res.IsEnd = st.IsEnd
 
 	return res
 }
 
 func (p *Parser) flattenDataTable(serverClassIndex int) {
-	tab := p.sendTables[p.serverClasses[serverClassIndex].DataTableId]
+	tab := &p.sendTables[p.serverClasses[serverClassIndex].DataTableId]
 
 	p.currentExcludes = nil
 	p.currentBaseclasses = nil
@@ -180,13 +158,14 @@ func (p *Parser) gatherExcludesAndBaseClasses(st *SendTable, collectBaseClasses 
 }
 
 func (p *Parser) gatherProps(st *SendTable, serverClassIndex int, prefix string) {
-	var tmpFlattenedProps []*FlattenedPropEntry
+	var tmpFlattenedProps []FlattenedPropEntry
 	p.gatherPropsIterate(st, serverClassIndex, prefix, &tmpFlattenedProps)
 	p.serverClasses[serverClassIndex].FlattenedProps = append(p.serverClasses[serverClassIndex].FlattenedProps, tmpFlattenedProps...)
 }
 
-func (p *Parser) gatherPropsIterate(tab *SendTable, serverClassIndex int, prefix string, flattenedProps *[]*FlattenedPropEntry) {
-	for i, prop := range tab.properties {
+func (p *Parser) gatherPropsIterate(tab *SendTable, serverClassIndex int, prefix string, flattenedProps *[]FlattenedPropEntry) {
+	for i, _ := range tab.properties {
+		prop := &tab.properties[i]
 		if prop.Flags().HasFlagSet(SPF_InsideArray) || prop.Flags().HasFlagSet(SPF_Exclude) || p.isPropertyExcluded(tab, prop) {
 			continue
 		}
@@ -205,9 +184,9 @@ func (p *Parser) gatherPropsIterate(tab *SendTable, serverClassIndex int, prefix
 			}
 		} else {
 			if prop.Type() == SPT_Array {
-				*flattenedProps = append(*flattenedProps, &FlattenedPropEntry{name: prefix + prop.Name, prop: prop, arrayElementProp: tab.properties[i-1]})
+				*flattenedProps = append(*flattenedProps, FlattenedPropEntry{name: prefix + prop.Name, prop: prop, arrayElementProp: &tab.properties[i-1]})
 			} else {
-				*flattenedProps = append(*flattenedProps, &FlattenedPropEntry{name: prefix + prop.Name, prop: prop})
+				*flattenedProps = append(*flattenedProps, FlattenedPropEntry{name: prefix + prop.Name, prop: prop})
 			}
 		}
 	}
@@ -223,13 +202,13 @@ func (p *Parser) isPropertyExcluded(tab *SendTable, prop *SendTableProperty) boo
 }
 
 func (p *Parser) getTableByName(name string) *SendTable {
-	for _, v := range p.sendTables {
-		if v.Name == name {
-			return v
+	for i, _ := range p.sendTables {
+		if p.sendTables[i].Name == name {
+			return &p.sendTables[i]
 		}
 	}
 	if len(p.sendTables) > 0 {
-		return p.sendTables[0]
+		return &p.sendTables[0]
 	}
 	return nil
 }

@@ -52,9 +52,7 @@ func (d *eventDispatcher) initCache(handlerType reflect.Type) {
 	d.cachedHandlers[handlerType] = make([]EventHandler, 0)
 	for k := range d.handlers {
 		if handlerType.AssignableTo(k) {
-			for _, h := range d.handlers[k] {
-				d.cachedHandlers[handlerType] = append(d.cachedHandlers[handlerType], h)
-			}
+			d.cachedHandlers[handlerType] = append(d.cachedHandlers[handlerType], d.handlers[k]...)
 		}
 	}
 }

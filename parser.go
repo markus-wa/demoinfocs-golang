@@ -13,8 +13,8 @@ import (
 // FIXME: create struct GameState for all game-state relevant stuff
 type Parser struct {
 	bitreader             bs.BitReader
-	stParser              *st.Parser
-	eventDispatcher       *eventDispatcher
+	stParser              st.Parser
+	eventDispatcher       eventDispatcher
 	eventQueue            chan interface{}
 	currentTick           int
 	ingameTick            int
@@ -26,8 +26,8 @@ type Parser struct {
 	entities              [maxEntities]*st.Entity
 	modelPreCache         []string                       // Used to find out whether a weapon is a p250 or cz for example (same id)
 	weapons               [maxEntities]*common.Equipment // Used to remember what a weapon is (p250 / cz etc.)
-	tState                *TeamState
-	ctState               *TeamState
+	tState                TeamState
+	ctState               TeamState
 	bombsiteACenter       r3.Vector
 	bombsiteBCenter       r3.Vector
 	triggers              []*BoundingBoxInformation
@@ -82,26 +82,22 @@ func (p *Parser) CurrentTime() float32 {
 }
 
 func (p *Parser) EventDispatcher() EventDispatcher {
-	return p.eventDispatcher
+	return &p.eventDispatcher
 }
 
 func (p *Parser) CTState() *TeamState {
-	return p.ctState
+	return &p.ctState
 }
 
 func (p *Parser) TState() *TeamState {
-	return p.tState
+	return &p.tState
 }
 
 func NewParser(demostream io.Reader) *Parser {
 	p := Parser{}
 	// Init parser
-	p.bitreader = bs.NewBitReader(demostream)
-	p.stParser = &st.Parser{}
-	p.eventDispatcher = &eventDispatcher{}
+	p.bitreader = bs.NewBitReader(demostream, bs.LargeBuffer)
 	p.eventQueue = make(chan interface{})
-	p.ctState = &TeamState{}
-	p.tState = &TeamState{}
 	p.instanceBaselines = make(map[int][]byte)
 	p.preprocessedBaselines = make(map[int][]*st.RecordedPropertyUpdate)
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)

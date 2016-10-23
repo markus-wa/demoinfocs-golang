@@ -23,27 +23,35 @@ const (
 
 var propDecoder propertyDecoder
 
+type PropValue struct {
+	IntVal    int
+	FloatVal  float32
+	VectorVal r3.Vector
+	ArrayVal  []PropValue
+	StringVal string
+}
+
 type propertyDecoder struct{}
 
-func (propertyDecoder) decodeProp(fProp *FlattenedPropEntry, reader bs.BitReader) interface{} {
+func (propertyDecoder) decodeProp(fProp *FlattenedPropEntry, reader bs.BitReader) PropValue {
 	switch fProp.prop.Type() {
 	case SPT_Int:
-		return propDecoder.decodeInt(fProp.prop, reader)
+		return PropValue{IntVal: propDecoder.decodeInt(fProp.prop, reader)}
 
 	case SPT_Float:
-		return propDecoder.decodeFloat(fProp.prop, reader)
+		return PropValue{FloatVal: propDecoder.decodeFloat(fProp.prop, reader)}
 
 	case SPT_Vector:
-		return propDecoder.decodeVector(fProp.prop, reader)
+		return PropValue{VectorVal: propDecoder.decodeVector(fProp.prop, reader)}
 
 	case SPT_Array:
-		return propDecoder.decodeArray(fProp, reader)
+		return PropValue{ArrayVal: propDecoder.decodeArray(fProp, reader)}
 
 	case SPT_String:
-		return propDecoder.decodeString(fProp.prop, reader)
+		return PropValue{StringVal: propDecoder.decodeString(fProp.prop, reader)}
 
 	case SPT_VectorXY:
-		return propDecoder.decodeVectorXY(fProp.prop, reader)
+		return PropValue{VectorVal: propDecoder.decodeVectorXY(fProp.prop, reader)}
 
 	default:
 		panic("Unknown prop type " + string(fProp.prop.Type()))
@@ -221,7 +229,7 @@ func (propertyDecoder) decodeVector(prop *SendTableProperty, reader bs.BitReader
 	} else {
 		absolute := res.X*res.X + res.Y*res.Y
 		if absolute < 1.0 {
-			res.Z = float64(math.Sqrt(1 - absolute))
+			res.Z = math.Sqrt(1 - absolute)
 		} else {
 			res.Z = 0
 		}
@@ -234,7 +242,7 @@ func (propertyDecoder) decodeVector(prop *SendTableProperty, reader bs.BitReader
 	return res
 }
 
-func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader bs.BitReader) []interface{} {
+func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader bs.BitReader) []PropValue {
 	numElement := fProp.prop.NumberOfElements
 
 	var numBits uint = 1
@@ -245,7 +253,7 @@ func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader bs.BitReade
 
 	nElements := int(reader.ReadInt(numBits))
 
-	res := make([]interface{}, 0)
+	res := make([]PropValue, 0, nElements)
 
 	tmp := &FlattenedPropEntry{prop: fProp.arrayElementProp}
 

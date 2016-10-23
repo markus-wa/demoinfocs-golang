@@ -1,10 +1,23 @@
 package dp
 
 import (
-	"github.com/golang/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
 	"github.com/markus-wa/demoinfocs-golang/msg"
+	"sync"
 )
+
+var packetEntitiesPool sync.Pool = sync.Pool{
+	New: func() interface{} {
+		return &msg.CSVCMsg_PacketEntities{}
+	},
+}
+
+var gameEventPool sync.Pool = sync.Pool{
+	New: func() interface{} {
+		return &msg.CSVCMsg_GameEvent{}
+	},
+}
 
 func ParsePacket(reader bs.BitReader, msgQueue chan interface{}) {
 	for !reader.ChunkFinished() {
@@ -15,13 +28,15 @@ func ParsePacket(reader bs.BitReader, msgQueue chan interface{}) {
 		var m proto.Message
 		switch cmd {
 		case int(msg.SVC_Messages_svc_PacketEntities):
-			m = &msg.CSVCMsg_PacketEntities{}
+			m = packetEntitiesPool.Get().(*msg.CSVCMsg_PacketEntities)
+			defer packetEntitiesPool.Put(m)
 
 		case int(msg.SVC_Messages_svc_GameEventList):
 			m = &msg.CSVCMsg_GameEventList{}
 
 		case int(msg.SVC_Messages_svc_GameEvent):
-			m = &msg.CSVCMsg_GameEvent{}
+			m = gameEventPool.Get().(*msg.CSVCMsg_GameEvent)
+			defer gameEventPool.Put(m)
 
 		case int(msg.SVC_Messages_svc_CreateStringTable):
 			m = &msg.CSVCMsg_CreateStringTable{}

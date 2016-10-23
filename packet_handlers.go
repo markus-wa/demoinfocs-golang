@@ -2,19 +2,17 @@ package demoinfocs
 
 import (
 	"bytes"
-	"github.com/golang/geo/r3"
 	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	"github.com/markus-wa/demoinfocs-golang/st"
-	"reflect"
 )
 
 func (p *Parser) handlePackageEntities(packageEntities interface{}) {
 	pe := packageEntities.(*msg.CSVCMsg_PacketEntities)
-	r := bs.NewBitReader(bytes.NewReader(pe.EntityData))
+	r := bs.NewBitReader(bytes.NewReader(pe.EntityData), bs.SmallBuffer)
 
 	currentEntity := -1
-	for i := 0; i < int(*pe.UpdatedEntries); i++ {
+	for i := 0; i < int(pe.UpdatedEntries); i++ {
 		currentEntity += 1 + int(r.ReadUBitInt())
 		if !r.ReadBit() {
 			if r.ReadBit() {
@@ -31,6 +29,7 @@ func (p *Parser) handlePackageEntities(packageEntities interface{}) {
 			r.ReadBit()
 		}
 	}
+	r.Close()
 }
 
 func (p *Parser) readEnterPVS(reader bs.BitReader, entityId int) *st.Entity {
@@ -46,41 +45,13 @@ func (p *Parser) readEnterPVS(reader bs.BitReader, entityId int) *st.Entity {
 	} else {
 		ppBase := make([]*st.RecordedPropertyUpdate, 0)
 		if p.instanceBaselines[scId] != nil {
-			collectProperties(newEntity, ppBase)
-			newEntity.ApplyUpdate(bs.NewBitReader(bytes.NewReader(p.instanceBaselines[scId])))
-			p.preprocessedBaselines[scId] = append(p.preprocessedBaselines[scId], ppBase...)
+			newEntity.CollectProperties(&ppBase)
+			r := bs.NewBitReader(bytes.NewReader(p.instanceBaselines[scId]), bs.SmallBuffer)
+			newEntity.ApplyUpdate(r)
+			r.Close()
 		}
+		p.preprocessedBaselines[scId] = ppBase
 	}
 
 	return newEntity
-}
-
-func collectProperties(entity *st.Entity, ppBase []*st.RecordedPropertyUpdate) {
-	adder := func(event *st.PropertyUpdateEvent) {
-		ppBase = append(ppBase, event.Record())
-	}
-
-	for _, p := range entity.Props() {
-		switch p.Entry().Prop().Type() {
-		case st.SPT_Array:
-			p.RegisterPropertyUpdateHandler(reflect.TypeOf(make([]interface{}, 0)), adder)
-
-		case st.SPT_Float:
-			p.RegisterPropertyUpdateHandler(reflect.TypeOf(float32(0)), adder)
-
-		case st.SPT_Int:
-			p.RegisterPropertyUpdateHandler(reflect.TypeOf(int(0)), adder)
-
-		case st.SPT_String:
-			p.RegisterPropertyUpdateHandler(reflect.TypeOf(""), adder)
-
-		case st.SPT_Vector:
-			fallthrough
-		case st.SPT_VectorXY:
-			p.RegisterPropertyUpdateHandler(reflect.TypeOf(r3.Vector{}), adder)
-
-		default:
-			panic("Unknown type")
-		}
-	}
 }
