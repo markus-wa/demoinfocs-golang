@@ -97,7 +97,7 @@ func NewParser(demostream io.Reader) *Parser {
 	p := Parser{}
 	// Init parser
 	p.bitreader = bs.NewBitReader(demostream, bs.LargeBuffer)
-	p.eventQueue = make(chan interface{})
+	p.eventQueue = make(chan interface{}, 8)
 	p.instanceBaselines = make(map[int][]byte)
 	p.preprocessedBaselines = make(map[int][]*st.RecordedPropertyUpdate)
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
@@ -106,6 +106,6 @@ func NewParser(demostream io.Reader) *Parser {
 	// Attach handlers
 	p.eventDispatcher.Register(reflect.TypeOf(&msg.CSVCMsg_PacketEntities{}), p.handlePackageEntities)
 
-	go p.eventDispatcher.dispatchQueue(p.eventQueue)
+	p.eventDispatcher.addQueue(p.eventQueue)
 	return &p
 }

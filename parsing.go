@@ -6,7 +6,6 @@ import (
 	"github.com/golang/geo/r3"
 	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
 	"github.com/markus-wa/demoinfocs-golang/common"
-	"github.com/markus-wa/demoinfocs-golang/dp"
 	"github.com/markus-wa/demoinfocs-golang/events"
 	"github.com/markus-wa/demoinfocs-golang/st"
 	"strconv"
@@ -141,7 +140,7 @@ func (p *Parser) parseTick() bool {
 		p.bitreader.ReadInt(32) // SeqNrOut
 
 		p.bitreader.BeginChunk(p.bitreader.ReadSignedInt(32) * 8)
-		dp.ParsePacket(p.bitreader, p.eventQueue)
+		p.parsePacket()
 		p.bitreader.EndChunk()
 
 	default:

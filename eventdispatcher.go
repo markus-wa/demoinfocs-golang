@@ -5,6 +5,7 @@ import (
 	"sync"
 )
 
+// The contents of the event are undefined after the method returns
 type EventHandler func(interface{})
 
 type EventDispatcher interface {
@@ -13,6 +14,8 @@ type EventDispatcher interface {
 
 type eventDispatcher struct {
 	sync.RWMutex
+	syncLock       sync.Mutex
+	syncWg         sync.WaitGroup
 	handlers       map[reflect.Type][]EventHandler
 	cachedHandlers map[reflect.Type][]EventHandler
 }
@@ -57,10 +60,32 @@ func (d *eventDispatcher) initCache(handlerType reflect.Type) {
 	}
 }
 
-func (d *eventDispatcher) dispatchQueue(eventQueue chan interface{}) {
-	for e := range eventQueue {
+func (d *eventDispatcher) dispatchQueue(q chan interface{}) {
+	for e := range q {
+		if e == syncToken {
+			d.syncWg.Done()
+			continue
+		}
 		d.dispatch(e)
 	}
+}
+
+func (d *eventDispatcher) addQueue(q chan interface{}) {
+	go d.dispatchQueue(q)
+}
+
+var syncToken *struct{} = &struct{}{}
+
+// Syncs the channels dispatch routine to the current go routine
+// This ensures all events received up to this point will be handled before continuing
+func (d *eventDispatcher) syncQueue(q chan interface{}) {
+	// We can not check the channel length as that does not tell us whether the last event has been fully dispatched
+	d.syncLock.Lock()
+	defer d.syncLock.Unlock()
+	// Using sync.Cond would be a race against dispatchQueue
+	d.syncWg.Add(1)
+	q <- syncToken
+	d.syncWg.Wait()
 }
 
 func (d *eventDispatcher) Register(eventType reflect.Type, handler EventHandler) {

@@ -1,8 +1,7 @@
-package dp
+package demoinfocs
 
 import (
 	"github.com/gogo/protobuf/proto"
-	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	"sync"
 )
@@ -19,12 +18,12 @@ var gameEventPool sync.Pool = sync.Pool{
 	},
 }
 
-func ParsePacket(reader bs.BitReader, msgQueue chan interface{}) {
-	for !reader.ChunkFinished() {
-		cmd := int(reader.ReadVarInt32())
-		size := int(reader.ReadVarInt32())
+func (p *Parser) parsePacket() {
+	for !p.bitreader.ChunkFinished() {
+		cmd := int(p.bitreader.ReadVarInt32())
+		size := int(p.bitreader.ReadVarInt32())
 
-		reader.BeginChunk(size * 8)
+		p.bitreader.BeginChunk(size * 8)
 		var m proto.Message
 		switch cmd {
 		case int(msg.SVC_Messages_svc_PacketEntities):
@@ -54,9 +53,12 @@ func ParsePacket(reader bs.BitReader, msgQueue chan interface{}) {
 			// We don't care about anything else for now
 		}
 		if m != nil {
-			proto.Unmarshal(reader.ReadBytes(size), m)
-			msgQueue <- m
+			proto.Unmarshal(p.bitreader.ReadBytes(size), m)
+			p.eventQueue <- m
 		}
-		reader.EndChunk()
+		p.bitreader.EndChunk()
 	}
+
+	// Make sure the created events are consumed so they can be pooled
+	p.eventDispatcher.syncQueue(p.eventQueue)
 }
