@@ -2,8 +2,6 @@ package st
 
 import ()
 
-type SendPropertyType byte
-
 type SendPropertyFlags int
 
 func (spf SendPropertyFlags) HasFlagSet(flag SendPropertyFlags) bool {
@@ -11,7 +9,7 @@ func (spf SendPropertyFlags) HasFlagSet(flag SendPropertyFlags) bool {
 }
 
 const (
-	SPT_Int SendPropertyType = iota
+	SPT_Int int = iota
 	SPT_Float
 	SPT_Vector
 	SPT_VectorXY

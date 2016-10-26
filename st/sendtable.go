@@ -13,7 +13,7 @@ func (st SendTable) Properties() []SendTableProperty {
 }
 
 type SendTableProperty struct {
-	RawFlags         int
+	Flags            SendPropertyFlags
 	Name             string
 	DataTableName    string
 	LowValue         float32
@@ -22,12 +22,4 @@ type SendTableProperty struct {
 	NumberOfElements int
 	Priority         int
 	RawType          int
-}
-
-func (stp *SendTableProperty) Flags() SendPropertyFlags {
-	return SendPropertyFlags(stp.RawFlags)
-}
-
-func (stp *SendTableProperty) Type() SendPropertyType {
-	return SendPropertyType(stp.RawType)
 }

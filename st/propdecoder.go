@@ -34,7 +34,7 @@ type PropValue struct {
 type propertyDecoder struct{}
 
 func (propertyDecoder) decodeProp(fProp *FlattenedPropEntry, reader bs.BitReader) PropValue {
-	switch fProp.prop.Type() {
+	switch fProp.prop.RawType {
 	case SPT_Int:
 		return PropValue{IntVal: propDecoder.decodeInt(fProp.prop, reader)}
 
@@ -54,18 +54,18 @@ func (propertyDecoder) decodeProp(fProp *FlattenedPropEntry, reader bs.BitReader
 		return PropValue{VectorVal: propDecoder.decodeVectorXY(fProp.prop, reader)}
 
 	default:
-		panic("Unknown prop type " + string(fProp.prop.Type()))
+		panic("Unknown prop type " + string(fProp.prop.RawType))
 	}
 }
 
 func (propertyDecoder) decodeInt(prop *SendTableProperty, reader bs.BitReader) int {
-	if prop.Flags().HasFlagSet(SPF_VarInt) {
-		if prop.Flags().HasFlagSet(SPF_Unsigned) {
+	if prop.Flags.HasFlagSet(SPF_VarInt) {
+		if prop.Flags.HasFlagSet(SPF_Unsigned) {
 			return int(reader.ReadVarInt32())
 		}
 		return int(reader.ReadSignedVarInt32())
 	}
-	if prop.Flags().HasFlagSet(SPF_Unsigned) {
+	if prop.Flags.HasFlagSet(SPF_Unsigned) {
 		return int(reader.ReadInt(uint(prop.NumberOfBits)))
 	}
 	return reader.ReadSignedInt(uint(prop.NumberOfBits))
@@ -85,23 +85,23 @@ func (propertyDecoder) decodeFloat(prop *SendTableProperty, reader bs.BitReader)
 }
 
 func (propertyDecoder) decodeSpecialFloat(prop *SendTableProperty, reader bs.BitReader, res *float32) bool {
-	if prop.Flags().HasFlagSet(SPF_Coord) {
+	if prop.Flags.HasFlagSet(SPF_Coord) {
 		*res = propDecoder.readBitCoord(reader)
-	} else if prop.Flags().HasFlagSet(SPF_CoordMp) {
+	} else if prop.Flags.HasFlagSet(SPF_CoordMp) {
 		*res = propDecoder.readBitCoordMp(reader, false, false)
-	} else if prop.Flags().HasFlagSet(SPF_CoordMpLowPrecision) {
+	} else if prop.Flags.HasFlagSet(SPF_CoordMpLowPrecision) {
 		*res = propDecoder.readBitCoordMp(reader, false, true)
-	} else if prop.Flags().HasFlagSet(SPF_CoordMpIntegral) {
+	} else if prop.Flags.HasFlagSet(SPF_CoordMpIntegral) {
 		*res = propDecoder.readBitCoordMp(reader, true, false)
-	} else if prop.Flags().HasFlagSet(SPF_NoScale) {
+	} else if prop.Flags.HasFlagSet(SPF_NoScale) {
 		*res = reader.ReadFloat()
-	} else if prop.Flags().HasFlagSet(SPF_Normal) {
+	} else if prop.Flags.HasFlagSet(SPF_Normal) {
 		*res = propDecoder.readBitNormal(reader)
-	} else if prop.Flags().HasFlagSet(SPF_CellCoord) {
+	} else if prop.Flags.HasFlagSet(SPF_CellCoord) {
 		*res = propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), false, false)
-	} else if prop.Flags().HasFlagSet(SPF_CellCoordLowPrecision) {
+	} else if prop.Flags.HasFlagSet(SPF_CellCoordLowPrecision) {
 		*res = propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), true, false)
-	} else if prop.Flags().HasFlagSet(SPF_CellCoordIntegral) {
+	} else if prop.Flags.HasFlagSet(SPF_CellCoordIntegral) {
 		*res = propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), false, true)
 	} else {
 		*res = 0
@@ -224,7 +224,7 @@ func (propertyDecoder) decodeVector(prop *SendTableProperty, reader bs.BitReader
 	res.X = float64(propDecoder.decodeFloat(prop, reader))
 	res.Y = float64(propDecoder.decodeFloat(prop, reader))
 
-	if !prop.Flags().HasFlagSet(SPF_Normal) {
+	if !prop.Flags.HasFlagSet(SPF_Normal) {
 		res.Z = float64(propDecoder.decodeFloat(prop, reader))
 	} else {
 		absolute := res.X*res.X + res.Y*res.Y

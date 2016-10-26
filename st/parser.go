@@ -79,7 +79,7 @@ func parseSendTable(r bs.BitReader) SendTable {
 		prop.NumberOfBits = int(v.NumBits)
 		prop.NumberOfElements = int(v.NumElements)
 		prop.Priority = int(v.Priority)
-		prop.RawFlags = int(v.Flags)
+		prop.Flags = SendPropertyFlags(v.Flags)
 		prop.RawType = int(v.Type)
 
 		res.properties = append(res.properties, prop)
@@ -121,7 +121,7 @@ func (p *Parser) flattenDataTable(serverClassIndex int) {
 			cp := start
 			for ; cp < len(fProps); cp++ {
 				prop := fProps[cp].prop
-				if prop.Priority == prio || (prio == 64 && prop.Flags().HasFlagSet(SPF_ChangesOften)) {
+				if prop.Priority == prio || (prio == 64 && prop.Flags.HasFlagSet(SPF_ChangesOften)) {
 					if start != cp {
 						tmp := fProps[start]
 						fProps[start] = fProps[cp]
@@ -140,13 +140,13 @@ func (p *Parser) flattenDataTable(serverClassIndex int) {
 
 func (p *Parser) gatherExcludesAndBaseClasses(st *SendTable, collectBaseClasses bool) {
 	for _, v := range st.properties {
-		if v.Flags().HasFlagSet(SPF_Exclude) {
+		if v.Flags.HasFlagSet(SPF_Exclude) {
 			p.currentExcludes = append(p.currentExcludes, &ExcludeEntry{varName: v.Name, dtName: v.DataTableName, excludingDt: st.Name})
 		}
 	}
 
 	for _, v := range st.properties {
-		if v.Type() == SPT_DataTable {
+		if v.RawType == SPT_DataTable {
 			if collectBaseClasses && v.Name == "baseclass" {
 				p.gatherExcludesAndBaseClasses(p.getTableByName(v.DataTableName), true)
 				p.currentBaseclasses = append(p.currentBaseclasses, p.findServerClassByDtName(v.DataTableName))
@@ -166,14 +166,14 @@ func (p *Parser) gatherProps(st *SendTable, serverClassIndex int, prefix string)
 func (p *Parser) gatherPropsIterate(tab *SendTable, serverClassIndex int, prefix string, flattenedProps *[]FlattenedPropEntry) {
 	for i, _ := range tab.properties {
 		prop := &tab.properties[i]
-		if prop.Flags().HasFlagSet(SPF_InsideArray) || prop.Flags().HasFlagSet(SPF_Exclude) || p.isPropertyExcluded(tab, prop) {
+		if prop.Flags.HasFlagSet(SPF_InsideArray) || prop.Flags.HasFlagSet(SPF_Exclude) || p.isPropertyExcluded(tab, prop) {
 			continue
 		}
 
-		if prop.Type() == SPT_DataTable {
+		if prop.RawType == SPT_DataTable {
 			subTab := p.getTableByName(prop.DataTableName)
 
-			if prop.Flags().HasFlagSet(SPF_Collapsible) {
+			if prop.Flags.HasFlagSet(SPF_Collapsible) {
 				p.gatherPropsIterate(subTab, serverClassIndex, prefix, flattenedProps)
 			} else {
 				nfix := prefix
@@ -183,7 +183,7 @@ func (p *Parser) gatherPropsIterate(tab *SendTable, serverClassIndex int, prefix
 				p.gatherProps(subTab, serverClassIndex, nfix)
 			}
 		} else {
-			if prop.Type() == SPT_Array {
+			if prop.RawType == SPT_Array {
 				*flattenedProps = append(*flattenedProps, FlattenedPropEntry{name: prefix + prop.Name, prop: prop, arrayElementProp: &tab.properties[i-1]})
 			} else {
 				*flattenedProps = append(*flattenedProps, FlattenedPropEntry{name: prefix + prop.Name, prop: prop})
