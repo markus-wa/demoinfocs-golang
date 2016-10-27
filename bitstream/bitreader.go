@@ -73,14 +73,14 @@ func (r *bitReader) ActualGlobalPosition() int {
 }
 
 func (r *bitReader) ReadBits(bits uint) []byte {
-	b := make([]byte, (bits+7)/8)
+	b := make([]byte, (bits+7)>>3)
 	r.underlying.Read(b)
 	r.advance(bits)
 	return b
 }
 
 func (r *bitReader) ReadBit() bool {
-	res := (r.buffer[r.offset/8] & (1 << uint(r.offset&7))) != 0
+	res := (r.buffer[r.offset>>3] & (1 << uint(r.offset&7))) != 0
 	r.advance(1)
 	return res
 }
@@ -97,13 +97,13 @@ func (r *bitReader) refillBuffer() {
 	r.offset -= r.bitsInBuffer // sled bits used remain in offset
 	r.lazyGlobalPosition += r.bitsInBuffer
 	// Copy sled to beginning
-	copy(r.buffer[0:sled], r.buffer[r.bitsInBuffer/8:r.bitsInBuffer/8+sled])
+	copy(r.buffer[0:sled], r.buffer[r.bitsInBuffer>>3:r.bitsInBuffer>>3+sled])
 	newBytes, _ := r.underlying.Read(r.buffer[sled:])
 
-	r.bitsInBuffer = newBytes * 8
-	if newBytes < len(r.buffer)-2*sled {
+	r.bitsInBuffer = newBytes << 3
+	if newBytes < len(r.buffer)-sled<<1 {
 		// we're done here, consume sled
-		r.bitsInBuffer += sled * 8
+		r.bitsInBuffer += sled << 3
 	}
 }
 
@@ -113,7 +113,7 @@ func (r *bitReader) ReadSingleByte() byte {
 
 func (r *bitReader) readByteInternal(bitLevel bool) byte {
 	if !bitLevel {
-		res := r.buffer[r.offset/8]
+		res := r.buffer[r.offset>>3]
 		r.advance(8)
 		return res
 	}
@@ -137,17 +137,17 @@ func (r *bitReader) peekInt(bits uint) uint {
 	if bits > 32 {
 		panic("Can't read more than 32 bits for uint")
 	}
-	val := binary.LittleEndian.Uint64(r.buffer[r.offset/8&^3:])
-	return uint(val << (64 - (uint(r.offset) % 32) - bits) >> (64 - bits))
+	val := binary.LittleEndian.Uint64(r.buffer[r.offset>>3&^3:])
+	return uint(val << (64 - (uint(r.offset) & 31) - bits) >> (64 - bits))
 }
 
 func (r *bitReader) ReadBytes(bytes int) []byte {
-	bitLevel := r.offset%8 != 0
+	bitLevel := r.offset&7 != 0
 	res := make([]byte, 0, bytes)
-	if !bitLevel && r.offset+bytes*8 < r.bitsInBuffer {
+	if !bitLevel && r.offset+bytes<<3 < r.bitsInBuffer {
 		// Shortcut if all bytes are already buffered
-		res = append(res, r.buffer[r.offset/8:r.offset/8+bytes]...)
-		r.advance(uint(bytes) * 8)
+		res = append(res, r.buffer[r.offset>>3:r.offset>>3+bytes]...)
+		r.advance(uint(bytes) << 3)
 	} else {
 		for i := 0; i < bytes; i++ {
 			b := r.readByteInternal(bitLevel)
@@ -190,10 +190,10 @@ func (r *bitReader) ReadSignedInt(bits uint) int {
 	if bits > 32 {
 		panic("Can't read more than 32 bits for int")
 	}
-	val := binary.LittleEndian.Uint64(r.buffer[r.offset/8&^3:])
-	res := int(int64(val<<(64-(uint(r.offset)%32)-bits)) >> (64 - bits))
+	val := binary.LittleEndian.Uint64(r.buffer[r.offset>>3&^3:])
+	// Cast to int64 before right shift & use offset before advance
+	res := int(int64(val<<(64-(uint(r.offset)&31)-bits)) >> (64 - bits))
 	r.advance(bits)
-	// Cast to int64 before right shift
 	return res
 }
 
@@ -250,19 +250,19 @@ func (r *bitReader) EndChunk() {
 		seeker, ok := r.underlying.(io.Seeker)
 		if ok {
 			bufferBits := r.bitsInBuffer - r.offset
-			if delta > bufferBits+sled*8 {
+			if delta > bufferBits+sled<<3 {
 				unbufferedSkipBits := delta - bufferBits
 				seeker.Seek(int64((unbufferedSkipBits>>3)-sled), io.SeekCurrent)
 
 				newBytes, _ := r.underlying.Read(r.buffer)
 
-				r.bitsInBuffer = 8 * (newBytes - sled)
+				r.bitsInBuffer = (newBytes - sled) << 3
 				if newBytes <= sled {
 					// FIXME: Maybe do this even if newBytes is <= bufferSize - sled like in refillBuffer
 					// Consume sled
 					// Shouldn't really happen unless we reached the end of the stream
 					// In that case bitsInBuffer should be 0 after this line (newBytes=0 - sled + sled)
-					r.bitsInBuffer += sled * 8
+					r.bitsInBuffer += sled << 3
 				}
 
 				r.offset = unbufferedSkipBits & 7
@@ -305,6 +305,6 @@ func NewBitReader(underlying io.Reader, bufferSize int) BitReader {
 		br.buffer = make([]byte, bufferSize)
 	}
 	br.refillBuffer()
-	br.offset = sled * 8
+	br.offset = sled << 3
 	return BitReader(br)
 }
