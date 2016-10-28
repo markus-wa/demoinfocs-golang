@@ -6,6 +6,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	"github.com/markus-wa/demoinfocs-golang/st"
+	dp "github.com/markus-wa/godispatch"
 	"io"
 	"reflect"
 )
@@ -14,7 +15,7 @@ import (
 type Parser struct {
 	bitreader             bs.BitReader
 	stParser              st.Parser
-	eventDispatcher       eventDispatcher
+	eventDispatcher       dp.Dispatcher
 	eventQueue            chan interface{}
 	currentTick           int
 	ingameTick            int
@@ -81,6 +82,10 @@ func (p *Parser) CurrentTime() float32 {
 	return float32(p.currentTick) * p.TickTime()
 }
 
+type EventDispatcher interface {
+	RegisterHandler(reflect.Type, dp.Handler)
+}
+
 func (p *Parser) EventDispatcher() EventDispatcher {
 	return &p.eventDispatcher
 }
@@ -104,8 +109,8 @@ func NewParser(demostream io.Reader) *Parser {
 	p.players = make(map[int]*common.Player)
 
 	// Attach handlers
-	p.eventDispatcher.Register(reflect.TypeOf(&msg.CSVCMsg_PacketEntities{}), p.handlePackageEntities)
+	p.eventDispatcher.RegisterHandler(reflect.TypeOf(&msg.CSVCMsg_PacketEntities{}), p.handlePackageEntities)
 
-	p.eventDispatcher.addQueue(p.eventQueue)
+	p.eventDispatcher.AddQueues(p.eventQueue)
 	return &p
 }

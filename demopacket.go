@@ -60,5 +60,5 @@ func (p *Parser) parsePacket() {
 	}
 
 	// Make sure the created events are consumed so they can be pooled
-	p.eventDispatcher.syncQueue(p.eventQueue)
+	p.eventDispatcher.SyncQueues(p.eventQueue)
 }

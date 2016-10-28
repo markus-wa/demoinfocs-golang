@@ -43,7 +43,7 @@ func (p *Parser) ParseHeader() error {
 	}
 	p.header = &h
 	fmt.Println("Header: ", h)
-	p.eventDispatcher.dispatch(events.HeaderParsedEvent{})
+	p.eventDispatcher.Dispatch(events.HeaderParsedEvent{})
 	return nil
 }
 
@@ -81,7 +81,7 @@ func (p *Parser) ParseNextTick() bool {
 		}
 	}
 
-	p.eventDispatcher.dispatch(events.TickDoneEvent{})
+	p.eventDispatcher.Dispatch(events.TickDoneEvent{})
 
 	if !b {
 		close(p.eventQueue)
