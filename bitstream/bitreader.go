@@ -23,6 +23,7 @@ type BitReader interface {
 	ReadBits(bits uint) []byte
 	ReadSingleByte() byte
 	ReadBytes(int) []byte
+	ReadBytesInto(b *[]byte, bytes int)
 	ReadString() string
 	ReadCString(int) string
 	ReadSignedInt(uint) int
@@ -149,18 +150,22 @@ func (r *bitReader) peekInt(bits uint) uint {
 }
 
 func (r *bitReader) ReadBytes(bytes int) []byte {
+	b := make([]byte, 0, bytes)
+	r.ReadBytesInto(&b, bytes)
+	return b
+}
+
+func (r *bitReader) ReadBytesInto(b *[]byte, bytes int) {
 	bitLevel := r.offset&7 != 0
-	res := make([]byte, 0, bytes)
-	if !bitLevel && r.offset+bytes<<3 < r.bitsInBuffer {
+	if !bitLevel && r.offset+(bytes<<3) < r.bitsInBuffer {
 		// Shortcut if all bytes are already buffered
-		res = append(res, r.buffer[r.offset>>3:r.offset>>3+bytes]...)
+		*b = append(*b, r.buffer[r.offset>>3:r.offset>>3+bytes]...)
 		r.advance(uint(bytes) << 3)
 	} else {
 		for i := 0; i < bytes; i++ {
-			res = append(res, r.readByteInternal(bitLevel))
+			*b = append(*b, r.readByteInternal(bitLevel))
 		}
 	}
-	return res
 }
 
 func (r *bitReader) ReadCString(chars int) string {

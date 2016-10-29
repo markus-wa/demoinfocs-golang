@@ -31,35 +31,35 @@ func (e *Entity) FindProperty(name string) *PropertyEntry {
 	return prop
 }
 
-type entryList struct {
+type entrySliceBacker struct {
 	slice []*PropertyEntry
 }
 
-var entryListPool sync.Pool = sync.Pool{
+var entrySliceBackerPool sync.Pool = sync.Pool{
 	New: func() interface{} {
-		return &entryList{make([]*PropertyEntry, 0, 8)}
+		return &entrySliceBacker{make([]*PropertyEntry, 0, 8)}
 	},
 }
 
 func (e *Entity) ApplyUpdate(reader bs.BitReader) {
 	idx := -1
 
-	backer := entryListPool.Get().(*entryList)
-	entries := backer.slice[:0]
+	backer := entrySliceBackerPool.Get().(*entrySliceBacker)
 
 	newWay := reader.ReadBit()
 
 	for idx = e.readFileIndex(reader, idx, newWay); idx != -1; idx = e.readFileIndex(reader, idx, newWay) {
-		entries = append(entries, &e.props[idx])
+		backer.slice = append(backer.slice, &e.props[idx])
 	}
 
-	for _, prop := range entries {
+	for _, prop := range backer.slice {
 		prop.FirePropertyUpdateEvent(prop.decode(reader), e)
 	}
 
+	// Reset to 0 length before pooling
+	backer.slice = backer.slice[:0]
 	// Defer has quite the overhead so we just fill the pool here
-	backer.slice = entries[:0]
-	entryListPool.Put(backer)
+	entrySliceBackerPool.Put(backer)
 }
 
 func (e *Entity) readFileIndex(reader bs.BitReader, lastIndex int, newWay bool) int {

@@ -18,6 +18,16 @@ var gameEventPool sync.Pool = sync.Pool{
 	},
 }
 
+type byteSliceBacker struct {
+	slice []byte
+}
+
+var byteSliceBackerPool sync.Pool = sync.Pool{
+	New: func() interface{} {
+		return &byteSliceBacker{slice: make([]byte, 0, 256)}
+	},
+}
+
 func (p *Parser) parsePacket() {
 	for !p.bitreader.ChunkFinished() {
 		cmd := int(p.bitreader.ReadVarInt32())
@@ -53,8 +63,15 @@ func (p *Parser) parsePacket() {
 			// We don't care about anything else for now
 		}
 		if m != nil {
-			proto.Unmarshal(p.bitreader.ReadBytes(size), m)
+			backer := byteSliceBackerPool.Get().(*byteSliceBacker)
+			p.bitreader.ReadBytesInto(&backer.slice, size)
+
+			proto.Unmarshal(backer.slice, m)
 			p.msgQueue <- m
+
+			// Reset to 0 length and pool
+			backer.slice = backer.slice[:0]
+			byteSliceBackerPool.Put(backer)
 		}
 		p.bitreader.EndChunk()
 	}
