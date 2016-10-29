@@ -48,7 +48,7 @@ func (s stack) Push(v int) stack {
 // Pop returns the stack without the last added item as well as said item (seperately)
 // Attention: panics when the stack is empty
 func (s stack) Pop() (stack, int) {
-	// FIXME: CBA to handle empty stacks rn
+	// TODO: CBA to handle empty stacks rn
 	l := len(s)
 	return s[:l-1], s[l-1]
 }
@@ -269,7 +269,7 @@ func (r *bitReader) EndChunk() {
 
 				r.bitsInBuffer = (newBytes - sled) << 3
 				if newBytes <= sled {
-					// FIXME: Maybe do this even if newBytes is <= bufferSize - sled like in refillBuffer
+					// TODO: Maybe do this even if newBytes is <= bufferSize - sled like in refillBuffer
 					// Consume sled
 					// Shouldn't really happen unless we reached the end of the stream
 					// In that case bitsInBuffer should be 0 after this line (newBytes=0 - sled + sled)

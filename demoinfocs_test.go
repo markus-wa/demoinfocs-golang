@@ -37,6 +37,19 @@ func handleDetails(e interface{}) {
 	}
 }
 
+var started bool = false
+
+func handleStart(e interface{}) {
+	started = true
+}
+func handleKill(e interface{}) {
+	if started {
+		//k := e.(events.PlayerKilledEvent)
+		//fmt.Println(k.Killer, "&", k.Assister, "killed", k.Victim)
+		//fmt.Println(*k.Killer, "&", k.Assister, "killed", *k.Victim)
+	}
+}
+
 func TestDemoInfoCs(t *testing.T) {
 	var demPath string
 	if runtime.GOOS == "windows" {
@@ -82,6 +95,9 @@ func TestDemoInfoCs(t *testing.T) {
 		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.NadeEventIf)(nil)).Elem(), handleDetails)
 		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.PlayerJumpEvent)(nil)).Elem(), handleDetails)
 		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.PlayerDisconnectEvent)(nil)).Elem(), handleDetails)
+		p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.PlayerKilledEvent)(nil)).Elem(), handleKill)
+		p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.MatchStartedEvent)(nil)).Elem(), handleStart)
+		p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.MatchStartedEvent)(nil)).Elem(), handleStart)
 	}
 	tsc = p.TState()
 	ts := time.Now()

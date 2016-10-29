@@ -3,7 +3,6 @@ package demoinfocs
 import (
 	"bytes"
 	"fmt"
-	"github.com/golang/geo/r3"
 	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
@@ -86,8 +85,6 @@ func (p *Parser) ParseNextTick() bool {
 			if newPlayer && pl.SteamId != 0 {
 				p.eventDispatcher.Dispatch(events.PlayerBindEvent{Player: pl})
 			}
-
-			// TODO: We'll see if raising the player connec/bind event somewhere else will work
 		}
 	}
 
@@ -425,8 +422,6 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 
 	pl.EntityId = playerEntity.Id
 	pl.Entity = playerEntity
-	pl.Position = &r3.Vector{}
-	pl.Velocity = &r3.Vector{}
 
 	playerEntity.FindProperty("cslocaldata.m_vecOrigin").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
 		pl.Position.X = e.Value().VectorVal.X

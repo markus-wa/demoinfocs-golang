@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/golang/geo/r3"
 	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
 	"github.com/markus-wa/demoinfocs-golang/common"
@@ -77,12 +78,13 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 	data := make(map[string]*msg.CSVCMsg_GameEventKeyT)
 	d := p.gehDescriptors[ge.Eventid]
 
+	// Ignore events before players are connected to speed things up
 	if len(p.connectedPlayers) == 0 && d.Name != "player_connect" {
 		return
 	}
 
 	switch d.Name {
-	case "round_start":
+	case "round_start": // Round started
 		data = mapGameEventData(d, ge)
 		p.eventDispatcher.Dispatch(events.RoundStartedEvent{
 			TimeLimit: int(data["timelimit"].GetValLong()),
@@ -90,16 +92,16 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 			Objective: data["objective"].GetValString(),
 		})
 
-	case "cs_win_panel_match":
+	case "cs_win_panel_match": // Not sure, maybe match end event???
 		p.eventDispatcher.Dispatch(events.WinPanelMatchEvent{})
 
-	case "round_announce_final":
+	case "round_announce_final": // 30th round for normal de_, not necessarily matchpoint
 		p.eventDispatcher.Dispatch(events.FinalRoundEvent{})
 
-	case "round_announce_last_round_half":
+	case "round_announce_last_round_half": // Last round of the half
 		p.eventDispatcher.Dispatch(events.LastRoundHalfEvent{})
 
-	case "round_end":
+	case "round_end": // Round ended and the winner was announced
 		data = mapGameEventData(d, ge)
 
 		t := common.Team_Spectators
@@ -117,10 +119,10 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 			Winner:  t,
 		})
 
-	case "round_officially_ended":
+	case "round_officially_ended": // Round ended. . . probably the event where you get teleported to the spawn (=> You can still walk around between round_end and this?)
 		p.eventDispatcher.Dispatch(events.RoundOfficialyEndedEvent{})
 
-	case "round_mvp":
+	case "round_mvp": // Round MVP was announced
 		data = mapGameEventData(d, ge)
 
 		p.eventDispatcher.Dispatch(events.RoundMVPEvent{
@@ -128,22 +130,22 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 			Reason: common.RoundMVPReason(data["reason"].GetValShort()),
 		})
 
-	case "bot_takeover":
+	case "bot_takeover": // Bot got taken over
 		data = mapGameEventData(d, ge)
 
 		p.eventDispatcher.Dispatch(events.BotTakenOverEvent{Taker: p.connectedPlayers[int(data["userid"].GetValShort())]})
 
-	case "begin_new_match":
+	case "begin_new_match": // Match started
 		p.eventDispatcher.Dispatch(events.MatchStartedEvent{})
 
-	case "round_freeze_end":
+	case "round_freeze_end": // Round start freeze ended
 		p.eventDispatcher.Dispatch(events.FreezetimeEndedEvent{})
 
-	case "player_jump":
+	case "player_jump": // Player jumped
 		data = mapGameEventData(d, ge)
 		p.eventDispatcher.Dispatch(events.PlayerJumpEvent{Player: p.connectedPlayers[int(data["userid"].GetValShort())]})
 
-	case "weapon_fire":
+	case "weapon_fire": // Weapon was fired
 		data = mapGameEventData(d, ge)
 
 		e := events.WeaponFiredEvent{Shooter: p.connectedPlayers[int(data["userid"].GetValShort())]}
@@ -157,7 +159,7 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 
 		p.eventDispatcher.Dispatch(e)
 
-	case "player_death":
+	case "player_death": // Player died
 		data = mapGameEventData(d, ge)
 
 		e := events.PlayerKilledEvent{
@@ -179,7 +181,7 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 
 		p.eventDispatcher.Dispatch(e)
 
-	case "player_hurt":
+	case "player_hurt": // Player got hurt
 		data = mapGameEventData(d, ge)
 
 		e := events.PlayerHurtEvent{
@@ -202,35 +204,35 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 
 		p.eventDispatcher.Dispatch(e)
 
-	case "player_blind":
+	case "player_blind": // Player got blinded by a flash
 		data = mapGameEventData(d, ge)
 		p.eventDispatcher.Dispatch(events.PlayerFlashedEvent{Player: p.connectedPlayers[int(data["userid"].GetValShort())]})
 
-	case "flashbang_detonate":
+	case "flashbang_detonate": // Flash exploded
 		p.eventDispatcher.Dispatch(events.FlashExplodedEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Flash)})
 
-	case "hegrenade_detonate":
+	case "hegrenade_detonate": // HE exploded
 		p.eventDispatcher.Dispatch(events.HeExplodedEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_HE)})
 
-	case "decoy_started":
+	case "decoy_started": // Decoy started
 		p.eventDispatcher.Dispatch(events.DecoyStartEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Decoy)})
 
-	case "decoy_detonate":
+	case "decoy_detonate": // Decoy exploded/expired
 		p.eventDispatcher.Dispatch(events.DecoyEndEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Decoy)})
 
-	case "smokegrenade_detonate":
+	case "smokegrenade_detonate": // Smoke popped
 		p.eventDispatcher.Dispatch(events.SmokeStartEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Smoke)})
 
-	case "smokegrenade_expired":
+	case "smokegrenade_expired": // Smoke expired
 		p.eventDispatcher.Dispatch(events.SmokeEndEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Smoke)})
 
-	case "inferno_startburn":
+	case "inferno_startburn": // Incendiary exploded/started
 		p.eventDispatcher.Dispatch(events.FireNadeStartEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Incendiary)})
 
-	case "inferno_expire":
+	case "inferno_expire": // Incendiary expired
 		p.eventDispatcher.Dispatch(events.FireNadeEndEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Incendiary)})
 
-	case "player_connect":
+	case "player_connect": // Player connected. . .?
 		// FIXME: This doesn't seem to happen, ever???
 		data = mapGameEventData(d, ge)
 
@@ -244,7 +246,7 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 
 		p.rawPlayers[data["index"].GetValShort()] = pl
 
-	case "player_disconnect":
+	case "player_disconnect": // Player disconnected
 		data = mapGameEventData(d, ge)
 
 		uid := int(data["userid"].GetValShort())
@@ -261,7 +263,7 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 
 		p.connectedPlayers[uid] = nil
 
-	case "player_team":
+	case "player_team": // Player changed team
 		data = mapGameEventData(d, ge)
 
 		e := events.PlayerTeamChangeEvent{
@@ -290,15 +292,15 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 
 		p.eventDispatcher.Dispatch(e)
 
-	case "bomb_beginplant":
+	case "bomb_beginplant": // Plant started
 		fallthrough
-	case "bomb_abortplant":
+	case "bomb_abortplant": // Plant stopped
 		fallthrough
-	case "bomb_planted":
+	case "bomb_planted": // Plant finished
 		fallthrough
-	case "bomb_defused":
+	case "bomb_defused": // Defuse finished
 		fallthrough
-	case "bomb_exploded":
+	case "bomb_exploded": // Bomb exploded
 		data = mapGameEventData(d, ge)
 
 		e := events.BombEvent{Player: p.connectedPlayers[int(data["userid"].GetValShort())]}
@@ -340,7 +342,7 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 			p.eventDispatcher.Dispatch(events.BombExplodedEvent{BombEvent: e})
 		}
 
-	case "bomb_begindefuse":
+	case "bomb_begindefuse": // Defuse started
 		data = mapGameEventData(d, ge)
 
 		p.eventDispatcher.Dispatch(events.BombBeginDefuse{
@@ -348,7 +350,7 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 			HasKit:  data["haskit"].GetValBool(),
 		})
 
-	case "bomb_abortdefuse":
+	case "bomb_abortdefuse": // Defuse aborted
 		data = mapGameEventData(d, ge)
 
 		pl := p.connectedPlayers[int(data["userid"].GetValShort())]
@@ -358,20 +360,34 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 			HasKit:  pl.HasDefuseKit,
 		})
 
-	case "player_footstep":
-	case "bomb_beep":
-	case "weapon_zoom":
-	case "weapon_reload":
-	case "bomb_dropped":
-	case "bomb_pickup":
-	case "player_spawn":
-	case "hltv_status":
-	case "hltv_chase":
-	case "cs_round_start_beep":
-	case "cs_round_final_beep":
-		// Probably not that interesting
+	// TODO: Might be interesting:
+	case "player_connect_full": // Connecting finished
+	case "player_falldamage": // Falldamage
+	case "weapon_zoom": // Zooming in
+	case "weapon_reload": // Weapon reloaded
+	case "bomb_dropped": // Bomb dropped
+	case "bomb_pickup": // Bomb picked up
+	case "round_time_warning": // Round time warning
+	case "round_announce_match_point": // Match point announcement
+
+	// Probably not that interesting:
+	case "buytime_ended": // Not actually end of buy time, seems to only be sent once per game at the start
+	case "round_announce_match_start": // Special match start announcement
+	case "player_footstep": // Footstep sound
+	case "bomb_beep": // Bomb beep
+	case "player_spawn": // Player spawn
+	case "hltv_status": // Don't know
+	case "hltv_chase": // Don't care
+	case "cs_round_start_beep": // Round start beeps
+	case "cs_round_final_beep": // Final beep
+	case "cs_pre_restart": // Not sure, doesn't seem to be important
+	case "round_prestart": // Ditto
+	case "round_poststart": // Ditto
+	case "cs_win_panel_round": // Win panel, (==end of match?)
+	case "endmatch_cmm_start_reveal_items": // Drops
+	case "announce_phase_end": // Dunno
 	default:
-		//fmt.Println("got event", d.Name)
+		fmt.Println("Unknown event", d.Name)
 	}
 }
 

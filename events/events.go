@@ -6,20 +6,16 @@ import (
 )
 
 // Header parsed
-type HeaderParsedEvent struct {
-}
+type HeaderParsedEvent struct{}
 
 // Tick done
-type TickDoneEvent struct {
-}
+type TickDoneEvent struct{}
 
 // Match started
-type MatchStartedEvent struct {
-}
+type MatchStartedEvent struct{}
 
 // Round announce match started
-type RoundAnnounceMatchStartedEvent struct {
-}
+type RoundAnnounceMatchStartedEvent struct{}
 
 // Round ended
 type RoundEndedEvent struct {
@@ -29,8 +25,7 @@ type RoundEndedEvent struct {
 }
 
 // Round officially ended
-type RoundOfficialyEndedEvent struct {
-}
+type RoundOfficialyEndedEvent struct{}
 
 // Round MVP crowned
 type RoundMVPEvent struct {
@@ -46,20 +41,16 @@ type RoundStartedEvent struct {
 }
 
 // Win panel
-type WinPanelMatchEvent struct {
-}
+type WinPanelMatchEvent struct{}
 
 // 30th round, not raised if the match ends before that
-type FinalRoundEvent struct {
-}
+type FinalRoundEvent struct{}
 
 // Last round of half
-type LastRoundHalfEvent struct {
-}
+type LastRoundHalfEvent struct{}
 
 // FreezetimeEnded
-type FreezetimeEndedEvent struct {
-}
+type FreezetimeEndedEvent struct{}
 
 // Player / team change event, occurs when a player swaps teams
 type PlayerTeamChangeEvent struct {
@@ -96,7 +87,7 @@ type WeaponFiredEvent struct {
 }
 
 type NadeEventIf interface {
-	Event() NadeEvent
+	dummy()
 }
 
 // Nade exploded
@@ -106,9 +97,8 @@ type NadeEvent struct {
 	Thrower  *common.Player
 }
 
-func (e NadeEvent) Event() NadeEvent {
-	return e
-}
+// Make NadeEvents implement NadeEventIf
+func (NadeEvent) dummy() {}
 
 type HeExplodedEvent struct {
 	NadeEvent
@@ -148,7 +138,7 @@ type PlayerFlashedEvent struct {
 }
 
 type BombEventIf interface {
-	Event() BombEvent
+	dummy()
 }
 
 type BombEvent struct {
@@ -156,9 +146,7 @@ type BombEvent struct {
 	Site   rune
 }
 
-func (e BombEvent) Event() BombEvent {
-	return e
-}
+func (BombEvent) dummy() {}
 
 type BombBeginPlant struct {
 	BombEvent
@@ -190,6 +178,7 @@ type BombAbortDefuse struct {
 	HasKit  bool
 }
 
+// Player has been damaged
 type PlayerHurtEvent struct {
 	Player       *common.Player
 	Attacker     *common.Player
@@ -202,11 +191,12 @@ type PlayerHurtEvent struct {
 	Hitgroup     common.Hitgroup
 }
 
-// Connect???
+// Player connected
 type PlayerBindEvent struct {
 	Player *common.Player
 }
 
+// Player disconnected
 type PlayerDisconnectEvent struct {
 	Player *common.Player
 }

@@ -31,12 +31,12 @@ type PlayerInfo struct {
 type Player struct {
 	Name                        string
 	SteamId                     int64
-	Position                    *r3.Vector
+	Position                    r3.Vector
 	EntityId                    int
 	Hp                          int
 	Armor                       int
-	LastAlivePosition           *r3.Vector
-	Velocity                    *r3.Vector
+	LastAlivePosition           r3.Vector
+	Velocity                    r3.Vector
 	ViewDirectionX              float32
 	ViewDirectionY              float32
 	FlashDuration               float32
