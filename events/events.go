@@ -23,21 +23,9 @@ type RoundAnnounceMatchStartedEvent struct {
 
 // Round ended
 type RoundEndedEvent struct {
-	message string
-	reason  common.RoundEndReason
-	winner  common.Team
-}
-
-func (e RoundEndedEvent) Message() string {
-	return e.message
-}
-
-func (e RoundEndedEvent) Reason() common.RoundEndReason {
-	return e.reason
-}
-
-func (e RoundEndedEvent) Winner() common.Team {
-	return e.winner
+	Message string
+	Reason  common.RoundEndReason
+	Winner  common.Team
 }
 
 // Round officially ended
@@ -46,42 +34,22 @@ type RoundOfficialyEndedEvent struct {
 
 // Round MVP crowned
 type RoundMVPEvent struct {
-	player *common.Player
-	reason common.RoundMVPReason
-}
-
-func (e RoundMVPEvent) Player() *common.Player {
-	return e.player
-}
-
-func (e RoundMVPEvent) Reason() common.RoundMVPReason {
-	return e.reason
+	Player *common.Player
+	Reason common.RoundMVPReason
 }
 
 // Round started
 type RoundStartedEvent struct {
-	timeLimit int
-	fragLimit int
-	objective string
-}
-
-func (e RoundStartedEvent) TimeLimit() int {
-	return e.timeLimit
-}
-
-func (e RoundStartedEvent) FragLimit() int {
-	return e.fragLimit
-}
-
-func (e RoundStartedEvent) Objective() string {
-	return e.objective
+	TimeLimit int
+	FragLimit int
+	Objective string
 }
 
 // Win panel
 type WinPanelMatchEvent struct {
 }
 
-// Final round
+// 30th round, not raised if the match ends before that
 type FinalRoundEvent struct {
 }
 
@@ -95,286 +63,172 @@ type FreezetimeEndedEvent struct {
 
 // Player / team change event, occurs when a player swaps teams
 type PlayerTeamChangeEvent struct {
-	player  *common.Player
-	newTeam common.Team
-	oldTeam common.Team
-	silent  bool
-	isBot   bool
+	Player  *common.Player
+	NewTeam common.Team
+	OldTeam common.Team
+	Silent  bool
+	IsBot   bool
 }
 
-func (e PlayerTeamChangeEvent) Player() *common.Player {
-	return e.player
-}
-
-func (e PlayerTeamChangeEvent) NewTeam() common.Team {
-	return e.newTeam
-}
-
-func (e PlayerTeamChangeEvent) OldTeam() common.Team {
-	return e.oldTeam
-}
-
-func (e PlayerTeamChangeEvent) Silent() bool {
-	return e.silent
-}
-
-func (e PlayerTeamChangeEvent) IsBot() bool {
-	return e.isBot
+type PlayerJumpEvent struct {
+	Player *common.Player
 }
 
 // Player killed
 type PlayerKilledEvent struct {
-	weapon            *common.Equipment
-	victim            *common.Player
-	killer            *common.Player
-	assister          *common.Player
-	penetratedObjects int
-	isHeadshot        bool
-}
-
-func (e PlayerKilledEvent) Weapon() *common.Equipment {
-	return e.weapon
-}
-
-func (e PlayerKilledEvent) Victim() *common.Player {
-	return e.victim
-}
-
-func (e PlayerKilledEvent) Killer() *common.Player {
-	return e.killer
-}
-
-func (e PlayerKilledEvent) Assister() *common.Player {
-	return e.assister
-}
-
-func (e PlayerKilledEvent) PenetratedObjects() int {
-	return e.penetratedObjects
-}
-
-func (e PlayerKilledEvent) IsHeadshot() bool {
-	return e.isHeadshot
+	Weapon            *common.Equipment
+	Victim            *common.Player
+	Killer            *common.Player
+	Assister          *common.Player
+	PenetratedObjects int
+	IsHeadshot        bool
 }
 
 // Bot taken over
 type BotTakenOverEvent struct {
-	taker *common.Player
-}
-
-func (e *BotTakenOverEvent) Taker() *common.Player {
-	return e.taker
+	Taker *common.Player
 }
 
 // Weapon fired
 type WeaponFiredEvent struct {
-	shooter *common.Player
-	weapon  *common.Equipment
+	Shooter *common.Player
+	Weapon  *common.Equipment
 }
 
-func (e WeaponFiredEvent) Shooter() *common.Player {
-	return e.shooter
-}
-
-func (e WeaponFiredEvent) Weapon() *common.Equipment {
-	return e.weapon
+type NadeEventIf interface {
+	Event() NadeEvent
 }
 
 // Nade exploded
-// TODO: velocity vector
 type NadeEvent struct {
-	nadeType common.EquipmentElement
-	position r3.Vector
-	thrower  *common.Player
+	NadeType common.EquipmentElement
+	Position r3.Vector
+	Thrower  *common.Player
 }
 
-func (e NadeEvent) NadeType() common.EquipmentElement {
-	return e.nadeType
+func (e NadeEvent) Event() NadeEvent {
+	return e
 }
 
-func (e NadeEvent) Position() r3.Vector {
-	return e.position
-}
-
-func (e NadeEvent) Thrower() *common.Player {
-	return e.thrower
-}
-
-func (e NadeEvent) IBPPlayer() *common.Player {
-	return e.thrower
-}
-
-// Flash exploded
-type FlashEvent struct {
+type HeExplodedEvent struct {
 	NadeEvent
-	flashedPlayers []*common.Player
 }
 
-func (e FlashEvent) FlashedPlayers() []*common.Player {
-	return e.flashedPlayers
+type FlashExplodedEvent struct {
+	NadeEvent
 }
 
-// Bomb event (planted or exploded???)
+type DecoyStartEvent struct {
+	NadeEvent
+}
+
+type DecoyEndEvent struct {
+	NadeEvent
+}
+
+type SmokeStartEvent struct {
+	NadeEvent
+}
+
+type SmokeEndEvent struct {
+	NadeEvent
+}
+
+type FireNadeStartEvent struct {
+	NadeEvent
+}
+
+type FireNadeEndEvent struct {
+	NadeEvent
+}
+
+// Player was flashed
+type PlayerFlashedEvent struct {
+	Player *common.Player
+}
+
+type BombEventIf interface {
+	Event() BombEvent
+}
+
 type BombEvent struct {
-	planter *common.Player
-	site    rune
+	Player *common.Player
+	Site   rune
 }
 
-func (e BombEvent) Planter() *common.Player {
-	return e.planter
+func (e BombEvent) Event() BombEvent {
+	return e
 }
 
-func (e BombEvent) Site() rune {
-	return e.site
+type BombBeginPlant struct {
+	BombEvent
 }
 
-// Bomb defused????? (Used to be BombDeEvent)
+type BombAbortPlant struct {
+	BombEvent
+}
+
+type BombPlantedEvent struct {
+	BombEvent
+}
+
 type BombDefusedEvent struct {
-	defuser *common.Player
-	site    rune
+	BombEvent
 }
 
-func (e BombDefusedEvent) Defuser() *common.Player {
-	return e.defuser
+type BombExplodedEvent struct {
+	BombEvent
 }
 
-func (e BombDefusedEvent) Site() rune {
-	return e.site
+type BombBeginDefuse struct {
+	Defuser *common.Player
+	HasKit  bool
+}
+
+type BombAbortDefuse struct {
+	Defuser *common.Player
+	HasKit  bool
 }
 
 type PlayerHurtEvent struct {
-	player       *common.Player
-	attacker     *common.Player
-	health       int
-	armor        int
-	weapon       *common.Equipment
-	weaponString string // Wrong for CZ, M4A1-S etc.
-	healthDamage int
-	armorDamage  int
-	hitgroup     common.Hitgroup
+	Player       *common.Player
+	Attacker     *common.Player
+	Health       int
+	Armor        int
+	Weapon       *common.Equipment
+	WeaponString string // Wrong for CZ, M4A1-S etc.
+	HealthDamage int
+	ArmorDamage  int
+	Hitgroup     common.Hitgroup
 }
 
-func (e PlayerHurtEvent) Player() *common.Player {
-	return e.player
-}
-
-func (e PlayerHurtEvent) Attacker() *common.Player {
-	return e.attacker
-}
-
-func (e PlayerHurtEvent) Health() int {
-	return e.health
-}
-
-func (e PlayerHurtEvent) Armor() int {
-	return e.armor
-}
-
-func (e PlayerHurtEvent) Weapon() *common.Equipment {
-	return e.weapon
-}
-
-func (e PlayerHurtEvent) WeaponString() string {
-	return e.weaponString
-}
-
-func (e PlayerHurtEvent) HealthDamage() int {
-	return e.healthDamage
-}
-
-func (e PlayerHurtEvent) ArmorDamage() int {
-	return e.armorDamage
-}
-
-func (e PlayerHurtEvent) Hitgroup() common.Hitgroup {
-	return e.hitgroup
-}
-
+// Connect???
 type PlayerBindEvent struct {
-	player *common.Player
-}
-
-func (e PlayerBindEvent) Player() *common.Player {
-	return e.player
+	Player *common.Player
 }
 
 type PlayerDisconnectEvent struct {
-	player *common.Player
-}
-
-func (e PlayerDisconnectEvent) Player() *common.Player {
-	return e.player
+	Player *common.Player
 }
 
 type SayTextEvent struct {
-	entityIndex int
-	text        string
-	isChat      bool
-	isChatAll   bool
-}
-
-func (e SayTextEvent) EntityIndex() int {
-	return e.entityIndex
-}
-
-func (e SayTextEvent) Text() string {
-	return e.text
-}
-
-func (e SayTextEvent) IsChat() bool {
-	return e.isChat
-}
-
-func (e SayTextEvent) IsChatAll() bool {
-	return e.isChatAll
+	EntityIndex int
+	Text        string
+	IsChat      bool
+	IsChatAll   bool
 }
 
 type SayText2Event struct {
-	sender    *common.Player
-	text      string
-	isChat    bool
-	isChatAll bool
-}
-
-func (e SayText2Event) EntityIndex() *common.Player {
-	return e.sender
-}
-
-func (e SayText2Event) Text() string {
-	return e.text
-}
-
-func (e SayText2Event) IsChat() bool {
-	return e.isChat
-}
-
-func (e SayText2Event) IsChatAll() bool {
-	return e.isChatAll
+	Sender    *common.Player
+	Text      string
+	IsChat    bool
+	IsChatAll bool
 }
 
 type RankUpdateEvent struct {
-	steamId    int64
-	rankOld    int
-	rankNew    int
-	winCount   int
-	rankChange float32
-}
-
-func (e RankUpdateEvent) SteamId() int64 {
-	return e.steamId
-}
-
-func (e RankUpdateEvent) RankOld() int {
-	return e.rankOld
-}
-
-func (e RankUpdateEvent) RankNew() int {
-	return e.rankNew
-}
-
-func (e RankUpdateEvent) WinCount() int {
-	return e.winCount
-}
-
-func (e RankUpdateEvent) RankChange() float32 {
-	return e.rankChange
+	SteamId    int64
+	RankOld    int
+	RankNew    int
+	WinCount   int
+	RankChange float32
 }

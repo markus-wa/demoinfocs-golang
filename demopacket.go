@@ -23,7 +23,7 @@ func (p *Parser) parsePacket() {
 		cmd := int(p.bitreader.ReadVarInt32())
 		size := int(p.bitreader.ReadVarInt32())
 
-		p.bitreader.BeginChunk(size * 8)
+		p.bitreader.BeginChunk(size << 3)
 		var m proto.Message
 		switch cmd {
 		case int(msg.SVC_Messages_svc_PacketEntities):
@@ -54,11 +54,11 @@ func (p *Parser) parsePacket() {
 		}
 		if m != nil {
 			proto.Unmarshal(p.bitreader.ReadBytes(size), m)
-			p.eventQueue <- m
+			p.msgQueue <- m
 		}
 		p.bitreader.EndChunk()
 	}
 
 	// Make sure the created events are consumed so they can be pooled
-	p.eventDispatcher.SyncQueues(p.eventQueue)
+	p.msgDispatcher.SyncQueues(p.msgQueue)
 }

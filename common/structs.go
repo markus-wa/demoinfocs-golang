@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/binary"
 	"github.com/golang/geo/r3"
 	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
 	"github.com/markus-wa/demoinfocs-golang/st"
@@ -94,12 +95,46 @@ func (e Equipment) Class() EquipmentClass {
 	return EquipmentClass(int(e.Weapon) / 100)
 }
 
-func NewEquipment() *Equipment {
-	return &Equipment{Weapon: EE_Unknown}
+func NewEquipment(originalString string) Equipment {
+	var wep EquipmentElement
+	if len(originalString) > 0 {
+		wep = MapEquipment(originalString)
+	} else {
+		wep = EE_Unknown
+	}
+	return Equipment{Weapon: wep}
+}
+
+func NewSkinEquipment(originalString string, skin string) Equipment {
+	var wep EquipmentElement
+	if len(originalString) > 0 {
+		wep = MapEquipment(originalString)
+	} else {
+		wep = EE_Unknown
+	}
+	return Equipment{Weapon: wep, SkinId: skin}
 }
 
 func ParsePlayerInfo(reader bs.BitReader) *PlayerInfo {
-	res := &PlayerInfo{}
+	res := &PlayerInfo{
+		Version:     int64(binary.BigEndian.Uint64(reader.ReadBytes(8))),
+		XUID:        int64(binary.BigEndian.Uint64(reader.ReadBytes(8))),
+		Name:        reader.ReadCString(128),
+		UserId:      int(int32(binary.BigEndian.Uint32(reader.ReadBytes(4)))),
+		GUID:        reader.ReadCString(33),
+		FriendsId:   int(int32(binary.BigEndian.Uint32(reader.ReadBytes(4)))),
+		FriendsName: reader.ReadCString(128),
+
+		IsFakePlayer: reader.ReadSingleByte()&0xff != 0,
+		IsHltv:       reader.ReadSingleByte()&0xff != 0,
+
+		CustomFiles0: int(reader.ReadInt(32)),
+		CustomFiles1: int(reader.ReadInt(32)),
+		CustomFiles2: int(reader.ReadInt(32)),
+		CustomFiles3: int(reader.ReadInt(32)),
+
+		FilesDownloaded: reader.ReadSingleByte(),
+	}
 	return res
 }
 

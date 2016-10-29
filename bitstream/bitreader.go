@@ -20,6 +20,7 @@ type BitReader interface {
 	LazyGlobalPosition() int
 	ActualGlobalPosition() int
 	ReadBit() bool
+	ReadBits(bits uint) []byte
 	ReadSingleByte() byte
 	ReadBytes(int) []byte
 	ReadString() string
@@ -74,8 +75,12 @@ func (r *bitReader) ActualGlobalPosition() int {
 
 func (r *bitReader) ReadBits(bits uint) []byte {
 	b := make([]byte, (bits+7)>>3)
-	r.underlying.Read(b)
-	r.advance(bits)
+	for i := uint(0); i < bits>>3; i++ {
+		b[i] = r.ReadSingleByte()
+	}
+	if bits&7 != 0 {
+		b[bits>>3] = r.ReadBitsToByte(bits & 7)
+	}
 	return b
 }
 
@@ -94,14 +99,16 @@ func (r *bitReader) advance(bits uint) {
 }
 
 func (r *bitReader) refillBuffer() {
+	// Copy sled to beginning
+	copy(r.buffer[0:sled], r.buffer[r.bitsInBuffer>>3:(r.bitsInBuffer>>3)+sled])
+
 	r.offset -= r.bitsInBuffer // sled bits used remain in offset
 	r.lazyGlobalPosition += r.bitsInBuffer
-	// Copy sled to beginning
-	copy(r.buffer[0:sled], r.buffer[r.bitsInBuffer>>3:r.bitsInBuffer>>3+sled])
+
 	newBytes, _ := r.underlying.Read(r.buffer[sled:])
 
 	r.bitsInBuffer = newBytes << 3
-	if newBytes < len(r.buffer)-sled<<1 {
+	if newBytes < len(r.buffer)-(sled<<1) {
 		// we're done here, consume sled
 		r.bitsInBuffer += sled << 3
 	}
@@ -150,8 +157,7 @@ func (r *bitReader) ReadBytes(bytes int) []byte {
 		r.advance(uint(bytes) << 3)
 	} else {
 		for i := 0; i < bytes; i++ {
-			b := r.readByteInternal(bitLevel)
-			res = append(res, b)
+			res = append(res, r.readByteInternal(bitLevel))
 		}
 	}
 	return res

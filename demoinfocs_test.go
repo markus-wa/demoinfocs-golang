@@ -30,6 +30,13 @@ func handleTickDone(interface{}) {
 
 func handle(interface{}) {}
 
+func handleDetails(e interface{}) {
+	n := reflect.TypeOf(e).Name()
+	if len(n) > 0 && n != "TickDoneEvent" {
+		fmt.Println(n, e)
+	}
+}
+
 func TestDemoInfoCs(t *testing.T) {
 	var demPath string
 	if runtime.GOOS == "windows" {
@@ -50,7 +57,7 @@ func TestDemoInfoCs(t *testing.T) {
 		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.BombEvent{}), handle)
 		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.BotTakenOverEvent{}), handle)
 		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.FinalRoundEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.FlashEvent{}), handle)
+		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.FlashExplodedEvent{}), handle)
 		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.FreezetimeEndedEvent{}), handle)
 		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.WinPanelMatchEvent{}), handle)
 		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.WeaponFiredEvent{}), handle)
@@ -70,6 +77,11 @@ func TestDemoInfoCs(t *testing.T) {
 		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.PlayerTeamChangeEvent{}), handle)
 		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.RankUpdateEvent{}), handle)
 		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.RoundAnnounceMatchStartedEvent{}), handle)
+		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*interface{})(nil)).Elem(), handleDetails)
+		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.BombEventIf)(nil)).Elem(), handleDetails)
+		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.NadeEventIf)(nil)).Elem(), handleDetails)
+		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.PlayerJumpEvent)(nil)).Elem(), handleDetails)
+		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.PlayerDisconnectEvent)(nil)).Elem(), handleDetails)
 	}
 	tsc = p.TState()
 	ts := time.Now()

@@ -7,7 +7,7 @@ const (
 	IndexMask     = ((1 << MaxEditctBits) - 1)
 )
 
-const weaponPrefix = "weapon"
+const weaponPrefix = "weapon_"
 
 type (
 	RoundMVPReason   byte

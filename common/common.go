@@ -1,15 +1,14 @@
 package common
 
 import (
-	"errors"
+	"fmt"
 	"strings"
 )
 
-func MapEquipment(originalString string) (EquipmentElement, error) {
+func MapEquipment(originalString string) EquipmentElement {
 	originalString = strings.TrimPrefix(originalString, weaponPrefix)
 
 	wep := EE_Unknown
-	var err error
 
 	if strings.Contains(originalString, "knife") || strings.Contains(originalString, "bayonet") {
 		wep = EE_Knife
@@ -161,23 +160,16 @@ func MapEquipment(originalString string) (EquipmentElement, error) {
 			wep = EE_Revolver
 
 		case "scar17": //These crash the game when given via give wep_[mp5navy|...], and cannot be purchased ingame.
-			fallthrough //yet the server-classes are networked, so we need to resolve them.
-		case "sg550":
-			fallthrough
+		case "sg550": //yet the server-classes are networked, so we need to resolve them.
 		case "mp5navy":
-			fallthrough
 		case "p228":
-			fallthrough
 		case "scout":
-			fallthrough
 		case "sg552":
-			fallthrough
 		case "tmp":
-			wep = EE_Unknown
 
 		default:
-			err = errors.New("Unknown weapon " + originalString)
+			fmt.Println("Unknown weapon " + originalString)
 		}
 	}
-	return wep, err
+	return wep
 }

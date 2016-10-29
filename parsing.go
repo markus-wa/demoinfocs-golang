@@ -63,18 +63,28 @@ func (p *Parser) ParseNextTick() bool {
 	}
 	b := p.parseTick()
 
-	for _, rp := range p.rawPlayers {
+	for k, rp := range p.rawPlayers {
 		if rp == nil {
 			continue
 		}
 
-		if pl := p.players[rp.UserId]; pl != nil {
+		if pl := p.players[k]; pl != nil {
+			newPlayer := false
+			if p.connectedPlayers[rp.UserId] == nil {
+				p.connectedPlayers[rp.UserId] = pl
+				newPlayer = true
+			}
+
 			pl.Name = rp.Name
 			pl.SteamId = rp.XUID
 			pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[pl.EntityId]
 
 			if pl.IsAlive() {
 				pl.LastAlivePosition = pl.Position
+			}
+
+			if newPlayer && pl.SteamId != 0 {
+				p.eventDispatcher.Dispatch(events.PlayerBindEvent{Player: pl})
 			}
 
 			// TODO: We'll see if raising the player connec/bind event somewhere else will work
@@ -84,7 +94,7 @@ func (p *Parser) ParseNextTick() bool {
 	p.eventDispatcher.Dispatch(events.TickDoneEvent{})
 
 	if !b {
-		close(p.eventQueue)
+		close(p.msgQueue)
 	}
 
 	return b
@@ -213,10 +223,10 @@ func (p *Parser) mapEquipment() {
 				switch sc.BaseClasses[7].Name {
 				case "CWeaponCSBaseGun":
 					// Most guns
-					p.equipmentMapping[sc], err = common.MapEquipment(strings.ToLower(sc.DTName[9:]))
+					p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.DTName[9:]))
 				case "CBaseCSGrenade":
 					// Nades
-					p.equipmentMapping[sc], err = common.MapEquipment(strings.ToLower(sc.DTName[3:]))
+					p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.DTName[3:]))
 				}
 			} else if sc.Name == "CKnife" || (len(sc.BaseClasses) > 6 && sc.BaseClasses[6].Name == "CKnife") {
 				p.equipmentMapping[sc] = common.EE_Knife
@@ -230,7 +240,7 @@ func (p *Parser) mapEquipment() {
 				case "CWeaponSawedoff":
 					fallthrough
 				case "CWeaponXM1014":
-					p.equipmentMapping[sc], err = common.MapEquipment(strings.ToLower(sc.Name[7:]))
+					p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.Name[7:]))
 				}
 			}
 			if err != nil {
@@ -282,8 +292,8 @@ func (p *Parser) handleTeamScores() {
 			if s != nil {
 				s.id = teamId
 				s.score = score
-				for k := range p.players {
-					if pl := p.players[k]; pl != nil && pl.TeamId == teamId {
+				for _, pl := range p.players {
+					if pl != nil && pl.TeamId == teamId {
 						pl.Team = t
 					}
 				}
@@ -315,8 +325,8 @@ func (p *Parser) handleTeamScores() {
 				})
 				if teamId != -1 {
 					s.id = teamId
-					for k := range p.players {
-						if pl := p.players[k]; pl != nil && pl.TeamId == teamId {
+					for _, pl := range p.players {
+						if pl != nil && pl.TeamId == teamId {
 							pl.Team = t
 						}
 					}
@@ -520,14 +530,14 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 }
 
 func (p *Parser) attributeWeapon(index int, player *common.Player) {
-	wep := p.weapons[index]
+	wep := &p.weapons[index]
 	wep.Owner = player
 	player.RawWeapons[index] = wep
 }
 
 func (p *Parser) handleWeapons() {
 	for i := 0; i < maxEntities; i++ {
-		p.weapons[i] = common.NewEquipment()
+		p.weapons[i] = common.NewEquipment("")
 	}
 
 	for _, sc := range p.stParser.ServerClasses() {
