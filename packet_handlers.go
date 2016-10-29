@@ -2,7 +2,6 @@ package demoinfocs
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/golang/geo/r3"
 	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
 	"github.com/markus-wa/demoinfocs-golang/common"
@@ -232,8 +231,8 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 		p.eventDispatcher.Dispatch(events.FireNadeEndEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Incendiary)})
 
 	case "player_connect":
+		// FIXME: This doesn't seem to happen, ever???
 		data = mapGameEventData(d, ge)
-		fmt.Println(data)
 
 		pl := &common.PlayerInfo{
 			UserId: int(data["userid"].GetValShort()),
@@ -244,11 +243,6 @@ func (p *Parser) handleGameEvent(gameEvent interface{}) {
 		pl.XUID = getCommunityId(pl.GUID)
 
 		p.rawPlayers[data["index"].GetValShort()] = pl
-	// FIXME: Event???
-	case "player_connect_full":
-		data = mapGameEventData(d, ge)
-
-		fmt.Println("full", data)
 
 	case "player_disconnect":
 		data = mapGameEventData(d, ge)
