@@ -12,8 +12,7 @@ import (
 	"strconv"
 )
 
-func (p *Parser) handlePackageEntities(packageEntities interface{}) {
-	pe := packageEntities.(*msg.CSVCMsg_PacketEntities)
+func (p *Parser) handlePackageEntities(pe *msg.CSVCMsg_PacketEntities) {
 	r := bs.NewBitReader(bytes.NewReader(pe.EntityData), bs.SmallBuffer)
 
 	currentEntity := -1
@@ -61,16 +60,14 @@ func (p *Parser) readEnterPVS(reader bs.BitReader, entityId int) *st.Entity {
 	return newEntity
 }
 
-func (p *Parser) handleGameEventList(gameEventList interface{}) {
-	gel := gameEventList.(*msg.CSVCMsg_GameEventList)
+func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 	p.gehDescriptors = make(map[int32]*msg.CSVCMsg_GameEventListDescriptorT)
 	for _, d := range gel.GetDescriptors() {
 		p.gehDescriptors[d.GetEventid()] = d
 	}
 }
 
-func (p *Parser) handleGameEvent(gameEvent interface{}) {
-	ge := gameEvent.(*msg.CSVCMsg_GameEvent)
+func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	if p.gehDescriptors == nil {
 		return
 	}
@@ -430,29 +427,21 @@ func (p *Parser) buildNadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT, nade
 		},
 	}
 }
-
-func (p *Parser) handleStringTable(createStrTab interface{}) {
-	var tab *msg.CSVCMsg_CreateStringTable
-	switch createStrTab.(type) {
-	case *msg.CSVCMsg_CreateStringTable:
-		tab = createStrTab.(*msg.CSVCMsg_CreateStringTable)
-
-	case *msg.CSVCMsg_UpdateStringTable:
-		tab = p.stringTables[(createStrTab.(*msg.CSVCMsg_UpdateStringTable)).TableId]
-		switch tab.Name {
-		case "userinfo":
-		case "modelprecache":
-		case "instancebaseline":
-
-		default:
-			// Only handle updates for the above types
-			return
-		}
-
-	default:
-		panic("Unexpected type for string table")
+func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
+	cTab := p.stringTables[tab.TableId]
+	switch cTab.Name {
+	case "userinfo":
+		fallthrough
+	case "modelprecache":
+		fallthrough
+	case "instancebaseline":
+		// Only handle updates for the above types
+		p.handleCreateStringTable(cTab)
 	}
 
+}
+
+func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	if tab.Name == "modelprecache" {
 		for i := len(p.modelPreCache); i < int(tab.MaxEntries); i++ {
 			p.modelPreCache = append(p.modelPreCache, "")

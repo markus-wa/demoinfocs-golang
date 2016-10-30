@@ -8,7 +8,6 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/st"
 	dp "github.com/markus-wa/godispatch"
 	"io"
-	"reflect"
 )
 
 // FIXME: create struct GameState for all game-state relevant stuff
@@ -89,7 +88,7 @@ func (p *Parser) CurrentTime() float32 {
 }
 
 type EventDispatcher interface {
-	RegisterHandler(reflect.Type, dp.Handler)
+	RegisterHandler(interface{})
 }
 
 func (p *Parser) EventDispatcher() EventDispatcher {
@@ -116,11 +115,11 @@ func NewParser(demostream io.Reader) *Parser {
 	p.connectedPlayers = make(map[int]*common.Player)
 
 	// Attach proto msg handlers
-	p.msgDispatcher.RegisterHandler(reflect.TypeOf((*msg.CSVCMsg_PacketEntities)(nil)), p.handlePackageEntities)
-	p.msgDispatcher.RegisterHandler(reflect.TypeOf((*msg.CSVCMsg_GameEventList)(nil)), p.handleGameEventList)
-	p.msgDispatcher.RegisterHandler(reflect.TypeOf((*msg.CSVCMsg_GameEvent)(nil)), p.handleGameEvent)
-	p.msgDispatcher.RegisterHandler(reflect.TypeOf((*msg.CSVCMsg_CreateStringTable)(nil)), p.handleStringTable)
-	p.msgDispatcher.RegisterHandler(reflect.TypeOf((*msg.CSVCMsg_UpdateStringTable)(nil)), p.handleStringTable)
+	p.msgDispatcher.RegisterHandler(p.handlePackageEntities)
+	p.msgDispatcher.RegisterHandler(p.handleGameEventList)
+	p.msgDispatcher.RegisterHandler(p.handleGameEvent)
+	p.msgDispatcher.RegisterHandler(p.handleCreateStringTable)
+	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTable)
 
 	p.msgDispatcher.AddQueues(p.msgQueue)
 	return &p

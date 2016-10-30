@@ -16,7 +16,7 @@ var tsc *dem.TeamState
 var tix int = 0
 var oldScore int
 
-func handleTickDone(interface{}) {
+func handleTickDone(events.TickDoneEvent) {
 	tix++
 	if tix > 100 {
 		//cancel = true
@@ -39,10 +39,10 @@ func handleDetails(e interface{}) {
 
 var started bool = false
 
-func handleStart(e interface{}) {
+func handleStart(events.MatchStartedEvent) {
 	started = true
 }
-func handleKill(e interface{}) {
+func handleKill(events.PlayerKilledEvent) {
 	if started {
 		//k := e.(events.PlayerKilledEvent)
 		//fmt.Println(k.Killer, "&", k.Assister, "killed", k.Victim)
@@ -65,39 +65,15 @@ func TestDemoInfoCs(t *testing.T) {
 
 	fmt.Println("go")
 	if true {
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.TickDoneEvent{}), handleTickDone)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.BombDefusedEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.BombEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.BotTakenOverEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.FinalRoundEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.FlashExplodedEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.FreezetimeEndedEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.WinPanelMatchEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.WeaponFiredEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.SayTextEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.SayText2Event{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.RoundStartedEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.RoundOfficialyEndedEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.RoundMVPEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.RoundEndedEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.LastRoundHalfEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.MatchStartedEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.NadeEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.PlayerBindEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.PlayerDisconnectEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.PlayerHurtEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.PlayerKilledEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.PlayerTeamChangeEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.RankUpdateEvent{}), handle)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf(events.RoundAnnounceMatchStartedEvent{}), handle)
+		p.EventDispatcher().RegisterHandler(handleTickDone)
+		p.EventDispatcher().RegisterHandler(handle)
 		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*interface{})(nil)).Elem(), handleDetails)
 		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.BombEventIf)(nil)).Elem(), handleDetails)
 		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.NadeEventIf)(nil)).Elem(), handleDetails)
 		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.PlayerJumpEvent)(nil)).Elem(), handleDetails)
 		//p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.PlayerDisconnectEvent)(nil)).Elem(), handleDetails)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.PlayerKilledEvent)(nil)).Elem(), handleKill)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.MatchStartedEvent)(nil)).Elem(), handleStart)
-		p.EventDispatcher().RegisterHandler(reflect.TypeOf((*events.MatchStartedEvent)(nil)).Elem(), handleStart)
+		p.EventDispatcher().RegisterHandler(handleKill)
+		p.EventDispatcher().RegisterHandler(handleStart)
 	}
 	tsc = p.TState()
 	ts := time.Now()
