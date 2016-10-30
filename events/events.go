@@ -87,7 +87,7 @@ type WeaponFiredEvent struct {
 }
 
 type NadeEventIf interface {
-	dummy()
+	dummyNade()
 }
 
 // Nade exploded
@@ -98,7 +98,7 @@ type NadeEvent struct {
 }
 
 // Make NadeEvents implement NadeEventIf
-func (NadeEvent) dummy() {}
+func (NadeEvent) dummyNade() {}
 
 type HeExplodedEvent struct {
 	NadeEvent
@@ -138,7 +138,7 @@ type PlayerFlashedEvent struct {
 }
 
 type BombEventIf interface {
-	dummy()
+	dummyBomb()
 }
 
 type BombEvent struct {
@@ -146,7 +146,7 @@ type BombEvent struct {
 	Site   rune
 }
 
-func (BombEvent) dummy() {}
+func (BombEvent) dummyBomb() {}
 
 type BombBeginPlant struct {
 	BombEvent

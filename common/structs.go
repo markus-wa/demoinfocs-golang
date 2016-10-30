@@ -29,10 +29,11 @@ type PlayerInfo struct {
 }
 
 type Player struct {
-	Name                        string
-	SteamId                     int64
-	Position                    r3.Vector
 	EntityId                    int
+	SteamId                     int64
+	Name                        string
+	IsBot                       bool
+	Position                    r3.Vector
 	Hp                          int
 	Armor                       int
 	LastAlivePosition           r3.Vector

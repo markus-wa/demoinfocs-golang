@@ -79,8 +79,9 @@ func (propertyDecoder) decodeFloat(prop *SendTableProperty, reader bs.BitReader)
 	}
 
 	dwInterp = uint64(reader.ReadInt(uint(prop.NumberOfBits)))
-	res = float32(dwInterp / ((1 << uint(prop.NumberOfBits)) - 1))
+	res = float32(dwInterp) / float32((int(1)<<uint(prop.NumberOfBits))-1)
 	res = prop.LowValue + (prop.HighValue-prop.LowValue)*res
+
 	return res
 }
 

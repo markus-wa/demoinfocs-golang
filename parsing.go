@@ -76,6 +76,7 @@ func (p *Parser) ParseNextTick() bool {
 
 			pl.Name = rp.Name
 			pl.SteamId = rp.XUID
+			pl.IsBot = rp.IsFakePlayer
 			pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[pl.EntityId]
 
 			if pl.IsAlive() {
