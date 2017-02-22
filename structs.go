@@ -6,64 +6,6 @@ import (
 	"math"
 )
 
-type DemoHeader struct {
-	filestamp       string
-	protocol        int
-	networkProtocol int
-	serverName      string
-	clientName      string
-	mapName         string
-	gameDirectory   string
-	playbackTime    float32
-	playbackTicks   int
-	playbackFrames  int
-	signonLength    int
-}
-
-func (dh DemoHeader) Filestamp() string {
-	return dh.filestamp
-}
-
-func (dh DemoHeader) Protocol() int {
-	return dh.protocol
-}
-
-func (dh DemoHeader) NetworkProtocol() int {
-	return dh.networkProtocol
-}
-
-func (dh DemoHeader) ServerName() string {
-	return dh.serverName
-}
-
-func (dh DemoHeader) ClientName() string {
-	return dh.clientName
-}
-
-func (dh DemoHeader) MapName() string {
-	return dh.mapName
-}
-
-func (dh DemoHeader) GameDirectory() string {
-	return dh.gameDirectory
-}
-
-func (dh DemoHeader) PlaybackTime() float32 {
-	return dh.playbackTime
-}
-
-func (dh DemoHeader) PlaybackTicks() int {
-	return dh.playbackTicks
-}
-
-func (dh DemoHeader) PlaybackFrames() int {
-	return dh.playbackFrames
-}
-
-func (dh DemoHeader) SignonLenght() int {
-	return dh.signonLength
-}
-
 type TeamState struct {
 	id       int
 	score    int
@@ -87,60 +29,60 @@ func (ts TeamState) Flag() string {
 	return ts.flag
 }
 
-type SEVector struct {
+type seVector struct {
 	r3.Vector
 }
 
-func (v SEVector) Angle2D() float64 {
+func (v seVector) Angle2D() float64 {
 	return math.Atan2(v.Y, v.X)
 }
 
-func (v SEVector) Absolute() float64 {
+func (v seVector) Absolute() float64 {
 	return math.Sqrt(v.AbsoluteSquared())
 }
 
-func (v SEVector) AbsoluteSquared() float64 {
+func (v seVector) AbsoluteSquared() float64 {
 	return v.X*v.X + v.Y*v.Y + v.Z*v.Z
 }
 
-type Split struct {
+type split struct {
 	flags int
 
-	viewOrigin      SEVector
+	viewOrigin      seVector
 	viewAngles      r3.Vector
 	localViewAngles r3.Vector
 
-	viewOrigin2      SEVector
+	viewOrigin2      seVector
 	viewAngles2      r3.Vector
 	localViewAngles2 r3.Vector
 }
 
-func (s Split) ViewOrigin() SEVector {
-	if s.flags&FDEMO_USE_ORIGIN2 != 0 {
+func (s split) ViewOrigin() seVector {
+	if s.flags&fdemo_UseOrigin2 != 0 {
 		return s.viewOrigin2
 	}
 	return s.viewOrigin
 }
 
-func (s Split) ViewAngles() r3.Vector {
-	if s.flags&FDEMO_USE_ANGLES2 != 0 {
+func (s split) ViewAngles() r3.Vector {
+	if s.flags&fdemo_UseAngles2 != 0 {
 		return s.viewAngles2
 	}
 	return s.viewAngles
 }
 
-func (s Split) LocalViewAngles() r3.Vector {
-	if s.flags&FDEMO_USE_ANGLES2 != 0 {
+func (s split) LocalViewAngles() r3.Vector {
+	if s.flags&fdemo_UseAngles2 != 0 {
 		return s.localViewAngles2
 	}
 	return s.localViewAngles
 }
 
-type CommandInfo struct {
-	splits [2]Split
+type commandInfo struct {
+	splits [2]split
 }
 
-func (ci CommandInfo) Splits() [2]Split {
+func (ci commandInfo) Splits() [2]split {
 	return ci.splits
 }
 
@@ -156,12 +98,17 @@ func (bbi BoundingBoxInformation) contains(point r3.Vector) bool {
 		point.Z >= bbi.min.Z && point.Z <= bbi.max.Z
 }
 
-func parseCommandInfo(r bs.BitReader) CommandInfo {
-	return CommandInfo{splits: [2]Split{parseSplit(r), parseSplit(r)}}
+type bombsiteInfo struct {
+	index  int
+	center r3.Vector
 }
 
-func parseSplit(r bs.BitReader) Split {
-	s := Split{}
+func parseCommandInfo(r bs.BitReader) commandInfo {
+	return commandInfo{splits: [2]split{parseSplit(r), parseSplit(r)}}
+}
+
+func parseSplit(r bs.BitReader) split {
+	var s split
 	s.flags = r.ReadSignedInt(32)
 
 	s.viewOrigin = parseSEVector(r)
@@ -174,12 +121,12 @@ func parseSplit(r bs.BitReader) Split {
 	return s
 }
 
-func parseSEVector(r bs.BitReader) SEVector {
-	return SEVector{parseVector(r)}
+func parseSEVector(r bs.BitReader) seVector {
+	return seVector{parseVector(r)}
 }
 
 func parseVector(r bs.BitReader) r3.Vector {
-	v := r3.Vector{}
+	var v r3.Vector
 	v.X = float64(r.ReadFloat())
 	v.Y = float64(r.ReadFloat())
 	v.Z = float64(r.ReadFloat())

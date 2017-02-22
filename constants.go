@@ -4,31 +4,31 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/common"
 )
 
-type DemoCommand byte
+type demoCommand byte
 
 const (
 	maxEntities = (1 << common.MaxEditctBits)
-	MaxPlayers  = 64
-	MaxWeapons  = 64
+	maxPlayers  = 64
+	maxWeapons  = 64
 )
 
 const (
-	DC_Signon DemoCommand = iota + 1
-	DC_Packet
-	DC_Synctick
-	DC_ConsoleCommand
-	DC_UserCommand
-	DC_DataTables
-	DC_Stop
-	DC_CustomData
-	DC_StringTables
-	DC_LastCommand  = DC_StringTables
-	DC_FirstCommand = DC_Signon
+	dc_Signon demoCommand = iota + 1
+	dc_Packet
+	dc_Synctick
+	dc_ConsoleCommand
+	dc_UserCommand
+	dc_DataTables
+	dc_Stop
+	dc_CustomData
+	dc_StringTables
+	dc_LastCommand  = dc_StringTables
+	dc_FirstCommand = dc_Signon
 )
 
 const (
-	FDEMO_NORMAL = iota + 1
-	FDEMO_USE_ORIGIN2
-	FDEMO_USE_ANGLES2
-	FDEMO_NOINTERP
+	fdemo_Normal = iota + 1
+	fdemo_UseOrigin2
+	fdemo_UseAngles2
+	fdemo_NoInterp
 )

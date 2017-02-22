@@ -217,7 +217,7 @@ func (r *bitReader) ReadVarInt32() uint32 {
 	var res uint32 = 0
 	var b uint32 = 0x80
 
-	// do while hack
+	// TODO: This seems strange (Maybe check statshelix implementation)
 	for count := uint(0); b&0x80 != 0; count++ {
 		if count == kMaxVarint32Bytes {
 			return res
@@ -304,7 +304,7 @@ func (r *bitReader) Close() {
 
 var bitReaderPool sync.Pool = sync.Pool{
 	New: func() interface{} {
-		return &bitReader{}
+		return new(bitReader)
 	},
 }
 

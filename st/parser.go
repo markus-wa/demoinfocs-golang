@@ -40,7 +40,7 @@ func (p *Parser) ParsePacket(r bs.BitReader) {
 	serverClassCount := int(r.ReadInt(16))
 
 	for i := 0; i < serverClassCount; i++ {
-		entry := &ServerClass{}
+		entry := new(ServerClass)
 		entry.ClassId = int(r.ReadInt(16))
 		if entry.ClassId > serverClassCount {
 			panic("Invalid class index")
@@ -65,13 +65,13 @@ func (p *Parser) ParsePacket(r bs.BitReader) {
 func parseSendTable(r bs.BitReader) SendTable {
 	size := int(r.ReadVarInt32())
 	r.BeginChunk(size * 8)
-	st := &msg.CSVCMsg_SendTable{}
+	st := new(msg.CSVCMsg_SendTable)
 	proto.Unmarshal(r.ReadBytes(size), st)
 	r.EndChunk()
 
-	res := SendTable{}
+	var res SendTable
 	for _, v := range st.GetProps() {
-		prop := SendTableProperty{}
+		var prop SendTableProperty
 		prop.DataTableName = v.DtName
 		prop.HighValue = v.HighValue
 		prop.LowValue = v.LowValue
@@ -103,6 +103,8 @@ func (p *Parser) flattenDataTable(serverClassIndex int) {
 	p.gatherProps(tab, serverClassIndex, "")
 
 	fProps := p.serverClasses[serverClassIndex].FlattenedProps
+
+	// Sort priorities
 	prioMap := make(map[int]struct{})
 	prioMap[64] = struct{}{}
 	for _, v := range fProps {

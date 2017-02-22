@@ -269,6 +269,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			Silent: data["silent"].GetValBool(),
 		}
 
+		// FIXME: We could probably just cast team & oldteam to common.Team, should always be correct. . . Needs testing
 		switch data["team"].GetValByte() {
 		case int32(p.tState.id):
 			e.NewTeam = common.Team_Terrorists
@@ -305,9 +306,9 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		site := int(data["site"].GetValShort())
 
 		switch site {
-		case p.bombsiteAIndex:
+		case p.bombsiteA.index:
 			e.Site = 'A'
-		case p.bombsiteBIndex:
+		case p.bombsiteB.index:
 			e.Site = 'B'
 		default:
 			var t *BoundingBoxInformation
@@ -317,10 +318,12 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 				}
 			}
 
-			if t.contains(p.bombsiteACenter) {
+			if t.contains(p.bombsiteA.center) {
 				e.Site = 'A'
-			} else if t.contains(p.bombsiteBCenter) {
+				p.bombsiteA.index = site
+			} else if t.contains(p.bombsiteB.center) {
 				e.Site = 'B'
+				p.bombsiteB.index = site
 			} else {
 				panic("Bomb not planted on bombsite A or B")
 			}
@@ -366,6 +369,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "bomb_pickup": // Bomb picked up
 	case "round_time_warning": // Round time warning
 	case "round_announce_match_point": // Match point announcement
+	case "player_changename": // Name change
 
 	// Probably not that interesting:
 	case "buytime_ended": // Not actually end of buy time, seems to only be sent once per game at the start
@@ -383,6 +387,11 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "cs_win_panel_round": // Win panel, (==end of match?)
 	case "endmatch_cmm_start_reveal_items": // Drops
 	case "announce_phase_end": // Dunno
+	case "tournament_reward": // Dunno
+	case "other_death": // Dunno
+	case "round_announce_warmup": // Dunno
+	case "server_cvar": // Dunno
+	case "weapon_fire_on_empty": // Sounds boring
 	default:
 		fmt.Println("Unknown event", d.Name)
 	}
@@ -407,7 +416,6 @@ func getCommunityId(guid string) int64 {
 	if errSrv != nil {
 		panic(errSrv.Error())
 	}
-
 	if errId != nil {
 		panic(errId.Error())
 	}

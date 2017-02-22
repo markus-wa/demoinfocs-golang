@@ -220,10 +220,10 @@ func (propertyDecoder) readBitCellCoord(reader bs.BitReader, bits uint, isIntegr
 }
 
 func (propertyDecoder) decodeVector(prop *SendTableProperty, reader bs.BitReader) r3.Vector {
-	res := r3.Vector{}
-
-	res.X = float64(propDecoder.decodeFloat(prop, reader))
-	res.Y = float64(propDecoder.decodeFloat(prop, reader))
+	res := r3.Vector{
+		X: float64(propDecoder.decodeFloat(prop, reader)),
+		Y: float64(propDecoder.decodeFloat(prop, reader)),
+	}
 
 	if !prop.Flags.HasFlagSet(SPF_Normal) {
 		res.Z = float64(propDecoder.decodeFloat(prop, reader))
@@ -270,10 +270,8 @@ func (propertyDecoder) decodeString(fProp *SendTableProperty, reader bs.BitReade
 }
 
 func (propertyDecoder) decodeVectorXY(prop *SendTableProperty, reader bs.BitReader) r3.Vector {
-	res := r3.Vector{}
-
-	res.X = float64(propDecoder.decodeFloat(prop, reader))
-	res.Y = float64(propDecoder.decodeFloat(prop, reader))
-
-	return res
+	return r3.Vector{
+		X: float64(propDecoder.decodeFloat(prop, reader)),
+		Y: float64(propDecoder.decodeFloat(prop, reader)),
+	}
 }

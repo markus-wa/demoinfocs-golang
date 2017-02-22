@@ -6,7 +6,9 @@ import (
 )
 
 // Header parsed
-type HeaderParsedEvent struct{}
+type HeaderParsedEvent struct {
+	Header common.DemoHeader
+}
 
 // Tick done
 type TickDoneEvent struct{}

@@ -58,7 +58,8 @@ const (
 )
 
 const (
-	Team_Spectators Team = iota + 1
+	Team_Unassigned Team = iota
+	Team_Spectators
 	Team_Terrorists
 	Team_CounterTerrorists
 )

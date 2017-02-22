@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const MaxOsPath = 260
+const maxOsPath = 260
 
 const (
 	playerWeaponPrefix    = "m_hMyWeapons."
@@ -19,43 +19,53 @@ const (
 )
 
 const (
-	teamNameTerrorist = "TERRORIST"
-	teamNameCt        = "CT"
+	teamName_Unassigned = "Unassigned"
+	teamName_Spectator  = "Spectator"
+	teamName_Terrorist  = "TERRORIST"
+	teamName_Ct         = "CT"
 )
 
-func (p *Parser) ParseHeader() error {
-	fmt.Println("tryna parse dat header")
-	h := DemoHeader{}
-	h.filestamp = p.bitreader.ReadCString(8)
-	h.protocol = p.bitreader.ReadSignedInt(32)
-	h.networkProtocol = p.bitreader.ReadSignedInt(32)
-	h.serverName = p.bitreader.ReadCString(MaxOsPath)
-	h.clientName = p.bitreader.ReadCString(MaxOsPath)
-	h.mapName = p.bitreader.ReadCString(MaxOsPath)
-	h.gameDirectory = p.bitreader.ReadCString(MaxOsPath)
-	h.playbackTime = p.bitreader.ReadFloat()
-	h.playbackTicks = p.bitreader.ReadSignedInt(32)
-	h.playbackFrames = p.bitreader.ReadSignedInt(32)
-	h.signonLength = p.bitreader.ReadSignedInt(32)
-	if h.filestamp != "HL2DEMO" {
+// ParseHeader attempts to parse the header of the demo.
+// Panics if the filestamp doesn't match HL2DEMO
+func (p *Parser) ParseHeader() {
+	var h common.DemoHeader
+	h.Filestamp = p.bitreader.ReadCString(8)
+	h.Protocol = p.bitreader.ReadSignedInt(32)
+	h.NetworkProtocol = p.bitreader.ReadSignedInt(32)
+	h.ServerName = p.bitreader.ReadCString(maxOsPath)
+	h.ClientName = p.bitreader.ReadCString(maxOsPath)
+	h.MapName = p.bitreader.ReadCString(maxOsPath)
+	h.GameDirectory = p.bitreader.ReadCString(maxOsPath)
+	h.PlaybackTime = p.bitreader.ReadFloat()
+	h.PlaybackTicks = p.bitreader.ReadSignedInt(32)
+	h.PlaybackFrames = p.bitreader.ReadSignedInt(32)
+	h.SignonLength = p.bitreader.ReadSignedInt(32)
+
+	if h.Filestamp != "HL2DEMO" {
 		panic("Shit's fucked mate (Invalid File-Type; expecting HL2DEMO)")
 	}
+
 	p.header = &h
-	fmt.Println("Header: ", h)
-	p.eventDispatcher.Dispatch(events.HeaderParsedEvent{})
-	return nil
+	p.eventDispatcher.Dispatch(events.HeaderParsedEvent{Header: h})
 }
 
+// ParseToEnd attempts to parse the demo until the end.
+// Aborts and panics when the cancelToken is set to true.
+// May panic if the demo is corrupt in some way.
 func (p *Parser) ParseToEnd(cancelToken *bool) {
-	for (cancelToken == nil || !*cancelToken) && p.ParseNextTick() {
+	for cancelToken == nil || !*cancelToken {
+		if !p.ParseNextTick() {
+			break
+		}
 	}
 	if cancelToken != nil && *cancelToken {
-		fmt.Println("Cancelled")
-	} else {
-		fmt.Println("Finished")
+		panic("Parser.ParseToEnd() has been cancelled")
 	}
 }
 
+// ParseNextTick attempts to parse the next tick.
+// Returns true unless the demo command 'stop' was encountered.
+// Panics if header hasn't been parsed yet - see Parser.ParseHeader().
 func (p *Parser) ParseNextTick() bool {
 	if p.header == nil {
 		panic("Tried to parse tick before parsing header")
@@ -99,7 +109,7 @@ func (p *Parser) ParseNextTick() bool {
 }
 
 func (p *Parser) parseTick() bool {
-	cmd := DemoCommand(p.bitreader.ReadSingleByte())
+	cmd := demoCommand(p.bitreader.ReadSingleByte())
 
 	// Tick number
 	p.ingameTick = p.bitreader.ReadSignedInt(32)
@@ -109,18 +119,18 @@ func (p *Parser) parseTick() bool {
 	p.currentTick++
 
 	switch cmd {
-	case DC_Synctick:
+	case dc_Synctick:
 		// Ignore
 
-	case DC_Stop:
+	case dc_Stop:
 		return false
 
-	case DC_ConsoleCommand:
+	case dc_ConsoleCommand:
 		// Skip
 		p.bitreader.BeginChunk(p.bitreader.ReadSignedInt(32) * 8)
 		p.bitreader.EndChunk()
 
-	case DC_DataTables:
+	case dc_DataTables:
 		p.bitreader.BeginChunk(p.bitreader.ReadSignedInt(32) * 8)
 		p.stParser.ParsePacket(p.bitreader)
 		p.bitreader.EndChunk()
@@ -128,20 +138,20 @@ func (p *Parser) parseTick() bool {
 		p.mapEquipment()
 		p.bindEntities()
 
-	case DC_StringTables:
+	case dc_StringTables:
 		p.bitreader.BeginChunk(p.bitreader.ReadSignedInt(32) * 8)
 		p.parseStringTables()
 		p.bitreader.EndChunk()
 
-	case DC_UserCommand:
+	case dc_UserCommand:
 		// Skip
 		p.bitreader.ReadInt(32)
 		p.bitreader.BeginChunk(p.bitreader.ReadSignedInt(32) * 8)
 		p.bitreader.EndChunk()
 
-	case DC_Signon:
+	case dc_Signon:
 		fallthrough
-	case DC_Packet:
+	case dc_Packet:
 		// Booooring
 		parseCommandInfo(p.bitreader)
 		p.bitreader.ReadInt(32) // SeqNrIn
@@ -259,68 +269,68 @@ func (p *Parser) bindEntities() {
 
 func (p *Parser) handleTeamScores() {
 	p.stParser.FindServerClassByName("CCSTeam").RegisterEntityCreatedHandler(func(event st.EntityCreatedEvent) {
-		var team string
-		var teamName string
-		var teamFlag string
 		teamId := -1
+		var clanName string
+		var flagImage string
 		score := 0
 
+		event.Entity().FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
+			teamId = ue.Value().IntVal
+		})
+		event.Entity().FindProperty("m_szClanTeamname").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
+			clanName = ue.Value().StringVal
+		})
+		event.Entity().FindProperty("m_szTeamFlagImage").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
+			flagImage = ue.Value().StringVal
+		})
 		event.Entity().FindProperty("m_scoreTotal").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
 			score = ue.Value().IntVal
 		})
 
-		event.Entity().FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			teamId = ue.Value().IntVal
-
-			var s *TeamState
-			var t common.Team
-
-			switch team {
-			case teamNameCt:
-				s = &p.ctState
-				t = common.Team_CounterTerrorists
-			case teamNameTerrorist:
-				s = &p.tState
-				t = common.Team_Terrorists
-			default:
-				// Not sure if we should panic, team might not be set
-				//panic("Unexpected team: " + team)
-			}
-
-			if s != nil {
-				s.id = teamId
-				s.score = score
-				for _, pl := range p.players {
-					if pl != nil && pl.TeamId == teamId {
-						pl.Team = t
-					}
-				}
-			}
-		})
-
 		event.Entity().FindProperty("m_szTeamname").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			team = ue.Value().StringVal
+			team := ue.Value().StringVal
 
 			var s *TeamState
 			var t common.Team
 
 			switch team {
-			case teamNameCt:
+			case teamName_Ct:
 				s = &p.ctState
 				t = common.Team_CounterTerrorists
-			case teamNameTerrorist:
+
+			case teamName_Terrorist:
 				s = &p.tState
 				t = common.Team_Terrorists
+
+			case teamName_Unassigned: // Ignore
+			case teamName_Spectator: // Ignore
+
 			default:
-				//panic("Unexpected team: " + team)
+				panic("Unexpected team: " + team)
 			}
 
 			if s != nil {
+				// Set values that were already updated
+				s.id = teamId
+				s.clanName = clanName
+				s.flag = flagImage
 				s.score = score
-				s.clanName = teamName
+
+				// Register direct updates for the future
+				event.Entity().FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
+					s.id = ue.Value().IntVal
+				})
+				event.Entity().FindProperty("m_szClanTeamname").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
+					s.clanName = ue.Value().StringVal
+				})
+				event.Entity().FindProperty("m_szTeamFlagImage").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
+					s.flag = ue.Value().StringVal
+				})
 				event.Entity().FindProperty("m_scoreTotal").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
 					s.score = ue.Value().IntVal
 				})
+
+				// FIXME: This only sets the team at the start. . . We also have a player-specific update handler that changes the team so maybe this is unneccessary?
 				if teamId != -1 {
 					s.id = teamId
 					for _, pl := range p.players {
@@ -331,38 +341,16 @@ func (p *Parser) handleTeamScores() {
 				}
 			}
 		})
-
-		event.Entity().FindProperty("m_szTeamFlagImage").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			teamFlag = ue.Value().StringVal
-
-			switch team {
-			case teamNameCt:
-				p.ctState.flag = teamFlag
-			case teamNameTerrorist:
-				p.tState.flag = teamFlag
-			}
-		})
-
-		event.Entity().FindProperty("m_szClanTeamname").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			teamName = ue.Value().StringVal
-
-			switch team {
-			case teamNameCt:
-				p.ctState.clanName = teamName
-			case teamNameTerrorist:
-				p.tState.clanName = teamName
-			}
-		})
 	})
 }
 
 func (p *Parser) handleBombSites() {
 	p.stParser.FindServerClassByName("CCSPlayerResource").RegisterEntityCreatedHandler(func(playerResource st.EntityCreatedEvent) {
 		playerResource.Entity().FindProperty("m_bombsiteCenterA").RegisterPropertyUpdateHandler(func(center st.PropertyUpdateEvent) {
-			p.bombsiteACenter = center.Value().VectorVal
+			p.bombsiteA.center = center.Value().VectorVal
 		})
 		playerResource.Entity().FindProperty("m_bombsiteCenterB").RegisterPropertyUpdateHandler(func(center st.PropertyUpdateEvent) {
-			p.bombsiteBCenter = center.Value().VectorVal
+			p.bombsiteB.center = center.Value().VectorVal
 		})
 	})
 
@@ -385,7 +373,7 @@ func (p *Parser) handlePlayers() {
 	})
 
 	p.stParser.FindServerClassByName("CCSPlayerResource").RegisterEntityCreatedHandler(func(pr st.EntityCreatedEvent) {
-		for i := 0; i < MaxPlayers; i++ {
+		for i := 0; i < maxPlayers; i++ {
 			i2 := i // Copy so it stays the same (for passing to handlers)
 			iStr := fmt.Sprintf("%03d", i)
 
@@ -436,10 +424,11 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 	playerEntity.FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
 		pl.TeamId = e.Value().IntVal
 
+		// FIXME: We could probably just cast TeamId to common.Team or not even set it because the teamIds should be the same. . . needs testing
 		switch pl.TeamId {
-		case p.CTState().id:
+		case p.ctState.id:
 			pl.Team = common.Team_CounterTerrorists
-		case p.TState().id:
+		case p.tState.id:
 			pl.Team = common.Team_Terrorists
 		default:
 			pl.Team = common.Team_Spectators
@@ -493,7 +482,7 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 		}
 	}
 
-	var cache [MaxWeapons]int
+	var cache [maxWeapons]int
 
 	for i, v := range cache {
 		i2 := i // Copy for passing to handler

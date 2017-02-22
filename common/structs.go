@@ -7,6 +7,20 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/st"
 )
 
+type DemoHeader struct {
+	Filestamp       string
+	Protocol        int
+	NetworkProtocol int
+	ServerName      string
+	ClientName      string
+	MapName         string
+	GameDirectory   string
+	PlaybackTime    float32
+	PlaybackTicks   int
+	PlaybackFrames  int
+	SignonLength    int
+}
+
 type PlayerInfo struct {
 	Version     int64
 	XUID        int64

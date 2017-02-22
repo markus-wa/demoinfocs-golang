@@ -159,6 +159,8 @@ func MapEquipment(originalString string) EquipmentElement {
 		case "revolver":
 			wep = EE_Revolver
 
+		case "sensorgrenade": // Only used in 'Co-op Strike' mode
+
 		case "scar17": //These crash the game when given via give wep_[mp5navy|...], and cannot be purchased ingame.
 		case "sg550": //yet the server-classes are networked, so we need to resolve them.
 		case "mp5navy":

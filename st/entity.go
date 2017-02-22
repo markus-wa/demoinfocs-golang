@@ -134,6 +134,7 @@ func (pe *PropertyEntry) FirePropertyUpdateEvent(value PropValue, entity *Entity
 }
 
 func (pe *PropertyEntry) RegisterPropertyUpdateHandler(handler PropertyUpdateHandler) {
+	// TODO: Use godispatch internally? Might be slower, needs testing
 	pe.eventHandlers = append(pe.eventHandlers, handler)
 }
 

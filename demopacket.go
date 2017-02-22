@@ -8,13 +8,13 @@ import (
 
 var packetEntitiesPool sync.Pool = sync.Pool{
 	New: func() interface{} {
-		return &msg.CSVCMsg_PacketEntities{}
+		return new(msg.CSVCMsg_PacketEntities)
 	},
 }
 
 var gameEventPool sync.Pool = sync.Pool{
 	New: func() interface{} {
-		return &msg.CSVCMsg_GameEvent{}
+		return new(msg.CSVCMsg_GameEvent)
 	},
 }
 
@@ -41,23 +41,23 @@ func (p *Parser) parsePacket() {
 			defer packetEntitiesPool.Put(m)
 
 		case int(msg.SVC_Messages_svc_GameEventList):
-			m = &msg.CSVCMsg_GameEventList{}
+			m = new(msg.CSVCMsg_GameEventList)
 
 		case int(msg.SVC_Messages_svc_GameEvent):
 			m = gameEventPool.Get().(*msg.CSVCMsg_GameEvent)
 			defer gameEventPool.Put(m)
 
 		case int(msg.SVC_Messages_svc_CreateStringTable):
-			m = &msg.CSVCMsg_CreateStringTable{}
+			m = new(msg.CSVCMsg_CreateStringTable)
 
 		case int(msg.SVC_Messages_svc_UpdateStringTable):
-			m = &msg.CSVCMsg_UpdateStringTable{}
+			m = new(msg.CSVCMsg_UpdateStringTable)
 
 		case int(msg.NET_Messages_net_Tick):
-			m = &msg.CNETMsg_Tick{}
+			m = new(msg.CNETMsg_Tick)
 
 		case int(msg.SVC_Messages_svc_UserMessage):
-			m = &msg.CSVCMsg_UserMessage{}
+			m = new(msg.CSVCMsg_UserMessage)
 
 		default:
 			// We don't care about anything else for now
