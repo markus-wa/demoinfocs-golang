@@ -35,11 +35,14 @@ type propertyDecoder struct{}
 
 func (propertyDecoder) decodeProp(fProp *FlattenedPropEntry, reader bs.BitReader) PropValue {
 	switch fProp.prop.RawType {
+	case SPT_Float:
+		return PropValue{FloatVal: propDecoder.decodeFloat(fProp.prop, reader)}
+
 	case SPT_Int:
 		return PropValue{IntVal: propDecoder.decodeInt(fProp.prop, reader)}
 
-	case SPT_Float:
-		return PropValue{FloatVal: propDecoder.decodeFloat(fProp.prop, reader)}
+	case SPT_VectorXY:
+		return PropValue{VectorVal: propDecoder.decodeVectorXY(fProp.prop, reader)}
 
 	case SPT_Vector:
 		return PropValue{VectorVal: propDecoder.decodeVector(fProp.prop, reader)}
@@ -49,9 +52,6 @@ func (propertyDecoder) decodeProp(fProp *FlattenedPropEntry, reader bs.BitReader
 
 	case SPT_String:
 		return PropValue{StringVal: propDecoder.decodeString(fProp.prop, reader)}
-
-	case SPT_VectorXY:
-		return PropValue{VectorVal: propDecoder.decodeVectorXY(fProp.prop, reader)}
 
 	default:
 		panic("Unknown prop type " + string(fProp.prop.RawType))
@@ -71,44 +71,38 @@ func (propertyDecoder) decodeInt(prop *SendTableProperty, reader bs.BitReader) i
 	return reader.ReadSignedInt(uint(prop.NumberOfBits))
 }
 
+var specialFloatFlags = SPF_NoScale | SPF_Coord | SPF_CellCoord | SPF_Normal | SPF_CoordMp | SPF_CoordMpLowPrecision | SPF_CoordMpIntegral | SPF_CellCoordLowPrecision | SPF_CellCoordIntegral
+
 func (propertyDecoder) decodeFloat(prop *SendTableProperty, reader bs.BitReader) float32 {
-	var res float32
-	var dwInterp uint64
-	if propDecoder.decodeSpecialFloat(prop, reader, &res) {
-		return res
+	if prop.Flags&specialFloatFlags != 0 {
+		return propDecoder.decodeSpecialFloat(prop, reader)
 	}
 
-	dwInterp = uint64(reader.ReadInt(uint(prop.NumberOfBits)))
-	res = float32(dwInterp) / float32((int(1)<<uint(prop.NumberOfBits))-1)
-	res = prop.LowValue + (prop.HighValue-prop.LowValue)*res
-
-	return res
+	dwInterp := reader.ReadInt(uint(prop.NumberOfBits))
+	return prop.LowValue + ((prop.HighValue - prop.LowValue) * (float32(dwInterp) / float32((int(1)<<uint(prop.NumberOfBits))-1)))
 }
 
-func (propertyDecoder) decodeSpecialFloat(prop *SendTableProperty, reader bs.BitReader, res *float32) bool {
-	if prop.Flags.HasFlagSet(SPF_Coord) {
-		*res = propDecoder.readBitCoord(reader)
-	} else if prop.Flags.HasFlagSet(SPF_CoordMp) {
-		*res = propDecoder.readBitCoordMp(reader, false, false)
-	} else if prop.Flags.HasFlagSet(SPF_CoordMpLowPrecision) {
-		*res = propDecoder.readBitCoordMp(reader, false, true)
-	} else if prop.Flags.HasFlagSet(SPF_CoordMpIntegral) {
-		*res = propDecoder.readBitCoordMp(reader, true, false)
-	} else if prop.Flags.HasFlagSet(SPF_NoScale) {
-		*res = reader.ReadFloat()
-	} else if prop.Flags.HasFlagSet(SPF_Normal) {
-		*res = propDecoder.readBitNormal(reader)
+func (propertyDecoder) decodeSpecialFloat(prop *SendTableProperty, reader bs.BitReader) float32 {
+	if prop.Flags.HasFlagSet(SPF_NoScale) {
+		return reader.ReadFloat()
+	} else if prop.Flags.HasFlagSet(SPF_Coord) {
+		return propDecoder.readBitCoord(reader)
 	} else if prop.Flags.HasFlagSet(SPF_CellCoord) {
-		*res = propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), false, false)
+		return propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), false, false)
+	} else if prop.Flags.HasFlagSet(SPF_Normal) {
+		return propDecoder.readBitNormal(reader)
+	} else if prop.Flags.HasFlagSet(SPF_CoordMp) {
+		return propDecoder.readBitCoordMp(reader, false, false)
+	} else if prop.Flags.HasFlagSet(SPF_CoordMpLowPrecision) {
+		return propDecoder.readBitCoordMp(reader, false, true)
+	} else if prop.Flags.HasFlagSet(SPF_CoordMpIntegral) {
+		return propDecoder.readBitCoordMp(reader, true, false)
 	} else if prop.Flags.HasFlagSet(SPF_CellCoordLowPrecision) {
-		*res = propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), true, false)
+		return propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), true, false)
 	} else if prop.Flags.HasFlagSet(SPF_CellCoordIntegral) {
-		*res = propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), false, true)
-	} else {
-		*res = 0
-		return false
+		return propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), false, true)
 	}
-	return true
+	panic("Unexpected special float flag")
 }
 
 func (propertyDecoder) readBitCoord(reader bs.BitReader) float32 {

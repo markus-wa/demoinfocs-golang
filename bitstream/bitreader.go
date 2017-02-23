@@ -93,7 +93,7 @@ func (r *bitReader) ReadBit() bool {
 
 func (r *bitReader) advance(bits uint) {
 	r.offset += int(bits)
-	for r.offset >= r.bitsInBuffer {
+	if r.offset >= r.bitsInBuffer {
 		// Refill if we reached the sled
 		r.refillBuffer()
 	}

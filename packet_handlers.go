@@ -68,17 +68,19 @@ func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 }
 
 func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
+	// TODO: Do we really need to do this check?
 	if p.gehDescriptors == nil {
 		return
 	}
 
-	data := make(map[string]*msg.CSVCMsg_GameEventKeyT)
 	d := p.gehDescriptors[ge.Eventid]
 
 	// Ignore events before players are connected to speed things up
 	if len(p.connectedPlayers) == 0 && d.Name != "player_connect" {
 		return
 	}
+
+	data := make(map[string]*msg.CSVCMsg_GameEventKeyT)
 
 	switch d.Name {
 	case "round_start": // Round started

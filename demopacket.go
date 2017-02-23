@@ -18,6 +18,12 @@ var gameEventPool sync.Pool = sync.Pool{
 	},
 }
 
+var tickPool sync.Pool = sync.Pool{
+	New: func() interface{} {
+		return new(msg.CNETMsg_Tick)
+	},
+}
+
 type byteSliceBacker struct {
 	slice []byte
 }
@@ -54,25 +60,28 @@ func (p *Parser) parsePacket() {
 			m = new(msg.CSVCMsg_UpdateStringTable)
 
 		case int(msg.NET_Messages_net_Tick):
-			m = new(msg.CNETMsg_Tick)
+			m = tickPool.Get().(*msg.CNETMsg_Tick)
+			defer tickPool.Put(m)
 
 		case int(msg.SVC_Messages_svc_UserMessage):
 			m = new(msg.CSVCMsg_UserMessage)
 
 		default:
 			// We don't care about anything else for now
+			p.bitreader.EndChunk()
+			continue
 		}
-		if m != nil {
-			backer := byteSliceBackerPool.Get().(*byteSliceBacker)
-			p.bitreader.ReadBytesInto(&backer.slice, size)
 
-			proto.Unmarshal(backer.slice, m)
-			p.msgQueue <- m
+		backer := byteSliceBackerPool.Get().(*byteSliceBacker)
+		p.bitreader.ReadBytesInto(&backer.slice, size)
 
-			// Reset to 0 length and pool
-			backer.slice = backer.slice[:0]
-			byteSliceBackerPool.Put(backer)
-		}
+		proto.Unmarshal(backer.slice, m)
+		p.msgQueue <- m
+
+		// Reset to 0 length and pool
+		backer.slice = backer.slice[:0]
+		byteSliceBackerPool.Put(backer)
+
 		p.bitreader.EndChunk()
 	}
 

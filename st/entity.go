@@ -53,7 +53,7 @@ func (e *Entity) ApplyUpdate(reader bs.BitReader) {
 	}
 
 	for _, prop := range backer.slice {
-		prop.FirePropertyUpdateEvent(prop.decode(reader), e)
+		prop.FirePropertyUpdateEvent(propDecoder.decodeProp(prop.entry, reader), e)
 	}
 
 	// Reset to 0 length before pooling
@@ -119,10 +119,6 @@ type PropertyEntry struct {
 
 func (pe *PropertyEntry) Entry() *FlattenedPropEntry {
 	return pe.entry
-}
-
-func (pe *PropertyEntry) decode(reader bs.BitReader) PropValue {
-	return propDecoder.decodeProp(pe.entry, reader)
 }
 
 func (pe *PropertyEntry) FirePropertyUpdateEvent(value PropValue, entity *Entity) {

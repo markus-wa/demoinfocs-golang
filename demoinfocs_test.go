@@ -41,18 +41,22 @@ func TestDemoInfoCs(t *testing.T) {
 
 	ts := time.Now()
 	cancel := false
+	done := false
 	go func() {
 		timer := time.NewTimer(time.Second * 8)
 		<-timer.C
 		cancel = true
 		timer = time.NewTimer(time.Second * 2)
 		<-timer.C
-		t.Fatal("Parsing timeout")
+		if !done {
+			t.Fatal("Parsing timeout")
+		}
 	}()
 
 	fmt.Println("Parsing to end")
 	p.ParseToEnd(&cancel)
 
+	done = true
 	fmt.Println("Took", time.Since(ts).Nanoseconds()/1000/1000, "ms")
 }
 
@@ -72,6 +76,22 @@ func TestCancelParseToEnd(t *testing.T) {
 		defer func() { recover() }()
 		p.ParseToEnd(&cancel)
 	})
+}
+
+func TestConcurrent(t *testing.T) {
+	i := 0
+	runner := func(p *dem.Parser) {
+		p.ParseHeader()
+		i++
+		n := i
+		fmt.Println("Starting runner ", n)
+
+		ts := time.Now()
+		p.ParseToEnd(nil)
+		fmt.Println("Runner", n, "took", time.Since(ts).Nanoseconds()/1000/1000, "ms")
+	}
+	go runTest(runner)
+	runTest(runner)
 }
 
 func runTest(test func(*dem.Parser)) {
