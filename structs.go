@@ -108,17 +108,17 @@ func parseCommandInfo(r bs.BitReader) commandInfo {
 }
 
 func parseSplit(r bs.BitReader) split {
-	var s split
-	s.flags = r.ReadSignedInt(32)
+	return split{
+		flags: r.ReadSignedInt(32),
 
-	s.viewOrigin = parseSEVector(r)
-	s.viewAngles = parseVector(r)
-	s.localViewAngles = parseVector(r)
+		viewOrigin:      parseSEVector(r),
+		viewAngles:      parseVector(r),
+		localViewAngles: parseVector(r),
 
-	s.viewOrigin2 = parseSEVector(r)
-	s.viewAngles2 = parseVector(r)
-	s.localViewAngles2 = parseVector(r)
-	return s
+		viewOrigin2:      parseSEVector(r),
+		viewAngles2:      parseVector(r),
+		localViewAngles2: parseVector(r),
+	}
 }
 
 func parseSEVector(r bs.BitReader) seVector {
@@ -126,9 +126,9 @@ func parseSEVector(r bs.BitReader) seVector {
 }
 
 func parseVector(r bs.BitReader) r3.Vector {
-	var v r3.Vector
-	v.X = float64(r.ReadFloat())
-	v.Y = float64(r.ReadFloat())
-	v.Z = float64(r.ReadFloat())
-	return v
+	return r3.Vector{
+		X: float64(r.ReadFloat()),
+		Y: float64(r.ReadFloat()),
+		Z: float64(r.ReadFloat()),
+	}
 }

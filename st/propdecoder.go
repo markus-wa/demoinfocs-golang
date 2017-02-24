@@ -21,6 +21,8 @@ const (
 	normalResolution  = 1.0 / normalDenominator
 )
 
+const specialFloatFlags = SPF_NoScale | SPF_Coord | SPF_CellCoord | SPF_Normal | SPF_CoordMp | SPF_CoordMpLowPrecision | SPF_CoordMpIntegral | SPF_CellCoordLowPrecision | SPF_CellCoordIntegral
+
 var propDecoder propertyDecoder
 
 type PropValue struct {
@@ -70,8 +72,6 @@ func (propertyDecoder) decodeInt(prop *SendTableProperty, reader bs.BitReader) i
 	}
 	return reader.ReadSignedInt(uint(prop.NumberOfBits))
 }
-
-var specialFloatFlags = SPF_NoScale | SPF_Coord | SPF_CellCoord | SPF_Normal | SPF_CoordMp | SPF_CoordMpLowPrecision | SPF_CoordMpIntegral | SPF_CellCoordLowPrecision | SPF_CellCoordIntegral
 
 func (propertyDecoder) decodeFloat(prop *SendTableProperty, reader bs.BitReader) float32 {
 	if prop.Flags&specialFloatFlags != 0 {

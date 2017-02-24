@@ -43,10 +43,8 @@ var entrySliceBackerPool sync.Pool = sync.Pool{
 
 func (e *Entity) ApplyUpdate(reader bs.BitReader) {
 	idx := -1
-
-	backer := entrySliceBackerPool.Get().(*entrySliceBacker)
-
 	newWay := reader.ReadBit()
+	backer := entrySliceBackerPool.Get().(*entrySliceBacker)
 
 	for idx = e.readFileIndex(reader, idx, newWay); idx != -1; idx = e.readFileIndex(reader, idx, newWay) {
 		backer.slice = append(backer.slice, &e.props[idx])
@@ -130,7 +128,6 @@ func (pe *PropertyEntry) FirePropertyUpdateEvent(value PropValue, entity *Entity
 }
 
 func (pe *PropertyEntry) RegisterPropertyUpdateHandler(handler PropertyUpdateHandler) {
-	// TODO: Use godispatch internally? Might be slower, needs testing
 	pe.eventHandlers = append(pe.eventHandlers, handler)
 }
 
