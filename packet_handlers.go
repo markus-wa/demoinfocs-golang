@@ -13,7 +13,7 @@ import (
 )
 
 func (p *Parser) handlePackageEntities(pe *msg.CSVCMsg_PacketEntities) {
-	r := bs.NewBitReader(bytes.NewReader(pe.EntityData), bs.SmallBuffer)
+	r := bs.NewSmallBitReader(bytes.NewReader(pe.EntityData))
 
 	currentEntity := -1
 	for i := 0; i < int(pe.UpdatedEntries); i++ {
@@ -33,10 +33,10 @@ func (p *Parser) handlePackageEntities(pe *msg.CSVCMsg_PacketEntities) {
 			r.ReadBit()
 		}
 	}
-	r.Close()
+	r.Pool()
 }
 
-func (p *Parser) readEnterPVS(reader bs.BitReader, entityId int) *st.Entity {
+func (p *Parser) readEnterPVS(reader *bs.BitReader, entityId int) *st.Entity {
 	scId := int(reader.ReadInt(uint(p.stParser.ClassBits())))
 	reader.ReadInt(10)
 	newEntity := st.NewEntity(entityId, p.stParser.ServerClasses()[scId])
@@ -50,9 +50,9 @@ func (p *Parser) readEnterPVS(reader bs.BitReader, entityId int) *st.Entity {
 		ppBase := make([]*st.RecordedPropertyUpdate, 0)
 		if p.instanceBaselines[scId] != nil {
 			newEntity.CollectProperties(&ppBase)
-			r := bs.NewBitReader(bytes.NewReader(p.instanceBaselines[scId]), bs.SmallBuffer)
+			r := bs.NewSmallBitReader(bytes.NewReader(p.instanceBaselines[scId]))
 			newEntity.ApplyUpdate(r)
-			r.Close()
+			r.Pool()
 		}
 		p.preprocessedBaselines[scId] = ppBase
 	}
@@ -458,7 +458,7 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		}
 	}
 
-	br := bs.NewBitReader(bytes.NewReader(tab.StringData), bs.SmallBuffer)
+	br := bs.NewSmallBitReader(bytes.NewReader(tab.StringData))
 
 	if br.ReadBit() {
 		panic("Can't decode")
@@ -509,7 +509,8 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		var userdat []byte
 		if br.ReadBit() {
 			if tab.UserDataFixedSize {
-				userdat = br.ReadBits(uint(tab.UserDataSizeBits))
+				// Should always be < 8 bits => use faster ReadBitsToByte() over ReadBits()
+				userdat = []byte{br.ReadBitsToByte(uint(tab.UserDataSizeBits))}
 			} else {
 				userdat = br.ReadBytes(int(br.ReadInt(14)))
 			}
@@ -521,7 +522,7 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 
 		switch tab.Name {
 		case "userinfo":
-			p.rawPlayers[entryIndex] = common.ParsePlayerInfo(bs.NewBitReader(bytes.NewReader(userdat), bs.SmallBuffer))
+			p.rawPlayers[entryIndex] = common.ParsePlayerInfo(bytes.NewReader(userdat))
 		case "instancebaseline":
 			classid, err := strconv.ParseInt(entry, 10, 64)
 			if err != nil {
@@ -533,4 +534,5 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		}
 	}
 	p.stringTables = append(p.stringTables, tab)
+	br.Pool()
 }

@@ -11,7 +11,7 @@ import (
 
 // FIXME?: create struct GameState for all game-state relevant stuff
 type Parser struct {
-	bitreader             bs.BitReader
+	bitReader             *bs.BitReader
 	stParser              st.Parser
 	msgDispatcher         dp.Dispatcher
 	eventDispatcher       dp.Dispatcher
@@ -106,7 +106,7 @@ func (p *Parser) TState() *TeamState {
 func NewParser(demostream io.Reader) *Parser {
 	var p Parser
 	// Init parser
-	p.bitreader = bs.NewBitReader(demostream, bs.LargeBuffer)
+	p.bitReader = bs.NewLargeBitReader(demostream)
 	p.msgQueue = make(chan interface{}, 8)
 	p.instanceBaselines = make(map[int][]byte)
 	p.preprocessedBaselines = make(map[int][]*st.RecordedPropertyUpdate)

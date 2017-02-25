@@ -41,7 +41,7 @@ var entrySliceBackerPool sync.Pool = sync.Pool{
 	},
 }
 
-func (e *Entity) ApplyUpdate(reader bs.BitReader) {
+func (e *Entity) ApplyUpdate(reader *bs.BitReader) {
 	idx := -1
 	newWay := reader.ReadBit()
 	backer := entrySliceBackerPool.Get().(*entrySliceBacker)
@@ -60,15 +60,14 @@ func (e *Entity) ApplyUpdate(reader bs.BitReader) {
 	entrySliceBackerPool.Put(backer)
 }
 
-func (e *Entity) readFileIndex(reader bs.BitReader, lastIndex int, newWay bool) int {
-	if newWay {
-		// New way
-		if reader.ReadBit() {
-			return lastIndex + 1
-		}
-	}
-	res := 0
+func (e *Entity) readFileIndex(reader *bs.BitReader, lastIndex int, newWay bool) int {
 	if newWay && reader.ReadBit() {
+		// NewWay A
+		return lastIndex + 1
+	}
+	var res int
+	if newWay && reader.ReadBit() {
+		// NewWay B
 		res = int(reader.ReadInt(3))
 	} else {
 		res = int(reader.ReadInt(7))

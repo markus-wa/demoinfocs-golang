@@ -5,6 +5,7 @@ import (
 	"github.com/golang/geo/r3"
 	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
 	"github.com/markus-wa/demoinfocs-golang/st"
+	"io"
 )
 
 type DemoHeader struct {
@@ -130,26 +131,28 @@ func NewSkinEquipment(originalString string, skin string) Equipment {
 	return Equipment{Weapon: wep, SkinId: skin}
 }
 
-func ParsePlayerInfo(reader bs.BitReader) *PlayerInfo {
+func ParsePlayerInfo(reader io.Reader) *PlayerInfo {
+	br := bs.NewSmallBitReader(reader)
 	res := &PlayerInfo{
-		Version:     int64(binary.BigEndian.Uint64(reader.ReadBytes(8))),
-		XUID:        int64(binary.BigEndian.Uint64(reader.ReadBytes(8))),
-		Name:        reader.ReadCString(128),
-		UserId:      int(int32(binary.BigEndian.Uint32(reader.ReadBytes(4)))),
-		GUID:        reader.ReadCString(33),
-		FriendsId:   int(int32(binary.BigEndian.Uint32(reader.ReadBytes(4)))),
-		FriendsName: reader.ReadCString(128),
+		Version:     int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
+		XUID:        int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
+		Name:        br.ReadCString(128),
+		UserId:      int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
+		GUID:        br.ReadCString(33),
+		FriendsId:   int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
+		FriendsName: br.ReadCString(128),
 
-		IsFakePlayer: reader.ReadSingleByte()&0xff != 0,
-		IsHltv:       reader.ReadSingleByte()&0xff != 0,
+		IsFakePlayer: br.ReadSingleByte()&0xff != 0,
+		IsHltv:       br.ReadSingleByte()&0xff != 0,
 
-		CustomFiles0: int(reader.ReadInt(32)),
-		CustomFiles1: int(reader.ReadInt(32)),
-		CustomFiles2: int(reader.ReadInt(32)),
-		CustomFiles3: int(reader.ReadInt(32)),
+		CustomFiles0: int(br.ReadInt(32)),
+		CustomFiles1: int(br.ReadInt(32)),
+		CustomFiles2: int(br.ReadInt(32)),
+		CustomFiles3: int(br.ReadInt(32)),
 
-		FilesDownloaded: reader.ReadSingleByte(),
+		FilesDownloaded: br.ReadSingleByte(),
 	}
+	br.Pool()
 	return res
 }
 

@@ -3,7 +3,6 @@ package demoinfocs
 import (
 	"bytes"
 	"fmt"
-	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
 	"github.com/markus-wa/demoinfocs-golang/st"
@@ -29,17 +28,17 @@ const (
 // Panics if the filestamp doesn't match HL2DEMO
 func (p *Parser) ParseHeader() {
 	var h common.DemoHeader
-	h.Filestamp = p.bitreader.ReadCString(8)
-	h.Protocol = p.bitreader.ReadSignedInt(32)
-	h.NetworkProtocol = p.bitreader.ReadSignedInt(32)
-	h.ServerName = p.bitreader.ReadCString(maxOsPath)
-	h.ClientName = p.bitreader.ReadCString(maxOsPath)
-	h.MapName = p.bitreader.ReadCString(maxOsPath)
-	h.GameDirectory = p.bitreader.ReadCString(maxOsPath)
-	h.PlaybackTime = p.bitreader.ReadFloat()
-	h.PlaybackTicks = p.bitreader.ReadSignedInt(32)
-	h.PlaybackFrames = p.bitreader.ReadSignedInt(32)
-	h.SignonLength = p.bitreader.ReadSignedInt(32)
+	h.Filestamp = p.bitReader.ReadCString(8)
+	h.Protocol = p.bitReader.ReadSignedInt(32)
+	h.NetworkProtocol = p.bitReader.ReadSignedInt(32)
+	h.ServerName = p.bitReader.ReadCString(maxOsPath)
+	h.ClientName = p.bitReader.ReadCString(maxOsPath)
+	h.MapName = p.bitReader.ReadCString(maxOsPath)
+	h.GameDirectory = p.bitReader.ReadCString(maxOsPath)
+	h.PlaybackTime = p.bitReader.ReadFloat()
+	h.PlaybackTicks = p.bitReader.ReadSignedInt(32)
+	h.PlaybackFrames = p.bitReader.ReadSignedInt(32)
+	h.SignonLength = p.bitReader.ReadSignedInt(32)
 
 	if h.Filestamp != "HL2DEMO" {
 		panic("Shit's fucked mate (Invalid File-Type; expecting HL2DEMO)")
@@ -109,12 +108,12 @@ func (p *Parser) ParseNextTick() bool {
 }
 
 func (p *Parser) parseTick() bool {
-	cmd := demoCommand(p.bitreader.ReadSingleByte())
+	cmd := demoCommand(p.bitReader.ReadSingleByte())
 
 	// Tick number
-	p.ingameTick = p.bitreader.ReadSignedInt(32)
+	p.ingameTick = p.bitReader.ReadSignedInt(32)
 	// Skip 'player slot'
-	p.bitreader.ReadSingleByte()
+	p.bitReader.ReadSingleByte()
 
 	p.currentTick++
 
@@ -127,39 +126,39 @@ func (p *Parser) parseTick() bool {
 
 	case dc_ConsoleCommand:
 		// Skip
-		p.bitreader.BeginChunk(p.bitreader.ReadSignedInt(32) * 8)
-		p.bitreader.EndChunk()
+		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) * 8)
+		p.bitReader.EndChunk()
 
 	case dc_DataTables:
-		p.bitreader.BeginChunk(p.bitreader.ReadSignedInt(32) * 8)
-		p.stParser.ParsePacket(p.bitreader)
-		p.bitreader.EndChunk()
+		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) * 8)
+		p.stParser.ParsePacket(p.bitReader)
+		p.bitReader.EndChunk()
 
 		p.mapEquipment()
 		p.bindEntities()
 
 	case dc_StringTables:
-		p.bitreader.BeginChunk(p.bitreader.ReadSignedInt(32) * 8)
+		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) * 8)
 		p.parseStringTables()
-		p.bitreader.EndChunk()
+		p.bitReader.EndChunk()
 
 	case dc_UserCommand:
 		// Skip
-		p.bitreader.ReadInt(32)
-		p.bitreader.BeginChunk(p.bitreader.ReadSignedInt(32) * 8)
-		p.bitreader.EndChunk()
+		p.bitReader.ReadInt(32)
+		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) * 8)
+		p.bitReader.EndChunk()
 
 	case dc_Signon:
 		fallthrough
 	case dc_Packet:
 		// Booooring
-		parseCommandInfo(p.bitreader)
-		p.bitreader.ReadInt(32) // SeqNrIn
-		p.bitreader.ReadInt(32) // SeqNrOut
+		parseCommandInfo(p.bitReader)
+		p.bitReader.ReadInt(32) // SeqNrIn
+		p.bitReader.ReadInt(32) // SeqNrOut
 
-		p.bitreader.BeginChunk(p.bitreader.ReadSignedInt(32) * 8)
+		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) * 8)
 		p.parsePacket()
-		p.bitreader.EndChunk()
+		p.bitReader.EndChunk()
 
 	default:
 		panic("Canny handle it anymoe (command " + string(cmd) + "unknown)")
@@ -168,28 +167,26 @@ func (p *Parser) parseTick() bool {
 }
 
 func (p *Parser) parseStringTables() {
-	tables := int(p.bitreader.ReadSingleByte())
+	tables := int(p.bitReader.ReadSingleByte())
 	for i := 0; i < tables; i++ {
-		tableName := p.bitreader.ReadString()
+		tableName := p.bitReader.ReadString()
 		p.parseSingleStringTable(tableName)
 	}
 }
 
 func (p *Parser) parseSingleStringTable(name string) {
-	strings := p.bitreader.ReadSignedInt(16)
+	strings := p.bitReader.ReadSignedInt(16)
 	for i := 0; i < strings; i++ {
-		stringName := p.bitreader.ReadString()
+		stringName := p.bitReader.ReadString()
 		if len(stringName) >= 100 {
 			panic("Someone said that Roy said I should panic")
 		}
-		if p.bitreader.ReadBit() {
-			userDataSize := p.bitreader.ReadSignedInt(16)
-			data := p.bitreader.ReadBytes(userDataSize)
+		if p.bitReader.ReadBit() {
+			userDataSize := p.bitReader.ReadSignedInt(16)
+			data := p.bitReader.ReadBytes(userDataSize)
 			switch name {
 			case "userinfo":
-				r := bs.NewBitReader(bytes.NewReader(data), bs.SmallBuffer)
-				player := common.ParsePlayerInfo(r)
-				r.Close()
+				player := common.ParsePlayerInfo(bytes.NewReader(data))
 				pid, err := strconv.ParseInt(stringName, 10, 64)
 				if err != nil {
 					panic("Couldn't parse id from string")
@@ -212,12 +209,12 @@ func (p *Parser) parseSingleStringTable(name string) {
 		}
 	}
 	// Client side stuff, dgaf
-	if p.bitreader.ReadBit() {
-		strings2 := p.bitreader.ReadSignedInt(16)
+	if p.bitReader.ReadBit() {
+		strings2 := p.bitReader.ReadSignedInt(16)
 		for i := 0; i < strings2; i++ {
-			p.bitreader.ReadString()
-			if p.bitreader.ReadBit() {
-				p.bitreader.ReadBytes(p.bitreader.ReadSignedInt(16))
+			p.bitReader.ReadString()
+			if p.bitReader.ReadBit() {
+				p.bitReader.ReadBytes(p.bitReader.ReadSignedInt(16))
 			}
 		}
 	}

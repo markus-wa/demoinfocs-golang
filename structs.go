@@ -103,11 +103,11 @@ type bombsiteInfo struct {
 	center r3.Vector
 }
 
-func parseCommandInfo(r bs.BitReader) commandInfo {
+func parseCommandInfo(r *bs.BitReader) commandInfo {
 	return commandInfo{splits: [2]split{parseSplit(r), parseSplit(r)}}
 }
 
-func parseSplit(r bs.BitReader) split {
+func parseSplit(r *bs.BitReader) split {
 	return split{
 		flags: r.ReadSignedInt(32),
 
@@ -121,11 +121,11 @@ func parseSplit(r bs.BitReader) split {
 	}
 }
 
-func parseSEVector(r bs.BitReader) seVector {
+func parseSEVector(r *bs.BitReader) seVector {
 	return seVector{parseVector(r)}
 }
 
-func parseVector(r bs.BitReader) r3.Vector {
+func parseVector(r *bs.BitReader) r3.Vector {
 	return r3.Vector{
 		X: float64(r.ReadFloat()),
 		Y: float64(r.ReadFloat()),

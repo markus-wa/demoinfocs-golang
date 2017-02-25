@@ -24,22 +24,19 @@ var tickPool sync.Pool = sync.Pool{
 	},
 }
 
-type byteSliceBacker struct {
-	slice []byte
-}
-
-var byteSliceBackerPool sync.Pool = sync.Pool{
+var byteSlicePool sync.Pool = sync.Pool{
 	New: func() interface{} {
-		return &byteSliceBacker{slice: make([]byte, 0, 256)}
+		s := make([]byte, 0, 256)
+		return &s
 	},
 }
 
 func (p *Parser) parsePacket() {
-	for !p.bitreader.ChunkFinished() {
-		cmd := int(p.bitreader.ReadVarInt32())
-		size := int(p.bitreader.ReadVarInt32())
+	for !p.bitReader.ChunkFinished() {
+		cmd := int(p.bitReader.ReadVarInt32())
+		size := int(p.bitReader.ReadVarInt32())
 
-		p.bitreader.BeginChunk(size << 3)
+		p.bitReader.BeginChunk(size << 3)
 		var m proto.Message
 		switch cmd {
 		case int(msg.SVC_Messages_svc_PacketEntities):
@@ -68,21 +65,21 @@ func (p *Parser) parsePacket() {
 
 		default:
 			// We don't care about anything else for now
-			p.bitreader.EndChunk()
+			p.bitReader.EndChunk()
 			continue
 		}
 
-		backer := byteSliceBackerPool.Get().(*byteSliceBacker)
-		p.bitreader.ReadBytesInto(&backer.slice, size)
+		b := byteSlicePool.Get().(*[]byte)
+		p.bitReader.ReadNBytesInto(b, size)
 
-		proto.Unmarshal(backer.slice, m)
+		proto.Unmarshal(*b, m)
 		p.msgQueue <- m
 
 		// Reset to 0 length and pool
-		backer.slice = backer.slice[:0]
-		byteSliceBackerPool.Put(backer)
+		*b = (*b)[:0]
+		byteSlicePool.Put(b)
 
-		p.bitreader.EndChunk()
+		p.bitReader.EndChunk()
 	}
 
 	// Make sure the created events are consumed so they can be pooled
