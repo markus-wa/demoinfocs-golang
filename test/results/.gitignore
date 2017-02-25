@@ -1,0 +1,3 @@
+# Ignore test coverage & profiling results
+*
+!.gitignore
