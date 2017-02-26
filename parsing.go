@@ -6,6 +6,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
 	"github.com/markus-wa/demoinfocs-golang/st"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -78,21 +79,21 @@ func (p *Parser) ParseNextTick() bool {
 
 		if pl := p.players[k]; pl != nil {
 			newPlayer := false
-			if p.connectedPlayers[rp.UserId] == nil {
-				p.connectedPlayers[rp.UserId] = pl
+			if p.connectedPlayers[rp.UserID] == nil {
+				p.connectedPlayers[rp.UserID] = pl
 				newPlayer = true
 			}
 
 			pl.Name = rp.Name
-			pl.SteamId = rp.XUID
+			pl.SteamID = rp.XUID
 			pl.IsBot = rp.IsFakePlayer
-			pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[pl.EntityId]
+			pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[pl.EntityID]
 
 			if pl.IsAlive() {
 				pl.LastAlivePosition = pl.Position
 			}
 
-			if newPlayer && pl.SteamId != 0 {
+			if newPlayer && pl.SteamID != 0 {
 				p.eventDispatcher.Dispatch(events.PlayerBindEvent{Player: pl})
 			}
 		}
@@ -160,6 +161,9 @@ func (p *Parser) parseTick() bool {
 		p.parsePacket()
 		p.bitReader.EndChunk()
 
+	case dc_CustomData:
+		fmt.Fprintln(os.Stderr, "Warning: Found CustomData but not handled")
+
 	default:
 		panic("Canny handle it anymoe (command " + string(cmd) + "unknown)")
 	}
@@ -185,7 +189,7 @@ func (p *Parser) parseSingleStringTable(name string) {
 			userDataSize := p.bitReader.ReadSignedInt(16)
 			data := p.bitReader.ReadBytes(userDataSize)
 			switch name {
-			case "userinfo":
+			case stName_UserInfo:
 				player := common.ParsePlayerInfo(bytes.NewReader(data))
 				pid, err := strconv.ParseInt(stringName, 10, 64)
 				if err != nil {
@@ -193,14 +197,14 @@ func (p *Parser) parseSingleStringTable(name string) {
 				}
 				p.rawPlayers[int(pid)] = player
 
-			case "instancebaseline":
+			case stName_InstanceBaseline:
 				pid, err := strconv.ParseInt(stringName, 10, 64)
 				if err != nil {
 					panic("Couldn't parse id from string")
 				}
 				p.instanceBaselines[int(pid)] = data
 
-			case "modelprecache":
+			case stName_ModelPreCache:
 				p.modelPreCache = append(p.modelPreCache, stringName)
 
 			default:
@@ -223,7 +227,6 @@ func (p *Parser) parseSingleStringTable(name string) {
 func (p *Parser) mapEquipment() {
 	for _, sc := range p.stParser.ServerClasses() {
 		if len(sc.BaseClasses) > 6 && sc.BaseClasses[6].Name == "CWeaponCSBase" {
-			var err error
 			if len(sc.BaseClasses) > 7 {
 				switch sc.BaseClasses[7].Name {
 				case "CWeaponCSBaseGun":
@@ -248,9 +251,6 @@ func (p *Parser) mapEquipment() {
 					p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.Name[7:]))
 				}
 			}
-			if err != nil {
-				fmt.Println(err.Error())
-			}
 		}
 	}
 }
@@ -266,26 +266,26 @@ func (p *Parser) bindEntities() {
 
 func (p *Parser) handleTeamScores() {
 	p.stParser.FindServerClassByName("CCSTeam").RegisterEntityCreatedHandler(func(event st.EntityCreatedEvent) {
-		teamId := -1
+		teamID := -1
 		var clanName string
 		var flagImage string
 		score := 0
 
 		event.Entity().FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			teamId = ue.Value().IntVal
+			teamID = ue.Value.IntVal
 		})
 		event.Entity().FindProperty("m_szClanTeamname").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			clanName = ue.Value().StringVal
+			clanName = ue.Value.StringVal
 		})
 		event.Entity().FindProperty("m_szTeamFlagImage").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			flagImage = ue.Value().StringVal
+			flagImage = ue.Value.StringVal
 		})
 		event.Entity().FindProperty("m_scoreTotal").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			score = ue.Value().IntVal
+			score = ue.Value.IntVal
 		})
 
 		event.Entity().FindProperty("m_szTeamname").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			team := ue.Value().StringVal
+			team := ue.Value.StringVal
 
 			var s *TeamState
 			var t common.Team
@@ -308,30 +308,30 @@ func (p *Parser) handleTeamScores() {
 
 			if s != nil {
 				// Set values that were already updated
-				s.id = teamId
+				s.id = teamID
 				s.clanName = clanName
 				s.flag = flagImage
 				s.score = score
 
 				// Register direct updates for the future
 				event.Entity().FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-					s.id = ue.Value().IntVal
+					s.id = ue.Value.IntVal
 				})
 				event.Entity().FindProperty("m_szClanTeamname").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-					s.clanName = ue.Value().StringVal
+					s.clanName = ue.Value.StringVal
 				})
 				event.Entity().FindProperty("m_szTeamFlagImage").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-					s.flag = ue.Value().StringVal
+					s.flag = ue.Value.StringVal
 				})
 				event.Entity().FindProperty("m_scoreTotal").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-					s.score = ue.Value().IntVal
+					s.score = ue.Value.IntVal
 				})
 
 				// FIXME: This only sets the team at the start. . . We also have a player-specific update handler that changes the team so maybe this is unneccessary?
-				if teamId != -1 {
-					s.id = teamId
+				if teamID != -1 {
+					s.id = teamID
 					for _, pl := range p.players {
-						if pl != nil && pl.TeamId == teamId {
+						if pl != nil && pl.TeamID == teamID {
 							pl.Team = t
 						}
 					}
@@ -344,22 +344,23 @@ func (p *Parser) handleTeamScores() {
 func (p *Parser) handleBombSites() {
 	p.stParser.FindServerClassByName("CCSPlayerResource").RegisterEntityCreatedHandler(func(playerResource st.EntityCreatedEvent) {
 		playerResource.Entity().FindProperty("m_bombsiteCenterA").RegisterPropertyUpdateHandler(func(center st.PropertyUpdateEvent) {
-			p.bombsiteA.center = center.Value().VectorVal
+			p.bombsiteA.center = center.Value.VectorVal
 		})
 		playerResource.Entity().FindProperty("m_bombsiteCenterB").RegisterPropertyUpdateHandler(func(center st.PropertyUpdateEvent) {
-			p.bombsiteB.center = center.Value().VectorVal
+			p.bombsiteB.center = center.Value.VectorVal
 		})
 	})
 
 	p.stParser.FindServerClassByName("CBaseTrigger").RegisterEntityCreatedHandler(func(baseTrigger st.EntityCreatedEvent) {
-		t := &BoundingBoxInformation{index: baseTrigger.Entity().Id}
+		// TODO: Switch triggers to map[int]boundingBoxInformation?
+		t := &boundingBoxInformation{index: baseTrigger.Entity().ID}
 		p.triggers = append(p.triggers, t)
 
 		baseTrigger.Entity().FindProperty("m_Collision.m_vecMins").RegisterPropertyUpdateHandler(func(vec st.PropertyUpdateEvent) {
-			t.min = vec.Value().VectorVal
+			t.min = vec.Value.VectorVal
 		})
 		baseTrigger.Entity().FindProperty("m_Collision.m_vecMaxs").RegisterPropertyUpdateHandler(func(vec st.PropertyUpdateEvent) {
-			t.max = vec.Value().VectorVal
+			t.max = vec.Value.VectorVal
 		})
 	})
 }
@@ -375,12 +376,12 @@ func (p *Parser) handlePlayers() {
 			iStr := fmt.Sprintf("%03d", i)
 
 			pr.Entity().FindProperty("m_szClan." + iStr).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-				p.additionalPlayerInfo[i2].ClanTag = e.Value().StringVal
+				p.additionalPlayerInfo[i2].ClanTag = e.Value.StringVal
 			})
 
 			setIntLazy := func(prop string, setter func(int)) {
 				pr.Entity().FindProperty(prop).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-					setter(e.Value().IntVal)
+					setter(e.Value.IntVal)
 				})
 			}
 
@@ -397,32 +398,32 @@ func (p *Parser) handlePlayers() {
 
 func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 	var pl *common.Player
-	if p.players[playerEntity.Id-1] != nil {
-		pl = p.players[playerEntity.Id-1]
+	if p.players[playerEntity.ID-1] != nil {
+		pl = p.players[playerEntity.ID-1]
 	} else {
 		pl = common.NewPlayer()
-		p.players[playerEntity.Id-1] = pl
-		pl.SteamId = -1
+		p.players[playerEntity.ID-1] = pl
+		pl.SteamID = -1
 		pl.Name = "unconnected"
 	}
 
-	pl.EntityId = playerEntity.Id
+	pl.EntityID = playerEntity.ID
 	pl.Entity = playerEntity
 
 	playerEntity.FindProperty("cslocaldata.m_vecOrigin").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-		pl.Position.X = e.Value().VectorVal.X
-		pl.Position.Y = e.Value().VectorVal.Y
+		pl.Position.X = e.Value.VectorVal.X
+		pl.Position.Y = e.Value.VectorVal.Y
 	})
 
 	playerEntity.FindProperty("cslocaldata.m_vecOrigin[2]").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-		pl.Position.Z = e.Value().VectorVal.Z
+		pl.Position.Z = e.Value.VectorVal.Z
 	})
 
 	playerEntity.FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-		pl.TeamId = e.Value().IntVal
+		pl.TeamID = e.Value.IntVal
 
-		// FIXME: We could probably just cast TeamId to common.Team or not even set it because the teamIds should be the same. . . needs testing
-		switch pl.TeamId {
+		// FIXME: We could probably just cast TeamID to common.Team or not even set it because the teamIDs should be the same. . . needs testing
+		switch pl.TeamID {
 		case p.ctState.id:
 			pl.Team = common.Team_CounterTerrorists
 		case p.tState.id:
@@ -435,19 +436,19 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 	// Some helpers because I cant be arsed
 	setIntLazy := func(prop string, setter func(int)) {
 		playerEntity.FindProperty(prop).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-			setter(e.Value().IntVal)
+			setter(e.Value.IntVal)
 		})
 	}
 
 	setFloatLazy := func(prop string, setter func(float32)) {
 		playerEntity.FindProperty(prop).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-			setter(e.Value().FloatVal)
+			setter(e.Value.FloatVal)
 		})
 	}
 
 	setFloat64Lazy := func(prop string, setter func(float64)) {
 		playerEntity.FindProperty(prop).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-			setter(float64(e.Value().FloatVal))
+			setter(float64(e.Value.FloatVal))
 		})
 	}
 
@@ -484,7 +485,7 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 	for i, v := range cache {
 		i2 := i // Copy for passing to handler
 		playerEntity.FindProperty(wepPrefix + fmt.Sprintf("%03d", i)).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-			idx := e.Value().IntVal & common.IndexMask
+			idx := e.Value.IntVal & common.IndexMask
 			if idx != common.IndexMask {
 				if v != 0 {
 					// Player already has a weapon in this slot.
@@ -503,7 +504,7 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 		})
 	}
 
-	setIntLazy("m_hActiveWeapon", func(val int) { pl.ActiveWeaponId = val & common.IndexMask })
+	setIntLazy("m_hActiveWeapon", func(val int) { pl.ActiveWeaponID = val & common.IndexMask })
 
 	for i := 0; i < 32; i++ {
 		i2 := i // Copy so it stays the same
@@ -532,22 +533,22 @@ func (p *Parser) handleWeapons() {
 }
 
 func (p *Parser) handleWeapon(event st.EntityCreatedEvent) {
-	eq := p.weapons[event.Entity().Id]
-	eq.EntityId = event.Entity().Id
+	eq := p.weapons[event.Entity().ID]
+	eq.EntityID = event.Entity().ID
 	eq.Weapon = p.equipmentMapping[event.ServerClass()]
 	eq.AmmoInMagazine = -1
 
 	event.Entity().FindProperty("m_iClip1").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-		eq.AmmoInMagazine = e.Value().IntVal - 1
+		eq.AmmoInMagazine = e.Value.IntVal - 1
 	})
 
 	event.Entity().FindProperty("LocalWeaponData.m_iPrimaryAmmoType").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-		eq.AmmoType = e.Value().IntVal
+		eq.AmmoType = e.Value.IntVal
 	})
 
 	wepFix := func(ok string, change string, changer func()) {
 		event.Entity().FindProperty("m_nModelIndex").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-			eq.OriginalString = p.modelPreCache[e.Value().IntVal]
+			eq.OriginalString = p.modelPreCache[e.Value.IntVal]
 			if strings.Contains(eq.OriginalString, ok) {
 				// That's already ok!
 			} else if strings.Contains(eq.OriginalString, change) {

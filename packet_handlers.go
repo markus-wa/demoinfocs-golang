@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/golang/geo/r3"
-	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
+	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	"github.com/markus-wa/demoinfocs-golang/st"
+	"os"
 	"strconv"
 )
 
@@ -36,25 +37,25 @@ func (p *Parser) handlePackageEntities(pe *msg.CSVCMsg_PacketEntities) {
 	r.Pool()
 }
 
-func (p *Parser) readEnterPVS(reader *bs.BitReader, entityId int) *st.Entity {
-	scId := int(reader.ReadInt(uint(p.stParser.ClassBits())))
+func (p *Parser) readEnterPVS(reader *bs.BitReader, entityID int) *st.Entity {
+	scID := int(reader.ReadInt(uint(p.stParser.ClassBits())))
 	reader.ReadInt(10)
-	newEntity := st.NewEntity(entityId, p.stParser.ServerClasses()[scId])
+	newEntity := st.NewEntity(entityID, p.stParser.ServerClasses()[scID])
 	newEntity.ServerClass.FireEntityCreatedEvent(newEntity)
 
-	if p.preprocessedBaselines[scId] != nil {
-		for _, bl := range p.preprocessedBaselines[scId] {
-			newEntity.Props()[bl.PropIndex()].FirePropertyUpdateEvent(bl.Value(), newEntity)
+	if p.preprocessedBaselines[scID] != nil {
+		for idx, val := range p.preprocessedBaselines[scID] {
+			newEntity.Props()[idx].FirePropertyUpdateEvent(val, newEntity)
 		}
 	} else {
-		ppBase := make([]*st.RecordedPropertyUpdate, 0)
-		if p.instanceBaselines[scId] != nil {
+		ppBase := make(map[int]st.PropValue, 0)
+		if p.instanceBaselines[scID] != nil {
 			newEntity.CollectProperties(&ppBase)
-			r := bs.NewSmallBitReader(bytes.NewReader(p.instanceBaselines[scId]))
+			r := bs.NewSmallBitReader(bytes.NewReader(p.instanceBaselines[scID]))
 			newEntity.ApplyUpdate(r)
 			r.Pool()
 		}
-		p.preprocessedBaselines[scId] = ppBase
+		p.preprocessedBaselines[scID] = ppBase
 	}
 
 	return newEntity
@@ -80,7 +81,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		return
 	}
 
-	data := make(map[string]*msg.CSVCMsg_GameEventKeyT)
+	var data map[string]*msg.CSVCMsg_GameEventKeyT
 
 	switch d.Name {
 	case "round_start": // Round started
@@ -208,40 +209,40 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		p.eventDispatcher.Dispatch(events.PlayerFlashedEvent{Player: p.connectedPlayers[int(data["userid"].GetValShort())]})
 
 	case "flashbang_detonate": // Flash exploded
-		p.eventDispatcher.Dispatch(events.FlashExplodedEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Flash)})
+		p.eventDispatcher.Dispatch(events.FlashExplodedEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Flash)})
 
 	case "hegrenade_detonate": // HE exploded
-		p.eventDispatcher.Dispatch(events.HeExplodedEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_HE)})
+		p.eventDispatcher.Dispatch(events.HeExplodedEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_HE)})
 
 	case "decoy_started": // Decoy started
-		p.eventDispatcher.Dispatch(events.DecoyStartEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Decoy)})
+		p.eventDispatcher.Dispatch(events.DecoyStartEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Decoy)})
 
 	case "decoy_detonate": // Decoy exploded/expired
-		p.eventDispatcher.Dispatch(events.DecoyEndEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Decoy)})
+		p.eventDispatcher.Dispatch(events.DecoyEndEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Decoy)})
 
 	case "smokegrenade_detonate": // Smoke popped
-		p.eventDispatcher.Dispatch(events.SmokeStartEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Smoke)})
+		p.eventDispatcher.Dispatch(events.SmokeStartEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Smoke)})
 
 	case "smokegrenade_expired": // Smoke expired
-		p.eventDispatcher.Dispatch(events.SmokeEndEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Smoke)})
+		p.eventDispatcher.Dispatch(events.SmokeEndEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Smoke)})
 
 	case "inferno_startburn": // Incendiary exploded/started
-		p.eventDispatcher.Dispatch(events.FireNadeStartEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Incendiary)})
+		p.eventDispatcher.Dispatch(events.FireNadeStartEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Incendiary)})
 
 	case "inferno_expire": // Incendiary expired
-		p.eventDispatcher.Dispatch(events.FireNadeEndEvent{p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Incendiary)})
+		p.eventDispatcher.Dispatch(events.FireNadeEndEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Incendiary)})
 
 	case "player_connect": // Player connected. . .?
 		// FIXME: This doesn't seem to happen, ever???
 		data = mapGameEventData(d, ge)
 
 		pl := &common.PlayerInfo{
-			UserId: int(data["userid"].GetValShort()),
+			UserID: int(data["userid"].GetValShort()),
 			Name:   data["name"].GetValString(),
 			GUID:   data["networkid"].GetValString(),
 		}
 
-		pl.XUID = getCommunityId(pl.GUID)
+		pl.XUID = getCommunityID(pl.GUID)
 
 		p.rawPlayers[data["index"].GetValShort()] = pl
 
@@ -255,7 +256,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		p.eventDispatcher.Dispatch(e)
 
 		for i := range p.rawPlayers {
-			if p.rawPlayers[i] != nil && p.rawPlayers[i].UserId == uid {
+			if p.rawPlayers[i] != nil && p.rawPlayers[i].UserID == uid {
 				p.rawPlayers[i] = nil
 			}
 		}
@@ -313,7 +314,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		case p.bombsiteB.index:
 			e.Site = 'B'
 		default:
-			var t *BoundingBoxInformation
+			var t *boundingBoxInformation
 			for _, tr := range p.triggers {
 				if tr.index == site {
 					t = tr
@@ -347,7 +348,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "bomb_begindefuse": // Defuse started
 		data = mapGameEventData(d, ge)
 
-		p.eventDispatcher.Dispatch(events.BombBeginDefuse{
+		p.eventDispatcher.Dispatch(events.BombBeginDefuseEvent{
 			Defuser: p.connectedPlayers[int(data["userid"].GetValShort())],
 			HasKit:  data["haskit"].GetValBool(),
 		})
@@ -357,7 +358,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		pl := p.connectedPlayers[int(data["userid"].GetValShort())]
 
-		p.eventDispatcher.Dispatch(events.BombAbortDefuse{
+		p.eventDispatcher.Dispatch(events.BombAbortDefuseEvent{
 			Defuser: pl,
 			HasKit:  pl.HasDefuseKit,
 		})
@@ -395,7 +396,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "server_cvar": // Dunno
 	case "weapon_fire_on_empty": // Sounds boring
 	default:
-		fmt.Println("Unknown event", d.Name)
+		fmt.Fprintf(os.Stderr, "Warning: Unknown event %q\n", d.Name)
 	}
 }
 
@@ -407,23 +408,23 @@ func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_Ga
 	return data
 }
 
-func getCommunityId(guid string) int64 {
+func getCommunityID(guid string) int64 {
 	if guid == "BOT" {
 		return 0
 	}
 
 	authSrv, errSrv := strconv.ParseInt(guid[8:9], 10, 64)
-	authId, errId := strconv.ParseInt(guid[10:], 10, 64)
+	authID, errID := strconv.ParseInt(guid[10:], 10, 64)
 
 	if errSrv != nil {
 		panic(errSrv.Error())
 	}
-	if errId != nil {
-		panic(errId.Error())
+	if errID != nil {
+		panic(errID.Error())
 	}
 
 	// FIXME: WTF are we doing here???
-	return 76561197960265728 + authId*2 + authSrv
+	return 76561197960265728 + authID*2 + authSrv
 }
 
 func (p *Parser) buildNadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT, nadeType common.EquipmentElement) events.NadeEvent {
@@ -440,11 +441,11 @@ func (p *Parser) buildNadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT, nade
 func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 	cTab := p.stringTables[tab.TableId]
 	switch cTab.Name {
-	case "userinfo":
+	case stName_UserInfo:
 		fallthrough
-	case "modelprecache":
+	case stName_ModelPreCache:
 		fallthrough
-	case "instancebaseline":
+	case stName_InstanceBaseline:
 		// Only handle updates for the above types
 		p.handleCreateStringTable(cTab)
 	}
@@ -452,7 +453,7 @@ func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 }
 
 func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
-	if tab.Name == "modelprecache" {
+	if tab.Name == stName_ModelPreCache {
 		for i := len(p.modelPreCache); i < int(tab.MaxEntries); i++ {
 			p.modelPreCache = append(p.modelPreCache, "")
 		}
@@ -465,7 +466,7 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	}
 
 	nTmp := tab.MaxEntries
-	var nEntryBits uint = 0
+	var nEntryBits uint
 
 	for nTmp != 0 {
 		nTmp = nTmp >> 1
@@ -521,15 +522,15 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		}
 
 		switch tab.Name {
-		case "userinfo":
+		case stName_UserInfo:
 			p.rawPlayers[entryIndex] = common.ParsePlayerInfo(bytes.NewReader(userdat))
-		case "instancebaseline":
+		case stName_InstanceBaseline:
 			classid, err := strconv.ParseInt(entry, 10, 64)
 			if err != nil {
 				panic("WTF VOLVO PLS")
 			}
 			p.instanceBaselines[int(classid)] = userdat
-		case "modelprecache":
+		case stName_ModelPreCache:
 			p.modelPreCache[entryIndex] = entry
 		}
 	}

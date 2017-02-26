@@ -68,6 +68,7 @@ const (
 	EE_Unknown EquipmentElement = 0
 
 	// Pistols
+
 	EE_P2000        EquipmentElement = 1
 	EE_Glock        EquipmentElement = 2
 	EE_P250         EquipmentElement = 3
@@ -80,6 +81,7 @@ const (
 	EE_Revolver     EquipmentElement = 10
 
 	// SMGs
+
 	EE_MP7   EquipmentElement = 101
 	EE_MP9   EquipmentElement = 102
 	EE_Bizon EquipmentElement = 103
@@ -88,6 +90,7 @@ const (
 	EE_P90   EquipmentElement = 106
 
 	// Heavy
+
 	EE_SawedOff EquipmentElement = 201
 	EE_Nova     EquipmentElement = 202
 	EE_Swag7    EquipmentElement = 203
@@ -95,7 +98,8 @@ const (
 	EE_M249     EquipmentElement = 205
 	EE_Negev    EquipmentElement = 206
 
-	// Rifle
+	// Rifles
+
 	EE_Gallil EquipmentElement = 301
 	EE_Famas  EquipmentElement = 302
 	EE_AK47   EquipmentElement = 303
@@ -109,6 +113,7 @@ const (
 	EE_G3SG1  EquipmentElement = 311
 
 	// Equipment
+
 	EE_Zeus      EquipmentElement = 401
 	EE_Kevlar    EquipmentElement = 402
 	EE_Helmet    EquipmentElement = 403
@@ -118,6 +123,7 @@ const (
 	EE_World     EquipmentElement = 407
 
 	// Grenades
+
 	EE_Decoy      EquipmentElement = 501
 	EE_Molotov    EquipmentElement = 502
 	EE_Incendiary EquipmentElement = 503

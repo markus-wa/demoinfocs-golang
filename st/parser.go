@@ -2,7 +2,7 @@ package st
 
 import (
 	"github.com/gogo/protobuf/proto"
-	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
+	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	"math"
 	"sort"
@@ -41,8 +41,8 @@ func (p *Parser) ParsePacket(r *bs.BitReader) {
 
 	for i := 0; i < serverClassCount; i++ {
 		entry := new(ServerClass)
-		entry.ClassId = int(r.ReadInt(16))
-		if entry.ClassId > serverClassCount {
+		entry.ClassID = int(r.ReadInt(16))
+		if entry.ClassID > serverClassCount {
 			panic("Invalid class index")
 		}
 
@@ -50,7 +50,7 @@ func (p *Parser) ParsePacket(r *bs.BitReader) {
 		entry.DTName = r.ReadString()
 		for j, v := range p.sendTables {
 			if v.Name == entry.DTName {
-				entry.DataTableId = j
+				entry.DataTableID = j
 			}
 		}
 
@@ -66,7 +66,9 @@ func parseSendTable(r *bs.BitReader) SendTable {
 	size := int(r.ReadVarInt32())
 	r.BeginChunk(size * 8)
 	st := new(msg.CSVCMsg_SendTable)
-	proto.Unmarshal(r.ReadBytes(size), st)
+	if proto.Unmarshal(r.ReadBytes(size), st) != nil {
+		panic("Failed to unmarshal SendTable")
+	}
 	r.EndChunk()
 
 	var res SendTable
@@ -92,7 +94,7 @@ func parseSendTable(r *bs.BitReader) SendTable {
 }
 
 func (p *Parser) flattenDataTable(serverClassIndex int) {
-	tab := &p.sendTables[p.serverClasses[serverClassIndex].DataTableId]
+	tab := &p.sendTables[p.serverClasses[serverClassIndex].DataTableID]
 
 	p.currentExcludes = nil
 	p.currentBaseclasses = nil
@@ -119,7 +121,7 @@ func (p *Parser) flattenDataTable(serverClassIndex int) {
 	// I honestly have no idea what the following bit of code does but the statshelix guys do it too (please don't sue me)
 	start := 0
 	for _, prio := range prios {
-		for true {
+		for {
 			cp := start
 			for ; cp < len(fProps); cp++ {
 				prop := fProps[cp].prop
@@ -166,7 +168,7 @@ func (p *Parser) gatherProps(st *SendTable, serverClassIndex int, prefix string)
 }
 
 func (p *Parser) gatherPropsIterate(tab *SendTable, serverClassIndex int, prefix string, flattenedProps *[]FlattenedPropEntry) {
-	for i, _ := range tab.properties {
+	for i := range tab.properties {
 		prop := &tab.properties[i]
 		if prop.Flags.HasFlagSet(SPF_InsideArray) || prop.Flags.HasFlagSet(SPF_Exclude) || p.isPropertyExcluded(tab, prop) {
 			continue
@@ -204,7 +206,7 @@ func (p *Parser) isPropertyExcluded(tab *SendTable, prop *SendTableProperty) boo
 }
 
 func (p *Parser) getTableByName(name string) *SendTable {
-	for i, _ := range p.sendTables {
+	for i := range p.sendTables {
 		if p.sendTables[i].Name == name {
 			return &p.sendTables[i]
 		}

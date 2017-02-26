@@ -3,8 +3,8 @@ package st
 import ()
 
 type ServerClass struct {
-	ClassId               int
-	DataTableId           int
+	ClassID               int
+	DataTableID           int
 	Name                  string
 	DTName                string
 	FlattenedProps        []FlattenedPropEntry

@@ -1,12 +1,12 @@
 package st
 
 import (
-	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
+	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"sync"
 )
 
 type Entity struct {
-	Id          int
+	ID          int
 	ServerClass *ServerClass
 	props       []PropertyEntry
 }
@@ -90,12 +90,12 @@ func (e *Entity) readFileIndex(reader *bs.BitReader, lastIndex int, newWay bool)
 	return lastIndex + 1 + res
 }
 
-func (e *Entity) CollectProperties(ppBase *[]*RecordedPropertyUpdate) {
+func (e *Entity) CollectProperties(ppBase *map[int]PropValue) {
 	adder := func(event PropertyUpdateEvent) {
-		*ppBase = append(*ppBase, event.Record())
+		(*ppBase)[event.property.index] = event.Value
 	}
 
-	for i, _ := range e.props {
+	for i := range e.props {
 		e.props[i].RegisterPropertyUpdateHandler(adder)
 	}
 }
@@ -105,7 +105,7 @@ func NewEntity(id int, serverClass *ServerClass) *Entity {
 	for i, _ := range serverClass.FlattenedProps {
 		props = append(props, NewPropertyEntry(&serverClass.FlattenedProps[i], i))
 	}
-	return &Entity{Id: id, ServerClass: serverClass, props: props}
+	return &Entity{ID: id, ServerClass: serverClass, props: props}
 }
 
 type PropertyEntry struct {
@@ -121,7 +121,7 @@ func (pe *PropertyEntry) Entry() *FlattenedPropEntry {
 func (pe *PropertyEntry) FirePropertyUpdateEvent(value PropValue, entity *Entity) {
 	for _, h := range pe.eventHandlers {
 		if h != nil {
-			h(PropertyUpdateEvent{value: value, entity: entity, property: pe})
+			h(PropertyUpdateEvent{Value: value, entity: entity, property: pe})
 		}
 	}
 }
@@ -131,13 +131,9 @@ func (pe *PropertyEntry) RegisterPropertyUpdateHandler(handler PropertyUpdateHan
 }
 
 type PropertyUpdateEvent struct {
-	value    PropValue
+	Value    PropValue
 	entity   *Entity
 	property *PropertyEntry
-}
-
-func (e *PropertyUpdateEvent) Value() PropValue {
-	return e.value
 }
 
 func (e *PropertyUpdateEvent) Entity() *Entity {
@@ -146,23 +142,6 @@ func (e *PropertyUpdateEvent) Entity() *Entity {
 
 func (e *PropertyUpdateEvent) Property() *PropertyEntry {
 	return e.property
-}
-
-func (e *PropertyUpdateEvent) Record() *RecordedPropertyUpdate {
-	return &RecordedPropertyUpdate{propIndex: e.property.index, value: e.value}
-}
-
-type RecordedPropertyUpdate struct {
-	propIndex int
-	value     PropValue
-}
-
-func (r *RecordedPropertyUpdate) PropIndex() int {
-	return r.propIndex
-}
-
-func (r *RecordedPropertyUpdate) Value() PropValue {
-	return r.value
 }
 
 type PropertyUpdateHandler func(PropertyUpdateEvent)

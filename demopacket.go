@@ -72,7 +72,9 @@ func (p *Parser) parsePacket() {
 		b := byteSlicePool.Get().(*[]byte)
 		p.bitReader.ReadNBytesInto(b, size)
 
-		proto.Unmarshal(*b, m)
+		if proto.Unmarshal(*b, m) != nil {
+			panic("Failed to unmarshal cmd \"" + string(cmd) + "\"")
+		}
 		p.msgQueue <- m
 
 		// Reset to 0 length and pool

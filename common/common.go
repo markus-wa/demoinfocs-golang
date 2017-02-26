@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -170,7 +171,7 @@ func MapEquipment(originalString string) EquipmentElement {
 		case "tmp":
 
 		default:
-			fmt.Println("Unknown weapon " + originalString)
+			fmt.Fprintf(os.Stderr, "Warning: Unknown weapon %q\n", originalString)
 		}
 	}
 	return wep

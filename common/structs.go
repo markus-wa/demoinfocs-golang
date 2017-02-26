@@ -3,7 +3,7 @@ package common
 import (
 	"encoding/binary"
 	"github.com/golang/geo/r3"
-	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
+	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"github.com/markus-wa/demoinfocs-golang/st"
 	"io"
 )
@@ -26,14 +26,10 @@ type PlayerInfo struct {
 	Version     int64
 	XUID        int64
 	Name        string
-	UserId      int
+	UserID      int
 	GUID        string
-	FriendsId   int
+	FriendsID   int
 	FriendsName string
-	// Bots
-	IsFakePlayer bool
-	// HLTV Proxy
-	IsHltv bool
 	// Custom files stuff (CRC)
 	CustomFiles0 int
 	CustomFiles1 int
@@ -41,37 +37,41 @@ type PlayerInfo struct {
 	CustomFiles3 int
 	// Amount of downloaded files from the server
 	FilesDownloaded byte
+	// Bots
+	IsFakePlayer bool
+	// HLTV Proxy
+	IsHltv bool
 }
 
 type Player struct {
-	EntityId                    int
-	SteamId                     int64
-	Name                        string
-	IsBot                       bool
+	SteamID                     int64
 	Position                    r3.Vector
-	Hp                          int
-	Armor                       int
 	LastAlivePosition           r3.Vector
 	Velocity                    r3.Vector
-	ViewDirectionX              float32
-	ViewDirectionY              float32
-	FlashDuration               float32
+	EntityID                    int
+	TeamID                      int
+	Name                        string
+	Hp                          int
+	Armor                       int
 	Money                       int
 	CurrentEquipmentValue       int
 	FreezetimeEndEquipmentValue int
 	RoundStartEquipmentValue    int
-	IsDucking                   bool
-	Entity                      *st.Entity
-	IsDisconnected              bool
-	ActiveWeaponId              int
+	ActiveWeaponID              int
 	RawWeapons                  map[int]*Equipment
 	Weapons                     []*Equipment
+	AmmoLeft                    [32]int
+	Entity                      *st.Entity
+	AdditionalPlayerInformation *AdditionalPlayerInformation
+	ViewDirectionX              float32
+	ViewDirectionY              float32
+	FlashDuration               float32
 	Team                        Team
+	IsBot                       bool
+	IsDucking                   bool
+	IsDisconnected              bool
 	HasDefuseKit                bool
 	HasHelmet                   bool
-	TeamId                      int
-	AmmoLeft                    [32]int
-	AdditionalPlayerInformation *AdditionalPlayerInformation
 }
 
 func (p *Player) IsAlive() bool {
@@ -79,10 +79,10 @@ func (p *Player) IsAlive() bool {
 }
 
 func (p *Player) ActiveWeapon() *Equipment {
-	if p.ActiveWeaponId == IndexMask {
+	if p.ActiveWeaponID == IndexMask {
 		return nil
 	}
-	return p.RawWeapons[p.ActiveWeaponId]
+	return p.RawWeapons[p.ActiveWeaponID]
 }
 
 type AdditionalPlayerInformation struct {
@@ -97,10 +97,10 @@ type AdditionalPlayerInformation struct {
 }
 
 type Equipment struct {
-	EntityId       int
+	EntityID       int
 	Weapon         EquipmentElement
 	OriginalString string
-	SkinId         string
+	SkinID         string
 	AmmoInMagazine int
 	AmmoType       int
 	Owner          *Player
@@ -128,7 +128,7 @@ func NewSkinEquipment(originalString string, skin string) Equipment {
 	} else {
 		wep = EE_Unknown
 	}
-	return Equipment{Weapon: wep, SkinId: skin}
+	return Equipment{Weapon: wep, SkinID: skin}
 }
 
 func ParsePlayerInfo(reader io.Reader) *PlayerInfo {
@@ -137,9 +137,9 @@ func ParsePlayerInfo(reader io.Reader) *PlayerInfo {
 		Version:     int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
 		XUID:        int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
 		Name:        br.ReadCString(128),
-		UserId:      int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
+		UserID:      int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
 		GUID:        br.ReadCString(33),
-		FriendsId:   int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
+		FriendsID:   int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
 		FriendsName: br.ReadCString(128),
 
 		IsFakePlayer: br.ReadSingleByte()&0xff != 0,

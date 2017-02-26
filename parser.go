@@ -1,7 +1,7 @@
 package demoinfocs
 
 import (
-	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
+	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	"github.com/markus-wa/demoinfocs-golang/st"
@@ -9,7 +9,8 @@ import (
 	"io"
 )
 
-// FIXME?: create struct GameState for all game-state relevant stuff
+// TODO?: create struct GameState for all game-state relevant stuff
+
 type Parser struct {
 	bitReader             *bs.BitReader
 	stParser              st.Parser
@@ -31,9 +32,9 @@ type Parser struct {
 	ctState               TeamState
 	bombsiteA             bombsiteInfo
 	bombsiteB             bombsiteInfo
-	triggers              []*BoundingBoxInformation
+	triggers              []*boundingBoxInformation
 	instanceBaselines     map[int][]byte
-	preprocessedBaselines map[int][]*st.RecordedPropertyUpdate
+	preprocessedBaselines map[int]map[int]st.PropValue
 	gehDescriptors        map[int32]*msg.CSVCMsg_GameEventListDescriptorT
 	stringTables          []*msg.CSVCMsg_CreateStringTable
 }
@@ -109,7 +110,7 @@ func NewParser(demostream io.Reader) *Parser {
 	p.bitReader = bs.NewLargeBitReader(demostream)
 	p.msgQueue = make(chan interface{}, 8)
 	p.instanceBaselines = make(map[int][]byte)
-	p.preprocessedBaselines = make(map[int][]*st.RecordedPropertyUpdate)
+	p.preprocessedBaselines = make(map[int]map[int]st.PropValue)
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
 	p.players = make(map[int]*common.Player)
 	p.connectedPlayers = make(map[int]*common.Player)

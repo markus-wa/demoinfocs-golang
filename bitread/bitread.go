@@ -1,4 +1,4 @@
-package bitstream
+package bitread
 
 import (
 	"github.com/markus-wa/gobitread"
@@ -8,11 +8,9 @@ import (
 )
 
 const (
-	smallBuffer       = 1024 * 2
-	largeBuffer       = 1024 * 128
-	sled              = 4
-	kMaxVarintBytes   = 10
-	kMaxVarint32Bytes = 5
+	smallBuffer      = 1024 * 2
+	largeBuffer      = 1024 * 128
+	maxVarInt32Bytes = 5
 )
 
 type BitReader struct {
@@ -43,9 +41,9 @@ func (r *BitReader) ReadFloat() float32 {
 }
 
 func (r *BitReader) ReadVarInt32() uint32 {
-	var res uint32 = 0
+	var res uint32
 	var b uint32 = 0x80
-	for count := uint(0); b&0x80 != 0 && count != kMaxVarint32Bytes; count++ {
+	for count := uint(0); b&0x80 != 0 && count != maxVarInt32Bytes; count++ {
 		b = uint32(r.ReadSingleByte())
 		res |= (b & 0x7f) << (7 * count)
 	}

@@ -22,13 +22,10 @@ const (
 	dc_Stop
 	dc_CustomData
 	dc_StringTables
-	dc_LastCommand  = dc_StringTables
-	dc_FirstCommand = dc_Signon
 )
 
 const (
-	fdemo_Normal = iota + 1
-	fdemo_UseOrigin2
-	fdemo_UseAngles2
-	fdemo_NoInterp
+	stName_InstanceBaseline = "instancebaseline"
+	stName_UserInfo         = "userinfo"
+	stName_ModelPreCache    = "modelprecache"
 )

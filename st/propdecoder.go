@@ -2,7 +2,7 @@ package st
 
 import (
 	"github.com/golang/geo/r3"
-	bs "github.com/markus-wa/demoinfocs-golang/bitstream"
+	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"math"
 )
 
@@ -26,11 +26,11 @@ const specialFloatFlags = SPF_NoScale | SPF_Coord | SPF_CellCoord | SPF_Normal |
 var propDecoder propertyDecoder
 
 type PropValue struct {
-	IntVal    int
-	FloatVal  float32
 	VectorVal r3.Vector
+	IntVal    int
 	ArrayVal  []PropValue
 	StringVal string
+	FloatVal  float32
 }
 
 type propertyDecoder struct{}
@@ -153,10 +153,11 @@ func (propertyDecoder) readBitCoordMp(reader *bs.BitReader, isIntegral bool, isL
 		isNegative = reader.ReadBit()
 
 		if intVal == 1 {
+			// TODO: Do we really not need these values?
 			if inBounds {
-				res = float32(reader.ReadInt(11) + 1)
+				reader.ReadInt(11)
 			} else {
-				res = float32(reader.ReadInt(14) + 1)
+				reader.ReadInt(14)
 			}
 		}
 		if isLowPrecision {
