@@ -1,27 +1,25 @@
 package demoinfocs_test
 
 import (
+	"bytes"
 	"fmt"
 	dem "github.com/markus-wa/demoinfocs-golang"
 	"github.com/markus-wa/demoinfocs-golang/events"
 	"os"
-	"reflect"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
 
 const demPath = "test/demo.dem"
 
-func handleDetails(e interface{}) {
-	n := reflect.TypeOf(e).Name()
-	if len(n) > 0 && n != "TickDoneEvent" {
-		fmt.Println(n, e)
-	}
-}
-
 func TestDemoInfoCs(t *testing.T) {
-	f, _ := os.Open(demPath)
+	f, err := os.Open(demPath)
 	defer f.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	p := dem.NewParser(f)
 
@@ -41,14 +39,14 @@ func TestDemoInfoCs(t *testing.T) {
 
 	ts := time.Now()
 	cancel := false
-	done := false
+	var done int64
 	go func() {
-		timer := time.NewTimer(time.Second * 8)
+		timer := time.NewTimer(time.Minute * 2)
 		<-timer.C
-		cancel = true
-		timer = time.NewTimer(time.Second * 2)
-		<-timer.C
-		if !done {
+		if atomic.LoadInt64(&done) == 0 {
+			cancel = true
+			timer.Reset(time.Second * 1)
+			<-timer.C
 			t.Fatal("Parsing timeout")
 		}
 	}()
@@ -56,66 +54,106 @@ func TestDemoInfoCs(t *testing.T) {
 	fmt.Println("Parsing to end")
 	p.ParseToEnd(&cancel)
 
-	done = true
-	fmt.Println("Took", time.Since(ts).Nanoseconds()/1000/1000, "ms")
+	atomic.StoreInt64(&done, 1)
+	fmt.Printf("Took %s\n", time.Since(ts))
 }
 
 func TestCancelParseToEnd(t *testing.T) {
-	runTest(func(p *dem.Parser) {
-		p.ParseHeader()
-		var tix int = 0
-		var cancel bool
-		p.RegisterEventHandler(func(events.TickDoneEvent) {
-			tix++
-			if tix == 100 {
-				cancel = true
-			} else if tix > 100 {
-				t.Fatal("Parsing continued after cancellation")
-			}
-		})
-		defer func() { recover() }()
-		p.ParseToEnd(&cancel)
-	})
-}
-
-func TestConcurrent(t *testing.T) {
-	i := 0
-	runner := func(p *dem.Parser) {
-		p.ParseHeader()
-		i++
-		n := i
-		fmt.Println("Starting runner ", n)
-
-		ts := time.Now()
-		p.ParseToEnd(nil)
-		fmt.Println("Runner", n, "took", time.Since(ts).Nanoseconds()/1000/1000, "ms")
-	}
-	go runTest(runner)
-	runTest(runner)
-}
-
-func runTest(test func(*dem.Parser)) {
-	f, _ := os.Open(demPath)
+	f, err := os.Open(demPath)
 	defer f.Close()
-
-	test(dem.NewParser(f))
-}
-
-func BenchmarkDemoInfoCs(b *testing.B) {
-	fmt.Println("Parsing sample demo", b.N, "times")
-	for i := 0; i < b.N; i++ {
-		runDemoInfoCsBenchmark()
+	if err != nil {
+		t.Fatal(err)
 	}
-}
-
-func runDemoInfoCsBenchmark() {
-	f, _ := os.Open(demPath)
-	defer f.Close()
 
 	p := dem.NewParser(f)
 	p.ParseHeader()
 
-	ts := time.Now()
-	p.ParseToEnd(nil)
-	fmt.Println("Took", time.Since(ts).Nanoseconds()/1000/1000, "ms")
+	maxTicks := 100
+	var tix int
+	var cancel bool
+
+	p.RegisterEventHandler(func(events.TickDoneEvent) {
+		tix++
+		if tix == maxTicks {
+			cancel = true
+		} else if tix > maxTicks {
+			t.Fatal("Parsing continued after cancellation")
+		}
+	})
+
+	defer func() { recover() }()
+	p.ParseToEnd(&cancel)
+}
+
+func TestConcurrent(t *testing.T) {
+	var i int64
+	runner := func() {
+		f, _ := os.Open(demPath)
+		defer f.Close()
+
+		p := dem.NewParser(f)
+		p.ParseHeader()
+
+		n := atomic.AddInt64(&i, 1)
+		fmt.Printf("Starting runner %d\n", n)
+
+		ts := time.Now()
+		p.ParseToEnd(nil)
+		fmt.Printf("Runner %d took %s\n", n, time.Since(ts))
+	}
+
+	var wg sync.WaitGroup
+	for j := 0; j < 2; j++ {
+		wg.Add(1)
+		go func() { runner(); wg.Done() }()
+	}
+	wg.Wait()
+}
+
+func BenchmarkDemoInfoCs(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		func() {
+			f, err := os.Open(demPath)
+			defer f.Close()
+			if err != nil {
+				b.Fatal(err)
+			}
+
+			p := dem.NewParser(f)
+			p.ParseHeader()
+
+			ts := time.Now()
+			p.ParseToEnd(nil)
+			b.Logf("Took %s\n", time.Since(ts))
+		}()
+	}
+}
+
+func BenchmarkInMemory(b *testing.B) {
+	f, err := os.Open(demPath)
+	defer f.Close()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	inf, err := f.Stat()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	d := make([]byte, inf.Size())
+	n, err := f.Read(d)
+	if err != nil || int64(n) != inf.Size() {
+		b.Fatal(fmt.Sprintf("Expected %d bytes, got %d", inf.Size(), n), err)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		p := dem.NewParser(bytes.NewReader(d))
+		p.ParseHeader()
+
+		ts := time.Now()
+		p.ParseToEnd(nil)
+		b.Logf("Took %s\n", time.Since(ts))
+	}
 }
