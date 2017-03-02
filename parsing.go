@@ -127,11 +127,11 @@ func (p *Parser) parseTick() bool {
 
 	case dc_ConsoleCommand:
 		// Skip
-		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) * 8)
+		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 		p.bitReader.EndChunk()
 
 	case dc_DataTables:
-		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) * 8)
+		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 		p.stParser.ParsePacket(p.bitReader)
 		p.bitReader.EndChunk()
 
@@ -139,14 +139,14 @@ func (p *Parser) parseTick() bool {
 		p.bindEntities()
 
 	case dc_StringTables:
-		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) * 8)
+		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 		p.parseStringTables()
 		p.bitReader.EndChunk()
 
 	case dc_UserCommand:
 		// Skip
 		p.bitReader.ReadInt(32)
-		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) * 8)
+		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 		p.bitReader.EndChunk()
 
 	case dc_Signon:
@@ -157,7 +157,7 @@ func (p *Parser) parseTick() bool {
 		p.bitReader.ReadInt(32) // SeqNrIn
 		p.bitReader.ReadInt(32) // SeqNrOut
 
-		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) * 8)
+		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 		p.parsePacket()
 		p.bitReader.EndChunk()
 

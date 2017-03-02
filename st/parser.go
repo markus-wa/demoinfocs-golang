@@ -64,7 +64,7 @@ func (p *Parser) ParsePacket(r *bs.BitReader) {
 
 func parseSendTable(r *bs.BitReader) SendTable {
 	size := int(r.ReadVarInt32())
-	r.BeginChunk(size * 8)
+	r.BeginChunk(size << 3)
 	st := new(msg.CSVCMsg_SendTable)
 	if proto.Unmarshal(r.ReadBytes(size), st) != nil {
 		panic("Failed to unmarshal SendTable")

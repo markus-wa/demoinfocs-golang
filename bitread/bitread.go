@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	smallBuffer      = 1024 * 2
+	smallBuffer      = 512
 	largeBuffer      = 1024 * 128
 	maxVarInt32Bytes = 5
 )
