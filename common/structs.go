@@ -79,9 +79,6 @@ func (p *Player) IsAlive() bool {
 }
 
 func (p *Player) ActiveWeapon() *Equipment {
-	if p.ActiveWeaponID == IndexMask {
-		return nil
-	}
 	return p.RawWeapons[p.ActiveWeaponID]
 }
 
@@ -112,13 +109,7 @@ func (e Equipment) Class() EquipmentClass {
 }
 
 func NewEquipment(originalString string) Equipment {
-	var wep EquipmentElement
-	if len(originalString) > 0 {
-		wep = MapEquipment(originalString)
-	} else {
-		wep = EE_Unknown
-	}
-	return Equipment{Weapon: wep}
+	return NewSkinEquipment(originalString, "")
 }
 
 func NewSkinEquipment(originalString string, skin string) Equipment {

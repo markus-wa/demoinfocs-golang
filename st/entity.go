@@ -51,7 +51,7 @@ func (e *Entity) ApplyUpdate(reader *bs.BitReader) {
 	}
 
 	for _, prop := range backer.slice {
-		prop.FirePropertyUpdateEvent(propDecoder.decodeProp(prop.entry, reader), e)
+		prop.FirePropertyUpdate(propDecoder.decodeProp(prop.entry, reader))
 	}
 
 	// Reset to 0 length before pooling
@@ -91,11 +91,11 @@ func (e *Entity) readFileIndex(reader *bs.BitReader, lastIndex int, newWay bool)
 }
 
 func (e *Entity) CollectProperties(ppBase *map[int]PropValue) {
-	adder := func(event PropertyUpdateEvent) {
-		(*ppBase)[event.property.index] = event.Value
-	}
-
 	for i := range e.props {
+		adder := func(val PropValue) {
+			(*ppBase)[e.props[i].index] = val
+		}
+
 		e.props[i].RegisterPropertyUpdateHandler(adder)
 	}
 }
@@ -109,42 +109,28 @@ func NewEntity(id int, serverClass *ServerClass) *Entity {
 }
 
 type PropertyEntry struct {
-	index         int
-	entry         *FlattenedPropEntry
-	eventHandlers []PropertyUpdateHandler
+	index          int
+	entry          *FlattenedPropEntry
+	updateHandlers []PropertyUpdateHandler
 }
 
 func (pe *PropertyEntry) Entry() *FlattenedPropEntry {
 	return pe.entry
 }
 
-func (pe *PropertyEntry) FirePropertyUpdateEvent(value PropValue, entity *Entity) {
-	for _, h := range pe.eventHandlers {
+func (pe *PropertyEntry) FirePropertyUpdate(value PropValue) {
+	for _, h := range pe.updateHandlers {
 		if h != nil {
-			h(PropertyUpdateEvent{Value: value, entity: entity, property: pe})
+			h(value)
 		}
 	}
 }
 
 func (pe *PropertyEntry) RegisterPropertyUpdateHandler(handler PropertyUpdateHandler) {
-	pe.eventHandlers = append(pe.eventHandlers, handler)
+	pe.updateHandlers = append(pe.updateHandlers, handler)
 }
 
-type PropertyUpdateEvent struct {
-	Value    PropValue
-	entity   *Entity
-	property *PropertyEntry
-}
-
-func (e *PropertyUpdateEvent) Entity() *Entity {
-	return e.entity
-}
-
-func (e *PropertyUpdateEvent) Property() *PropertyEntry {
-	return e.property
-}
-
-type PropertyUpdateHandler func(PropertyUpdateEvent)
+type PropertyUpdateHandler func(PropValue)
 
 func NewPropertyEntry(entry *FlattenedPropEntry, index int) PropertyEntry {
 	return PropertyEntry{index: index, entry: entry}

@@ -45,7 +45,7 @@ func (p *Parser) readEnterPVS(reader *bs.BitReader, entityID int) *st.Entity {
 
 	if p.preprocessedBaselines[scID] != nil {
 		for idx, val := range p.preprocessedBaselines[scID] {
-			newEntity.Props()[idx].FirePropertyUpdateEvent(val, newEntity)
+			newEntity.Props()[idx].FirePropertyUpdate(val)
 		}
 	} else {
 		ppBase := make(map[int]st.PropValue, 0)

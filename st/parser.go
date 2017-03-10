@@ -11,7 +11,7 @@ import (
 type Parser struct {
 	sendTables         []SendTable
 	serverClasses      []*ServerClass
-	currentExcludes    []*ExcludeEntry
+	currentExcludes    []*excludeEntry
 	currentBaseclasses []*ServerClass
 }
 
@@ -145,7 +145,7 @@ func (p *Parser) flattenDataTable(serverClassIndex int) {
 func (p *Parser) gatherExcludesAndBaseClasses(st *SendTable, collectBaseClasses bool) {
 	for _, v := range st.properties {
 		if v.Flags.HasFlagSet(SPF_Exclude) {
-			p.currentExcludes = append(p.currentExcludes, &ExcludeEntry{varName: v.Name, dtName: v.DataTableName, excludingDt: st.Name})
+			p.currentExcludes = append(p.currentExcludes, &excludeEntry{varName: v.Name, dtName: v.DataTableName, excludingDt: st.Name})
 		}
 	}
 

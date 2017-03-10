@@ -271,21 +271,21 @@ func (p *Parser) handleTeamScores() {
 		var flagImage string
 		score := 0
 
-		event.Entity().FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			teamID = ue.Value.IntVal
+		event.Entity.FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+			teamID = val.IntVal
 		})
-		event.Entity().FindProperty("m_szClanTeamname").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			clanName = ue.Value.StringVal
+		event.Entity.FindProperty("m_szClanTeamname").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+			clanName = val.StringVal
 		})
-		event.Entity().FindProperty("m_szTeamFlagImage").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			flagImage = ue.Value.StringVal
+		event.Entity.FindProperty("m_szTeamFlagImage").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+			flagImage = val.StringVal
 		})
-		event.Entity().FindProperty("m_scoreTotal").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			score = ue.Value.IntVal
+		event.Entity.FindProperty("m_scoreTotal").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+			score = val.IntVal
 		})
 
-		event.Entity().FindProperty("m_szTeamname").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-			team := ue.Value.StringVal
+		event.Entity.FindProperty("m_szTeamname").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+			team := val.StringVal
 
 			var s *TeamState
 			var t common.Team
@@ -314,17 +314,17 @@ func (p *Parser) handleTeamScores() {
 				s.score = score
 
 				// Register direct updates for the future
-				event.Entity().FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-					s.id = ue.Value.IntVal
+				event.Entity.FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+					s.id = val.IntVal
 				})
-				event.Entity().FindProperty("m_szClanTeamname").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-					s.clanName = ue.Value.StringVal
+				event.Entity.FindProperty("m_szClanTeamname").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+					s.clanName = val.StringVal
 				})
-				event.Entity().FindProperty("m_szTeamFlagImage").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-					s.flag = ue.Value.StringVal
+				event.Entity.FindProperty("m_szTeamFlagImage").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+					s.flag = val.StringVal
 				})
-				event.Entity().FindProperty("m_scoreTotal").RegisterPropertyUpdateHandler(func(ue st.PropertyUpdateEvent) {
-					s.score = ue.Value.IntVal
+				event.Entity.FindProperty("m_scoreTotal").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+					s.score = val.IntVal
 				})
 
 				// FIXME: This only sets the team at the start. . . We also have a player-specific update handler that changes the team so maybe this is unneccessary?
@@ -343,31 +343,31 @@ func (p *Parser) handleTeamScores() {
 
 func (p *Parser) handleBombSites() {
 	p.stParser.FindServerClassByName("CCSPlayerResource").RegisterEntityCreatedHandler(func(playerResource st.EntityCreatedEvent) {
-		playerResource.Entity().FindProperty("m_bombsiteCenterA").RegisterPropertyUpdateHandler(func(center st.PropertyUpdateEvent) {
-			p.bombsiteA.center = center.Value.VectorVal
+		playerResource.Entity.FindProperty("m_bombsiteCenterA").RegisterPropertyUpdateHandler(func(center st.PropValue) {
+			p.bombsiteA.center = center.VectorVal
 		})
-		playerResource.Entity().FindProperty("m_bombsiteCenterB").RegisterPropertyUpdateHandler(func(center st.PropertyUpdateEvent) {
-			p.bombsiteB.center = center.Value.VectorVal
+		playerResource.Entity.FindProperty("m_bombsiteCenterB").RegisterPropertyUpdateHandler(func(center st.PropValue) {
+			p.bombsiteB.center = center.VectorVal
 		})
 	})
 
 	p.stParser.FindServerClassByName("CBaseTrigger").RegisterEntityCreatedHandler(func(baseTrigger st.EntityCreatedEvent) {
 		// TODO: Switch triggers to map[int]boundingBoxInformation?
-		t := &boundingBoxInformation{index: baseTrigger.Entity().ID}
+		t := &boundingBoxInformation{index: baseTrigger.Entity.ID}
 		p.triggers = append(p.triggers, t)
 
-		baseTrigger.Entity().FindProperty("m_Collision.m_vecMins").RegisterPropertyUpdateHandler(func(vec st.PropertyUpdateEvent) {
-			t.min = vec.Value.VectorVal
+		baseTrigger.Entity.FindProperty("m_Collision.m_vecMins").RegisterPropertyUpdateHandler(func(vec st.PropValue) {
+			t.min = vec.VectorVal
 		})
-		baseTrigger.Entity().FindProperty("m_Collision.m_vecMaxs").RegisterPropertyUpdateHandler(func(vec st.PropertyUpdateEvent) {
-			t.max = vec.Value.VectorVal
+		baseTrigger.Entity.FindProperty("m_Collision.m_vecMaxs").RegisterPropertyUpdateHandler(func(vec st.PropValue) {
+			t.max = vec.VectorVal
 		})
 	})
 }
 
 func (p *Parser) handlePlayers() {
 	p.stParser.FindServerClassByName("CCSPlayer").RegisterEntityCreatedHandler(func(e st.EntityCreatedEvent) {
-		p.handleNewPlayer(e.Entity())
+		p.handleNewPlayer(e.Entity)
 	})
 
 	p.stParser.FindServerClassByName("CCSPlayerResource").RegisterEntityCreatedHandler(func(pr st.EntityCreatedEvent) {
@@ -375,13 +375,13 @@ func (p *Parser) handlePlayers() {
 			i2 := i // Copy so it stays the same (for passing to handlers)
 			iStr := fmt.Sprintf("%03d", i)
 
-			pr.Entity().FindProperty("m_szClan." + iStr).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-				p.additionalPlayerInfo[i2].ClanTag = e.Value.StringVal
+			pr.Entity.FindProperty("m_szClan." + iStr).RegisterPropertyUpdateHandler(func(val st.PropValue) {
+				p.additionalPlayerInfo[i2].ClanTag = val.StringVal
 			})
 
 			setIntLazy := func(prop string, setter func(int)) {
-				pr.Entity().FindProperty(prop).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-					setter(e.Value.IntVal)
+				pr.Entity.FindProperty(prop).RegisterPropertyUpdateHandler(func(val st.PropValue) {
+					setter(val.IntVal)
 				})
 			}
 
@@ -410,17 +410,17 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 	pl.EntityID = playerEntity.ID
 	pl.Entity = playerEntity
 
-	playerEntity.FindProperty("cslocaldata.m_vecOrigin").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-		pl.Position.X = e.Value.VectorVal.X
-		pl.Position.Y = e.Value.VectorVal.Y
+	playerEntity.FindProperty("cslocaldata.m_vecOrigin").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+		pl.Position.X = val.VectorVal.X
+		pl.Position.Y = val.VectorVal.Y
 	})
 
-	playerEntity.FindProperty("cslocaldata.m_vecOrigin[2]").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-		pl.Position.Z = e.Value.VectorVal.Z
+	playerEntity.FindProperty("cslocaldata.m_vecOrigin[2]").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+		pl.Position.Z = val.VectorVal.Z
 	})
 
-	playerEntity.FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-		pl.TeamID = e.Value.IntVal
+	playerEntity.FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+		pl.TeamID = val.IntVal
 
 		// FIXME: We could probably just cast TeamID to common.Team or not even set it because the teamIDs should be the same. . . needs testing
 		switch pl.TeamID {
@@ -435,20 +435,20 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 
 	// Some helpers because I cant be arsed
 	setIntLazy := func(prop string, setter func(int)) {
-		playerEntity.FindProperty(prop).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-			setter(e.Value.IntVal)
+		playerEntity.FindProperty(prop).RegisterPropertyUpdateHandler(func(val st.PropValue) {
+			setter(val.IntVal)
 		})
 	}
 
 	setFloatLazy := func(prop string, setter func(float32)) {
-		playerEntity.FindProperty(prop).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-			setter(e.Value.FloatVal)
+		playerEntity.FindProperty(prop).RegisterPropertyUpdateHandler(func(val st.PropValue) {
+			setter(val.FloatVal)
 		})
 	}
 
 	setFloat64Lazy := func(prop string, setter func(float64)) {
-		playerEntity.FindProperty(prop).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-			setter(float64(e.Value.FloatVal))
+		playerEntity.FindProperty(prop).RegisterPropertyUpdateHandler(func(val st.PropValue) {
+			setter(float64(val.FloatVal))
 		})
 	}
 
@@ -484,8 +484,8 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 
 	for i, v := range cache {
 		i2 := i // Copy for passing to handler
-		playerEntity.FindProperty(wepPrefix + fmt.Sprintf("%03d", i)).RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-			idx := e.Value.IntVal & common.IndexMask
+		playerEntity.FindProperty(wepPrefix + fmt.Sprintf("%03d", i)).RegisterPropertyUpdateHandler(func(val st.PropValue) {
+			idx := val.IntVal & common.IndexMask
 			if idx != common.IndexMask {
 				if v != 0 {
 					// Player already has a weapon in this slot.
@@ -533,22 +533,22 @@ func (p *Parser) handleWeapons() {
 }
 
 func (p *Parser) handleWeapon(event st.EntityCreatedEvent) {
-	eq := p.weapons[event.Entity().ID]
-	eq.EntityID = event.Entity().ID
-	eq.Weapon = p.equipmentMapping[event.ServerClass()]
+	eq := p.weapons[event.Entity.ID]
+	eq.EntityID = event.Entity.ID
+	eq.Weapon = p.equipmentMapping[event.ServerClass]
 	eq.AmmoInMagazine = -1
 
-	event.Entity().FindProperty("m_iClip1").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-		eq.AmmoInMagazine = e.Value.IntVal - 1
+	event.Entity.FindProperty("m_iClip1").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+		eq.AmmoInMagazine = val.IntVal - 1
 	})
 
-	event.Entity().FindProperty("LocalWeaponData.m_iPrimaryAmmoType").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-		eq.AmmoType = e.Value.IntVal
+	event.Entity.FindProperty("LocalWeaponData.m_iPrimaryAmmoType").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+		eq.AmmoType = val.IntVal
 	})
 
 	wepFix := func(ok string, change string, changer func()) {
-		event.Entity().FindProperty("m_nModelIndex").RegisterPropertyUpdateHandler(func(e st.PropertyUpdateEvent) {
-			eq.OriginalString = p.modelPreCache[e.Value.IntVal]
+		event.Entity.FindProperty("m_nModelIndex").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+			eq.OriginalString = p.modelPreCache[val.IntVal]
 			if strings.Contains(eq.OriginalString, ok) {
 				// That's already ok!
 			} else if strings.Contains(eq.OriginalString, change) {

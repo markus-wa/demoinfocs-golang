@@ -19,7 +19,7 @@ func (sc *ServerClass) String() string {
 func (sc *ServerClass) FireEntityCreatedEvent(entity *Entity) {
 	for _, h := range sc.entityCreatedHandlers {
 		if h != nil {
-			h(EntityCreatedEvent{entity: entity, serverClass: sc})
+			h(EntityCreatedEvent{Entity: entity, ServerClass: sc})
 		}
 	}
 }
@@ -34,46 +34,19 @@ type FlattenedPropEntry struct {
 	name             string
 }
 
-func (fpe FlattenedPropEntry) Prop() *SendTableProperty {
-	return fpe.prop
-}
-
-func (fpe FlattenedPropEntry) ArrayElementProp() *SendTableProperty {
-	return fpe.arrayElementProp
-}
-
 func (fpe FlattenedPropEntry) Name() string {
 	return fpe.name
 }
 
-type ExcludeEntry struct {
+type excludeEntry struct {
 	varName     string
 	dtName      string
 	excludingDt string
 }
 
-func (ee ExcludeEntry) VarName() string {
-	return ee.varName
-}
-
-func (ee ExcludeEntry) DtName() string {
-	return ee.dtName
-}
-
-func (ee ExcludeEntry) ExcludingDt() string {
-	return ee.excludingDt
-}
-
 type EntityCreatedEvent struct {
-	serverClass *ServerClass
-	entity      *Entity
-}
-
-func (e EntityCreatedEvent) ServerClass() *ServerClass {
-	return e.serverClass
-}
-func (e EntityCreatedEvent) Entity() *Entity {
-	return e.entity
+	ServerClass *ServerClass
+	Entity      *Entity
 }
 
 type EntityCreatedHandler func(EntityCreatedEvent)

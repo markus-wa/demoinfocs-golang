@@ -8,10 +8,6 @@ type SendTable struct {
 	IsEnd      bool
 }
 
-func (st SendTable) Properties() []SendTableProperty {
-	return st.properties
-}
-
 type SendTableProperty struct {
 	Flags            SendPropertyFlags
 	Name             string
