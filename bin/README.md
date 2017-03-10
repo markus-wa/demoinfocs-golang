@@ -1,16 +1,8 @@
 # Demoinfo helper scripts
 
-The scripts in this folder are helpful during for profiling and the generation of protobuf code during development.
+The scripts in this folder are helpful for profiling during development and so on.
 
 ## Scripts
-
-### gen_protobuf.sh
-
-Protobuf code is generated with the help of [gogoprotobuf](https://github.com/gogo/protobuf).
-
-	go get github.com/gogo/protobuf/proto
-	go get github.com/gogo/protobuf/protoc-gen-gogofaster
-	go get github.com/gogo/protobuf/gogoproto
 
 [//]: # (Disable autolinking with <i></i>)
 ### gcvis<i></i>.sh

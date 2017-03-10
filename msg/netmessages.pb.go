@@ -7357,19 +7357,55 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 			m.FriendsName = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 7:
-			if wireType != 5 {
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				m.CustomFiles = append(m.CustomFiles, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowNetmessages
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthNetmessages
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
+					m.CustomFiles = append(m.CustomFiles, v)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field CustomFiles", wireType)
 			}
-			var v uint32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
-			m.CustomFiles = append(m.CustomFiles, v)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipNetmessages(dAtA[iNdEx:])
@@ -7803,19 +7839,55 @@ func (m *CCLCMsg_ListenEvents) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 5 {
+			if wireType == 5 {
+				var v uint32
+				if (iNdEx + 4) > l {
+					return io.ErrUnexpectedEOF
+				}
+				iNdEx += 4
+				v = uint32(dAtA[iNdEx-4])
+				v |= uint32(dAtA[iNdEx-3]) << 8
+				v |= uint32(dAtA[iNdEx-2]) << 16
+				v |= uint32(dAtA[iNdEx-1]) << 24
+				m.EventMask = append(m.EventMask, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowNetmessages
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= (int(b) & 0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthNetmessages
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				for iNdEx < postIndex {
+					var v uint32
+					if (iNdEx + 4) > l {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += 4
+					v = uint32(dAtA[iNdEx-4])
+					v |= uint32(dAtA[iNdEx-3]) << 8
+					v |= uint32(dAtA[iNdEx-2]) << 16
+					v |= uint32(dAtA[iNdEx-1]) << 24
+					m.EventMask = append(m.EventMask, v)
+				}
+			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field EventMask", wireType)
 			}
-			var v uint32
-			if (iNdEx + 4) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
-			m.EventMask = append(m.EventMask, v)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipNetmessages(dAtA[iNdEx:])
@@ -13749,7 +13821,7 @@ func init() { proto.RegisterFile("netmessages.proto", fileDescriptorNetmessages)
 
 var fileDescriptorNetmessages = []byte{
 	// 4344 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xac, 0x7a, 0xcf, 0x6f, 0x24, 0x49,
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x7a, 0xcf, 0x6f, 0x24, 0x49,
 	0x56, 0x7f, 0x57, 0xf9, 0x47, 0x95, 0xa3, 0xca, 0x76, 0x3a, 0xdc, 0x3f, 0x6a, 0x3c, 0xd3, 0xee,
 	0xee, 0xec, 0xef, 0xcc, 0xf4, 0xf4, 0x77, 0xc6, 0x1a, 0x75, 0xcf, 0x0c, 0x4b, 0x8f, 0xf6, 0x60,
 	0x97, 0xcb, 0xdd, 0xd6, 0xda, 0x6e, 0x6f, 0x55, 0xb5, 0x87, 0x19, 0x21, 0x85, 0xc2, 0x99, 0xe1,

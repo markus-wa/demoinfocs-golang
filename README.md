@@ -13,3 +13,19 @@ Is a CS:GO demo parser written in Go based on [Valve's demoinfogo](https://githu
 ## Example
 
 	TODO
+
+## Development
+
+### Generating protobuf code
+
+Should you need to re-generate the protobuf generated code in the `msg` package, you will need the following tools:
+
+- The latest protobuf generator (`protoc`) from your package manager or https://github.com/google/protobuf/releases
+
+- And `protoc-gen-gogofaster` from [gogoprotobuf](https://github.com/gogo/protobuf) to generate code for go.
+
+		go get github.com/gogo/protobuf/protoc-gen-gogofaster
+
+Make sure both are inside your `PATH` variable.
+
+After installing these use `go generate ./msg` to generate the protobuf code.
