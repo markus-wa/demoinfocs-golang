@@ -13,7 +13,7 @@ import (
 	"strconv"
 )
 
-func (p *Parser) handlePackageEntities(pe *msg.CSVCMsg_PacketEntities) {
+func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 	r := bs.NewSmallBitReader(bytes.NewReader(pe.EntityData))
 
 	currentEntity := -1

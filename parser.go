@@ -116,7 +116,7 @@ func NewParser(demostream io.Reader) *Parser {
 	p.connectedPlayers = make(map[int]*common.Player)
 
 	// Attach proto msg handlers
-	p.msgDispatcher.RegisterHandler(p.handlePackageEntities)
+	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)
 	p.msgDispatcher.RegisterHandler(p.handleGameEventList)
 	p.msgDispatcher.RegisterHandler(p.handleGameEvent)
 	p.msgDispatcher.RegisterHandler(p.handleCreateStringTable)
