@@ -1,7 +1,5 @@
 package st
 
-import ()
-
 type ServerClass struct {
 	ClassID               int
 	DataTableID           int

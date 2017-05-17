@@ -1,7 +1,5 @@
 package st
 
-import ()
-
 type SendPropertyFlags int
 
 func (spf SendPropertyFlags) HasFlagSet(flag SendPropertyFlags) bool {

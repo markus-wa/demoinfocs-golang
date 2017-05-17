@@ -17,7 +17,7 @@ func (e *Entity) Props() []PropertyEntry {
 
 func (e *Entity) FindProperty(name string) *PropertyEntry {
 	var prop *PropertyEntry
-	for i, _ := range e.props {
+	for i := range e.props {
 		if e.props[i].entry.name == name {
 			if prop != nil {
 				panic("More than one property with name " + name + " found")
@@ -102,7 +102,7 @@ func (e *Entity) CollectProperties(ppBase *map[int]PropValue) {
 
 func NewEntity(id int, serverClass *ServerClass) *Entity {
 	props := make([]PropertyEntry, 0, len(serverClass.FlattenedProps))
-	for i, _ := range serverClass.FlattenedProps {
+	for i := range serverClass.FlattenedProps {
 		props = append(props, NewPropertyEntry(&serverClass.FlattenedProps[i], i))
 	}
 	return &Entity{ID: id, ServerClass: serverClass, props: props}

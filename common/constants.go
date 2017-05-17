@@ -1,7 +1,5 @@
 package common
 
-import ()
-
 const (
 	MaxEditctBits = 11
 	IndexMask     = ((1 << MaxEditctBits) - 1)

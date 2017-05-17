@@ -1,7 +1,5 @@
 package st
 
-import ()
-
 type SendTable struct {
 	properties []SendTableProperty
 	Name       string
