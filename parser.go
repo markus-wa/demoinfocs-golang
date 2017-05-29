@@ -25,7 +25,7 @@ type Parser struct {
 	players               map[int]*common.Player
 	connectedPlayers      map[int]*common.Player
 	additionalPlayerInfo  [maxPlayers]common.AdditionalPlayerInformation
-	entities              [maxEntities]*st.Entity
+	entities              map[int]*st.Entity
 	modelPreCache         []string                      // Used to find out whether a weapon is a p250 or cz for example (same id)
 	weapons               [maxEntities]common.Equipment // Used to remember what a weapon is (p250 / cz etc.)
 	tState                TeamState
@@ -114,6 +114,7 @@ func NewParser(demostream io.Reader) *Parser {
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
 	p.players = make(map[int]*common.Player)
 	p.connectedPlayers = make(map[int]*common.Player)
+	p.entities = make(map[int]*st.Entity)
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)

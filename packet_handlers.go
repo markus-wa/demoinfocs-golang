@@ -13,25 +13,39 @@ import (
 	"strconv"
 )
 
+const entitySentinel = 9999
+
 func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 	r := bs.NewSmallBitReader(bytes.NewReader(pe.EntityData))
 
 	currentEntity := -1
 	for i := 0; i < int(pe.UpdatedEntries); i++ {
 		currentEntity += 1 + int(r.ReadUBitInt())
-		if !r.ReadBit() {
+
+		if currentEntity > entitySentinel {
+			break
+		}
+
+		if r.ReadBit() {
+			// Leave PVS
+
+			// FIXME: Might have to destroy the entities contents first, not sure yet
+			// Could do weird stuff with event handlers otherwise
+			p.entities[currentEntity] = nil
+
 			if r.ReadBit() {
+				// TODO: Force Delete??
+			}
+		} else {
+			if r.ReadBit() {
+				// Enter PVS
 				e := p.readEnterPVS(r, currentEntity)
 				p.entities[currentEntity] = e
 				e.ApplyUpdate(r)
 			} else {
+				// Delta Update
 				p.entities[currentEntity].ApplyUpdate(r)
 			}
-		} else {
-			// FIXME: Might have to destroy the entities contents first, not sure yet
-			// Could do weird stuff with event handlers otherwise
-			p.entities[currentEntity] = nil
-			r.ReadBit()
 		}
 	}
 	r.Pool()
@@ -39,7 +53,8 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 
 func (p *Parser) readEnterPVS(reader *bs.BitReader, entityID int) *st.Entity {
 	scID := int(reader.ReadInt(uint(p.stParser.ClassBits())))
-	reader.ReadInt(10)
+	reader.ReadInt(10) // Serial Number
+
 	newEntity := st.NewEntity(entityID, p.stParser.ServerClasses()[scID])
 	newEntity.ServerClass.FireEntityCreatedEvent(newEntity)
 
