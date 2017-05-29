@@ -39,3 +39,8 @@ const (
 	SPF_ChangesOften
 	SPF_VarInt
 )
+
+const (
+	DT_MaxStringBits   = 9
+	DT_MaxStringLength = 1 << DT_MaxStringBits
+)

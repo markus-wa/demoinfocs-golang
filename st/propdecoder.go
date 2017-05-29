@@ -1,18 +1,21 @@
 package st
 
 import (
+	"fmt"
 	"github.com/golang/geo/r3"
 	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"math"
 )
 
 const (
-	coordFractBits               = 5
-	coordDenominator             = 1 << coordFractBits
-	coordResolution              = 1.0 / coordDenominator
-	coordFractBitsMpLowPrecision = 3
-	coordDenominatorLowPrecision = 1 << coordFractBitsMpLowPrecision
-	coordResolutionLowPrecision  = 1.0 / coordDenominatorLowPrecision
+	coordFractionalBitsMp             = 5
+	coordFractionalBitsMpLowPrecision = 3
+	coordDenominator                  = 1 << coordFractionalBitsMp
+	coordResolution                   = 1.0 / coordDenominator
+	coordDenominatorLowPrecision      = 1 << coordFractionalBitsMpLowPrecision
+	coordResolutionLowPrecision       = 1.0 / coordDenominatorLowPrecision
+	coordIntegerBitsMp                = 11
+	coordIntegerBits                  = 14
 )
 
 const (
@@ -56,7 +59,7 @@ func (propertyDecoder) decodeProp(fProp *FlattenedPropEntry, reader *bs.BitReade
 		return PropValue{StringVal: propDecoder.decodeString(fProp.prop, reader)}
 
 	default:
-		panic("Unknown prop type " + string(fProp.prop.RawType))
+		panic(fmt.Sprintf("Unknown prop type %d", fProp.prop.RawType))
 	}
 }
 
@@ -83,20 +86,22 @@ func (propertyDecoder) decodeFloat(prop *SendTableProperty, reader *bs.BitReader
 }
 
 func (propertyDecoder) decodeSpecialFloat(prop *SendTableProperty, reader *bs.BitReader) float32 {
-	if prop.Flags.HasFlagSet(SPF_NoScale) {
-		return reader.ReadFloat()
-	} else if prop.Flags.HasFlagSet(SPF_Coord) {
+	// Because multiple flags can be set this order is fixed for now (priorities).
+	// TODO: Would be more efficient to first check the most common ones tho.
+	if prop.Flags.HasFlagSet(SPF_Coord) {
 		return propDecoder.readBitCoord(reader)
-	} else if prop.Flags.HasFlagSet(SPF_CellCoord) {
-		return propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), false, false)
-	} else if prop.Flags.HasFlagSet(SPF_Normal) {
-		return propDecoder.readBitNormal(reader)
 	} else if prop.Flags.HasFlagSet(SPF_CoordMp) {
 		return propDecoder.readBitCoordMp(reader, false, false)
 	} else if prop.Flags.HasFlagSet(SPF_CoordMpLowPrecision) {
 		return propDecoder.readBitCoordMp(reader, false, true)
 	} else if prop.Flags.HasFlagSet(SPF_CoordMpIntegral) {
 		return propDecoder.readBitCoordMp(reader, true, false)
+	} else if prop.Flags.HasFlagSet(SPF_NoScale) {
+		return reader.ReadFloat()
+	} else if prop.Flags.HasFlagSet(SPF_Normal) {
+		return propDecoder.readBitNormal(reader)
+	} else if prop.Flags.HasFlagSet(SPF_CellCoord) {
+		return propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), false, false)
 	} else if prop.Flags.HasFlagSet(SPF_CellCoordLowPrecision) {
 		return propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), true, false)
 	} else if prop.Flags.HasFlagSet(SPF_CellCoordIntegral) {
@@ -116,11 +121,11 @@ func (propertyDecoder) readBitCoord(reader *bs.BitReader) float32 {
 	if intVal|fractVal != 0 {
 		isNegative = reader.ReadBit()
 		if intVal == 1 {
-			intVal = int(reader.ReadInt(14) + 1)
+			intVal = int(reader.ReadInt(coordIntegerBits) + 1)
 		}
 
 		if fractVal == 1 {
-			fractVal = int(reader.ReadInt(coordFractBits))
+			fractVal = int(reader.ReadInt(coordFractionalBitsMp))
 		}
 
 		res = float32(intVal) + (float32(fractVal) * coordResolution)
@@ -134,7 +139,6 @@ func (propertyDecoder) readBitCoord(reader *bs.BitReader) float32 {
 }
 
 func (propertyDecoder) readBitCoordMp(reader *bs.BitReader, isIntegral bool, isLowPrecision bool) float32 {
-	var intVal, fractVal int
 	var res float32
 	isNegative := false
 
@@ -143,31 +147,27 @@ func (propertyDecoder) readBitCoordMp(reader *bs.BitReader, isIntegral bool, isL
 		if reader.ReadBit() {
 			isNegative = reader.ReadBit()
 			if inBounds {
-				res = float32(reader.ReadInt(11) + 1)
+				res = float32(reader.ReadInt(coordIntegerBitsMp) + 1)
 			} else {
-				res = float32(reader.ReadInt(14) + 1)
+				res = float32(reader.ReadInt(coordIntegerBits) + 1)
 			}
 		}
 	} else {
-		intVal = int(reader.ReadInt(1))
+		readIntVal := reader.ReadBit()
 		isNegative = reader.ReadBit()
 
-		if intVal == 1 {
-			// TODO: Do we really not need these values?
+		var intVal int
+		if readIntVal {
 			if inBounds {
-				reader.ReadInt(11)
+				intVal = int(reader.ReadInt(coordIntegerBitsMp)) + 1
 			} else {
-				reader.ReadInt(14)
+				intVal = int(reader.ReadInt(coordIntegerBits)) + 1
 			}
 		}
 		if isLowPrecision {
-			fractVal = int(reader.ReadInt(3))
-
-			res = float32(intVal) + (float32(fractVal) * coordResolutionLowPrecision)
+			res = float32(intVal) + (float32(reader.ReadInt(coordFractionalBitsMpLowPrecision)) * coordResolutionLowPrecision)
 		} else {
-			fractVal = int(reader.ReadInt(5))
-
-			res = float32(intVal) + (float32(fractVal) * coordResolution)
+			res = float32(intVal) + (float32(reader.ReadInt(coordFractionalBitsMp)) * coordResolution)
 		}
 	}
 
@@ -201,11 +201,11 @@ func (propertyDecoder) readBitCellCoord(reader *bs.BitReader, bits uint, isInteg
 	} else {
 		intVal = int(reader.ReadInt(bits))
 		if isLowPrecision {
-			fractVal = int(reader.ReadInt(coordFractBitsMpLowPrecision))
+			fractVal = int(reader.ReadInt(coordFractionalBitsMpLowPrecision))
 
 			res = float32(intVal) + (float32(fractVal) * (coordResolutionLowPrecision))
 		} else {
-			fractVal = int(reader.ReadInt(coordFractBits))
+			fractVal = int(reader.ReadInt(coordFractionalBitsMp))
 
 			res = float32(intVal) + (float32(fractVal) * (coordResolution))
 		}
@@ -261,7 +261,11 @@ func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader *bs.BitRead
 }
 
 func (propertyDecoder) decodeString(fProp *SendTableProperty, reader *bs.BitReader) string {
-	return reader.ReadCString(int(reader.ReadInt(9)))
+	length := int(reader.ReadInt(DT_MaxStringBits))
+	if length > DT_MaxStringLength {
+		length = DT_MaxStringLength
+	}
+	return reader.ReadCString(length)
 }
 
 func (propertyDecoder) decodeVectorXY(prop *SendTableProperty, reader *bs.BitReader) r3.Vector {
