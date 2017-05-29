@@ -1,6 +1,7 @@
 package st
 
 import (
+	"fmt"
 	"github.com/gogo/protobuf/proto"
 	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"github.com/markus-wa/demoinfocs-golang/msg"
@@ -27,7 +28,7 @@ func (p *Parser) ParsePacket(r *bs.BitReader) {
 	for {
 		t := msg.SVC_Messages(r.ReadVarInt32())
 		if t != msg.SVC_Messages_svc_SendTable {
-			panic("Expected SendTable (" + string(msg.SVC_Messages_svc_SendTable) + "), got" + string(t))
+			panic(fmt.Sprintf("Expected SendTable (%s), got %q", msg.SVC_Messages_svc_SendTable, t))
 		}
 
 		st := parseSendTable(r)
@@ -222,13 +223,13 @@ func (p *Parser) findServerClassByDtName(name string) *ServerClass {
 	for _, v := range p.serverClasses {
 		if v.DTName == name {
 			if sc != nil {
-				panic("More than one server class with DT name " + name + "found")
+				panic(fmt.Sprintf("More than one server class with DT name %q found", name))
 			}
 			sc = v
 		}
 	}
 	if sc == nil {
-		panic("No server class with DT name " + name + " found")
+		panic(fmt.Sprintf("No server class with DT name %q found", name))
 	}
 	return sc
 }
@@ -238,13 +239,13 @@ func (p *Parser) FindServerClassByName(name string) *ServerClass {
 	for _, v := range p.serverClasses {
 		if v.Name == name {
 			if sc != nil {
-				panic("More than one server class with name " + name + "found")
+				panic(fmt.Sprintf("More than one server class with name %q found", name))
 			}
 			sc = v
 		}
 	}
 	if sc == nil {
-		panic("No server class with name " + name + " found")
+		panic(fmt.Sprintf("No server class with name %q found", name))
 	}
 	return sc
 }

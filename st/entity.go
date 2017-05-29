@@ -1,6 +1,7 @@
 package st
 
 import (
+	"fmt"
 	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"sync"
 )
@@ -20,13 +21,13 @@ func (e *Entity) FindProperty(name string) *PropertyEntry {
 	for i := range e.props {
 		if e.props[i].entry.name == name {
 			if prop != nil {
-				panic("More than one property with name " + name + " found")
+				panic(fmt.Sprintf("More than one property with name %q found", name))
 			}
 			prop = &e.props[i]
 		}
 	}
 	if prop == nil {
-		panic("Could not find property with name " + name)
+		panic(fmt.Sprintf("Could not find property with name %q", name))
 	}
 	return prop
 }

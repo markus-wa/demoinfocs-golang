@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	"fmt"
 	"github.com/gogo/protobuf/proto"
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	"sync"
@@ -73,7 +74,8 @@ func (p *Parser) parsePacket() {
 		p.bitReader.ReadBytesInto(b, size)
 
 		if proto.Unmarshal(*b, m) != nil {
-			panic("Failed to unmarshal cmd \"" + string(cmd) + "\"")
+			// TODO: Don't crash here, happens with demos that work in gotv
+			panic(fmt.Sprintf("Failed to unmarshal cmd %d", cmd))
 		}
 		p.msgQueue <- m
 

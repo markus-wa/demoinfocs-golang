@@ -162,10 +162,10 @@ func (p *Parser) parseTick() bool {
 		p.bitReader.EndChunk()
 
 	case dc_CustomData:
-		fmt.Fprintln(os.Stderr, "Warning: Found CustomData but not handled")
+		fmt.Fprintf(os.Stderr, "WARNING: Found CustomData but not handled\n")
 
 	default:
-		panic("Canny handle it anymoe (command " + string(cmd) + "unknown)")
+		panic(fmt.Sprintf("Canny handle it anymoe (command %v unknown)", cmd))
 	}
 	return true
 }
@@ -303,7 +303,7 @@ func (p *Parser) handleTeamScores() {
 			case teamName_Spectator: // Ignore
 
 			default:
-				panic("Unexpected team: " + team)
+				panic(fmt.Sprintf("Unexpected team %q", team))
 			}
 
 			if s != nil {
@@ -554,7 +554,7 @@ func (p *Parser) handleWeapon(event st.EntityCreatedEvent) {
 			} else if strings.Contains(eq.OriginalString, change) {
 				changer()
 			} else {
-				panic("Unknown weapon model " + eq.OriginalString)
+				panic(fmt.Sprintf("Unknown weapon model %q", eq.OriginalString))
 			}
 		})
 	}
