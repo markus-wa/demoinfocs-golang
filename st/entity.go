@@ -31,6 +31,7 @@ func (e *Entity) FindProperty(name string) *PropertyEntry {
 	return prop
 }
 
+// Wrapping the slice in a struct causes far fewer object allocations for some reason
 type entrySliceBacker struct {
 	slice []*PropertyEntry
 }
@@ -46,7 +47,8 @@ func (e *Entity) ApplyUpdate(reader *bs.BitReader) {
 	newWay := reader.ReadBit()
 	backer := entrySliceBackerPool.Get().(*entrySliceBacker)
 
-	for idx = e.readFileIndex(reader, idx, newWay); idx != -1; idx = e.readFileIndex(reader, idx, newWay) {
+	// TODO: Use index slice instead?
+	for idx = readFieldIndex(reader, idx, newWay); idx != -1; idx = readFieldIndex(reader, idx, newWay) {
 		backer.slice = append(backer.slice, &e.props[idx])
 	}
 
@@ -60,25 +62,24 @@ func (e *Entity) ApplyUpdate(reader *bs.BitReader) {
 	entrySliceBackerPool.Put(backer)
 }
 
-func (e *Entity) readFileIndex(reader *bs.BitReader, lastIndex int, newWay bool) int {
+func readFieldIndex(reader *bs.BitReader, lastIndex int, newWay bool) int {
 	if newWay && reader.ReadBit() {
 		// NewWay A
 		return lastIndex + 1
 	}
-	var res int
+	var res uint
 	if newWay && reader.ReadBit() {
 		// NewWay B
-		res = int(reader.ReadInt(3))
+		res = reader.ReadInt(3)
 	} else {
-		res = int(reader.ReadInt(7))
+		res = reader.ReadInt(7)
 		switch res & (32 | 64) {
 		case 32:
-			// Cast might be too late, should maybe be before bitshift
-			res = (res & ^96) | (int(reader.ReadInt(2) << 5))
+			res = (res & ^uint(96)) | (reader.ReadInt(2) << 5)
 		case 64:
-			res = (res & ^96) | (int(reader.ReadInt(4) << 5))
+			res = (res & ^uint(96)) | (reader.ReadInt(4) << 5)
 		case 96:
-			res = (res & ^96) | (int(reader.ReadInt(7) << 5))
+			res = (res & ^uint(96)) | (reader.ReadInt(7) << 5)
 		}
 	}
 
@@ -87,7 +88,7 @@ func (e *Entity) readFileIndex(reader *bs.BitReader, lastIndex int, newWay bool)
 		return -1
 	}
 
-	return lastIndex + 1 + res
+	return lastIndex + 1 + int(res)
 }
 
 func (e *Entity) CollectProperties(ppBase *map[int]PropValue) {
