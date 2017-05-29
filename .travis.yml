@@ -4,8 +4,23 @@ go:
   - 1.8
   - master
 
+before_install:
+  - mkdir -p $HOME/bin
+  - wget https://github.com/git-lfs/git-lfs/releases/download/v2.1.1/git-lfs-linux-amd64-2.1.1.tar.gz
+  - tar xvfz git-lfs-linux-amd64-2.1.1.tar.gz
+  - mv git-lfs-2.1.1/git-lfs $HOME/bin/git-lfs
+  - export PATH=$PATH:$HOME/bin/
+
+install:
+  - git submodule init
+  - git submodule update
+  - pushd test/cs-demos
+  - git-lfs pull
+  - popd
+  - go get -t -v ./...
+
 script:
-  - go test -v -race -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -v msg | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/')
+  - go test -v -race -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -v msg | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/') -timeout 50m
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

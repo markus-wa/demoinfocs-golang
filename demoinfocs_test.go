@@ -5,17 +5,27 @@ import (
 	"fmt"
 	dem "github.com/markus-wa/demoinfocs-golang"
 	"github.com/markus-wa/demoinfocs-golang/events"
+	"io/ioutil"
 	"os"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 )
 
-const demPath = "test/demo.dem"
+const demSetPath = "test/cs-demos"
+const defaultDemName = "/default.dem"
+const defaultDemPath = demSetPath + defaultDemName
+
+func init() {
+	if _, err := os.Stat(defaultDemPath); err != nil {
+		panic(fmt.Sprintf("Failed to read test demo %q", defaultDemPath))
+	}
+}
 
 func TestDemoInfoCs(t *testing.T) {
-	f, err := os.Open(demPath)
+	f, err := os.Open(defaultDemPath)
 	defer f.Close()
 	if err != nil {
 		t.Fatal(err)
@@ -28,14 +38,20 @@ func TestDemoInfoCs(t *testing.T) {
 
 	fmt.Println("Registering handlers")
 	var tState *dem.TeamState
-	var oldScore int
+	var ctState *dem.TeamState
+	var oldTScore int
+	var oldCtScore int
 	p.RegisterEventHandler(func(events.TickDoneEvent) {
-		if tState != nil && oldScore != tState.Score() {
-			fmt.Println("T-side score: ", tState.Score())
-			oldScore = tState.Score()
+		if tState != nil && oldTScore != tState.Score() {
+			fmt.Println("T-side score:", tState.Score())
+			oldTScore = tState.Score()
+		} else if ctState != nil && oldCtScore != ctState.Score() {
+			fmt.Println("CT-side score:", ctState.Score())
+			oldCtScore = ctState.Score()
 		}
 	})
 	tState = p.TState()
+	ctState = p.CTState()
 
 	ts := time.Now()
 	cancel := false
@@ -59,7 +75,7 @@ func TestDemoInfoCs(t *testing.T) {
 }
 
 func TestCancelParseToEnd(t *testing.T) {
-	f, err := os.Open(demPath)
+	f, err := os.Open(defaultDemPath)
 	defer f.Close()
 	if err != nil {
 		t.Fatal(err)
@@ -88,7 +104,7 @@ func TestCancelParseToEnd(t *testing.T) {
 func TestConcurrent(t *testing.T) {
 	var i int64
 	runner := func() {
-		f, _ := os.Open(demPath)
+		f, _ := os.Open(defaultDemPath)
 		defer f.Close()
 
 		p := dem.NewParser(f)
@@ -110,10 +126,44 @@ func TestConcurrent(t *testing.T) {
 	wg.Wait()
 }
 
+func TestDemoSet(t *testing.T) {
+	dems, err := ioutil.ReadDir(demSetPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, d := range dems {
+		name := d.Name()
+		if name != defaultDemName && strings.HasSuffix(name, ".dem") {
+			fmt.Printf("Parsing '%s/%s'\n", demSetPath, name)
+			func() {
+				var f *os.File
+				f, err = os.Open(demSetPath + "/" + name)
+				defer f.Close()
+				if err != nil {
+					t.Error(err)
+				}
+
+				defer func() {
+					pErr := recover()
+					if pErr != nil {
+						t.Errorf("Failed to parse '%s/%s' - %s\n", demSetPath, name, pErr)
+					}
+				}()
+
+				p := dem.NewParser(f)
+				p.ParseHeader()
+
+				p.ParseToEnd(nil)
+			}()
+		}
+	}
+}
+
 func BenchmarkDemoInfoCs(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		func() {
-			f, err := os.Open(demPath)
+			f, err := os.Open(defaultDemPath)
 			defer f.Close()
 			if err != nil {
 				b.Fatal(err)
@@ -130,7 +180,7 @@ func BenchmarkDemoInfoCs(b *testing.B) {
 }
 
 func BenchmarkInMemory(b *testing.B) {
-	f, err := os.Open(demPath)
+	f, err := os.Open(defaultDemPath)
 	defer f.Close()
 	if err != nil {
 		b.Fatal(err)

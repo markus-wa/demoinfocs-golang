@@ -17,6 +17,19 @@ Is a CS:GO demo parser written in Go based on [Valve's demoinfogo](https://githu
 
 ## Development
 
+### Running tests
+
+To run tests [Git LFS](https://git-lfs.github.com) is required.
+
+```
+git submodule init
+git submodule update
+pushd test/cs-demos
+git lfs pull
+popd
+go test
+```
+
 ### Generating protobuf code
 
 Should you need to re-generate the protobuf generated code in the `msg` package, you will need the following tools:
