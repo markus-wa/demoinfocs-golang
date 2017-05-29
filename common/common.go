@@ -169,6 +169,7 @@ func MapEquipment(originalString string) EquipmentElement {
 		case "scout":
 		case "sg552":
 		case "tmp":
+		case "worldspawn":
 
 		default:
 			fmt.Fprintf(os.Stderr, "Warning: Unknown weapon %q\n", originalString)
