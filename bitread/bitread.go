@@ -18,7 +18,7 @@ type BitReader struct {
 	buffer []byte
 }
 
-// ReadString reads a varaible length string
+// ReadString reads a variable length string
 func (r *BitReader) ReadString() string {
 	// Valve also uses this sooo
 	return r.readStringLimited(4096, false)

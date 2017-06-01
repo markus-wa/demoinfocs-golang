@@ -327,7 +327,7 @@ func (p *Parser) handleTeamScores() {
 					s.score = val.IntVal
 				})
 
-				// FIXME: This only sets the team at the start. . . We also have a player-specific update handler that changes the team so maybe this is unneccessary?
+				// FIXME: This only sets the team at the start. . . We also have a player-specific update handler that changes the team so maybe this is unnecessary?
 				if teamID != -1 {
 					s.id = teamID
 					for _, pl := range p.players {
