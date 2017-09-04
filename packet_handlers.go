@@ -414,6 +414,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "cs_match_end_restart": // Yawn
 	case "item_equip": // Seems to be POV demo specific
 	case "item_pickup": // Seems to be POV demo specific
+	case "item_remove": // Dunno
 	default:
 		fmt.Fprintf(os.Stderr, "WARNING: Unknown event %q\n", d.Name)
 	}
