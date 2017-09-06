@@ -37,6 +37,7 @@ type Parser struct {
 	preprocessedBaselines map[int]map[int]st.PropValue
 	gehDescriptors        map[int32]*msg.CSVCMsg_GameEventListDescriptorT
 	stringTables          []*msg.CSVCMsg_CreateStringTable
+	cancelChan            chan struct{}
 }
 
 func (p *Parser) Map() string {
@@ -115,6 +116,7 @@ func NewParser(demostream io.Reader) *Parser {
 	p.players = make(map[int]*common.Player)
 	p.connectedPlayers = make(map[int]*common.Player)
 	p.entities = make(map[int]*st.Entity)
+	p.cancelChan = make(chan struct{}, 1)
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)

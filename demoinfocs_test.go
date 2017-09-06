@@ -15,8 +15,8 @@ import (
 )
 
 const demSetPath = "test/cs-demos"
-const defaultDemName = "/default.dem"
-const defaultDemPath = demSetPath + defaultDemName
+const defaultDemName = "default.dem"
+const defaultDemPath = demSetPath + "/" + defaultDemName
 
 func init() {
 	if _, err := os.Stat(defaultDemPath); err != nil {
@@ -54,21 +54,24 @@ func TestDemoInfoCs(t *testing.T) {
 	ctState = p.CTState()
 
 	ts := time.Now()
-	cancel := false
 	var done int64
 	go func() {
 		timer := time.NewTimer(time.Minute * 2)
 		<-timer.C
 		if atomic.LoadInt64(&done) == 0 {
-			cancel = true
+			t.Error("Parsing timeout")
+			p.Cancel()
 			timer.Reset(time.Second * 1)
 			<-timer.C
-			t.Fatal("Parsing timeout")
+			t.Fatal("Parser locked up for more than one second after cancellation")
 		}
 	}()
 
 	fmt.Println("Parsing to end")
-	p.ParseToEnd(&cancel)
+	err = p.ParseToEnd()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	atomic.StoreInt64(&done, 1)
 	fmt.Printf("Took %s\n", time.Since(ts))
@@ -82,23 +85,27 @@ func TestCancelParseToEnd(t *testing.T) {
 	}
 
 	p := dem.NewParser(f)
-	p.ParseHeader()
+	err = p.ParseHeader()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	maxTicks := 100
 	var tix int
-	var cancel bool
 
 	p.RegisterEventHandler(func(events.TickDoneEvent) {
 		tix++
 		if tix == maxTicks {
-			cancel = true
+			p.Cancel()
 		} else if tix > maxTicks {
 			t.Fatal("Parsing continued after cancellation")
 		}
 	})
 
-	defer func() { recover() }()
-	p.ParseToEnd(&cancel)
+	err = p.ParseToEnd()
+	if err == nil {
+		t.Fatal("Parsing cancelled but no error was returned")
+	}
 }
 
 func TestConcurrent(t *testing.T) {
@@ -108,13 +115,16 @@ func TestConcurrent(t *testing.T) {
 		defer f.Close()
 
 		p := dem.NewParser(f)
-		p.ParseHeader()
+		err := p.ParseHeader()
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		n := atomic.AddInt64(&i, 1)
 		fmt.Printf("Starting runner %d\n", n)
 
 		ts := time.Now()
-		p.ParseToEnd(nil)
+		p.ParseToEnd()
 		fmt.Printf("Runner %d took %s\n", n, time.Since(ts))
 	}
 
@@ -152,9 +162,12 @@ func TestDemoSet(t *testing.T) {
 				}()
 
 				p := dem.NewParser(f)
-				p.ParseHeader()
+				err = p.ParseHeader()
+				if err != nil {
+					t.Fatal(err)
+				}
 
-				p.ParseToEnd(nil)
+				p.ParseToEnd()
 			}()
 		}
 	}
@@ -170,10 +183,12 @@ func BenchmarkDemoInfoCs(b *testing.B) {
 			}
 
 			p := dem.NewParser(f)
-			p.ParseHeader()
-
+			err = p.ParseHeader()
+			if err != nil {
+				b.Fatal(err)
+			}
 			ts := time.Now()
-			p.ParseToEnd(nil)
+			p.ParseToEnd()
 			b.Logf("Took %s\n", time.Since(ts))
 		}()
 	}
@@ -200,10 +215,13 @@ func BenchmarkInMemory(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		p := dem.NewParser(bytes.NewReader(d))
-		p.ParseHeader()
+		err = p.ParseHeader()
+		if err != nil {
+			b.Fatal(err)
+		}
 
 		ts := time.Now()
-		p.ParseToEnd(nil)
+		p.ParseToEnd()
 		b.Logf("Took %s\n", time.Since(ts))
 	}
 }

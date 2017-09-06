@@ -107,7 +107,7 @@ func (propertyDecoder) decodeSpecialFloat(prop *SendTableProperty, reader *bs.Bi
 	} else if prop.Flags.HasFlagSet(SPF_CellCoordIntegral) {
 		return propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), false, true)
 	}
-	panic("Unexpected special float flag")
+	panic(fmt.Sprintf("Unexpected special float flag (Flags %v)", prop.Flags))
 }
 
 func (propertyDecoder) readBitCoord(reader *bs.BitReader) float32 {

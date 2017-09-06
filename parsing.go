@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
@@ -26,8 +27,8 @@ const (
 )
 
 // ParseHeader attempts to parse the header of the demo.
-// Panics if the filestamp doesn't match HL2DEMO
-func (p *Parser) ParseHeader() {
+// Returns error if the filestamp (first 8 bytes) doesn't match HL2DEMO.
+func (p *Parser) ParseHeader() error {
 	var h common.DemoHeader
 	h.Filestamp = p.bitReader.ReadCString(8)
 	h.Protocol = p.bitReader.ReadSignedInt(32)
@@ -42,25 +43,34 @@ func (p *Parser) ParseHeader() {
 	h.SignonLength = p.bitReader.ReadSignedInt(32)
 
 	if h.Filestamp != "HL2DEMO" {
-		panic("Shit's fucked mate (Invalid File-Type; expecting HL2DEMO)")
+		return errors.New("Invalid File-Type; expecting HL2DEMO in the first 8 bytes")
 	}
 
 	p.header = &h
 	p.eventDispatcher.Dispatch(events.HeaderParsedEvent{Header: h})
+	return nil
 }
 
 // ParseToEnd attempts to parse the demo until the end.
-// Aborts and panics when the cancelToken is set to true.
+// Aborts and returns an error if Cancel() is called before the end.
 // May panic if the demo is corrupt in some way.
-func (p *Parser) ParseToEnd(cancelToken *bool) {
-	for cancelToken == nil || !*cancelToken {
-		if !p.ParseNextTick() {
-			break
+func (p *Parser) ParseToEnd() error {
+	for {
+		select {
+		case <-p.cancelChan:
+			return errors.New("Parsing was cancelled before it finished")
+
+		default:
+			if !p.ParseNextTick() {
+				return nil
+			}
 		}
 	}
-	if cancelToken != nil && *cancelToken {
-		panic("Parser.ParseToEnd() has been cancelled")
-	}
+}
+
+// Cancel aborts ParseToEnd() on the upcoming tick.
+func (p *Parser) Cancel() {
+	p.cancelChan <- struct{}{}
 }
 
 // ParseNextTick attempts to parse the next tick.
