@@ -8,6 +8,7 @@ import (
 	"io"
 )
 
+// DemoHeader contains information about the demo's header.
 type DemoHeader struct {
 	Filestamp       string
 	Protocol        int
@@ -22,6 +23,7 @@ type DemoHeader struct {
 	SignonLength    int
 }
 
+// PlayerInfo contains general player information
 type PlayerInfo struct {
 	Version     int64
 	XUID        int64
@@ -43,6 +45,7 @@ type PlayerInfo struct {
 	IsHltv bool
 }
 
+// Player contains mostly game-relevant player information.
 type Player struct {
 	SteamID                     int64
 	Position                    r3.Vector
@@ -82,6 +85,7 @@ func (p *Player) ActiveWeapon() *Equipment {
 	return p.RawWeapons[p.ActiveWeaponID]
 }
 
+// AdditionalPlayerInformation contains mostly scoreboard information.
 type AdditionalPlayerInformation struct {
 	Kills          int
 	Deaths         int
@@ -93,6 +97,8 @@ type AdditionalPlayerInformation struct {
 	TotalCashSpent int
 }
 
+// Equipment is a weapon / piece of equipment belonging to a player.
+// This also includes the skin and some additional data.
 type Equipment struct {
 	EntityID       int
 	Weapon         EquipmentElement
@@ -104,6 +110,8 @@ type Equipment struct {
 	ReserveAmmo    int
 }
 
+// Class returns the class of the equipment.
+// E.g. pistol, smg, heavy etc.
 func (e Equipment) Class() EquipmentClass {
 	return EquipmentClass(int(e.Weapon) / 100)
 }

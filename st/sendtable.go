@@ -1,3 +1,4 @@
+// Package st contains sendtable specific magic and should really be better documented (TODO).
 package st
 
 type SendTable struct {

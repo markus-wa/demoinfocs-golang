@@ -11,6 +11,11 @@ import (
 
 // TODO?: create struct GameState for all game-state relevant stuff
 
+// Parser can parse a CS:GO demo.
+// Creating a Parser is done via NewParser().
+// To start off use Parser.ParseHeader() to parse the demo header.
+// After parsing the header Parser.ParseNextTick() and Parser.ParseToEnd() can be used to parse the demo.
+// Use Parser.RegisterEventHandler() to receive notifications about events.
 type Parser struct {
 	bitReader             *bs.BitReader
 	stParser              st.Parser
@@ -40,10 +45,13 @@ type Parser struct {
 	cancelChan            chan struct{}
 }
 
+// Map returns the map name. E.g. de_dust2 or de_inferno.
 func (p *Parser) Map() string {
 	return p.header.MapName
 }
 
+// Participants returns all connected players.
+// This includes spectators.
 func (p *Parser) Participants() []*common.Player {
 	r := make([]*common.Player, 0, len(p.connectedPlayers))
 	for _, ptcp := range p.connectedPlayers {
@@ -52,6 +60,7 @@ func (p *Parser) Participants() []*common.Player {
 	return r
 }
 
+// PlayingParticipants returns all players that aren't spectating.
 func (p *Parser) PlayingParticipants() []*common.Player {
 	r := make([]*common.Player, 0, len(p.connectedPlayers))
 	for _, ptcp := range p.connectedPlayers {
@@ -63,18 +72,26 @@ func (p *Parser) PlayingParticipants() []*common.Player {
 	return r
 }
 
+// TickRate returns the tick rate of the demo.
+// VolvoPlx128BitKTnxBye
 func (p *Parser) TickRate() float32 {
 	return float32(p.header.PlaybackFrames) / p.header.PlaybackTime
 }
 
+// TickTime returns the time a single tick takes in seconds.
 func (p *Parser) TickTime() float32 {
 	return p.header.PlaybackTime / float32(p.header.PlaybackFrames)
 }
 
+// Progress returns the parsing progress from 0 to 1.
+// Where 0 means nothing has been parsed yet and 1 means the demo has been parsed to the end.
+// Might not actually be reliable since it's just based on the reported tick count of the header.
 func (p *Parser) Progress() float32 {
 	return float32(p.currentTick) / float32(p.header.PlaybackFrames)
 }
 
+// CurrentTick return the number of the current tick.
+// Starts with tick 0.
 func (p *Parser) CurrentTick() int {
 	return p.currentTick
 }
@@ -83,6 +100,7 @@ func (p *Parser) IngameTick() int {
 	return p.ingameTick
 }
 
+// CurrentTime returns the ingame time in seconds since the start of the demo.
 func (p *Parser) CurrentTime() float32 {
 	return float32(p.currentTick) * p.TickTime()
 }
@@ -90,15 +108,19 @@ func (p *Parser) CurrentTime() float32 {
 // RegisterEventHandler registers a handler for game events.
 // Must be of type func(<EventType>) where EventType is the kind of event that is handled.
 // To catch all events func(interface{}) can be used.
-// Parameter handler has to be of type interface{} because go doesn't support generics.
+// Parameter handler has to be of type interface{} because lolnogenerics.
 func (p *Parser) RegisterEventHandler(handler interface{}) {
 	p.eventDispatcher.RegisterHandler(handler)
 }
 
+// CTState returns the TeamState of the CT team.
+// Make sure you handle swapping sides propperly if you keep the reference.
 func (p *Parser) CTState() *TeamState {
 	return &p.ctState
 }
 
+// TState returns the TeamState of the T team.
+// Make sure you handle swapping sides propperly if you keep the reference.
 func (p *Parser) TState() *TeamState {
 	return &p.tState
 }

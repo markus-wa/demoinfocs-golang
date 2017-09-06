@@ -5,6 +5,7 @@ import (
 	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 )
 
+// TeamState contains a team's ID, score, clan name & country flag.
 type TeamState struct {
 	id       int
 	score    int
@@ -12,18 +13,23 @@ type TeamState struct {
 	flag     string
 }
 
+// ID returns the team-ID.
+// This stays the same even after switching sides.
 func (ts TeamState) ID() int {
 	return ts.id
 }
 
+// Score returns the team's number of rounds won.
 func (ts TeamState) Score() int {
 	return ts.score
 }
 
+// ClanName returns the team's clan name.
 func (ts TeamState) ClanName() string {
 	return ts.clanName
 }
 
+// Flag returns the team's country flag.
 func (ts TeamState) Flag() string {
 	return ts.flag
 }

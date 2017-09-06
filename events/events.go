@@ -1,3 +1,4 @@
+// Package events contains all events that can be sent out from demoinfocs.Parser.
 package events
 
 import (

@@ -1,3 +1,10 @@
+// Package common contains common types, constants and functions used over different demoinfocs packages.
+// Some constants prefixes:
+// MVPReason - the reason why someone got the MVP award.
+// HG - HitGroup - where a bullet hit the player.
+// EE - EquipmentElement - basically the weapon identifiers.
+// RER - RoundEndReason - why the round ended (bomb exploded, defused, time ran out. . .).
+// EC - EquipmentClass - type of equipment (pistol, smg, heavy. . .).
 package common
 
 import (

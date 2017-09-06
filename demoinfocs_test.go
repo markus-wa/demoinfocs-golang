@@ -34,6 +34,9 @@ func TestDemoInfoCs(t *testing.T) {
 	p := dem.NewParser(f)
 
 	fmt.Println("Parsing header")
+	p.RegisterEventHandler(func(e events.HeaderParsedEvent) {
+		fmt.Printf("Header: %v\n", e)
+	})
 	p.ParseHeader()
 
 	fmt.Println("Registering handlers")
