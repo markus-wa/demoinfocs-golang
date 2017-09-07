@@ -56,7 +56,8 @@ func TestDemoInfoCs(t *testing.T) {
 	ts := time.Now()
 	var done int64
 	go func() {
-		timer := time.NewTimer(time.Minute * 2)
+		// 5 minute timeout (for a really slow machine with race condition testing)
+		timer := time.NewTimer(time.Minute * 5)
 		<-timer.C
 		if atomic.LoadInt64(&done) == 0 {
 			t.Error("Parsing timeout")

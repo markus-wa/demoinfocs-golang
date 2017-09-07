@@ -1,26 +1,19 @@
 language: go
 
 go:
-  - 1.8
+  - 1.9
   - master
 
-before_install:
-  - mkdir -p $HOME/bin
-  - wget https://github.com/git-lfs/git-lfs/releases/download/v2.1.1/git-lfs-linux-amd64-2.1.1.tar.gz
-  - tar xvfz git-lfs-linux-amd64-2.1.1.tar.gz
-  - mv git-lfs-2.1.1/git-lfs $HOME/bin/git-lfs
-  - export PATH=$PATH:$HOME/bin/
-
-install:
-  - git submodule init
-  - git submodule update
-  - pushd test/cs-demos
-  - git-lfs pull
-  - popd
-  - go get -t -v ./...
+before_script:
+  # We don't want to run the demo set test with race condition testing.
+  # The demo set is large and race tests take a lot longer
+  - race_tests=$(go test -list . | grep -v "TestDemoSet\|Benchmark" | head -n -1 | awk -vORS=\| '{ print $1 }' | sed 's/|$/\n/')
 
 script:
-  - go test -v -race -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -v msg | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/') -timeout 50m
+  # Run race tests
+  - go test -v -race -run "$race_tests" -timeout 15m
+  # We run all tests again to get full coverage, technically unncecessary tho
+  - go test -v -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -v msg | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/') -timeout 30m
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
