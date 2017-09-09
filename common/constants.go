@@ -43,7 +43,7 @@ const (
 	RER_TerroristsStopped
 	RER_BombDefused
 	RER_CTWin
-	RER_TerrprostWin
+	RER_TerroristsWin
 	RER_Draw
 	RER_HostagesRescued
 	RER_TargetSaved
