@@ -43,6 +43,8 @@ func MapEquipment(originalString string) EquipmentElement {
 		case "decoy":
 			fallthrough
 		case "decoygrenade":
+			fallthrough
+		case "decoy_projectile":
 			wep = EE_Decoy
 
 		case "elite":
