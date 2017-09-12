@@ -4,7 +4,7 @@ import (
 	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/msg"
-	"github.com/markus-wa/demoinfocs-golang/st"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 	dp "github.com/markus-wa/godispatch"
 	"io"
 )

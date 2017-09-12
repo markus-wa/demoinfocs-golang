@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
-	"github.com/markus-wa/demoinfocs-golang/st"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 	"os"
 	"strconv"
 	"strings"

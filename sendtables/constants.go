@@ -1,4 +1,4 @@
-package st
+package sendtables
 
 // SendPropertyFlags contains multiple send property flags.
 type SendPropertyFlags int

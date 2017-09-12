@@ -1,4 +1,4 @@
-package st
+package sendtables
 
 type ServerClass struct {
 	ClassID               int

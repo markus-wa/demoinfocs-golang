@@ -1,5 +1,5 @@
 // Package st contains sendtable specific magic and should really be better documented (TODO).
-package st
+package sendtables
 
 type SendTable struct {
 	properties []SendTableProperty

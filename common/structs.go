@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"github.com/golang/geo/r3"
 	bs "github.com/markus-wa/demoinfocs-golang/bitread"
-	"github.com/markus-wa/demoinfocs-golang/st"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 	"io"
 )
 
