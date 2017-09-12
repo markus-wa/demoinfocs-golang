@@ -14,7 +14,7 @@ import (
 // Parser can parse a CS:GO demo.
 // Creating a Parser is done via NewParser().
 // To start off use Parser.ParseHeader() to parse the demo header.
-// After parsing the header Parser.ParseNextTick() and Parser.ParseToEnd() can be used to parse the demo.
+// After parsing the header Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo.
 // Use Parser.RegisterEventHandler() to receive notifications about events.
 type Parser struct {
 	bitReader             *bs.BitReader
@@ -22,7 +22,7 @@ type Parser struct {
 	msgDispatcher         dp.Dispatcher
 	eventDispatcher       dp.Dispatcher
 	msgQueue              chan interface{}
-	currentTick           int
+	currentFrame          int
 	ingameTick            int
 	header                *common.DemoHeader // Pointer so we can check for nil
 	equipmentMapping      map[*st.ServerClass]common.EquipmentElement
@@ -72,14 +72,15 @@ func (p *Parser) PlayingParticipants() []*common.Player {
 	return r
 }
 
-// TickRate returns the tick rate of the demo.
+// FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
+// Not necessarily the tick-rate the server ran on during the game.
 // VolvoPlx128BitKTnxBye
-func (p *Parser) TickRate() float32 {
+func (p *Parser) FrameRate() float32 {
 	return float32(p.header.PlaybackFrames) / p.header.PlaybackTime
 }
 
-// TickTime returns the time a single tick takes in seconds.
-func (p *Parser) TickTime() float32 {
+// FrameTime returns the time a frame / demo-tick takes in seconds.
+func (p *Parser) FrameTime() float32 {
 	return p.header.PlaybackTime / float32(p.header.PlaybackFrames)
 }
 
@@ -87,22 +88,24 @@ func (p *Parser) TickTime() float32 {
 // Where 0 means nothing has been parsed yet and 1 means the demo has been parsed to the end.
 // Might not actually be reliable since it's just based on the reported tick count of the header.
 func (p *Parser) Progress() float32 {
-	return float32(p.currentTick) / float32(p.header.PlaybackFrames)
+	return float32(p.currentFrame) / float32(p.header.PlaybackFrames)
 }
 
-// CurrentTick return the number of the current tick.
-// Starts with tick 0.
-func (p *Parser) CurrentTick() int {
-	return p.currentTick
+// CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
+// Starts with frame 0, should go up to DemoHeader.PlaybackFrames but might not be the case (usually it's just close to it).
+func (p *Parser) CurrentFrame() int {
+	return p.currentFrame
 }
 
+// IngameTick returns the latest actual tick number of the server during the game.
+// Watch out, I've seen this return wonky negative numbers at the start of demos.
 func (p *Parser) IngameTick() int {
 	return p.ingameTick
 }
 
 // CurrentTime returns the ingame time in seconds since the start of the demo.
 func (p *Parser) CurrentTime() float32 {
-	return float32(p.currentTick) * p.TickTime()
+	return float32(p.currentFrame) * p.FrameTime()
 }
 
 // RegisterEventHandler registers a handler for game events.

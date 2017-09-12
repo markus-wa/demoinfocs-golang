@@ -61,7 +61,7 @@ func (p *Parser) ParseToEnd() error {
 			return errors.New("Parsing was cancelled before it finished")
 
 		default:
-			if !p.ParseNextTick() {
+			if !p.ParseNextFrame() {
 				return nil
 			}
 		}
@@ -73,14 +73,14 @@ func (p *Parser) Cancel() {
 	p.cancelChan <- struct{}{}
 }
 
-// ParseNextTick attempts to parse the next tick.
+// ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
 // Returns true unless the demo command 'stop' was encountered.
 // Panics if header hasn't been parsed yet - see Parser.ParseHeader().
-func (p *Parser) ParseNextTick() bool {
+func (p *Parser) ParseNextFrame() bool {
 	if p.header == nil {
 		panic("Tried to parse tick before parsing header")
 	}
-	b := p.parseTick()
+	b := p.parseFrame()
 
 	for k, rp := range p.rawPlayers {
 		if rp == nil {
@@ -118,15 +118,15 @@ func (p *Parser) ParseNextTick() bool {
 	return b
 }
 
-func (p *Parser) parseTick() bool {
+func (p *Parser) parseFrame() bool {
 	cmd := demoCommand(p.bitReader.ReadSingleByte())
 
-	// Tick number
+	// Ingame tick number
 	p.ingameTick = p.bitReader.ReadSignedInt(32)
 	// Skip 'player slot'
 	p.bitReader.ReadSingleByte()
 
-	p.currentTick++
+	p.currentFrame++
 
 	switch cmd {
 	case dc_Synctick:
