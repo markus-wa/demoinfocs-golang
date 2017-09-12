@@ -23,6 +23,7 @@ import (
 	dem "github.com/markus-wa/demoinfocs-golang"
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
+	"log"
 	"os"
 )
 
@@ -30,7 +31,7 @@ func main() {
 	f, err := os.Open("path/to/demo.dem")
 	defer f.Close()
 	if err != nil {
-		fmt.Errorf(err.Error())
+		log.Fatal(err)
 	}
 
 	p := dem.NewParser(f)
@@ -75,7 +76,7 @@ func main() {
 	// Parse to end
 	err = p.ParseToEnd()
 	if err != nil {
-		fmt.Errorf(err.Error())
+		log.Fatal(err)
 	}
 }
 ```

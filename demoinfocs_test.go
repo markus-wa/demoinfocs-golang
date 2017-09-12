@@ -182,7 +182,6 @@ func TestExample(t *testing.T) {
 	f, err := os.Open(defaultDemPath)
 	defer f.Close()
 	if err != nil {
-		fmt.Errorf(err.Error())
 		t.Fatal(err)
 	}
 
@@ -228,7 +227,6 @@ func TestExample(t *testing.T) {
 	// Parse to end
 	err = p.ParseToEnd()
 	if err != nil {
-		fmt.Errorf(err.Error())
 		t.Fatal(err)
 	}
 }
