@@ -114,13 +114,13 @@ func (p *Parser) RegisterEventHandler(handler interface{}) {
 }
 
 // CTState returns the TeamState of the CT team.
-// Make sure you handle swapping sides propperly if you keep the reference.
+// Make sure you handle swapping sides properly if you keep the reference.
 func (p *Parser) CTState() *TeamState {
 	return &p.ctState
 }
 
 // TState returns the TeamState of the T team.
-// Make sure you handle swapping sides propperly if you keep the reference.
+// Make sure you handle swapping sides properly if you keep the reference.
 func (p *Parser) TState() *TeamState {
 	return &p.tState
 }
