@@ -12,10 +12,12 @@ type Entity struct {
 	props       []PropertyEntry
 }
 
+// Props returns all property entries for a entity.
 func (e *Entity) Props() []PropertyEntry {
 	return e.props
 }
 
+// FindProperty finds a property on the entity by name.
 func (e *Entity) FindProperty(name string) *PropertyEntry {
 	var prop *PropertyEntry
 	for i := range e.props {

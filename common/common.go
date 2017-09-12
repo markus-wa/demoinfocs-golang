@@ -13,15 +13,16 @@ import (
 	"strings"
 )
 
-func MapEquipment(originalString string) EquipmentElement {
-	originalString = strings.TrimPrefix(originalString, weaponPrefix)
+// MapEquipment creates an EquipmentElement from the name of the weapon / equipment.
+func MapEquipment(eqName string) EquipmentElement {
+	eqName = strings.TrimPrefix(eqName, weaponPrefix)
 
 	wep := EE_Unknown
 
-	if strings.Contains(originalString, "knife") || strings.Contains(originalString, "bayonet") {
+	if strings.Contains(eqName, "knife") || strings.Contains(eqName, "bayonet") {
 		wep = EE_Knife
 	} else {
-		switch originalString {
+		switch eqName {
 		case "ak47":
 			wep = EE_AK47
 
@@ -181,7 +182,7 @@ func MapEquipment(originalString string) EquipmentElement {
 		case "worldspawn":
 
 		default:
-			fmt.Fprintf(os.Stderr, "WARNING: Unknown weapon %q\n", originalString)
+			fmt.Fprintf(os.Stderr, "WARNING: Unknown weapon / equipment %q\n", eqName)
 		}
 	}
 	return wep

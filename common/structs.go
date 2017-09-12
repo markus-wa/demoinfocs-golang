@@ -77,10 +77,12 @@ type Player struct {
 	HasHelmet                   bool
 }
 
+// IsAlive returns true if the Hp of the player are > 0.
 func (p *Player) IsAlive() bool {
 	return p.Hp > 0
 }
 
+// ActiveWeapon returns the currently active / equipped weapon of the player.
 func (p *Player) ActiveWeapon() *Equipment {
 	return p.RawWeapons[p.ActiveWeaponID]
 }
@@ -116,20 +118,23 @@ func (e Equipment) Class() EquipmentClass {
 	return EquipmentClass(int(e.Weapon) / 100)
 }
 
-func NewEquipment(originalString string) Equipment {
-	return NewSkinEquipment(originalString, "")
+// NewEquipment is a wrapper for NewSkinEquipment to create weapons without skins.
+func NewEquipment(eqName string) Equipment {
+	return NewSkinEquipment(eqName, "")
 }
 
-func NewSkinEquipment(originalString string, skin string) Equipment {
+// NewSkinEquipment creates an equipment with a skin from a skinId and equipment name.
+func NewSkinEquipment(eqName string, skinId string) Equipment {
 	var wep EquipmentElement
-	if len(originalString) > 0 {
-		wep = MapEquipment(originalString)
+	if len(eqName) > 0 {
+		wep = MapEquipment(eqName)
 	} else {
 		wep = EE_Unknown
 	}
-	return Equipment{Weapon: wep, SkinID: skin}
+	return Equipment{Weapon: wep, SkinID: skinId}
 }
 
+// ParsePlayerInfo parses player information from a byte stream.
 func ParsePlayerInfo(reader io.Reader) *PlayerInfo {
 	br := bs.NewSmallBitReader(reader)
 	res := &PlayerInfo{
@@ -155,6 +160,7 @@ func ParsePlayerInfo(reader io.Reader) *PlayerInfo {
 	return res
 }
 
+// NewPlayer creates a *Player with an initialized equipment map.
 func NewPlayer() *Player {
 	return &Player{RawWeapons: make(map[int]*Equipment)}
 }

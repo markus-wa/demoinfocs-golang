@@ -1,7 +1,9 @@
 package st
 
+// SendPropertyFlags contains multiple send property flags.
 type SendPropertyFlags int
 
+// HasFlagSet returns true if the given flag is set
 func (spf SendPropertyFlags) HasFlagSet(flag SendPropertyFlags) bool {
 	return int(spf)&int(flag) == int(flag)
 }

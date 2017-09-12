@@ -14,12 +14,13 @@ const (
 	maxVarInt32Bytes = 5
 )
 
+// BitReader wraps github.com/markus-wa/gobitread.BitReader and provides additional functionality specific to CS:GO demos.
 type BitReader struct {
 	bitread.BitReader
 	buffer []byte
 }
 
-// ReadString reads a variable length string
+// ReadString reads a variable length string.
 func (r *BitReader) ReadString() string {
 	// Valve also uses this sooo
 	return r.readStringLimited(4096, false)
@@ -37,10 +38,12 @@ func (r *BitReader) readStringLimited(limit int, endOnNewLine bool) string {
 	return string(result)
 }
 
+// ReadFloat reads a 32-bit float. Wraps ReadInt().
 func (r *BitReader) ReadFloat() float32 {
 	return math.Float32frombits(uint32(r.ReadInt(32)))
 }
 
+// ReadVarInt32 reads a variable size unsigned int (max 32-bit).
 func (r *BitReader) ReadVarInt32() uint32 {
 	var res uint32
 	var b uint32 = 0x80
@@ -51,6 +54,7 @@ func (r *BitReader) ReadVarInt32() uint32 {
 	return res
 }
 
+// ReadSignedVarInt32 reads a variable size signed int (max 32-bit).
 func (r *BitReader) ReadSignedVarInt32() int32 {
 	res := r.ReadVarInt32()
 	return int32((res >> 1) ^ -(res & 1))
@@ -75,6 +79,8 @@ var bitReaderPool sync.Pool = sync.Pool{
 	},
 }
 
+// Pool puts the BitReader into a pool for future use.
+// Pooling BitReaders improves performance by minimizing the amount newly allocated readers.
 func (r *BitReader) Pool() {
 	r.Close()
 	if len(r.buffer) == smallBuffer {
@@ -97,10 +103,12 @@ var smallBufferPool sync.Pool = sync.Pool{
 	},
 }
 
+// NewSmallBitReader returns a BitReader with a small buffer, suitable for short streams.
 func NewSmallBitReader(underlying io.Reader) *BitReader {
 	return newBitReader(underlying, smallBufferPool.Get().([]byte))
 }
 
+// NewLargeBitReader returns a BitReader with a large buffer, suitable for long streams (main demo file).
 func NewLargeBitReader(underlying io.Reader) *BitReader {
 	return newBitReader(underlying, make([]byte, largeBuffer))
 }

@@ -46,7 +46,7 @@ type RoundStartedEvent struct {
 // WinPanelMatchEvent signals that the 'win panel' has been displayed. I guess that's the final scoreboard.
 type WinPanelMatchEvent struct{}
 
-// 30th round, not raised if the match ends before that.
+// FinalRoundEvent signals the 30th round, not raised if the match ends before that.
 type FinalRoundEvent struct{}
 
 // LastRoundHalfEvent signals the last round of the first half.
