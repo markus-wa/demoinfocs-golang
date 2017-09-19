@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/markus-wa/demoinfocs-golang/common"
-	"github.com/markus-wa/demoinfocs-golang/events"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/markus-wa/demoinfocs-golang/common"
+	"github.com/markus-wa/demoinfocs-golang/events"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
+	opentracing "github.com/opentracing/opentracing-go"
 )
 
 const maxOsPath = 260
@@ -29,6 +31,11 @@ const (
 // ParseHeader attempts to parse the header of the demo.
 // Returns error if the filestamp (first 8 bytes) doesn't match HL2DEMO.
 func (p *Parser) ParseHeader() error {
+	resourceSpan := opentracing.StartSpan(
+		"Parse header",
+		opentracing.ChildOf(p.ctx),
+	)
+	defer resourceSpan.Finish()
 	var h common.DemoHeader
 	h.Filestamp = p.bitReader.ReadCString(8)
 	h.Protocol = p.bitReader.ReadSignedInt(32)

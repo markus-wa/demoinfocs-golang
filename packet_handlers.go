@@ -3,14 +3,16 @@ package demoinfocs
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/golang/geo/r3"
 	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
-	"os"
-	"strconv"
+	opentracing "github.com/opentracing/opentracing-go"
 )
 
 const entitySentinel = 9999
@@ -83,7 +85,16 @@ func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 	}
 }
 
+var round int
+var resourceSpan opentracing.Span
+
 func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
+	if resourceSpan == nil {
+		resourceSpan = opentracing.StartSpan(
+			fmt.Sprintf("Round %d", round),
+			opentracing.ChildOf(p.ctx),
+		)
+	}
 	// TODO: Do we really need to do this check?
 	if p.gehDescriptors == nil {
 		return
@@ -98,8 +109,33 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	var data map[string]*msg.CSVCMsg_GameEventKeyT
 
+	currRound := p.CTState().Score() + p.TState().Score()
+	if round != currRound {
+		round = currRound
+		if resourceSpan != nil {
+			resourceSpan.Finish()
+		}
+		resourceSpan = opentracing.StartSpan(
+			fmt.Sprintf("Round %d", round),
+			opentracing.ChildOf(p.ctx),
+		)
+		resourceSpan.SetTag("Round", round)
+	}
 	switch d.Name {
+	case "round_announce_match_start": // Special round/match start announcement
+		eventSpan := opentracing.StartSpan(
+			"round_announce_match_start",
+			opentracing.ChildOf(resourceSpan.Context()),
+		)
+		defer eventSpan.Finish()
+		p.eventDispatcher.Dispatch(events.MatchStartedEvent{})
+
 	case "round_start": // Round started
+		eventSpan := opentracing.StartSpan(
+			"round_start",
+			opentracing.ChildOf(resourceSpan.Context()),
+		)
+		defer eventSpan.Finish()
 		data = mapGameEventData(d, ge)
 		p.eventDispatcher.Dispatch(events.RoundStartedEvent{
 			TimeLimit: int(data["timelimit"].GetValLong()),
@@ -108,6 +144,11 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		})
 
 	case "cs_win_panel_match": // Not sure, maybe match end event???
+		eventSpan := opentracing.StartSpan(
+			"cs_win_panel_match",
+			opentracing.ChildOf(resourceSpan.Context()),
+		)
+		defer eventSpan.Finish()
 		p.eventDispatcher.Dispatch(events.WinPanelMatchEvent{})
 
 	case "round_announce_final": // 30th round for normal de_, not necessarily matchpoint
@@ -117,6 +158,11 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		p.eventDispatcher.Dispatch(events.LastRoundHalfEvent{})
 
 	case "round_end": // Round ended and the winner was announced
+		eventSpan := opentracing.StartSpan(
+			"round_end",
+			opentracing.ChildOf(resourceSpan.Context()),
+		)
+		defer eventSpan.Finish()
 		data = mapGameEventData(d, ge)
 
 		t := common.Team_Spectators
@@ -135,6 +181,12 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		})
 
 	case "round_officially_ended": // Round ended. . . probably the event where you get teleported to the spawn (=> You can still walk around between round_end and this?)
+		eventSpan := opentracing.StartSpan(
+			"round_officially_ended",
+			opentracing.ChildOf(resourceSpan.Context()),
+		)
+		defer eventSpan.Finish()
+		data = mapGameEventData(d, ge)
 		p.eventDispatcher.Dispatch(events.RoundOfficialyEndedEvent{})
 
 	case "round_mvp": // Round MVP was announced
@@ -151,9 +203,19 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		p.eventDispatcher.Dispatch(events.BotTakenOverEvent{Taker: p.connectedPlayers[int(data["userid"].GetValShort())]})
 
 	case "begin_new_match": // Match started
+		eventSpan := opentracing.StartSpan(
+			"begin_new_match",
+			opentracing.ChildOf(resourceSpan.Context()),
+		)
+		defer eventSpan.Finish()
 		p.eventDispatcher.Dispatch(events.MatchStartedEvent{})
 
 	case "round_freeze_end": // Round start freeze ended
+		eventSpan := opentracing.StartSpan(
+			"round_freeze_end",
+			opentracing.ChildOf(resourceSpan.Context()),
+		)
+		defer eventSpan.Finish()
 		p.eventDispatcher.Dispatch(events.FreezetimeEndedEvent{})
 
 	case "player_jump": // Player jumped
@@ -391,7 +453,6 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	// Probably not that interesting:
 	case "buytime_ended": // Not actually end of buy time, seems to only be sent once per game at the start
-	case "round_announce_match_start": // Special match start announcement
 	case "player_footstep": // Footstep sound
 	case "bomb_beep": // Bomb beep
 	case "player_spawn": // Player spawn
