@@ -8,7 +8,6 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 	dp "github.com/markus-wa/godispatch"
-	opentracing "github.com/opentracing/opentracing-go"
 )
 
 // TODO?: create struct GameState for all game-state relevant stuff
@@ -19,7 +18,6 @@ import (
 // After parsing the header Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo.
 // Use Parser.RegisterEventHandler() to receive notifications about events.
 type Parser struct {
-	ctx                   opentracing.SpanContext
 	bitReader             *bs.BitReader
 	stParser              st.Parser
 	msgDispatcher         dp.Dispatcher
@@ -133,10 +131,9 @@ func (p *Parser) TState() *TeamState {
 
 // NewParser creates a new Parser on the basis of an io.Reader
 // - like os.File or bytes.Reader - that reads demo data.
-func NewParser(demostream io.Reader, ctx opentracing.SpanContext) *Parser {
+func NewParser(demostream io.Reader) *Parser {
 	var p Parser
 	// Init parser
-	p.ctx = ctx
 	p.bitReader = bs.NewLargeBitReader(demostream)
 	p.msgQueue = make(chan interface{}, 8)
 	p.instanceBaselines = make(map[int][]byte)
