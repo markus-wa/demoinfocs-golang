@@ -84,7 +84,27 @@ func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 	}
 }
 
+type RoundEvents struct {
+	BeginNewMatch           int
+	CSWinPanelMatch         int
+	RoundAnnounceMatchStart int
+	RoundEnd                int
+	RoundFreezeEnd          int
+	RoundOfficiallyEnded    int
+	RoundStart              int
+}
+
 var round int
+var Rounds map[int]*RoundEvents
+
+func ensureExists(round int) {
+	if Rounds == nil {
+		Rounds = make(map[int]*RoundEvents)
+	}
+	if _, ok := Rounds[round]; !ok {
+		Rounds[round] = &RoundEvents{}
+	}
+}
 
 func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	// TODO: Do we really need to do this check?
@@ -104,16 +124,16 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	currRound := p.CTState().Score() + p.TState().Score() + 1
 	if round != currRound {
 		round = currRound
+		ensureExists(round)
 	}
-	demoName := fmt.Sprintf("%s %s", p.header.ServerName, p.header.MapName)
 
 	switch d.Name {
 	case "round_announce_match_start": // Special round/match start announcement
-		fmt.Printf("%s %d: round_announce_match_start\n", demoName, round)
+		Rounds[round].RoundAnnounceMatchStart++
 		p.eventDispatcher.Dispatch(events.MatchStartedEvent{})
 
 	case "round_start": // Round started
-		fmt.Printf("%s %d: round_start\n", demoName, round)
+		Rounds[round].RoundStart++
 		data = mapGameEventData(d, ge)
 		p.eventDispatcher.Dispatch(events.RoundStartedEvent{
 			TimeLimit: int(data["timelimit"].GetValLong()),
@@ -122,7 +142,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		})
 
 	case "cs_win_panel_match": // Not sure, maybe match end event???
-		fmt.Printf("%s %d: cs_win_panel_match\n", demoName, round)
+		Rounds[round].CSWinPanelMatch++
 		p.eventDispatcher.Dispatch(events.WinPanelMatchEvent{})
 
 	case "round_announce_final": // 30th round for normal de_, not necessarily matchpoint
@@ -132,7 +152,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		p.eventDispatcher.Dispatch(events.LastRoundHalfEvent{})
 
 	case "round_end": // Round ended and the winner was announced
-		fmt.Printf("%s %d: round_end\n", demoName, round)
+		Rounds[round].RoundEnd++
 		data = mapGameEventData(d, ge)
 
 		t := common.Team_Spectators
@@ -151,7 +171,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		})
 
 	case "round_officially_ended": // Round ended. . . probably the event where you get teleported to the spawn (=> You can still walk around between round_end and this?)
-		fmt.Printf("%s %d: round_officially_ended\n", demoName, round)
+		Rounds[round-1].RoundOfficiallyEnded++
 		data = mapGameEventData(d, ge)
 		p.eventDispatcher.Dispatch(events.RoundOfficialyEndedEvent{})
 
@@ -169,11 +189,11 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		p.eventDispatcher.Dispatch(events.BotTakenOverEvent{Taker: p.connectedPlayers[int(data["userid"].GetValShort())]})
 
 	case "begin_new_match": // Match started
-		fmt.Printf("%s %d: begin_new_match\n", demoName, round)
+		Rounds[round].BeginNewMatch++
 		p.eventDispatcher.Dispatch(events.MatchStartedEvent{})
 
 	case "round_freeze_end": // Round start freeze ended
-		fmt.Printf("%s %d: round_freeze_end\n", demoName, round)
+		Rounds[round].RoundFreezeEnd++
 		p.eventDispatcher.Dispatch(events.FreezetimeEndedEvent{})
 
 	case "player_jump": // Player jumped
