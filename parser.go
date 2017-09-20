@@ -1,12 +1,13 @@
 package demoinfocs
 
 import (
+	"io"
+
 	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 	dp "github.com/markus-wa/godispatch"
-	"io"
 )
 
 // TODO?: create struct GameState for all game-state relevant stuff
