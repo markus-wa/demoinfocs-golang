@@ -181,7 +181,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			Victim:            p.connectedPlayers[int(data["userid"].GetValShort())],
 			Killer:            p.connectedPlayers[int(data["attacker"].GetValShort())],
 			Assister:          p.connectedPlayers[int(data["assister"].GetValShort())],
-			IsHeadshot:        data["assister"].GetValBool(),
+			IsHeadshot:        data["headshot"].GetValBool(),
 			PenetratedObjects: int(data["penetrated"].GetValShort()),
 		}
 
