@@ -3,14 +3,15 @@ package demoinfocs
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/golang/geo/r3"
 	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
-	"os"
-	"strconv"
 )
 
 const entitySentinel = 9999
@@ -155,6 +156,13 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	case "round_freeze_end": // Round start freeze ended
 		p.eventDispatcher.Dispatch(events.FreezetimeEndedEvent{})
+
+	case "player_footstep": // Footstep sound
+		data = mapGameEventData(d, ge)
+
+		p.eventDispatcher.Dispatch(events.PlayerFootstepEvent{
+			Player: p.connectedPlayers[int(data["userid"].GetValShort())],
+		})
 
 	case "player_jump": // Player jumped
 		data = mapGameEventData(d, ge)
@@ -392,7 +400,6 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	// Probably not that interesting:
 	case "buytime_ended": // Not actually end of buy time, seems to only be sent once per game at the start
 	case "round_announce_match_start": // Special match start announcement
-	case "player_footstep": // Footstep sound
 	case "bomb_beep": // Bomb beep
 	case "player_spawn": // Player spawn
 	case "hltv_status": // Don't know

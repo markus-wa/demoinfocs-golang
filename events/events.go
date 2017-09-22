@@ -55,6 +55,11 @@ type LastRoundHalfEvent struct{}
 // FreezetimeEndedEvent signals that the freeze time is over.
 type FreezetimeEndedEvent struct{}
 
+// PlayerFootstepEvent occurs when a player makes a footstep
+type PlayerFootstepEvent struct {
+	Player *common.Player
+}
+
 // PlayerTeamChangeEvent occurs when a player swaps teams.
 type PlayerTeamChangeEvent struct {
 	Player  *common.Player
