@@ -402,13 +402,11 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 				Weapon: weapon,
 			})
 		case "item_pickup":
-			fmt.Println(player.Name, "picked up", data["item"].GetValString())
 			p.eventDispatcher.Dispatch(events.ItemPickupEvent{
 				Player: player,
 				Weapon: weapon,
 			})
 		case "item_remove":
-			fmt.Println(player.Name, "dropped", data["item"].GetValString())
 			p.eventDispatcher.Dispatch(events.ItemDropEvent{
 				Player: player,
 				Weapon: weapon,
