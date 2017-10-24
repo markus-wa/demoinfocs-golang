@@ -170,6 +170,15 @@ func MapEquipment(eqName string) EquipmentElement {
 		case "revolver":
 			wep = EE_Revolver
 
+		case "vest":
+			wep = EE_Kevlar
+
+		case "vesthelm":
+			wep = EE_Helmet
+
+		case "defuser":
+			wep = EE_DefuseKit
+
 		case "sensorgrenade": // Only used in 'Co-op Strike' mode
 
 		case "scar17": //These crash the game when given via give wep_[mp5navy|...], and cannot be purchased ingame.
