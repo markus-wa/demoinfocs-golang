@@ -232,28 +232,53 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		p.eventDispatcher.Dispatch(events.PlayerFlashedEvent{Player: p.connectedPlayers[int(data["userid"].GetValShort())]})
 
 	case "flashbang_detonate": // Flash exploded
-		p.eventDispatcher.Dispatch(events.FlashExplodedEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Flash)})
-
+		fallthrough
 	case "hegrenade_detonate": // HE exploded
-		p.eventDispatcher.Dispatch(events.HeExplodedEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_HE)})
-
+		fallthrough
 	case "decoy_started": // Decoy started
-		p.eventDispatcher.Dispatch(events.DecoyStartEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Decoy)})
-
+		fallthrough
 	case "decoy_detonate": // Decoy exploded/expired
-		p.eventDispatcher.Dispatch(events.DecoyEndEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Decoy)})
-
+		fallthrough
 	case "smokegrenade_detonate": // Smoke popped
-		p.eventDispatcher.Dispatch(events.SmokeStartEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Smoke)})
-
+		fallthrough
 	case "smokegrenade_expired": // Smoke expired
-		p.eventDispatcher.Dispatch(events.SmokeEndEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Smoke)})
-
+		fallthrough
 	case "inferno_startburn": // Incendiary exploded/started
-		p.eventDispatcher.Dispatch(events.FireNadeStartEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Incendiary)})
-
+		fallthrough
 	case "inferno_expire": // Incendiary expired
-		p.eventDispatcher.Dispatch(events.FireNadeEndEvent{NadeEvent: p.buildNadeEvent(mapGameEventData(d, ge), common.EE_Incendiary)})
+		data = mapGameEventData(d, ge)
+		thrower := p.connectedPlayers[int(data["userid"].GetValShort())]
+		position := r3.Vector{
+			X: float64(data["x"].ValFloat),
+			Z: float64(data["y"].ValFloat),
+			Y: float64(data["z"].ValFloat),
+		}
+
+		switch d.Name {
+		case "flashbang_detonate": // Flash exploded
+			p.eventDispatcher.Dispatch(events.FlashExplodedEvent{NadeEvent: events.BuildNadeEvent(common.EE_Flash, thrower, position)})
+
+		case "hegrenade_detonate": // HE exploded
+			p.eventDispatcher.Dispatch(events.HeExplodedEvent{NadeEvent: events.BuildNadeEvent(common.EE_HE, thrower, position)})
+
+		case "decoy_started": // Decoy started
+			p.eventDispatcher.Dispatch(events.DecoyStartEvent{NadeEvent: events.BuildNadeEvent(common.EE_Decoy, thrower, position)})
+
+		case "decoy_detonate": // Decoy exploded/expired
+			p.eventDispatcher.Dispatch(events.DecoyEndEvent{NadeEvent: events.BuildNadeEvent(common.EE_Decoy, thrower, position)})
+
+		case "smokegrenade_detonate": // Smoke popped
+			p.eventDispatcher.Dispatch(events.SmokeStartEvent{NadeEvent: events.BuildNadeEvent(common.EE_Smoke, thrower, position)})
+
+		case "smokegrenade_expired": // Smoke expired
+			p.eventDispatcher.Dispatch(events.SmokeEndEvent{NadeEvent: events.BuildNadeEvent(common.EE_Smoke, thrower, position)})
+
+		case "inferno_startburn": // Incendiary exploded/started
+			p.eventDispatcher.Dispatch(events.FireNadeStartEvent{NadeEvent: events.BuildNadeEvent(common.EE_Incendiary, thrower, position)})
+
+		case "inferno_expire": // Incendiary expired
+			p.eventDispatcher.Dispatch(events.FireNadeEndEvent{NadeEvent: events.BuildNadeEvent(common.EE_Incendiary, thrower, position)})
+		}
 
 	case "player_connect": // Player connected. . .?
 		// FIXME: This doesn't seem to happen, ever???
@@ -454,17 +479,6 @@ func getCommunityID(guid string) int64 {
 	return 76561197960265728 + authID*2 + authSrv
 }
 
-func (p *Parser) buildNadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT, nadeType common.EquipmentElement) events.NadeEvent {
-	return events.NadeEvent{
-		NadeType: nadeType,
-		Thrower:  p.connectedPlayers[int(data["userid"].GetValShort())],
-		Position: r3.Vector{
-			X: float64(data["x"].ValFloat),
-			Z: float64(data["y"].ValFloat),
-			Y: float64(data["z"].ValFloat),
-		},
-	}
-}
 func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 	cTab := p.stringTables[tab.TableId]
 	switch cTab.Name {

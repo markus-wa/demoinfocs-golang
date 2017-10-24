@@ -112,6 +112,14 @@ type NadeEvent struct {
 	Thrower  *common.Player
 }
 
+func BuildNadeEvent(nadeType common.EquipmentElement, thrower *common.Player, position r3.Vector) NadeEvent {
+	return NadeEvent{
+		NadeType: nadeType,
+		Thrower:  thrower,
+		Position: position,
+	}
+}
+
 // Make NadeEvents implement NadeEventIf
 func (NadeEvent) dummyNade() {}
 
