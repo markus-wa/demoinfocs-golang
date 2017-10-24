@@ -411,6 +411,33 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			HasKit:  pl.HasDefuseKit,
 		})
 
+	case "item_equip": // Equipped, I think
+		fallthrough
+	case "item_pickup": // Picked up or bought?
+		fallthrough
+	case "item_remove": // Dropped?
+		data = mapGameEventData(d, ge)
+		player := p.connectedPlayers[int(data["userid"].GetValShort())]
+		weapon := common.NewSkinEquipment(data["item"].GetValString(), "")
+
+		switch d.Name {
+		case "item_equip":
+			p.eventDispatcher.Dispatch(events.ItemEquipEvent{
+				Player: player,
+				Weapon: weapon,
+			})
+		case "item_pickup":
+			p.eventDispatcher.Dispatch(events.ItemPickupEvent{
+				Player: player,
+				Weapon: weapon,
+			})
+		case "item_remove":
+			p.eventDispatcher.Dispatch(events.ItemDropEvent{
+				Player: player,
+				Weapon: weapon,
+			})
+		}
+
 	// TODO: Might be interesting:
 	case "player_connect_full": // Connecting finished
 	case "player_falldamage": // Falldamage
@@ -444,9 +471,6 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "weapon_fire_on_empty": // Sounds boring
 	case "hltv_fixed": // Dunno
 	case "cs_match_end_restart": // Yawn
-	case "item_equip": // Seems to be POV demo specific
-	case "item_pickup": // Seems to be POV demo specific
-	case "item_remove": // Dunno
 	default:
 		fmt.Fprintf(os.Stderr, "WARNING: Unknown event %q\n", d.Name)
 	}

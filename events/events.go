@@ -271,3 +271,21 @@ type RankUpdateEvent struct {
 	WinCount   int
 	RankChange float32
 }
+
+// ItemEquipEvent signals an item was equipped
+type ItemEquipEvent struct {
+	Weapon common.Equipment
+	Player *common.Player
+}
+
+// ItemPickupEvent signals an item was bought or picked up.
+type ItemPickupEvent struct {
+	Weapon common.Equipment
+	Player *common.Player
+}
+
+// ItemDropEvent signals an item was dropped
+type ItemDropEvent struct {
+	Weapon common.Equipment
+	Player *common.Player
+}
