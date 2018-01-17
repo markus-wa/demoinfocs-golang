@@ -213,9 +213,9 @@ func TestExample(t *testing.T) {
 	// Register handler on round end to figure out who won
 	p.RegisterEventHandler(func(e events.RoundEndedEvent) {
 		if matchReallyStarted {
-			if e.Winner == common.Team_Terrorists {
+			if e.Winner == common.TeamTerrorists {
 				fmt.Println("T-side won the round - score:", tState.Score()+1) // Score + 1 because it hasn't actually been updated yet
-			} else if e.Winner == common.Team_CounterTerrorists {
+			} else if e.Winner == common.TeamCounterTerrorists {
 				fmt.Println("CT-side won the round - score:", ctState.Score()+1)
 			} else {
 				fmt.Println("Apparently neither the Ts nor CTs won the round, interesting")

@@ -113,14 +113,6 @@ type NadeEvent struct {
 	Thrower  *common.Player
 }
 
-func BuildNadeEvent(nadeType common.EquipmentElement, thrower *common.Player, position r3.Vector) NadeEvent {
-	return NadeEvent{
-		NadeType: nadeType,
-		Thrower:  thrower,
-		Position: position,
-	}
-}
-
 // Make NadeEvents implement NadeEventIf
 func (NadeEvent) dummyNade() {}
 
@@ -232,7 +224,7 @@ type PlayerHurtEvent struct {
 	WeaponString string // Wrong for CZ, M4A1-S etc.
 	HealthDamage int
 	ArmorDamage  int
-	Hitgroup     common.Hitgroup
+	HitGroup     common.HitGroup
 }
 
 // PlayerBindEvent signals that a player has connected.

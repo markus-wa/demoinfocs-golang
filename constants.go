@@ -1,31 +1,29 @@
 package demoinfocs
 
-import (
-	common "github.com/markus-wa/demoinfocs-golang/common"
-)
-
 type demoCommand byte
 
 const (
-	maxEntities = (1 << common.MaxEditctBits)
-	maxPlayers  = 64
-	maxWeapons  = 64
+	maxEditctBits = 11
+	indexMask     = ((1 << maxEditctBits) - 1)
+	maxEntities   = (1 << maxEditctBits)
+	maxPlayers    = 64
+	maxWeapons    = 64
 )
 
 const (
-	dc_Signon demoCommand = iota + 1
-	dc_Packet
-	dc_Synctick
-	dc_ConsoleCommand
-	dc_UserCommand
-	dc_DataTables
-	dc_Stop
-	dc_CustomData
-	dc_StringTables
+	dcSignon demoCommand = iota + 1
+	dcPacket
+	dcSynctick
+	dcConsoleCommand
+	dcUserCommand
+	dcDataTables
+	dcStop
+	dcCustomData
+	dcStringTables
 )
 
 const (
-	stName_InstanceBaseline = "instancebaseline"
-	stName_UserInfo         = "userinfo"
-	stName_ModelPreCache    = "modelprecache"
+	stNameInstanceBaseline = "instancebaseline"
+	stNameUserInfo         = "userinfo"
+	stNameModelPreCache    = "modelprecache"
 )

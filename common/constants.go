@@ -1,141 +1,155 @@
 package common
 
-const (
-	MaxEditctBits = 11
-	IndexMask     = ((1 << MaxEditctBits) - 1)
-)
-
 const weaponPrefix = "weapon_"
 
 type (
-	RoundMVPReason   byte
-	Hitgroup         byte
-	RoundEndReason   byte
-	Team             byte
+	// RoundMVPReason is the type for the various MVPReasonYXZ constants.
+	RoundMVPReason byte
+
+	// HitGroup is the type for the various HitGroupXYZ constants.
+	HitGroup byte
+
+	// RoundEndReason is the type for the various RoundEndReasonXYZ constants.
+	RoundEndReason byte
+
+	// Team is the type for the various TeamXYZ constants.
+	Team byte
+
+	// EquipmentElement is the type for the various EqXYZ constants.
 	EquipmentElement int
-	EquipmentClass   int
+
+	// EquipmentClass is the type for the various EqClassXYZ constants.
+	EquipmentClass int
 )
 
+// RoundMVPReasons constants give information about why a player got the MVP award.
 const (
-	MVPReason_MostEliminations RoundMVPReason = iota + 1
-	MVPReason_BombDefused
-	MVPReason_BombPlanted
+	MVPReasonMostEliminations RoundMVPReason = 1
+	MVPReasonBombDefused      RoundMVPReason = 2
+	MVPReasonBombPlanted      RoundMVPReason = 3
 )
 
+// HitGroup constants give information about where a player got hit.
+// e.g. head, chest, legs etc.
 const (
-	HG_Generic  Hitgroup = 0
-	HG_Head     Hitgroup = 1
-	HG_Chest    Hitgroup = 2
-	HG_Stomach  Hitgroup = 3
-	HG_LeftArm  Hitgroup = 4
-	HG_RightArm Hitgroup = 5
-	HG_LeftLeg  Hitgroup = 6
-	HG_RightLeg Hitgroup = 7
-	HG_Gear     Hitgroup = 10
+	HitGroupGeneric  HitGroup = 0
+	HitGroupHead     HitGroup = 1
+	HitGroupChest    HitGroup = 2
+	HitGroupStomach  HitGroup = 3
+	HitGroupLeftArm  HitGroup = 4
+	HitGroupRightArm HitGroup = 5
+	HitGroupLeftLeg  HitGroup = 6
+	HitGroupRightLeg HitGroup = 7
+	HitGroupGear     HitGroup = 10
 )
 
+// RoundEndReasons constants give information about why a round ended (Bomb defused, exploded etc.).
 const (
-	RER_TargetBombed RoundEndReason = iota + 1
-	RER_VIPEscaped
-	RER_VIPKilled
-	RER_TerroristsEscaped
-	RER_CTStoppedEscape
-	RER_TerroristsStopped
-	RER_BombDefused
-	RER_CTWin
-	RER_TerroristsWin
-	RER_Draw
-	RER_HostagesRescued
-	RER_TargetSaved
-	RER_HostagesNotRescued
-	RER_TerroristsNotEscaped
-	RER_VIPNotEscaped
-	RER_GameStart
-	RER_TerroristsSurrender
-	RER_CTSurrender
+	RoundEndReasonTargetBombed         RoundEndReason = 1
+	RoundEndReasonVIPEscaped           RoundEndReason = 2
+	RoundEndReasonVIPKilled            RoundEndReason = 3
+	RoundEndReasonTerroristsEscaped    RoundEndReason = 4
+	RoundEndReasonCTStoppedEscape      RoundEndReason = 5
+	RoundEndReasonTerroristsStopped    RoundEndReason = 6
+	RoundEndReasonBombDefused          RoundEndReason = 7
+	RoundEndReasonCTWin                RoundEndReason = 8
+	RoundEndReasonTerroristsWin        RoundEndReason = 9
+	RoundEndReasonDraw                 RoundEndReason = 10
+	RoundEndReasonHostagesRescued      RoundEndReason = 11
+	RoundEndReasonTargetSaved          RoundEndReason = 12
+	RoundEndReasonHostagesNotRescued   RoundEndReason = 13
+	RoundEndReasonTerroristsNotEscaped RoundEndReason = 14
+	RoundEndReasonVIPNotEscaped        RoundEndReason = 15
+	RoundEndReasonGameStart            RoundEndReason = 16
+	RoundEndReasonTerroristsSurrender  RoundEndReason = 17
+	RoundEndReasonCTSurrender          RoundEndReason = 18
 )
 
+// Team constants give information about which team a player is on.
 const (
-	Team_Unassigned Team = iota
-	Team_Spectators
-	Team_Terrorists
-	Team_CounterTerrorists
+	TeamUnassigned Team = iota
+	TeamSpectators
+	TeamTerrorists
+	TeamCounterTerrorists
 )
 
+// EquipmentElement constants give information about what weapon a player has equiped.
 const (
-	EE_Unknown EquipmentElement = 0
+	EqUnknown EquipmentElement = 0
 
 	// Pistols
 
-	EE_P2000        EquipmentElement = 1
-	EE_Glock        EquipmentElement = 2
-	EE_P250         EquipmentElement = 3
-	EE_Deagle       EquipmentElement = 4
-	EE_FiveSeven    EquipmentElement = 5
-	EE_DualBarettas EquipmentElement = 6
-	EE_Tec9         EquipmentElement = 7
-	EE_CZ           EquipmentElement = 8
-	EE_USP          EquipmentElement = 9
-	EE_Revolver     EquipmentElement = 10
+	EqP2000        EquipmentElement = 1
+	EqGlock        EquipmentElement = 2
+	EqP250         EquipmentElement = 3
+	EqDeagle       EquipmentElement = 4
+	EqFiveSeven    EquipmentElement = 5
+	EqDualBarettas EquipmentElement = 6
+	EqTec9         EquipmentElement = 7
+	EqCZ           EquipmentElement = 8
+	EqUSP          EquipmentElement = 9
+	EqRevolver     EquipmentElement = 10
 
 	// SMGs
 
-	EE_MP7   EquipmentElement = 101
-	EE_MP9   EquipmentElement = 102
-	EE_Bizon EquipmentElement = 103
-	EE_Mac10 EquipmentElement = 104
-	EE_UMP   EquipmentElement = 105
-	EE_P90   EquipmentElement = 106
+	EqMP7   EquipmentElement = 101
+	EqMP9   EquipmentElement = 102
+	EqBizon EquipmentElement = 103
+	EqMac10 EquipmentElement = 104
+	EqUMP   EquipmentElement = 105
+	EqP90   EquipmentElement = 106
 
 	// Heavy
 
-	EE_SawedOff EquipmentElement = 201
-	EE_Nova     EquipmentElement = 202
-	EE_Swag7    EquipmentElement = 203
-	EE_XM1014   EquipmentElement = 204
-	EE_M249     EquipmentElement = 205
-	EE_Negev    EquipmentElement = 206
+	EqSawedOff EquipmentElement = 201
+	EqNova     EquipmentElement = 202
+	EqSwag7    EquipmentElement = 203
+	EqXM1014   EquipmentElement = 204
+	EqM249     EquipmentElement = 205
+	EqNegev    EquipmentElement = 206
 
 	// Rifles
 
-	EE_Gallil EquipmentElement = 301
-	EE_Famas  EquipmentElement = 302
-	EE_AK47   EquipmentElement = 303
-	EE_M4A4   EquipmentElement = 304
-	EE_M4A1   EquipmentElement = 305
-	EE_Scout  EquipmentElement = 306
-	EE_SG556  EquipmentElement = 307
-	EE_AUG    EquipmentElement = 308
-	EE_AWP    EquipmentElement = 309
-	EE_Scar20 EquipmentElement = 310
-	EE_G3SG1  EquipmentElement = 311
+	EqGallil EquipmentElement = 301
+	EqFamas  EquipmentElement = 302
+	EqAK47   EquipmentElement = 303
+	EqM4A4   EquipmentElement = 304
+	EqM4A1   EquipmentElement = 305
+	EqScout  EquipmentElement = 306
+	EqSG556  EquipmentElement = 307
+	EqAUG    EquipmentElement = 308
+	EqAWP    EquipmentElement = 309
+	EqScar20 EquipmentElement = 310
+	EqG3SG1  EquipmentElement = 311
 
 	// Equipment
 
-	EE_Zeus      EquipmentElement = 401
-	EE_Kevlar    EquipmentElement = 402
-	EE_Helmet    EquipmentElement = 403
-	EE_Bomb      EquipmentElement = 404
-	EE_Knife     EquipmentElement = 405
-	EE_DefuseKit EquipmentElement = 406
-	EE_World     EquipmentElement = 407
+	EqZeus      EquipmentElement = 401
+	EqKevlar    EquipmentElement = 402
+	EqHelmet    EquipmentElement = 403
+	EqBomb      EquipmentElement = 404
+	EqKnife     EquipmentElement = 405
+	EqDefuseKit EquipmentElement = 406
+	EqWorld     EquipmentElement = 407
 
 	// Grenades
 
-	EE_Decoy      EquipmentElement = 501
-	EE_Molotov    EquipmentElement = 502
-	EE_Incendiary EquipmentElement = 503
-	EE_Flash      EquipmentElement = 504
-	EE_Smoke      EquipmentElement = 505
-	EE_HE         EquipmentElement = 506
+	EqDecoy      EquipmentElement = 501
+	EqMolotov    EquipmentElement = 502
+	EqIncendiary EquipmentElement = 503
+	EqFlash      EquipmentElement = 504
+	EqSmoke      EquipmentElement = 505
+	EqHE         EquipmentElement = 506
 )
 
+// EquipmentClass constants give information about the type of an equipment (SMG, Rifle, Grenade etc.).
+// Note: EquipmentElement / 100 = EquipmentClass
 const (
-	EC_Unknown EquipmentClass = iota
-	EC_Pistols
-	EC_SMG
-	EC_Heavy
-	EC_Rifle
-	EC_Equipment
-	EC_Grenade
+	EqClassUnknown   EquipmentClass = 0
+	EqClassPistols   EquipmentClass = 1
+	EqClassSMG       EquipmentClass = 2
+	EqClassHeavy     EquipmentClass = 3
+	EqClassRifle     EquipmentClass = 4
+	EqClassEquipment EquipmentClass = 5
+	EqClassGrenade   EquipmentClass = 6
 )

@@ -67,7 +67,7 @@ func (p *Parser) PlayingParticipants() []*common.Player {
 	r := make([]*common.Player, 0, len(p.connectedPlayers))
 	for _, ptcp := range p.connectedPlayers {
 		// FIXME: Why do we have to check for nil here???
-		if ptcp != nil && ptcp.Team != common.Team_Spectators {
+		if ptcp != nil && ptcp.Team != common.TeamSpectators {
 			r = append(r, ptcp)
 		}
 	}

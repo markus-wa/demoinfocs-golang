@@ -1,48 +1,48 @@
 package sendtables
 
-// SendPropertyFlags contains multiple send property flags.
-type SendPropertyFlags int
+// sendPropertyFlags stores multiple send property flags.
+type sendPropertyFlags int
 
-// HasFlagSet returns true if the given flag is set
-func (spf SendPropertyFlags) HasFlagSet(flag SendPropertyFlags) bool {
+// hasFlagSet returns true if the given flag is set
+func (spf sendPropertyFlags) hasFlagSet(flag sendPropertyFlags) bool {
 	return int(spf)&int(flag) == int(flag)
 }
 
 const (
-	SPT_Int int = iota
-	SPT_Float
-	SPT_Vector
-	SPT_VectorXY
-	SPT_String
-	SPT_Array
-	SPT_DataTable
-	SPT_Int64
+	propTypeInt int = iota
+	propTypeFloat
+	propTypeVector
+	propTypeVectorXY
+	propTypeString
+	propTypeArray
+	propTypeDataTable
+	propTypeInt64
 )
 
 const (
-	SPF_Unsigned SendPropertyFlags = (1 << iota)
-	SPF_Coord
-	SPF_NoScale
-	SPF_RoundDown
-	SPF_RoundUp
-	SPF_Normal
-	SPF_Exclude
-	SPF_XYZE
-	SPF_InsideArray
-	SPF_ProxyAlwaysYes
-	SPF_IsVectorElement
-	SPF_Collapsible
-	SPF_CoordMp
-	SPF_CoordMpLowPrecision
-	SPF_CoordMpIntegral
-	SPF_CellCoord
-	SPF_CellCoordLowPrecision
-	SPF_CellCoordIntegral
-	SPF_ChangesOften
-	SPF_VarInt
+	propFlagUnsigned sendPropertyFlags = (1 << iota)
+	propFlagCoord
+	propFlagNoScale
+	propFlagRoundDown
+	propFlagRoundUp
+	propFlagNormal
+	propFlagExclude
+	propFlagXYZE
+	propFlagInsideArray
+	propFlagProxyAlwaysYes
+	propFlagIsVectorElement
+	propFlagCollapsible
+	propFlagCoordMp
+	propFlagCoordMpLowPrecision
+	propFlagCoordMpIntegral
+	propFlagCellCoord
+	propFlagCellCoordLowPrecision
+	propFlagCellCoordIntegral
+	propFlagChangesOften
+	propFlagVarInt
 )
 
 const (
-	DT_MaxStringBits   = 9
-	DT_MaxStringLength = 1 << DT_MaxStringBits
+	dataTableMaxStringBits   = 9
+	dataTableMaxStringLength = 1 << dataTableMaxStringBits
 )

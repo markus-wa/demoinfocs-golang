@@ -17,167 +17,167 @@ import (
 func MapEquipment(eqName string) EquipmentElement {
 	eqName = strings.TrimPrefix(eqName, weaponPrefix)
 
-	wep := EE_Unknown
+	wep := EqUnknown
 
 	if strings.Contains(eqName, "knife") || strings.Contains(eqName, "bayonet") {
-		wep = EE_Knife
+		wep = EqKnife
 	} else {
 		switch eqName {
 		case "ak47":
-			wep = EE_AK47
+			wep = EqAK47
 
 		case "aug":
-			wep = EE_AUG
+			wep = EqAUG
 
 		case "awp":
-			wep = EE_AWP
+			wep = EqAWP
 
 		case "bizon":
-			wep = EE_Bizon
+			wep = EqBizon
 
 		case "c4":
-			wep = EE_Bomb
+			wep = EqBomb
 
 		case "deagle":
-			wep = EE_Deagle
+			wep = EqDeagle
 
 		case "decoy":
 			fallthrough
 		case "decoygrenade":
 			fallthrough
 		case "decoy_projectile":
-			wep = EE_Decoy
+			wep = EqDecoy
 
 		case "elite":
-			wep = EE_DualBarettas
+			wep = EqDualBarettas
 
 		case "famas":
-			wep = EE_Famas
+			wep = EqFamas
 
 		case "fiveseven":
-			wep = EE_FiveSeven
+			wep = EqFiveSeven
 
 		case "flashbang":
-			wep = EE_Flash
+			wep = EqFlash
 
 		case "g3sg1":
-			wep = EE_G3SG1
+			wep = EqG3SG1
 
 		case "galil":
 			fallthrough
 		case "galilar":
-			wep = EE_Gallil
+			wep = EqGallil
 
 		case "glock":
-			wep = EE_Glock
+			wep = EqGlock
 
 		case "hegrenade":
-			wep = EE_HE
+			wep = EqHE
 
 		case "hkp2000":
-			wep = EE_P2000
+			wep = EqP2000
 
 		case "incgrenade":
 			fallthrough
 		case "incendiarygrenade":
-			wep = EE_Incendiary
+			wep = EqIncendiary
 
 		case "m249":
-			wep = EE_M249
+			wep = EqM249
 
 		case "m4a1":
-			wep = EE_M4A4
+			wep = EqM4A4
 
 		case "mac10":
-			wep = EE_Mac10
+			wep = EqMac10
 
 		case "mag7":
-			wep = EE_Swag7
+			wep = EqSwag7
 
 		case "molotov":
 			fallthrough
 		case "molotovgrenade":
 			fallthrough
 		case "molotov_projectile":
-			wep = EE_Molotov
+			wep = EqMolotov
 
 		case "mp7":
-			wep = EE_MP7
+			wep = EqMP7
 
 		case "mp9":
-			wep = EE_MP9
+			wep = EqMP9
 
 		case "negev":
-			wep = EE_Negev
+			wep = EqNegev
 
 		case "nova":
-			wep = EE_Nova
+			wep = EqNova
 
 		case "p250":
-			wep = EE_P250
+			wep = EqP250
 
 		case "p90":
-			wep = EE_P90
+			wep = EqP90
 
 		case "sawedoff":
-			wep = EE_SawedOff
+			wep = EqSawedOff
 
 		case "scar20":
-			wep = EE_Scar20
+			wep = EqScar20
 
 		case "sg556":
-			wep = EE_SG556
+			wep = EqSG556
 
 		case "smokegrenade":
-			wep = EE_Smoke
+			wep = EqSmoke
 
 		case "ssg08":
-			wep = EE_Scout
+			wep = EqScout
 
 		case "taser":
-			wep = EE_Zeus
+			wep = EqZeus
 
 		case "tec9":
-			wep = EE_Tec9
+			wep = EqTec9
 
 		case "ump45":
-			wep = EE_UMP
+			wep = EqUMP
 
 		case "xm1014":
-			wep = EE_XM1014
+			wep = EqXM1014
 
 		case "m4a1_silencer":
 			fallthrough
 		case "m4a1_silencer_off":
-			wep = EE_M4A1
+			wep = EqM4A1
 
 		case "cz75a":
-			wep = EE_CZ
+			wep = EqCZ
 
 		case "usp":
 			fallthrough
 		case "usp_silencer":
 			fallthrough
 		case "usp_silencer_off":
-			wep = EE_USP
+			wep = EqUSP
 
 		case "world":
-			wep = EE_World
+			wep = EqWorld
 
 		case "inferno":
-			wep = EE_Incendiary
+			wep = EqIncendiary
 
 		case "revolver":
-			wep = EE_Revolver
+			wep = EqRevolver
 
 		case "vest":
-			wep = EE_Kevlar
+			wep = EqKevlar
 
 		case "vesthelm":
-			wep = EE_Helmet
+			wep = EqHelmet
 
 		case "defuser":
-			wep = EE_DefuseKit
+			wep = EqDefuseKit
 
 		case "sensorgrenade": // Only used in 'Co-op Strike' mode
 

@@ -11,21 +11,26 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
+// Parser provides functions for parsing send-tables.
 type Parser struct {
-	sendTables         []SendTable
+	sendTables         []sendTable
 	serverClasses      []*ServerClass
 	currentExcludes    []*excludeEntry
 	currentBaseclasses []*ServerClass
 }
 
+// ClassBits seems to calculate how many bits must be read for the server-class ID.
+// Not 100% sure how tho tbh.
 func (p *Parser) ClassBits() int {
 	return int(math.Ceil(math.Log2(float64(len(p.serverClasses)))))
 }
 
+// ServerClasses returns the parsed server-classes
 func (p *Parser) ServerClasses() []*ServerClass {
 	return p.serverClasses
 }
 
+// ParsePacket parses a send-table packet.
 func (p *Parser) ParsePacket(r *bit.BitReader) {
 	for {
 		t := msg.SVC_Messages(r.ReadVarInt32())
@@ -34,7 +39,7 @@ func (p *Parser) ParsePacket(r *bit.BitReader) {
 		}
 
 		st := parseSendTable(r)
-		if st.IsEnd {
+		if st.isEnd {
 			break
 		}
 		p.sendTables = append(p.sendTables, st)
@@ -52,7 +57,7 @@ func (p *Parser) ParsePacket(r *bit.BitReader) {
 		entry.Name = r.ReadString()
 		entry.DTName = r.ReadString()
 		for j, v := range p.sendTables {
-			if v.Name == entry.DTName {
+			if v.name == entry.DTName {
 				entry.DataTableID = j
 			}
 		}
@@ -65,7 +70,7 @@ func (p *Parser) ParsePacket(r *bit.BitReader) {
 	}
 }
 
-func parseSendTable(r *bit.BitReader) SendTable {
+func parseSendTable(r *bit.BitReader) sendTable {
 	size := int(r.ReadVarInt32())
 	r.BeginChunk(size << 3)
 	st := new(msg.CSVCMsg_SendTable)
@@ -74,24 +79,24 @@ func parseSendTable(r *bit.BitReader) SendTable {
 	}
 	r.EndChunk()
 
-	var res SendTable
+	var res sendTable
 	for _, v := range st.GetProps() {
-		var prop SendTableProperty
-		prop.DataTableName = v.DtName
-		prop.HighValue = v.HighValue
-		prop.LowValue = v.LowValue
-		prop.Name = v.VarName
-		prop.NumberOfBits = int(v.NumBits)
-		prop.NumberOfElements = int(v.NumElements)
-		prop.Priority = int(v.Priority)
-		prop.Flags = SendPropertyFlags(v.Flags)
-		prop.RawType = int(v.Type)
+		var prop sendTableProperty
+		prop.dataTableName = v.DtName
+		prop.highValue = v.HighValue
+		prop.lowValue = v.LowValue
+		prop.name = v.VarName
+		prop.numberOfBits = int(v.NumBits)
+		prop.numberOfElements = int(v.NumElements)
+		prop.priority = int(v.Priority)
+		prop.flags = sendPropertyFlags(v.Flags)
+		prop.rawType = int(v.Type)
 
 		res.properties = append(res.properties, prop)
 	}
 
-	res.Name = st.NetTableName
-	res.IsEnd = st.IsEnd
+	res.name = st.NetTableName
+	res.isEnd = st.IsEnd
 
 	return res
 }
@@ -113,7 +118,7 @@ func (p *Parser) flattenDataTable(serverClassIndex int) {
 	prioMap := make(map[int]struct{})
 	prioMap[64] = struct{}{}
 	for _, v := range fProps {
-		prioMap[v.prop.Priority] = struct{}{}
+		prioMap[v.prop.priority] = struct{}{}
 	}
 	var prios []int
 	for k := range prioMap {
@@ -128,7 +133,7 @@ func (p *Parser) flattenDataTable(serverClassIndex int) {
 			cp := start
 			for ; cp < len(fProps); cp++ {
 				prop := fProps[cp].prop
-				if prop.Priority == prio || (prio == 64 && prop.Flags.HasFlagSet(SPF_ChangesOften)) {
+				if prop.priority == prio || (prio == 64 && prop.flags.hasFlagSet(propFlagChangesOften)) {
 					if start != cp {
 						tmp := fProps[start]
 						fProps[start] = fProps[cp]
@@ -145,72 +150,72 @@ func (p *Parser) flattenDataTable(serverClassIndex int) {
 	}
 }
 
-func (p *Parser) gatherExcludesAndBaseClasses(st *SendTable, collectBaseClasses bool) {
+func (p *Parser) gatherExcludesAndBaseClasses(st *sendTable, collectBaseClasses bool) {
 	for _, v := range st.properties {
-		if v.Flags.HasFlagSet(SPF_Exclude) {
-			p.currentExcludes = append(p.currentExcludes, &excludeEntry{varName: v.Name, dtName: v.DataTableName, excludingDt: st.Name})
+		if v.flags.hasFlagSet(propFlagExclude) {
+			p.currentExcludes = append(p.currentExcludes, &excludeEntry{varName: v.name, dtName: v.dataTableName, excludingDt: st.name})
 		}
 	}
 
 	for _, v := range st.properties {
-		if v.RawType == SPT_DataTable {
-			if collectBaseClasses && v.Name == "baseclass" {
-				p.gatherExcludesAndBaseClasses(p.getTableByName(v.DataTableName), true)
-				p.currentBaseclasses = append(p.currentBaseclasses, p.findServerClassByDtName(v.DataTableName))
+		if v.rawType == propTypeDataTable {
+			if collectBaseClasses && v.name == "baseclass" {
+				p.gatherExcludesAndBaseClasses(p.getTableByName(v.dataTableName), true)
+				p.currentBaseclasses = append(p.currentBaseclasses, p.findServerClassByDtName(v.dataTableName))
 			} else {
-				p.gatherExcludesAndBaseClasses(p.getTableByName(v.DataTableName), false)
+				p.gatherExcludesAndBaseClasses(p.getTableByName(v.dataTableName), false)
 			}
 		}
 	}
 }
 
-func (p *Parser) gatherProps(st *SendTable, serverClassIndex int, prefix string) {
+func (p *Parser) gatherProps(st *sendTable, serverClassIndex int, prefix string) {
 	var tmpFlattenedProps []FlattenedPropEntry
 	p.gatherPropsIterate(st, serverClassIndex, prefix, &tmpFlattenedProps)
 	p.serverClasses[serverClassIndex].FlattenedProps = append(p.serverClasses[serverClassIndex].FlattenedProps, tmpFlattenedProps...)
 }
 
-func (p *Parser) gatherPropsIterate(tab *SendTable, serverClassIndex int, prefix string, flattenedProps *[]FlattenedPropEntry) {
+func (p *Parser) gatherPropsIterate(tab *sendTable, serverClassIndex int, prefix string, flattenedProps *[]FlattenedPropEntry) {
 	for i := range tab.properties {
 		prop := &tab.properties[i]
-		if prop.Flags.HasFlagSet(SPF_InsideArray) || prop.Flags.HasFlagSet(SPF_Exclude) || p.isPropertyExcluded(tab, prop) {
+		if prop.flags.hasFlagSet(propFlagInsideArray) || prop.flags.hasFlagSet(propFlagExclude) || p.isPropertyExcluded(tab, prop) {
 			continue
 		}
 
-		if prop.RawType == SPT_DataTable {
-			subTab := p.getTableByName(prop.DataTableName)
+		if prop.rawType == propTypeDataTable {
+			subTab := p.getTableByName(prop.dataTableName)
 
-			if prop.Flags.HasFlagSet(SPF_Collapsible) {
+			if prop.flags.hasFlagSet(propFlagCollapsible) {
 				p.gatherPropsIterate(subTab, serverClassIndex, prefix, flattenedProps)
 			} else {
 				nfix := prefix
-				if len(prop.Name) > 0 {
-					nfix += prop.Name + "."
+				if len(prop.name) > 0 {
+					nfix += prop.name + "."
 				}
 				p.gatherProps(subTab, serverClassIndex, nfix)
 			}
 		} else {
-			if prop.RawType == SPT_Array {
-				*flattenedProps = append(*flattenedProps, FlattenedPropEntry{name: prefix + prop.Name, prop: prop, arrayElementProp: &tab.properties[i-1]})
+			if prop.rawType == propTypeArray {
+				*flattenedProps = append(*flattenedProps, FlattenedPropEntry{name: prefix + prop.name, prop: prop, arrayElementProp: &tab.properties[i-1]})
 			} else {
-				*flattenedProps = append(*flattenedProps, FlattenedPropEntry{name: prefix + prop.Name, prop: prop})
+				*flattenedProps = append(*flattenedProps, FlattenedPropEntry{name: prefix + prop.name, prop: prop})
 			}
 		}
 	}
 }
 
-func (p *Parser) isPropertyExcluded(tab *SendTable, prop *SendTableProperty) bool {
+func (p *Parser) isPropertyExcluded(tab *sendTable, prop *sendTableProperty) bool {
 	for _, v := range p.currentExcludes {
-		if v.dtName == tab.Name && v.varName == prop.Name {
+		if v.dtName == tab.name && v.varName == prop.name {
 			return true
 		}
 	}
 	return false
 }
 
-func (p *Parser) getTableByName(name string) *SendTable {
+func (p *Parser) getTableByName(name string) *sendTable {
 	for i := range p.sendTables {
-		if p.sendTables[i].Name == name {
+		if p.sendTables[i].name == name {
 			return &p.sendTables[i]
 		}
 	}
@@ -236,6 +241,7 @@ func (p *Parser) findServerClassByDtName(name string) *ServerClass {
 	return sc
 }
 
+// FindServerClassByName finds and returns a server-class by it's name.
 func (p *Parser) FindServerClassByName(name string) *ServerClass {
 	var sc *ServerClass
 	for _, v := range p.serverClasses {

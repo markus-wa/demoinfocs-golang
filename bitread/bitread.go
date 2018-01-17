@@ -61,6 +61,8 @@ func (r *BitReader) ReadSignedVarInt32() int32 {
 	return int32((res >> 1) ^ -(res & 1))
 }
 
+// ReadUBitInt reads some kind of variable size uint.
+// Honestly, not quite sure how it works.
 func (r *BitReader) ReadUBitInt() uint {
 	res := r.ReadInt(6)
 	switch res & (16 | 32) {

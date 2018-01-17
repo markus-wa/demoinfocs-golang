@@ -26,10 +26,12 @@ const (
 	normalResolution  = 1.0 / normalDenominator
 )
 
-const specialFloatFlags = SPF_NoScale | SPF_Coord | SPF_CellCoord | SPF_Normal | SPF_CoordMp | SPF_CoordMpLowPrecision | SPF_CoordMpIntegral | SPF_CellCoordLowPrecision | SPF_CellCoordIntegral
+const specialFloatFlags = propFlagNoScale | propFlagCoord | propFlagCellCoord | propFlagNormal | propFlagCoordMp | propFlagCoordMpLowPrecision | propFlagCoordMpIntegral | propFlagCellCoordLowPrecision | propFlagCellCoordIntegral
 
 var propDecoder propertyDecoder
 
+// PropValue stores parsed & decoded send-table values.
+// For instance player health, location etc.
 type PropValue struct {
 	VectorVal r3.Vector
 	IntVal    int
@@ -41,75 +43,75 @@ type PropValue struct {
 type propertyDecoder struct{}
 
 func (propertyDecoder) decodeProp(fProp *FlattenedPropEntry, reader *bit.BitReader) PropValue {
-	switch fProp.prop.RawType {
-	case SPT_Float:
+	switch fProp.prop.rawType {
+	case propTypeFloat:
 		return PropValue{FloatVal: propDecoder.decodeFloat(fProp.prop, reader)}
 
-	case SPT_Int:
+	case propTypeInt:
 		return PropValue{IntVal: propDecoder.decodeInt(fProp.prop, reader)}
 
-	case SPT_VectorXY:
+	case propTypeVectorXY:
 		return PropValue{VectorVal: propDecoder.decodeVectorXY(fProp.prop, reader)}
 
-	case SPT_Vector:
+	case propTypeVector:
 		return PropValue{VectorVal: propDecoder.decodeVector(fProp.prop, reader)}
 
-	case SPT_Array:
+	case propTypeArray:
 		return PropValue{ArrayVal: propDecoder.decodeArray(fProp, reader)}
 
-	case SPT_String:
+	case propTypeString:
 		return PropValue{StringVal: propDecoder.decodeString(fProp.prop, reader)}
 
 	default:
-		panic(fmt.Sprintf("Unknown prop type %d", fProp.prop.RawType))
+		panic(fmt.Sprintf("Unknown prop type %d", fProp.prop.rawType))
 	}
 }
 
-func (propertyDecoder) decodeInt(prop *SendTableProperty, reader *bit.BitReader) int {
-	if prop.Flags.HasFlagSet(SPF_VarInt) {
-		if prop.Flags.HasFlagSet(SPF_Unsigned) {
+func (propertyDecoder) decodeInt(prop *sendTableProperty, reader *bit.BitReader) int {
+	if prop.flags.hasFlagSet(propFlagVarInt) {
+		if prop.flags.hasFlagSet(propFlagUnsigned) {
 			return int(reader.ReadVarInt32())
 		}
 		return int(reader.ReadSignedVarInt32())
 	}
-	if prop.Flags.HasFlagSet(SPF_Unsigned) {
-		return int(reader.ReadInt(uint(prop.NumberOfBits)))
+	if prop.flags.hasFlagSet(propFlagUnsigned) {
+		return int(reader.ReadInt(uint(prop.numberOfBits)))
 	}
-	return reader.ReadSignedInt(uint(prop.NumberOfBits))
+	return reader.ReadSignedInt(uint(prop.numberOfBits))
 }
 
-func (propertyDecoder) decodeFloat(prop *SendTableProperty, reader *bit.BitReader) float32 {
-	if prop.Flags&specialFloatFlags != 0 {
+func (propertyDecoder) decodeFloat(prop *sendTableProperty, reader *bit.BitReader) float32 {
+	if prop.flags&specialFloatFlags != 0 {
 		return propDecoder.decodeSpecialFloat(prop, reader)
 	}
 
-	dwInterp := reader.ReadInt(uint(prop.NumberOfBits))
-	return prop.LowValue + ((prop.HighValue - prop.LowValue) * (float32(dwInterp) / float32((int(1)<<uint(prop.NumberOfBits))-1)))
+	dwInterp := reader.ReadInt(uint(prop.numberOfBits))
+	return prop.lowValue + ((prop.highValue - prop.lowValue) * (float32(dwInterp) / float32((int(1)<<uint(prop.numberOfBits))-1)))
 }
 
-func (propertyDecoder) decodeSpecialFloat(prop *SendTableProperty, reader *bit.BitReader) float32 {
+func (propertyDecoder) decodeSpecialFloat(prop *sendTableProperty, reader *bit.BitReader) float32 {
 	// Because multiple flags can be set this order is fixed for now (priorities).
 	// TODO: Would be more efficient to first check the most common ones tho.
-	if prop.Flags.HasFlagSet(SPF_Coord) {
+	if prop.flags.hasFlagSet(propFlagCoord) {
 		return propDecoder.readBitCoord(reader)
-	} else if prop.Flags.HasFlagSet(SPF_CoordMp) {
+	} else if prop.flags.hasFlagSet(propFlagCoordMp) {
 		return propDecoder.readBitCoordMp(reader, false, false)
-	} else if prop.Flags.HasFlagSet(SPF_CoordMpLowPrecision) {
+	} else if prop.flags.hasFlagSet(propFlagCoordMpLowPrecision) {
 		return propDecoder.readBitCoordMp(reader, false, true)
-	} else if prop.Flags.HasFlagSet(SPF_CoordMpIntegral) {
+	} else if prop.flags.hasFlagSet(propFlagCoordMpIntegral) {
 		return propDecoder.readBitCoordMp(reader, true, false)
-	} else if prop.Flags.HasFlagSet(SPF_NoScale) {
+	} else if prop.flags.hasFlagSet(propFlagNoScale) {
 		return reader.ReadFloat()
-	} else if prop.Flags.HasFlagSet(SPF_Normal) {
+	} else if prop.flags.hasFlagSet(propFlagNormal) {
 		return propDecoder.readBitNormal(reader)
-	} else if prop.Flags.HasFlagSet(SPF_CellCoord) {
-		return propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), false, false)
-	} else if prop.Flags.HasFlagSet(SPF_CellCoordLowPrecision) {
-		return propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), true, false)
-	} else if prop.Flags.HasFlagSet(SPF_CellCoordIntegral) {
-		return propDecoder.readBitCellCoord(reader, uint(prop.NumberOfBits), false, true)
+	} else if prop.flags.hasFlagSet(propFlagCellCoord) {
+		return propDecoder.readBitCellCoord(reader, uint(prop.numberOfBits), false, false)
+	} else if prop.flags.hasFlagSet(propFlagCellCoordLowPrecision) {
+		return propDecoder.readBitCellCoord(reader, uint(prop.numberOfBits), true, false)
+	} else if prop.flags.hasFlagSet(propFlagCellCoordIntegral) {
+		return propDecoder.readBitCellCoord(reader, uint(prop.numberOfBits), false, true)
 	}
-	panic(fmt.Sprintf("Unexpected special float flag (Flags %v)", prop.Flags))
+	panic(fmt.Sprintf("Unexpected special float flag (Flags %v)", prop.flags))
 }
 
 func (propertyDecoder) readBitCoord(reader *bit.BitReader) float32 {
@@ -216,13 +218,13 @@ func (propertyDecoder) readBitCellCoord(reader *bit.BitReader, bits uint, isInte
 	return res
 }
 
-func (propertyDecoder) decodeVector(prop *SendTableProperty, reader *bit.BitReader) r3.Vector {
+func (propertyDecoder) decodeVector(prop *sendTableProperty, reader *bit.BitReader) r3.Vector {
 	res := r3.Vector{
 		X: float64(propDecoder.decodeFloat(prop, reader)),
 		Y: float64(propDecoder.decodeFloat(prop, reader)),
 	}
 
-	if !prop.Flags.HasFlagSet(SPF_Normal) {
+	if !prop.flags.hasFlagSet(propFlagNormal) {
 		res.Z = float64(propDecoder.decodeFloat(prop, reader))
 	} else {
 		absolute := res.X*res.X + res.Y*res.Y
@@ -241,7 +243,7 @@ func (propertyDecoder) decodeVector(prop *SendTableProperty, reader *bit.BitRead
 }
 
 func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader *bit.BitReader) []PropValue {
-	numElement := fProp.prop.NumberOfElements
+	numElement := fProp.prop.numberOfElements
 
 	var numBits uint = 1
 
@@ -262,15 +264,15 @@ func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader *bit.BitRea
 	return res
 }
 
-func (propertyDecoder) decodeString(fProp *SendTableProperty, reader *bit.BitReader) string {
-	length := int(reader.ReadInt(DT_MaxStringBits))
-	if length > DT_MaxStringLength {
-		length = DT_MaxStringLength
+func (propertyDecoder) decodeString(fProp *sendTableProperty, reader *bit.BitReader) string {
+	length := int(reader.ReadInt(dataTableMaxStringBits))
+	if length > dataTableMaxStringLength {
+		length = dataTableMaxStringLength
 	}
 	return reader.ReadCString(length)
 }
 
-func (propertyDecoder) decodeVectorXY(prop *SendTableProperty, reader *bit.BitReader) r3.Vector {
+func (propertyDecoder) decodeVectorXY(prop *sendTableProperty, reader *bit.BitReader) r3.Vector {
 	return r3.Vector{
 		X: float64(propDecoder.decodeFloat(prop, reader)),
 		Y: float64(propDecoder.decodeFloat(prop, reader)),

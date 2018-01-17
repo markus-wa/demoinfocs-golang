@@ -20,13 +20,6 @@ const (
 	playerWeaponPrePrefix = "bcc_nonlocaldata."
 )
 
-const (
-	teamName_Unassigned = "Unassigned"
-	teamName_Spectator  = "Spectator"
-	teamName_Terrorist  = "TERRORIST"
-	teamName_Ct         = "CT"
-)
-
 // ParseHeader attempts to parse the header of the demo.
 // Returns error if the filestamp (first 8 bytes) doesn't match HL2DEMO.
 func (p *Parser) ParseHeader() error {
@@ -130,18 +123,18 @@ func (p *Parser) parseFrame() bool {
 	p.currentFrame++
 
 	switch cmd {
-	case dc_Synctick:
+	case dcSynctick:
 		// Ignore
 
-	case dc_Stop:
+	case dcStop:
 		return false
 
-	case dc_ConsoleCommand:
+	case dcConsoleCommand:
 		// Skip
 		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 		p.bitReader.EndChunk()
 
-	case dc_DataTables:
+	case dcDataTables:
 		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 		p.stParser.ParsePacket(p.bitReader)
 		p.bitReader.EndChunk()
@@ -149,20 +142,20 @@ func (p *Parser) parseFrame() bool {
 		p.mapEquipment()
 		p.bindEntities()
 
-	case dc_StringTables:
+	case dcStringTables:
 		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 		p.parseStringTables()
 		p.bitReader.EndChunk()
 
-	case dc_UserCommand:
+	case dcUserCommand:
 		// Skip
 		p.bitReader.ReadInt(32)
 		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 		p.bitReader.EndChunk()
 
-	case dc_Signon:
+	case dcSignon:
 		fallthrough
-	case dc_Packet:
+	case dcPacket:
 		// Booooring
 		parseCommandInfo(p.bitReader)
 		p.bitReader.ReadInt(32) // SeqNrIn
@@ -172,7 +165,7 @@ func (p *Parser) parseFrame() bool {
 		p.parsePacket()
 		p.bitReader.EndChunk()
 
-	case dc_CustomData:
+	case dcCustomData:
 		fmt.Fprintf(os.Stderr, "WARNING: Found CustomData but not handled\n")
 
 	default:
@@ -200,7 +193,7 @@ func (p *Parser) parseSingleStringTable(name string) {
 			userDataSize := p.bitReader.ReadSignedInt(16)
 			data := p.bitReader.ReadBytes(userDataSize)
 			switch name {
-			case stName_UserInfo:
+			case stNameUserInfo:
 				player := common.ParsePlayerInfo(bytes.NewReader(data))
 				pid, err := strconv.ParseInt(stringName, 10, 64)
 				if err != nil {
@@ -208,14 +201,14 @@ func (p *Parser) parseSingleStringTable(name string) {
 				}
 				p.rawPlayers[int(pid)] = player
 
-			case stName_InstanceBaseline:
+			case stNameInstanceBaseline:
 				pid, err := strconv.ParseInt(stringName, 10, 64)
 				if err != nil {
 					panic("Couldn't parse id from string")
 				}
 				p.instanceBaselines[int(pid)] = data
 
-			case stName_ModelPreCache:
+			case stNameModelPreCache:
 				p.modelPreCache = append(p.modelPreCache, stringName)
 
 			default:
@@ -248,11 +241,11 @@ func (p *Parser) mapEquipment() {
 					p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.DTName[3:]))
 				}
 			} else if sc.Name == "CKnife" || (len(sc.BaseClasses) > 6 && sc.BaseClasses[6].Name == "CKnife") {
-				p.equipmentMapping[sc] = common.EE_Knife
+				p.equipmentMapping[sc] = common.EqKnife
 			} else {
 				switch sc.Name {
 				case "CC4":
-					p.equipmentMapping[sc] = common.EE_Bomb
+					p.equipmentMapping[sc] = common.EqBomb
 
 				case "CWeaponNOVA":
 					fallthrough
@@ -302,16 +295,16 @@ func (p *Parser) handleTeamScores() {
 			var t common.Team
 
 			switch team {
-			case teamName_Ct:
+			case "CT":
 				s = &p.ctState
-				t = common.Team_CounterTerrorists
+				t = common.TeamCounterTerrorists
 
-			case teamName_Terrorist:
+			case "TERRORIST":
 				s = &p.tState
-				t = common.Team_Terrorists
+				t = common.TeamTerrorists
 
-			case teamName_Unassigned: // Ignore
-			case teamName_Spectator: // Ignore
+			case "Unassigned": // Ignore
+			case "Spectator": // Ignore
 
 			default:
 				panic(fmt.Sprintf("Unexpected team %q", team))
@@ -436,11 +429,11 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 		// FIXME: We could probably just cast TeamID to common.Team or not even set it because the teamIDs should be the same. . . needs testing
 		switch pl.TeamID {
 		case p.ctState.id:
-			pl.Team = common.Team_CounterTerrorists
+			pl.Team = common.TeamCounterTerrorists
 		case p.tState.id:
-			pl.Team = common.Team_Terrorists
+			pl.Team = common.TeamTerrorists
 		default:
-			pl.Team = common.Team_Spectators
+			pl.Team = common.TeamSpectators
 		}
 	})
 
@@ -496,8 +489,8 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 	for i, v := range cache {
 		i2 := i // Copy for passing to handler
 		playerEntity.FindProperty(wepPrefix + fmt.Sprintf("%03d", i)).RegisterPropertyUpdateHandler(func(val st.PropValue) {
-			idx := val.IntVal & common.IndexMask
-			if idx != common.IndexMask {
+			idx := val.IntVal & indexMask
+			if idx != indexMask {
 				if v != 0 {
 					// Player already has a weapon in this slot.
 					pl.RawWeapons[cache[i2]] = nil
@@ -515,7 +508,7 @@ func (p *Parser) handleNewPlayer(playerEntity *st.Entity) {
 		})
 	}
 
-	setIntLazy("m_hActiveWeapon", func(val int) { pl.ActiveWeaponID = val & common.IndexMask })
+	setIntLazy("m_hActiveWeapon", func(val int) { pl.ActiveWeaponID = val & indexMask })
 
 	for i := 0; i < 32; i++ {
 		i2 := i // Copy so it stays the same
@@ -572,11 +565,11 @@ func (p *Parser) handleWeapon(event st.EntityCreatedEvent) {
 
 	// FIXME: Deag/R8???
 	switch eq.Weapon {
-	case common.EE_P2000:
-		wepFix("_pist_hkp2000", "_pist_223", func() { eq.Weapon = common.EE_USP })
-	case common.EE_M4A4:
-		wepFix("_rif_m4a1", "_rif_m4a1_s", func() { eq.Weapon = common.EE_M4A1 })
-	case common.EE_P250:
-		wepFix("_pist_p250", "_pist_cz_75", func() { eq.Weapon = common.EE_CZ })
+	case common.EqP2000:
+		wepFix("_pist_hkp2000", "_pist_223", func() { eq.Weapon = common.EqUSP })
+	case common.EqM4A4:
+		wepFix("_rif_m4a1", "_rif_m4a1_s", func() { eq.Weapon = common.EqM4A1 })
+	case common.EqP250:
+		wepFix("_pist_p250", "_pist_cz_75", func() { eq.Weapon = common.EqCZ })
 	}
 }

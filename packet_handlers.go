@@ -121,13 +121,13 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "round_end": // Round ended and the winner was announced
 		data = mapGameEventData(d, ge)
 
-		t := common.Team_Spectators
+		t := common.TeamSpectators
 
 		switch data["winner"].GetValByte() {
 		case int32(p.tState.id):
-			t = common.Team_Terrorists
+			t = common.TeamTerrorists
 		case int32(p.ctState.id):
-			t = common.Team_CounterTerrorists
+			t = common.TeamCounterTerrorists
 		}
 
 		p.eventDispatcher.Dispatch(events.RoundEndedEvent{
@@ -175,7 +175,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		e := events.WeaponFiredEvent{Shooter: p.connectedPlayers[int(data["userid"].GetValShort())]}
 		wep := common.NewEquipment(data["weapon"].GetValString())
 
-		if e.Shooter != nil && wep.Class() != common.EC_Grenade {
+		if e.Shooter != nil && wep.Class() != common.EqClassGrenade {
 			e.Weapon = e.Shooter.ActiveWeapon()
 		} else {
 			e.Weapon = &wep
@@ -197,7 +197,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		wep := common.NewSkinEquipment(data["weapon"].GetValString(), data["weapon_itemid"].GetValString())
 
 		// FIXME: Should we do that last weapons > 0 check above as well?????
-		if e.Killer != nil && wep.Class() != common.EC_Grenade && len(e.Killer.Weapons) > 0 {
+		if e.Killer != nil && wep.Class() != common.EqClassGrenade && len(e.Killer.Weapons) > 0 {
 			e.Weapon = e.Killer.ActiveWeapon()
 		} else {
 			e.Weapon = &wep
@@ -215,12 +215,12 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			Armor:        int(data["armor"].GetValShort()),
 			HealthDamage: int(data["dmg_health"].GetValShort()),
 			ArmorDamage:  int(data["dmg_armor"].GetValShort()),
-			Hitgroup:     common.Hitgroup(data["penetrated"].GetValByte()),
+			HitGroup:     common.HitGroup(data["penetrated"].GetValByte()),
 		}
 
 		wep := common.NewEquipment(data["weapon"].GetValString())
 
-		if e.Attacker != nil && wep.Class() != common.EC_Grenade && len(e.Attacker.Weapons) > 0 {
+		if e.Attacker != nil && wep.Class() != common.EqClassGrenade && len(e.Attacker.Weapons) > 0 {
 			e.Weapon = e.Attacker.ActiveWeapon()
 		} else {
 			e.Weapon = &wep
@@ -257,28 +257,28 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		switch d.Name {
 		case "flashbang_detonate": // Flash exploded
-			p.eventDispatcher.Dispatch(events.FlashExplodedEvent{NadeEvent: events.BuildNadeEvent(common.EE_Flash, thrower, position)})
+			p.eventDispatcher.Dispatch(events.FlashExplodedEvent{NadeEvent: buildNadeEvent(common.EqFlash, thrower, position)})
 
 		case "hegrenade_detonate": // HE exploded
-			p.eventDispatcher.Dispatch(events.HeExplodedEvent{NadeEvent: events.BuildNadeEvent(common.EE_HE, thrower, position)})
+			p.eventDispatcher.Dispatch(events.HeExplodedEvent{NadeEvent: buildNadeEvent(common.EqHE, thrower, position)})
 
 		case "decoy_started": // Decoy started
-			p.eventDispatcher.Dispatch(events.DecoyStartEvent{NadeEvent: events.BuildNadeEvent(common.EE_Decoy, thrower, position)})
+			p.eventDispatcher.Dispatch(events.DecoyStartEvent{NadeEvent: buildNadeEvent(common.EqDecoy, thrower, position)})
 
 		case "decoy_detonate": // Decoy exploded/expired
-			p.eventDispatcher.Dispatch(events.DecoyEndEvent{NadeEvent: events.BuildNadeEvent(common.EE_Decoy, thrower, position)})
+			p.eventDispatcher.Dispatch(events.DecoyEndEvent{NadeEvent: buildNadeEvent(common.EqDecoy, thrower, position)})
 
 		case "smokegrenade_detonate": // Smoke popped
-			p.eventDispatcher.Dispatch(events.SmokeStartEvent{NadeEvent: events.BuildNadeEvent(common.EE_Smoke, thrower, position)})
+			p.eventDispatcher.Dispatch(events.SmokeStartEvent{NadeEvent: buildNadeEvent(common.EqSmoke, thrower, position)})
 
 		case "smokegrenade_expired": // Smoke expired
-			p.eventDispatcher.Dispatch(events.SmokeEndEvent{NadeEvent: events.BuildNadeEvent(common.EE_Smoke, thrower, position)})
+			p.eventDispatcher.Dispatch(events.SmokeEndEvent{NadeEvent: buildNadeEvent(common.EqSmoke, thrower, position)})
 
 		case "inferno_startburn": // Incendiary exploded/started
-			p.eventDispatcher.Dispatch(events.FireNadeStartEvent{NadeEvent: events.BuildNadeEvent(common.EE_Incendiary, thrower, position)})
+			p.eventDispatcher.Dispatch(events.FireNadeStartEvent{NadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position)})
 
 		case "inferno_expire": // Incendiary expired
-			p.eventDispatcher.Dispatch(events.FireNadeEndEvent{NadeEvent: events.BuildNadeEvent(common.EE_Incendiary, thrower, position)})
+			p.eventDispatcher.Dispatch(events.FireNadeEndEvent{NadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position)})
 		}
 
 	case "player_connect": // Player connected. . .?
@@ -324,20 +324,20 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		// FIXME: We could probably just cast team & oldteam to common.Team, should always be correct. . . Needs testing
 		switch data["team"].GetValByte() {
 		case int32(p.tState.id):
-			e.NewTeam = common.Team_Terrorists
+			e.NewTeam = common.TeamTerrorists
 		case int32(p.ctState.id):
-			e.NewTeam = common.Team_CounterTerrorists
+			e.NewTeam = common.TeamCounterTerrorists
 		default:
-			e.NewTeam = common.Team_Spectators
+			e.NewTeam = common.TeamSpectators
 		}
 
 		switch data["oldteam"].GetValByte() {
 		case int32(p.tState.id):
-			e.OldTeam = common.Team_Terrorists
+			e.OldTeam = common.TeamTerrorists
 		case int32(p.ctState.id):
-			e.OldTeam = common.Team_CounterTerrorists
+			e.OldTeam = common.TeamCounterTerrorists
 		default:
-			e.OldTeam = common.Team_Spectators
+			e.OldTeam = common.TeamSpectators
 		}
 
 		p.eventDispatcher.Dispatch(e)
@@ -485,6 +485,15 @@ func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_Ga
 	return data
 }
 
+// Just so we can nicely create NadeEvents in one line
+func buildNadeEvent(nadeType common.EquipmentElement, thrower *common.Player, position r3.Vector) events.NadeEvent {
+	return events.NadeEvent{
+		NadeType: nadeType,
+		Thrower:  thrower,
+		Position: position,
+	}
+}
+
 func getCommunityID(guid string) int64 {
 	if guid == "BOT" {
 		return 0
@@ -507,11 +516,11 @@ func getCommunityID(guid string) int64 {
 func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 	cTab := p.stringTables[tab.TableId]
 	switch cTab.Name {
-	case stName_UserInfo:
+	case stNameUserInfo:
 		fallthrough
-	case stName_ModelPreCache:
+	case stNameModelPreCache:
 		fallthrough
-	case stName_InstanceBaseline:
+	case stNameInstanceBaseline:
 		// Only handle updates for the above types
 		p.handleCreateStringTable(cTab)
 	}
@@ -519,7 +528,7 @@ func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 }
 
 func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
-	if tab.Name == stName_ModelPreCache {
+	if tab.Name == stNameModelPreCache {
 		for i := len(p.modelPreCache); i < int(tab.MaxEntries); i++ {
 			p.modelPreCache = append(p.modelPreCache, "")
 		}
@@ -588,15 +597,15 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		}
 
 		switch tab.Name {
-		case stName_UserInfo:
+		case stNameUserInfo:
 			p.rawPlayers[entryIndex] = common.ParsePlayerInfo(bytes.NewReader(userdat))
-		case stName_InstanceBaseline:
+		case stNameInstanceBaseline:
 			classid, err := strconv.ParseInt(entry, 10, 64)
 			if err != nil {
 				panic("WTF VOLVO PLS")
 			}
 			p.instanceBaselines[int(classid)] = userdat
-		case stName_ModelPreCache:
+		case stNameModelPreCache:
 			p.modelPreCache[entryIndex] = entry
 		}
 	}

@@ -7,18 +7,19 @@ import (
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 )
 
+// Entity stores a entity in the game (e.g. players etc.) with its properties.
 type Entity struct {
 	ID          int
 	ServerClass *ServerClass
 	props       []PropertyEntry
 }
 
-// Props returns all property entries for a entity.
+// Props returns all properties (PropertyEntry) for the Entity.
 func (e *Entity) Props() []PropertyEntry {
 	return e.props
 }
 
-// FindProperty finds a property on the entity by name.
+// FindProperty finds a property on the Entity by name.
 func (e *Entity) FindProperty(name string) *PropertyEntry {
 	var prop *PropertyEntry
 	for i := range e.props {
@@ -46,6 +47,8 @@ var entrySliceBackerPool sync.Pool = sync.Pool{
 	},
 }
 
+// ApplyUpdate reads an update to an Enitiy's properties and
+// triggers registered PropertyUpdateHandlers if values changed.
 func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
 	idx := -1
 	newWay := reader.ReadBit()
@@ -95,6 +98,10 @@ func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 	return lastIndex + 1 + int(res)
 }
 
+// CollectProperties registers PropertyUpdateHandlers on the Entitiy
+// that will update a 'preprocessedBasleine' map with the most recent values.
+// This is used if entities leave and re-enter the PVS as entities will be re-created at that point
+// and we can then take the map as baseline for the new entity.
 func (e *Entity) CollectProperties(ppBase *map[int]PropValue) {
 	for i := range e.props {
 		adder := func(val PropValue) {
@@ -105,6 +112,7 @@ func (e *Entity) CollectProperties(ppBase *map[int]PropValue) {
 	}
 }
 
+// NewEntity creates a new Entity with a given id and ServerClass and returns it.
 func NewEntity(id int, serverClass *ServerClass) *Entity {
 	props := make([]PropertyEntry, 0, len(serverClass.FlattenedProps))
 	for i := range serverClass.FlattenedProps {
@@ -113,16 +121,21 @@ func NewEntity(id int, serverClass *ServerClass) *Entity {
 	return &Entity{ID: id, ServerClass: serverClass, props: props}
 }
 
+// PropertyEntry wraps a FlattenedPropEntry and allows registering handlers
+// that can be triggered on a update of the property.
 type PropertyEntry struct {
 	index          int
 	entry          *FlattenedPropEntry
 	updateHandlers []PropertyUpdateHandler
 }
 
+// Entry returns the underlying FlattenedPropEntry.
 func (pe *PropertyEntry) Entry() *FlattenedPropEntry {
 	return pe.entry
 }
 
+// FirePropertyUpdate triggers all registered PropertyUpdateHandler
+// on the PropertyEntry with the given PropValue.
 func (pe *PropertyEntry) FirePropertyUpdate(value PropValue) {
 	for _, h := range pe.updateHandlers {
 		if h != nil {
@@ -131,12 +144,16 @@ func (pe *PropertyEntry) FirePropertyUpdate(value PropValue) {
 	}
 }
 
+// RegisterPropertyUpdateHandler registers a PropertyUpdateHandler.
+// The handler will be triggered on every FirePropertyUpdate call.
 func (pe *PropertyEntry) RegisterPropertyUpdateHandler(handler PropertyUpdateHandler) {
 	pe.updateHandlers = append(pe.updateHandlers, handler)
 }
 
+// PropertyUpdateHandler is the interface for handlers that are interested in PropertyEntry changes.
 type PropertyUpdateHandler func(PropValue)
 
+// NewPropertyEntry creates a new PropertyEntry from a FlattenedPropEntry and index
 func NewPropertyEntry(entry *FlattenedPropEntry, index int) PropertyEntry {
 	return PropertyEntry{index: index, entry: entry}
 }
