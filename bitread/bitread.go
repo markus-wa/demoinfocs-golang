@@ -2,10 +2,11 @@
 package bitread
 
 import (
-	"github.com/markus-wa/gobitread"
 	"io"
 	"math"
 	"sync"
+
+	bitread "github.com/markus-wa/gobitread"
 )
 
 const (

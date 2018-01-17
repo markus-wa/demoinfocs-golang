@@ -20,11 +20,12 @@ Check out the godoc on the events package for some more information about the av
 ```go
 import (
 	"fmt"
-	dem "github.com/markus-wa/demoinfocs-golang"
-	"github.com/markus-wa/demoinfocs-golang/common"
-	"github.com/markus-wa/demoinfocs-golang/events"
 	"log"
 	"os"
+
+	dem "github.com/markus-wa/demoinfocs-golang"
+	common "github.com/markus-wa/demoinfocs-golang/common"
+	events "github.com/markus-wa/demoinfocs-golang/events"
 )
 
 func main() {

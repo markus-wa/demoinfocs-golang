@@ -1,8 +1,9 @@
 package demoinfocs
 
 import (
-	"github.com/golang/geo/r3"
-	bs "github.com/markus-wa/demoinfocs-golang/bitread"
+	r3 "github.com/golang/geo/r3"
+
+	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 )
 
 // TeamState contains a team's ID, score, clan name & country flag.
@@ -72,11 +73,11 @@ type bombsiteInfo struct {
 	center r3.Vector
 }
 
-func parseCommandInfo(r *bs.BitReader) commandInfo {
+func parseCommandInfo(r *bit.BitReader) commandInfo {
 	return commandInfo{splits: [2]split{parseSplit(r), parseSplit(r)}}
 }
 
-func parseSplit(r *bs.BitReader) split {
+func parseSplit(r *bit.BitReader) split {
 	return split{
 		flags: r.ReadSignedInt(32),
 
@@ -90,11 +91,11 @@ func parseSplit(r *bs.BitReader) split {
 	}
 }
 
-func parseSEVector(r *bs.BitReader) seVector {
+func parseSEVector(r *bit.BitReader) seVector {
 	return seVector{parseVector(r)}
 }
 
-func parseVector(r *bs.BitReader) r3.Vector {
+func parseVector(r *bit.BitReader) r3.Vector {
 	return r3.Vector{
 		X: float64(r.ReadFloat()),
 		Y: float64(r.ReadFloat()),

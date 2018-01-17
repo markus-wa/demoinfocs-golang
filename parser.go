@@ -1,12 +1,14 @@
 package demoinfocs
 
 import (
-	bs "github.com/markus-wa/demoinfocs-golang/bitread"
-	"github.com/markus-wa/demoinfocs-golang/common"
-	"github.com/markus-wa/demoinfocs-golang/msg"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
-	dp "github.com/markus-wa/godispatch"
 	"io"
+
+	dp "github.com/markus-wa/godispatch"
+
+	bit "github.com/markus-wa/demoinfocs-golang/bitread"
+	common "github.com/markus-wa/demoinfocs-golang/common"
+	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 // TODO?: create struct GameState for all game-state relevant stuff
@@ -17,7 +19,7 @@ import (
 // After parsing the header Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo.
 // Use Parser.RegisterEventHandler() to receive notifications about events.
 type Parser struct {
-	bitReader             *bs.BitReader
+	bitReader             *bit.BitReader
 	stParser              st.Parser
 	msgDispatcher         dp.Dispatcher
 	eventDispatcher       dp.Dispatcher
@@ -133,7 +135,7 @@ func (p *Parser) TState() *TeamState {
 func NewParser(demostream io.Reader) *Parser {
 	var p Parser
 	// Init parser
-	p.bitReader = bs.NewLargeBitReader(demostream)
+	p.bitReader = bit.NewLargeBitReader(demostream)
 	p.msgQueue = make(chan interface{}, 8)
 	p.instanceBaselines = make(map[int][]byte)
 	p.preprocessedBaselines = make(map[int]map[int]st.PropValue)

@@ -2,8 +2,9 @@ package sendtables
 
 import (
 	"fmt"
-	bs "github.com/markus-wa/demoinfocs-golang/bitread"
 	"sync"
+
+	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 )
 
 type Entity struct {
@@ -45,7 +46,7 @@ var entrySliceBackerPool sync.Pool = sync.Pool{
 	},
 }
 
-func (e *Entity) ApplyUpdate(reader *bs.BitReader) {
+func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
 	idx := -1
 	newWay := reader.ReadBit()
 	backer := entrySliceBackerPool.Get().(*entrySliceBacker)
@@ -65,7 +66,7 @@ func (e *Entity) ApplyUpdate(reader *bs.BitReader) {
 	entrySliceBackerPool.Put(backer)
 }
 
-func readFieldIndex(reader *bs.BitReader, lastIndex int, newWay bool) int {
+func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 	if newWay && reader.ReadBit() {
 		// NewWay A
 		return lastIndex + 1

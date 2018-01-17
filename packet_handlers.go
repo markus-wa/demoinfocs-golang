@@ -6,18 +6,19 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/golang/geo/r3"
-	bs "github.com/markus-wa/demoinfocs-golang/bitread"
-	"github.com/markus-wa/demoinfocs-golang/common"
-	"github.com/markus-wa/demoinfocs-golang/events"
-	"github.com/markus-wa/demoinfocs-golang/msg"
+	r3 "github.com/golang/geo/r3"
+	bit "github.com/markus-wa/demoinfocs-golang/bitread"
+
+	common "github.com/markus-wa/demoinfocs-golang/common"
+	events "github.com/markus-wa/demoinfocs-golang/events"
+	msg "github.com/markus-wa/demoinfocs-golang/msg"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 const entitySentinel = 9999
 
 func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
-	r := bs.NewSmallBitReader(bytes.NewReader(pe.EntityData))
+	r := bit.NewSmallBitReader(bytes.NewReader(pe.EntityData))
 
 	currentEntity := -1
 	for i := 0; i < int(pe.UpdatedEntries); i++ {
@@ -52,7 +53,7 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 	r.Pool()
 }
 
-func (p *Parser) readEnterPVS(reader *bs.BitReader, entityID int) *st.Entity {
+func (p *Parser) readEnterPVS(reader *bit.BitReader, entityID int) *st.Entity {
 	scID := int(reader.ReadInt(uint(p.stParser.ClassBits())))
 	reader.ReadInt(10) // Serial Number
 
@@ -67,7 +68,7 @@ func (p *Parser) readEnterPVS(reader *bs.BitReader, entityID int) *st.Entity {
 		ppBase := make(map[int]st.PropValue, 0)
 		if p.instanceBaselines[scID] != nil {
 			newEntity.CollectProperties(&ppBase)
-			r := bs.NewSmallBitReader(bytes.NewReader(p.instanceBaselines[scID]))
+			r := bit.NewSmallBitReader(bytes.NewReader(p.instanceBaselines[scID]))
 			newEntity.ApplyUpdate(r)
 			r.Pool()
 		}
@@ -524,7 +525,7 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		}
 	}
 
-	br := bs.NewSmallBitReader(bytes.NewReader(tab.StringData))
+	br := bit.NewSmallBitReader(bytes.NewReader(tab.StringData))
 
 	if br.ReadBit() {
 		panic("Can't decode")

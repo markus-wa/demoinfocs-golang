@@ -2,8 +2,9 @@
 package events
 
 import (
-	"github.com/golang/geo/r3"
-	"github.com/markus-wa/demoinfocs-golang/common"
+	r3 "github.com/golang/geo/r3"
+
+	common "github.com/markus-wa/demoinfocs-golang/common"
 )
 
 // HeaderParsedEvent signals that the header has been parsed.

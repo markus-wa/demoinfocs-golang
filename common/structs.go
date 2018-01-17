@@ -2,10 +2,12 @@ package common
 
 import (
 	"encoding/binary"
-	"github.com/golang/geo/r3"
-	bs "github.com/markus-wa/demoinfocs-golang/bitread"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 	"io"
+
+	r3 "github.com/golang/geo/r3"
+
+	bit "github.com/markus-wa/demoinfocs-golang/bitread"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 // DemoHeader contains information about the demo's header.
@@ -136,7 +138,7 @@ func NewSkinEquipment(eqName string, skinId string) Equipment {
 
 // ParsePlayerInfo parses player information from a byte stream.
 func ParsePlayerInfo(reader io.Reader) *PlayerInfo {
-	br := bs.NewSmallBitReader(reader)
+	br := bit.NewSmallBitReader(reader)
 	res := &PlayerInfo{
 		Version:     int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
 		XUID:        int64(binary.BigEndian.Uint64(br.ReadBytes(8))),

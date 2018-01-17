@@ -2,11 +2,13 @@ package sendtables
 
 import (
 	"fmt"
-	"github.com/gogo/protobuf/proto"
-	bs "github.com/markus-wa/demoinfocs-golang/bitread"
-	"github.com/markus-wa/demoinfocs-golang/msg"
 	"math"
 	"sort"
+
+	proto "github.com/gogo/protobuf/proto"
+
+	bit "github.com/markus-wa/demoinfocs-golang/bitread"
+	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
 type Parser struct {
@@ -24,7 +26,7 @@ func (p *Parser) ServerClasses() []*ServerClass {
 	return p.serverClasses
 }
 
-func (p *Parser) ParsePacket(r *bs.BitReader) {
+func (p *Parser) ParsePacket(r *bit.BitReader) {
 	for {
 		t := msg.SVC_Messages(r.ReadVarInt32())
 		if t != msg.SVC_Messages_svc_SendTable {
@@ -63,7 +65,7 @@ func (p *Parser) ParsePacket(r *bs.BitReader) {
 	}
 }
 
-func parseSendTable(r *bs.BitReader) SendTable {
+func parseSendTable(r *bit.BitReader) SendTable {
 	size := int(r.ReadVarInt32())
 	r.BeginChunk(size << 3)
 	st := new(msg.CSVCMsg_SendTable)
