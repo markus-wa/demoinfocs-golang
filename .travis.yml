@@ -2,7 +2,8 @@ language: go
 sudo: required
 
 go:
-  - 1.9
+  - 1.9.x
+  - stable
   - master
 
 before_script:
