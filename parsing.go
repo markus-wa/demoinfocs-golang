@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -56,6 +57,46 @@ func (p *Parser) ParseToEnd() error {
 
 		default:
 			if !p.ParseNextFrame() {
+				fmt.Printf("%s %s\n", p.header.ServerName, p.header.MapName)
+				roundNumbers := make([]int, 0)
+				for roundNumber, _ := range Rounds {
+					roundNumbers = append(roundNumbers, roundNumber)
+				}
+				sort.Ints(roundNumbers)
+				for _, roundNumber := range roundNumbers {
+					if roundNumber == roundNumbers[len(roundNumbers)-1] {
+						continue
+					}
+					messages := make([]string, 0)
+					round := Rounds[roundNumber]
+					messages = append(messages, fmt.Sprintf("Round %d\n", roundNumber))
+					if (roundNumber == 1) && (round.BeginNewMatch != 1) {
+						messages = append(messages, fmt.Sprintf("Expected 1 begin_new_match event, got %d\n", round.BeginNewMatch))
+					}
+					if (roundNumber == 1) && (round.RoundAnnounceMatchStart != 1) {
+						messages = append(messages, fmt.Sprintf("Expected 1 round_announce_match_start event, got %d\n", round.RoundAnnounceMatchStart))
+					}
+					if (roundNumber+1 == len(Rounds)) && (round.CSWinPanelMatch != 1) {
+						messages = append(messages, fmt.Sprintf("Expected 1 cs_win_panel_match event, got %d\n", round.CSWinPanelMatch))
+					}
+					if round.RoundEnd != 1 {
+						messages = append(messages, fmt.Sprintf("Expected 1 round_end event, got %d\n", round.RoundEnd))
+					}
+					if round.RoundFreezeEnd != 1 {
+						messages = append(messages, fmt.Sprintf("Expected 1 round_freeze_end event, got %d\n", round.RoundFreezeEnd))
+					}
+					if round.RoundOfficiallyEnded != 1 {
+						messages = append(messages, fmt.Sprintf("Expected 1 round_officially_ended_event event, got %d\n", round.RoundOfficiallyEnded))
+					}
+					if round.RoundStart != 1 {
+						messages = append(messages, fmt.Sprintf("Expected 1 round_start event, got %d\n", round.RoundStart))
+					}
+					if len(messages) > 1 {
+						for _, message := range messages {
+							fmt.Print(message)
+						}
+					}
+				}
 				return nil
 			}
 		}
