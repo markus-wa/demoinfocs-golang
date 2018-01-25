@@ -76,7 +76,7 @@ func (p *Parser) PlayingParticipants() []*common.Player {
 
 // FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
 // Not necessarily the tick-rate the server ran on during the game.
-// VolvoPlx128BitKTnxBye
+// VolvoPlx128TixKTnxBye
 func (p *Parser) FrameRate() float32 {
 	return float32(p.header.PlaybackFrames) / p.header.PlaybackTime
 }
