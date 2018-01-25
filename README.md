@@ -13,9 +13,9 @@ Is a CS:GO demo parser written in Go based on [Valve's demoinfogo](https://githu
 
 ## Example
 
-This is a simple example on how to use the library. It prints out the winner of each round after the warm up is over.
+This is a simple example on how to use the library. After each round (on every `RoundEndedEvent`) it prints out which team won.
 
-Check out the godoc on the events package for some more information about the available events and their purpose.
+Check out the godoc of the `events` package for some more information about the available events and their purpose.
 
 ```go
 import (
@@ -40,37 +40,18 @@ func main() {
 	// Parse header
 	p.ParseHeader()
 
-	// Get T / CT team state references
+	// Get T / CT team state references (contain scores)
 	tState := p.TState()
 	ctState := p.CTState()
 
-	// We need this to skip restarts and team switches before the match start
-	// Might not be necessary for all demos (especially MM)
-	// But for pro matches / scrims it might be depending on how the server was set up
-	// TODO: This might not always be correct, needs testing
-	matchStarted := false
-	p.RegisterEventHandler(func(events.MatchStartedEvent) {
-		matchStarted = true
-	})
-	matchReallyStarted := false
-	p.RegisterEventHandler(func(events.RoundStartedEvent) {
-		if matchStarted {
-			matchReallyStarted = true
-		}
-	})
-
 	// Register handler on round end to figure out who won
 	p.RegisterEventHandler(func(e events.RoundEndedEvent) {
-		if matchReallyStarted {
-			if e.Winner == common.TeamTerrorists {
-				fmt.Println("T-side won the round - score:", tState.Score()+1) // Score + 1 because it hasn't actually been updated yet
-			} else if e.Winner == common.TeamCounterTerrorists {
-				fmt.Println("CT-side won the round - score:", ctState.Score()+1)
-			} else {
-				fmt.Println("Apparently neither the Ts nor CTs won the round, interesting")
-			}
+		if e.Winner == common.TeamTerrorists {
+			fmt.Println("T-side won the round - score:", tState.Score()+1) // Score + 1 because it hasn't actually been updated yet
+		} else if e.Winner == common.TeamCounterTerrorists {
+			fmt.Println("CT-side won the round - score:", ctState.Score()+1)
 		} else {
-			fmt.Println("Skipping warmup event")
+			fmt.Println("Apparently neither the Ts nor CTs won the round, interesting")
 		}
 	})
 
