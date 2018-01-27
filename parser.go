@@ -130,6 +130,35 @@ func (p *Parser) TState() *TeamState {
 	return &p.tState
 }
 
+// TeamState contains a team's ID, score, clan name & country flag.
+type TeamState struct {
+	id       int
+	score    int
+	clanName string
+	flag     string
+}
+
+// ID returns the team-ID.
+// This stays the same even after switching sides.
+func (ts TeamState) ID() int {
+	return ts.id
+}
+
+// Score returns the team's number of rounds won.
+func (ts TeamState) Score() int {
+	return ts.score
+}
+
+// ClanName returns the team's clan name.
+func (ts TeamState) ClanName() string {
+	return ts.clanName
+}
+
+// Flag returns the team's country flag.
+func (ts TeamState) Flag() string {
+	return ts.flag
+}
+
 // NewParser creates a new Parser on the basis of an io.Reader
 // - like os.File or bytes.Reader - that reads demo data.
 func NewParser(demostream io.Reader) *Parser {
