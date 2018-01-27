@@ -1,7 +1,5 @@
 package demoinfocs
 
-type demoCommand byte
-
 const (
 	maxEditctBits = 11
 	indexMask     = ((1 << maxEditctBits) - 1)
@@ -10,16 +8,19 @@ const (
 	maxWeapons    = 64
 )
 
+// Demo commands as documented at https://developer.valvesoftware.com/wiki/DEM_Format
+type demoCommand byte
+
 const (
-	dcSignon demoCommand = iota + 1
-	dcPacket
-	dcSynctick
-	dcConsoleCommand
-	dcUserCommand
-	dcDataTables
-	dcStop
-	dcCustomData
-	dcStringTables
+	dcSignon         demoCommand = 1
+	dcPacket         demoCommand = 2
+	dcSynctick       demoCommand = 3
+	dcConsoleCommand demoCommand = 4
+	dcUserCommand    demoCommand = 5
+	dcDataTables     demoCommand = 6
+	dcStop           demoCommand = 7
+	dcCustomData     demoCommand = 8
+	dcStringTables   demoCommand = 9
 )
 
 const (
