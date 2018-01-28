@@ -104,8 +104,9 @@ func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 // and we can then take the map as baseline for the new entity.
 func (e *Entity) CollectProperties(ppBase *map[int]PropValue) {
 	for i := range e.props {
+		i2 := i // Copy for the adder
 		adder := func(val PropValue) {
-			(*ppBase)[e.props[i].index] = val
+			(*ppBase)[e.props[i2].index] = val
 		}
 
 		e.props[i].RegisterPropertyUpdateHandler(adder)

@@ -267,18 +267,21 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 
 	var cache [maxWeapons]int
 
-	for i, v := range cache {
+	for i := range cache {
 		i2 := i // Copy for passing to handler
 		playerEntity.FindProperty(wepPrefix + fmt.Sprintf("%03d", i)).RegisterPropertyUpdateHandler(func(val st.PropValue) {
 			idx := val.IntVal & indexMask
 			if idx != indexMask {
-				if v != 0 {
+				if cache[i2] != 0 {
 					// Player already has a weapon in this slot.
 					pl.RawWeapons[cache[i2]] = nil
-					cache[i2] = 0
 				}
 				cache[i2] = idx
-				p.attributeWeapon(idx, pl)
+
+				// Attribute weapon to player
+				wep := &p.weapons[idx]
+				wep.Owner = pl
+				pl.RawWeapons[idx] = wep
 			} else {
 				if cache[i2] != 0 && pl.RawWeapons[cache[i2]] != nil {
 					pl.RawWeapons[cache[i2]].Owner = nil
@@ -295,12 +298,6 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 		i2 := i // Copy so it stays the same
 		setIntLazy("m_iAmmo."+fmt.Sprintf("%03d", i2), func(val int) { pl.AmmoLeft[i2] = val })
 	}
-}
-
-func (p *Parser) attributeWeapon(index int, player *common.Player) {
-	wep := &p.weapons[index]
-	wep.Owner = player
-	player.RawWeapons[index] = wep
 }
 
 func (p *Parser) bindWeapons() {
