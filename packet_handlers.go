@@ -3,7 +3,6 @@ package demoinfocs
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"strconv"
 
 	r3 "github.com/golang/geo/r3"
@@ -71,6 +70,8 @@ func (p *Parser) readEnterPVS(reader *bit.BitReader, entityID int) *st.Entity {
 			r := bit.NewSmallBitReader(bytes.NewReader(p.instanceBaselines[scID]))
 			newEntity.ApplyUpdate(r)
 			r.Pool()
+			// TODO: Unregister PropertyUpdateHandlers from CollectProperties()
+			// PropertyUpdateHandlers would have to be registered as pointers for that to work
 		}
 		p.preprocessedBaselines[scID] = ppBase
 	}
@@ -473,7 +474,9 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "hltv_fixed": // Dunno
 	case "cs_match_end_restart": // Yawn
 	default:
-		fmt.Fprintf(os.Stderr, "WARNING: Unknown event %q\n", d.Name)
+		if p.warn != nil {
+			p.warn(fmt.Sprintf("Unknown event %q", d.Name))
+		}
 	}
 }
 
@@ -618,8 +621,9 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 	case msg.ECstrike15UserMessages_CS_UM_SayText:
 		st := new(msg.CCSUsrMsg_SayText)
 		err := st.Unmarshal(um.MsgData)
-		if err != nil {
-			panic(fmt.Sprintf("Failed to decode SayText message: %s", err.Error()))
+		if err != nil && p.warn != nil {
+			// Just send a warning, chat messages aren't that important
+			p.warn(fmt.Sprintf("Failed to decode SayText message: %s", err.Error()))
 		}
 
 		p.eventDispatcher.Dispatch(events.SayTextEvent{
@@ -632,8 +636,8 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 	case msg.ECstrike15UserMessages_CS_UM_SayText2:
 		st := new(msg.CCSUsrMsg_SayText2)
 		err := st.Unmarshal(um.MsgData)
-		if err != nil {
-			panic(fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error()))
+		if err != nil && p.warn != nil {
+			p.warn(fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error()))
 		}
 
 		sender := p.players[int(st.EntIdx)]
@@ -654,7 +658,11 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 				Text:      st.Params[1],
 				IsChatAll: st.Textallchat,
 			})
+
 		default:
+			if p.warn != nil {
+				p.warn(fmt.Sprintf("Skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName))
+			}
 		}
 
 	default:

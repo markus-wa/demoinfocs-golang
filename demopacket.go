@@ -66,7 +66,21 @@ func (p *Parser) parsePacket() {
 			m = new(msg.CSVCMsg_UserMessage)
 
 		default:
-			// We don't care about anything else for now
+			if p.warn != nil {
+				var name string
+				if cmd < 8 || cmd >= 100 {
+					name = msg.NET_Messages_name[int32(cmd)]
+				} else {
+					name = msg.SVC_Messages_name[int32(cmd)]
+				}
+				if name == "" {
+					// Send a warning if the command is unknown
+					// This might mean our proto files are out of date
+					p.warn(fmt.Sprintf("Unknown message command %q", cmd))
+				}
+			}
+
+			// On to the next one
 			p.bitReader.EndChunk()
 			continue
 		}

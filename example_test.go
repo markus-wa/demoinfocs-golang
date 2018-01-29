@@ -18,7 +18,7 @@ func TestExample(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	p := dem.NewParser(f)
+	p := dem.NewParser(f, dem.WarnToStdErr)
 
 	// Parse header
 	p.ParseHeader()

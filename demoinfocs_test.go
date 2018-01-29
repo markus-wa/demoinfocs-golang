@@ -32,7 +32,7 @@ func TestDemoInfoCs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	p := dem.NewParser(f)
+	p := dem.NewParser(f, dem.WarnToStdErr)
 
 	fmt.Println("Parsing header")
 	p.RegisterEventHandler(func(e events.HeaderParsedEvent) {
@@ -89,7 +89,7 @@ func TestCancelParseToEnd(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	p := dem.NewParser(f)
+	p := dem.NewParser(f, nil)
 	err = p.ParseHeader()
 	if err != nil {
 		t.Fatal(err)
@@ -119,7 +119,7 @@ func TestConcurrent(t *testing.T) {
 		f, _ := os.Open(defaultDemPath)
 		defer f.Close()
 
-		p := dem.NewParser(f)
+		p := dem.NewParser(f, nil)
 		err := p.ParseHeader()
 		if err != nil {
 			t.Fatal(err)
@@ -166,7 +166,7 @@ func TestDemoSet(t *testing.T) {
 					}
 				}()
 
-				p := dem.NewParser(f)
+				p := dem.NewParser(f, nil)
 				err = p.ParseHeader()
 				if err != nil {
 					t.Fatal(err)
@@ -187,7 +187,7 @@ func BenchmarkDemoInfoCs(b *testing.B) {
 				b.Fatal(err)
 			}
 
-			p := dem.NewParser(f)
+			p := dem.NewParser(f, nil)
 			err = p.ParseHeader()
 			if err != nil {
 				b.Fatal(err)
@@ -219,7 +219,7 @@ func BenchmarkInMemory(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		p := dem.NewParser(bytes.NewReader(d))
+		p := dem.NewParser(bytes.NewReader(d), nil)
 		err = p.ParseHeader()
 		if err != nil {
 			b.Fatal(err)

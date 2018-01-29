@@ -3,7 +3,6 @@ package demoinfocs
 import (
 	"errors"
 	"fmt"
-	"os"
 
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
@@ -153,7 +152,8 @@ func (p *Parser) parseFrame() bool {
 		p.parsePacket()
 
 	case dcCustomData:
-		fmt.Fprintf(os.Stderr, "WARNING: Found CustomData but not handled\n")
+		// Might as well panic since we'll be way off if we dont skip the whole thing
+		panic("Found CustomData but not handled")
 
 	default:
 		panic(fmt.Sprintf("Canny handle it anymoe (command %v unknown)", cmd))

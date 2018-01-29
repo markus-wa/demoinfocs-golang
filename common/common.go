@@ -8,8 +8,6 @@
 package common
 
 import (
-	"fmt"
-	"os"
 	"strings"
 )
 
@@ -17,7 +15,7 @@ import (
 func MapEquipment(eqName string) EquipmentElement {
 	eqName = strings.TrimPrefix(eqName, weaponPrefix)
 
-	wep := EqUnknown
+	var wep EquipmentElement
 
 	if strings.Contains(eqName, "knife") || strings.Contains(eqName, "bayonet") {
 		wep = EqKnife
@@ -191,7 +189,8 @@ func MapEquipment(eqName string) EquipmentElement {
 		case "worldspawn":
 
 		default:
-			fmt.Fprintf(os.Stderr, "WARNING: Unknown weapon / equipment %q\n", eqName)
+			// TODO: This is really bad imo but we can't access Parser.warn here :/
+			wep = EqUnknown
 		}
 	}
 	return wep

@@ -1,7 +1,9 @@
 package demoinfocs
 
 import (
+	"fmt"
 	"io"
+	"os"
 
 	dp "github.com/markus-wa/godispatch"
 
@@ -45,6 +47,7 @@ type Parser struct {
 	gehDescriptors        map[int32]*msg.CSVCMsg_GameEventListDescriptorT
 	stringTables          []*msg.CSVCMsg_CreateStringTable
 	cancelChan            chan struct{}
+	warn                  WarnHandler
 }
 
 // Map returns the map name. E.g. de_dust2 or de_inferno.
@@ -159,9 +162,19 @@ func (ts TeamState) Flag() string {
 	return ts.flag
 }
 
+// WarnHandler is a function that handles warnings of a Parser.
+type WarnHandler func(string)
+
+// WarnToStdErr is a WarnHandler that prints all warnings to standard error output.
+func WarnToStdErr(warning string) {
+	fmt.Fprintln(os.Stderr, warning)
+}
+
 // NewParser creates a new Parser on the basis of an io.Reader
 // - like os.File or bytes.Reader - that reads demo data.
-func NewParser(demostream io.Reader) *Parser {
+// Any warnings that don't stop the Parser from doing it's job
+// will be passed to the warnHandler if it's not nil.
+func NewParser(demostream io.Reader, warnHandler WarnHandler) *Parser {
 	var p Parser
 	// Init parser
 	p.bitReader = bit.NewLargeBitReader(demostream)
@@ -173,6 +186,7 @@ func NewParser(demostream io.Reader) *Parser {
 	p.connectedPlayers = make(map[int]*common.Player)
 	p.entities = make(map[int]*st.Entity)
 	p.cancelChan = make(chan struct{}, 1)
+	p.warn = warnHandler
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)
