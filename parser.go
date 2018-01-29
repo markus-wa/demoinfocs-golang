@@ -180,6 +180,7 @@ func NewParser(demostream io.Reader) *Parser {
 	p.msgDispatcher.RegisterHandler(p.handleGameEvent)
 	p.msgDispatcher.RegisterHandler(p.handleCreateStringTable)
 	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTable)
+	p.msgDispatcher.RegisterHandler(p.handleUserMessage)
 
 	p.msgDispatcher.AddQueues(p.msgQueue)
 	return &p

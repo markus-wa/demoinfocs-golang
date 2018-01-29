@@ -237,8 +237,10 @@ type PlayerDisconnectEvent struct {
 	Player *common.Player
 }
 
-// SayTextEvent signals a chat message. Not sure what the
-// difference between this and SayText2Event is.
+// SayTextEvent signals a chat message. It contains the raw
+// network message data for admin / console messages.
+// EntityIndex will probably always be 0
+// See ChatMessageEvent and SayText2Event for player chat messages.
 type SayTextEvent struct {
 	EntityIndex int
 	Text        string
@@ -246,12 +248,24 @@ type SayTextEvent struct {
 	IsChatAll   bool
 }
 
-// SayText2Event signals a chat message. Not sure what the
-// difference between this and SayTextEvent is.
+// SayText2Event signals a chat message. It just contains the raw network message
+// for player chat messages, ChatMessageEvent may be more interesting.
+// Team chat is generally not recorded so IsChatAll will probably always be false.
+// See SayTextEvent for admin / console messages.
 type SayText2Event struct {
 	Sender    *common.Player
-	Text      string
+	MsgName   string
+	Params    []string
 	IsChat    bool
+	IsChatAll bool
+}
+
+// ChatMessageEvent signals a player generated chat message.
+// Since team chat is generally not recorded IsChatAll will probably always be false.
+// See SayTextEvent for admin / console messages and SayText2Event for raw network packages.
+type ChatMessageEvent struct {
+	Sender    *common.Player
+	Text      string
 	IsChatAll bool
 }
 

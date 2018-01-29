@@ -62,6 +62,9 @@ func (p *Parser) parsePacket() {
 		case int(msg.SVC_Messages_svc_UpdateStringTable):
 			m = new(msg.CSVCMsg_UpdateStringTable)
 
+		case int(msg.SVC_Messages_svc_UserMessage):
+			m = new(msg.CSVCMsg_UserMessage)
+
 		default:
 			// We don't care about anything else for now
 			p.bitReader.EndChunk()

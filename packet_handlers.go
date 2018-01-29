@@ -612,3 +612,53 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	p.stringTables = append(p.stringTables, tab)
 	br.Pool()
 }
+
+func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
+	switch msg.ECstrike15UserMessages(um.MsgType) {
+	case msg.ECstrike15UserMessages_CS_UM_SayText:
+		st := new(msg.CCSUsrMsg_SayText)
+		err := st.Unmarshal(um.MsgData)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to decode SayText message: %s", err.Error()))
+		}
+
+		p.eventDispatcher.Dispatch(events.SayTextEvent{
+			EntityIndex: int(st.EntIdx),
+			IsChat:      st.Chat,
+			IsChatAll:   st.Textallchat,
+			Text:        st.Text,
+		})
+
+	case msg.ECstrike15UserMessages_CS_UM_SayText2:
+		st := new(msg.CCSUsrMsg_SayText2)
+		err := st.Unmarshal(um.MsgData)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error()))
+		}
+
+		sender := p.players[int(st.EntIdx)]
+		p.eventDispatcher.Dispatch(events.SayText2Event{
+			Sender:    sender,
+			IsChat:    st.Chat,
+			IsChatAll: st.Textallchat,
+			MsgName:   st.MsgName,
+			Params:    st.Params,
+		})
+
+		switch st.MsgName {
+		case "Cstrike_Chat_All":
+			fallthrough
+		case "Cstrike_Chat_AllDead":
+			p.eventDispatcher.Dispatch(events.ChatMessageEvent{
+				Sender:    sender,
+				Text:      st.Params[1],
+				IsChatAll: st.Textallchat,
+			})
+		default:
+		}
+
+	default:
+		// TODO: handle more user messages (if they are interesting)
+		// Maybe msg.ECstrike15UserMessages_CS_UM_RadioText
+	}
+}
