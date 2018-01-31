@@ -7,6 +7,13 @@ Is a CS:GO demo parser written in Go based on [Valve's demoinfogo](https://githu
 [![codecov](https://codecov.io/gh/markus-wa/demoinfocs-golang/branch/master/graph/badge.svg)](https://codecov.io/gh/markus-wa/demoinfocs-golang)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE.md)
 
+## Discussions / Chat
+
+Use gitter to ask questions and discuss ideas about this project.<br>
+There are also [some other rooms](https://gitter.im/csgodemos) available around the topic of CS:GO demos.
+
+[![Gitter chat](https://badges.gitter.im/csgodemos/demoinfo-lib.png)](https://gitter.im/csgodemos/demoinfo-lib)
+
 ## Go Get
 
 	go get github.com/markus-wa/demoinfocs-golang
