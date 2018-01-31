@@ -673,3 +673,45 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 		// Maybe msg.ECstrike15UserMessages_CS_UM_RadioText
 	}
 }
+
+type frameParsedTokenType struct{}
+
+var frameParsedToken = new(frameParsedTokenType)
+
+func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
+	for k, rp := range p.rawPlayers {
+		if rp == nil {
+			continue
+		}
+
+		if pl := p.players[k]; pl != nil {
+			newPlayer := false
+			if p.connectedPlayers[rp.UserID] == nil {
+				p.connectedPlayers[rp.UserID] = pl
+				newPlayer = true
+			}
+
+			pl.Name = rp.Name
+			pl.SteamID = rp.XUID
+			pl.IsBot = rp.IsFakePlayer
+			pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[pl.EntityID]
+
+			if pl.IsAlive() {
+				pl.LastAlivePosition = pl.Position
+			}
+
+			if newPlayer && pl.SteamID != 0 {
+				p.eventDispatcher.Dispatch(events.PlayerBindEvent{Player: pl})
+			}
+		}
+	}
+
+	p.currentFrame++
+	p.eventDispatcher.Dispatch(events.TickDoneEvent{})
+}
+
+type ingameTickNumber int
+
+func (p *Parser) handleIngameTickNumber(n ingameTickNumber) {
+	p.ingameTick = int(n)
+}

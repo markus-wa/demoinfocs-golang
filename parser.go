@@ -162,6 +162,8 @@ func (ts TeamState) Flag() string {
 	return ts.flag
 }
 
+// TODO: Maybe we should use a channel instead of that WarnHandler stuff
+
 // WarnHandler is a function that handles warnings of a Parser.
 type WarnHandler func(string)
 
@@ -170,15 +172,26 @@ func WarnToStdErr(warning string) {
 	fmt.Fprintln(os.Stderr, warning)
 }
 
+// TODO: Change the New* methods (names + parameters)
+
 // NewParser creates a new Parser on the basis of an io.Reader
 // - like os.File or bytes.Reader - that reads demo data.
 // Any warnings that don't stop the Parser from doing it's job
 // will be passed to the warnHandler if it's not nil.
 func NewParser(demostream io.Reader, warnHandler WarnHandler) *Parser {
+	return NewParserWithBufferSize(demostream, -1, warnHandler)
+}
+
+// NewParserWithBufferSize returns a new Parser with a custom msgQueue buffer size.
+// For large demos, fast i/o and slow CPUs higher numbers are suggested and vice versa.
+// The buffer size can easily be in the hundred-thousands to low millions for the best performance.
+// A negative value will make the Parser automatically decide the buffer size during ParseHeader()
+// based on the number of ticks in the demo (nubmer of ticks = buffer size).
+// See also: NewParser()
+func NewParserWithBufferSize(demostream io.Reader, msgQueueBufferSize int, warnHandler WarnHandler) *Parser {
 	var p Parser
 	// Init parser
 	p.bitReader = bit.NewLargeBitReader(demostream)
-	p.msgQueue = make(chan interface{}, 8)
 	p.instanceBaselines = make(map[int][]byte)
 	p.preprocessedBaselines = make(map[int]map[int]st.PropValue)
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
@@ -195,7 +208,16 @@ func NewParser(demostream io.Reader, warnHandler WarnHandler) *Parser {
 	p.msgDispatcher.RegisterHandler(p.handleCreateStringTable)
 	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTable)
 	p.msgDispatcher.RegisterHandler(p.handleUserMessage)
+	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
+	p.msgDispatcher.RegisterHandler(p.handleIngameTickNumber)
 
-	p.msgDispatcher.AddQueues(p.msgQueue)
+	if msgQueueBufferSize >= 0 {
+		p.initMsgQueue(msgQueueBufferSize)
+	}
 	return &p
+}
+
+func (p *Parser) initMsgQueue(buf int) {
+	p.msgQueue = make(chan interface{}, buf)
+	p.msgDispatcher.AddQueues(p.msgQueue)
 }

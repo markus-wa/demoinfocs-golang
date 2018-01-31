@@ -11,18 +11,6 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
-var packetEntitiesPool sync.Pool = sync.Pool{
-	New: func() interface{} {
-		return new(msg.CSVCMsg_PacketEntities)
-	},
-}
-
-var gameEventPool sync.Pool = sync.Pool{
-	New: func() interface{} {
-		return new(msg.CSVCMsg_GameEvent)
-	},
-}
-
 var byteSlicePool sync.Pool = sync.Pool{
 	New: func() interface{} {
 		s := make([]byte, 0, 256)
@@ -46,15 +34,16 @@ func (p *Parser) parsePacket() {
 		var m proto.Message
 		switch cmd {
 		case int(msg.SVC_Messages_svc_PacketEntities):
-			m = packetEntitiesPool.Get().(*msg.CSVCMsg_PacketEntities)
-			defer packetEntitiesPool.Put(m)
+			// TODO: Find a way to pool SVC_Messages_svc_PacketEntities
+			// Need to make sure the message was consumed before pooling
+			// and the message's contents will be overridden (either by protobuf or manually)
+			m = new(msg.CSVCMsg_PacketEntities)
 
 		case int(msg.SVC_Messages_svc_GameEventList):
 			m = new(msg.CSVCMsg_GameEventList)
 
 		case int(msg.SVC_Messages_svc_GameEvent):
-			m = gameEventPool.Get().(*msg.CSVCMsg_GameEvent)
-			defer gameEventPool.Put(m)
+			m = new(msg.CSVCMsg_GameEvent)
 
 		case int(msg.SVC_Messages_svc_CreateStringTable):
 			m = new(msg.CSVCMsg_CreateStringTable)
@@ -101,9 +90,6 @@ func (p *Parser) parsePacket() {
 		p.bitReader.EndChunk()
 	}
 	p.bitReader.EndChunk()
-
-	// Make sure the created events are consumed so they can be pooled
-	p.msgDispatcher.SyncQueues(p.msgQueue)
 }
 
 // TODO: Find out what all this is good for and why we didn't use the removed functions on seVector, split & commandInfo

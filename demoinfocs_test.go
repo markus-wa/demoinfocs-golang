@@ -102,8 +102,6 @@ func TestCancelParseToEnd(t *testing.T) {
 		tix++
 		if tix == maxTicks {
 			p.Cancel()
-		} else if tix > maxTicks {
-			t.Fatal("Parsing continued after cancellation")
 		}
 	})
 

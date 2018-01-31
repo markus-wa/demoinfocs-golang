@@ -15,6 +15,10 @@ const (
 	playerWeaponPrePrefix = "bcc_nonlocaldata."
 )
 
+const (
+	msgHeaderNotParsed = "Tried to parse tick before parsing header"
+)
+
 // ParseHeader attempts to parse the header of the demo.
 // Returns error if the filestamp (first 8 bytes) doesn't match HL2DEMO.
 func (p *Parser) ParseHeader() error {
@@ -35,6 +39,12 @@ func (p *Parser) ParseHeader() error {
 		return errors.New("Invalid File-Type; expecting HL2DEMO in the first 8 bytes")
 	}
 
+	// Initialize queue if the buffer size wasn't specified, the amount of ticks
+	// seems to be a good indicator of how many events we'll get
+	if p.msgQueue == nil {
+		p.initMsgQueue(h.PlaybackTicks)
+	}
+
 	p.header = &h
 	p.eventDispatcher.Dispatch(events.HeaderParsedEvent{Header: h})
 	return nil
@@ -44,20 +54,30 @@ func (p *Parser) ParseHeader() error {
 // Aborts and returns an error if Cancel() is called before the end.
 // May panic if the demo is corrupt in some way.
 func (p *Parser) ParseToEnd() error {
+	if p.header == nil {
+		panic(msgHeaderNotParsed)
+	}
+
 	for {
 		select {
 		case <-p.cancelChan:
 			return errors.New("Parsing was cancelled before it finished")
 
 		default:
-			if !p.ParseNextFrame() {
+			if !p.parseFrame() {
+				// Make sure all the messages of the demo are handled
+				p.msgDispatcher.SyncQueues(p.msgQueue)
+
+				// Close msgQueue
+				close(p.msgQueue)
 				return nil
 			}
 		}
 	}
 }
 
-// Cancel aborts ParseToEnd() on the upcoming tick.
+// Cancel aborts ParseToEnd(). All information that was already read
+// up to this point will still be used (and new events may still be sent).
 func (p *Parser) Cancel() {
 	p.cancelChan <- struct{}{}
 }
@@ -67,55 +87,29 @@ func (p *Parser) Cancel() {
 // Panics if header hasn't been parsed yet - see Parser.ParseHeader().
 func (p *Parser) ParseNextFrame() bool {
 	if p.header == nil {
-		panic("Tried to parse tick before parsing header")
+		panic(msgHeaderNotParsed)
 	}
+
 	b := p.parseFrame()
 
-	for k, rp := range p.rawPlayers {
-		if rp == nil {
-			continue
-		}
+	// Make sure all the messages of the frame are handled
+	p.msgDispatcher.SyncQueues(p.msgQueue)
 
-		if pl := p.players[k]; pl != nil {
-			newPlayer := false
-			if p.connectedPlayers[rp.UserID] == nil {
-				p.connectedPlayers[rp.UserID] = pl
-				newPlayer = true
-			}
-
-			pl.Name = rp.Name
-			pl.SteamID = rp.XUID
-			pl.IsBot = rp.IsFakePlayer
-			pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[pl.EntityID]
-
-			if pl.IsAlive() {
-				pl.LastAlivePosition = pl.Position
-			}
-
-			if newPlayer && pl.SteamID != 0 {
-				p.eventDispatcher.Dispatch(events.PlayerBindEvent{Player: pl})
-			}
-		}
-	}
-
-	p.eventDispatcher.Dispatch(events.TickDoneEvent{})
-
+	// Close msgQueue if we are done
 	if !b {
 		close(p.msgQueue)
 	}
-
 	return b
 }
 
 func (p *Parser) parseFrame() bool {
 	cmd := demoCommand(p.bitReader.ReadSingleByte())
 
-	// Ingame tick number
-	p.ingameTick = p.bitReader.ReadSignedInt(32)
+	// Send ingame tick number update
+	p.msgQueue <- ingameTickNumber(p.bitReader.ReadSignedInt(32))
+
 	// Skip 'player slot'
 	p.bitReader.ReadSingleByte()
-
-	p.currentFrame++
 
 	switch cmd {
 	case dcSynctick:
@@ -130,6 +124,8 @@ func (p *Parser) parseFrame() bool {
 		p.bitReader.EndChunk()
 
 	case dcDataTables:
+		p.msgDispatcher.SyncQueues(p.msgQueue)
+
 		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 		p.stParser.ParsePacket(p.bitReader)
 		p.bitReader.EndChunk()
@@ -138,6 +134,8 @@ func (p *Parser) parseFrame() bool {
 		p.bindEntities()
 
 	case dcStringTables:
+		p.msgDispatcher.SyncQueues(p.msgQueue)
+
 		p.parseStringTables()
 
 	case dcUserCommand:
@@ -158,5 +156,9 @@ func (p *Parser) parseFrame() bool {
 	default:
 		panic(fmt.Sprintf("Canny handle it anymoe (command %v unknown)", cmd))
 	}
+
+	// Queue up some post processing
+	p.msgQueue <- frameParsedToken
+
 	return true
 }
