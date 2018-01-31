@@ -18,7 +18,7 @@ const (
 // BitReader wraps github.com/markus-wa/gobitread.BitReader and provides additional functionality specific to CS:GO demos.
 type BitReader struct {
 	bitread.BitReader
-	buffer []byte
+	buffer *[]byte
 }
 
 // ReadString reads a variable length string.
@@ -86,32 +86,35 @@ var bitReaderPool sync.Pool = sync.Pool{
 // Pooling BitReaders improves performance by minimizing the amount newly allocated readers.
 func (r *BitReader) Pool() {
 	r.Close()
-	if len(r.buffer) == smallBuffer {
+	if len(*r.buffer) == smallBuffer {
 		smallBufferPool.Put(r.buffer)
 	}
 	r.buffer = nil
+
 	bitReaderPool.Put(r)
 }
 
-func newBitReader(underlying io.Reader, buffer []byte) *BitReader {
+func newBitReader(underlying io.Reader, buffer *[]byte) *BitReader {
 	br := bitReaderPool.Get().(*BitReader)
 	br.buffer = buffer
-	br.OpenWithBuffer(underlying, buffer)
+	br.OpenWithBuffer(underlying, *buffer)
 	return br
 }
 
 var smallBufferPool sync.Pool = sync.Pool{
 	New: func() interface{} {
-		return make([]byte, smallBuffer)
+		b := make([]byte, smallBuffer)
+		return &b
 	},
 }
 
 // NewSmallBitReader returns a BitReader with a small buffer, suitable for short streams.
 func NewSmallBitReader(underlying io.Reader) *BitReader {
-	return newBitReader(underlying, smallBufferPool.Get().([]byte))
+	return newBitReader(underlying, smallBufferPool.Get().(*[]byte))
 }
 
 // NewLargeBitReader returns a BitReader with a large buffer, suitable for long streams (main demo file).
 func NewLargeBitReader(underlying io.Reader) *BitReader {
-	return newBitReader(underlying, make([]byte, largeBuffer))
+	b := make([]byte, largeBuffer)
+	return newBitReader(underlying, &b)
 }
