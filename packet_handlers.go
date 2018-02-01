@@ -87,8 +87,8 @@ func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 }
 
 func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
-	// TODO: Do we really need to do this check?
 	if p.gehDescriptors == nil {
+		p.warn("Received GameEvent but event descriptors are missing")
 		return
 	}
 
