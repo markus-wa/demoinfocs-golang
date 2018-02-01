@@ -28,3 +28,6 @@ const (
 	stNameUserInfo         = "userinfo"
 	stNameModelPreCache    = "modelprecache"
 )
+
+// We're all better off not asking questions
+const valveMagicNumber = 76561197960265728

@@ -512,8 +512,8 @@ func getCommunityID(guid string) int64 {
 		panic(errID.Error())
 	}
 
-	// FIXME: WTF are we doing here???
-	return 76561197960265728 + authID*2 + authSrv
+	// WTF are we doing here?
+	return valveMagicNumber + authID*2 + authSrv
 }
 
 func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
