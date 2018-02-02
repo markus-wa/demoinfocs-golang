@@ -659,6 +659,9 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 				IsChatAll: st.Textallchat,
 			})
 
+		case "#CSGO_Coach_Join_T": // Ignore these
+		case "#CSGO_Coach_Join_CT":
+
 		default:
 			if p.warn != nil {
 				p.warn(fmt.Sprintf("Skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName))
