@@ -212,11 +212,11 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		e := events.PlayerHurtEvent{
 			Player:       p.connectedPlayers[int(data["userid"].GetValShort())],
 			Attacker:     p.connectedPlayers[int(data["attacker"].GetValShort())],
-			Health:       int(data["health"].GetValShort()),
-			Armor:        int(data["armor"].GetValShort()),
+			Health:       int(data["health"].GetValByte()),
+			Armor:        int(data["armor"].GetValByte()),
 			HealthDamage: int(data["dmg_health"].GetValShort()),
-			ArmorDamage:  int(data["dmg_armor"].GetValShort()),
-			HitGroup:     common.HitGroup(data["penetrated"].GetValByte()),
+			ArmorDamage:  int(data["dmg_armor"].GetValByte()),
+			HitGroup:     common.HitGroup(data["hitgroup"].GetValByte()),
 		}
 
 		wep := common.NewEquipment(data["weapon"].GetValString())
