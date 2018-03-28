@@ -252,8 +252,8 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		thrower := p.connectedPlayers[int(data["userid"].GetValShort())]
 		position := r3.Vector{
 			X: float64(data["x"].ValFloat),
-			Z: float64(data["y"].ValFloat),
-			Y: float64(data["z"].ValFloat),
+			Y: float64(data["y"].ValFloat),
+			Z: float64(data["z"].ValFloat),
 		}
 
 		switch d.Name {
