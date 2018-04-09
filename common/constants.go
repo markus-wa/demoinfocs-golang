@@ -73,7 +73,7 @@ const (
 	TeamCounterTerrorists
 )
 
-// EquipmentElement constants give information about what weapon a player has equiped.
+// EquipmentElement constants give information about what weapon a player has equipped.
 const (
 	EqUnknown EquipmentElement = 0
 
