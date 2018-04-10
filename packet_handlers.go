@@ -17,6 +17,10 @@ import (
 const entitySentinel = 9999
 
 func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
+	defer func() {
+		p.setError(recoverFromPanic(recover()))
+	}()
+
 	r := bit.NewSmallBitReader(bytes.NewReader(pe.EntityData))
 
 	currentEntity := -1
@@ -80,6 +84,10 @@ func (p *Parser) readEnterPVS(reader *bit.BitReader, entityID int) *st.Entity {
 }
 
 func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
+	defer func() {
+		p.setError(recoverFromPanic(recover()))
+	}()
+
 	p.gehDescriptors = make(map[int32]*msg.CSVCMsg_GameEventListDescriptorT)
 	for _, d := range gel.GetDescriptors() {
 		p.gehDescriptors[d.GetEventid()] = d
@@ -87,6 +95,10 @@ func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 }
 
 func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
+	defer func() {
+		p.setError(recoverFromPanic(recover()))
+	}()
+
 	if p.gehDescriptors == nil {
 		p.warn("Received GameEvent but event descriptors are missing")
 		return
@@ -517,6 +529,10 @@ func getCommunityID(guid string) int64 {
 }
 
 func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
+	defer func() {
+		p.setError(recoverFromPanic(recover()))
+	}()
+
 	cTab := p.stringTables[tab.TableId]
 	switch cTab.Name {
 	case stNameUserInfo:
@@ -527,10 +543,13 @@ func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 		// Only handle updates for the above types
 		p.handleCreateStringTable(cTab)
 	}
-
 }
 
 func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+	defer func() {
+		p.setError(recoverFromPanic(recover()))
+	}()
+
 	if tab.Name == stNameModelPreCache {
 		for i := len(p.modelPreCache); i < int(tab.MaxEntries); i++ {
 			p.modelPreCache = append(p.modelPreCache, "")
@@ -617,6 +636,10 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 }
 
 func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
+	defer func() {
+		p.setError(recoverFromPanic(recover()))
+	}()
+
 	switch msg.ECstrike15UserMessages(um.MsgType) {
 	case msg.ECstrike15UserMessages_CS_UM_SayText:
 		st := new(msg.CCSUsrMsg_SayText)
@@ -679,6 +702,10 @@ type frameParsedTokenType struct{}
 var frameParsedToken = new(frameParsedTokenType)
 
 func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
+	defer func() {
+		p.setError(recoverFromPanic(recover()))
+	}()
+
 	for k, rp := range p.rawPlayers {
 		if rp == nil {
 			continue

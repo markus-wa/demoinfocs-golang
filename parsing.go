@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"errors"
 	"fmt"
+	"io"
 
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
@@ -53,7 +54,13 @@ func (p *Parser) ParseHeader() error {
 // ParseToEnd attempts to parse the demo until the end.
 // Aborts and returns an error if Cancel() is called before the end.
 // May panic if the demo is corrupt in some way.
-func (p *Parser) ParseToEnd() error {
+func (p *Parser) ParseToEnd() (err error) {
+	defer func() {
+		if err == nil {
+			err = recoverFromPanic(recover())
+		}
+	}()
+
 	if p.header == nil {
 		panic(msgHeaderNotParsed)
 	}
@@ -70,10 +77,26 @@ func (p *Parser) ParseToEnd() error {
 
 				// Close msgQueue
 				close(p.msgQueue)
-				return nil
+
+				return p.error()
 			}
 		}
+
+		if pErr := p.error(); pErr != nil {
+			return pErr
+		}
 	}
+}
+
+func recoverFromPanic(r interface{}) error {
+	if r != nil {
+		if r == io.ErrUnexpectedEOF {
+			return io.ErrUnexpectedEOF
+		} else {
+			panic(r)
+		}
+	}
+	return nil
 }
 
 // Cancel aborts ParseToEnd(). All information that was already read
@@ -85,12 +108,18 @@ func (p *Parser) Cancel() {
 // ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
 // Returns true unless the demo command 'stop' was encountered.
 // Panics if header hasn't been parsed yet - see Parser.ParseHeader().
-func (p *Parser) ParseNextFrame() bool {
+func (p *Parser) ParseNextFrame() (b bool, err error) {
+	defer func() {
+		if err == nil {
+			err = recoverFromPanic(recover())
+		}
+	}()
+
 	if p.header == nil {
 		panic(msgHeaderNotParsed)
 	}
 
-	b := p.parseFrame()
+	b = p.parseFrame()
 
 	// Make sure all the messages of the frame are handled
 	p.msgDispatcher.SyncQueues(p.msgQueue)
@@ -99,7 +128,9 @@ func (p *Parser) ParseNextFrame() bool {
 	if !b {
 		close(p.msgQueue)
 	}
-	return b
+
+	err = p.error()
+	return
 }
 
 func (p *Parser) parseFrame() bool {

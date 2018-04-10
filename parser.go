@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 
 	dp "github.com/markus-wa/godispatch"
 
@@ -48,6 +49,8 @@ type Parser struct {
 	stringTables          []*msg.CSVCMsg_CreateStringTable
 	cancelChan            chan struct{}
 	warn                  WarnHandler
+	err                   error
+	errLock               sync.Mutex
 }
 
 // Map returns the map name. E.g. de_dust2 or de_inferno.
@@ -131,6 +134,21 @@ func (p *Parser) CTState() *TeamState {
 // Make sure you handle swapping sides properly if you keep the reference.
 func (p *Parser) TState() *TeamState {
 	return &p.tState
+}
+
+func (p *Parser) error() (err error) {
+	p.errLock.Lock()
+	err = p.err
+	p.errLock.Unlock()
+	return
+}
+
+func (p *Parser) setError(err error) {
+	if err != nil {
+		p.errLock.Lock()
+		p.err = err
+		p.errLock.Unlock()
+	}
 }
 
 // TeamState contains a team's ID, score, clan name & country flag.
