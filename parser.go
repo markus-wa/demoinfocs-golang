@@ -58,6 +58,10 @@ func (p *Parser) Map() string {
 	return p.header.MapName
 }
 
+func (p *Parser) Header() common.DemoHeader {
+	return *p.header
+}
+
 // Participants returns all connected players.
 // This includes spectators.
 func (p *Parser) Participants() []*common.Player {
