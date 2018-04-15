@@ -18,7 +18,7 @@ const entitySentinel = 9999
 
 func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 	defer func() {
-		p.setError(recoverFromPanic(recover()))
+		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
 	r := bit.NewSmallBitReader(bytes.NewReader(pe.EntityData))
@@ -85,7 +85,7 @@ func (p *Parser) readEnterPVS(reader *bit.BitReader, entityID int) *st.Entity {
 
 func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 	defer func() {
-		p.setError(recoverFromPanic(recover()))
+		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
 	p.gehDescriptors = make(map[int32]*msg.CSVCMsg_GameEventListDescriptorT)
@@ -96,7 +96,7 @@ func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 
 func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	defer func() {
-		p.setError(recoverFromPanic(recover()))
+		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
 	if p.gehDescriptors == nil {
@@ -530,7 +530,7 @@ func getCommunityID(guid string) int64 {
 
 func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 	defer func() {
-		p.setError(recoverFromPanic(recover()))
+		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
 	cTab := p.stringTables[tab.TableId]
@@ -547,7 +547,7 @@ func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 
 func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	defer func() {
-		p.setError(recoverFromPanic(recover()))
+		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
 	if tab.Name == stNameModelPreCache {
@@ -637,7 +637,7 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 
 func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 	defer func() {
-		p.setError(recoverFromPanic(recover()))
+		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
 	switch msg.ECstrike15UserMessages(um.MsgType) {
@@ -703,7 +703,7 @@ var frameParsedToken = new(frameParsedTokenType)
 
 func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
 	defer func() {
-		p.setError(recoverFromPanic(recover()))
+		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
 	for k, rp := range p.rawPlayers {

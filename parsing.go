@@ -52,13 +52,24 @@ func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 	return h, nil
 }
 
+// Parsing errors
+var (
+	// ErrCancelled signals that parsing was cancelled via Parser.Cancel()
+	ErrCancelled error = errors.New("Parsing was cancelled before it finished (ErrCancelled)")
+
+	// ErrUnexpectedEndOfDemo signals that the demo is incomplete / corrupt -
+	// these demos may still be useful, check the how far the parser got.
+	ErrUnexpectedEndOfDemo error = errors.New("Demo stream ended unexpectedly (ErrUnexpectedEndOfDemo)")
+)
+
 // ParseToEnd attempts to parse the demo until the end.
-// Aborts and returns an error if Cancel() is called before the end.
+// Aborts and returns ErrCancelled if Cancel() is called before the end.
+// May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
 // May panic if the demo is corrupt in some way.
 func (p *Parser) ParseToEnd() (err error) {
 	defer func() {
 		if err == nil {
-			err = recoverFromPanic(recover())
+			err = recoverFromUnexpectedEOF(recover())
 		}
 	}()
 
@@ -69,7 +80,7 @@ func (p *Parser) ParseToEnd() (err error) {
 	for {
 		select {
 		case <-p.cancelChan:
-			return errors.New("Parsing was cancelled before it finished")
+			return ErrCancelled
 
 		default:
 			if !p.parseFrame() {
@@ -89,13 +100,12 @@ func (p *Parser) ParseToEnd() (err error) {
 	}
 }
 
-func recoverFromPanic(r interface{}) error {
+func recoverFromUnexpectedEOF(r interface{}) error {
 	if r != nil {
 		if r == io.ErrUnexpectedEOF {
-			return io.ErrUnexpectedEOF
-		} else {
-			panic(r)
+			return ErrUnexpectedEndOfDemo
 		}
+		panic(r)
 	}
 	return nil
 }
@@ -107,12 +117,13 @@ func (p *Parser) Cancel() {
 }
 
 // ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
-// Returns true unless the demo command 'stop' was encountered.
+// Returns true unless the demo command 'stop' or an error was encountered.
+// May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
 // Panics if header hasn't been parsed yet - see Parser.ParseHeader().
 func (p *Parser) ParseNextFrame() (b bool, err error) {
 	defer func() {
 		if err == nil {
-			err = recoverFromPanic(recover())
+			err = recoverFromUnexpectedEOF(recover())
 		}
 	}()
 
