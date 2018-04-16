@@ -90,7 +90,7 @@ func TestCancelParseToEnd(t *testing.T) {
 	}
 
 	p := dem.NewParser(f, nil)
-	err = p.ParseHeader()
+	_, err = p.ParseHeader()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,11 +114,15 @@ func TestCancelParseToEnd(t *testing.T) {
 func TestConcurrent(t *testing.T) {
 	var i int64
 	runner := func() {
-		f, _ := os.Open(defaultDemPath)
+		f, err := os.Open(defaultDemPath)
+		if err != nil {
+			t.Fatal(err)
+		}
 		defer f.Close()
 
 		p := dem.NewParser(f, nil)
-		err := p.ParseHeader()
+
+		_, err = p.ParseHeader()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -127,7 +131,12 @@ func TestConcurrent(t *testing.T) {
 		fmt.Printf("Starting runner %d\n", n)
 
 		ts := time.Now()
-		p.ParseToEnd()
+
+		err = p.ParseToEnd()
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		fmt.Printf("Runner %d took %s\n", n, time.Since(ts))
 	}
 
@@ -165,12 +174,15 @@ func TestDemoSet(t *testing.T) {
 				}()
 
 				p := dem.NewParser(f, nil)
-				err = p.ParseHeader()
+				_, err = p.ParseHeader()
 				if err != nil {
 					t.Fatal(err)
 				}
 
-				p.ParseToEnd()
+				err = p.ParseToEnd()
+				if err != nil {
+					t.Fatal(err)
+				}
 			}()
 		}
 	}
@@ -186,12 +198,19 @@ func BenchmarkDemoInfoCs(b *testing.B) {
 			}
 
 			p := dem.NewParser(f, nil)
-			err = p.ParseHeader()
+
+			_, err = p.ParseHeader()
 			if err != nil {
 				b.Fatal(err)
 			}
+
 			ts := time.Now()
-			p.ParseToEnd()
+
+			err = p.ParseToEnd()
+			if err != nil {
+				b.Fatal(err)
+			}
+
 			b.Logf("Took %s\n", time.Since(ts))
 		}()
 	}
@@ -218,13 +237,19 @@ func BenchmarkInMemory(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		p := dem.NewParser(bytes.NewReader(d), nil)
-		err = p.ParseHeader()
+
+		_, err = p.ParseHeader()
 		if err != nil {
 			b.Fatal(err)
 		}
 
 		ts := time.Now()
-		p.ParseToEnd()
+
+		err = p.ParseToEnd()
+		if err != nil {
+			b.Fatal(err)
+		}
+
 		b.Logf("Took %s\n", time.Since(ts))
 	}
 }

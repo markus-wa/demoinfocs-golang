@@ -54,8 +54,14 @@ type Parser struct {
 }
 
 // Map returns the map name. E.g. de_dust2 or de_inferno.
+// Deprecated, use Header().MapName instead.
 func (p *Parser) Map() string {
 	return p.header.MapName
+}
+
+// Header returns the DemoHeader which contains the demo's metadata.
+func (p *Parser) Header() common.DemoHeader {
+	return *p.header
 }
 
 // Participants returns all connected players.

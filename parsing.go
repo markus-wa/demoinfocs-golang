@@ -22,7 +22,7 @@ const (
 
 // ParseHeader attempts to parse the header of the demo.
 // Returns error if the filestamp (first 8 bytes) doesn't match HL2DEMO.
-func (p *Parser) ParseHeader() error {
+func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 	var h common.DemoHeader
 	h.Filestamp = p.bitReader.ReadCString(8)
 	h.Protocol = p.bitReader.ReadSignedInt(32)
@@ -37,7 +37,7 @@ func (p *Parser) ParseHeader() error {
 	h.SignonLength = p.bitReader.ReadSignedInt(32)
 
 	if h.Filestamp != "HL2DEMO" {
-		return errors.New("Invalid File-Type; expecting HL2DEMO in the first 8 bytes")
+		return h, errors.New("Invalid File-Type; expecting HL2DEMO in the first 8 bytes")
 	}
 
 	// Initialize queue if the buffer size wasn't specified, the amount of ticks
@@ -47,8 +47,9 @@ func (p *Parser) ParseHeader() error {
 	}
 
 	p.header = &h
+	// TODO: Deprecated, remove this + HeaderParsedEvent in 1.0.0
 	p.eventDispatcher.Dispatch(events.HeaderParsedEvent{Header: h})
-	return nil
+	return h, nil
 }
 
 // ParseToEnd attempts to parse the demo until the end.
