@@ -2,3 +2,7 @@
 	path = test/cs-demos
 	url = https://gitlab.com/markus-wa/cs-demos
 	branch = master
+[submodule "vendor"]
+	path = vendor
+	url = https://github.com/markus-wa/demoinfocs-golang-vendor.git
+	branch = master
