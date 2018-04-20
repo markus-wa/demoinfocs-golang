@@ -22,8 +22,8 @@
 [[projects]]
   name = "github.com/markus-wa/gobitread"
   packages = ["."]
-  revision = "230b936c907bedcb0ce506c1daa63b68621bcf45"
-  version = "v0.1.0"
+  revision = "062d24bd67896096b650947bc03b468f769ab665"
+  version = "v0.2.1"
 
 [[projects]]
   name = "github.com/markus-wa/godispatch"
@@ -34,6 +34,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b6f3488dd2eb67f7130e43bc1ff2ab68701211ebb0efab881fd74f2bbed34211"
+  inputs-digest = "701da6e0e06066c3d0cd5c0add57bf703fb23028d32967eac0b6a5b4901321cd"
   solver-name = "gps-cdcl"
   solver-version = 1

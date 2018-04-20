@@ -75,9 +75,9 @@ func (propertyDecoder) decodeInt(prop *sendTableProperty, reader *bit.BitReader)
 		return int(reader.ReadSignedVarInt32())
 	}
 	if prop.flags.hasFlagSet(propFlagUnsigned) {
-		return int(reader.ReadInt(uint(prop.numberOfBits)))
+		return int(reader.ReadInt(prop.numberOfBits))
 	}
-	return reader.ReadSignedInt(uint(prop.numberOfBits))
+	return reader.ReadSignedInt(prop.numberOfBits)
 }
 
 func (propertyDecoder) decodeFloat(prop *sendTableProperty, reader *bit.BitReader) float32 {
@@ -85,7 +85,7 @@ func (propertyDecoder) decodeFloat(prop *sendTableProperty, reader *bit.BitReade
 		return propDecoder.decodeSpecialFloat(prop, reader)
 	}
 
-	dwInterp := reader.ReadInt(uint(prop.numberOfBits))
+	dwInterp := reader.ReadInt(prop.numberOfBits)
 	return prop.lowValue + ((prop.highValue - prop.lowValue) * (float32(dwInterp) / float32((int(1)<<uint(prop.numberOfBits))-1)))
 }
 
@@ -105,11 +105,11 @@ func (propertyDecoder) decodeSpecialFloat(prop *sendTableProperty, reader *bit.B
 	} else if prop.flags.hasFlagSet(propFlagNormal) {
 		return propDecoder.readBitNormal(reader)
 	} else if prop.flags.hasFlagSet(propFlagCellCoord) {
-		return propDecoder.readBitCellCoord(reader, uint(prop.numberOfBits), false, false)
+		return propDecoder.readBitCellCoord(reader, prop.numberOfBits, false, false)
 	} else if prop.flags.hasFlagSet(propFlagCellCoordLowPrecision) {
-		return propDecoder.readBitCellCoord(reader, uint(prop.numberOfBits), true, false)
+		return propDecoder.readBitCellCoord(reader, prop.numberOfBits, true, false)
 	} else if prop.flags.hasFlagSet(propFlagCellCoordIntegral) {
-		return propDecoder.readBitCellCoord(reader, uint(prop.numberOfBits), false, true)
+		return propDecoder.readBitCellCoord(reader, prop.numberOfBits, false, true)
 	}
 	panic(fmt.Sprintf("Unexpected special float flag (Flags %v)", prop.flags))
 }
@@ -196,7 +196,7 @@ func (propertyDecoder) readBitNormal(reader *bit.BitReader) float32 {
 	return res
 }
 
-func (propertyDecoder) readBitCellCoord(reader *bit.BitReader, bits uint, isIntegral bool, isLowPrecision bool) float32 {
+func (propertyDecoder) readBitCellCoord(reader *bit.BitReader, bits int, isIntegral bool, isLowPrecision bool) float32 {
 	var intVal, fractVal int
 	var res float32
 
@@ -245,7 +245,7 @@ func (propertyDecoder) decodeVector(prop *sendTableProperty, reader *bit.BitRead
 func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader *bit.BitReader) []PropValue {
 	numElement := fProp.prop.numberOfElements
 
-	var numBits uint = 1
+	numBits := 1
 
 	for maxElements := (numElement >> 1); maxElements != 0; maxElements = maxElements >> 1 {
 		numBits++

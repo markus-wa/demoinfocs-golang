@@ -57,7 +57,7 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 }
 
 func (p *Parser) readEnterPVS(reader *bit.BitReader, entityID int) *st.Entity {
-	scID := int(reader.ReadInt(uint(p.stParser.ClassBits())))
+	scID := int(reader.ReadInt(p.stParser.ClassBits()))
 	reader.ReadInt(10) // Serial Number
 
 	newEntity := st.NewEntity(entityID, p.stParser.ServerClasses()[scID])
@@ -563,7 +563,7 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	}
 
 	nTmp := tab.MaxEntries
-	var nEntryBits uint
+	nEntryBits := 0
 
 	for nTmp != 0 {
 		nTmp = nTmp >> 1
@@ -608,7 +608,7 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		if br.ReadBit() {
 			if tab.UserDataFixedSize {
 				// Should always be < 8 bits => use faster ReadBitsToByte() over ReadBits()
-				userdat = []byte{br.ReadBitsToByte(uint(tab.UserDataSizeBits))}
+				userdat = []byte{br.ReadBitsToByte(int(tab.UserDataSizeBits))}
 			} else {
 				userdat = br.ReadBytes(int(br.ReadInt(14)))
 			}
