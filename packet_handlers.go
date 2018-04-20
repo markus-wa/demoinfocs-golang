@@ -58,7 +58,7 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 
 func (p *Parser) readEnterPVS(reader *bit.BitReader, entityID int) *st.Entity {
 	scID := int(reader.ReadInt(p.stParser.ClassBits()))
-	reader.ReadInt(10) // Serial Number
+	reader.Skip(10) // Serial Number
 
 	newEntity := st.NewEntity(entityID, p.stParser.ServerClasses()[scID])
 	newEntity.ServerClass.FireEntityCreatedEvent(newEntity)

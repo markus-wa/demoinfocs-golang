@@ -152,7 +152,7 @@ func (p *Parser) parseFrame() bool {
 	p.msgQueue <- ingameTickNumber(p.bitReader.ReadSignedInt(32))
 
 	// Skip 'player slot'
-	p.bitReader.ReadSingleByte()
+	p.bitReader.Skip(8)
 
 	switch cmd {
 	case dcSynctick:
@@ -163,8 +163,7 @@ func (p *Parser) parseFrame() bool {
 
 	case dcConsoleCommand:
 		// Skip
-		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
-		p.bitReader.EndChunk()
+		p.bitReader.Skip(p.bitReader.ReadSignedInt(32) << 3)
 
 	case dcDataTables:
 		p.msgDispatcher.SyncQueues(p.msgQueue)
@@ -183,9 +182,8 @@ func (p *Parser) parseFrame() bool {
 
 	case dcUserCommand:
 		// Skip
-		p.bitReader.ReadInt(32)
-		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
-		p.bitReader.EndChunk()
+		p.bitReader.Skip(32)
+		p.bitReader.Skip(p.bitReader.ReadSignedInt(32) << 3)
 
 	case dcSignon:
 		fallthrough

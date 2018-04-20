@@ -51,13 +51,14 @@ func (p *Parser) parseSingleStringTable(name string) {
 			}
 		}
 	}
+
 	// Client side stuff, dgaf
 	if p.bitReader.ReadBit() {
 		strings2 := p.bitReader.ReadSignedInt(16)
 		for i := 0; i < strings2; i++ {
 			p.bitReader.ReadString()
 			if p.bitReader.ReadBit() {
-				p.bitReader.ReadBytes(p.bitReader.ReadSignedInt(16))
+				p.bitReader.Skip(p.bitReader.ReadSignedInt(16))
 			}
 		}
 	}

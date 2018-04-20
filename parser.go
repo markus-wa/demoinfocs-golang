@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 
+	r3 "github.com/golang/geo/r3"
 	dp "github.com/markus-wa/godispatch"
 
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
@@ -51,6 +52,23 @@ type Parser struct {
 	warn                  WarnHandler
 	err                   error
 	errLock               sync.Mutex
+}
+
+type bombsiteInfo struct {
+	index  int
+	center r3.Vector
+}
+
+type boundingBoxInformation struct {
+	index int
+	min   r3.Vector
+	max   r3.Vector
+}
+
+func (bbi boundingBoxInformation) contains(point r3.Vector) bool {
+	return point.X >= bbi.min.X && point.X <= bbi.max.X &&
+		point.Y >= bbi.min.Y && point.Y <= bbi.max.Y &&
+		point.Z >= bbi.min.Z && point.Z <= bbi.max.Z
 }
 
 // Map returns the map name. E.g. de_dust2 or de_inferno.

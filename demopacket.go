@@ -5,9 +5,7 @@ import (
 	"sync"
 
 	proto "github.com/gogo/protobuf/proto"
-	r3 "github.com/golang/geo/r3"
 
-	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
@@ -20,9 +18,9 @@ var byteSlicePool sync.Pool = sync.Pool{
 
 func (p *Parser) parsePacket() {
 	// Booooring
-	parseCommandInfo(p.bitReader)
-	p.bitReader.ReadInt(32) // SeqNrIn
-	p.bitReader.ReadInt(32) // SeqNrOut
+	// 152 bytes CommandInfo, 4 bytes SeqNrIn, 4 bytes SeqNrOut
+	// See at the bottom what the CommandInfo would contain if you are interested.
+	p.bitReader.Skip((152 + 4 + 4) << 3)
 
 	// Here we go
 	p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
@@ -92,69 +90,50 @@ func (p *Parser) parsePacket() {
 	p.bitReader.EndChunk()
 }
 
-// TODO: Find out what all this is good for and why we didn't use the removed functions on seVector, split & commandInfo
-type commandInfo struct {
-	splits [2]split
-}
+/*
+Format of 'CommandInfos' - I honestly have no clue what they are good for.
+If you find a use for this please let me know!
 
-type split struct {
-	flags int
+Here is all i know:
 
-	viewOrigin      seVector
-	viewAngles      r3.Vector
-	localViewAngles r3.Vector
+CommandInfo [152 bytes]
+- [2]Split
 
-	viewOrigin2      seVector
-	viewAngles2      r3.Vector
-	localViewAngles2 r3.Vector
-}
-type seVector struct {
-	r3.Vector
-}
+Split [76 bytes]
+- flags [4 bytes]
+- viewOrigin [12 bytes]
+- viewAngles [12 bytes]
+- localViewAngles [12 bytes]
+- viewOrigin2 [12 bytes]
+- viewAngles2 [12 bytes]
+- localViewAngles2 [12 bytes]
 
-type boundingBoxInformation struct {
-	index int
-	min   r3.Vector
-	max   r3.Vector
-}
+Origin [12 bytes]
+- X [4 bytes]
+- Y [4 bytes]
+- Z [4 bytes]
 
-func (bbi boundingBoxInformation) contains(point r3.Vector) bool {
-	return point.X >= bbi.min.X && point.X <= bbi.max.X &&
-		point.Y >= bbi.min.Y && point.Y <= bbi.max.Y &&
-		point.Z >= bbi.min.Z && point.Z <= bbi.max.Z
-}
+Angle [12 bytes]
+- X [4 bytes]
+- Y [4 bytes]
+- Z [4 bytes]
 
-type bombsiteInfo struct {
-	index  int
-	center r3.Vector
-}
+They are parsed in the following order:
+split1.flags
+split1.viewOrigin.x
+split1.viewOrigin.y
+split1.viewOrigin.z
+split1.viewAngles.x
+split1.viewAngles.y
+split1.viewAngles.z
+split1.localViewAngles.x
+split1.localViewAngles.y
+split1.localViewAngles.z
+split1.viewOrigin2...
+split1.viewAngles2...
+split1.localViewAngles2...
+split2.flags
+...
 
-func parseCommandInfo(r *bit.BitReader) commandInfo {
-	return commandInfo{splits: [2]split{parseSplit(r), parseSplit(r)}}
-}
-
-func parseSplit(r *bit.BitReader) split {
-	return split{
-		flags: r.ReadSignedInt(32),
-
-		viewOrigin:      parseSEVector(r),
-		viewAngles:      parseVector(r),
-		localViewAngles: parseVector(r),
-
-		viewOrigin2:      parseSEVector(r),
-		viewAngles2:      parseVector(r),
-		localViewAngles2: parseVector(r),
-	}
-}
-
-func parseSEVector(r *bit.BitReader) seVector {
-	return seVector{parseVector(r)}
-}
-
-func parseVector(r *bit.BitReader) r3.Vector {
-	return r3.Vector{
-		X: float64(r.ReadFloat()),
-		Y: float64(r.ReadFloat()),
-		Z: float64(r.ReadFloat()),
-	}
-}
+Or just check this file's history for an example on how to parse them
+*/
