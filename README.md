@@ -17,7 +17,7 @@ There are also [some other rooms](https://gitter.im/csgodemos) available around 
 
 ## Go Get
 
-	go get github.com/markus-wa/demoinfocs-golang
+	go get -u github.com/markus-wa/demoinfocs-golang
 
 ## Example
 
