@@ -93,7 +93,7 @@ Should you need to re-generate the protobuf generated code in the `msg` package,
 
 - And `protoc-gen-gogofaster` from [gogoprotobuf](https://github.com/gogo/protobuf) to generate code for go.
 
-		go get github.com/gogo/protobuf/protoc-gen-gogofaster
+		go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
 
 Make sure both are inside your `PATH` variable.
 
