@@ -357,8 +357,6 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	case "bomb_beginplant": // Plant started
 		fallthrough
-	case "bomb_abortplant": // Plant stopped
-		fallthrough
 	case "bomb_planted": // Plant finished
 		fallthrough
 	case "bomb_defused": // Defuse finished
@@ -372,22 +370,21 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		switch site {
 		case p.bombsiteA.index:
-			e.Site = 'A'
+			e.Site = events.BombsiteA
 		case p.bombsiteB.index:
-			e.Site = 'B'
+			e.Site = events.BombsiteB
 		default:
-			var t *boundingBoxInformation
-			for _, tr := range p.triggers {
-				if tr.index == site {
-					t = tr
-				}
+			t := p.triggers[site]
+
+			if t == nil {
+				panic(fmt.Sprintf("Bombsite with index %d not found", site))
 			}
 
 			if t.contains(p.bombsiteA.center) {
-				e.Site = 'A'
+				e.Site = events.BombsiteA
 				p.bombsiteA.index = site
 			} else if t.contains(p.bombsiteB.center) {
-				e.Site = 'B'
+				e.Site = events.BombsiteB
 				p.bombsiteB.index = site
 			} else {
 				panic("Bomb not planted on bombsite A or B")
@@ -397,8 +394,6 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		switch d.Name {
 		case "bomb_beginplant":
 			p.eventDispatcher.Dispatch(events.BombBeginPlant{BombEvent: e})
-		case "bomb_abortplant":
-			p.eventDispatcher.Dispatch(events.BombAbortPlant{BombEvent: e})
 		case "bomb_planted":
 			p.eventDispatcher.Dispatch(events.BombPlantedEvent{BombEvent: e})
 		case "bomb_defused":
@@ -411,18 +406,8 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		data = mapGameEventData(d, ge)
 
 		p.eventDispatcher.Dispatch(events.BombBeginDefuseEvent{
-			Defuser: p.connectedPlayers[int(data["userid"].GetValShort())],
-			HasKit:  data["haskit"].GetValBool(),
-		})
-
-	case "bomb_abortdefuse": // Defuse aborted
-		data = mapGameEventData(d, ge)
-
-		pl := p.connectedPlayers[int(data["userid"].GetValShort())]
-
-		p.eventDispatcher.Dispatch(events.BombAbortDefuseEvent{
-			Defuser: pl,
-			HasKit:  pl.HasDefuseKit,
+			Player: p.connectedPlayers[int(data["userid"].GetValShort())],
+			HasKit: data["haskit"].GetValBool(),
 		})
 
 	case "item_equip": // Equipped, I think

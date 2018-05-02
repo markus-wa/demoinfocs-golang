@@ -43,7 +43,7 @@ type Parser struct {
 	ctState               TeamState
 	bombsiteA             bombsiteInfo
 	bombsiteB             bombsiteInfo
-	triggers              []*boundingBoxInformation
+	triggers              map[int]*boundingBoxInformation
 	instanceBaselines     map[int][]byte
 	preprocessedBaselines map[int]map[int]st.PropValue
 	gehDescriptors        map[int32]*msg.CSVCMsg_GameEventListDescriptorT
@@ -240,6 +240,7 @@ func NewParserWithBufferSize(demostream io.Reader, msgQueueBufferSize int, warnH
 	p.players = make(map[int]*common.Player)
 	p.connectedPlayers = make(map[int]*common.Player)
 	p.entities = make(map[int]*st.Entity)
+	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
 	p.warn = warnHandler
 

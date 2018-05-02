@@ -137,9 +137,8 @@ func (p *Parser) bindBombSites() {
 	})
 
 	p.stParser.FindServerClassByName("CBaseTrigger").RegisterEntityCreatedHandler(func(baseTrigger st.EntityCreatedEvent) {
-		// TODO: Switch triggers to map[int]boundingBoxInformation?
-		t := &boundingBoxInformation{index: baseTrigger.Entity.ID}
-		p.triggers = append(p.triggers, t)
+		t := new(boundingBoxInformation)
+		p.triggers[baseTrigger.Entity.ID] = t
 
 		baseTrigger.Entity.FindProperty("m_Collision.m_vecMins").RegisterPropertyUpdateHandler(func(vec st.PropValue) {
 			t.min = vec.VectorVal

@@ -103,7 +103,7 @@ type WeaponFiredEvent struct {
 // NadeEventIf is the interface for all NadeEvents. Used to catch
 // the different events with the same handler.
 type NadeEventIf interface {
-	dummyNade()
+	implementsNadeEventIf()
 }
 
 // NadeEvent contains the common attributes of nade events. Dont register
@@ -115,7 +115,7 @@ type NadeEvent struct {
 }
 
 // Make NadeEvents implement NadeEventIf
-func (NadeEvent) dummyNade() {}
+func (NadeEvent) implementsNadeEventIf() {}
 
 // HeExplodedEvent signals the explosion of a HE.
 type HeExplodedEvent struct {
@@ -163,28 +163,31 @@ type PlayerFlashedEvent struct {
 	Player *common.Player
 }
 
-// BombEventIf is the interface for alll the bomb events. Like NadeEventIf for NadeEvents.
+// BombEventIf is the interface for all the bomb events. Like NadeEventIf for NadeEvents.
 type BombEventIf interface {
-	dummyBomb()
+	implementsBombEventIf()
 }
+
+type bombsite rune
+
+// Bombsite identifiers
+const (
+	BombsiteA bombsite = 'A'
+	BombsiteB bombsite = 'B'
+)
 
 // BombEvent contains the common attributes of bomb events. Dont register
 // handlers on this tho, you want BombEventIf for that.
 type BombEvent struct {
 	Player *common.Player
-	Site   rune
+	Site   bombsite
 }
 
 // Make BombEvent implement BombEventIf
-func (BombEvent) dummyBomb() {}
+func (BombEvent) implementsBombEventIf() {}
 
 // BombBeginPlant signals the start of a plant.
 type BombBeginPlant struct {
-	BombEvent
-}
-
-// BombAbortPlant signals the abortion of a plant.
-type BombAbortPlant struct {
 	BombEvent
 }
 
@@ -205,15 +208,11 @@ type BombExplodedEvent struct {
 
 // BombBeginDefuseEvent signals the start of defusing.
 type BombBeginDefuseEvent struct {
-	Defuser *common.Player
-	HasKit  bool
+	Player *common.Player
+	HasKit bool
 }
 
-// BombAbortDefuseEvent signals that defusing was aborted.
-type BombAbortDefuseEvent struct {
-	Defuser *common.Player
-	HasKit  bool
-}
+func (BombBeginDefuseEvent) implementsBombEventIf() {}
 
 // PlayerHurtEvent signals that a player has been damaged.
 type PlayerHurtEvent struct {
