@@ -72,6 +72,18 @@ func TestDemoInfoCs(t *testing.T) {
 		}
 	}()
 
+	frameByFrameCount := 1000
+	fmt.Printf("Parsing frame by frame (%d frames)\n", frameByFrameCount)
+	for i := 0; i < frameByFrameCount; i++ {
+		ok, err := p.ParseNextFrame()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !ok {
+			t.Fatalf("Parser reported end of demo after less than %d frames", frameByFrameCount)
+		}
+	}
+
 	fmt.Println("Parsing to end")
 	err = p.ParseToEnd()
 	if err != nil {
