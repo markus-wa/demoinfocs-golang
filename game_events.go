@@ -1,87 +1,15 @@
 package demoinfocs
 
 import (
-	"bytes"
 	"fmt"
 	"strconv"
 
 	r3 "github.com/golang/geo/r3"
-	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
-
-const entitySentinel = 9999
-
-func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
-	r := bit.NewSmallBitReader(bytes.NewReader(pe.EntityData))
-
-	currentEntity := -1
-	for i := 0; i < int(pe.UpdatedEntries); i++ {
-		currentEntity += 1 + int(r.ReadUBitInt())
-
-		if currentEntity > entitySentinel {
-			break
-		}
-
-		if r.ReadBit() {
-			// Leave PVS
-
-			// FIXME: Might have to destroy the entities contents first, not sure yet
-			// Could do weird stuff with event handlers otherwise
-			p.entities[currentEntity] = nil
-
-			if r.ReadBit() {
-				// TODO: Force Delete??
-			}
-		} else {
-			if r.ReadBit() {
-				// Enter PVS
-				e := p.readEnterPVS(r, currentEntity)
-				p.entities[currentEntity] = e
-				e.ApplyUpdate(r)
-			} else {
-				// Delta Update
-				p.entities[currentEntity].ApplyUpdate(r)
-			}
-		}
-	}
-	r.Pool()
-}
-
-func (p *Parser) readEnterPVS(reader *bit.BitReader, entityID int) *st.Entity {
-	scID := int(reader.ReadInt(p.stParser.ClassBits()))
-	reader.Skip(10) // Serial Number
-
-	newEntity := st.NewEntity(entityID, p.stParser.ServerClasses()[scID])
-	newEntity.ServerClass.FireEntityCreatedEvent(newEntity)
-
-	if p.preprocessedBaselines[scID] != nil {
-		for idx, val := range p.preprocessedBaselines[scID] {
-			newEntity.Props()[idx].FirePropertyUpdate(val)
-		}
-	} else {
-		ppBase := make(map[int]st.PropValue, 0)
-		if p.instanceBaselines[scID] != nil {
-			newEntity.CollectProperties(&ppBase)
-			r := bit.NewSmallBitReader(bytes.NewReader(p.instanceBaselines[scID]))
-			newEntity.ApplyUpdate(r)
-			r.Pool()
-			// TODO: Unregister PropertyUpdateHandlers from CollectProperties()
-			// PropertyUpdateHandlers would have to be registered as pointers for that to work
-		}
-		p.preprocessedBaselines[scID] = ppBase
-	}
-
-	return newEntity
-}
 
 func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 	defer func() {
@@ -109,7 +37,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	debugGameEvent(d, ge)
 
 	// Ignore events before players are connected to speed things up
-	if len(p.connectedPlayers) == 0 && d.Name != "player_connect" {
+	if len(p.gameState.players) == 0 && d.Name != "player_connect" {
 		return
 	}
 
@@ -139,9 +67,9 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		t := common.TeamSpectators
 
 		switch data["winner"].GetValByte() {
-		case int32(p.tState.id):
+		case int32(p.gameState.tState.id):
 			t = common.TeamTerrorists
-		case int32(p.ctState.id):
+		case int32(p.gameState.ctState.id):
 			t = common.TeamCounterTerrorists
 		}
 
@@ -158,14 +86,14 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		data = mapGameEventData(d, ge)
 
 		p.eventDispatcher.Dispatch(events.RoundMVPEvent{
-			Player: p.connectedPlayers[int(data["userid"].GetValShort())],
+			Player: p.gameState.players[int(data["userid"].GetValShort())],
 			Reason: common.RoundMVPReason(data["reason"].GetValShort()),
 		})
 
 	case "bot_takeover": // Bot got taken over
 		data = mapGameEventData(d, ge)
 
-		p.eventDispatcher.Dispatch(events.BotTakenOverEvent{Taker: p.connectedPlayers[int(data["userid"].GetValShort())]})
+		p.eventDispatcher.Dispatch(events.BotTakenOverEvent{Taker: p.gameState.players[int(data["userid"].GetValShort())]})
 
 	case "begin_new_match": // Match started
 		p.eventDispatcher.Dispatch(events.MatchStartedEvent{})
@@ -177,17 +105,17 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		data = mapGameEventData(d, ge)
 
 		p.eventDispatcher.Dispatch(events.PlayerFootstepEvent{
-			Player: p.connectedPlayers[int(data["userid"].GetValShort())],
+			Player: p.gameState.players[int(data["userid"].GetValShort())],
 		})
 
 	case "player_jump": // Player jumped
 		data = mapGameEventData(d, ge)
-		p.eventDispatcher.Dispatch(events.PlayerJumpEvent{Player: p.connectedPlayers[int(data["userid"].GetValShort())]})
+		p.eventDispatcher.Dispatch(events.PlayerJumpEvent{Player: p.gameState.players[int(data["userid"].GetValShort())]})
 
 	case "weapon_fire": // Weapon was fired
 		data = mapGameEventData(d, ge)
 
-		e := events.WeaponFiredEvent{Shooter: p.connectedPlayers[int(data["userid"].GetValShort())]}
+		e := events.WeaponFiredEvent{Shooter: p.gameState.players[int(data["userid"].GetValShort())]}
 		wep := common.NewEquipment(data["weapon"].GetValString())
 
 		if e.Shooter != nil && wep.Class() != common.EqClassGrenade {
@@ -202,9 +130,9 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		data = mapGameEventData(d, ge)
 
 		e := events.PlayerKilledEvent{
-			Victim:            p.connectedPlayers[int(data["userid"].GetValShort())],
-			Killer:            p.connectedPlayers[int(data["attacker"].GetValShort())],
-			Assister:          p.connectedPlayers[int(data["assister"].GetValShort())],
+			Victim:            p.gameState.players[int(data["userid"].GetValShort())],
+			Killer:            p.gameState.players[int(data["attacker"].GetValShort())],
+			Assister:          p.gameState.players[int(data["assister"].GetValShort())],
 			IsHeadshot:        data["headshot"].GetValBool(),
 			PenetratedObjects: int(data["penetrated"].GetValShort()),
 		}
@@ -224,8 +152,8 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		data = mapGameEventData(d, ge)
 
 		e := events.PlayerHurtEvent{
-			Player:       p.connectedPlayers[int(data["userid"].GetValShort())],
-			Attacker:     p.connectedPlayers[int(data["attacker"].GetValShort())],
+			Player:       p.gameState.players[int(data["userid"].GetValShort())],
+			Attacker:     p.gameState.players[int(data["attacker"].GetValShort())],
 			Health:       int(data["health"].GetValByte()),
 			Armor:        int(data["armor"].GetValByte()),
 			HealthDamage: int(data["dmg_health"].GetValShort()),
@@ -245,7 +173,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	case "player_blind": // Player got blinded by a flash
 		data = mapGameEventData(d, ge)
-		p.eventDispatcher.Dispatch(events.PlayerFlashedEvent{Player: p.connectedPlayers[int(data["userid"].GetValShort())]})
+		p.eventDispatcher.Dispatch(events.PlayerFlashedEvent{Player: p.gameState.players[int(data["userid"].GetValShort())]})
 
 	case "flashbang_detonate": // Flash exploded
 		fallthrough
@@ -263,7 +191,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		fallthrough
 	case "inferno_expire": // Incendiary expired
 		data = mapGameEventData(d, ge)
-		thrower := p.connectedPlayers[int(data["userid"].GetValShort())]
+		thrower := p.gameState.players[int(data["userid"].GetValShort())]
 		position := r3.Vector{
 			X: float64(data["x"].ValFloat),
 			Y: float64(data["y"].ValFloat),
@@ -299,56 +227,60 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "player_connect": // Bot connected, players come in via string tables & data tables
 		data = mapGameEventData(d, ge)
 
-		pl := &common.PlayerInfo{
-			UserID: int(data["userid"].GetValShort()),
-			Name:   data["name"].GetValString(),
-			GUID:   data["networkid"].GetValString(),
+		pl := &playerInfo{
+			userID: int(data["userid"].GetValShort()),
+			name:   data["name"].GetValString(),
+			guid:   data["networkid"].GetValString(),
 		}
 
-		pl.XUID = getCommunityID(pl.GUID)
+		pl.xuid = getCommunityID(pl.guid)
 
-		p.rawPlayers[data["index"].GetValShort()] = pl
+		p.rawPlayers[int(data["index"].GetValShort())] = pl
 
 	case "player_disconnect": // Bot disconnected, players come in via string tables & data tables
 		data = mapGameEventData(d, ge)
 
 		uid := int(data["userid"].GetValShort())
-		e := events.PlayerDisconnectEvent{
-			Player: p.connectedPlayers[uid],
-		}
-		p.eventDispatcher.Dispatch(e)
 
 		for i := range p.rawPlayers {
-			if p.rawPlayers[i] != nil && p.rawPlayers[i].UserID == uid {
-				p.rawPlayers[i] = nil
+			if p.rawPlayers[i].userID == uid {
+				delete(p.rawPlayers, i)
 			}
 		}
 
-		p.connectedPlayers[uid] = nil
+		pl := p.gameState.players[uid]
+		if pl != nil {
+			e := events.PlayerDisconnectEvent{
+				Player: pl,
+			}
+			p.eventDispatcher.Dispatch(e)
+		}
+
+		delete(p.gameState.players, uid)
 
 	case "player_team": // Player changed team
 		data = mapGameEventData(d, ge)
 
 		e := events.PlayerTeamChangeEvent{
-			Player: p.connectedPlayers[int(data["userid"].GetValShort())],
+			Player: p.gameState.players[int(data["userid"].GetValShort())],
 			IsBot:  data["isbot"].GetValBool(),
 			Silent: data["silent"].GetValBool(),
 		}
 
 		// FIXME: We could probably just cast team & oldteam to common.Team, should always be correct. . . Needs testing
 		switch data["team"].GetValByte() {
-		case int32(p.tState.id):
+		case int32(p.gameState.tState.id):
 			e.NewTeam = common.TeamTerrorists
-		case int32(p.ctState.id):
+		case int32(p.gameState.ctState.id):
 			e.NewTeam = common.TeamCounterTerrorists
 		default:
 			e.NewTeam = common.TeamSpectators
 		}
 
 		switch data["oldteam"].GetValByte() {
-		case int32(p.tState.id):
+		case int32(p.gameState.tState.id):
 			e.OldTeam = common.TeamTerrorists
-		case int32(p.ctState.id):
+		case int32(p.gameState.ctState.id):
 			e.OldTeam = common.TeamCounterTerrorists
 		default:
 			e.OldTeam = common.TeamSpectators
@@ -365,7 +297,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "bomb_exploded": // Bomb exploded
 		data = mapGameEventData(d, ge)
 
-		e := events.BombEvent{Player: p.connectedPlayers[int(data["userid"].GetValShort())]}
+		e := events.BombEvent{Player: p.gameState.players[int(data["userid"].GetValShort())]}
 
 		site := int(data["site"].GetValShort())
 
@@ -407,7 +339,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		data = mapGameEventData(d, ge)
 
 		p.eventDispatcher.Dispatch(events.BombBeginDefuseEvent{
-			Player: p.connectedPlayers[int(data["userid"].GetValShort())],
+			Player: p.gameState.players[int(data["userid"].GetValShort())],
 			HasKit: data["haskit"].GetValBool(),
 		})
 
@@ -417,7 +349,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		fallthrough
 	case "item_remove": // Dropped?
 		data = mapGameEventData(d, ge)
-		player := p.connectedPlayers[int(data["userid"].GetValShort())]
+		player := p.gameState.players[int(data["userid"].GetValShort())]
 		weapon := common.NewSkinEquipment(data["item"].GetValString(), "")
 
 		switch d.Name {
@@ -471,6 +403,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "weapon_fire_on_empty": // Sounds boring
 	case "hltv_fixed": // Dunno
 	case "cs_match_end_restart": // Yawn
+
 	default:
 		if p.warn != nil {
 			p.warn(fmt.Sprintf("Unknown event %q", d.Name))
@@ -495,6 +428,9 @@ func buildNadeEvent(nadeType common.EquipmentElement, thrower *common.Player, po
 	}
 }
 
+// We're all better off not asking questions
+const valveMagicNumber = 76561197960265728
+
 func getCommunityID(guid string) int64 {
 	if guid == "BOT" {
 		return 0
@@ -512,113 +448,6 @@ func getCommunityID(guid string) int64 {
 
 	// WTF are we doing here?
 	return valveMagicNumber + authID*2 + authSrv
-}
-
-func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
-	cTab := p.stringTables[tab.TableId]
-	switch cTab.Name {
-	case stNameUserInfo:
-		fallthrough
-	case stNameModelPreCache:
-		fallthrough
-	case stNameInstanceBaseline:
-		// Only handle updates for the above types
-		p.handleCreateStringTable(cTab)
-	}
-}
-
-func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
-	if tab.Name == stNameModelPreCache {
-		for i := len(p.modelPreCache); i < int(tab.MaxEntries); i++ {
-			p.modelPreCache = append(p.modelPreCache, "")
-		}
-	}
-
-	br := bit.NewSmallBitReader(bytes.NewReader(tab.StringData))
-
-	if br.ReadBit() {
-		panic("Can't decode")
-	}
-
-	nTmp := tab.MaxEntries
-	nEntryBits := 0
-
-	for nTmp != 0 {
-		nTmp = nTmp >> 1
-		nEntryBits++
-	}
-	if nEntryBits > 0 {
-		nEntryBits--
-	}
-
-	hist := make([]string, 0)
-	lastEntry := -1
-	for i := 0; i < int(tab.NumEntries); i++ {
-		entryIndex := lastEntry + 1
-		if !br.ReadBit() {
-			entryIndex = int(br.ReadInt(nEntryBits))
-		}
-
-		lastEntry = entryIndex
-
-		var entry string
-		if entryIndex < 0 || entryIndex >= int(tab.MaxEntries) {
-			panic("Something went to shit")
-		}
-		if br.ReadBit() {
-			if br.ReadBit() {
-				idx := br.ReadInt(5)
-				bytes2cp := int(br.ReadInt(5))
-				entry = hist[idx][:bytes2cp]
-
-				entry += br.ReadString()
-			} else {
-				entry = br.ReadString()
-			}
-		}
-
-		if len(hist) > 31 {
-			hist = hist[1:]
-		}
-		hist = append(hist, entry)
-
-		var userdat []byte
-		if br.ReadBit() {
-			if tab.UserDataFixedSize {
-				// Should always be < 8 bits => use faster ReadBitsToByte() over ReadBits()
-				userdat = []byte{br.ReadBitsToByte(int(tab.UserDataSizeBits))}
-			} else {
-				userdat = br.ReadBytes(int(br.ReadInt(14)))
-			}
-		}
-
-		if len(userdat) == 0 {
-			break
-		}
-
-		switch tab.Name {
-		case stNameUserInfo:
-			p.rawPlayers[entryIndex] = common.ParsePlayerInfo(bytes.NewReader(userdat))
-		case stNameInstanceBaseline:
-			classid, err := strconv.ParseInt(entry, 10, 64)
-			if err != nil {
-				panic("WTF VOLVO PLS")
-			}
-			p.instanceBaselines[int(classid)] = userdat
-		case stNameModelPreCache:
-			p.modelPreCache[entryIndex] = entry
-		}
-	}
-	p.stringTables = append(p.stringTables, tab)
-	br.Pool()
 }
 
 func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
@@ -649,7 +478,7 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 			p.warn(fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error()))
 		}
 
-		sender := p.players[int(st.EntIdx)]
+		sender := p.gameState.players[int(st.EntIdx)]
 		p.eventDispatcher.Dispatch(events.SayText2Event{
 			Sender:    sender,
 			IsChat:    st.Chat,
@@ -681,51 +510,4 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 		// TODO: handle more user messages (if they are interesting)
 		// Maybe msg.ECstrike15UserMessages_CS_UM_RadioText
 	}
-}
-
-type frameParsedTokenType struct{}
-
-var frameParsedToken = new(frameParsedTokenType)
-
-func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
-	for k, rp := range p.rawPlayers {
-		if rp == nil {
-			continue
-		}
-
-		if pl := p.players[k]; pl != nil {
-			newPlayer := false
-			if p.connectedPlayers[rp.UserID] == nil {
-				p.connectedPlayers[rp.UserID] = pl
-				newPlayer = true
-			}
-
-			pl.Name = rp.Name
-			pl.SteamID = rp.XUID
-			pl.IsBot = rp.IsFakePlayer
-			pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[pl.EntityID]
-
-			if pl.IsAlive() {
-				pl.LastAlivePosition = pl.Position
-			}
-
-			if newPlayer && pl.SteamID != 0 {
-				p.eventDispatcher.Dispatch(events.PlayerBindEvent{Player: pl})
-			}
-		}
-	}
-
-	p.currentFrame++
-	p.eventDispatcher.Dispatch(events.TickDoneEvent{})
-}
-
-type ingameTickNumber int
-
-func (p *Parser) handleIngameTickNumber(n ingameTickNumber) {
-	p.ingameTick = int(n)
-	debugIngameTick(p.ingameTick)
 }

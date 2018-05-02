@@ -145,6 +145,21 @@ func (p *Parser) ParseNextFrame() (b bool, err error) {
 	return
 }
 
+// Demo commands as documented at https://developer.valvesoftware.com/wiki/DEM_Format
+type demoCommand byte
+
+const (
+	dcSignon         demoCommand = 1
+	dcPacket         demoCommand = 2
+	dcSynctick       demoCommand = 3
+	dcConsoleCommand demoCommand = 4
+	dcUserCommand    demoCommand = 5
+	dcDataTables     demoCommand = 6
+	dcStop           demoCommand = 7
+	dcCustomData     demoCommand = 8
+	dcStringTables   demoCommand = 9
+)
+
 func (p *Parser) parseFrame() bool {
 	cmd := demoCommand(p.bitReader.ReadSingleByte())
 
@@ -202,4 +217,44 @@ func (p *Parser) parseFrame() bool {
 	p.msgQueue <- frameParsedToken
 
 	return true
+}
+
+type frameParsedTokenType struct{}
+
+var frameParsedToken = new(frameParsedTokenType)
+
+func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
+	defer func() {
+		p.setError(recoverFromUnexpectedEOF(recover()))
+	}()
+
+	for k, rp := range p.rawPlayers {
+		if rp == nil {
+			continue
+		}
+
+		// We need to re-map the players from their entityID to their UID.
+		// This is necessary because we don't always have the UID when the player connects (or something like that, not really sure tbh).
+		if pl := p.entityIDToPlayers[k]; pl != nil {
+			pl.Name = rp.name
+			pl.SteamID = rp.xuid
+			pl.IsBot = rp.isFakePlayer
+			pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[pl.EntityID]
+
+			if pl.IsAlive() {
+				pl.LastAlivePosition = pl.Position
+			}
+
+			if p.gameState.players[rp.userID] == nil {
+				p.gameState.players[rp.userID] = pl
+
+				if pl.SteamID != 0 {
+					p.eventDispatcher.Dispatch(events.PlayerBindEvent{Player: pl})
+				}
+			}
+		}
+	}
+
+	p.currentFrame++
+	p.eventDispatcher.Dispatch(events.TickDoneEvent{})
 }

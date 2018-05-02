@@ -8,6 +8,14 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
+const (
+	maxEditctBits = 11
+	indexMask     = ((1 << maxEditctBits) - 1)
+	maxEntities   = (1 << maxEditctBits)
+	maxPlayers    = 64
+	maxWeapons    = 64
+)
+
 // Everything here feels kinda fucked
 
 func (p *Parser) mapEquipment() {
@@ -77,11 +85,11 @@ func (p *Parser) bindTeamScores() {
 
 			switch team {
 			case "CT":
-				s = &p.ctState
+				s = &p.gameState.ctState
 				t = common.TeamCounterTerrorists
 
 			case "TERRORIST":
-				s = &p.tState
+				s = &p.gameState.tState
 				t = common.TeamTerrorists
 
 			case "Unassigned": // Ignore
@@ -113,7 +121,7 @@ func (p *Parser) bindTeamScores() {
 				// FIXME: This only sets the team at the start. . . We also have a player-specific update handler that changes the team so maybe this is unnecessary?
 				if teamID != -1 {
 					s.id = teamID
-					for _, pl := range p.players {
+					for _, pl := range p.entityIDToPlayers {
 						if pl != nil && pl.TeamID == teamID {
 							pl.Team = t
 						}
@@ -180,11 +188,12 @@ func (p *Parser) bindPlayers() {
 
 func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 	var pl *common.Player
-	if p.players[playerEntity.ID-1] != nil {
-		pl = p.players[playerEntity.ID-1]
+	playerIndex := playerEntity.ID - 1
+	if p.entityIDToPlayers[playerIndex] != nil {
+		pl = p.entityIDToPlayers[playerIndex]
 	} else {
 		pl = common.NewPlayer()
-		p.players[playerEntity.ID-1] = pl
+		p.entityIDToPlayers[playerIndex] = pl
 		pl.SteamID = -1
 		pl.Name = "unconnected"
 	}
@@ -206,9 +215,9 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 
 		// FIXME: We could probably just cast TeamID to common.Team or not even set it because the teamIDs should be the same. . . needs testing
 		switch pl.TeamID {
-		case p.ctState.id:
+		case p.gameState.ctState.id:
 			pl.Team = common.TeamCounterTerrorists
-		case p.tState.id:
+		case p.gameState.tState.id:
 			pl.Team = common.TeamTerrorists
 		default:
 			pl.Team = common.TeamSpectators

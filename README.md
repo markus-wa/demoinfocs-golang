@@ -56,9 +56,9 @@ func main() {
 	p.RegisterEventHandler(func(e events.RoundEndedEvent) {
 		switch e.Winner {
 		case common.TeamTerrorists:
-			fmt.Println("T-side won the round - score:", p.TState().Score()+1) // Score + 1 because it hasn't actually been updated yet
+			fmt.Println("T-side won the round - score:", p.GameState().TState().Score()+1) // Score + 1 because it hasn't actually been updated yet
 		case common.TeamCounterTerrorists:
-			fmt.Println("CT-side won the round - score:", p.CTState().Score()+1)
+			fmt.Println("CT-side won the round - score:", p.GameState().CTState().Score()+1)
 		default:
 			fmt.Println("Apparently neither the Ts nor CTs won the round, interesting")
 		}

@@ -15,8 +15,6 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
-// TODO?: create struct GameState for all game-state relevant stuff
-
 // Parser can parse a CS:GO demo.
 // Creating a Parser is done via NewParser().
 // To start off use Parser.ParseHeader() to parse the demo header.
@@ -28,21 +26,18 @@ type Parser struct {
 	msgDispatcher         dp.Dispatcher
 	eventDispatcher       dp.Dispatcher
 	msgQueue              chan interface{}
+	gameState             GameState
 	currentFrame          int
-	ingameTick            int
+	bombsiteA             bombsite
+	bombsiteB             bombsite
 	header                *common.DemoHeader // Pointer so we can check for nil
 	equipmentMapping      map[*st.ServerClass]common.EquipmentElement
-	rawPlayers            [maxPlayers]*common.PlayerInfo
-	players               map[int]*common.Player
-	connectedPlayers      map[int]*common.Player
+	rawPlayers            map[int]*playerInfo
+	entityIDToPlayers     map[int]*common.Player // Temporary storage since we need to map players from entityID to userID later
 	additionalPlayerInfo  [maxPlayers]common.AdditionalPlayerInformation
 	entities              map[int]*st.Entity
 	modelPreCache         []string                      // Used to find out whether a weapon is a p250 or cz for example (same id)
 	weapons               [maxEntities]common.Equipment // Used to remember what a weapon is (p250 / cz etc.)
-	tState                TeamState
-	ctState               TeamState
-	bombsiteA             bombsiteInfo
-	bombsiteB             bombsiteInfo
 	triggers              map[int]*boundingBoxInformation
 	instanceBaselines     map[int][]byte
 	preprocessedBaselines map[int]map[int]st.PropValue
@@ -54,7 +49,7 @@ type Parser struct {
 	errLock               sync.Mutex
 }
 
-type bombsiteInfo struct {
+type bombsite struct {
 	index  int
 	center r3.Vector
 }
@@ -71,49 +66,25 @@ func (bbi boundingBoxInformation) contains(point r3.Vector) bool {
 		point.Z >= bbi.min.Z && point.Z <= bbi.max.Z
 }
 
-// Map returns the map name. E.g. de_dust2 or de_inferno.
-// Deprecated, use Header().MapName instead.
-func (p *Parser) Map() string {
-	return p.header.MapName
-}
-
 // Header returns the DemoHeader which contains the demo's metadata.
 func (p *Parser) Header() common.DemoHeader {
 	return *p.header
 }
 
-// Participants returns all connected players.
-// This includes spectators.
-func (p *Parser) Participants() []*common.Player {
-	r := make([]*common.Player, 0, len(p.connectedPlayers))
-	for _, ptcp := range p.connectedPlayers {
-		r = append(r, ptcp)
-	}
-	return r
+// GameState returns the current game-state
+func (p *Parser) GameState() *GameState {
+	return &p.gameState
 }
 
-// PlayingParticipants returns all players that aren't spectating.
-func (p *Parser) PlayingParticipants() []*common.Player {
-	r := make([]*common.Player, 0, len(p.connectedPlayers))
-	for _, ptcp := range p.connectedPlayers {
-		// FIXME: Why do we have to check for nil here???
-		if ptcp != nil && ptcp.Team != common.TeamSpectators {
-			r = append(r, ptcp)
-		}
-	}
-	return r
+// CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
+// Starts with frame 0, should go up to DemoHeader.PlaybackFrames but might not be the case (usually it's just close to it).
+func (p *Parser) CurrentFrame() int {
+	return p.currentFrame
 }
 
-// FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
-// Not necessarily the tick-rate the server ran on during the game.
-// VolvoPlx128TixKTnxBye
-func (p *Parser) FrameRate() float32 {
-	return float32(p.header.PlaybackFrames) / p.header.PlaybackTime
-}
-
-// FrameTime returns the time a frame / demo-tick takes in seconds.
-func (p *Parser) FrameTime() float32 {
-	return p.header.PlaybackTime / float32(p.header.PlaybackFrames)
+// CurrentTime returns the ingame time in seconds since the start of the demo.
+func (p *Parser) CurrentTime() float32 {
+	return float32(p.currentFrame) * p.header.FrameTime()
 }
 
 // Progress returns the parsing progress from 0 to 1.
@@ -123,41 +94,12 @@ func (p *Parser) Progress() float32 {
 	return float32(p.currentFrame) / float32(p.header.PlaybackFrames)
 }
 
-// CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
-// Starts with frame 0, should go up to DemoHeader.PlaybackFrames but might not be the case (usually it's just close to it).
-func (p *Parser) CurrentFrame() int {
-	return p.currentFrame
-}
-
-// IngameTick returns the latest actual tick number of the server during the game.
-// Watch out, I've seen this return wonky negative numbers at the start of demos.
-func (p *Parser) IngameTick() int {
-	return p.ingameTick
-}
-
-// CurrentTime returns the ingame time in seconds since the start of the demo.
-func (p *Parser) CurrentTime() float32 {
-	return float32(p.currentFrame) * p.FrameTime()
-}
-
 // RegisterEventHandler registers a handler for game events.
 // Must be of type func(<EventType>) where EventType is the kind of event that is handled.
 // To catch all events func(interface{}) can be used.
 // Parameter handler has to be of type interface{} because lolnogenerics.
 func (p *Parser) RegisterEventHandler(handler interface{}) {
 	p.eventDispatcher.RegisterHandler(handler)
-}
-
-// CTState returns the TeamState of the CT team.
-// Make sure you handle swapping sides properly if you keep the reference.
-func (p *Parser) CTState() *TeamState {
-	return &p.ctState
-}
-
-// TState returns the TeamState of the T team.
-// Make sure you handle swapping sides properly if you keep the reference.
-func (p *Parser) TState() *TeamState {
-	return &p.tState
 }
 
 func (p *Parser) error() (err error) {
@@ -173,35 +115,6 @@ func (p *Parser) setError(err error) {
 		p.err = err
 		p.errLock.Unlock()
 	}
-}
-
-// TeamState contains a team's ID, score, clan name & country flag.
-type TeamState struct {
-	id       int
-	score    int
-	clanName string
-	flag     string
-}
-
-// ID returns the team-ID.
-// This stays the same even after switching sides.
-func (ts TeamState) ID() int {
-	return ts.id
-}
-
-// Score returns the team's number of rounds won.
-func (ts TeamState) Score() int {
-	return ts.score
-}
-
-// ClanName returns the team's clan name.
-func (ts TeamState) ClanName() string {
-	return ts.clanName
-}
-
-// Flag returns the team's country flag.
-func (ts TeamState) Flag() string {
-	return ts.flag
 }
 
 // TODO: Maybe we should use a channel instead of that WarnHandler stuff
@@ -237,11 +150,12 @@ func NewParserWithBufferSize(demostream io.Reader, msgQueueBufferSize int, warnH
 	p.instanceBaselines = make(map[int][]byte)
 	p.preprocessedBaselines = make(map[int]map[int]st.PropValue)
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
-	p.players = make(map[int]*common.Player)
-	p.connectedPlayers = make(map[int]*common.Player)
+	p.rawPlayers = make(map[int]*playerInfo)
+	p.entityIDToPlayers = make(map[int]*common.Player)
 	p.entities = make(map[int]*st.Entity)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
+	p.gameState = newGameState()
 	p.warn = warnHandler
 
 	// Attach proto msg handlers
@@ -252,7 +166,7 @@ func NewParserWithBufferSize(demostream io.Reader, msgQueueBufferSize int, warnH
 	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTable)
 	p.msgDispatcher.RegisterHandler(p.handleUserMessage)
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
-	p.msgDispatcher.RegisterHandler(p.handleIngameTickNumber)
+	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
 
 	if msgQueueBufferSize >= 0 {
 		p.initMsgQueue(msgQueueBufferSize)

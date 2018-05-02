@@ -36,27 +36,27 @@ func TestDemoInfoCs(t *testing.T) {
 	p := dem.NewParser(f, dem.WarnToStdErr)
 
 	fmt.Println("Parsing header")
-	p.RegisterEventHandler(func(e events.HeaderParsedEvent) {
-		fmt.Printf("Header: %v\n", e)
-	})
-	p.ParseHeader()
+	h, err := p.ParseHeader()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("Header: %v\n", h)
 
 	fmt.Println("Registering handlers")
-	var tState *dem.TeamState
-	var ctState *dem.TeamState
-	var oldTScore int
-	var oldCtScore int
+	tState := p.GameState().TState()
+	ctState := p.GameState().CTState()
+	var oldTScore, oldCtScore int
 	p.RegisterEventHandler(func(events.TickDoneEvent) {
-		if tState != nil && oldTScore != tState.Score() {
-			fmt.Println("T-side score:", tState.Score())
-			oldTScore = tState.Score()
-		} else if ctState != nil && oldCtScore != ctState.Score() {
-			fmt.Println("CT-side score:", ctState.Score())
-			oldCtScore = ctState.Score()
+		newTScore := tState.Score()
+		newCtScore := ctState.Score()
+		if oldTScore != newTScore {
+			fmt.Println("T-side score:", newTScore)
+			oldTScore = newTScore
+		} else if ctState != nil && oldCtScore != newCtScore {
+			fmt.Println("CT-side score:", newCtScore)
+			oldCtScore = newCtScore
 		}
 	})
-	tState = p.TState()
-	ctState = p.CTState()
 
 	ts := time.Now()
 	var done int64
