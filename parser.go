@@ -46,7 +46,7 @@ type Parser struct {
 	triggers              map[int]*boundingBoxInformation
 	instanceBaselines     map[int][]byte
 	preprocessedBaselines map[int]map[int]st.PropValue
-	gehDescriptors        map[int32]*msg.CSVCMsg_GameEventListDescriptorT
+	gameEventDescs        map[int32]*msg.CSVCMsg_GameEventListDescriptorT
 	stringTables          []*msg.CSVCMsg_CreateStringTable
 	cancelChan            chan struct{}
 	warn                  WarnHandler

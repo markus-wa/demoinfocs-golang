@@ -85,6 +85,15 @@ pushd test/cs-demos && git lfs pull && popd
 go test
 ```
 
+### Debugging
+
+You can use the build tag `debugdemoinfocs` (i.e. `go test -tags debugdemoinfocs -v`) to print out debugging information - such as game events or unhandled demo-messages - during the parsing process.<br>
+Side-note: The tag isn't called `debug` to avoid naming conflicts with other libs (and underscores in tags don't work, apparently).
+
+To change the default debugging behavior Go's `ldflags` paramter can be used. Example for additionally printing out the ingame-tick-numbers: `-ldflags '-X github.com/markus-wa/demoinfocs-golang.debugIngameTicks=YES'`
+
+Check out `debug_on.go` for any other settings that can be changed.
+
 ### Generating protobuf code
 
 Should you need to re-generate the protobuf generated code in the `msg` package, you will need the following tools:
@@ -93,7 +102,7 @@ Should you need to re-generate the protobuf generated code in the `msg` package,
 
 - And `protoc-gen-gogofaster` from [gogoprotobuf](https://github.com/gogo/protobuf) to generate code for go.
 
-		go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
+	go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
 
 Make sure both are inside your `PATH` variable.
 

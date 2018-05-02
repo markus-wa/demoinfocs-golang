@@ -53,17 +53,22 @@ func (p *Parser) parsePacket() {
 			m = new(msg.CSVCMsg_UserMessage)
 
 		default:
-			if p.warn != nil {
+			if p.warn != nil || isDebug {
 				var name string
 				if cmd < 8 || cmd >= 100 {
 					name = msg.NET_Messages_name[int32(cmd)]
 				} else {
 					name = msg.SVC_Messages_name[int32(cmd)]
 				}
-				if name == "" {
-					// Send a warning if the command is unknown
-					// This might mean our proto files are out of date
-					p.warn(fmt.Sprintf("Unknown message command %q", cmd))
+
+				debugUnhandledMessage(cmd, name)
+
+				if p.warn != nil {
+					if name == "" {
+						// Send a warning if the command is unknown
+						// This might mean our proto files are out of date
+						p.warn(fmt.Sprintf("Unknown message command %q", cmd))
+					}
 				}
 			}
 

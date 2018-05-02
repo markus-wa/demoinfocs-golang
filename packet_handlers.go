@@ -88,9 +88,9 @@ func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
-	p.gehDescriptors = make(map[int32]*msg.CSVCMsg_GameEventListDescriptorT)
+	p.gameEventDescs = make(map[int32]*msg.CSVCMsg_GameEventListDescriptorT)
 	for _, d := range gel.GetDescriptors() {
-		p.gehDescriptors[d.GetEventid()] = d
+		p.gameEventDescs[d.GetEventid()] = d
 	}
 }
 
@@ -99,12 +99,14 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
-	if p.gehDescriptors == nil {
+	if p.gameEventDescs == nil {
 		p.warn("Received GameEvent but event descriptors are missing")
 		return
 	}
 
-	d := p.gehDescriptors[ge.Eventid]
+	d := p.gameEventDescs[ge.Eventid]
+
+	debugGameEvent(d, ge)
 
 	// Ignore events before players are connected to speed things up
 	if len(p.connectedPlayers) == 0 && d.Name != "player_connect" {
@@ -726,4 +728,5 @@ type ingameTickNumber int
 
 func (p *Parser) handleIngameTickNumber(n ingameTickNumber) {
 	p.ingameTick = int(n)
+	debugIngameTick(p.ingameTick)
 }

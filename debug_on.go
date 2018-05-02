@@ -1,0 +1,62 @@
+//+build debugdemoinfocs
+
+// Functions to print out debug information if the build tag is enabled
+
+package demoinfocs
+
+import (
+	"fmt"
+
+	msg "github.com/markus-wa/demoinfocs-golang/msg"
+)
+
+const isDebug = true
+
+const (
+	yes = "YES"
+	no  = "NO"
+)
+
+// Can be overridden via -ldflags '-X github.com/markus-wa/demoinfocs-golang.debugIngameTicks=YES'
+// Oh and btw we cant use bools for this, Go says 'cannot use -X with non-string symbol'
+var debugGameEvents = yes
+var debugUnhandledMessages = yes
+var debugIngameTicks = no
+
+func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+	if debugGameEvents == yes {
+		// Map only the relevant data for each type
+		data := make(map[string]interface{})
+		for k, v := range mapGameEventData(d, ge) {
+			switch v.Type {
+			case 1:
+				data[k] = v.ValString
+			case 2:
+				data[k] = v.ValFloat
+			case 3:
+				data[k] = v.ValLong
+			case 4:
+				data[k] = v.ValShort
+			case 5:
+				data[k] = v.ValByte
+			case 6:
+				data[k] = v.ValBool
+			case 7:
+				data[k] = v.ValUint64
+			}
+		}
+		fmt.Println("GameEvent:", d.Name, "Data:", data)
+	}
+}
+
+func debugUnhandledMessage(cmd int, name string) {
+	if debugUnhandledMessages == yes {
+		fmt.Printf("UnhandledMessage: id=%d name=%s\n", cmd, name)
+	}
+}
+
+func debugIngameTick(tickNr int) {
+	if debugIngameTicks == yes {
+		fmt.Printf("IngameTick=%d\n", tickNr)
+	}
+}
