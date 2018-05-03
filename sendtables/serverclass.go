@@ -11,11 +11,6 @@ type ServerClass struct {
 	entityCreatedHandlers []EntityCreatedHandler
 }
 
-// String returns a human readable identification of the ServerClass.
-func (sc *ServerClass) String() string {
-	return sc.Name + " | " + sc.DTName
-}
-
 // FireEntityCreatedEvent triggers all registered EntityCreatedHandlers
 // on the ServerClass with a new EntityCreatedEvent.
 func (sc *ServerClass) FireEntityCreatedEvent(entity *Entity) {

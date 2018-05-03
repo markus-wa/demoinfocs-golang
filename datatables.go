@@ -99,9 +99,7 @@ func (p *Parser) bindTeamScores() {
 				s.score = score
 
 				// Register direct updates for the future
-				event.Entity.FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(val st.PropValue) {
-					s.id = val.IntVal
-				})
+				// Except for teamId, it doesn't change; players swap teams instead
 				event.Entity.FindProperty("m_szClanTeamname").RegisterPropertyUpdateHandler(func(val st.PropValue) {
 					s.clanName = val.StringVal
 				})

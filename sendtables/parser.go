@@ -219,9 +219,6 @@ func (p *Parser) getTableByName(name string) *sendTable {
 			return &p.sendTables[i]
 		}
 	}
-	if len(p.sendTables) > 0 {
-		return &p.sendTables[0]
-	}
 	return nil
 }
 
