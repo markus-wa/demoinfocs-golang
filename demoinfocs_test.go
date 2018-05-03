@@ -15,9 +15,10 @@ import (
 	events "github.com/markus-wa/demoinfocs-golang/events"
 )
 
-const demSetPath = "test/cs-demos"
-const defaultDemName = "default.dem"
-const defaultDemPath = demSetPath + "/" + defaultDemName
+const csDemosPath = "test/cs-demos"
+const demSetPath = csDemosPath + "/set"
+const defaultDemPath = csDemosPath + "/default.dem"
+const unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
 
 func init() {
 	if _, err := os.Stat(defaultDemPath); err != nil {
@@ -94,6 +95,25 @@ func TestDemoInfoCs(t *testing.T) {
 	fmt.Printf("Took %s\n", time.Since(ts))
 }
 
+func TestUnexpectedEndOfDemo(t *testing.T) {
+	f, err := os.Open(unexpectedEndOfDemoPath)
+	defer f.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p := dem.NewParser(f, nil)
+	_, err = p.ParseHeader()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = p.ParseToEnd()
+	if err != dem.ErrUnexpectedEndOfDemo {
+		t.Fatal("Parsing cancelled but error was not ErrUnexpectedEndOfDemo:", err)
+	}
+}
+
 func TestCancelParseToEnd(t *testing.T) {
 	f, err := os.Open(defaultDemPath)
 	defer f.Close()
@@ -118,8 +138,8 @@ func TestCancelParseToEnd(t *testing.T) {
 	})
 
 	err = p.ParseToEnd()
-	if err == nil {
-		t.Fatal("Parsing cancelled but no error was returned")
+	if err != dem.ErrCancelled {
+		t.Fatal("Parsing cancelled but error was not ErrCancelled:", err)
 	}
 }
 
@@ -168,7 +188,7 @@ func TestDemoSet(t *testing.T) {
 
 	for _, d := range dems {
 		name := d.Name()
-		if name != defaultDemName && strings.HasSuffix(name, ".dem") {
+		if strings.HasSuffix(name, ".dem") {
 			fmt.Printf("Parsing '%s/%s'\n", demSetPath, name)
 			func() {
 				var f *os.File
