@@ -54,13 +54,16 @@ func main() {
 
 	// Register handler on round end to figure out who won
 	p.RegisterEventHandler(func(e events.RoundEndedEvent) {
+		gs := p.GameState()
 		switch e.Winner {
 		case common.TeamTerrorists:
-			fmt.Println("T-side won the round - score:", p.GameState().TState().Score()+1) // Score + 1 because it hasn't actually been updated yet
+			// Winner's score + 1 because it hasn't actually been updated yet
+			fmt.Printf("Round finished: winnerSide=T  ; score=%d:%d\n", gs.TState().Score()+1, gs.CTState().Score())
 		case common.TeamCounterTerrorists:
-			fmt.Println("CT-side won the round - score:", p.GameState().CTState().Score()+1)
+			fmt.Printf("Round finished: winnerSide=CT ; score=%d:%d\n", gs.CTState().Score()+1, gs.TState().Score())
 		default:
-			fmt.Println("Apparently neither the Ts nor CTs won the round, interesting")
+			// Probably match medic or something similar
+			fmt.Println("Round finished: No winner (tie)")
 		}
 	})
 

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
+	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 )
 
@@ -40,21 +41,43 @@ func TestDemoInfoCs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf("Header: %v\n", h)
+	fmt.Printf("Header: %v - FrameRate()=%.2f frames/s ; FrameTime()=%.1fms\n", h, h.FrameRate(), h.FrameTime()*1000)
+	h2 := p.Header()
+	if h != h2 {
+		t.Errorf("Headers returned by ParseHeader() & Header(), respectively, aren't equal; ParseHeader(): %v - Header(): %v", h, h2)
+	}
 
 	fmt.Println("Registering handlers")
-	tState := p.GameState().TState()
-	ctState := p.GameState().CTState()
-	var oldTScore, oldCtScore int
-	p.RegisterEventHandler(func(events.TickDoneEvent) {
-		newTScore := tState.Score()
-		newCtScore := ctState.Score()
-		if oldTScore != newTScore {
-			fmt.Println("T-side score:", newTScore)
-			oldTScore = newTScore
-		} else if ctState != nil && oldCtScore != newCtScore {
-			fmt.Println("CT-side score:", newCtScore)
-			oldCtScore = newCtScore
+	p.RegisterEventHandler(func(e events.RoundEndedEvent) {
+		gs := p.GameState()
+		var winner *dem.TeamState
+		var loser *dem.TeamState
+		var winnerSide string
+		switch e.Winner {
+		case common.TeamTerrorists:
+			winner = gs.TState()
+			loser = gs.CTState()
+			winnerSide = "T"
+		case common.TeamCounterTerrorists:
+			winner = gs.CTState()
+			loser = gs.TState()
+			winnerSide = "CT"
+		default:
+			// Probably match medic or something similar
+			fmt.Println("Round finished: No winner (tie)")
+			return
+		}
+		winnerClan := winner.ClanName()
+		winnerId := winner.ID()
+		winnerFlag := winner.Flag()
+		ingameTime := p.CurrentTime()
+		progressPercent := p.Progress() * 100
+		ingameTick := gs.IngameTick()
+		currentFrame := p.CurrentFrame()
+		// Score + 1 for winner because it hasn't actually been updated yet
+		fmt.Printf("Round finished: score=%d:%d ; winnerSide=%s ; clanName=%q ; teamId=%d ; teamFlag=%s ; ingameTime=%.1fs ; progress=%.1f%% ; tick=%d ; frame=%d\n", winner.Score()+1, loser.Score(), winnerSide, winnerClan, winnerId, winnerFlag, ingameTime, progressPercent, ingameTick, currentFrame)
+		if len(winnerClan) == 0 || winnerId == 0 || len(winnerFlag) == 0 || ingameTime == 0 || progressPercent == 0 || ingameTick == 0 || currentFrame == 0 {
+			t.Error("Unexprected default value, check output of last round")
 		}
 	})
 
@@ -201,19 +224,21 @@ func TestDemoSet(t *testing.T) {
 				defer func() {
 					pErr := recover()
 					if pErr != nil {
-						t.Errorf("Failed to parse '%s/%s' - %s\n", demSetPath, name, pErr)
+						t.Errorf("Failed to parse '%s/%s': %s\n", demSetPath, name, pErr)
 					}
 				}()
 
 				p := dem.NewParser(f, nil)
 				_, err = p.ParseHeader()
 				if err != nil {
-					t.Fatal(err)
+					t.Error(err)
+					return
 				}
 
 				err = p.ParseToEnd()
 				if err != nil {
-					t.Fatal(err)
+					t.Error(err)
+					return
 				}
 			}()
 		}

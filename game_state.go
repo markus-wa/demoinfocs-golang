@@ -88,6 +88,7 @@ func (ts TeamState) ClanName() string {
 }
 
 // Flag returns the team's country flag.
+// Watch out, in some demos this is upper-case and in some lower-case.
 func (ts TeamState) Flag() string {
 	return ts.flag
 }
