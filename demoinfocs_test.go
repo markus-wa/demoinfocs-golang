@@ -48,8 +48,8 @@ func TestDemoInfoCs(t *testing.T) {
 	}
 
 	fmt.Println("Registering handlers")
+	gs := p.GameState()
 	p.RegisterEventHandler(func(e events.RoundEndedEvent) {
-		gs := p.GameState()
 		var winner *dem.TeamState
 		var loser *dem.TeamState
 		var winnerSide string
@@ -78,6 +78,19 @@ func TestDemoInfoCs(t *testing.T) {
 		fmt.Printf("Round finished: score=%d:%d ; winnerSide=%s ; clanName=%q ; teamId=%d ; teamFlag=%s ; ingameTime=%.1fs ; progress=%.1f%% ; tick=%d ; frame=%d\n", winner.Score()+1, loser.Score(), winnerSide, winnerClan, winnerId, winnerFlag, ingameTime, progressPercent, ingameTick, currentFrame)
 		if len(winnerClan) == 0 || winnerId == 0 || len(winnerFlag) == 0 || ingameTime == 0 || progressPercent == 0 || ingameTick == 0 || currentFrame == 0 {
 			t.Error("Unexprected default value, check output of last round")
+		}
+	})
+	// Check some things at match start
+	p.RegisterEventHandler(func(events.MatchStartedEvent) {
+		participants := gs.Participants()
+		players := gs.PlayingParticipants()
+		if len(participants) <= len(players) {
+			// We know the default demo has spectators
+			t.Error("Expected more participants than players (spectators)")
+		}
+		if nPlayers := len(players); nPlayers != 10 {
+			// We know there should be 10 players at match start in the default demo
+			t.Error("Expected 10 players; got", nPlayers)
 		}
 	})
 

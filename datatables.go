@@ -81,16 +81,13 @@ func (p *Parser) bindTeamScores() {
 			team := val.StringVal
 
 			var s *TeamState
-			var t common.Team
 
 			switch team {
 			case "CT":
 				s = &p.gameState.ctState
-				t = common.TeamCounterTerrorists
 
 			case "TERRORIST":
 				s = &p.gameState.tState
-				t = common.TeamTerrorists
 
 			case "Unassigned": // Ignore
 			case "Spectator": // Ignore
@@ -117,16 +114,6 @@ func (p *Parser) bindTeamScores() {
 				event.Entity.FindProperty("m_scoreTotal").RegisterPropertyUpdateHandler(func(val st.PropValue) {
 					s.score = val.IntVal
 				})
-
-				// FIXME: This only sets the team at the start. . . We also have a player-specific update handler that changes the team so maybe this is unnecessary?
-				if teamID != -1 {
-					s.id = teamID
-					for _, pl := range p.entityIDToPlayers {
-						if pl != nil && pl.TeamID == teamID {
-							pl.Team = t
-						}
-					}
-				}
 			}
 		})
 	})
@@ -211,17 +198,7 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 	})
 
 	playerEntity.FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(val st.PropValue) {
-		pl.TeamID = val.IntVal
-
-		// FIXME: We could probably just cast TeamID to common.Team or not even set it because the teamIDs should be the same. . . needs testing
-		switch pl.TeamID {
-		case p.gameState.ctState.id:
-			pl.Team = common.TeamCounterTerrorists
-		case p.gameState.tState.id:
-			pl.Team = common.TeamTerrorists
-		default:
-			pl.Team = common.TeamSpectators
-		}
+		pl.Team = common.Team(val.IntVal)
 	})
 
 	// Some helpers because I cant be arsed

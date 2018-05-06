@@ -47,12 +47,11 @@ func (gs GameState) Participants() []*common.Player {
 	return r
 }
 
-// PlayingParticipants returns all players that aren't spectating.
+// PlayingParticipants returns all players that aren't spectating or unassigned.
 func (gs GameState) PlayingParticipants() []*common.Player {
 	r := make([]*common.Player, 0, len(gs.players))
 	for _, ptcp := range gs.players {
-		// FIXME: Why do we have to check for nil here???
-		if ptcp != nil && ptcp.Team != common.TeamSpectators {
+		if ptcp.Team != common.TeamSpectators && ptcp.Team != common.TeamUnassigned {
 			r = append(r, ptcp)
 		}
 	}
