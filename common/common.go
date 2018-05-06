@@ -11,187 +11,79 @@ import (
 	"strings"
 )
 
+var eqNameToWeapon map[string]EquipmentElement
+
+func init() {
+	eqNameToWeapon = make(map[string]EquipmentElement)
+	eqNameToWeapon["ak47"] = EqAK47
+	eqNameToWeapon["aug"] = EqAUG
+	eqNameToWeapon["awp"] = EqAWP
+	eqNameToWeapon["bizon"] = EqBizon
+	eqNameToWeapon["c4"] = EqBomb
+	eqNameToWeapon["deagle"] = EqDeagle
+	eqNameToWeapon["decoy"] = EqDecoy
+	eqNameToWeapon["decoygrenade"] = EqDecoy
+	eqNameToWeapon["decoy_projectile"] = EqDecoy
+	eqNameToWeapon["elite"] = EqDualBarettas
+	eqNameToWeapon["famas"] = EqFamas
+	eqNameToWeapon["fiveseven"] = EqFiveSeven
+	eqNameToWeapon["flashbang"] = EqFlash
+	eqNameToWeapon["g3sg1"] = EqG3SG1
+	eqNameToWeapon["galil"] = EqGalil
+	eqNameToWeapon["galilar"] = EqGalil
+	eqNameToWeapon["glock"] = EqGlock
+	eqNameToWeapon["hegrenade"] = EqHE
+	eqNameToWeapon["hkp2000"] = EqP2000
+	eqNameToWeapon["incgrenade"] = EqIncendiary
+	eqNameToWeapon["incendiarygrenade"] = EqIncendiary
+	eqNameToWeapon["m249"] = EqM249
+	eqNameToWeapon["m4a1"] = EqM4A4
+	eqNameToWeapon["mac10"] = EqMac10
+	eqNameToWeapon["mag7"] = EqSwag7
+	eqNameToWeapon["molotov"] = EqMolotov
+	eqNameToWeapon["molotovgrenade"] = EqMolotov
+	eqNameToWeapon["molotov_projectile"] = EqMolotov
+	eqNameToWeapon["mp7"] = EqMP7
+	eqNameToWeapon["mp9"] = EqMP9
+	eqNameToWeapon["negev"] = EqNegev
+	eqNameToWeapon["nova"] = EqNova
+	eqNameToWeapon["p250"] = EqP250
+	eqNameToWeapon["p90"] = EqP90
+	eqNameToWeapon["sawedoff"] = EqSawedOff
+	eqNameToWeapon["scar20"] = EqScar20
+	eqNameToWeapon["sg556"] = EqSG556
+	eqNameToWeapon["smokegrenade"] = EqSmoke
+	eqNameToWeapon["ssg08"] = EqScout
+	eqNameToWeapon["taser"] = EqZeus
+	eqNameToWeapon["tec9"] = EqTec9
+	eqNameToWeapon["ump45"] = EqUMP
+	eqNameToWeapon["xm1014"] = EqXM1014
+	eqNameToWeapon["m4a1_silencer"] = EqM4A1
+	eqNameToWeapon["m4a1_silencer_off"] = EqM4A1
+	eqNameToWeapon["cz75a"] = EqCZ
+	eqNameToWeapon["usp"] = EqUSP
+	eqNameToWeapon["usp_silencer"] = EqUSP
+	eqNameToWeapon["usp_silencer_off"] = EqUSP
+	eqNameToWeapon["world"] = EqWorld
+	eqNameToWeapon["inferno"] = EqIncendiary
+	eqNameToWeapon["revolver"] = EqRevolver
+	eqNameToWeapon["vest"] = EqKevlar
+	eqNameToWeapon["vesthelm"] = EqHelmet
+	eqNameToWeapon["defuser"] = EqDefuseKit
+}
+
 // MapEquipment creates an EquipmentElement from the name of the weapon / equipment.
 func MapEquipment(eqName string) EquipmentElement {
 	eqName = strings.TrimPrefix(eqName, weaponPrefix)
 
 	var wep EquipmentElement
-
 	if strings.Contains(eqName, "knife") || strings.Contains(eqName, "bayonet") {
 		wep = EqKnife
 	} else {
-		switch eqName {
-		case "ak47":
-			wep = EqAK47
-
-		case "aug":
-			wep = EqAUG
-
-		case "awp":
-			wep = EqAWP
-
-		case "bizon":
-			wep = EqBizon
-
-		case "c4":
-			wep = EqBomb
-
-		case "deagle":
-			wep = EqDeagle
-
-		case "decoy":
-			fallthrough
-		case "decoygrenade":
-			fallthrough
-		case "decoy_projectile":
-			wep = EqDecoy
-
-		case "elite":
-			wep = EqDualBarettas
-
-		case "famas":
-			wep = EqFamas
-
-		case "fiveseven":
-			wep = EqFiveSeven
-
-		case "flashbang":
-			wep = EqFlash
-
-		case "g3sg1":
-			wep = EqG3SG1
-
-		case "galil":
-			fallthrough
-		case "galilar":
-			wep = EqGallil
-
-		case "glock":
-			wep = EqGlock
-
-		case "hegrenade":
-			wep = EqHE
-
-		case "hkp2000":
-			wep = EqP2000
-
-		case "incgrenade":
-			fallthrough
-		case "incendiarygrenade":
-			wep = EqIncendiary
-
-		case "m249":
-			wep = EqM249
-
-		case "m4a1":
-			wep = EqM4A4
-
-		case "mac10":
-			wep = EqMac10
-
-		case "mag7":
-			wep = EqSwag7
-
-		case "molotov":
-			fallthrough
-		case "molotovgrenade":
-			fallthrough
-		case "molotov_projectile":
-			wep = EqMolotov
-
-		case "mp7":
-			wep = EqMP7
-
-		case "mp9":
-			wep = EqMP9
-
-		case "negev":
-			wep = EqNegev
-
-		case "nova":
-			wep = EqNova
-
-		case "p250":
-			wep = EqP250
-
-		case "p90":
-			wep = EqP90
-
-		case "sawedoff":
-			wep = EqSawedOff
-
-		case "scar20":
-			wep = EqScar20
-
-		case "sg556":
-			wep = EqSG556
-
-		case "smokegrenade":
-			wep = EqSmoke
-
-		case "ssg08":
-			wep = EqScout
-
-		case "taser":
-			wep = EqZeus
-
-		case "tec9":
-			wep = EqTec9
-
-		case "ump45":
-			wep = EqUMP
-
-		case "xm1014":
-			wep = EqXM1014
-
-		case "m4a1_silencer":
-			fallthrough
-		case "m4a1_silencer_off":
-			wep = EqM4A1
-
-		case "cz75a":
-			wep = EqCZ
-
-		case "usp":
-			fallthrough
-		case "usp_silencer":
-			fallthrough
-		case "usp_silencer_off":
-			wep = EqUSP
-
-		case "world":
-			wep = EqWorld
-
-		case "inferno":
-			wep = EqIncendiary
-
-		case "revolver":
-			wep = EqRevolver
-
-		case "vest":
-			wep = EqKevlar
-
-		case "vesthelm":
-			wep = EqHelmet
-
-		case "defuser":
-			wep = EqDefuseKit
-
-		case "sensorgrenade": // Only used in 'Co-op Strike' mode
-
-		case "scar17": //These crash the game when given via give wep_[mp5navy|...], and cannot be purchased ingame.
-		case "sg550": //yet the server-classes are networked, so we need to resolve them.
-		case "mp5navy":
-		case "p228":
-		case "scout":
-		case "sg552":
-		case "tmp":
-		case "worldspawn":
-
-		default:
-			// TODO: This is really bad imo but we can't access Parser.warn here :/
-			wep = EqUnknown
-		}
+		// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentElement
+		wep = eqNameToWeapon[eqName]
+		// TODO: Return error / warning for EqUnknown?
 	}
+
 	return wep
 }

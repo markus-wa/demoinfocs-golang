@@ -103,6 +103,7 @@ const (
 
 	EqSawedOff EquipmentElement = 201
 	EqNova     EquipmentElement = 202
+	EqMag7     EquipmentElement = 203 // You should consider using EqSwag7 instead
 	EqSwag7    EquipmentElement = 203
 	EqXM1014   EquipmentElement = 204
 	EqM249     EquipmentElement = 205
@@ -110,7 +111,7 @@ const (
 
 	// Rifles
 
-	EqGallil EquipmentElement = 301
+	EqGalil  EquipmentElement = 301
 	EqFamas  EquipmentElement = 302
 	EqAK47   EquipmentElement = 303
 	EqM4A4   EquipmentElement = 304
