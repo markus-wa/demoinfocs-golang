@@ -22,7 +22,7 @@ import (
 // Use Parser.RegisterEventHandler() to receive notifications about events.
 type Parser struct {
 	bitReader             *bit.BitReader
-	stParser              st.Parser
+	stParser              st.SendTableParser
 	msgDispatcher         dp.Dispatcher
 	eventDispatcher       dp.Dispatcher
 	msgQueue              chan interface{}
@@ -64,6 +64,12 @@ func (bbi boundingBoxInformation) contains(point r3.Vector) bool {
 	return point.X >= bbi.min.X && point.X <= bbi.max.X &&
 		point.Y >= bbi.min.Y && point.Y <= bbi.max.Y &&
 		point.Z >= bbi.min.Z && point.Z <= bbi.max.Z
+}
+
+// SendTableParser returns the sendtable parser.
+// This is a beta feature and may be changed or replaced without notice.
+func (p *Parser) SendTableParser() *st.SendTableParser {
+	return &p.stParser
 }
 
 // Header returns the DemoHeader which contains the demo's metadata.

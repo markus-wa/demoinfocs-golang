@@ -10,6 +10,17 @@ import (
 )
 
 const (
+	propTypeInt int = iota
+	propTypeFloat
+	propTypeVector
+	propTypeVectorXY
+	propTypeString
+	propTypeArray
+	propTypeDataTable
+	propTypeInt64
+)
+
+const (
 	coordFractionalBitsMp             = 5
 	coordFractionalBitsMpLowPrecision = 3
 	coordDenominator                  = 1 << coordFractionalBitsMp
@@ -24,6 +35,34 @@ const (
 	normalFractBits   = 11
 	normalDenominator = 1 << (normalFractBits - 1)
 	normalResolution  = 1.0 / normalDenominator
+)
+
+const (
+	dataTableMaxStringBits   = 9
+	dataTableMaxStringLength = 1 << dataTableMaxStringBits
+)
+
+const (
+	propFlagUnsigned sendPropertyFlags = (1 << iota)
+	propFlagCoord
+	propFlagNoScale
+	propFlagRoundDown
+	propFlagRoundUp
+	propFlagNormal
+	propFlagExclude
+	propFlagXYZE
+	propFlagInsideArray
+	propFlagProxyAlwaysYes
+	propFlagIsVectorElement
+	propFlagCollapsible
+	propFlagCoordMp
+	propFlagCoordMpLowPrecision
+	propFlagCoordMpIntegral
+	propFlagCellCoord
+	propFlagCellCoordLowPrecision
+	propFlagCellCoordIntegral
+	propFlagChangesOften
+	propFlagVarInt
 )
 
 const specialFloatFlags = propFlagNoScale | propFlagCoord | propFlagCellCoord | propFlagNormal | propFlagCoordMp | propFlagCoordMpLowPrecision | propFlagCoordMpIntegral | propFlagCellCoordLowPrecision | propFlagCellCoordIntegral

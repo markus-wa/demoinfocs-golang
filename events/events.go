@@ -296,3 +296,8 @@ type ItemDropEvent struct {
 	Weapon common.Equipment
 	Player *common.Player
 }
+
+// DataTablesParsedEvent signals that the datatables were parsed.
+// You can use the Parser.SendTableParser() after this event to register update notification on entities & properties.
+// DataTablesParsedEvent is a beta feature, it may be replaced or changed without notice.
+type DataTablesParsedEvent struct{}

@@ -20,6 +20,8 @@ func (e *Entity) Props() []PropertyEntry {
 }
 
 // FindProperty finds a property on the Entity by name.
+// Returns nil if the property wasn't found.
+// Panics if more than one property with the same name was found.
 func (e *Entity) FindProperty(name string) *PropertyEntry {
 	var prop *PropertyEntry
 	for i := range e.props {
@@ -29,9 +31,6 @@ func (e *Entity) FindProperty(name string) *PropertyEntry {
 			}
 			prop = &e.props[i]
 		}
-	}
-	if prop == nil {
-		panic(fmt.Sprintf("Could not find property with name %q", name))
 	}
 	return prop
 }

@@ -1,4 +1,31 @@
+// Package sendtables contains sendtable specific magic and should really be better documented (TODO).
 package sendtables
+
+// sendPropertyFlags stores multiple send property flags.
+type sendPropertyFlags int
+
+// hasFlagSet returns true if the given flag is set
+func (spf sendPropertyFlags) hasFlagSet(flag sendPropertyFlags) bool {
+	return int(spf)&int(flag) == int(flag)
+}
+
+type sendTable struct {
+	properties []sendTableProperty
+	name       string
+	isEnd      bool
+}
+
+type sendTableProperty struct {
+	flags            sendPropertyFlags
+	name             string
+	dataTableName    string
+	lowValue         float32
+	highValue        float32
+	numberOfBits     int
+	numberOfElements int
+	priority         int
+	rawType          int
+}
 
 // ServerClass stores meta information about Entity types (e.g. palyers, teams etc.).
 type ServerClass struct {
@@ -37,12 +64,6 @@ type FlattenedPropEntry struct {
 // Name returs the name of the prop entry.
 func (fpe FlattenedPropEntry) Name() string {
 	return fpe.name
-}
-
-type excludeEntry struct {
-	varName     string
-	dtName      string
-	excludingDt string
 }
 
 // EntityCreatedEvent contains information about a newly created entity.

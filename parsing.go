@@ -192,6 +192,8 @@ func (p *Parser) parseFrame() bool {
 		p.mapEquipment()
 		p.bindEntities()
 
+		p.eventDispatcher.Dispatch(events.DataTablesParsedEvent{})
+
 	case dcStringTables:
 		p.msgDispatcher.SyncQueues(p.msgQueue)
 

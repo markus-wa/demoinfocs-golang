@@ -11,27 +11,33 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
-// Parser provides functions for parsing send-tables.
-type Parser struct {
+// SendTableParser provides functions for parsing send-tables.
+type SendTableParser struct {
 	sendTables         []sendTable
 	serverClasses      []*ServerClass
 	currentExcludes    []*excludeEntry
 	currentBaseclasses []*ServerClass
 }
 
+type excludeEntry struct {
+	varName     string
+	dtName      string
+	excludingDt string
+}
+
 // ClassBits seems to calculate how many bits must be read for the server-class ID.
 // Not 100% sure how tho tbh.
-func (p *Parser) ClassBits() int {
+func (p *SendTableParser) ClassBits() int {
 	return int(math.Ceil(math.Log2(float64(len(p.serverClasses)))))
 }
 
 // ServerClasses returns the parsed server-classes
-func (p *Parser) ServerClasses() []*ServerClass {
+func (p *SendTableParser) ServerClasses() []*ServerClass {
 	return p.serverClasses
 }
 
 // ParsePacket parses a send-table packet.
-func (p *Parser) ParsePacket(r *bit.BitReader) {
+func (p *SendTableParser) ParsePacket(r *bit.BitReader) {
 	for {
 		t := msg.SVC_Messages(r.ReadVarInt32())
 		if t != msg.SVC_Messages_svc_SendTable {
@@ -101,7 +107,7 @@ func parseSendTable(r *bit.BitReader) sendTable {
 	return res
 }
 
-func (p *Parser) flattenDataTable(serverClassIndex int) {
+func (p *SendTableParser) flattenDataTable(serverClassIndex int) {
 	tab := &p.sendTables[p.serverClasses[serverClassIndex].DataTableID]
 
 	p.currentExcludes = nil
@@ -150,7 +156,7 @@ func (p *Parser) flattenDataTable(serverClassIndex int) {
 	}
 }
 
-func (p *Parser) gatherExcludesAndBaseClasses(st *sendTable, collectBaseClasses bool) {
+func (p *SendTableParser) gatherExcludesAndBaseClasses(st *sendTable, collectBaseClasses bool) {
 	for _, v := range st.properties {
 		if v.flags.hasFlagSet(propFlagExclude) {
 			p.currentExcludes = append(p.currentExcludes, &excludeEntry{varName: v.name, dtName: v.dataTableName, excludingDt: st.name})
@@ -169,13 +175,13 @@ func (p *Parser) gatherExcludesAndBaseClasses(st *sendTable, collectBaseClasses 
 	}
 }
 
-func (p *Parser) gatherProps(st *sendTable, serverClassIndex int, prefix string) {
+func (p *SendTableParser) gatherProps(st *sendTable, serverClassIndex int, prefix string) {
 	var tmpFlattenedProps []FlattenedPropEntry
 	p.gatherPropsIterate(st, serverClassIndex, prefix, &tmpFlattenedProps)
 	p.serverClasses[serverClassIndex].FlattenedProps = append(p.serverClasses[serverClassIndex].FlattenedProps, tmpFlattenedProps...)
 }
 
-func (p *Parser) gatherPropsIterate(tab *sendTable, serverClassIndex int, prefix string, flattenedProps *[]FlattenedPropEntry) {
+func (p *SendTableParser) gatherPropsIterate(tab *sendTable, serverClassIndex int, prefix string, flattenedProps *[]FlattenedPropEntry) {
 	for i := range tab.properties {
 		prop := &tab.properties[i]
 		if prop.flags.hasFlagSet(propFlagInsideArray) || prop.flags.hasFlagSet(propFlagExclude) || p.isPropertyExcluded(tab, prop) {
@@ -204,7 +210,7 @@ func (p *Parser) gatherPropsIterate(tab *sendTable, serverClassIndex int, prefix
 	}
 }
 
-func (p *Parser) isPropertyExcluded(tab *sendTable, prop *sendTableProperty) bool {
+func (p *SendTableParser) isPropertyExcluded(tab *sendTable, prop *sendTableProperty) bool {
 	for _, v := range p.currentExcludes {
 		if v.dtName == tab.name && v.varName == prop.name {
 			return true
@@ -213,7 +219,7 @@ func (p *Parser) isPropertyExcluded(tab *sendTable, prop *sendTableProperty) boo
 	return false
 }
 
-func (p *Parser) getTableByName(name string) *sendTable {
+func (p *SendTableParser) getTableByName(name string) *sendTable {
 	for i := range p.sendTables {
 		if p.sendTables[i].name == name {
 			return &p.sendTables[i]
@@ -222,7 +228,7 @@ func (p *Parser) getTableByName(name string) *sendTable {
 	return nil
 }
 
-func (p *Parser) findServerClassByDtName(name string) *ServerClass {
+func (p *SendTableParser) findServerClassByDtName(name string) *ServerClass {
 	var sc *ServerClass
 	for _, v := range p.serverClasses {
 		if v.DTName == name {
@@ -232,14 +238,13 @@ func (p *Parser) findServerClassByDtName(name string) *ServerClass {
 			sc = v
 		}
 	}
-	if sc == nil {
-		panic(fmt.Sprintf("No server class with DT name %q found", name))
-	}
 	return sc
 }
 
 // FindServerClassByName finds and returns a server-class by it's name.
-func (p *Parser) FindServerClassByName(name string) *ServerClass {
+// Returns nil if the server-class wasn't found.
+// Panics if more than one server-class with the same name was found.
+func (p *SendTableParser) FindServerClassByName(name string) *ServerClass {
 	var sc *ServerClass
 	for _, v := range p.serverClasses {
 		if v.Name == name {
@@ -248,9 +253,6 @@ func (p *Parser) FindServerClassByName(name string) *ServerClass {
 			}
 			sc = v
 		}
-	}
-	if sc == nil {
-		panic(fmt.Sprintf("No server class with name %q found", name))
 	}
 	return sc
 }
