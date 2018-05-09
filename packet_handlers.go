@@ -296,8 +296,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			p.eventDispatcher.Dispatch(events.FireNadeEndEvent{NadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position)})
 		}
 
-	case "player_connect": // Player connected. . .?
-		// FIXME: This doesn't seem to happen, ever???
+	case "player_connect": // Bot connected, players come in via string tables & data tables
 		data = mapGameEventData(d, ge)
 
 		pl := &common.PlayerInfo{
@@ -310,7 +309,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		p.rawPlayers[data["index"].GetValShort()] = pl
 
-	case "player_disconnect": // Player disconnected
+	case "player_disconnect": // Bot disconnected, players come in via string tables & data tables
 		data = mapGameEventData(d, ge)
 
 		uid := int(data["userid"].GetValShort())
