@@ -301,3 +301,11 @@ type ItemDropEvent struct {
 // You can use the Parser.SendTableParser() after this event to register update notification on entities & properties.
 // DataTablesParsedEvent is a beta feature, it may be replaced or changed without notice.
 type DataTablesParsedEvent struct{}
+
+// StringTableCreatedEvent signals that a string table was created via net message.
+// Can be useful for figuring out when player-info is available via Parser.GameState().[Playing]Participants().
+// E.g. after the table 'userinfo' has been created the player-data should be available after the next TickDoneEvent.
+// The reason it's not immediately available is because we need to do some post-processing to prep that data after a tick has finished.
+type StringTableCreatedEvent struct {
+	TableName string
+}

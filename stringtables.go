@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
+	"github.com/markus-wa/demoinfocs-golang/events"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
@@ -118,6 +119,8 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	p.processStringTable(tab)
 
 	p.stringTables = append(p.stringTables, tab)
+
+	p.eventDispatcher.Dispatch(events.StringTableCreatedEvent{TableName: tab.Name})
 }
 
 func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
