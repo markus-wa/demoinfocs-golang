@@ -32,9 +32,9 @@ func (p *Parser) parsePacket() {
 		var m proto.Message
 		switch cmd {
 		case int(msg.SVC_Messages_svc_PacketEntities):
-			// TODO: Find a way to pool SVC_Messages_svc_PacketEntities
-			// Need to make sure the message was consumed before pooling
-			// and the message's contents will be overridden (either by protobuf or manually)
+			// We could pool CSVCMsg_PacketEntities as they take up A LOT of the allocations
+			// but unless we're on a system that's doing a lot of concurrent parsing there isn't really a point
+			// as handling packets is a lot slower than creating them and we can't pool until they are handled.
 			m = new(msg.CSVCMsg_PacketEntities)
 
 		case int(msg.SVC_Messages_svc_GameEventList):
