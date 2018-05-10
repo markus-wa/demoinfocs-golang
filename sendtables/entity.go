@@ -117,7 +117,7 @@ func (e *Entity) CollectProperties(ppBase *map[int]PropValue) {
 func NewEntity(id int, serverClass *ServerClass) *Entity {
 	props := make([]PropertyEntry, 0, len(serverClass.FlattenedProps))
 	for i := range serverClass.FlattenedProps {
-		props = append(props, NewPropertyEntry(&serverClass.FlattenedProps[i], i))
+		props = append(props, PropertyEntry{index: i, entry: &serverClass.FlattenedProps[i]})
 	}
 	return &Entity{ID: id, ServerClass: serverClass, props: props}
 }
@@ -153,8 +153,3 @@ func (pe *PropertyEntry) RegisterPropertyUpdateHandler(handler PropertyUpdateHan
 
 // PropertyUpdateHandler is the interface for handlers that are interested in PropertyEntry changes.
 type PropertyUpdateHandler func(PropValue)
-
-// NewPropertyEntry creates a new PropertyEntry from a FlattenedPropEntry and index
-func NewPropertyEntry(entry *FlattenedPropEntry, index int) PropertyEntry {
-	return PropertyEntry{index: index, entry: entry}
-}
