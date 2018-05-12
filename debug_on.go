@@ -22,6 +22,7 @@ const (
 var debugGameEvents = yes
 var debugUnhandledMessages = yes
 var debugIngameTicks = no
+var debugDemoCommands = yes
 
 func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	if debugGameEvents == yes {
@@ -58,5 +59,36 @@ func debugUnhandledMessage(cmd int, name string) {
 func debugIngameTick(tickNr int) {
 	if debugIngameTicks == yes {
 		fmt.Printf("IngameTick=%d\n", tickNr)
+	}
+}
+
+func (dc demoCommand) String() string {
+	switch dc {
+	case dcConsoleCommand:
+		return "ConsoleCommand"
+	case dcCustomData:
+		return "CustomData"
+	case dcDataTables:
+		return "DataTables"
+	case dcPacket:
+		return "Packet"
+	case dcSignon:
+		return "Signon"
+	case dcStop:
+		return "Stop"
+	case dcStringTables:
+		return "StringTables"
+	case dcSynctick:
+		return "Synctick"
+	case dcUserCommand:
+		return "UserCommand"
+	default:
+		return "UnknownCommand"
+	}
+}
+
+func debugDemoCommand(cmd demoCommand) {
+	if debugDemoCommands == yes {
+		fmt.Println("Demo-Command:", cmd)
 	}
 }

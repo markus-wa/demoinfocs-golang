@@ -21,3 +21,7 @@ func debugUnhandledMessage(cmd int, name string) {
 func debugIngameTick(tickNr int) {
 	// NOP
 }
+
+func debugDemoCommand(cmd demoCommand) {
+	// NOP
+}

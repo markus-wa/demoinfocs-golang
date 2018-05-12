@@ -169,6 +169,8 @@ func (p *Parser) parseFrame() bool {
 	// Skip 'player slot'
 	p.bitReader.Skip(8)
 
+	debugDemoCommand(cmd)
+
 	switch cmd {
 	case dcSynctick:
 		// Ignore
