@@ -95,9 +95,7 @@ func (p *Parser) parseSingleStringTable(name string) {
 }
 
 func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
+	// No need for recoverFromUnexpectedEOF here as we do that in processStringTable already
 
 	cTab := p.stringTables[tab.TableId]
 	switch cTab.Name {
@@ -107,11 +105,22 @@ func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 		fallthrough
 	case stNameInstanceBaseline:
 		// Only handle updates for the above types
-		p.handleCreateStringTable(cTab)
+		// Create fake CreateStringTable and handle it like one of those
+		cTab.NumEntries = tab.NumChangedEntries
+		cTab.StringData = tab.StringData
+		p.processStringTable(cTab)
 	}
 }
 
 func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+	// No need for recoverFromUnexpectedEOF here as we do that in processStringTable already
+
+	p.processStringTable(tab)
+
+	p.stringTables = append(p.stringTables, tab)
+}
+
+func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -189,19 +198,17 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 			p.rawPlayers[entryIndex] = parsePlayerInfo(bytes.NewReader(userdat))
 
 		case stNameInstanceBaseline:
-			classid, err := strconv.ParseInt(entry, 10, 64)
+			classID, err := strconv.ParseInt(entry, 10, 64)
 			if err != nil {
 				panic("WTF VOLVO PLS")
 			}
-			p.instanceBaselines[int(classid)] = userdat
+			p.instanceBaselines[int(classID)] = userdat
 
 		case stNameModelPreCache:
 			p.modelPreCache[entryIndex] = entry
 		}
 	}
 	br.Pool()
-
-	p.stringTables = append(p.stringTables, tab)
 }
 
 func parsePlayerInfo(reader io.Reader) *playerInfo {
