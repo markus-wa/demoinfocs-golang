@@ -105,7 +105,10 @@ Should you need to re-generate the protobuf generated code in the `msg` package,
 
 - And `protoc-gen-gogofaster` from [gogoprotobuf](https://github.com/gogo/protobuf) to generate code for go.
 
-	go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
+		go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
+
+[//]: # "The go get above needs two tabs so it's displayed as a) as part of the last list entry and b) as a code-block"
+[//]: # "Oh and don't try to move these comments above it either"
 
 Make sure both are inside your `PATH` variable.
 
