@@ -28,12 +28,12 @@
 [[projects]]
   name = "github.com/markus-wa/godispatch"
   packages = ["."]
-  revision = "f4048bc8abcffe7f94eb7bd8f450f7e5480164cf"
-  version = "v1.0.0"
+  revision = "3c2bfa80b4fa8e97f461b579dda6d698aee02430"
+  version = "v1.1.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "701da6e0e06066c3d0cd5c0add57bf703fb23028d32967eac0b6a5b4901321cd"
+  inputs-digest = "c30d26101b68a189d54f5224a272137333023e6c097a13a2a886eb4b135f54ff"
   solver-name = "gps-cdcl"
   solver-version = 1

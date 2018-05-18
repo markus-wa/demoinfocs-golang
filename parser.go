@@ -98,8 +98,15 @@ func (p *Parser) Progress() float32 {
 // Must be of type func(<EventType>) where EventType is the kind of event that is handled.
 // To catch all events func(interface{}) can be used.
 // Parameter handler has to be of type interface{} because lolnogenerics.
-func (p *Parser) RegisterEventHandler(handler interface{}) {
-	p.eventDispatcher.RegisterHandler(handler)
+// Returns a identifier with which the handler can be removed via UnregisterEventHandler()
+func (p *Parser) RegisterEventHandler(handler interface{}) dp.HandlerIdentifier {
+	return p.eventDispatcher.RegisterHandler(handler)
+}
+
+// UnregisterEventHandler removes a handler via identifier.
+// The identifier is returned at registration by RegisterEventHandler()
+func (p *Parser) UnregisterEventHandler(identifier dp.HandlerIdentifier) {
+	p.eventDispatcher.UnregisterHandler(identifier)
 }
 
 func (p *Parser) error() (err error) {

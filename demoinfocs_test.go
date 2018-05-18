@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/markus-wa/godispatch"
+
 	dem "github.com/markus-wa/demoinfocs-golang"
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
@@ -166,16 +168,21 @@ func TestCancelParseToEnd(t *testing.T) {
 	maxTicks := 100
 	var tix int
 
-	p.RegisterEventHandler(func(events.TickDoneEvent) {
+	var handlerID dispatch.HandlerIdentifier
+	handlerID = p.RegisterEventHandler(func(events.TickDoneEvent) {
 		tix++
 		if tix == maxTicks {
 			p.Cancel()
+			p.UnregisterEventHandler(handlerID)
 		}
 	})
 
 	err = p.ParseToEnd()
 	if err != dem.ErrCancelled {
-		t.Fatal("Parsing cancelled but error was not ErrCancelled:", err)
+		t.Error("Parsing cancelled but error was not ErrCancelled:", err)
+	}
+	if tix > maxTicks {
+		t.Error("TickDoneEvent handler was triggered after being unregistered")
 	}
 }
 
