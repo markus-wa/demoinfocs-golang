@@ -20,6 +20,19 @@ const (
 	msgHeaderNotParsed = "Tried to parse tick before parsing header"
 )
 
+// Parsing errors
+var (
+	// ErrCancelled signals that parsing was cancelled via Parser.Cancel()
+	ErrCancelled = errors.New("Parsing was cancelled before it finished (ErrCancelled)")
+
+	// ErrUnexpectedEndOfDemo signals that the demo is incomplete / corrupt -
+	// these demos may still be useful, check the how far the parser got.
+	ErrUnexpectedEndOfDemo = errors.New("Demo stream ended unexpectedly (ErrUnexpectedEndOfDemo)")
+
+	// ErrInvalidFileType signals that the input isn't a valid CS:GO demo.
+	ErrInvalidFileType = errors.New("Invalid File-Type; expecting HL2DEMO in the first 8 bytes")
+)
+
 // ParseHeader attempts to parse the header of the demo.
 // Returns error if the filestamp (first 8 bytes) doesn't match HL2DEMO.
 func (p *Parser) ParseHeader() (common.DemoHeader, error) {
@@ -37,7 +50,7 @@ func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 	h.SignonLength = p.bitReader.ReadSignedInt(32)
 
 	if h.Filestamp != "HL2DEMO" {
-		return h, errors.New("Invalid File-Type; expecting HL2DEMO in the first 8 bytes")
+		return h, ErrInvalidFileType
 	}
 
 	// Initialize queue if the buffer size wasn't specified, the amount of ticks
@@ -51,16 +64,6 @@ func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 	p.eventDispatcher.Dispatch(events.HeaderParsedEvent{Header: h})
 	return h, nil
 }
-
-// Parsing errors
-var (
-	// ErrCancelled signals that parsing was cancelled via Parser.Cancel()
-	ErrCancelled = errors.New("Parsing was cancelled before it finished (ErrCancelled)")
-
-	// ErrUnexpectedEndOfDemo signals that the demo is incomplete / corrupt -
-	// these demos may still be useful, check the how far the parser got.
-	ErrUnexpectedEndOfDemo = errors.New("Demo stream ended unexpectedly (ErrUnexpectedEndOfDemo)")
-)
 
 // ParseToEnd attempts to parse the demo until the end.
 // Aborts and returns ErrCancelled if Cancel() is called before the end.
