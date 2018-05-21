@@ -13,10 +13,10 @@ import (
 // Make sure the example from the README.md compiles and runs.
 func TestExample(t *testing.T) {
 	f, err := os.Open(defaultDemPath)
-	defer f.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer f.Close()
 
 	p := dem.NewParser(f, dem.WarnToStdErr)
 

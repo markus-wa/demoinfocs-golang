@@ -55,11 +55,11 @@ func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 // Parsing errors
 var (
 	// ErrCancelled signals that parsing was cancelled via Parser.Cancel()
-	ErrCancelled error = errors.New("Parsing was cancelled before it finished (ErrCancelled)")
+	ErrCancelled = errors.New("Parsing was cancelled before it finished (ErrCancelled)")
 
 	// ErrUnexpectedEndOfDemo signals that the demo is incomplete / corrupt -
 	// these demos may still be useful, check the how far the parser got.
-	ErrUnexpectedEndOfDemo error = errors.New("Demo stream ended unexpectedly (ErrUnexpectedEndOfDemo)")
+	ErrUnexpectedEndOfDemo = errors.New("Demo stream ended unexpectedly (ErrUnexpectedEndOfDemo)")
 )
 
 // ParseToEnd attempts to parse the demo until the end.

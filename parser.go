@@ -55,9 +55,8 @@ type bombsite struct {
 }
 
 type boundingBoxInformation struct {
-	index int
-	min   r3.Vector
-	max   r3.Vector
+	min r3.Vector
+	max r3.Vector
 }
 
 func (bbi boundingBoxInformation) contains(point r3.Vector) bool {

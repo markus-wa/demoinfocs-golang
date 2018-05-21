@@ -31,10 +31,10 @@ func init() {
 
 func TestDemoInfoCs(t *testing.T) {
 	f, err := os.Open(defaultDemPath)
-	defer f.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer f.Close()
 
 	p := dem.NewParser(f, dem.WarnToStdErr)
 
@@ -135,10 +135,10 @@ func TestDemoInfoCs(t *testing.T) {
 
 func TestUnexpectedEndOfDemo(t *testing.T) {
 	f, err := os.Open(unexpectedEndOfDemoPath)
-	defer f.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer f.Close()
 
 	p := dem.NewParser(f, nil)
 	_, err = p.ParseHeader()
@@ -154,10 +154,10 @@ func TestUnexpectedEndOfDemo(t *testing.T) {
 
 func TestCancelParseToEnd(t *testing.T) {
 	f, err := os.Open(defaultDemPath)
-	defer f.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer f.Close()
 
 	p := dem.NewParser(f, nil)
 	_, err = p.ParseHeader()
@@ -236,10 +236,10 @@ func TestDemoSet(t *testing.T) {
 			func() {
 				var f *os.File
 				f, err = os.Open(demSetPath + "/" + name)
-				defer f.Close()
 				if err != nil {
 					t.Error(err)
 				}
+				defer f.Close()
 
 				defer func() {
 					pErr := recover()
@@ -269,10 +269,10 @@ func BenchmarkDemoInfoCs(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		func() {
 			f, err := os.Open(defaultDemPath)
-			defer f.Close()
 			if err != nil {
 				b.Fatal(err)
 			}
+			defer f.Close()
 
 			p := dem.NewParser(f, nil)
 
@@ -295,10 +295,10 @@ func BenchmarkDemoInfoCs(b *testing.B) {
 
 func BenchmarkInMemory(b *testing.B) {
 	f, err := os.Open(defaultDemPath)
-	defer f.Close()
 	if err != nil {
 		b.Fatal(err)
 	}
+	defer f.Close()
 
 	inf, err := f.Stat()
 	if err != nil {

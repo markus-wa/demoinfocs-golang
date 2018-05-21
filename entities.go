@@ -32,9 +32,8 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 			// Could do weird stuff with event handlers otherwise
 			p.entities[currentEntity] = nil
 
-			if r.ReadBit() {
-				// TODO: Force Delete??
-			}
+			// TODO: Force Delete if this is true??
+			r.ReadBit()
 		} else {
 			if r.ReadBit() {
 				// Enter PVS
@@ -62,7 +61,7 @@ func (p *Parser) readEnterPVS(reader *bit.BitReader, entityID int) *st.Entity {
 			newEntity.Props()[idx].FirePropertyUpdate(val)
 		}
 	} else {
-		ppBase := make(map[int]st.PropValue, 0)
+		ppBase := make(map[int]st.PropValue)
 		if p.instanceBaselines[scID] != nil {
 			newEntity.CollectProperties(&ppBase)
 			r := bit.NewSmallBitReader(bytes.NewReader(p.instanceBaselines[scID]))

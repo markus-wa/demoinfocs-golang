@@ -9,7 +9,7 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
-var byteSlicePool sync.Pool = sync.Pool{
+var byteSlicePool = sync.Pool{
 	New: func() interface{} {
 		s := make([]byte, 0, 256)
 		return &s
