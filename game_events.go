@@ -95,6 +95,8 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		p.eventDispatcher.Dispatch(events.BotTakenOverEvent{Taker: p.gameState.players[int(data["userid"].GetValShort())]})
 
+	case "round_announce_match_start": // Special match start announcement
+		fallthrough
 	case "begin_new_match": // Match started
 		p.eventDispatcher.Dispatch(events.MatchStartedEvent{})
 
@@ -383,7 +385,6 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	// Probably not that interesting:
 	case "buytime_ended": // Not actually end of buy time, seems to only be sent once per game at the start
-	case "round_announce_match_start": // Special match start announcement
 	case "bomb_beep": // Bomb beep
 	case "player_spawn": // Player spawn
 	case "hltv_status": // Don't know
