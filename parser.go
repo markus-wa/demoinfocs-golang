@@ -126,22 +126,36 @@ func (p *Parser) setError(err error) {
 	}
 }
 
-// TODO: Change the New* methods (names + parameters)
-
-// NewParser creates a new Parser on the basis of an io.Reader
-// - like os.File or bytes.Reader - that reads demo data.
+// NewParser creates a new Parser with the default configuration.
+// The demostream io.Reader (e.g. os.File or bytes.Reader) must provide demo data in the '.DEM' format.
+// See also: NewCustomParser() & DefaultParserConfig
 func NewParser(demostream io.Reader) *Parser {
-	return NewParserWithBufferSize(demostream, -1)
+	return NewParserWithConfig(demostream, DefaultParserConfig)
 }
 
-// NewParserWithBufferSize returns a new Parser with a custom msgQueue buffer size.
-// For large demos, fast i/o and slow CPUs higher numbers are suggested and vice versa.
-// The buffer size can easily be in the hundred-thousands to low millions for the best performance.
-// A negative value will make the Parser automatically decide the buffer size during ParseHeader()
-// based on the number of ticks in the demo (nubmer of ticks = buffer size).
-// See also: NewParser()
-func NewParserWithBufferSize(demostream io.Reader, msgQueueBufferSize int) *Parser {
+// ParserConfig contains the configuration for creating a new Parser.
+type ParserConfig struct {
+	// MsgQueueBufferSize defines the size of the internal net-message queue.
+	// For large demos, fast i/o and slow CPUs higher numbers are suggested and vice versa.
+	// The buffer size can easily be in the hundred-thousands to low millions for the best performance.
+	// A negative value will make the Parser automatically decide the buffer size during ParseHeader()
+	// based on the number of ticks in the demo (nubmer of ticks = buffer size);
+	// this is the default behavior for DefaultParserConfig.
+	// Zero enforces sequential parsing.
+	MsgQueueBufferSize int
+}
+
+// DefaultParserConfig is the default Parser configuration used by NewParser().
+// You may set this variable to a custom configuration to be used by NewParser().
+var DefaultParserConfig = ParserConfig{
+	MsgQueueBufferSize: -1,
+}
+
+// NewParserWithConfig returns a new Parser with a custom configuration.
+// See also: NewParser() & ParserConfig
+func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	var p Parser
+
 	// Init parser
 	p.bitReader = bit.NewLargeBitReader(demostream)
 	p.instanceBaselines = make(map[int][]byte)
@@ -164,9 +178,10 @@ func NewParserWithBufferSize(demostream io.Reader, msgQueueBufferSize int) *Pars
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
 	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
 
-	if msgQueueBufferSize >= 0 {
-		p.initMsgQueue(msgQueueBufferSize)
+	if config.MsgQueueBufferSize >= 0 {
+		p.initMsgQueue(config.MsgQueueBufferSize)
 	}
+
 	return &p
 }
 

@@ -36,7 +36,9 @@ func TestDemoInfoCs(t *testing.T) {
 	}
 	defer f.Close()
 
-	p := dem.NewParser(f)
+	p := dem.NewParserWithConfig(f, dem.ParserConfig{
+		MsgQueueBufferSize: 1000,
+	})
 
 	fmt.Println("Parsing header")
 	h, err := p.ParseHeader()
