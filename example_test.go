@@ -18,7 +18,7 @@ func TestExample(t *testing.T) {
 	}
 	defer f.Close()
 
-	p := dem.NewParser(f, dem.WarnToStdErr)
+	p := dem.NewParser(f)
 
 	// Parse header
 	h, err := p.ParseHeader()

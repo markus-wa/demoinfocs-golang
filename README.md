@@ -43,7 +43,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	p := dem.NewParser(f, dem.WarnToStdErr)
+	p := dem.NewParser(f)
 
 	// Parse header
 	h, err := p.ParseHeader()

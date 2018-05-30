@@ -28,7 +28,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	}()
 
 	if p.gameEventDescs == nil {
-		p.warn("Received GameEvent but event descriptors are missing")
+		p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: "Received GameEvent but event descriptors are missing"})
 		return
 	}
 
@@ -405,9 +405,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "cs_match_end_restart": // Yawn
 
 	default:
-		if p.warn != nil {
-			p.warn(fmt.Sprintf("Unknown event %q", d.Name))
-		}
+		p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Unknown event %q", d.Name)})
 	}
 }
 
@@ -459,9 +457,8 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 	case msg.ECstrike15UserMessages_CS_UM_SayText:
 		st := new(msg.CCSUsrMsg_SayText)
 		err := st.Unmarshal(um.MsgData)
-		if err != nil && p.warn != nil {
-			// Just send a warning, chat messages aren't that important
-			p.warn(fmt.Sprintf("Failed to decode SayText message: %s", err.Error()))
+		if err != nil {
+			p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Failed to decode SayText message: %s", err.Error())})
 		}
 
 		p.eventDispatcher.Dispatch(events.SayTextEvent{
@@ -474,8 +471,8 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 	case msg.ECstrike15UserMessages_CS_UM_SayText2:
 		st := new(msg.CCSUsrMsg_SayText2)
 		err := st.Unmarshal(um.MsgData)
-		if err != nil && p.warn != nil {
-			p.warn(fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error()))
+		if err != nil {
+			p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error())})
 		}
 
 		sender := p.gameState.players[int(st.EntIdx)]
@@ -501,9 +498,7 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 		case "#CSGO_Coach_Join_CT":
 
 		default:
-			if p.warn != nil {
-				p.warn(fmt.Sprintf("Skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName))
-			}
+			p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)})
 		}
 
 	default:

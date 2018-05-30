@@ -1,9 +1,7 @@
 package demoinfocs
 
 import (
-	"fmt"
 	"io"
-	"os"
 	"sync"
 
 	r3 "github.com/golang/geo/r3"
@@ -44,7 +42,6 @@ type Parser struct {
 	gameEventDescs        map[int32]*msg.CSVCMsg_GameEventListDescriptorT
 	stringTables          []*msg.CSVCMsg_CreateStringTable
 	cancelChan            chan struct{}
-	warn                  WarnHandler
 	err                   error
 	errLock               sync.Mutex
 }
@@ -129,24 +126,12 @@ func (p *Parser) setError(err error) {
 	}
 }
 
-// TODO: Maybe we should use a channel instead of that WarnHandler stuff
-
-// WarnHandler is a function that handles warnings of a Parser.
-type WarnHandler func(string)
-
-// WarnToStdErr is a WarnHandler that prints all warnings to standard error output.
-func WarnToStdErr(warning string) {
-	fmt.Fprintln(os.Stderr, warning)
-}
-
 // TODO: Change the New* methods (names + parameters)
 
 // NewParser creates a new Parser on the basis of an io.Reader
 // - like os.File or bytes.Reader - that reads demo data.
-// Any warnings that don't stop the Parser from doing it's job
-// will be passed to the warnHandler if it's not nil.
-func NewParser(demostream io.Reader, warnHandler WarnHandler) *Parser {
-	return NewParserWithBufferSize(demostream, -1, warnHandler)
+func NewParser(demostream io.Reader) *Parser {
+	return NewParserWithBufferSize(demostream, -1)
 }
 
 // NewParserWithBufferSize returns a new Parser with a custom msgQueue buffer size.
@@ -155,7 +140,7 @@ func NewParser(demostream io.Reader, warnHandler WarnHandler) *Parser {
 // A negative value will make the Parser automatically decide the buffer size during ParseHeader()
 // based on the number of ticks in the demo (nubmer of ticks = buffer size).
 // See also: NewParser()
-func NewParserWithBufferSize(demostream io.Reader, msgQueueBufferSize int, warnHandler WarnHandler) *Parser {
+func NewParserWithBufferSize(demostream io.Reader, msgQueueBufferSize int) *Parser {
 	var p Parser
 	// Init parser
 	p.bitReader = bit.NewLargeBitReader(demostream)
@@ -168,7 +153,6 @@ func NewParserWithBufferSize(demostream io.Reader, msgQueueBufferSize int, warnH
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
 	p.gameState = newGameState()
-	p.warn = warnHandler
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)

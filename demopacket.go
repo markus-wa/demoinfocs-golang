@@ -6,6 +6,7 @@ import (
 
 	proto "github.com/gogo/protobuf/proto"
 
+	"github.com/markus-wa/demoinfocs-golang/events"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
@@ -53,23 +54,21 @@ func (p *Parser) parsePacket() {
 			m = new(msg.CSVCMsg_UserMessage)
 
 		default:
-			if p.warn != nil || isDebug {
-				var name string
-				if cmd < 8 || cmd >= 100 {
-					name = msg.NET_Messages_name[int32(cmd)]
-				} else {
-					name = msg.SVC_Messages_name[int32(cmd)]
-				}
+			var name string
+			if cmd < 8 || cmd >= 100 {
+				name = msg.NET_Messages_name[int32(cmd)]
+			} else {
+				name = msg.SVC_Messages_name[int32(cmd)]
+			}
 
+			if isDebug {
 				debugUnhandledMessage(cmd, name)
+			}
 
-				if p.warn != nil {
-					if name == "" {
-						// Send a warning if the command is unknown
-						// This might mean our proto files are out of date
-						p.warn(fmt.Sprintf("Unknown message command %q", cmd))
-					}
-				}
+			if name == "" {
+				// Send a warning if the command is unknown
+				// This might mean our proto files are out of date
+				p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Unknown message command %q", cmd)})
 			}
 
 			// On to the next one

@@ -309,3 +309,9 @@ type DataTablesParsedEvent struct{}
 type StringTableCreatedEvent struct {
 	TableName string
 }
+
+// ParserWarnEvent signals that a non-fatal problem occurred during parsing.
+// This is a beta feature, it may be replaced or changed without notice.
+type ParserWarnEvent struct {
+	Message string
+}
