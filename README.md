@@ -115,6 +115,24 @@ Round finished: winnerSide=T  ; score=16:13
 ```
 </details>
 
+## Features
+
+* Game events
+* Access to entities, server-classes & data-tables
+* Access to all net-messages
+* Chat & console messages <sup id="achat1">1</sup>
+* [Easy debugging](###Debugging) via build-flags
+* Built with concurrency in mind
+
+1. <small id="f1">Only for some demos; in MM demos the chat is encrypted for example.</small>
+
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/markus-wa/demoinfocs-golang/tags).
+There is one caveat however: Beta features - which are marked as such via comments and in release notes - may change in minor releases.
+
+It's recommended to use some kind of dependency management system such as [dep](https://github.com/golang/dep) to ensure reproducible builds.
+
 ## Development
 
 ### Running tests
