@@ -11,11 +11,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/markus-wa/godispatch"
+	proto "github.com/gogo/protobuf/proto"
+	dispatch "github.com/markus-wa/godispatch"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
+	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
 const csDemosPath = "test/cs-demos"
@@ -38,6 +40,9 @@ func TestDemoInfoCs(t *testing.T) {
 
 	p := dem.NewParserWithConfig(f, dem.ParserConfig{
 		MsgQueueBufferSize: 1000,
+		AdditionalNetMessageCreators: map[int]dem.NetMessageCreator{
+			4: func() proto.Message { return new(msg.CNETMsg_Tick) },
+		},
 	})
 
 	fmt.Println("Parsing header")
@@ -96,6 +101,13 @@ func TestDemoInfoCs(t *testing.T) {
 			// We know there should be 10 players at match start in the default demo
 			t.Error("Expected 10 players; got", nPlayers)
 		}
+	})
+
+	// Net-message stuff
+	var netTickHandlerID dispatch.HandlerIdentifier
+	netTickHandlerID = p.RegisterNetMessageHandler(func(tick *msg.CNETMsg_Tick) {
+		fmt.Println("Net-message tick handled, unregistering - tick:", tick.Tick)
+		p.UnregisterNetMessageHandler(netTickHandlerID)
 	})
 
 	ts := time.Now()

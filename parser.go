@@ -19,31 +19,32 @@ import (
 // After parsing the header Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo.
 // Use Parser.RegisterEventHandler() to receive notifications about events.
 type Parser struct {
-	bitReader             *bit.BitReader
-	stParser              st.SendTableParser
-	msgDispatcher         dp.Dispatcher
-	eventDispatcher       dp.Dispatcher
-	msgQueue              chan interface{}
-	gameState             GameState
-	currentFrame          int
-	bombsiteA             bombsite
-	bombsiteB             bombsite
-	header                *common.DemoHeader // Pointer so we can check for nil
-	equipmentMapping      map[*st.ServerClass]common.EquipmentElement
-	rawPlayers            map[int]*playerInfo
-	entityIDToPlayers     map[int]*common.Player // Temporary storage since we need to map players from entityID to userID later
-	additionalPlayerInfo  [maxPlayers]common.AdditionalPlayerInformation
-	entities              map[int]*st.Entity
-	modelPreCache         []string                      // Used to find out whether a weapon is a p250 or cz for example (same id)
-	weapons               [maxEntities]common.Equipment // Used to remember what a weapon is (p250 / cz etc.)
-	triggers              map[int]*boundingBoxInformation
-	instanceBaselines     map[int][]byte
-	preprocessedBaselines map[int]map[int]st.PropValue
-	gameEventDescs        map[int32]*msg.CSVCMsg_GameEventListDescriptorT
-	stringTables          []*msg.CSVCMsg_CreateStringTable
-	cancelChan            chan struct{}
-	err                   error
-	errLock               sync.Mutex
+	bitReader                    *bit.BitReader
+	stParser                     st.SendTableParser
+	msgDispatcher                dp.Dispatcher
+	additionalNetMessageCreators map[int]NetMessageCreator
+	eventDispatcher              dp.Dispatcher
+	msgQueue                     chan interface{}
+	gameState                    GameState
+	currentFrame                 int
+	bombsiteA                    bombsite
+	bombsiteB                    bombsite
+	header                       *common.DemoHeader // Pointer so we can check for nil
+	equipmentMapping             map[*st.ServerClass]common.EquipmentElement
+	rawPlayers                   map[int]*playerInfo
+	entityIDToPlayers            map[int]*common.Player // Temporary storage since we need to map players from entityID to userID later
+	additionalPlayerInfo         [maxPlayers]common.AdditionalPlayerInformation
+	entities                     map[int]*st.Entity
+	modelPreCache                []string                      // Used to find out whether a weapon is a p250 or cz for example (same id)
+	weapons                      [maxEntities]common.Equipment // Used to remember what a weapon is (p250 / cz etc.)
+	triggers                     map[int]*boundingBoxInformation
+	instanceBaselines            map[int][]byte
+	preprocessedBaselines        map[int]map[int]st.PropValue
+	gameEventDescs               map[int32]*msg.CSVCMsg_GameEventListDescriptorT
+	stringTables                 []*msg.CSVCMsg_CreateStringTable
+	cancelChan                   chan struct{}
+	err                          error
+	errLock                      sync.Mutex
 }
 
 type bombsite struct {
@@ -100,15 +101,31 @@ func (p *Parser) Progress() float32 {
 // Must be of type func(<EventType>) where EventType is the kind of event that is handled.
 // To catch all events func(interface{}) can be used.
 // Parameter handler has to be of type interface{} because lolnogenerics.
-// Returns a identifier with which the handler can be removed via UnregisterEventHandler()
+// Returns a identifier with which the handler can be removed via UnregisterEventHandler().
 func (p *Parser) RegisterEventHandler(handler interface{}) dp.HandlerIdentifier {
 	return p.eventDispatcher.RegisterHandler(handler)
 }
 
-// UnregisterEventHandler removes a handler via identifier.
-// The identifier is returned at registration by RegisterEventHandler()
+// UnregisterEventHandler removes a game event handler via identifier.
+// The identifier is returned at registration by RegisterEventHandler().
 func (p *Parser) UnregisterEventHandler(identifier dp.HandlerIdentifier) {
 	p.eventDispatcher.UnregisterHandler(identifier)
+}
+
+// RegisterNetMessageHandler registers a handler for net-messages.
+// Must be of type func(*<EventType>) where EventType is the kind of event that is handled.
+// To catch all events func(interface{}) can be used.
+// Parameter handler has to be of type interface{} because lolnogenerics.
+// Returns a identifier with which the handler can be removed via UnregisterNetMessageHandler().
+// This is a beta feature and may be changed or replaced without notice.
+func (p *Parser) RegisterNetMessageHandler(handler interface{}) dp.HandlerIdentifier {
+	return p.msgDispatcher.RegisterHandler(handler)
+}
+
+// UnregisterNetMessageHandler removes a net-message handler via identifier.
+// The identifier is returned at registration by RegisterNetMessageHandler().
+func (p *Parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
+	p.msgDispatcher.UnregisterHandler(identifier)
 }
 
 func (p *Parser) error() (err error) {
@@ -143,6 +160,12 @@ type ParserConfig struct {
 	// this is the default behavior for DefaultParserConfig.
 	// Zero enforces sequential parsing.
 	MsgQueueBufferSize int
+	// AdditionalNetMessageCreators maps net-message-IDs to creators (instantiators).
+	// The creators should return a new instance of the correct protobuf-message type (from the msg package).
+	// Interesting net-message-IDs can easily be discovered with the build-tag 'debugdemoinfocs'; when looking for 'UnhandledMessage'.
+	// Check out demopacket.go to see which net-messages are already being parsed by default.
+	// This is a beta feature and may be changed or replaced without notice.
+	AdditionalNetMessageCreators map[int]NetMessageCreator
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
@@ -181,6 +204,8 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	if config.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(config.MsgQueueBufferSize)
 	}
+
+	p.additionalNetMessageCreators = config.AdditionalNetMessageCreators
 
 	return &p
 }

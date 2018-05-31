@@ -65,7 +65,14 @@ func (p *Parser) parsePacket() {
 				debugUnhandledMessage(cmd, name)
 			}
 
-			if name == "" {
+			if name != "" {
+				// Handle additional net-messages as defined by the user
+				creator := p.additionalNetMessageCreators[cmd]
+				if creator != nil {
+					m = creator()
+					break
+				}
+			} else {
 				// Send a warning if the command is unknown
 				// This might mean our proto files are out of date
 				p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Unknown message command %q", cmd)})
@@ -93,6 +100,10 @@ func (p *Parser) parsePacket() {
 	}
 	p.bitReader.EndChunk()
 }
+
+// NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
+// See also: ParserConfig.AdditionalNetMessageCreators & Parser.RegisterNetMessageHandler()
+type NetMessageCreator func() proto.Message
 
 /*
 Format of 'CommandInfos' - I honestly have no clue what they are good for.
