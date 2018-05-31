@@ -5,6 +5,7 @@ import (
 	r3 "github.com/golang/geo/r3"
 
 	common "github.com/markus-wa/demoinfocs-golang/common"
+	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
 // HeaderParsedEvent signals that the header has been parsed.
@@ -314,4 +315,10 @@ type StringTableCreatedEvent struct {
 // This is a beta feature, it may be replaced or changed without notice.
 type ParserWarnEvent struct {
 	Message string
+}
+
+// GenericGameEvent signals a otherwise unhandled event.
+type GenericGameEvent struct {
+	Name string
+	Data map[string]*msg.CSVCMsg_GameEventKeyT
 }

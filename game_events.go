@@ -372,40 +372,71 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	// TODO: Might be interesting:
 	case "player_connect_full": // Connecting finished
+		fallthrough
 	case "player_falldamage": // Falldamage
+		fallthrough
 	case "weapon_zoom": // Zooming in
+		fallthrough
 	case "weapon_reload": // Weapon reloaded
+		fallthrough
 	case "bomb_dropped": // Bomb dropped
+		fallthrough
 	case "bomb_pickup": // Bomb picked up
+		fallthrough
 	case "round_time_warning": // Round time warning
+		fallthrough
 	case "round_announce_match_point": // Match point announcement
+		fallthrough
 	case "player_changename": // Name change
+		fallthrough
 
-	// Probably not that interesting:
+	// Probably not that interesting but we'll still emit the GenericGameEvent:
 	case "buytime_ended": // Not actually end of buy time, seems to only be sent once per game at the start
+		fallthrough
 	case "round_announce_match_start": // Special match start announcement
+		fallthrough
 	case "bomb_beep": // Bomb beep
+		fallthrough
 	case "player_spawn": // Player spawn
+		fallthrough
 	case "hltv_status": // Don't know
+		fallthrough
 	case "hltv_chase": // Don't care
+		fallthrough
 	case "cs_round_start_beep": // Round start beeps
+		fallthrough
 	case "cs_round_final_beep": // Final beep
+		fallthrough
 	case "cs_pre_restart": // Not sure, doesn't seem to be important
+		fallthrough
 	case "round_prestart": // Ditto
+		fallthrough
 	case "round_poststart": // Ditto
+		fallthrough
 	case "cs_win_panel_round": // Win panel, (==end of match?)
+		fallthrough
 	case "endmatch_cmm_start_reveal_items": // Drops
+		fallthrough
 	case "announce_phase_end": // Dunno
+		fallthrough
 	case "tournament_reward": // Dunno
+		fallthrough
 	case "other_death": // Dunno
+		fallthrough
 	case "round_announce_warmup": // Dunno
+		fallthrough
 	case "server_cvar": // Dunno
+		fallthrough
 	case "weapon_fire_on_empty": // Sounds boring
+		fallthrough
 	case "hltv_fixed": // Dunno
+		fallthrough
 	case "cs_match_end_restart": // Yawn
+		p.eventDispatcher.Dispatch(events.GenericGameEvent{Name: d.Name, Data: mapGameEventData(d, ge)})
 
 	default:
 		p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Unknown event %q", d.Name)})
+		p.eventDispatcher.Dispatch(events.GenericGameEvent{Name: d.Name, Data: mapGameEventData(d, ge)})
 	}
 }
 
