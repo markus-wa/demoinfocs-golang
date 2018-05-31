@@ -10,7 +10,7 @@ Is a high performance CS:GO demo parser written in Go based on [Valve's demoinfo
 
 ## Discussions / Chat
 
-Use gitter to ask questions and discuss ideas about this project.<br>
+You can use gitter to ask questions and discuss ideas about this project.<br>
 There are also [some other rooms](https://gitter.im/csgodemos) available around the topic of CS:GO demos.
 
 [![Gitter chat](https://badges.gitter.im/csgodemos/demoinfo-lib.png)](https://gitter.im/csgodemos/demoinfo-lib)
