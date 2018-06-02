@@ -58,6 +58,17 @@ func (gs GameState) PlayingParticipants() []*common.Player {
 	return r
 }
 
+// TeamMembers returns all players belonging to the requested team.
+func (gs GameState) TeamMembers(team common.Team) []*common.Player {
+	r := make([]*common.Player, 0, len(gs.players))
+	for _, ptcp := range gs.players {
+		if ptcp.Team == team {
+			r = append(r, ptcp)
+		}
+	}
+	return r
+}
+
 func newGameState() GameState {
 	return GameState{players: make(map[int]*common.Player)}
 }

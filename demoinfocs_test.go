@@ -103,6 +103,14 @@ func TestDemoInfoCs(t *testing.T) {
 			// We know there should be 10 players at match start in the default demo
 			t.Error("Expected 10 players; got", nPlayers)
 		}
+		if nTerrorists := len(gs.TeamMembers(common.TeamTerrorists)); nTerrorists != 5 {
+			// We know there should be 5 terrorists at match start in the default demo
+			t.Error("Expected 5 terrorists; got", nTerrorists)
+		}
+		if nCTs := len(gs.TeamMembers(common.TeamCounterTerrorists)); nCTs != 5 {
+			// We know there should be 5 CTs at match start in the default demo
+			t.Error("Expected 5 CTs; got", nCTs)
+		}
 	})
 
 	// Net-message stuff
