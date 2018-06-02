@@ -21,50 +21,47 @@ There are also [some other rooms](https://gitter.im/csgodemos) available around 
 
 ## Example
 
-This is a simple example on how to use the library. After each round (on every `RoundEndedEvent`) it prints out which team won.
+This is a simple example on how to use the library. It collects all positions where weapons were fired and creates a heatmap using [go-heatmap](https://github.com/dustin/go-heatmap).
 
-Check out the godoc of the `events` package for some more information about the available events and their purpose.
+Check out the `examples` folder for more examples and the godoc of the `events` package for some information about the other available events and their purpose.
 
 ```go
+package main
+
 import (
-	"fmt"
+	"image"
+	"image/png"
 	"log"
 	"os"
 
+	heatmap "github.com/dustin/go-heatmap"
+	schemes "github.com/dustin/go-heatmap/schemes"
+
 	dem "github.com/markus-wa/demoinfocs-golang"
-	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 )
 
+// Run like this: go run heatmap.go > out.png
 func main() {
-	f, err := os.Open("path/to/demo.dem")
+	f, err := os.Open("/path/to/demo.dem")
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer f.Close()
+
+	p := dem.NewParser(f)
+
+	// Parse header (contains map-name etc.)
+	_, err = p.ParseHeader()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	p := dem.NewParser(f)
-
-	// Parse header
-	h, err := p.ParseHeader()
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println("Map:", h.MapName)
-
-	// Register handler on round end to figure out who won
-	p.RegisterEventHandler(func(e events.RoundEndedEvent) {
-		gs := p.GameState()
-		switch e.Winner {
-		case common.TeamTerrorists:
-			// Winner's score + 1 because it hasn't actually been updated yet
-			fmt.Printf("Round finished: winnerSide=T  ; score=%d:%d\n", gs.TState().Score()+1, gs.CTState().Score())
-		case common.TeamCounterTerrorists:
-			fmt.Printf("Round finished: winnerSide=CT ; score=%d:%d\n", gs.CTState().Score()+1, gs.TState().Score())
-		default:
-			// Probably match medic or something similar
-			fmt.Println("Round finished: No winner (tie)")
-		}
+	// Register handler for WeaponFiredEvent, triggered every time a shot is fired
+	points := []heatmap.DataPoint{}
+	p.RegisterEventHandler(func(e events.WeaponFiredEvent) {
+		// Add shooter's position as datapoint
+		points = append(points, heatmap.P(e.Shooter.Position.X, e.Shooter.Position.Y))
 	})
 
 	// Parse to end
@@ -72,48 +69,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Generate heatmap and write to standard output
+	img := heatmap.Heatmap(image.Rect(0, 0, 1024, 1024), points, 15, 128, schemes.AlphaFire)
+	png.Encode(os.Stdout, img)
 }
 ```
 
-<details>
-<summary>Sample output</summary>
+### Result
 
-```
-Map: de_cache
-Round finished: winnerSide=CT ; score=1:0
-Round finished: winnerSide=CT ; score=2:0
-Round finished: winnerSide=CT ; score=3:0
-Round finished: winnerSide=CT ; score=4:0
-Round finished: winnerSide=CT ; score=5:0
-Round finished: winnerSide=T  ; score=1:5
-Round finished: winnerSide=CT ; score=6:1
-Round finished: winnerSide=T  ; score=2:6
-Round finished: winnerSide=CT ; score=7:2
-Round finished: winnerSide=T  ; score=3:7
-Round finished: winnerSide=CT ; score=8:3
-Round finished: winnerSide=CT ; score=9:3
-Round finished: winnerSide=CT ; score=10:3
-Round finished: winnerSide=CT ; score=11:3
-Round finished: winnerSide=T  ; score=4:11
-Round finished: winnerSide=CT ; score=5:11
-Round finished: winnerSide=T  ; score=12:5
-Round finished: winnerSide=CT ; score=6:12
-Round finished: winnerSide=CT ; score=7:12
-Round finished: winnerSide=CT ; score=8:12
-Round finished: winnerSide=CT ; score=9:12
-Round finished: winnerSide=T  ; score=13:9
-Round finished: winnerSide=CT ; score=10:13
-Round finished: No winner (tie)
-Round finished: No winner (tie)
-Round finished: No winner (tie)
-Round finished: winnerSide=T  ; score=14:10
-Round finished: winnerSide=CT ; score=11:14
-Round finished: winnerSide=T  ; score=15:11
-Round finished: winnerSide=CT ; score=12:15
-Round finished: winnerSide=CT ; score=13:15
-Round finished: winnerSide=T  ; score=16:13
-```
-</details>
+Running the above code (`go run heatmap.go > heatmap.png`) will create a PNG with dots on all the locations where shots were fired (the heatmap 'overlay').
+
+This doesn't look too interesting on it's own but that can be helped by quickly mapping it to the map overview in an image editing tool (2 min tops, no skills required).
+
+![Resulting heatmap before and after mapping to map overview](https://raw.githubusercontent.com/markus-wa/demoinfocs-golang/dev/examples/heatmap/heatmap.jpg)
 
 ## Features
 

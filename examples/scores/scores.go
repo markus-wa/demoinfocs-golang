@@ -1,29 +1,30 @@
-package demoinfocs_test
+package main
 
 import (
 	"fmt"
+	"log"
 	"os"
-	"testing"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 )
 
-// Make sure the example from the README.md compiles and runs.
-func TestExample(t *testing.T) {
+const defaultDemPath = "../../test/cs-demos/default.dem"
+
+func main() {
 	f, err := os.Open(defaultDemPath)
-	if err != nil {
-		t.Fatal(err)
-	}
 	defer f.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	p := dem.NewParser(f)
 
 	// Parse header
 	h, err := p.ParseHeader()
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	fmt.Println("Map:", h.MapName)
 
@@ -45,6 +46,6 @@ func TestExample(t *testing.T) {
 	// Parse to end
 	err = p.ParseToEnd()
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 }

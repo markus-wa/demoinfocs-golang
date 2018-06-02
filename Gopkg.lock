@@ -2,6 +2,15 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/dustin/go-heatmap"
+  packages = [
+    ".",
+    "schemes"
+  ]
+  revision = "b89dbd73785a2348b5e0558f719f27a826987ceb"
+
+[[projects]]
   name = "github.com/gogo/protobuf"
   packages = [
     "proto",
@@ -34,6 +43,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c30d26101b68a189d54f5224a272137333023e6c097a13a2a886eb4b135f54ff"
+  inputs-digest = "6c0c3a560c7e37da5f12101216c9966e21c426de8e758c2da3e24ec1fee9b164"
   solver-name = "gps-cdcl"
   solver-version = 1

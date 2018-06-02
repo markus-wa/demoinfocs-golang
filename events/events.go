@@ -23,7 +23,9 @@ type MatchStartedEvent struct{}
 // RoundAnnounceMatchStartedEvent signals that the announcement "Match Started" has been displayed.
 type RoundAnnounceMatchStartedEvent struct{}
 
-// RoundEndedEvent signals that the last round is over
+// RoundEndedEvent signals that a round just finished.
+// Attention: TeamState.Score() won't be up to date yet after this.
+// Add +1 to the winner's score as a workaround.
 type RoundEndedEvent struct {
 	Message string
 	Reason  common.RoundEndReason
