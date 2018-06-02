@@ -17,6 +17,7 @@ import (
 	dem "github.com/markus-wa/demoinfocs-golang"
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
+	fuzzy "github.com/markus-wa/demoinfocs-golang/fuzzy"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
@@ -24,6 +25,7 @@ const csDemosPath = "test/cs-demos"
 const demSetPath = csDemosPath + "/set"
 const defaultDemPath = csDemosPath + "/default.dem"
 const unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
+const valveMatchmakingDemoPath = csDemosPath + "/valve_matchmaking.dem"
 
 func init() {
 	if _, err := os.Stat(defaultDemPath); err != nil {
@@ -163,6 +165,54 @@ func TestUnexpectedEndOfDemo(t *testing.T) {
 	err = p.ParseToEnd()
 	if err != dem.ErrUnexpectedEndOfDemo {
 		t.Fatal("Parsing cancelled but error was not ErrUnexpectedEndOfDemo:", err)
+	}
+}
+
+func TestValveMatchmakingFuzzyEmitters(t *testing.T) {
+	f, err := os.Open(valveMatchmakingDemoPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	cfg := dem.DefaultParserConfig
+	cfg.AdditionalEventEmitters = []dem.EventEmitter{new(fuzzy.ValveMatchmakingTeamSwitchEmitter)}
+
+	p := dem.NewParserWithConfig(f, cfg)
+	_, err = p.ParseHeader()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	teamSwitchDone := false
+	tScoreBeforeSwap, ctScoreBeforeSwap := -1, -1
+	p.RegisterEventHandler(func(ev events.RoundEndedEvent) {
+		switch ev.Winner {
+		case common.TeamTerrorists:
+			tScoreBeforeSwap = p.GameState().TState().Score() + 1
+
+		case common.TeamCounterTerrorists:
+			ctScoreBeforeSwap = p.GameState().CTState().Score() + 1
+		}
+	})
+
+	p.RegisterEventHandler(func(fuzzy.TeamSwitchEvent) {
+		teamSwitchDone = true
+		if tScoreBeforeSwap != p.GameState().CTState().Score() {
+			t.Error("T-Score before swap != CT-Score after swap")
+		}
+		if ctScoreBeforeSwap != p.GameState().TState().Score() {
+			t.Error("CT-Score before swap != T-Score after swap")
+		}
+	})
+
+	err = p.ParseToEnd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !teamSwitchDone {
+		t.Fatal("TeamSwitchEvent not received")
 	}
 }
 

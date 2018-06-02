@@ -166,6 +166,18 @@ type ParserConfig struct {
 	// Check out demopacket.go to see which net-messages are already being parsed by default.
 	// This is a beta feature and may be changed or replaced without notice.
 	AdditionalNetMessageCreators map[int]NetMessageCreator
+	// AdditionalEventEmitters contains additional event emitters - either from the fuzzy package or custom ones.
+	// This is mainly used to add logic specifically for one type of demo (e.g. Matchmaking, FaceIt etc.).
+	// This is a beta feature and may be changed or replaced without notice.
+	// See also: package fuzzy for existing emitters with fuzzy-logic that depends on the demo-type.
+	AdditionalEventEmitters []EventEmitter
+}
+
+// EventEmitter is the interface to define additional event-emitters.
+// The emitters may fire additional events by calling the eventDispatcher function received during registration of the emitter.
+// See also: package fuzzy for existing emitters with fuzzy-logic that depends on the demo-type.
+type EventEmitter interface {
+	Register(parser *Parser, eventDispatcher func(event interface{}))
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
@@ -206,6 +218,10 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	}
 
 	p.additionalNetMessageCreators = config.AdditionalNetMessageCreators
+
+	for _, emitter := range config.AdditionalEventEmitters {
+		emitter.Register(&p, p.eventDispatcher.Dispatch)
+	}
 
 	return &p
 }
