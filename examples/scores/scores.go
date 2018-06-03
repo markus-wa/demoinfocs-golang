@@ -15,17 +15,13 @@ const defaultDemPath = "../../test/cs-demos/default.dem"
 func main() {
 	f, err := os.Open(defaultDemPath)
 	defer f.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErr(err)
 
 	p := dem.NewParser(f)
 
 	// Parse header
 	h, err := p.ParseHeader()
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErr(err)
 	fmt.Println("Map:", h.MapName)
 
 	// Register handler on round end to figure out who won
@@ -45,6 +41,10 @@ func main() {
 
 	// Parse to end
 	err = p.ParseToEnd()
+	checkErr(err)
+}
+
+func checkErr(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}

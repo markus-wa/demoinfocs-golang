@@ -18,18 +18,14 @@ const defaultDemPath = "../../test/cs-demos/default.dem"
 // Run like this: go run heatmap.go > out.png
 func main() {
 	f, err := os.Open(defaultDemPath)
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErr(err)
 	defer f.Close()
 
 	p := dem.NewParser(f)
 
 	// Parse header (contains map-name etc.)
 	_, err = p.ParseHeader()
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErr(err)
 
 	// Register handler for WeaponFiredEvent, triggered every time a shot is fired
 	points := []heatmap.DataPoint{}
@@ -40,11 +36,15 @@ func main() {
 
 	// Parse to end
 	err = p.ParseToEnd()
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErr(err)
 
 	// Generate heatmap and write to standard output
 	img := heatmap.Heatmap(image.Rect(0, 0, 1024, 1024), points, 15, 128, schemes.AlphaFire)
 	png.Encode(os.Stdout, img)
+}
+
+func checkErr(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
