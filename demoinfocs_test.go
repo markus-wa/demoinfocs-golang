@@ -2,6 +2,7 @@ package demoinfocs_test
 
 import (
 	"bytes"
+	"crypto/rand"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -255,6 +256,33 @@ func TestCancelParseToEnd(t *testing.T) {
 	}
 	if tix > maxTicks {
 		t.Error("TickDoneEvent handler was triggered after being unregistered")
+	}
+}
+
+func TestInvalidFileType(t *testing.T) {
+	invalidDemoData := make([]byte, 2048)
+	rand.Read(invalidDemoData)
+
+	p := dem.NewParser(bytes.NewBuffer(invalidDemoData))
+
+	_, err := p.ParseHeader()
+	if err != dem.ErrInvalidFileType {
+		t.Fatal("Invalid demo but error was not ErrInvalidFileType:", err)
+	}
+}
+
+func TestHeaderNotParsed(t *testing.T) {
+	f, err := os.Open(defaultDemPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	p := dem.NewParser(f)
+
+	err = p.ParseToEnd()
+	if err != dem.ErrHeaderNotParsed {
+		t.Fatal("Tried to parse tick before header but error was not ErrHeaderNotParsed:", err)
 	}
 }
 
