@@ -6,7 +6,7 @@ import (
 )
 
 // Just make sure the example runs
-func TestScores(t *testing.T) {
+func TestHeatmap(t *testing.T) {
 	old := os.Stdout
 	_, w, _ := os.Pipe()
 	os.Stdout = w
