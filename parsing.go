@@ -16,10 +16,6 @@ const (
 	playerWeaponPrePrefix = "bcc_nonlocaldata."
 )
 
-const (
-	msgHeaderNotParsed = "Tried to parse tick before parsing header"
-)
-
 // Parsing errors
 var (
 	// ErrCancelled signals that parsing was cancelled via Parser.Cancel()
@@ -31,6 +27,9 @@ var (
 
 	// ErrInvalidFileType signals that the input isn't a valid CS:GO demo.
 	ErrInvalidFileType = errors.New("Invalid File-Type; expecting HL2DEMO in the first 8 bytes")
+
+	// ErrHeaderNotParsed signals that the header hasn't been parsed before attempting to parse a tick.
+	ErrHeaderNotParsed = errors.New("Header must be parsed before trying to parse a tick. See Parser.ParseHeader()")
 )
 
 // ParseHeader attempts to parse the header of the demo.
@@ -67,8 +66,7 @@ func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 
 // ParseToEnd attempts to parse the demo until the end.
 // Aborts and returns ErrCancelled if Cancel() is called before the end.
-// May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
-// May panic if the demo is corrupt in some way.
+// See also: ParseNextFrame() for other possible errors.
 func (p *Parser) ParseToEnd() (err error) {
 	defer func() {
 		if err == nil {
@@ -77,7 +75,7 @@ func (p *Parser) ParseToEnd() (err error) {
 	}()
 
 	if p.header == nil {
-		panic(msgHeaderNotParsed)
+		return ErrHeaderNotParsed
 	}
 
 	for {
@@ -121,8 +119,10 @@ func (p *Parser) Cancel() {
 
 // ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
 // Returns true unless the demo command 'stop' or an error was encountered.
+// Returns an error if the header hasn't been parsed yet - see Parser.ParseHeader().
 // May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
-// Panics if header hasn't been parsed yet - see Parser.ParseHeader().
+// May panic if the demo is corrupt in some way.
+// See also: ParseToEnd() for parsing the complete demo in one go (faster).
 func (p *Parser) ParseNextFrame() (b bool, err error) {
 	defer func() {
 		if err == nil {
@@ -131,7 +131,7 @@ func (p *Parser) ParseNextFrame() (b bool, err error) {
 	}()
 
 	if p.header == nil {
-		panic(msgHeaderNotParsed)
+		return false, ErrHeaderNotParsed
 	}
 
 	b = p.parseFrame()
