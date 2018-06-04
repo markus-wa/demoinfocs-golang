@@ -22,7 +22,7 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
-const csDemosPath = "test/cs-demos"
+const csDemosPath = "cs-demos"
 const demSetPath = csDemosPath + "/set"
 const defaultDemPath = csDemosPath + "/default.dem"
 const unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"

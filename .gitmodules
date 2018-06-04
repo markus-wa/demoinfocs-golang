@@ -1,5 +1,5 @@
 [submodule "cs-demos"]
-	path = test/cs-demos
+	path = cs-demos
 	url = https://gitlab.com/markus-wa/cs-demos
 	branch = master
 [submodule "vendor"]
