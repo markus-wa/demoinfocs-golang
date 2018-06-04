@@ -8,20 +8,20 @@ import (
 	dem "github.com/markus-wa/demoinfocs-golang"
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
+	ex "github.com/markus-wa/demoinfocs-golang/examples"
 )
 
-const defaultDemPath = "../../test/cs-demos/default.dem"
-
+// Run like this: go run scores.go -demo /path/to/demo.dem > out.png
 func main() {
-	f, err := os.Open(defaultDemPath)
+	f, err := os.Open(ex.DemoPathFromArgs())
 	defer f.Close()
-	checkErr(err)
+	checkError(err)
 
 	p := dem.NewParser(f)
 
 	// Parse header
 	h, err := p.ParseHeader()
-	checkErr(err)
+	checkError(err)
 	fmt.Println("Map:", h.MapName)
 
 	// Register handler on round end to figure out who won
@@ -41,10 +41,10 @@ func main() {
 
 	// Parse to end
 	err = p.ParseToEnd()
-	checkErr(err)
+	checkError(err)
 }
 
-func checkErr(err error) {
+func checkError(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
