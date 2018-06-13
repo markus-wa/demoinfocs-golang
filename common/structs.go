@@ -103,7 +103,7 @@ type Equipment struct {
 // Class returns the class of the equipment.
 // E.g. pistol, smg, heavy etc.
 func (e Equipment) Class() EquipmentClass {
-	return EquipmentClass(int(e.Weapon) / 100)
+	return e.Weapon.Class()
 }
 
 // NewEquipment is a wrapper for NewSkinEquipment to create weapons without skins.

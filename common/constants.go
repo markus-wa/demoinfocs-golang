@@ -143,6 +143,12 @@ const (
 	EqHE         EquipmentElement = 506
 )
 
+// Class returns the class of the equipment.
+// E.g. pistol, smg, heavy etc.
+func (e EquipmentElement) Class() EquipmentClass {
+	return EquipmentClass((int(e) + 99) / 100)
+}
+
 // EquipmentClass constants give information about the type of an equipment (SMG, Rifle, Grenade etc.).
 // Note: EquipmentElement / 100 = EquipmentClass
 const (
