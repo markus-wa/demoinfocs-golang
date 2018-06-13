@@ -298,7 +298,7 @@ func (p *Parser) bindWeapons() {
 }
 
 func (p *Parser) bindWeapon(event st.EntityCreatedEvent) {
-	eq := p.weapons[event.Entity.ID]
+	eq := &p.weapons[event.Entity.ID]
 	eq.EntityID = event.Entity.ID
 	eq.Weapon = p.equipmentMapping[event.ServerClass]
 	eq.AmmoInMagazine = -1
