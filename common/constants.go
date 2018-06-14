@@ -118,6 +118,7 @@ const (
 	EqM4A1   EquipmentElement = 305
 	EqScout  EquipmentElement = 306
 	EqSG556  EquipmentElement = 307
+	EqSG553  EquipmentElement = 307
 	EqAUG    EquipmentElement = 308
 	EqAWP    EquipmentElement = 309
 	EqScar20 EquipmentElement = 310
@@ -147,6 +148,12 @@ const (
 // E.g. pistol, smg, heavy etc.
 func (e EquipmentElement) Class() EquipmentClass {
 	return EquipmentClass((int(e) + 99) / 100)
+}
+
+// String returns a human readable name for the equipment.
+// E.g. AK-47, UMP-45, Smoke Grenade etc.
+func (e EquipmentElement) String() string {
+	return eqElementToName[e]
 }
 
 // EquipmentClass constants give information about the type of an equipment (SMG, Rifle, Grenade etc.).

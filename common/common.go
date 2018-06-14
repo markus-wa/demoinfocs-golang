@@ -13,7 +13,14 @@ import (
 
 var eqNameToWeapon map[string]EquipmentElement
 
+var eqElementToName map[EquipmentElement]string
+
 func init() {
+	initEqNameToWeapon()
+	initEqEementToName()
+}
+
+func initEqNameToWeapon() {
 	eqNameToWeapon = make(map[string]EquipmentElement)
 	eqNameToWeapon["ak47"] = EqAK47
 	eqNameToWeapon["aug"] = EqAUG
@@ -70,6 +77,55 @@ func init() {
 	eqNameToWeapon["vest"] = EqKevlar
 	eqNameToWeapon["vesthelm"] = EqHelmet
 	eqNameToWeapon["defuser"] = EqDefuseKit
+}
+
+func initEqEementToName() {
+	eqElementToName = make(map[EquipmentElement]string)
+	eqElementToName[EqAK47] = "AK-47"
+	eqElementToName[EqAUG] = "AUG"
+	eqElementToName[EqAWP] = "AWP"
+	eqElementToName[EqBizon] = "PP-Bizon"
+	eqElementToName[EqBomb] = "C4"
+	eqElementToName[EqDeagle] = "Desert Eagle"
+	eqElementToName[EqDecoy] = "Decoy Grenade"
+	eqElementToName[EqDualBarettas] = "Dual Barettas"
+	eqElementToName[EqFamas] = "FAMAS"
+	eqElementToName[EqFiveSeven] = "Five-SeveN"
+	eqElementToName[EqFlash] = "Flashbang"
+	eqElementToName[EqG3SG1] = "G3SG1"
+	eqElementToName[EqGalil] = "Galil AR"
+	eqElementToName[EqGlock] = "Glock-18"
+	eqElementToName[EqHE] = "HE Grenade"
+	eqElementToName[EqP2000] = "P2000"
+	eqElementToName[EqIncendiary] = "Incendiary Grenade"
+	eqElementToName[EqM249] = "M249"
+	eqElementToName[EqM4A4] = "M4A1"
+	eqElementToName[EqMac10] = "MAC-10"
+	eqElementToName[EqSwag7] = "MAG-7"
+	eqElementToName[EqMolotov] = "Molotov"
+	eqElementToName[EqMP7] = "MP7"
+	eqElementToName[EqMP9] = "MP9"
+	eqElementToName[EqNegev] = "Negev"
+	eqElementToName[EqNova] = "Nova"
+	eqElementToName[EqP250] = "p250"
+	eqElementToName[EqP90] = "P90"
+	eqElementToName[EqSawedOff] = "Sawed-Off"
+	eqElementToName[EqScar20] = "SCAR-20"
+	eqElementToName[EqSG553] = "SG 553"
+	eqElementToName[EqSmoke] = "Smoke Grenade"
+	eqElementToName[EqScout] = "SSG 08"
+	eqElementToName[EqZeus] = "Zeus x27"
+	eqElementToName[EqTec9] = "Tec-9"
+	eqElementToName[EqUMP] = "UMP-45"
+	eqElementToName[EqXM1014] = "XM1014"
+	eqElementToName[EqM4A1] = "M4A1"
+	eqElementToName[EqCZ] = "CZ75 Auto"
+	eqElementToName[EqUSP] = "USP-S"
+	eqElementToName[EqWorld] = "World"
+	eqElementToName[EqRevolver] = "R8 Revolver"
+	eqElementToName[EqKevlar] = "Kevlar Vest"
+	eqElementToName[EqHelmet] = "Kevlar + Helmet"
+	eqElementToName[EqDefuseKit] = "Defuse Kit"
 }
 
 // MapEquipment creates an EquipmentElement from the name of the weapon / equipment.
