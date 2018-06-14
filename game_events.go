@@ -115,61 +115,45 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "weapon_fire": // Weapon was fired
 		data = mapGameEventData(d, ge)
 
-		e := events.WeaponFiredEvent{Shooter: p.gameState.players[int(data["userid"].GetValShort())]}
+		shooter := p.gameState.players[int(data["userid"].GetValShort())]
 		wep := common.NewEquipment(data["weapon"].GetValString())
 
-		if e.Shooter != nil && wep.Class() != common.EqClassGrenade {
-			e.Weapon = e.Shooter.ActiveWeapon()
-		} else {
-			e.Weapon = &wep
-		}
-
-		p.eventDispatcher.Dispatch(e)
+		p.eventDispatcher.Dispatch(events.WeaponFiredEvent{
+			Shooter: shooter,
+			Weapon:  getAttackingWeapon(&wep, shooter),
+		})
 
 	case "player_death": // Player died
 		data = mapGameEventData(d, ge)
 
-		e := events.PlayerKilledEvent{
+		killer := p.gameState.players[int(data["attacker"].GetValShort())]
+		wep := common.NewSkinEquipment(data["weapon"].GetValString(), data["weapon_itemid"].GetValString())
+
+		p.eventDispatcher.Dispatch(events.PlayerKilledEvent{
 			Victim:            p.gameState.players[int(data["userid"].GetValShort())],
-			Killer:            p.gameState.players[int(data["attacker"].GetValShort())],
+			Killer:            killer,
 			Assister:          p.gameState.players[int(data["assister"].GetValShort())],
 			IsHeadshot:        data["headshot"].GetValBool(),
 			PenetratedObjects: int(data["penetrated"].GetValShort()),
-		}
-
-		wep := common.NewSkinEquipment(data["weapon"].GetValString(), data["weapon_itemid"].GetValString())
-
-		// FIXME: Should we do that last weapons > 0 check above as well?????
-		if e.Killer != nil && wep.Class() != common.EqClassGrenade && len(e.Killer.Weapons) > 0 {
-			e.Weapon = e.Killer.ActiveWeapon()
-		} else {
-			e.Weapon = &wep
-		}
-
-		p.eventDispatcher.Dispatch(e)
+			Weapon:            getAttackingWeapon(&wep, killer),
+		})
 
 	case "player_hurt": // Player got hurt
 		data = mapGameEventData(d, ge)
 
-		e := events.PlayerHurtEvent{
+		attacker := p.gameState.players[int(data["attacker"].GetValShort())]
+		wep := common.NewEquipment(data["weapon"].GetValString())
+
+		p.eventDispatcher.Dispatch(events.PlayerHurtEvent{
 			Player:       p.gameState.players[int(data["userid"].GetValShort())],
-			Attacker:     p.gameState.players[int(data["attacker"].GetValShort())],
+			Attacker:     attacker,
 			Health:       int(data["health"].GetValByte()),
 			Armor:        int(data["armor"].GetValByte()),
 			HealthDamage: int(data["dmg_health"].GetValShort()),
 			ArmorDamage:  int(data["dmg_armor"].GetValByte()),
 			HitGroup:     common.HitGroup(data["hitgroup"].GetValByte()),
-		}
-
-		wep := common.NewEquipment(data["weapon"].GetValString())
-
-		if e.Attacker != nil && wep.Class() != common.EqClassGrenade && len(e.Attacker.Weapons) > 0 {
-			e.Weapon = e.Attacker.ActiveWeapon()
-		} else {
-			e.Weapon = &wep
-		}
-
-		p.eventDispatcher.Dispatch(e)
+			Weapon:       getAttackingWeapon(&wep, attacker),
+		})
 
 	case "player_blind": // Player got blinded by a flash
 		data = mapGameEventData(d, ge)
@@ -435,6 +419,16 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	default:
 		p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Unknown event %q", d.Name)})
 		p.eventDispatcher.Dispatch(events.GenericGameEvent{Name: d.Name, Data: mapGameEventData(d, ge)})
+	}
+}
+
+func getAttackingWeapon(wep *common.Equipment, attacker *common.Player) *common.Equipment {
+	class := wep.Class()
+	isSpecialWeapon := class == common.EqClassGrenade || (class == common.EqClassEquipment && wep.Weapon != common.EqKnife)
+	if !isSpecialWeapon && attacker != nil && len(attacker.Weapons) > 0 {
+		return attacker.ActiveWeapon()
+	} else {
+		return wep
 	}
 }
 
