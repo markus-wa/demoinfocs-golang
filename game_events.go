@@ -261,32 +261,30 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "player_team": // Player changed team
 		data = mapGameEventData(d, ge)
 
-		e := events.PlayerTeamChangeEvent{
-			Player: p.gameState.players[int(data["userid"].GetValShort())],
-			IsBot:  data["isbot"].GetValBool(),
-			Silent: data["silent"].GetValBool(),
-		}
+		player := p.gameState.players[int(data["userid"].GetValShort())]
+		newTeam := common.Team(data["team"].GetValByte())
 
-		// FIXME: We could probably just cast team & oldteam to common.Team, should always be correct. . . Needs testing
-		switch data["team"].GetValByte() {
-		case int32(p.gameState.tState.id):
-			e.NewTeam = common.TeamTerrorists
-		case int32(p.gameState.ctState.id):
-			e.NewTeam = common.TeamCounterTerrorists
-		default:
-			e.NewTeam = common.TeamSpectators
-		}
+		if player != nil {
+			if player.Team != newTeam {
+				player.Team = newTeam
 
-		switch data["oldteam"].GetValByte() {
-		case int32(p.gameState.tState.id):
-			e.OldTeam = common.TeamTerrorists
-		case int32(p.gameState.ctState.id):
-			e.OldTeam = common.TeamCounterTerrorists
-		default:
-			e.OldTeam = common.TeamSpectators
+				p.eventDispatcher.Dispatch(events.PlayerTeamChangeEvent{
+					Player:  player,
+					IsBot:   data["isbot"].GetValBool(),
+					Silent:  data["silent"].GetValBool(),
+					NewTeam: newTeam,
+					OldTeam: common.Team(data["oldteam"].GetValByte()),
+				})
+			} else {
+				p.eventDispatcher.Dispatch(events.ParserWarnEvent{
+					Message: "Player team swap game-event occured but player.Team == newTeam",
+				})
+			}
+		} else {
+			p.eventDispatcher.Dispatch(events.ParserWarnEvent{
+				Message: "Player team swap game-event occured but player is nil",
+			})
 		}
-
-		p.eventDispatcher.Dispatch(e)
 
 	case "bomb_beginplant": // Plant started
 		fallthrough
