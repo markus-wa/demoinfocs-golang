@@ -21,9 +21,9 @@ There are also [some other rooms](https://gitter.im/csgodemos) available around 
 
 ## Example
 
-This is a simple example on how to use the library. It collects all positions where weapons were fired and creates a heatmap using [go-heatmap](https://github.com/dustin/go-heatmap).
+This is a simple example on how to use the library. It collects all positions where weapons were fired from (using `events.WeaponFiredEvent`) and creates a heatmap using [go-heatmap](https://github.com/dustin/go-heatmap).
 
-Check out the `examples` folder for more examples and the godoc of the `events` package for some information about the other available events and their purpose.
+Check out the [examples](examples) folder for more examples and the [godoc of the `events` package](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events) for some information about the other available events and their purpose.
 
 ```go
 package main
