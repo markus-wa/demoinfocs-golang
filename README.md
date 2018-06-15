@@ -90,7 +90,7 @@ This doesn't look too interesting on it's own but that can be helped by quickly 
 * Access to entities, server-classes & data-tables
 * Access to all net-messages
 * Chat & console messages <sup id="achat1">1</sup>
-* [Easy debugging](###Debugging) via build-flags
+* [Easy debugging](#debugging) via build-flags
 * Built with concurrency in mind
 
 1. <small id="f1">Only for some demos; in MM demos the chat is encrypted for example.</small>
