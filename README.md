@@ -91,9 +91,40 @@ This doesn't look too interesting on it's own but that can be helped by quickly 
 * Access to all net-messages
 * Chat & console messages <sup id="achat1">1</sup>
 * [Easy debugging](#debugging) via build-flags
-* Built with concurrency in mind
+* Built with performance & concurrency in mind
 
 1. <small id="f1">Only for some demos; in MM demos the chat is encrypted for example.</small>
+
+## Performance / Benchmarks
+
+One of the top priorities of this parser is performance and concurrency.
+
+Here are some benchmark results from a system with a Intel i7 2600k CPU and SSD disk running Windows 10 and a demo with 85'000 frames.
+
+### Overview
+
+|Benchmark|Description|Average Duration|Speed|
+|-|-|-|-|
+|`BenchmarkConcurrent`|Read and parse 8 demos concurrently|2.90 s (per 8 demos)|~234'000 ticks / s|
+|`BenchmarkDemoInfoCs`|Read demo from drive and parse|1.39 s|~61'000 ticks / s
+|`BenchmarkInMemory`|Read demo from memory and parse|1.38 s|~61'000 ticks / s
+
+### Raw output
+
+```
+$ go test -run _NONE_ -bench . -benchtime 30s -benchmem -concurrentdemos 8
+goos: windows
+goarch: amd64
+pkg: github.com/markus-wa/demoinfocs-golang
+BenchmarkDemoInfoCs-8                 30        1397398190 ns/op        162254528 B/op    839779 allocs/op
+BenchmarkInMemory-8                   30        1384877250 ns/op        162109924 B/op    839628 allocs/op
+BenchmarkConcurrent-8                 20        2902574295 ns/op        1297042534 B/op  6717163 allocs/op
+--- BENCH: BenchmarkConcurrent-8
+        demoinfocs_test.go:425: Running concurrency benchmark with 8 demos
+        demoinfocs_test.go:425: Running concurrency benchmark with 8 demos
+PASS
+ok      github.com/markus-wa/demoinfocs-golang  147.800s
+```
 
 ## Versioning
 

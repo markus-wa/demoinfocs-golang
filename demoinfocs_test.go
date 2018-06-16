@@ -3,6 +3,7 @@ package demoinfocs_test
 import (
 	"bytes"
 	"crypto/rand"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -28,7 +29,12 @@ const defaultDemPath = csDemosPath + "/default.dem"
 const unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
 const valveMatchmakingDemoPath = csDemosPath + "/valve_matchmaking.dem"
 
+var concurrentDemos int
+
 func init() {
+	flag.IntVar(&concurrentDemos, "concurrentdemos", 2, "The `number` of current demos")
+	flag.Parse()
+
 	if _, err := os.Stat(defaultDemPath); err != nil {
 		panic(fmt.Sprintf("Failed to read test demo %q", defaultDemPath))
 	}
@@ -287,36 +293,46 @@ func TestHeaderNotParsed(t *testing.T) {
 }
 
 func TestConcurrent(t *testing.T) {
+	t.Logf("Running concurrency test with %d demos\n", concurrentDemos)
+
 	var i int64
 	runner := func() {
-		f, err := os.Open(defaultDemPath)
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer f.Close()
-
-		p := dem.NewParser(f)
-
-		_, err = p.ParseHeader()
-		if err != nil {
-			t.Fatal(err)
-		}
-
 		n := atomic.AddInt64(&i, 1)
-		fmt.Printf("Starting runner %d\n", n)
+		fmt.Printf("Starting concurrent runner %d\n", n)
 
 		ts := time.Now()
 
-		err = p.ParseToEnd()
-		if err != nil {
-			t.Fatal(err)
-		}
+		parseDefaultDemo(t)
 
 		fmt.Printf("Runner %d took %s\n", n, time.Since(ts))
 	}
 
+	runConcurrently(runner)
+}
+
+func parseDefaultDemo(tb testing.TB) {
+	f, err := os.Open(defaultDemPath)
+	if err != nil {
+		tb.Fatal(err)
+	}
+	defer f.Close()
+
+	p := dem.NewParser(f)
+
+	_, err = p.ParseHeader()
+	if err != nil {
+		tb.Fatal(err)
+	}
+
+	err = p.ParseToEnd()
+	if err != nil {
+		tb.Fatal(err)
+	}
+}
+
+func runConcurrently(runner func()) {
 	var wg sync.WaitGroup
-	for j := 0; j < 2; j++ {
+	for i := 0; i < concurrentDemos; i++ {
 		wg.Add(1)
 		go func() { runner(); wg.Done() }()
 	}
@@ -344,7 +360,7 @@ func TestDemoSet(t *testing.T) {
 				defer func() {
 					pErr := recover()
 					if pErr != nil {
-						t.Errorf("Failed to parse '%s/%s': %s\n", demSetPath, name, pErr)
+						t.Errorf("Parsing of '%s/%s' paniced: %s\n", demSetPath, name, pErr)
 					}
 				}()
 
@@ -367,29 +383,7 @@ func TestDemoSet(t *testing.T) {
 
 func BenchmarkDemoInfoCs(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		func() {
-			f, err := os.Open(defaultDemPath)
-			if err != nil {
-				b.Fatal(err)
-			}
-			defer f.Close()
-
-			p := dem.NewParser(f)
-
-			_, err = p.ParseHeader()
-			if err != nil {
-				b.Fatal(err)
-			}
-
-			ts := time.Now()
-
-			err = p.ParseToEnd()
-			if err != nil {
-				b.Fatal(err)
-			}
-
-			b.Logf("Took %s\n", time.Since(ts))
-		}()
+		parseDefaultDemo(b)
 	}
 }
 
@@ -420,13 +414,17 @@ func BenchmarkInMemory(b *testing.B) {
 			b.Fatal(err)
 		}
 
-		ts := time.Now()
-
 		err = p.ParseToEnd()
 		if err != nil {
 			b.Fatal(err)
 		}
+	}
+}
 
-		b.Logf("Took %s\n", time.Since(ts))
+func BenchmarkConcurrent(b *testing.B) {
+	b.Logf("Running concurrency benchmark with %d demos\n", concurrentDemos)
+
+	for i := 0; i < b.N; i++ {
+		runConcurrently(func() { parseDefaultDemo(b) })
 	}
 }
