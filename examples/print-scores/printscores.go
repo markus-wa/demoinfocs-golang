@@ -11,7 +11,7 @@ import (
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
 )
 
-// Run like this: go run scores.go -demo /path/to/demo.dem
+// Run like this: go run printscores.go -demo /path/to/demo.dem
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
 	defer f.Close()
