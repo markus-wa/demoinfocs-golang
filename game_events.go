@@ -208,7 +208,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			p.eventDispatcher.Dispatch(events.FireNadeEndEvent{NadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position)})
 		}
 
-	case "player_connect": // Bot connected, players come in via string tables & data tables
+	case "player_connect": // Bot connected or player reconnected, players normally come in via string tables & data tables
 		data = mapGameEventData(d, ge)
 
 		pl := &playerInfo{
@@ -219,16 +219,16 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		pl.xuid = getCommunityID(pl.guid)
 
-		p.rawPlayers[int(data["index"].GetValShort())] = pl
+		p.rawPlayers[int(data["index"].GetValByte())] = pl
 
-	case "player_disconnect": // Bot disconnected, players come in via string tables & data tables
+	case "player_disconnect": // Player disconnected (kicked, quit, timed out etc.)
 		data = mapGameEventData(d, ge)
 
 		uid := int(data["userid"].GetValShort())
 
-		for i := range p.rawPlayers {
-			if p.rawPlayers[i].userID == uid {
-				delete(p.rawPlayers, i)
+		for k, v := range p.rawPlayers {
+			if v.userID == uid {
+				delete(p.rawPlayers, k)
 			}
 		}
 
@@ -241,6 +241,11 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		}
 
 		delete(p.gameState.players, uid)
+		for k, v := range p.entityIDToPlayers {
+			if v == pl {
+				delete(p.entityIDToPlayers, k)
+			}
+		}
 
 	case "player_team": // Player changed team
 		data = mapGameEventData(d, ge)
