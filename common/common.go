@@ -126,6 +126,7 @@ func initEqEementToName() {
 	eqElementToName[EqKevlar] = "Kevlar Vest"
 	eqElementToName[EqHelmet] = "Kevlar + Helmet"
 	eqElementToName[EqDefuseKit] = "Defuse Kit"
+	eqElementToName[EqKnife] = "Knife"
 }
 
 // MapEquipment creates an EquipmentElement from the name of the weapon / equipment.
