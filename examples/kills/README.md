@@ -4,7 +4,7 @@ This example shows how to use the library to print out all kills including attac
 
 ## Running the example
 
-`go run printkills.go -demo /path/to/demo`
+`go run kills.go -demo /path/to/demo`
 
 ### Sample output
 
