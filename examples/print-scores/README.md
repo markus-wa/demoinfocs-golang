@@ -6,8 +6,7 @@ This example shows how to use the library to print out scores on the end of all 
 
 `go run scores.go -demo /path/to/demo`
 
-<details>
-<summary>Sample output</summary>
+### Sample output
 
 ```
 Map: de_cache
@@ -44,4 +43,3 @@ Round finished: winnerSide=CT ; score=12:15
 Round finished: winnerSide=CT ; score=13:15
 Round finished: winnerSide=T  ; score=16:13
 ```
-</details>
