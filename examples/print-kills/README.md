@@ -6,8 +6,7 @@ This example shows how to use the library to print out all kills including attac
 
 `go run printkills.go -demo /path/to/demo`
 
-<details>
-<summary>Sample output</summary>
+### Sample output
 
 ```
 [T]xms*ASUS ♥ /F/ <AK-47 (HS)> [CT]crisby
@@ -175,60 +174,59 @@ This example shows how to use the library to print out all kills including attac
 [CT]Ex6TenZ-BALLISTIX <P2000> [T]keev
 [CT]syrsoNR <World> [CT]syrsoNR
 [CT]ALEX * Intel <World> [CT]ALEX * Intel
-[CT]tiziaN <World> [CT]tiziaN
-tiziaN <World> tiziaN
-[CT]tiziaN <World> [CT]tiziaN
+[CT]xms*ASUS ♥ /F/ <World> [CT]xms*ASUS ♥ /F/
+[CT]Ex6TenZ-BALLISTIX <World> [CT]Ex6TenZ-BALLISTIX
+[CT]to1nou * Seagate <World> [CT]to1nou * Seagate
 [CT]ALEX * Intel <World> [CT]ALEX * Intel
-[T]crisby <World> [T]crisby
-crisby <World> crisby
-crisby <World> crisby
-crisby <World> crisby
+[CT]xms*ASUS ♥ /F/ <World> [CT]xms*ASUS ♥ /F/
+[CT]to1nou * Seagate <World> [CT]to1nou * Seagate
+[CT]Ex6TenZ-BALLISTIX <World> [CT]Ex6TenZ-BALLISTIX
+[T]syrsoNR <World> [T]syrsoNR
 [T]tiziaN <World> [T]tiziaN
-crisby <World> crisby
+[T]kzy LJ∼ <World> [T]kzy LJ∼
 [CT]mistou * Cooler Master <World> [CT]mistou * Cooler Master
 [T]keev <World> [T]keev
 [T]crisby <World> [T]crisby
 [CT]mistou * Cooler Master <AWP> [T]tiziaN
-[T]crisby <p250> [CT]mistou * Cooler Master
-[T]keev <Tec-9> [T]crisby
-[T]keev <AWP> [T]crisby
+[T]kzy LJ∼ <p250> [CT]mistou * Cooler Master
+[T]keev <Tec-9> [CT]xms*ASUS ♥ /F/
+[T]keev <AWP> [CT]Ex6TenZ-BALLISTIX
 [T]keev <AWP> [CT]ALEX * Intel
-[T]crisby <AWP> [T]crisby
-[T]crisby <AWP> [T]crisby
-[T]keev <AWP> [T]crisby
-[T]tiziaN <AK-47> [T]keev
-[CT]mistou * Cooler Master <Five-SeveN (HS)> [T]keev
+[CT]to1nou * Seagate <AWP> [T]syrsoNR
+[CT]to1nou * Seagate <AWP> [T]crisby
+[CT]to1nou * Seagate <AWP> [T]crisby
+[T]tiziaN <AK-47> [CT]Ex6TenZ-BALLISTIX
+[CT]mistou * Cooler Master <Five-SeveN (HS)> [T]syrsoNR
 [CT]mistou * Cooler Master <Five-SeveN (HS)> [T]tiziaN
 [T]keev <Tec-9> [CT]mistou * Cooler Master
-[T]keev <Desert Eagle> [T]keev
-[T]keev <Desert Eagle (HS)> [T]keev
+[CT]xms*ASUS ♥ /F/ <Desert Eagle> [T]kzy LJ∼
+[CT]xms*ASUS ♥ /F/ <Desert Eagle (HS)> [T]keev
 [CT]ALEX * Intel <AK-47 (HS)> [T]tiziaN
-[T]keev <M4A1> [T]keev
-[T]crisby <Tec-9 (HS)> [T]keev
+[CT]xms*ASUS ♥ /F/ <M4A1> [T]syrsoNR
+[T]crisby <Tec-9 (HS)> [CT]xms*ASUS ♥ /F/
 [T]keev <AK-47 (HS)> [CT]ALEX * Intel
 [CT]mistou * Cooler Master <AWP> [T]crisby
 [T]keev <AK-47> [CT]mistou * Cooler Master
-[T]keev <Galil AR> [T]keev
-[T]keev <AWP> [T]keev
-[T]keev <AK-47 (HS)> [T]keev
-[T]keev <AK-47 (HS)> [T]keev
-[T]tiziaN <Galil AR (HS)> [T]keev
+[T]kzy LJ∼ <Galil AR> [CT]Ex6TenZ-BALLISTIX
+[CT]to1nou * Seagate <AWP> [T]keev
+[T]kzy LJ∼ <AK-47 (HS)> [CT]to1nou * Seagate
+[T]syrsoNR <AK-47 (HS)> [CT]to1nou * Seagate
+[T]tiziaN <Galil AR (HS)> [CT]xms*ASUS ♥ /F/
 [CT]ALEX * Intel <FAMAS> [T]tiziaN
-[CT]ALEX * Intel <FAMAS (HS)> [T]keev
-[CT]mistou * Cooler Master <Five-SeveN (HS)> [T]keev
+[CT]ALEX * Intel <FAMAS (HS)> [T]syrsoNR
+[CT]mistou * Cooler Master <Five-SeveN (HS)> [T]kzy LJ∼
 [CT]ALEX * Intel <FAMAS (HS)> [T]keev
 [T]crisby <AK-47> [CT]ALEX * Intel
 [CT]mistou * Cooler Master <AK-47 (HS)> [T]crisby
-[T]keev <AK-47> [T]keev
-[T]keev <FAMAS> [T]keev
-[T]keev <FAMAS> [T]crisby
-[T]keev <FAMAS (HS)> [T]tiziaN
-[T]keev <p250> [T]keev
-[CT]mistou * Cooler Master <AWP> [T]keev
+[CT]Ex6TenZ-BALLISTIX <AK-47> [T]keev
+[CT]xms*ASUS ♥ /F/ <FAMAS> [T]syrsoNR
+[CT]xms*ASUS ♥ /F/ <FAMAS> [T]crisby
+[CT]xms*ASUS ♥ /F/ <FAMAS (HS)> [T]tiziaN
+[T]kzy LJ∼ <p250> [CT]xms*ASUS ♥ /F/
+[CT]mistou * Cooler Master <AWP> [T]kzy LJ∼
 [T]tiziaN <Galil AR (HS)> [CT]mistou * Cooler Master
-[T]crisby <AK-47 (HS) (WB)> [T]keev
+[T]crisby <AK-47 (HS) (WB)> [CT]xms*ASUS ♥ /F/
 [T]keev <Tec-9 (HS)> [CT]ALEX * Intel
-[T]crisby <AK-47 (HS)> [T]keev
-[T]keev <Tec-9> [T]keev
+[T]crisby <AK-47 (HS)> [CT]Ex6TenZ-BALLISTIX
+[T]keev <Tec-9> [CT]to1nou * Seagate
 ```
-</details>
