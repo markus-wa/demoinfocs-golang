@@ -198,32 +198,32 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			Y: float64(data["y"].ValFloat),
 			Z: float64(data["z"].ValFloat),
 		}
-		entity := p.entities[int(data["entityid"].GetValShort())]
+		nadeEntity := p.entities[int(data["entityid"].GetValShort())]
 
 		switch d.Name {
 		case "flashbang_detonate": // Flash exploded
-			p.eventDispatcher.Dispatch(events.FlashExplodedEvent{NadeEvent: buildNadeEvent(common.EqFlash, thrower, position, entity)})
+			p.eventDispatcher.Dispatch(events.FlashExplodedEvent{NadeEvent: buildNadeEvent(common.EqFlash, thrower, position, nadeEntity)})
 
 		case "hegrenade_detonate": // HE exploded
-			p.eventDispatcher.Dispatch(events.HeExplodedEvent{NadeEvent: buildNadeEvent(common.EqHE, thrower, position, entity)})
+			p.eventDispatcher.Dispatch(events.HeExplodedEvent{NadeEvent: buildNadeEvent(common.EqHE, thrower, position, nadeEntity)})
 
 		case "decoy_started": // Decoy started
-			p.eventDispatcher.Dispatch(events.DecoyStartEvent{NadeEvent: buildNadeEvent(common.EqDecoy, thrower, position, entity)})
+			p.eventDispatcher.Dispatch(events.DecoyStartEvent{NadeEvent: buildNadeEvent(common.EqDecoy, thrower, position, nadeEntity)})
 
 		case "decoy_detonate": // Decoy exploded/expired
-			p.eventDispatcher.Dispatch(events.DecoyEndEvent{NadeEvent: buildNadeEvent(common.EqDecoy, thrower, position, entity)})
+			p.eventDispatcher.Dispatch(events.DecoyEndEvent{NadeEvent: buildNadeEvent(common.EqDecoy, thrower, position, nadeEntity)})
 
 		case "smokegrenade_detonate": // Smoke popped
-			p.eventDispatcher.Dispatch(events.SmokeStartEvent{NadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, entity)})
+			p.eventDispatcher.Dispatch(events.SmokeStartEvent{NadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, nadeEntity)})
 
 		case "smokegrenade_expired": // Smoke expired
-			p.eventDispatcher.Dispatch(events.SmokeEndEvent{NadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, entity)})
+			p.eventDispatcher.Dispatch(events.SmokeEndEvent{NadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, nadeEntity)})
 
 		case "inferno_startburn": // Incendiary exploded/started
-			p.eventDispatcher.Dispatch(events.FireNadeStartEvent{NadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position, entity)})
+			p.eventDispatcher.Dispatch(events.FireNadeStartEvent{NadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position, nadeEntity)})
 
 		case "inferno_expire": // Incendiary expired
-			p.eventDispatcher.Dispatch(events.FireNadeEndEvent{NadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position, entity)})
+			p.eventDispatcher.Dispatch(events.FireNadeEndEvent{NadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position, nadeEntity)})
 		}
 
 	case "player_connect": // Bot connected, players come in via string tables & data tables
@@ -451,12 +451,12 @@ func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_Ga
 }
 
 // Just so we can nicely create NadeEvents in one line
-func buildNadeEvent(nadeType common.EquipmentElement, thrower *common.Player, position r3.Vector, entity *st.Entity) events.NadeEvent {
+func buildNadeEvent(nadeType common.EquipmentElement, thrower *common.Player, position r3.Vector, nadeEntity *st.Entity) events.NadeEvent {
 	return events.NadeEvent{
-		NadeType: nadeType,
-		Thrower:  thrower,
-		Position: position,
-		Entity:   entity,
+		NadeType:   nadeType,
+		Thrower:    thrower,
+		Position:   position,
+		NadeEntity: nadeEntity,
 	}
 }
 
