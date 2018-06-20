@@ -6,6 +6,7 @@ import (
 
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 // HeaderParsedEvent signals that the header has been parsed.
@@ -115,6 +116,7 @@ type NadeEvent struct {
 	NadeType common.EquipmentElement
 	Position r3.Vector
 	Thrower  *common.Player
+	Entity   *st.Entity
 }
 
 // Make NadeEvents implement NadeEventIf
