@@ -79,6 +79,11 @@ func (p *Parser) GameState() *GameState {
 	return &p.gameState
 }
 
+// Entities returns the available entities
+func (p *Parser) Entities() map[int]*st.Entity {
+	return p.entities
+}
+
 // CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
 // Starts with frame 0, should go up to DemoHeader.PlaybackFrames but might not be the case (usually it's just close to it).
 func (p *Parser) CurrentFrame() int {
