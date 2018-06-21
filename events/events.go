@@ -112,10 +112,10 @@ type NadeEventIf interface {
 // NadeEvent contains the common attributes of nade events. Dont register
 // handlers on this tho, you want NadeEventIf for that
 type NadeEvent struct {
-	NadeType common.EquipmentElement
-	Position r3.Vector
-	Thrower  *common.Player
-	EntityID int
+	NadeType     common.EquipmentElement
+	Position     r3.Vector
+	Thrower      *common.Player
+	NadeEntityID int
 }
 
 // Make NadeEvents implement NadeEventIf
