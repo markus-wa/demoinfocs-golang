@@ -127,6 +127,7 @@ type PropertyEntry struct {
 	index          int
 	entry          *FlattenedPropEntry
 	updateHandlers []PropertyUpdateHandler
+	value          PropValue
 }
 
 // Entry returns the underlying FlattenedPropEntry.
@@ -134,9 +135,15 @@ func (pe *PropertyEntry) Entry() *FlattenedPropEntry {
 	return pe.entry
 }
 
+// Value returns current value of the property.
+func (pe *PropertyEntry) Value() PropValue {
+	return pe.value
+}
+
 // FirePropertyUpdate triggers all registered PropertyUpdateHandler
 // on the PropertyEntry with the given PropValue.
 func (pe *PropertyEntry) FirePropertyUpdate(value PropValue) {
+	pe.value = value
 	for _, h := range pe.updateHandlers {
 		if h != nil {
 			h(value)
