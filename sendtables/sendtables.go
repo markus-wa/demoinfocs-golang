@@ -55,6 +55,7 @@ func (sc *ServerClass) RegisterEntityCreatedHandler(handler EntityCreatedHandler
 }
 
 // FlattenedPropEntry stores meta information about a property of an Entity.
+// Might be renamed in a future major release (Deprecated).
 type FlattenedPropEntry struct {
 	prop             *sendTableProperty
 	arrayElementProp *sendTableProperty

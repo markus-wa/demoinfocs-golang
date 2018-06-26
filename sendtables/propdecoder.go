@@ -71,6 +71,7 @@ var propDecoder propertyDecoder
 
 // PropValue stores parsed & decoded send-table values.
 // For instance player health, location etc.
+// Might be renamed in a future major release (Deprecated).
 type PropValue struct {
 	VectorVal r3.Vector
 	IntVal    int
