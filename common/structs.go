@@ -1,6 +1,8 @@
 package common
 
 import (
+	"math/rand"
+
 	r3 "github.com/golang/geo/r3"
 
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
@@ -100,10 +102,34 @@ type Equipment struct {
 	ReserveAmmo    int
 }
 
+// GrenadeProjectile is a grenade thrown intentionally by a player. It is used to track grenade projectile
+// positions between the time at which they are thrown and until they detonate.
+type GrenadeProjectile struct {
+	EntityID int
+	Weapon   EquipmentElement
+	Thrower  *Player
+	Owner    *Player
+
+	// uniqueID is used to distinguish different grenades (which potentially have the same, reused entityID) from each other.
+	uniqueID int64
+
+	Position r3.Vector
+}
+
 // Class returns the class of the equipment.
 // E.g. pistol, smg, heavy etc.
 func (e Equipment) Class() EquipmentClass {
 	return e.Weapon.Class()
+}
+
+// NewGrenadeProjectile creates a grenade projectile and sets.
+func NewGrenadeProjectile() *GrenadeProjectile {
+	return &GrenadeProjectile{uniqueID: rand.Int63()}
+}
+
+// UniqueID returns the internal id of the grenade, which is used to distinguish grenades that reuse another entity's entity id.
+func (g GrenadeProjectile) UniqueID() int64 {
+	return g.uniqueID
 }
 
 // NewEquipment is a wrapper for NewSkinEquipment to create weapons without skins.
