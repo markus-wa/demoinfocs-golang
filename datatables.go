@@ -194,7 +194,7 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 	})
 
 	playerEntity.FindProperty("cslocaldata.m_vecOrigin[2]").RegisterPropertyUpdateHandler(func(val st.PropValue) {
-		pl.Position.Z = val.VectorVal.Z
+		pl.Position.Z = float64(val.FloatVal)
 	})
 
 	playerEntity.FindProperty("m_iTeamNum").RegisterPropertyUpdateHandler(func(val st.PropValue) {
