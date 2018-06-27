@@ -22,6 +22,7 @@ func init() {
 
 func initEqNameToWeapon() {
 	eqNameToWeapon = make(map[string]EquipmentElement)
+
 	eqNameToWeapon["ak47"] = EqAK47
 	eqNameToWeapon["aug"] = EqAUG
 	eqNameToWeapon["awp"] = EqAWP
@@ -30,7 +31,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["deagle"] = EqDeagle
 	eqNameToWeapon["decoy"] = EqDecoy
 	eqNameToWeapon["decoygrenade"] = EqDecoy
-	eqNameToWeapon["decoy_projectile"] = EqDecoy
+	eqNameToWeapon["decoyprojectile"] = EqDecoy
 	eqNameToWeapon["elite"] = EqDualBarettas
 	eqNameToWeapon["famas"] = EqFamas
 	eqNameToWeapon["fiveseven"] = EqFiveSeven
@@ -49,7 +50,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["mag7"] = EqSwag7
 	eqNameToWeapon["molotov"] = EqMolotov
 	eqNameToWeapon["molotovgrenade"] = EqMolotov
-	eqNameToWeapon["molotov_projectile"] = EqMolotov
+	eqNameToWeapon["molotovprojectile"] = EqMolotov
 	eqNameToWeapon["mp7"] = EqMP7
 	eqNameToWeapon["mp9"] = EqMP9
 	eqNameToWeapon["negev"] = EqNegev
@@ -60,7 +61,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["scar20"] = EqScar20
 	eqNameToWeapon["sg556"] = EqSG556
 	eqNameToWeapon["smokegrenade"] = EqSmoke
-	eqNameToWeapon["ssg08"] = EqScout
+	eqNameToWeapon["smokegrenadeprojectile"] = EqSmoke
 	eqNameToWeapon["taser"] = EqZeus
 	eqNameToWeapon["tec9"] = EqTec9
 	eqNameToWeapon["ump45"] = EqUMP

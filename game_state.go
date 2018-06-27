@@ -6,10 +6,11 @@ import (
 
 // GameState contains all game-state relevant information.
 type GameState struct {
-	ingameTick int
-	tState     TeamState
-	ctState    TeamState
-	players    map[int]*common.Player
+	ingameTick         int
+	tState             TeamState
+	ctState            TeamState
+	players            map[int]*common.Player
+	grenadeProjectiles map[int]*common.GrenadeProjectile // Used to keep track of grenades that have been thrown, but have not yet detonated.
 }
 
 type ingameTickNumber int
@@ -69,8 +70,17 @@ func (gs GameState) TeamMembers(team common.Team) []*common.Player {
 	return r
 }
 
+// GrenadeProjectiles returns a map with all grenade projectiles. The map contains only projectiles
+// that are currently in-flight, i.e. have been thrown but have yet to detonate.
+func (gs GameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
+	return gs.grenadeProjectiles
+}
+
 func newGameState() GameState {
-	return GameState{players: make(map[int]*common.Player)}
+	return GameState{
+		players:            make(map[int]*common.Player),
+		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
+	}
 }
 
 // TeamState contains a team's ID, score, clan name & country flag.

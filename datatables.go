@@ -20,6 +20,12 @@ const (
 
 func (p *Parser) mapEquipment() {
 	for _, sc := range p.stParser.ServerClasses() {
+		for _, bc := range sc.BaseClasses {
+			if bc.Name == "CBaseGrenade" { // Grenades projectiles, i.e. thrown by player
+				p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.DTName[3:]))
+			}
+		}
+
 		if len(sc.BaseClasses) > 6 && sc.BaseClasses[6].Name == "CWeaponCSBase" {
 			if len(sc.BaseClasses) > 7 {
 				switch sc.BaseClasses[7].Name {
@@ -36,7 +42,6 @@ func (p *Parser) mapEquipment() {
 				switch sc.Name {
 				case "CC4":
 					p.equipmentMapping[sc] = common.EqBomb
-
 				case "CWeaponNOVA":
 					fallthrough
 				case "CWeaponSawedoff":
@@ -253,18 +258,18 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 	for i := range cache {
 		i2 := i // Copy for passing to handler
 		playerEntity.FindProperty(wepPrefix + fmt.Sprintf("%03d", i)).RegisterPropertyUpdateHandler(func(val st.PropValue) {
-			idx := val.IntVal & indexMask
-			if idx != indexMask {
+			entityID := val.IntVal & indexMask
+			if entityID != indexMask {
 				if cache[i2] != 0 {
 					// Player already has a weapon in this slot.
 					pl.RawWeapons[cache[i2]] = nil
 				}
-				cache[i2] = idx
+				cache[i2] = entityID
 
 				// Attribute weapon to player
-				wep := &p.weapons[idx]
+				wep := &p.weapons[entityID]
 				wep.Owner = pl
-				pl.RawWeapons[idx] = wep
+				pl.RawWeapons[entityID] = wep
 			} else {
 				if cache[i2] != 0 && pl.RawWeapons[cache[i2]] != nil {
 					pl.RawWeapons[cache[i2]].Owner = nil
@@ -290,11 +295,60 @@ func (p *Parser) bindWeapons() {
 
 	for _, sc := range p.stParser.ServerClasses() {
 		for _, bc := range sc.BaseClasses {
-			if bc.Name == "CWeaponCSBase" {
+			switch bc.Name {
+			case "CWeaponCSBase":
 				sc.RegisterEntityCreatedHandler(p.bindWeapon)
+			case "CBaseGrenade": // Grenade that has been thrown by player.
+				sc.RegisterEntityCreatedHandler(p.bindGrenadeProjectiles)
+			case "CBaseCSGrenade":
+				// @micvbang TODO: handle grenades dropped by dead player.
+				// Grenades that were dropped by a dead player (and can be picked up by other players).
 			}
 		}
 	}
+
+}
+
+// bindGrenadeProjectiles keeps track of the location of live grenades, actively thrown by players.
+// It does track the location of grenades lying on the ground, i.e. that were dropped by dead players.
+//
+// NOTE: Parser.gameState.grenadeProjectiles is updated here. We rely on code during the handling of the game events
+// "[nade]_detonate" and "[nade]_started" to remove projectiles from Parser.gameState.grenadeProjectiles once they detonate.
+func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
+	if _, ok := p.gameState.grenadeProjectiles[event.Entity.ID]; !ok {
+		p.gameState.grenadeProjectiles[event.Entity.ID] = common.NewGrenadeProjectile()
+	}
+
+	proj := p.gameState.grenadeProjectiles[event.Entity.ID]
+	proj.EntityID = event.Entity.ID
+
+	event.Entity.FindProperty("m_nModelIndex").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+		proj.Weapon = p.grenadeModelIndicies[val.IntVal]
+	})
+
+	// @micvbang: not quite sure what the difference between Thrower and Owner is.
+	event.Entity.FindProperty("m_hThrower").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+		throwerID := val.IntVal & indexMask
+		throwerIndex := throwerID - 1
+
+		thrower := p.entityIDToPlayers[throwerIndex]
+		proj.Thrower = thrower
+
+		if proj.Thrower == nil && thrower != nil {
+			proj.Position = thrower.Position
+		}
+	})
+
+	event.Entity.FindProperty("m_hOwnerEntity").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+		ownerID := val.IntVal & indexMask
+		ownerIndex := ownerID - 1
+		player := p.entityIDToPlayers[ownerIndex]
+		proj.Owner = player
+	})
+
+	event.Entity.FindProperty("m_vecOrigin").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+		proj.Position = event.Entity.Position()
+	})
 }
 
 func (p *Parser) bindWeapon(event st.EntityCreatedEvent) {

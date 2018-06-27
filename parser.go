@@ -41,6 +41,7 @@ type Parser struct {
 	instanceBaselines            map[int][]byte
 	preprocessedBaselines        map[int]map[int]st.PropValue
 	gameEventDescs               map[int32]*msg.CSVCMsg_GameEventListDescriptorT
+	grenadeModelIndicies         map[int]common.EquipmentElement // Used to map model indicies to grenades (used for grenade projectiles)
 	stringTables                 []*msg.CSVCMsg_CreateStringTable
 	cancelChan                   chan struct{}
 	err                          error
@@ -207,6 +208,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
 	p.gameState = newGameState()
+	p.grenadeModelIndicies = make(map[int]common.EquipmentElement)
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)

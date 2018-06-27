@@ -45,6 +45,7 @@ func (p *Parser) parseStringTables() {
 		tableName := p.bitReader.ReadString()
 		p.parseSingleStringTable(tableName)
 	}
+	p.processModelPreCacheUpdate()
 	p.bitReader.EndChunk()
 }
 
@@ -211,6 +212,11 @@ func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 			p.modelPreCache[entryIndex] = entry
 		}
 	}
+
+	if tab.Name == stNameModelPreCache {
+		p.processModelPreCacheUpdate()
+	}
+
 	br.Pool()
 }
 
