@@ -46,6 +46,10 @@ func (sc *ServerClass) FireEntityCreatedEvent(entity *Entity) {
 			h(EntityCreatedEvent{Entity: entity, ServerClass: sc})
 		}
 	}
+
+	for _, v := range entity.props {
+		v.FirePropertyUpdate(v.value)
+	}
 }
 
 // RegisterEntityCreatedHandler registers a EntityCreatedHandler on the ServerClass.

@@ -40,6 +40,7 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 				e := p.readEnterPVS(r, currentEntity)
 				p.entities[currentEntity] = e
 				e.ApplyUpdate(r)
+				e.ServerClass.FireEntityCreatedEvent(e)
 			} else {
 				// Delta Update
 				p.entities[currentEntity].ApplyUpdate(r)
@@ -54,23 +55,19 @@ func (p *Parser) readEnterPVS(reader *bit.BitReader, entityID int) *st.Entity {
 	reader.Skip(10) // Serial Number
 
 	newEntity := st.NewEntity(entityID, p.stParser.ServerClasses()[scID])
-	newEntity.ServerClass.FireEntityCreatedEvent(newEntity)
 
 	if p.preprocessedBaselines[scID] != nil {
 		for idx, val := range p.preprocessedBaselines[scID] {
 			newEntity.Props()[idx].FirePropertyUpdate(val)
 		}
 	} else {
-		ppBase := make(map[int]st.PropValue)
 		if p.instanceBaselines[scID] != nil {
-			newEntity.CollectProperties(&ppBase)
 			r := bit.NewSmallBitReader(bytes.NewReader(p.instanceBaselines[scID]))
-			newEntity.ApplyUpdate(r)
+			p.preprocessedBaselines[scID] = newEntity.InitializeBaseline(r)
 			r.Pool()
-			// TODO: Unregister PropertyUpdateHandlers from CollectProperties()
-			// PropertyUpdateHandlers would have to be registered as pointers for that to work
+		} else {
+			p.preprocessedBaselines[scID] = make(map[int]st.PropValue)
 		}
-		p.preprocessedBaselines[scID] = ppBase
 	}
 
 	return newEntity

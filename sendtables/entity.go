@@ -97,26 +97,32 @@ func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 	return lastIndex + 1 + int(res)
 }
 
-// CollectProperties registers PropertyUpdateHandlers on the Entitiy
-// that will update a 'preprocessedBasleine' map with the most recent values.
-// This is used if entities leave and re-enter the PVS as entities will be re-created at that point
-// and we can then take the map as baseline for the new entity.
-func (e *Entity) CollectProperties(ppBase *map[int]PropValue) {
+// InitializeBaseline applies an update and collects a baseline (default values) from the update.
+func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
+	baseline := make(map[int]PropValue)
 	for i := range e.props {
 		i2 := i // Copy for the adder
 		adder := func(val PropValue) {
-			(*ppBase)[e.props[i2].index] = val
+			baseline[i2] = val
 		}
 
 		e.props[i].RegisterPropertyUpdateHandler(adder)
 	}
+
+	e.ApplyUpdate(r)
+
+	for i := range e.props {
+		e.props[i].updateHandlers = nil
+	}
+
+	return baseline
 }
 
 // NewEntity creates a new Entity with a given id and ServerClass and returns it.
 func NewEntity(id int, serverClass *ServerClass) *Entity {
-	props := make([]PropertyEntry, 0, len(serverClass.FlattenedProps))
+	props := make([]PropertyEntry, len(serverClass.FlattenedProps))
 	for i := range serverClass.FlattenedProps {
-		props = append(props, PropertyEntry{index: i, entry: &serverClass.FlattenedProps[i]})
+		props[i] = PropertyEntry{entry: &serverClass.FlattenedProps[i]}
 	}
 	return &Entity{ID: id, ServerClass: serverClass, props: props}
 }
@@ -124,7 +130,6 @@ func NewEntity(id int, serverClass *ServerClass) *Entity {
 // PropertyEntry wraps a FlattenedPropEntry and allows registering handlers
 // that can be triggered on a update of the property.
 type PropertyEntry struct {
-	index          int
 	entry          *FlattenedPropEntry
 	updateHandlers []PropertyUpdateHandler
 	value          PropValue
