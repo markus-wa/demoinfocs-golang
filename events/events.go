@@ -106,7 +106,7 @@ type WeaponFiredEvent struct {
 // NadeEventIf is the interface for all NadeEvents. Used to catch
 // the different events with the same handler.
 type NadeEventIf interface {
-	implementsNadeEventIf()
+	Base() NadeEvent
 }
 
 // NadeEvent contains the common attributes of nade events. Dont register
@@ -118,8 +118,10 @@ type NadeEvent struct {
 	NadeEntityID int
 }
 
-// Make NadeEvents implement NadeEventIf
-func (NadeEvent) implementsNadeEventIf() {}
+// Base returns the NadeEvent itself, used for catching all events with NadeEventIf
+func (ne NadeEvent) Base() NadeEvent {
+	return ne
+}
 
 // HeExplodedEvent signals the explosion of a HE.
 type HeExplodedEvent struct {
