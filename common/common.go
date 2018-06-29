@@ -77,6 +77,17 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["vest"] = EqKevlar
 	eqNameToWeapon["vesthelm"] = EqHelmet
 	eqNameToWeapon["defuser"] = EqDefuseKit
+
+	// These don't exist and / or used to crash the game with the give command
+	eqNameToWeapon["scar17"] = EqUnknown
+	eqNameToWeapon["sensorgrenade"] = EqUnknown
+	eqNameToWeapon["mp5navy"] = EqUnknown
+	eqNameToWeapon["p228"] = EqUnknown
+	eqNameToWeapon["scout"] = EqUnknown
+	eqNameToWeapon["sg550"] = EqUnknown
+	eqNameToWeapon["sg552"] = EqUnknown // This one still crashes the game :)
+	eqNameToWeapon["tmp"] = EqUnknown
+	eqNameToWeapon["worldspawn"] = EqUnknown
 }
 
 func initEqEementToName() {
@@ -138,8 +149,10 @@ func MapEquipment(eqName string) EquipmentElement {
 		wep = EqKnife
 	} else {
 		// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentElement
-		wep = eqNameToWeapon[eqName]
-		// TODO: Return error / warning for EqUnknown?
+		var ok bool
+		if wep, ok = eqNameToWeapon[eqName]; !ok {
+			// TODO: Return error / warning for unmapped weapons
+		}
 	}
 
 	return wep
