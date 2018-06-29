@@ -17,7 +17,7 @@ var eqElementToName map[EquipmentElement]string
 
 func init() {
 	initEqNameToWeapon()
-	initEqEementToName()
+	initEqElementToName()
 }
 
 func initEqNameToWeapon() {
@@ -91,7 +91,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["worldspawn"] = EqUnknown
 }
 
-func initEqEementToName() {
+func initEqElementToName() {
 	eqElementToName = make(map[EquipmentElement]string)
 	eqElementToName[EqAK47] = "AK-47"
 	eqElementToName[EqAUG] = "AUG"
