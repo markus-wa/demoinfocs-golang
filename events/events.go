@@ -103,8 +103,8 @@ type WeaponFiredEvent struct {
 // FIXME: Currently handling NadeEventIf is really annoying. Improve that
 // Same with BombEventIf
 
-// NadeEventIf is the interface for all NadeEvents. Used to catch
-// the different events with the same handler.
+// NadeEventIf is the interface for all NadeEvents (except NadeProjectile* events).
+// Used to catch the different events with the same handler.
 type NadeEventIf interface {
 	Base() NadeEvent
 }
@@ -162,6 +162,18 @@ type FireNadeStartEvent struct {
 // FireNadeEndEvent signals the end of a molly/incendiary.
 type FireNadeEndEvent struct {
 	NadeEvent
+}
+
+// NadeProjectileBouncedEvent signals that a nade has just bounced off a wall/floor/ceiling or object
+type NadeProjectileBouncedEvent struct {
+	Projectile *common.GrenadeProjectile
+	BounceNr   int
+}
+
+// NadeProjectileThrownEvent signals that a nade has just been thrown.
+// This is different from the WeaponFiredEvent because it's sent out when the projectile entity is created.
+type NadeProjectileThrownEvent struct {
+	Projectile *common.GrenadeProjectile
 }
 
 // PlayerFlashedEvent signals that a player was flashed.

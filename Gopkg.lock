@@ -21,12 +21,31 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/golang/freetype"
+  packages = [
+    "raster",
+    "truetype"
+  ]
+  revision = "e2365dfdc4a05e4b8299a783240d4a7d5a65d4e4"
+
+[[projects]]
+  branch = "master"
   name = "github.com/golang/geo"
   packages = [
     "r3",
     "s1"
   ]
   revision = "fb250ae94fbe10f86b4f1a9b70a19925da3410b9"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/llgcode/draw2d"
+  packages = [
+    ".",
+    "draw2dbase",
+    "draw2dimg"
+  ]
+  revision = "274031cf2abe8acd15c4a911e1f7f1295fc4830c"
 
 [[projects]]
   name = "github.com/markus-wa/gobitread"
@@ -40,9 +59,20 @@
   revision = "3c2bfa80b4fa8e97f461b579dda6d698aee02430"
   version = "v1.1.0"
 
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/image"
+  packages = [
+    "draw",
+    "font",
+    "math/f64",
+    "math/fixed"
+  ]
+  revision = "cc896f830cedae125428bc9fe1b0362aa91b3fb1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6c0c3a560c7e37da5f12101216c9966e21c426de8e758c2da3e24ec1fee9b164"
+  inputs-digest = "a463049e6cc430648437220b444e3c9aae5ddbf1ca545e34959302c6dbccb38f"
   solver-name = "gps-cdcl"
   solver-version = 1

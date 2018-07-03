@@ -41,6 +41,10 @@
   name = "github.com/markus-wa/godispatch"
   version = "1.1.0"
 
+[[constraint]]
+  branch = "master"
+  name = "github.com/llgcode/draw2d"
+
 [prune]
   go-tests = true
   unused-packages = true

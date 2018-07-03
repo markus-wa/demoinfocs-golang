@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	common "github.com/markus-wa/demoinfocs-golang/common"
+	events "github.com/markus-wa/demoinfocs-golang/events"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
@@ -346,8 +347,28 @@ func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
 		proj.Owner = player
 	})
 
-	event.Entity.FindProperty("m_vecOrigin").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+	event.Entity.FindProperty("m_vecOrigin").RegisterPropertyUpdateHandler(func(st.PropValue) {
 		proj.Position = event.Entity.Position()
+	})
+
+	// Some demos don't have this property as it seems
+	// So we need to check for nil and can't send out bounce events if it's missing
+	bounceProp := event.Entity.FindProperty("m_nBounces")
+	if bounceProp != nil {
+		bounceProp.RegisterPropertyUpdateHandler(func(val st.PropValue) {
+			if val.IntVal != 0 {
+				p.eventDispatcher.Dispatch(events.NadeProjectileBouncedEvent{
+					Projectile: proj,
+					BounceNr:   val.IntVal,
+				})
+			}
+		})
+	}
+
+	event.Entity.FindProperty(st.CreateFinishedDummyPropertyName).RegisterPropertyUpdateHandler(func(st.PropValue) {
+		p.eventDispatcher.Dispatch(events.NadeProjectileThrownEvent{
+			Projectile: proj,
+		})
 	})
 }
 
