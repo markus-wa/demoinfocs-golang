@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/golang/geo/r3"
+
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 )
 
@@ -116,6 +118,28 @@ func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
 	}
 
 	return baseline
+}
+
+const maxCoordInt = 16384
+
+// Position returns the entity's position in world coordinates.
+func (e *Entity) Position() r3.Vector {
+	cellWidth := 1 << uint(e.FindProperty("m_cellbits").value.IntVal)
+	cellX := e.FindProperty("m_cellX").value.IntVal
+	cellY := e.FindProperty("m_cellY").value.IntVal
+	cellZ := e.FindProperty("m_cellZ").value.IntVal
+	offset := e.FindProperty("m_vecOrigin").value.VectorVal
+
+	return r3.Vector{
+		X: coordFromCell(cellX, cellWidth, offset.X),
+		Y: coordFromCell(cellY, cellWidth, offset.Y),
+		Z: coordFromCell(cellZ, cellWidth, offset.Z),
+	}
+}
+
+// Returns a coordinate from a cell + offset
+func coordFromCell(cell, cellWidth int, offset float64) float64 {
+	return float64(cell*cellWidth-maxCoordInt) + offset
 }
 
 // NewEntity creates a new Entity with a given id and ServerClass and returns it.
