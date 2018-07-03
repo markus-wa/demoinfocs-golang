@@ -19,33 +19,38 @@ import (
 // After parsing the header Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo.
 // Use Parser.RegisterEventHandler() to receive notifications about events.
 type Parser struct {
+	// Important fields
+
 	bitReader                    *bit.BitReader
 	stParser                     st.SendTableParser
-	msgDispatcher                dp.Dispatcher
-	additionalNetMessageCreators map[int]NetMessageCreator
+	additionalNetMessageCreators map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
+	msgQueue                     chan interface{}          // Queue of net-messages
+	msgDispatcher                dp.Dispatcher             // Net-message dispatcher
 	eventDispatcher              dp.Dispatcher
-	msgQueue                     chan interface{}
-	gameState                    GameState
-	currentFrame                 int
-	bombsiteA                    bombsite
-	bombsiteB                    bombsite
+	currentFrame                 int                // Demo-frame, not ingame-tick
 	header                       *common.DemoHeader // Pointer so we can check for nil
-	equipmentMapping             map[*st.ServerClass]common.EquipmentElement
-	rawPlayers                   map[int]*playerInfo
-	entityIDToPlayers            map[int]*common.Player // Temporary storage since we need to map players from entityID to userID later
-	additionalPlayerInfo         [maxPlayers]common.AdditionalPlayerInformation
-	entities                     map[int]*st.Entity
-	modelPreCache                []string                      // Used to find out whether a weapon is a p250 or cz for example (same id)
-	weapons                      [maxEntities]common.Equipment // Used to remember what a weapon is (p250 / cz etc.)
-	triggers                     map[int]*boundingBoxInformation
-	instanceBaselines            map[int][]byte
-	preprocessedBaselines        map[int]map[int]st.PropValue
-	gameEventDescs               map[int32]*msg.CSVCMsg_GameEventListDescriptorT
-	grenadeModelIndicies         map[int]common.EquipmentElement // Used to map model indicies to grenades (used for grenade projectiles)
-	stringTables                 []*msg.CSVCMsg_CreateStringTable
-	cancelChan                   chan struct{}
-	err                          error
-	errLock                      sync.Mutex
+	gameState                    GameState
+	cancelChan                   chan struct{} // Non-anime-related, used for aborting the parsing
+	err                          error         // Contains a error that occurred during parsing if any
+	errLock                      sync.Mutex    // Used to sync up error mutations between parsing & handling go-routines
+
+	// Additional fields, mainly caching & tracking things
+
+	bombsiteA             bombsite
+	bombsiteB             bombsite
+	equipmentMapping      map[*st.ServerClass]common.EquipmentElement     // Maps server classes to equipment-types
+	rawPlayers            map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
+	entityIDToPlayers     map[int]*common.Player                          // Temporary storage since we need to map players from entityID to userID later
+	additionalPlayerInfo  [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
+	entities              map[int]*st.Entity                              // Maps entity IDs to entities
+	modelPreCache         []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
+	weapons               [maxEntities]common.Equipment                   // Used to remember what a weapon is (p250 / cz etc.)
+	triggers              map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
+	instanceBaselines     map[int][]byte                                  // Maps server-class IDs to instance baselines
+	preprocessedBaselines map[int]map[int]st.PropValue                    // Maps server-class IDs to preprocessed baselines (preprocessed-baseline = property-index to value map)
+	gameEventDescs        map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
+	grenadeModelIndicies  map[int]common.EquipmentElement                 // Used to map model indicies to grenades (used for grenade projectiles)
+	stringTables          []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
 }
 
 type bombsite struct {
