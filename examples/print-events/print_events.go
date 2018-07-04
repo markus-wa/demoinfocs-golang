@@ -11,7 +11,7 @@ import (
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
 )
 
-// Run like this: go run scores.go -demo /path/to/demo.dem
+// Run like this: go run print_events.go -demo /path/to/demo.dem
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
 	defer f.Close()
@@ -23,6 +23,19 @@ func main() {
 	h, err := p.ParseHeader()
 	checkError(err)
 	fmt.Println("Map:", h.MapName)
+
+	// Register handler on kill events
+	p.RegisterEventHandler(func(e events.PlayerKilledEvent) {
+		var hs string
+		if e.IsHeadshot {
+			hs = " (HS)"
+		}
+		var wallBang string
+		if e.PenetratedObjects > 0 {
+			wallBang = " (WB)"
+		}
+		fmt.Printf("%s <%v%s%s> %s\n", formatPlayer(e.Killer), e.Weapon.Weapon, hs, wallBang, formatPlayer(e.Victim))
+	})
 
 	// Register handler on round end to figure out who won
 	p.RegisterEventHandler(func(e events.RoundEndedEvent) {
@@ -44,6 +57,15 @@ func main() {
 	checkError(err)
 }
 
+func formatPlayer(p *common.Player) string {
+	switch p.Team {
+	case common.TeamTerrorists:
+		return "[T]" + p.Name
+	case common.TeamCounterTerrorists:
+		return "[CT]" + p.Name
+	}
+	return p.Name
+}
 func checkError(err error) {
 	if err != nil {
 		log.Fatal(err)
