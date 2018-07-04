@@ -129,9 +129,11 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		killer := p.gameState.players[int(data["attacker"].GetValShort())]
 		wep := common.NewSkinEquipment(data["weapon"].GetValString(), data["weapon_itemid"].GetValString())
+		victim := p.gameState.players[int(data["userid"].GetValShort())]
+		victim.CurrentEquipment = make(map[int64]*common.Equipment)
 
 		p.eventDispatcher.Dispatch(events.PlayerKilledEvent{
-			Victim:            p.gameState.players[int(data["userid"].GetValShort())],
+			Victim:            victim,
 			Killer:            killer,
 			Assister:          p.gameState.players[int(data["assister"].GetValShort())],
 			IsHeadshot:        data["headshot"].GetValBool(),
@@ -404,6 +406,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "cs_pre_restart": // Not sure, doesn't seem to be important
 		fallthrough
 	case "round_prestart": // Ditto
+		// @micvbang TODO: do we need to reset player equipment here?
 		fallthrough
 	case "round_poststart": // Ditto
 		fallthrough

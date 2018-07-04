@@ -65,6 +65,8 @@ type Player struct {
 	HasDefuseKit                bool
 	HasHelmet                   bool
 	Connected                   bool
+
+	CurrentEquipment map[int64]*Equipment
 }
 
 // IsAlive returns true if the Hp of the player are > 0.
@@ -100,6 +102,7 @@ type Equipment struct {
 	AmmoType       int
 	Owner          *Player
 	ReserveAmmo    int
+	uniqueID       int64
 }
 
 // GrenadeProjectile is a grenade thrown intentionally by a player. It is used to track grenade projectile
@@ -127,7 +130,9 @@ func NewGrenadeProjectile() *GrenadeProjectile {
 	return &GrenadeProjectile{uniqueID: rand.Int63()}
 }
 
-// UniqueID returns the internal id of the grenade, which is used to distinguish grenades that reuse another entity's entity id.
+// UniqueID returns the unique id of the grenade.
+// The unique id is a random int generated internally by this library and can be used to differentiate
+// grenades from each other. This is needed because demo-files reuse entity ids.
 func (g GrenadeProjectile) UniqueID() int64 {
 	return g.uniqueID
 }
@@ -145,10 +150,17 @@ func NewSkinEquipment(eqName string, skinID string) Equipment {
 	} else {
 		wep = EqUnknown
 	}
-	return Equipment{Weapon: wep, SkinID: skinID}
+	return Equipment{Weapon: wep, SkinID: skinID, uniqueID: rand.Int63()}
+}
+
+// UniqueID returns the unique id of the equipment element.
+// The unique id is a random int generated internally by this library and can be used to differentiate
+// equipment from each other. This is needed because demo-files reuse entity ids.
+func (e Equipment) UniqueID() int64 {
+	return e.uniqueID
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.
 func NewPlayer() *Player {
-	return &Player{RawWeapons: make(map[int]*Equipment)}
+	return &Player{RawWeapons: make(map[int]*Equipment), CurrentEquipment: make(map[int64]*Equipment)}
 }
