@@ -360,6 +360,16 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 				Weapon: weapon,
 			})
 		case "item_remove":
+			// Under the assumption that a player can only have one of each type of weapon,
+			// we can safely find it in CurrentEquipment by looping through and comparing on
+			// the EquipmentElement.
+			for _, eq := range player.CurrentEquipment {
+				if eq.Weapon == weapon.Weapon {
+					delete(player.CurrentEquipment, eq.UniqueID())
+					break
+				}
+			}
+
 			p.eventDispatcher.Dispatch(events.ItemDropEvent{
 				Player: player,
 				Weapon: weapon,
@@ -406,7 +416,6 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "cs_pre_restart": // Not sure, doesn't seem to be important
 		fallthrough
 	case "round_prestart": // Ditto
-		// @micvbang TODO: do we need to reset player equipment here?
 		fallthrough
 	case "round_poststart": // Ditto
 		fallthrough
