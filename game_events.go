@@ -437,7 +437,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 func getAttackingWeapon(wep *common.Equipment, attacker *common.Player) *common.Equipment {
 	class := wep.Class()
 	isSpecialWeapon := class == common.EqClassGrenade || (class == common.EqClassEquipment && wep.Weapon != common.EqKnife)
-	if !isSpecialWeapon && attacker != nil && len(attacker.Weapons) > 0 {
+	if !isSpecialWeapon && attacker != nil && len(attacker.RawWeapons) > 0 {
 		return attacker.ActiveWeapon()
 	} else {
 		return wep

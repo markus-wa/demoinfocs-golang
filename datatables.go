@@ -263,7 +263,7 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 			if entityID != indexMask {
 				if cache[i2] != 0 {
 					// Player already has a weapon in this slot.
-					pl.RawWeapons[cache[i2]] = nil
+					delete(pl.RawWeapons, cache[i2])
 				}
 				cache[i2] = entityID
 
@@ -275,9 +275,10 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 				if cache[i2] != 0 && pl.RawWeapons[cache[i2]] != nil {
 					pl.RawWeapons[cache[i2]].Owner = nil
 				}
-				pl.RawWeapons[cache[i2]] = nil
+				delete(pl.RawWeapons, cache[i2])
+
+				cache[i2] = 0
 			}
-			cache[i2] = 0
 		})
 	}
 

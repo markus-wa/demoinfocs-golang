@@ -51,7 +51,6 @@ type Player struct {
 	RoundStartEquipmentValue    int
 	ActiveWeaponID              int
 	RawWeapons                  map[int]*Equipment
-	Weapons                     []*Equipment
 	AmmoLeft                    [32]int
 	Entity                      *st.Entity
 	AdditionalPlayerInformation *AdditionalPlayerInformation
@@ -75,6 +74,15 @@ func (p *Player) IsAlive() bool {
 // ActiveWeapon returns the currently active / equipped weapon of the player.
 func (p *Player) ActiveWeapon() *Equipment {
 	return p.RawWeapons[p.ActiveWeaponID]
+}
+
+// Weapons returns all weapons in the player's possession
+func (p *Player) Weapons() []*Equipment {
+	res := make([]*Equipment, 0, len(p.RawWeapons))
+	for _, w := range p.RawWeapons {
+		res = append(res, w)
+	}
+	return res
 }
 
 // AdditionalPlayerInformation contains mostly scoreboard information.
