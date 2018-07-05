@@ -291,10 +291,6 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 }
 
 func (p *Parser) bindWeapons() {
-	for i := 0; i < maxEntities; i++ {
-		p.weapons[i] = common.NewEquipment("")
-	}
-
 	for _, sc := range p.stParser.ServerClasses() {
 		for _, bc := range sc.BaseClasses {
 			switch bc.Name {
@@ -330,22 +326,29 @@ func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
 	event.Entity.FindProperty("m_hThrower").RegisterPropertyUpdateHandler(func(val st.PropValue) {
-		throwerID := val.IntVal & indexMask
-		throwerIndex := throwerID - 1
+		proj.Thrower = p.propValueToPlayer(val)
 
-		thrower := p.entityIDToPlayers[throwerIndex]
-		proj.Thrower = thrower
+		// The Owner of a grenade is not modified in CWeaponCSBase when the grenade is thrown. In order to keep
+		// Player.CurrentEquipment updated, we remove thrown grenades here.
+		// @micvbang FYI: once a grenade is thrown it becomes a grenade projectile. The entity ID of a grenade
+		// projectile is _not_ the same as the grenade that was thrown. I haven't been able to find a better
+		// way to identify the thrown grenade, other than simply looping over all CurrentEquipment.
+		for _, eq := range proj.Thrower.CurrentEquipment {
+			if eq.Weapon == proj.Weapon {
+				ammo := proj.Thrower.AmmoLeft[eq.AmmoType]
 
-		if proj.Thrower == nil && thrower != nil {
-			proj.Position = thrower.Position
+				// Flashbang has more ammo, don't remove yet.
+				if eq.Weapon == common.EqFlash && ammo == 1 {
+					continue
+				}
+
+				delete(proj.Thrower.CurrentEquipment, eq.UniqueID())
+			}
 		}
 	})
 
 	event.Entity.FindProperty("m_hOwnerEntity").RegisterPropertyUpdateHandler(func(val st.PropValue) {
-		ownerID := val.IntVal & indexMask
-		ownerIndex := ownerID - 1
-		player := p.entityIDToPlayers[ownerIndex]
-		proj.Owner = player
+		proj.Owner = p.propValueToPlayer(val)
 	})
 
 	event.Entity.FindProperty("m_vecOrigin").RegisterPropertyUpdateHandler(func(st.PropValue) {
@@ -373,11 +376,18 @@ func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
 	})
 }
 
+func (p *Parser) propValueToPlayer(val st.PropValue) *common.Player {
+	entityID := val.IntVal & indexMask
+	return p.entityIDToPlayers[entityID-1]
+}
+
 func (p *Parser) bindWeapon(event st.EntityCreatedEvent) {
-	eq := &p.weapons[event.Entity.ID]
+	eq := common.NewEquipment("")
+	p.weapons[event.Entity.ID] = eq
 	eq.EntityID = event.Entity.ID
 	eq.Weapon = p.equipmentMapping[event.ServerClass]
 	eq.AmmoInMagazine = -1
+	eq.Owner = p.propValueToPlayer(event.Entity.FindProperty("m_hOwnerEntity").Value())
 
 	event.Entity.FindProperty("m_iClip1").RegisterPropertyUpdateHandler(func(val st.PropValue) {
 		eq.AmmoInMagazine = val.IntVal - 1
@@ -409,4 +419,27 @@ func (p *Parser) bindWeapon(event st.EntityCreatedEvent) {
 	case common.EqP250:
 		wepFix("_pist_p250", "_pist_cz_75", func() { eq.Weapon = common.EqCZ })
 	}
+
+	event.Entity.FindProperty("m_hPrevOwner").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+		prevOwner := p.propValueToPlayer(val)
+		owner := p.propValueToPlayer(event.Entity.FindProperty("m_hOwnerEntity").Value())
+		if prevOwner != nil && owner != nil && owner.SteamID != prevOwner.SteamID {
+			delete(prevOwner.CurrentEquipment, eq.UniqueID())
+		}
+	})
+
+	event.Entity.FindProperty("m_hOwnerEntity").RegisterPropertyUpdateHandler(func(val st.PropValue) {
+		owner := p.propValueToPlayer(val)
+
+		if owner != nil {
+			owner.CurrentEquipment[eq.UniqueID()] = &eq
+		}
+
+		// Owner changed to nil, remove equipment from old owner
+		if owner == nil && eq.Owner != nil {
+			delete(eq.Owner.CurrentEquipment, eq.UniqueID())
+		}
+
+		eq.Owner = owner
+	})
 }

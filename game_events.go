@@ -129,9 +129,11 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		killer := p.gameState.players[int(data["attacker"].GetValShort())]
 		wep := common.NewSkinEquipment(data["weapon"].GetValString(), data["weapon_itemid"].GetValString())
+		victim := p.gameState.players[int(data["userid"].GetValShort())]
+		victim.CurrentEquipment = make(map[int64]*common.Equipment)
 
 		p.eventDispatcher.Dispatch(events.PlayerKilledEvent{
-			Victim:            p.gameState.players[int(data["userid"].GetValShort())],
+			Victim:            victim,
 			Killer:            killer,
 			Assister:          p.gameState.players[int(data["assister"].GetValShort())],
 			IsHeadshot:        data["headshot"].GetValBool(),
@@ -358,6 +360,16 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 				Weapon: weapon,
 			})
 		case "item_remove":
+			// Under the assumption that a player can only have one of each type of weapon,
+			// we can safely find it in CurrentEquipment by looping through and comparing on
+			// the EquipmentElement.
+			for _, eq := range player.CurrentEquipment {
+				if eq.Weapon == weapon.Weapon {
+					delete(player.CurrentEquipment, eq.UniqueID())
+					break
+				}
+			}
+
 			p.eventDispatcher.Dispatch(events.ItemDropEvent{
 				Player: player,
 				Weapon: weapon,
