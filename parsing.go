@@ -236,10 +236,6 @@ func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
 	}()
 
 	for k, rp := range p.rawPlayers {
-		if rp == nil {
-			continue
-		}
-
 		// We need to re-map the players from their entityID to their UID.
 		// This is necessary because we don't always have the UID when the player connects (or something like that, not really sure tbh).
 		if pl := p.entityIDToPlayers[k]; pl != nil {

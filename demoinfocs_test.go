@@ -286,6 +286,11 @@ func TestHeaderNotParsed(t *testing.T) {
 
 	p := dem.NewParser(f)
 
+	_, err = p.ParseNextFrame()
+	if err != dem.ErrHeaderNotParsed {
+		t.Fatal("Tried to parse tick before header but error was not ErrHeaderNotParsed:", err)
+	}
+
 	err = p.ParseToEnd()
 	if err != dem.ErrHeaderNotParsed {
 		t.Fatal("Tried to parse tick before header but error was not ErrHeaderNotParsed:", err)
