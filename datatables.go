@@ -291,10 +291,6 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 }
 
 func (p *Parser) bindWeapons() {
-	for i := 0; i < maxEntities; i++ {
-		p.weapons[i] = common.NewEquipment("")
-	}
-
 	for _, sc := range p.stParser.ServerClasses() {
 		for _, bc := range sc.BaseClasses {
 			switch bc.Name {
@@ -374,7 +370,8 @@ func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
 }
 
 func (p *Parser) bindWeapon(event st.EntityCreatedEvent) {
-	eq := &p.weapons[event.Entity.ID]
+	eq := common.NewEquipment("")
+	p.weapons[event.Entity.ID] = eq
 	eq.EntityID = event.Entity.ID
 	eq.Weapon = p.equipmentMapping[event.ServerClass]
 	eq.AmmoInMagazine = -1
