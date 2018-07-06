@@ -387,17 +387,15 @@ func (p *Parser) bindWeapon(event st.EntityCreatedEvent) {
 	wepFix := func(ok string, change string, changer func()) {
 		event.Entity.FindProperty("m_nModelIndex").RegisterPropertyUpdateHandler(func(val st.PropValue) {
 			eq.OriginalString = p.modelPreCache[val.IntVal]
-			if strings.Contains(eq.OriginalString, ok) {
-				// That's already ok!
-			} else if strings.Contains(eq.OriginalString, change) {
+			// Check 'change' first because otherwise the m4a1_s is recognized as m4a4
+			if strings.Contains(eq.OriginalString, change) {
 				changer()
-			} else {
+			} else if !strings.Contains(eq.OriginalString, ok) {
 				panic(fmt.Sprintf("Unknown weapon model %q", eq.OriginalString))
 			}
 		})
 	}
 
-	// FIXME: Deag/R8???
 	switch eq.Weapon {
 	case common.EqP2000:
 		wepFix("_pist_hkp2000", "_pist_223", func() { eq.Weapon = common.EqUSP })
@@ -405,5 +403,7 @@ func (p *Parser) bindWeapon(event st.EntityCreatedEvent) {
 		wepFix("_rif_m4a1", "_rif_m4a1_s", func() { eq.Weapon = common.EqM4A1 })
 	case common.EqP250:
 		wepFix("_pist_p250", "_pist_cz_75", func() { eq.Weapon = common.EqCZ })
+	case common.EqDeagle:
+		wepFix("_pist_deagle", "_pist_revolver", func() { eq.Weapon = common.EqRevolver })
 	}
 }
