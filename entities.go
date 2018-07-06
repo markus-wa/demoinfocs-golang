@@ -27,12 +27,9 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 
 		if r.ReadBit() {
 			// Leave PVS
+			delete(p.entities, currentEntity)
 
-			// FIXME: Might have to destroy the entities contents first, not sure yet
-			// Could do weird stuff with event handlers otherwise
-			p.entities[currentEntity] = nil
-
-			// TODO: Force Delete if this is true??
+			// 'Force Delete' flag, not exactly sure what it's supposed to do
 			r.ReadBit()
 		} else {
 			if r.ReadBit() {
