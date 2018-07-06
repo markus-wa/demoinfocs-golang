@@ -56,7 +56,8 @@ func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
 	}
 
 	for _, idx := range *updatedPropIndices {
-		e.props[idx].FirePropertyUpdate(propDecoder.decodeProp(e.props[idx].entry, reader))
+		propDecoder.decodeProp(&e.props[idx], reader)
+		e.props[idx].firePropertyUpdate()
 	}
 
 	// Reset length to 0 before pooling
@@ -115,6 +116,13 @@ func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
 	return baseline
 }
 
+// ApplyBaseline baseline applies a previously collected baseline
+func (e *Entity) ApplyBaseline(baseline map[int]PropValue) {
+	for idx := range baseline {
+		e.props[idx].value = baseline[idx]
+	}
+}
+
 const maxCoordInt = 16384
 
 // Position returns the entity's position in world coordinates.
@@ -164,13 +172,11 @@ func (pe *PropertyEntry) Value() PropValue {
 	return pe.value
 }
 
-// FirePropertyUpdate triggers all registered PropertyUpdateHandler
-// on the PropertyEntry with the given PropValue.
-func (pe *PropertyEntry) FirePropertyUpdate(value PropValue) {
-	pe.value = value
+// Trigger all the registered PropertyUpdateHandlers on this entry.
+func (pe *PropertyEntry) firePropertyUpdate() {
 	for _, h := range pe.updateHandlers {
 		if h != nil {
-			h(value)
+			h(pe.value)
 		}
 	}
 }

@@ -59,7 +59,7 @@ func (sc *ServerClass) FireEntityCreatedEvent(entity *Entity) {
 	}
 
 	for _, v := range entity.props {
-		v.FirePropertyUpdate(v.value)
+		v.firePropertyUpdate()
 	}
 }
 

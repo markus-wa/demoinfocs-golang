@@ -54,9 +54,7 @@ func (p *Parser) readEnterPVS(reader *bit.BitReader, entityID int) *st.Entity {
 	newEntity := st.NewEntity(entityID, p.stParser.ServerClasses()[scID])
 
 	if p.preprocessedBaselines[scID] != nil {
-		for idx, val := range p.preprocessedBaselines[scID] {
-			newEntity.Props()[idx].FirePropertyUpdate(val)
-		}
+		newEntity.ApplyBaseline(p.preprocessedBaselines[scID])
 	} else {
 		if p.instanceBaselines[scID] != nil {
 			r := bit.NewSmallBitReader(bytes.NewReader(p.instanceBaselines[scID]))

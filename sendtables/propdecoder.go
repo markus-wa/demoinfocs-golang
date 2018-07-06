@@ -82,28 +82,28 @@ type PropValue struct {
 
 type propertyDecoder struct{}
 
-func (propertyDecoder) decodeProp(fProp *FlattenedPropEntry, reader *bit.BitReader) PropValue {
-	switch fProp.prop.rawType {
+func (propertyDecoder) decodeProp(prop *PropertyEntry, reader *bit.BitReader) {
+	switch prop.entry.prop.rawType {
 	case propTypeFloat:
-		return PropValue{FloatVal: propDecoder.decodeFloat(fProp.prop, reader)}
+		prop.value.FloatVal = propDecoder.decodeFloat(prop.entry.prop, reader)
 
 	case propTypeInt:
-		return PropValue{IntVal: propDecoder.decodeInt(fProp.prop, reader)}
+		prop.value.IntVal = propDecoder.decodeInt(prop.entry.prop, reader)
 
 	case propTypeVectorXY:
-		return PropValue{VectorVal: propDecoder.decodeVectorXY(fProp.prop, reader)}
+		prop.value.VectorVal = propDecoder.decodeVectorXY(prop.entry.prop, reader)
 
 	case propTypeVector:
-		return PropValue{VectorVal: propDecoder.decodeVector(fProp.prop, reader)}
+		prop.value.VectorVal = propDecoder.decodeVector(prop.entry.prop, reader)
 
 	case propTypeArray:
-		return PropValue{ArrayVal: propDecoder.decodeArray(fProp, reader)}
+		prop.value.ArrayVal = propDecoder.decodeArray(prop.entry, reader)
 
 	case propTypeString:
-		return PropValue{StringVal: propDecoder.decodeString(fProp.prop, reader)}
+		prop.value.StringVal = propDecoder.decodeString(prop.entry.prop, reader)
 
 	default:
-		panic(fmt.Sprintf("Unknown prop type %d", fProp.prop.rawType))
+		panic(fmt.Sprintf("Unknown prop type %d", prop.entry.prop.rawType))
 	}
 }
 
@@ -295,10 +295,13 @@ func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader *bit.BitRea
 
 	res := make([]PropValue, 0, nElements)
 
-	tmp := &FlattenedPropEntry{prop: fProp.arrayElementProp}
+	tmp := &PropertyEntry{
+		entry: &FlattenedPropEntry{prop: fProp.arrayElementProp},
+	}
 
 	for i := 0; i < nElements; i++ {
-		res = append(res, propDecoder.decodeProp(tmp, reader))
+		propDecoder.decodeProp(tmp, reader)
+		res = append(res, tmp.value)
 	}
 
 	return res
