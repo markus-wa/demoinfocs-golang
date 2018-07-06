@@ -147,10 +147,12 @@ func coordFromCell(cell, cellWidth int, offset float64) float64 {
 
 // NewEntity creates a new Entity with a given id and ServerClass and returns it.
 func NewEntity(id int, serverClass *ServerClass) *Entity {
-	props := make([]PropertyEntry, len(serverClass.FlattenedProps))
+	propCount := len(serverClass.FlattenedProps)
+	props := make([]PropertyEntry, propCount, propCount+1) // Cap +1 for CreateFinishedDummyProp
 	for i := range serverClass.FlattenedProps {
 		props[i] = PropertyEntry{entry: &serverClass.FlattenedProps[i]}
 	}
+
 	return &Entity{ID: id, ServerClass: serverClass, props: props}
 }
 
