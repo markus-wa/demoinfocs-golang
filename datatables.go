@@ -321,7 +321,7 @@ func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
 	proj.EntityID = event.Entity.ID
 
 	event.Entity.FindProperty("m_nModelIndex").RegisterPropertyUpdateHandler(func(val st.PropValue) {
-		proj.Weapon = p.grenadeModelIndicies[val.IntVal]
+		proj.Weapon = p.grenadeModelIndices[val.IntVal]
 	})
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.

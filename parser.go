@@ -49,7 +49,7 @@ type Parser struct {
 	instanceBaselines     map[int][]byte                                  // Maps server-class IDs to instance baselines
 	preprocessedBaselines map[int]map[int]st.PropValue                    // Maps server-class IDs to preprocessed baselines (preprocessed-baseline = property-index to value map)
 	gameEventDescs        map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
-	grenadeModelIndicies  map[int]common.EquipmentElement                 // Used to map model indicies to grenades (used for grenade projectiles)
+	grenadeModelIndices   map[int]common.EquipmentElement                 // Used to map model indices to grenades (used for grenade projectiles)
 	stringTables          []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
 }
 
@@ -213,7 +213,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
 	p.gameState = newGameState()
-	p.grenadeModelIndicies = make(map[int]common.EquipmentElement)
+	p.grenadeModelIndices = make(map[int]common.EquipmentElement)
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)

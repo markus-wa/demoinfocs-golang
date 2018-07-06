@@ -23,7 +23,7 @@ func (p *Parser) processModelPreCacheUpdate() {
 	for i, name := range p.modelPreCache {
 		for _, nade := range modelPrecacheNameToEq {
 			if strings.Contains(name, nade.name) {
-				p.grenadeModelIndicies[i] = nade.eq
+				p.grenadeModelIndices[i] = nade.eq
 			}
 		}
 	}
