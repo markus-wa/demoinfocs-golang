@@ -37,14 +37,10 @@ func (e *Entity) FindProperty(name string) *PropertyEntry {
 	return prop
 }
 
-// Wrapping the slice in a struct causes far fewer object allocations for some reason
-type entrySliceBacker struct {
-	slice []*PropertyEntry
-}
-
-var entrySliceBackerPool sync.Pool = sync.Pool{
+var updatedPropIndicesPool = sync.Pool{
 	New: func() interface{} {
-		return &entrySliceBacker{make([]*PropertyEntry, 0, 8)}
+		s := make([]int, 0, 8)
+		return &s
 	},
 }
 
@@ -53,21 +49,20 @@ var entrySliceBackerPool sync.Pool = sync.Pool{
 func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
 	idx := -1
 	newWay := reader.ReadBit()
-	backer := entrySliceBackerPool.Get().(*entrySliceBacker)
+	updatedPropIndices := updatedPropIndicesPool.Get().(*[]int)
 
-	// TODO: Use index slice instead?
 	for idx = readFieldIndex(reader, idx, newWay); idx != -1; idx = readFieldIndex(reader, idx, newWay) {
-		backer.slice = append(backer.slice, &e.props[idx])
+		*updatedPropIndices = append(*updatedPropIndices, idx)
 	}
 
-	for _, prop := range backer.slice {
-		prop.FirePropertyUpdate(propDecoder.decodeProp(prop.entry, reader))
+	for _, idx := range *updatedPropIndices {
+		e.props[idx].FirePropertyUpdate(propDecoder.decodeProp(e.props[idx].entry, reader))
 	}
 
-	// Reset to 0 length before pooling
-	backer.slice = backer.slice[:0]
+	// Reset length to 0 before pooling
+	*updatedPropIndices = (*updatedPropIndices)[:0]
 	// Defer has quite the overhead so we just fill the pool here
-	entrySliceBackerPool.Put(backer)
+	updatedPropIndicesPool.Put(updatedPropIndices)
 }
 
 func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {

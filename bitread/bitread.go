@@ -76,7 +76,7 @@ func (r *BitReader) ReadUBitInt() uint {
 	return res
 }
 
-var bitReaderPool sync.Pool = sync.Pool{
+var bitReaderPool = sync.Pool{
 	New: func() interface{} {
 		return new(BitReader)
 	},

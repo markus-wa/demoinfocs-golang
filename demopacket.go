@@ -92,7 +92,7 @@ func (p *Parser) parsePacket() {
 		}
 		p.msgQueue <- m
 
-		// Reset to 0 length and pool
+		// Reset length to 0 and pool
 		*b = (*b)[:0]
 		byteSlicePool.Put(b)
 
