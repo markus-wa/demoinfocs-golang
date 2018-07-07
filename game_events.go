@@ -3,7 +3,6 @@ package demoinfocs
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	r3 "github.com/golang/geo/r3"
 
@@ -183,11 +182,6 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			Z: float64(data["z"].ValFloat),
 		}
 		nadeEntityID := int(data["entityid"].GetValShort())
-
-		// Grenade projectiles should be removed once the grenade detonates.
-		if strings.Contains(d.Name, "detonate") || strings.Contains(d.Name, "started") {
-			delete(p.gameState.grenadeProjectiles, nadeEntityID)
-		}
 
 		switch d.Name {
 		case "flashbang_detonate": // Flash exploded

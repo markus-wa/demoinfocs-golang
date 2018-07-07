@@ -14,6 +14,7 @@ type Entity struct {
 	ID          int
 	ServerClass *ServerClass
 	props       []PropertyEntry
+	onDestroy   []func()
 }
 
 // Props returns all properties (PropertyEntry) for the Entity.
@@ -143,6 +144,18 @@ func (e *Entity) Position() r3.Vector {
 // Returns a coordinate from a cell + offset
 func coordFromCell(cell, cellWidth int, offset float64) float64 {
 	return float64(cell*cellWidth-maxCoordInt) + offset
+}
+
+// OnDestroy registers a function to be called on the entity's destruction.
+func (e *Entity) OnDestroy(delegate func()) {
+	e.onDestroy = append(e.onDestroy, delegate)
+}
+
+// Destroy triggers all via OnDestroy() registered functions.
+func (e *Entity) Destroy() {
+	for _, f := range e.onDestroy {
+		f()
+	}
 }
 
 // NewEntity creates a new Entity with a given id and ServerClass and returns it.

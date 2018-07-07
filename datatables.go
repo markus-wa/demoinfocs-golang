@@ -367,6 +367,10 @@ func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
 			Projectile: proj,
 		})
 	})
+
+	event.Entity.OnDestroy(func() {
+		delete(p.gameState.grenadeProjectiles, event.Entity.ID)
+	})
 }
 
 func (p *Parser) bindWeapon(event st.EntityCreatedEvent) {
