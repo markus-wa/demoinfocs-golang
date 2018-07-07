@@ -267,12 +267,12 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 				})
 			} else {
 				p.eventDispatcher.Dispatch(events.ParserWarnEvent{
-					Message: "Player team swap game-event occured but player.Team == newTeam",
+					Message: "Player team swap game-event occurred but player.Team == newTeam",
 				})
 			}
 		} else {
 			p.eventDispatcher.Dispatch(events.ParserWarnEvent{
-				Message: "Player team swap game-event occured but player is nil",
+				Message: "Player team swap game-event occurred but player is nil",
 			})
 		}
 
@@ -433,9 +433,9 @@ func getAttackingWeapon(wep *common.Equipment, attacker *common.Player) *common.
 	isSpecialWeapon := class == common.EqClassGrenade || (class == common.EqClassEquipment && wep.Weapon != common.EqKnife)
 	if !isSpecialWeapon && attacker != nil && len(attacker.RawWeapons) > 0 {
 		return attacker.ActiveWeapon()
-	} else {
-		return wep
 	}
+
+	return wep
 }
 
 func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_GameEvent) map[string]*msg.CSVCMsg_GameEventKeyT {
