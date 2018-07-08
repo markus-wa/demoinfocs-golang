@@ -49,6 +49,7 @@ var updatedPropIndicesPool = sync.Pool{
 
 // ApplyUpdate reads an update to an Enitiy's properties and
 // triggers registered PropertyUpdateHandlers if values changed.
+// Intended for internal use only.
 func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
 	idx := -1
 	newWay := reader.ReadBit()
@@ -99,6 +100,7 @@ func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 }
 
 // InitializeBaseline applies an update and collects a baseline (default values) from the update.
+// Intended for internal use only.
 func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
 	baseline := make(map[int]PropValue)
 	for i := range e.props {
@@ -119,7 +121,8 @@ func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
 	return baseline
 }
 
-// ApplyBaseline baseline applies a previously collected baseline
+// ApplyBaseline baseline applies a previously collected baseline.
+// Intended for internal use only.
 func (e *Entity) ApplyBaseline(baseline map[int]PropValue) {
 	for idx := range baseline {
 		e.props[idx].value = baseline[idx]
@@ -154,6 +157,7 @@ func (e *Entity) OnDestroy(delegate func()) {
 }
 
 // Destroy triggers all via OnDestroy() registered functions.
+// Intended for internal use only.
 func (e *Entity) Destroy() {
 	for _, f := range e.onDestroy {
 		f()
