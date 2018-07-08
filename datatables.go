@@ -307,15 +307,14 @@ func (p *Parser) bindWeapons() {
 
 }
 
-// bindGrenadeProjectiles keeps track of the location of live grenades, actively thrown by players.
+// bindGrenadeProjectiles keeps track of the location of live grenades (Parser.gameState.grenadeProjectiles), actively thrown by players.
 // It does track the location of grenades lying on the ground, i.e. that were dropped by dead players.
-//
-// NOTE: Parser.gameState.grenadeProjectiles is updated here. We rely on code during the handling of the game events
-// "[nade]_detonate" and "[nade]_started" to remove projectiles from Parser.gameState.grenadeProjectiles once they detonate.
 func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
-	if _, ok := p.gameState.grenadeProjectiles[event.Entity.ID]; !ok {
-		p.gameState.grenadeProjectiles[event.Entity.ID] = common.NewGrenadeProjectile()
-	}
+	p.gameState.grenadeProjectiles[event.Entity.ID] = common.NewGrenadeProjectile()
+
+	event.Entity.OnDestroy(func() {
+		delete(p.gameState.grenadeProjectiles, event.Entity.ID)
+	})
 
 	proj := p.gameState.grenadeProjectiles[event.Entity.ID]
 	proj.EntityID = event.Entity.ID
@@ -362,14 +361,10 @@ func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
 		})
 	}
 
-	event.Entity.FindProperty(st.CreateFinishedDummyPropertyName).RegisterPropertyUpdateHandler(func(st.PropValue) {
+	event.Entity.OnCreateFinished(func() {
 		p.eventDispatcher.Dispatch(events.NadeProjectileThrownEvent{
 			Projectile: proj,
 		})
-	})
-
-	event.Entity.OnDestroy(func() {
-		delete(p.gameState.grenadeProjectiles, event.Entity.ID)
 	})
 }
 

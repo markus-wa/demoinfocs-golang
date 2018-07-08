@@ -11,10 +11,11 @@ import (
 
 // Entity stores a entity in the game (e.g. players etc.) with its properties.
 type Entity struct {
-	ID          int
-	ServerClass *ServerClass
-	props       []PropertyEntry
-	onDestroy   []func()
+	ID               int
+	ServerClass      *ServerClass
+	props            []PropertyEntry
+	onDestroy        []func()
+	onCreateFinished []func()
 }
 
 // Props returns all properties (PropertyEntry) for the Entity.
@@ -158,10 +159,16 @@ func (e *Entity) Destroy() {
 	}
 }
 
+// OnCreateFinished registers a function to be called once the entity is fully created -
+// i.e. once all property updates have been sent out.
+func (e *Entity) OnCreateFinished(delegate func()) {
+	e.onDestroy = append(e.onDestroy, delegate)
+}
+
 // NewEntity creates a new Entity with a given id and ServerClass and returns it.
 func NewEntity(id int, serverClass *ServerClass) *Entity {
 	propCount := len(serverClass.FlattenedProps)
-	props := make([]PropertyEntry, propCount, propCount+1) // Cap +1 for CreateFinishedDummyProp
+	props := make([]PropertyEntry, propCount)
 	for i := range serverClass.FlattenedProps {
 		props[i] = PropertyEntry{entry: &serverClass.FlattenedProps[i]}
 	}

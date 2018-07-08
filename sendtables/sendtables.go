@@ -38,20 +38,9 @@ type ServerClass struct {
 	entityCreatedHandlers []EntityCreatedHandler
 }
 
-// CreateFinishedDummyPropertyName is a dummy property for entities.
-// When it's updated it signals that the entity creation has finished (all property updates sent out).
-// TODO: Figure out a better way to do this.
-const CreateFinishedDummyPropertyName = "CreateFinishedDummyProp"
-
 // FireEntityCreatedEvent triggers all registered EntityCreatedHandlers
 // on the ServerClass with a new EntityCreatedEvent.
 func (sc *ServerClass) FireEntityCreatedEvent(entity *Entity) {
-	entity.props = append(entity.props, PropertyEntry{
-		entry: &FlattenedPropEntry{
-			name: CreateFinishedDummyPropertyName,
-		},
-	})
-
 	for _, h := range sc.entityCreatedHandlers {
 		if h != nil {
 			h(EntityCreatedEvent{Entity: entity, ServerClass: sc})
@@ -60,6 +49,11 @@ func (sc *ServerClass) FireEntityCreatedEvent(entity *Entity) {
 
 	for _, v := range entity.props {
 		v.firePropertyUpdate()
+	}
+
+	// Fire all create-finished actions
+	for _, f := range entity.onCreateFinished {
+		f()
 	}
 }
 
