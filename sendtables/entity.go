@@ -40,6 +40,13 @@ func (e *Entity) FindProperty(name string) *PropertyEntry {
 	return prop
 }
 
+// BindProperty combines FindProperty() & PropertyEntry.Bind() into one.
+// Essentially binds a property's value to a pointer.
+// See the docs of the two individual functions for more info.
+func (e *Entity) BindProperty(name string, variable interface{}, valueType propertyValueType) {
+	e.FindProperty(name).Bind(variable, valueType)
+}
+
 var updatedPropIndicesPool = sync.Pool{
 	New: func() interface{} {
 		s := make([]int, 0, 8)
@@ -217,6 +224,71 @@ func (pe *PropertyEntry) RegisterPropertyUpdateHandler(handler PropertyUpdateHan
 // OnUpdate registers a handler for updates of the PropertyEntry's value.
 func (pe *PropertyEntry) OnUpdate(handler PropertyUpdateHandler) {
 	pe.updateHandlers = append(pe.updateHandlers, handler)
+}
+
+type propertyValueType int
+
+// Possible types of property values.
+// See PropertyEntry.Bind()
+const (
+	ValTypeInt propertyValueType = iota
+	ValTypeFloat32
+	ValTypeFloat64
+	ValTypeString
+	ValTypeVector
+	ValTypeArray
+	ValTypeBoolInt // Int that is treated as bool (1 -> true, != 1 -> false)
+)
+
+/*
+Bind binds a property's value to a pointer.
+
+Example:
+	var i int
+	PropertyEntry.Bind(&i, ValTypeInt)
+
+This will bind the property's value to i so every time it's updated i is updated as well.
+
+The valueType indicates which field of the PropValue to use for the binding.
+*/
+func (pe *PropertyEntry) Bind(variable interface{}, valueType propertyValueType) {
+	var binder PropertyUpdateHandler
+	switch valueType {
+	case ValTypeInt:
+		binder = func(val PropValue) {
+			*(variable.(*int)) = val.IntVal
+		}
+	case ValTypeBoolInt:
+		binder = func(val PropValue) {
+			*(variable.(*bool)) = val.IntVal == 1
+		}
+
+	case ValTypeFloat32:
+		binder = func(val PropValue) {
+			*(variable.(*float32)) = val.FloatVal
+		}
+
+	case ValTypeFloat64:
+		binder = func(val PropValue) {
+			*(variable.(*float64)) = float64(val.FloatVal)
+		}
+
+	case ValTypeString:
+		binder = func(val PropValue) {
+			*(variable.(*string)) = val.StringVal
+		}
+
+	case ValTypeVector:
+		binder = func(val PropValue) {
+			*(variable.(*r3.Vector)) = val.VectorVal
+		}
+
+	case ValTypeArray:
+		binder = func(val PropValue) {
+			*(variable.(*[]PropValue)) = val.ArrayVal
+		}
+	}
+	pe.OnUpdate(binder)
 }
 
 // PropertyUpdateHandler is the interface for handlers that are interested in PropertyEntry changes.
