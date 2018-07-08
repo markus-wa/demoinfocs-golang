@@ -11,11 +11,12 @@ import (
 
 // Entity stores a entity in the game (e.g. players etc.) with its properties.
 type Entity struct {
-	ID               int
-	ServerClass      *ServerClass
-	props            []PropertyEntry
-	onDestroy        []func()
+	ID          int
+	ServerClass *ServerClass
+	props       []PropertyEntry
+
 	onCreateFinished []func()
+	onDestroy        []func()
 }
 
 // Props returns all properties (PropertyEntry) for the Entity.
