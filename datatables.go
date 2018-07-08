@@ -10,11 +10,11 @@ import (
 )
 
 const (
-	maxEditctBits = 11
-	indexMask     = ((1 << maxEditctBits) - 1)
-	maxEntities   = (1 << maxEditctBits)
-	maxPlayers    = 64
-	maxWeapons    = 64
+	maxEdictBits = 11
+	indexMask    = ((1 << maxEdictBits) - 1)
+	maxEntities  = (1 << maxEdictBits)
+	maxPlayers   = 64
+	maxWeapons   = 64
 )
 
 // Everything here feels kinda fucked
