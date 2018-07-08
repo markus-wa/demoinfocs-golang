@@ -308,7 +308,7 @@ func (p *Parser) bindWeapons() {
 }
 
 // bindGrenadeProjectiles keeps track of the location of live grenades (Parser.gameState.grenadeProjectiles), actively thrown by players.
-// It does track the location of grenades lying on the ground, i.e. that were dropped by dead players.
+// It does NOT track the location of grenades lying on the ground, i.e. that were dropped by dead players.
 func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
 	p.gameState.grenadeProjectiles[event.Entity.ID] = common.NewGrenadeProjectile()
 
@@ -330,10 +330,6 @@ func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
 
 		thrower := p.entityIDToPlayers[throwerIndex]
 		proj.Thrower = thrower
-
-		if proj.Thrower == nil && thrower != nil {
-			proj.Position = thrower.Position
-		}
 	})
 
 	event.Entity.FindProperty("m_hOwnerEntity").OnUpdate(func(val st.PropValue) {
