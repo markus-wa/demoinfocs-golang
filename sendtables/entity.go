@@ -163,7 +163,7 @@ func (e *Entity) Destroy() {
 // OnCreateFinished registers a function to be called once the entity is fully created -
 // i.e. once all property updates have been sent out.
 func (e *Entity) OnCreateFinished(delegate func()) {
-	e.onDestroy = append(e.onDestroy, delegate)
+	e.onCreateFinished = append(e.onCreateFinished, delegate)
 }
 
 // NewEntity creates a new Entity with a given id and ServerClass and returns it.
