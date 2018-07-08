@@ -14,6 +14,9 @@ type Entity struct {
 	ID          int
 	ServerClass *ServerClass
 	props       []PropertyEntry
+
+	onCreateFinished []func()
+	onDestroy        []func()
 }
 
 // Props returns all properties (PropertyEntry) for the Entity.
@@ -46,6 +49,7 @@ var updatedPropIndicesPool = sync.Pool{
 
 // ApplyUpdate reads an update to an Enitiy's properties and
 // triggers registered PropertyUpdateHandlers if values changed.
+// Intended for internal use only.
 func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
 	idx := -1
 	newWay := reader.ReadBit()
@@ -96,6 +100,7 @@ func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 }
 
 // InitializeBaseline applies an update and collects a baseline (default values) from the update.
+// Intended for internal use only.
 func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
 	baseline := make(map[int]PropValue)
 	for i := range e.props {
@@ -116,7 +121,8 @@ func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
 	return baseline
 }
 
-// ApplyBaseline baseline applies a previously collected baseline
+// ApplyBaseline baseline applies a previously collected baseline.
+// Intended for internal use only.
 func (e *Entity) ApplyBaseline(baseline map[int]PropValue) {
 	for idx := range baseline {
 		e.props[idx].value = baseline[idx]
@@ -145,10 +151,29 @@ func coordFromCell(cell, cellWidth int, offset float64) float64 {
 	return float64(cell*cellWidth-maxCoordInt) + offset
 }
 
+// OnDestroy registers a function to be called on the entity's destruction.
+func (e *Entity) OnDestroy(delegate func()) {
+	e.onDestroy = append(e.onDestroy, delegate)
+}
+
+// Destroy triggers all via OnDestroy() registered functions.
+// Intended for internal use only.
+func (e *Entity) Destroy() {
+	for _, f := range e.onDestroy {
+		f()
+	}
+}
+
+// OnCreateFinished registers a function to be called once the entity is fully created -
+// i.e. once all property updates have been sent out.
+func (e *Entity) OnCreateFinished(delegate func()) {
+	e.onCreateFinished = append(e.onCreateFinished, delegate)
+}
+
 // NewEntity creates a new Entity with a given id and ServerClass and returns it.
 func NewEntity(id int, serverClass *ServerClass) *Entity {
 	propCount := len(serverClass.FlattenedProps)
-	props := make([]PropertyEntry, propCount, propCount+1) // Cap +1 for CreateFinishedDummyProp
+	props := make([]PropertyEntry, propCount)
 	for i := range serverClass.FlattenedProps {
 		props[i] = PropertyEntry{entry: &serverClass.FlattenedProps[i]}
 	}

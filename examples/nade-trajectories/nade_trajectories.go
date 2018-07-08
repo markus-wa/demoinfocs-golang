@@ -33,7 +33,7 @@ var (
 	colorDecoy color.Color = color.RGBA{0x96, 0x4b, 0x00, 0xff} // Brown, because it's shit :)
 )
 
-// Run like this: go run bouncynades.go -demo /path/to/demo.dem > bouncynades.jpg
+// Run like this: go run nade_trajectories.go -demo /path/to/demo.dem > nade_trajectories.jpg
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
 	checkError(err)
@@ -44,46 +44,25 @@ func main() {
 	_, err = p.ParseHeader()
 	checkError(err)
 
-	nadePaths := make([]*nadePath, 0)           // Paths of detonated projectiles
-	currentNadePaths := make(map[int]*nadePath) // Currently live projectiles
+	nadePaths := make(map[int64]*nadePath) // Currently live projectiles
 
-	storeNadePath := func(entityID int, pos r3.Vector, wep common.EquipmentElement, team common.Team) {
-		if currentNadePaths[entityID] == nil {
-			currentNadePaths[entityID] = &nadePath{
+	storeNadePath := func(id int64, pos r3.Vector, wep common.EquipmentElement, team common.Team) {
+		if nadePaths[id] == nil {
+			nadePaths[id] = &nadePath{
 				wep:  wep,
 				team: team,
 			}
 		}
 
-		currentNadePaths[entityID].path = append(currentNadePaths[entityID].path, pos)
+		nadePaths[id].path = append(nadePaths[id].path, pos)
 	}
 
-	p.RegisterEventHandler(func(e events.NadeEventIf) {
-		ne := e.Base()
-
-		var team common.Team
-		if ne.Thrower != nil {
-			team = ne.Thrower.Team
-		}
-
-		storeNadePath(ne.NadeEntityID, ne.Position, ne.NadeType, team)
-		nadePaths = append(nadePaths, currentNadePaths[ne.NadeEntityID])
-		delete(currentNadePaths, ne.NadeEntityID)
-	})
-
 	p.RegisterEventHandler(func(e events.NadeProjectileThrownEvent) {
-		// Save previous projectile and delete from current, just a safeguard for missing NadeEvents
-		np := currentNadePaths[e.Projectile.EntityID]
-		if np != nil {
-			nadePaths = append(nadePaths, np)
-			delete(currentNadePaths, e.Projectile.EntityID)
-		}
-
-		storeNadePath(e.Projectile.EntityID, e.Projectile.Position, e.Projectile.Weapon, e.Projectile.Thrower.Team)
+		storeNadePath(e.Projectile.UniqueID(), e.Projectile.Position, e.Projectile.Weapon, e.Projectile.Thrower.Team)
 	})
 
 	p.RegisterEventHandler(func(e events.NadeProjectileBouncedEvent) {
-		storeNadePath(e.Projectile.EntityID, e.Projectile.Position, e.Projectile.Weapon, e.Projectile.Thrower.Team)
+		storeNadePath(e.Projectile.UniqueID(), e.Projectile.Position, e.Projectile.Weapon, e.Projectile.Thrower.Team)
 	})
 
 	var nadePathsFirstHalf []*nadePath
@@ -93,8 +72,11 @@ func main() {
 		// Very cheap first half check (we only want the first teams CT-side nades in the example).
 		// Won't work with demos that have match-restarts etc.
 		if round == 15 {
-			nadePathsFirstHalf = nadePaths
-			nadePaths = make([]*nadePath, 0)
+			// Copy all nade paths from the first 15 rounds
+			for _, np := range nadePaths {
+				nadePathsFirstHalf = append(nadePathsFirstHalf, np)
+			}
+			nadePaths = make(map[int64]*nadePath)
 		}
 	})
 
@@ -119,11 +101,6 @@ func main() {
 
 	gc.SetLineWidth(1)                      // 1 px lines
 	gc.SetFillColor(color.RGBA{0, 0, 0, 0}) // No fill, alpha 0
-
-	// Add any pending paths
-	for _, np := range currentNadePaths {
-		nadePaths = append(nadePaths, np)
-	}
 
 	for _, np := range nadePathsFirstHalf {
 		if np.team != common.TeamCounterTerrorists {
