@@ -109,7 +109,7 @@ func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
 			baseline[i2] = val
 		}
 
-		e.props[i].RegisterPropertyUpdateHandler(adder)
+		e.props[i].OnUpdate(adder)
 	}
 
 	e.ApplyUpdate(r)
@@ -208,9 +208,14 @@ func (pe *PropertyEntry) firePropertyUpdate() {
 	}
 }
 
-// RegisterPropertyUpdateHandler registers a PropertyUpdateHandler.
-// The handler will be triggered on every FirePropertyUpdate call.
+// RegisterPropertyUpdateHandler registers a handler for updates of the PropertyEntry's value.
+// Deprecated: Use OnUpdate instead.
 func (pe *PropertyEntry) RegisterPropertyUpdateHandler(handler PropertyUpdateHandler) {
+	pe.OnUpdate(handler)
+}
+
+// OnUpdate registers a handler for updates of the PropertyEntry's value.
+func (pe *PropertyEntry) OnUpdate(handler PropertyUpdateHandler) {
 	pe.updateHandlers = append(pe.updateHandlers, handler)
 }
 
