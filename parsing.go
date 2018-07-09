@@ -60,8 +60,7 @@ func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 	}
 
 	p.header = &h
-	// TODO: Deprecated, remove this + HeaderParsedEvent in 1.0.0
-	p.eventDispatcher.Dispatch(events.HeaderParsedEvent{Header: h})
+
 	return h, nil
 }
 

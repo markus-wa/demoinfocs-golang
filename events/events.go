@@ -8,12 +8,6 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
-// HeaderParsedEvent signals that the header has been parsed.
-// Deprecated, use Parser.Header() instead.
-type HeaderParsedEvent struct {
-	Header common.DemoHeader
-}
-
 // TickDoneEvent signals that a tick is done.
 type TickDoneEvent struct{}
 
