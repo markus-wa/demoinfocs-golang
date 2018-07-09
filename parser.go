@@ -39,7 +39,7 @@ type Parser struct {
 	// Important fields
 
 	bitReader                    *bit.BitReader
-	stParser                     st.SendTableParser
+	stParser                     *st.SendTableParser
 	additionalNetMessageCreators map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                     chan interface{}          // Queue of net-messages
 	msgDispatcher                dp.Dispatcher             // Net-message dispatcher
@@ -53,21 +53,19 @@ type Parser struct {
 
 	// Additional fields, mainly caching & tracking things
 
-	bombsiteA             bombsite
-	bombsiteB             bombsite
-	equipmentMapping      map[*st.ServerClass]common.EquipmentElement     // Maps server classes to equipment-types
-	rawPlayers            map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
-	entityIDToPlayers     map[int]*common.Player                          // Temporary storage since we need to map players from entityID to userID later
-	additionalPlayerInfo  [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
-	entities              map[int]*st.Entity                              // Maps entity IDs to entities
-	modelPreCache         []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
-	weapons               [maxEntities]common.Equipment                   // Used to remember what a weapon is (p250 / cz etc.)
-	triggers              map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
-	instanceBaselines     map[int][]byte                                  // Maps server-class IDs to instance baselines
-	preprocessedBaselines map[int]map[int]st.PropValue                    // Maps server-class IDs to preprocessed baselines (preprocessed-baseline = property-index to value map)
-	gameEventDescs        map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
-	grenadeModelIndices   map[int]common.EquipmentElement                 // Used to map model indices to grenades (used for grenade projectiles)
-	stringTables          []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
+	bombsiteA            bombsite
+	bombsiteB            bombsite
+	equipmentMapping     map[*st.ServerClass]common.EquipmentElement     // Maps server classes to equipment-types
+	rawPlayers           map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
+	entityIDToPlayers    map[int]*common.Player                          // Temporary storage since we need to map players from entityID to userID later
+	additionalPlayerInfo [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
+	entities             map[int]*st.Entity                              // Maps entity IDs to entities
+	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
+	weapons              [maxEntities]common.Equipment                   // Used to remember what a weapon is (p250 / cz etc.)
+	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
+	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
+	grenadeModelIndices  map[int]common.EquipmentElement                 // Used to map model indices to grenades (used for grenade projectiles)
+	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
 }
 
 type bombsite struct {
@@ -86,11 +84,10 @@ func (bbi boundingBoxInformation) contains(point r3.Vector) bool {
 		point.Z >= bbi.min.Z && point.Z <= bbi.max.Z
 }
 
-// SendTableParser returns the sendtable parser.
-//
-// This is a beta feature and may be changed or replaced without notice.
-func (p *Parser) SendTableParser() *st.SendTableParser {
-	return &p.stParser
+// ServerClasses returns the server-classes of this demo.
+// These are available after events.DataTablesParsedEvent has been fired.
+func (p *Parser) ServerClasses() st.ServerClasses {
+	return p.stParser.ServerClasses()
 }
 
 // Header returns the DemoHeader which contains the demo's metadata.
@@ -245,8 +242,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 
 	// Init parser
 	p.bitReader = bit.NewLargeBitReader(demostream)
-	p.instanceBaselines = make(map[int][]byte)
-	p.preprocessedBaselines = make(map[int]map[int]st.PropValue)
+	p.stParser = st.NewSendTableParser()
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
 	p.rawPlayers = make(map[int]*playerInfo)
 	p.entityIDToPlayers = make(map[int]*common.Player)

@@ -69,11 +69,11 @@ func (p *Parser) parseSingleStringTable(name string) {
 				p.rawPlayers[int(pid)] = player
 
 			case stNameInstanceBaseline:
-				pid, err := strconv.ParseInt(stringName, 10, 64)
+				classID, err := strconv.ParseInt(stringName, 10, 64)
 				if err != nil {
 					panic("Couldn't parse id from string")
 				}
-				p.instanceBaselines[int(pid)] = data
+				p.stParser.SetInstanceBaseline(int(classID), data)
 
 			case stNameModelPreCache:
 				p.modelPreCache = append(p.modelPreCache, stringName)
@@ -183,30 +183,30 @@ func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		}
 		hist = append(hist, entry)
 
-		var userdat []byte
+		var userdata []byte
 		if br.ReadBit() {
 			if tab.UserDataFixedSize {
 				// Should always be < 8 bits => use faster ReadBitsToByte() over ReadBits()
-				userdat = []byte{br.ReadBitsToByte(int(tab.UserDataSizeBits))}
+				userdata = []byte{br.ReadBitsToByte(int(tab.UserDataSizeBits))}
 			} else {
-				userdat = br.ReadBytes(int(br.ReadInt(14)))
+				userdata = br.ReadBytes(int(br.ReadInt(14)))
 			}
 		}
 
-		if len(userdat) == 0 {
+		if len(userdata) == 0 {
 			break
 		}
 
 		switch tab.Name {
 		case stNameUserInfo:
-			p.rawPlayers[entryIndex] = parsePlayerInfo(bytes.NewReader(userdat))
+			p.rawPlayers[entryIndex] = parsePlayerInfo(bytes.NewReader(userdata))
 
 		case stNameInstanceBaseline:
 			classID, err := strconv.ParseInt(entry, 10, 64)
 			if err != nil {
 				panic("WTF VOLVO PLS")
 			}
-			p.instanceBaselines[int(classID)] = userdat
+			p.stParser.SetInstanceBaseline(int(classID), userdata)
 
 		case stNameModelPreCache:
 			p.modelPreCache[entryIndex] = entry

@@ -4,23 +4,27 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/golang/geo/r3"
+	r3 "github.com/golang/geo/r3"
 
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 )
 
 // Entity stores a entity in the game (e.g. players etc.) with its properties.
 type Entity struct {
-	ID          int
-	ServerClass *ServerClass
-	props       []PropertyEntry
+	id    int
+	props []Property
 
 	onCreateFinished []func()
 	onDestroy        []func()
 }
 
-// Props returns all properties (PropertyEntry) for the Entity.
-func (e *Entity) Props() []PropertyEntry {
+// ID returns the entity's ID.
+func (e *Entity) ID() int {
+	return e.id
+}
+
+// Properties returns all properties of the Entity.
+func (e *Entity) Properties() []Property {
 	return e.props
 }
 
@@ -29,8 +33,8 @@ func (e *Entity) Props() []PropertyEntry {
 // Returns nil if the property wasn't found.
 //
 // Panics if more than one property with the same name was found.
-func (e *Entity) FindProperty(name string) *PropertyEntry {
-	var prop *PropertyEntry
+func (e *Entity) FindProperty(name string) *Property {
+	var prop *Property
 	for i := range e.props {
 		if e.props[i].entry.name == name {
 			if prop != nil {
@@ -42,7 +46,7 @@ func (e *Entity) FindProperty(name string) *PropertyEntry {
 	return prop
 }
 
-// BindProperty combines FindProperty() & PropertyEntry.Bind() into one.
+// BindProperty combines FindProperty() & Property.Bind() into one.
 // Essentially binds a property's value to a pointer.
 // See the docs of the two individual functions for more info.
 func (e *Entity) BindProperty(name string, variable interface{}, valueType propertyValueType) {
@@ -109,14 +113,12 @@ func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 	return lastIndex + 1 + int(res)
 }
 
-// InitializeBaseline applies an update and collects a baseline (default values) from the update.
-//
-// Intended for internal use only.
-func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
-	baseline := make(map[int]PropValue)
+// Collects an initial baseline for a server-class
+func (e *Entity) initializeBaseline(r *bit.BitReader) map[int]PropertyValue {
+	baseline := make(map[int]PropertyValue)
 	for i := range e.props {
 		i2 := i // Copy for the adder
-		adder := func(val PropValue) {
+		adder := func(val PropertyValue) {
 			baseline[i2] = val
 		}
 
@@ -132,10 +134,8 @@ func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
 	return baseline
 }
 
-// ApplyBaseline baseline applies a previously collected baseline.
-//
-// Intended for internal use only.
-func (e *Entity) ApplyBaseline(baseline map[int]PropValue) {
+// Apply a previously via initializeBaseline collected baseline
+func (e *Entity) applyBaseline(baseline map[int]PropertyValue) {
 	for idx := range baseline {
 		e.props[idx].value = baseline[idx]
 	}
@@ -183,37 +183,48 @@ func (e *Entity) OnCreateFinished(delegate func()) {
 	e.onCreateFinished = append(e.onCreateFinished, delegate)
 }
 
-// NewEntity creates a new Entity with a given id and ServerClass and returns it.
-func NewEntity(id int, serverClass *ServerClass) *Entity {
-	propCount := len(serverClass.FlattenedProps)
-	props := make([]PropertyEntry, propCount)
-	for i := range serverClass.FlattenedProps {
-		props[i] = PropertyEntry{entry: &serverClass.FlattenedProps[i]}
-	}
-
-	return &Entity{ID: id, ServerClass: serverClass, props: props}
-}
-
-// PropertyEntry wraps a FlattenedPropEntry and allows registering handlers
+// Property wraps a flattenedPropEntry and allows registering handlers
 // that can be triggered on a update of the property.
-type PropertyEntry struct {
-	entry          *FlattenedPropEntry
+type Property struct {
+	entry          *flattenedPropEntry
 	updateHandlers []PropertyUpdateHandler
-	value          PropValue
+	value          PropertyValue
 }
 
-// Entry returns the underlying FlattenedPropEntry.
-func (pe *PropertyEntry) Entry() *FlattenedPropEntry {
-	return pe.entry
+// Name returns the property's name.
+func (pe *Property) Name() string {
+	return pe.entry.name
 }
 
 // Value returns current value of the property.
-func (pe *PropertyEntry) Value() PropValue {
+func (pe *Property) Value() PropertyValue {
 	return pe.value
 }
 
+type propertyValueType int
+
+// Possible types of property values.
+// See Property.Bind()
+const (
+	ValTypeInt propertyValueType = iota
+	ValTypeFloat32
+	ValTypeFloat64 // Like ValTypeFloat32 but with additional cast to float64
+	ValTypeString
+	ValTypeVector
+	ValTypeArray
+	ValTypeBoolInt // Int that is treated as bool (1 -> true, != 1 -> false)
+)
+
+// PropertyUpdateHandler is the interface for handlers that are interested in Property changes.
+type PropertyUpdateHandler func(PropertyValue)
+
+// OnUpdate registers a handler for updates of the Property's value.
+func (pe *Property) OnUpdate(handler PropertyUpdateHandler) {
+	pe.updateHandlers = append(pe.updateHandlers, handler)
+}
+
 // Trigger all the registered PropertyUpdateHandlers on this entry.
-func (pe *PropertyEntry) firePropertyUpdate() {
+func (pe *Property) firePropertyUpdate() {
 	for _, h := range pe.updateHandlers {
 		if h != nil {
 			h(pe.value)
@@ -221,82 +232,53 @@ func (pe *PropertyEntry) firePropertyUpdate() {
 	}
 }
 
-// RegisterPropertyUpdateHandler registers a handler for updates of the PropertyEntry's value.
-// Deprecated: Use OnUpdate instead.
-func (pe *PropertyEntry) RegisterPropertyUpdateHandler(handler PropertyUpdateHandler) {
-	pe.OnUpdate(handler)
-}
-
-// OnUpdate registers a handler for updates of the PropertyEntry's value.
-func (pe *PropertyEntry) OnUpdate(handler PropertyUpdateHandler) {
-	pe.updateHandlers = append(pe.updateHandlers, handler)
-}
-
-type propertyValueType int
-
-// Possible types of property values.
-//
-// See PropertyEntry.Bind()
-const (
-	ValTypeInt propertyValueType = iota
-	ValTypeFloat32
-	ValTypeFloat64
-	ValTypeString
-	ValTypeVector
-	ValTypeArray
-	ValTypeBoolInt // Int that is treated as bool (1 -> true, != 1 -> false)
-)
-
 /*
 Bind binds a property's value to a pointer.
 
 Example:
 	var i int
-	PropertyEntry.Bind(&i, ValTypeInt)
+	Property.Bind(&i, ValTypeInt)
 
 This will bind the property's value to i so every time it's updated i is updated as well.
 
-The valueType indicates which field of the PropValue to use for the binding.
+The valueType indicates which field of the PropertyValue to use for the binding.
 */
-func (pe *PropertyEntry) Bind(variable interface{}, valueType propertyValueType) {
+func (pe *Property) Bind(variable interface{}, valueType propertyValueType) {
 	var binder PropertyUpdateHandler
 	switch valueType {
 	case ValTypeInt:
-		binder = func(val PropValue) {
+		binder = func(val PropertyValue) {
 			*(variable.(*int)) = val.IntVal
 		}
 	case ValTypeBoolInt:
-		binder = func(val PropValue) {
+		binder = func(val PropertyValue) {
 			*(variable.(*bool)) = val.IntVal == 1
 		}
 
 	case ValTypeFloat32:
-		binder = func(val PropValue) {
+		binder = func(val PropertyValue) {
 			*(variable.(*float32)) = val.FloatVal
 		}
 
 	case ValTypeFloat64:
-		binder = func(val PropValue) {
+		binder = func(val PropertyValue) {
 			*(variable.(*float64)) = float64(val.FloatVal)
 		}
 
 	case ValTypeString:
-		binder = func(val PropValue) {
+		binder = func(val PropertyValue) {
 			*(variable.(*string)) = val.StringVal
 		}
 
 	case ValTypeVector:
-		binder = func(val PropValue) {
+		binder = func(val PropertyValue) {
 			*(variable.(*r3.Vector)) = val.VectorVal
 		}
 
 	case ValTypeArray:
-		binder = func(val PropValue) {
-			*(variable.(*[]PropValue)) = val.ArrayVal
+		binder = func(val PropertyValue) {
+			*(variable.(*[]PropertyValue)) = val.ArrayVal
 		}
 	}
 	pe.OnUpdate(binder)
 }
-
-// PropertyUpdateHandler is the interface for handlers that are interested in PropertyEntry changes.
-type PropertyUpdateHandler func(PropValue)

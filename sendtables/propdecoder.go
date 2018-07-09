@@ -69,20 +69,19 @@ const specialFloatFlags = propFlagNoScale | propFlagCoord | propFlagCellCoord | 
 
 var propDecoder propertyDecoder
 
-// PropValue stores parsed & decoded send-table values.
+// PropertyValue stores parsed & decoded send-table values.
 // For instance player health, location etc.
-// Might be renamed in a future major release (Deprecated).
-type PropValue struct {
+type PropertyValue struct {
 	VectorVal r3.Vector
 	IntVal    int
-	ArrayVal  []PropValue
+	ArrayVal  []PropertyValue
 	StringVal string
 	FloatVal  float32
 }
 
 type propertyDecoder struct{}
 
-func (propertyDecoder) decodeProp(prop *PropertyEntry, reader *bit.BitReader) {
+func (propertyDecoder) decodeProp(prop *Property, reader *bit.BitReader) {
 	switch prop.entry.prop.rawType {
 	case propTypeFloat:
 		prop.value.FloatVal = propDecoder.decodeFloat(prop.entry.prop, reader)
@@ -282,7 +281,7 @@ func (propertyDecoder) decodeVector(prop *sendTableProperty, reader *bit.BitRead
 	return res
 }
 
-func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader *bit.BitReader) []PropValue {
+func (propertyDecoder) decodeArray(fProp *flattenedPropEntry, reader *bit.BitReader) []PropertyValue {
 	numElement := fProp.prop.numberOfElements
 
 	numBits := 1
@@ -293,10 +292,10 @@ func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader *bit.BitRea
 
 	nElements := int(reader.ReadInt(numBits))
 
-	res := make([]PropValue, 0, nElements)
+	res := make([]PropertyValue, 0, nElements)
 
-	tmp := &PropertyEntry{
-		entry: &FlattenedPropEntry{prop: fProp.arrayElementProp},
+	tmp := &Property{
+		entry: &flattenedPropEntry{prop: fProp.arrayElementProp},
 	}
 
 	for i := 0; i < nElements; i++ {
