@@ -3,15 +3,6 @@ package common
 const weaponPrefix = "weapon_"
 
 type (
-	// RoundMVPReason is the type for the various MVPReasonYXZ constants.
-	RoundMVPReason byte
-
-	// HitGroup is the type for the various HitGroupXYZ constants.
-	HitGroup byte
-
-	// RoundEndReason is the type for the various RoundEndReasonXYZ constants.
-	RoundEndReason byte
-
 	// Team is the type for the various TeamXYZ constants.
 	Team byte
 
@@ -20,49 +11,6 @@ type (
 
 	// EquipmentClass is the type for the various EqClassXYZ constants.
 	EquipmentClass int
-)
-
-// RoundMVPReasons constants give information about why a player got the MVP award.
-const (
-	MVPReasonMostEliminations RoundMVPReason = 1
-	MVPReasonBombDefused      RoundMVPReason = 2
-	MVPReasonBombPlanted      RoundMVPReason = 3
-)
-
-// HitGroup constants give information about where a player got hit.
-// e.g. head, chest, legs etc.
-const (
-	HitGroupGeneric  HitGroup = 0
-	HitGroupHead     HitGroup = 1
-	HitGroupChest    HitGroup = 2
-	HitGroupStomach  HitGroup = 3
-	HitGroupLeftArm  HitGroup = 4
-	HitGroupRightArm HitGroup = 5
-	HitGroupLeftLeg  HitGroup = 6
-	HitGroupRightLeg HitGroup = 7
-	HitGroupGear     HitGroup = 10
-)
-
-// RoundEndReasons constants give information about why a round ended (Bomb defused, exploded etc.).
-const (
-	RoundEndReasonTargetBombed         RoundEndReason = 1
-	RoundEndReasonVIPEscaped           RoundEndReason = 2
-	RoundEndReasonVIPKilled            RoundEndReason = 3
-	RoundEndReasonTerroristsEscaped    RoundEndReason = 4
-	RoundEndReasonCTStoppedEscape      RoundEndReason = 5
-	RoundEndReasonTerroristsStopped    RoundEndReason = 6
-	RoundEndReasonBombDefused          RoundEndReason = 7
-	RoundEndReasonCTWin                RoundEndReason = 8
-	RoundEndReasonTerroristsWin        RoundEndReason = 9
-	RoundEndReasonDraw                 RoundEndReason = 10
-	RoundEndReasonHostagesRescued      RoundEndReason = 11
-	RoundEndReasonTargetSaved          RoundEndReason = 12
-	RoundEndReasonHostagesNotRescued   RoundEndReason = 13
-	RoundEndReasonTerroristsNotEscaped RoundEndReason = 14
-	RoundEndReasonVIPNotEscaped        RoundEndReason = 15
-	RoundEndReasonGameStart            RoundEndReason = 16
-	RoundEndReasonTerroristsSurrender  RoundEndReason = 17
-	RoundEndReasonCTSurrender          RoundEndReason = 18
 )
 
 // Team constants give information about which team a player is on.

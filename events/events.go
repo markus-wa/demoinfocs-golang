@@ -17,22 +17,61 @@ type MatchStartedEvent struct{}
 // RoundAnnounceMatchStartedEvent signals that the announcement "Match Started" has been displayed.
 type RoundAnnounceMatchStartedEvent struct{}
 
+// RoundEndReason is the type for the various RoundEndReasonXYZ constants.
+//
+// See RoundEndedEvent.
+type RoundEndReason byte
+
+// RoundEndReason constants give information about why a round ended (Bomb defused, exploded etc.).
+const (
+	RoundEndReasonTargetBombed         RoundEndReason = 1
+	RoundEndReasonVIPEscaped           RoundEndReason = 2
+	RoundEndReasonVIPKilled            RoundEndReason = 3
+	RoundEndReasonTerroristsEscaped    RoundEndReason = 4
+	RoundEndReasonCTStoppedEscape      RoundEndReason = 5
+	RoundEndReasonTerroristsStopped    RoundEndReason = 6
+	RoundEndReasonBombDefused          RoundEndReason = 7
+	RoundEndReasonCTWin                RoundEndReason = 8
+	RoundEndReasonTerroristsWin        RoundEndReason = 9
+	RoundEndReasonDraw                 RoundEndReason = 10
+	RoundEndReasonHostagesRescued      RoundEndReason = 11
+	RoundEndReasonTargetSaved          RoundEndReason = 12
+	RoundEndReasonHostagesNotRescued   RoundEndReason = 13
+	RoundEndReasonTerroristsNotEscaped RoundEndReason = 14
+	RoundEndReasonVIPNotEscaped        RoundEndReason = 15
+	RoundEndReasonGameStart            RoundEndReason = 16
+	RoundEndReasonTerroristsSurrender  RoundEndReason = 17
+	RoundEndReasonCTSurrender          RoundEndReason = 18
+)
+
 // RoundEndedEvent signals that a round just finished.
 // Attention: TeamState.Score() won't be up to date yet after this.
 // Add +1 to the winner's score as a workaround.
 type RoundEndedEvent struct {
 	Message string
-	Reason  common.RoundEndReason
+	Reason  RoundEndReason
 	Winner  common.Team
 }
 
 // RoundOfficiallyEndedEvent signals that the round 'has officially ended', not exactly sure what that is tbh.
 type RoundOfficiallyEndedEvent struct{}
 
+// RoundMVPReason is the type for the various MVPReasonYXZ constants.
+//
+// See RoundMVPEvent.
+type RoundMVPReason byte
+
+// RoundMVPReasons constants give information about why a player got the MVP award.
+const (
+	MVPReasonMostEliminations RoundMVPReason = 1
+	MVPReasonBombDefused      RoundMVPReason = 2
+	MVPReasonBombPlanted      RoundMVPReason = 3
+)
+
 // RoundMVPEvent signals the announcement of the last rounds MVP.
 type RoundMVPEvent struct {
 	Player *common.Player
-	Reason common.RoundMVPReason
+	Reason RoundMVPReason
 }
 
 // RoundStartedEvent signals that a new round has started.
@@ -226,6 +265,25 @@ type BombBeginDefuseEvent struct {
 
 func (BombBeginDefuseEvent) implementsBombEventIf() {}
 
+// HitGroup is the type for the various HitGroupXYZ constants.
+//
+// See PlayerHurtEvent.
+type HitGroup byte
+
+// HitGroup constants give information about where a player got hit.
+// e.g. head, chest, legs etc.
+const (
+	HitGroupGeneric  HitGroup = 0
+	HitGroupHead     HitGroup = 1
+	HitGroupChest    HitGroup = 2
+	HitGroupStomach  HitGroup = 3
+	HitGroupLeftArm  HitGroup = 4
+	HitGroupRightArm HitGroup = 5
+	HitGroupLeftLeg  HitGroup = 6
+	HitGroupRightLeg HitGroup = 7
+	HitGroupGear     HitGroup = 10
+)
+
 // PlayerHurtEvent signals that a player has been damaged.
 type PlayerHurtEvent struct {
 	Player       *common.Player
@@ -236,7 +294,7 @@ type PlayerHurtEvent struct {
 	WeaponString string // Wrong for CZ, M4A1-S etc.
 	HealthDamage int
 	ArmorDamage  int
-	HitGroup     common.HitGroup
+	HitGroup     HitGroup
 }
 
 // PlayerBindEvent signals that a player has connected.

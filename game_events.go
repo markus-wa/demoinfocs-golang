@@ -75,7 +75,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		p.eventDispatcher.Dispatch(events.RoundEndedEvent{
 			Message: data["message"].GetValString(),
-			Reason:  common.RoundEndReason(data["reason"].GetValByte()),
+			Reason:  events.RoundEndReason(data["reason"].GetValByte()),
 			Winner:  t,
 		})
 
@@ -87,7 +87,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		p.eventDispatcher.Dispatch(events.RoundMVPEvent{
 			Player: p.gameState.players[int(data["userid"].GetValShort())],
-			Reason: common.RoundMVPReason(data["reason"].GetValShort()),
+			Reason: events.RoundMVPReason(data["reason"].GetValShort()),
 		})
 
 	case "bot_takeover": // Bot got taken over
@@ -151,7 +151,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			Armor:        int(data["armor"].GetValByte()),
 			HealthDamage: int(data["dmg_health"].GetValShort()),
 			ArmorDamage:  int(data["dmg_armor"].GetValByte()),
-			HitGroup:     common.HitGroup(data["hitgroup"].GetValByte()),
+			HitGroup:     events.HitGroup(data["hitgroup"].GetValByte()),
 			Weapon:       getAttackingWeapon(&wep, attacker),
 		})
 
