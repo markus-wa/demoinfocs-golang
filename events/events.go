@@ -311,7 +311,6 @@ type ItemDropEvent struct {
 
 // DataTablesParsedEvent signals that the datatables were parsed.
 // You can use the Parser.SendTableParser() after this event to register update notification on entities & properties.
-// DataTablesParsedEvent is a beta feature, it may be replaced or changed without notice.
 type DataTablesParsedEvent struct{}
 
 // StringTableCreatedEvent signals that a string table was created via net message.
@@ -323,7 +322,6 @@ type StringTableCreatedEvent struct {
 }
 
 // ParserWarnEvent signals that a non-fatal problem occurred during parsing.
-// This is a beta feature, it may be replaced or changed without notice.
 type ParserWarnEvent struct {
 	Message string
 }

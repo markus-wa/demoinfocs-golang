@@ -159,8 +159,6 @@ The handler must be of type func(*<MessageType>) where MessageType is the kind o
 Returns a identifier with which the handler can be removed via UnregisterNetMessageHandler().
 
 See also: RegisterEventHandler()
-
-This is a beta feature and may be changed or replaced without notice.
 */
 func (p *Parser) RegisterNetMessageHandler(handler interface{}) dp.HandlerIdentifier {
 	return p.msgDispatcher.RegisterHandler(handler)
