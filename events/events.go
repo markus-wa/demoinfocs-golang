@@ -32,8 +32,8 @@ type RoundEndedEvent struct {
 	Winner  common.Team
 }
 
-// RoundOfficialyEndedEvent signals that the round 'has officially ended', not exactly sure what that is tbh.
-type RoundOfficialyEndedEvent struct{}
+// RoundOfficiallyEndedEvent signals that the round 'has officially ended', not exactly sure what that is tbh.
+type RoundOfficiallyEndedEvent struct{}
 
 // RoundMVPEvent signals the announcement of the last rounds MVP.
 type RoundMVPEvent struct {

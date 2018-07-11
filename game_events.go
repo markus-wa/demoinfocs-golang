@@ -80,7 +80,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		})
 
 	case "round_officially_ended": // Round ended. . . probably the event where you get teleported to the spawn (=> You can still walk around between round_end and this?)
-		p.eventDispatcher.Dispatch(events.RoundOfficialyEndedEvent{})
+		p.eventDispatcher.Dispatch(events.RoundOfficiallyEndedEvent{})
 
 	case "round_mvp": // Round MVP was announced
 		data = mapGameEventData(d, ge)
