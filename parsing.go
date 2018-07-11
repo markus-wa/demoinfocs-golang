@@ -22,7 +22,7 @@ var (
 	ErrCancelled = errors.New("Parsing was cancelled before it finished (ErrCancelled)")
 
 	// ErrUnexpectedEndOfDemo signals that the demo is incomplete / corrupt -
-	// these demos may still be useful, check the how far the parser got.
+	// these demos may still be useful, check how far the parser got.
 	ErrUnexpectedEndOfDemo = errors.New("Demo stream ended unexpectedly (ErrUnexpectedEndOfDemo)")
 
 	// ErrInvalidFileType signals that the input isn't a valid CS:GO demo.
@@ -33,7 +33,8 @@ var (
 )
 
 // ParseHeader attempts to parse the header of the demo.
-// Returns error if the filestamp (first 8 bytes) doesn't match HL2DEMO.
+//
+// Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match HL2DEMO.
 func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 	var h common.DemoHeader
 	h.Filestamp = p.bitReader.ReadCString(8)
@@ -66,6 +67,7 @@ func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 
 // ParseToEnd attempts to parse the demo until the end.
 // Aborts and returns ErrCancelled if Cancel() is called before the end.
+//
 // See also: ParseNextFrame() for other possible errors.
 func (p *Parser) ParseToEnd() (err error) {
 	defer func() {
@@ -111,18 +113,23 @@ func recoverFromUnexpectedEOF(r interface{}) error {
 	return nil
 }
 
-// Cancel aborts ParseToEnd(). All information that was already read
-// up to this point will still be used (and new events may still be sent).
+// Cancel aborts ParseToEnd().
+// All information that was already read up to this point may still be used (and new events may still be sent out).
 func (p *Parser) Cancel() {
 	p.cancelChan <- struct{}{}
 }
 
-// ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
-// Returns true unless the demo command 'stop' or an error was encountered.
-// Returns an error if the header hasn't been parsed yet - see Parser.ParseHeader().
-// May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
-// May panic if the demo is corrupt in some way.
-// See also: ParseToEnd() for parsing the complete demo in one go (faster).
+/*
+ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
+
+Returns true unless the demo command 'stop' or an error was encountered.
+Returns an error if the header hasn't been parsed yet - see Parser.ParseHeader().
+
+May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
+May panic if the demo is corrupt in some way.
+
+See also: ParseToEnd() for parsing the complete demo in one go (faster).
+*/
 func (p *Parser) ParseNextFrame() (b bool, err error) {
 	defer func() {
 		if err == nil {

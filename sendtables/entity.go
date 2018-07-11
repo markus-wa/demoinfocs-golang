@@ -25,7 +25,9 @@ func (e *Entity) Props() []PropertyEntry {
 }
 
 // FindProperty finds a property on the Entity by name.
+//
 // Returns nil if the property wasn't found.
+//
 // Panics if more than one property with the same name was found.
 func (e *Entity) FindProperty(name string) *PropertyEntry {
 	var prop *PropertyEntry
@@ -56,6 +58,7 @@ var updatedPropIndicesPool = sync.Pool{
 
 // ApplyUpdate reads an update to an Enitiy's properties and
 // triggers registered PropertyUpdateHandlers if values changed.
+//
 // Intended for internal use only.
 func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
 	idx := -1
@@ -107,6 +110,7 @@ func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 }
 
 // InitializeBaseline applies an update and collects a baseline (default values) from the update.
+//
 // Intended for internal use only.
 func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
 	baseline := make(map[int]PropValue)
@@ -129,6 +133,7 @@ func (e *Entity) InitializeBaseline(r *bit.BitReader) map[int]PropValue {
 }
 
 // ApplyBaseline baseline applies a previously collected baseline.
+//
 // Intended for internal use only.
 func (e *Entity) ApplyBaseline(baseline map[int]PropValue) {
 	for idx := range baseline {
@@ -164,6 +169,7 @@ func (e *Entity) OnDestroy(delegate func()) {
 }
 
 // Destroy triggers all via OnDestroy() registered functions.
+//
 // Intended for internal use only.
 func (e *Entity) Destroy() {
 	for _, f := range e.onDestroy {
@@ -229,6 +235,7 @@ func (pe *PropertyEntry) OnUpdate(handler PropertyUpdateHandler) {
 type propertyValueType int
 
 // Possible types of property values.
+//
 // See PropertyEntry.Bind()
 const (
 	ValTypeInt propertyValueType = iota

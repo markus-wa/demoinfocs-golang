@@ -8,7 +8,7 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
-// DemoHeader contains information about the demo's header.
+// DemoHeader contains information from a demo's header.
 type DemoHeader struct {
 	Filestamp       string
 	Protocol        int
@@ -76,7 +76,7 @@ func (p *Player) ActiveWeapon() *Equipment {
 	return p.RawWeapons[p.ActiveWeaponID]
 }
 
-// Weapons returns all weapons in the player's possession
+// Weapons returns all weapons in the player's possession.
 func (p *Player) Weapons() []*Equipment {
 	res := make([]*Equipment, 0, len(p.RawWeapons))
 	for _, w := range p.RawWeapons {
@@ -140,6 +140,8 @@ func (e Equipment) UniqueID() int64 {
 }
 
 // NewGrenadeProjectile creates a grenade projectile and sets.
+//
+// Intended for internal use only.
 func NewGrenadeProjectile() *GrenadeProjectile {
 	return &GrenadeProjectile{uniqueID: rand.Int63()}
 }
@@ -152,11 +154,15 @@ func (g GrenadeProjectile) UniqueID() int64 {
 }
 
 // NewEquipment is a wrapper for NewSkinEquipment to create weapons without skins.
+//
+// Intended for internal use only.
 func NewEquipment(eqName string) Equipment {
 	return NewSkinEquipment(eqName, "")
 }
 
 // NewSkinEquipment creates an equipment with a skin from a skinID and equipment name.
+//
+// Intended for internal use only.
 func NewSkinEquipment(eqName string, skinID string) Equipment {
 	var wep EquipmentElement
 	if len(eqName) > 0 {
@@ -168,6 +174,8 @@ func NewSkinEquipment(eqName string, skinID string) Equipment {
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.
+//
+// Intended for internal use only.
 func NewPlayer() *Player {
 	return &Player{RawWeapons: make(map[int]*Equipment)}
 }

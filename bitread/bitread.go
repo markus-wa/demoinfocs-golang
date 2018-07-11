@@ -1,4 +1,6 @@
 // Package bitread provides a wrapper for github.com/markus-wa/gobitread with CS:GO demo parsing specific helpers.
+//
+// Intended for internal use only.
 package bitread
 
 import (

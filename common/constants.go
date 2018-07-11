@@ -151,13 +151,14 @@ func (e EquipmentElement) Class() EquipmentClass {
 }
 
 // String returns a human readable name for the equipment.
-// E.g. AK-47, UMP-45, Smoke Grenade etc.
+// E.g. 'AK-47', 'UMP-45', 'Smoke Grenade' etc.
 func (e EquipmentElement) String() string {
 	return eqElementToName[e]
 }
 
 // EquipmentClass constants give information about the type of an equipment (SMG, Rifle, Grenade etc.).
-// Note: EquipmentElement / 100 = EquipmentClass
+//
+// Note: (EquipmentElement+99) / 100 = EquipmentClass
 const (
 	EqClassUnknown   EquipmentClass = 0
 	EqClassPistols   EquipmentClass = 1

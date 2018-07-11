@@ -21,19 +21,22 @@ func (gs *GameState) handleIngameTickNumber(n ingameTickNumber) {
 }
 
 // IngameTick returns the latest actual tick number of the server during the game.
+//
 // Watch out, I've seen this return wonky negative numbers at the start of demos.
 func (gs GameState) IngameTick() int {
 	return gs.ingameTick
 }
 
 // CTState returns the TeamState of the CT team.
-// Make sure you handle swapping sides properly if you keep the reference.
+//
+// Make sure to handle swapping sides properly if you keep the reference.
 func (gs *GameState) CTState() *TeamState {
 	return &gs.ctState
 }
 
 // TState returns the TeamState of the T team.
-// Make sure you handle swapping sides properly if you keep the reference.
+//
+// Make sure to handle swapping sides properly if you keep the reference.
 func (gs *GameState) TState() *TeamState {
 	return &gs.tState
 }
@@ -70,8 +73,10 @@ func (gs GameState) TeamMembers(team common.Team) []*common.Player {
 	return r
 }
 
-// GrenadeProjectiles returns a map with all grenade projectiles. The map contains only projectiles
-// that are currently in-flight, i.e. have been thrown but have yet to detonate.
+// GrenadeProjectiles returns a map from entity-IDs to all live grenade projectiles.
+//
+// Only constains projectiles currently in-flight or still active (smokes etc.),
+// i.e. have been thrown but have yet to detonate.
 func (gs GameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 	return gs.grenadeProjectiles
 }
@@ -92,6 +97,7 @@ type TeamState struct {
 }
 
 // ID returns the team-ID.
+//
 // This stays the same even after switching sides.
 func (ts TeamState) ID() int {
 	return ts.id
@@ -108,6 +114,7 @@ func (ts TeamState) ClanName() string {
 }
 
 // Flag returns the team's country flag.
+//
 // Watch out, in some demos this is upper-case and in some lower-case.
 func (ts TeamState) Flag() string {
 	return ts.flag

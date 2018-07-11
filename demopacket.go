@@ -10,6 +10,11 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
+// NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
+//
+// See also: ParserConfig.AdditionalNetMessageCreators & Parser.RegisterNetMessageHandler()
+type NetMessageCreator func() proto.Message
+
 var byteSlicePool = sync.Pool{
 	New: func() interface{} {
 		s := make([]byte, 0, 256)
@@ -100,10 +105,6 @@ func (p *Parser) parsePacket() {
 	}
 	p.bitReader.EndChunk()
 }
-
-// NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
-// See also: ParserConfig.AdditionalNetMessageCreators & Parser.RegisterNetMessageHandler()
-type NetMessageCreator func() proto.Message
 
 /*
 Format of 'CommandInfos' - I honestly have no clue what they are good for.

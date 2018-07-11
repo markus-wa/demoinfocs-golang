@@ -60,7 +60,7 @@ type LastRoundHalfEvent struct{}
 // FreezetimeEndedEvent signals that the freeze time is over.
 type FreezetimeEndedEvent struct{}
 
-// PlayerFootstepEvent occurs when a player makes a footstep
+// PlayerFootstepEvent occurs when a player makes a footstep.
 type PlayerFootstepEvent struct {
 	Player *common.Player
 }
@@ -118,7 +118,7 @@ type NadeEvent struct {
 	NadeEntityID int
 }
 
-// Base returns the NadeEvent itself, used for catching all events with NadeEventIf
+// Base returns the NadeEvent itself, used for catching all events with NadeEventIf.
 func (ne NadeEvent) Base() NadeEvent {
 	return ne
 }
@@ -164,7 +164,7 @@ type FireNadeEndEvent struct {
 	NadeEvent
 }
 
-// NadeProjectileBouncedEvent signals that a nade has just bounced off a wall/floor/ceiling or object
+// NadeProjectileBouncedEvent signals that a nade has just bounced off a wall/floor/ceiling or object.
 type NadeProjectileBouncedEvent struct {
 	Projectile *common.GrenadeProjectile
 	BounceNr   int
@@ -297,7 +297,7 @@ type RankUpdateEvent struct {
 	RankChange float32
 }
 
-// ItemEquipEvent signals an item was equipped
+// ItemEquipEvent signals an item was equipped.
 type ItemEquipEvent struct {
 	Weapon common.Equipment
 	Player *common.Player
@@ -309,7 +309,7 @@ type ItemPickupEvent struct {
 	Player *common.Player
 }
 
-// ItemDropEvent signals an item was dropped
+// ItemDropEvent signals an item was dropped.
 type ItemDropEvent struct {
 	Weapon common.Equipment
 	Player *common.Player

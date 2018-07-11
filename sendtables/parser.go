@@ -31,7 +31,7 @@ func (p *SendTableParser) ClassBits() int {
 	return int(math.Ceil(math.Log2(float64(len(p.serverClasses)))))
 }
 
-// ServerClasses returns the parsed server-classes
+// ServerClasses returns the parsed server-classes.
 func (p *SendTableParser) ServerClasses() []*ServerClass {
 	return p.serverClasses
 }
@@ -242,7 +242,9 @@ func (p *SendTableParser) findServerClassByDtName(name string) *ServerClass {
 }
 
 // FindServerClassByName finds and returns a server-class by it's name.
+//
 // Returns nil if the server-class wasn't found.
+//
 // Panics if more than one server-class with the same name was found.
 func (p *SendTableParser) FindServerClassByName(name string) *ServerClass {
 	var sc *ServerClass

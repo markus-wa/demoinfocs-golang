@@ -8,12 +8,15 @@ import (
 )
 
 // TeamSwitchEvent signals that the teams have switched.
+//
 // See also: ValveMatchmakingTeamSwitchEmitter
 type TeamSwitchEvent struct{}
 
 // ValveMatchmakingTeamSwitchEmitter emits a TeamSwitchEvent for Valve MM demos.
 // Sadly this WON'T work for Major games as it currently doesn't account for overtime.
+//
 // This is a beta feature and may be changed or replaced without notice.
+//
 // See also: github.com/markus-wa/demoinfocs-golang/ParserConfig.AdditionalEventEmitters
 type ValveMatchmakingTeamSwitchEmitter struct {
 	parser              *dem.Parser
