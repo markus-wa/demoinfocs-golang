@@ -59,7 +59,6 @@ type Parser struct {
 	rawPlayers           map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
 	entityIDToPlayers    map[int]*common.Player                          // Temporary storage since we need to map players from entityID to userID later
 	additionalPlayerInfo [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
-	entities             map[int]*st.Entity                              // Maps entity IDs to entities
 	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
 	weapons              [maxEntities]common.Equipment                   // Used to remember what a weapon is (p250 / cz etc.)
 	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
@@ -98,11 +97,6 @@ func (p *Parser) Header() common.DemoHeader {
 // GameState returns the current game-state.
 func (p *Parser) GameState() *GameState {
 	return &p.gameState
-}
-
-// Entities returns the available entities.
-func (p *Parser) Entities() map[int]*st.Entity {
-	return p.entities
 }
 
 // CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
@@ -244,7 +238,6 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
 	p.rawPlayers = make(map[int]*playerInfo)
 	p.entityIDToPlayers = make(map[int]*common.Player)
-	p.entities = make(map[int]*st.Entity)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
 	p.gameState = newGameState()

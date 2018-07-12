@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"github.com/markus-wa/demoinfocs-golang/common"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 // GameState contains all game-state relevant information.
@@ -11,6 +12,7 @@ type GameState struct {
 	ctState            TeamState
 	players            map[int]*common.Player
 	grenadeProjectiles map[int]*common.GrenadeProjectile // Used to keep track of grenades that have been thrown, but have not yet detonated.
+	entities           map[int]*st.Entity                // Maps entity IDs to entities
 }
 
 type ingameTickNumber int
@@ -81,10 +83,16 @@ func (gs GameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 	return gs.grenadeProjectiles
 }
 
+// Entities returns all currently existing entities.
+func (gs GameState) Entities() map[int]*st.Entity {
+	return gs.entities
+}
+
 func newGameState() GameState {
 	return GameState{
 		players:            make(map[int]*common.Player),
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
+		entities:           make(map[int]*st.Entity),
 	}
 }
 
