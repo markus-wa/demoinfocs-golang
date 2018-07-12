@@ -29,17 +29,17 @@ func (gs GameState) IngameTick() int {
 	return gs.ingameTick
 }
 
-// CTState returns the TeamState of the CT team.
+// TeamCounterTerrorists returns the TeamState of the CT team.
 //
 // Make sure to handle swapping sides properly if you keep the reference.
-func (gs *GameState) CTState() *TeamState {
+func (gs *GameState) TeamCounterTerrorists() *TeamState {
 	return &gs.ctState
 }
 
-// TState returns the TeamState of the T team.
+// TeamTerrorists returns the TeamState of the T team.
 //
 // Make sure to handle swapping sides properly if you keep the reference.
-func (gs *GameState) TState() *TeamState {
+func (gs *GameState) TeamTerrorists() *TeamState {
 	return &gs.tState
 }
 

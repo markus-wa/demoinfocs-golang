@@ -73,12 +73,12 @@ func TestDemoInfoCs(t *testing.T) {
 		var winnerSide string
 		switch e.Winner {
 		case common.TeamTerrorists:
-			winner = gs.TState()
-			loser = gs.CTState()
+			winner = gs.TeamTerrorists()
+			loser = gs.TeamCounterTerrorists()
 			winnerSide = "T"
 		case common.TeamCounterTerrorists:
-			winner = gs.CTState()
-			loser = gs.TState()
+			winner = gs.TeamCounterTerrorists()
+			loser = gs.TeamTerrorists()
 			winnerSide = "CT"
 		default:
 			// Probably match medic or something similar
@@ -204,19 +204,19 @@ func TestValveMatchmakingFuzzyEmitters(t *testing.T) {
 	p.RegisterEventHandler(func(ev events.RoundEndedEvent) {
 		switch ev.Winner {
 		case common.TeamTerrorists:
-			tScoreBeforeSwap = p.GameState().TState().Score() + 1
+			tScoreBeforeSwap = p.GameState().TeamTerrorists().Score() + 1
 
 		case common.TeamCounterTerrorists:
-			ctScoreBeforeSwap = p.GameState().CTState().Score() + 1
+			ctScoreBeforeSwap = p.GameState().TeamCounterTerrorists().Score() + 1
 		}
 	})
 
 	p.RegisterEventHandler(func(fuzzy.TeamSwitchEvent) {
 		teamSwitchDone = true
-		if tScoreBeforeSwap != p.GameState().CTState().Score() {
+		if tScoreBeforeSwap != p.GameState().TeamCounterTerrorists().Score() {
 			t.Error("T-Score before swap != CT-Score after swap")
 		}
-		if ctScoreBeforeSwap != p.GameState().TState().Score() {
+		if ctScoreBeforeSwap != p.GameState().TeamTerrorists().Score() {
 			t.Error("CT-Score before swap != T-Score after swap")
 		}
 	})
