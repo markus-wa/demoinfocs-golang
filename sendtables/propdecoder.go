@@ -291,17 +291,15 @@ func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader *bit.BitRea
 		numBits++
 	}
 
-	nElements := int(reader.ReadInt(numBits))
-
-	res := make([]PropValue, 0, nElements)
+	res := make([]PropValue, int(reader.ReadInt(numBits)))
 
 	tmp := &PropertyEntry{
 		entry: &FlattenedPropEntry{prop: fProp.arrayElementProp},
 	}
 
-	for i := 0; i < nElements; i++ {
+	for i := range res {
 		propDecoder.decodeProp(tmp, reader)
-		res = append(res, tmp.value)
+		res[i] = tmp.value
 	}
 
 	return res
