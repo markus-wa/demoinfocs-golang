@@ -198,6 +198,8 @@ func (p *Parser) parseFrame() bool {
 		p.stParser.ParsePacket(p.bitReader)
 		p.bitReader.EndChunk()
 
+		debugAllServerClasses(p.ServerClasses())
+
 		p.mapEquipment()
 		p.bindEntities()
 

@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 const isDebug = true
@@ -23,6 +24,7 @@ var debugGameEvents = yes
 var debugUnhandledMessages = yes
 var debugIngameTicks = no
 var debugDemoCommands = yes
+var debugServerClasses = no
 
 func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	if debugGameEvents == yes {
@@ -90,5 +92,14 @@ func (dc demoCommand) String() string {
 func debugDemoCommand(cmd demoCommand) {
 	if debugDemoCommands == yes {
 		fmt.Println("Demo-Command:", cmd)
+	}
+}
+
+func debugAllServerClasses(classes st.ServerClasses) {
+	if debugServerClasses == yes {
+		for _, sc := range classes {
+			fmt.Println(sc)
+			fmt.Println()
+		}
 	}
 }

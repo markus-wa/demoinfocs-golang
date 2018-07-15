@@ -3,6 +3,8 @@ package sendtables
 
 import (
 	"bytes"
+	"fmt"
+	"strings"
 
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 )
@@ -45,6 +47,13 @@ type ServerClass struct {
 	createdHandlers      []EntityCreatedHandler
 	instanceBaseline     []byte                // Raw baseline
 	preprocessedBaseline map[int]PropertyValue // Preprocessed baseline
+}
+
+// Stores meta information about a property of an Entity.
+type flattenedPropEntry struct {
+	prop             *sendTableProperty
+	arrayElementProp *sendTableProperty
+	name             string
 }
 
 // ID returns the server-class's ID.
@@ -131,12 +140,26 @@ func (sc *ServerClass) OnEntityCreated(handler EntityCreatedHandler) {
 	sc.createdHandlers = append(sc.createdHandlers, handler)
 }
 
-// Stores meta information about a property of an Entity.
-type flattenedPropEntry struct {
-	prop             *sendTableProperty
-	arrayElementProp *sendTableProperty
-	name             string
-}
-
 // EntityCreatedHandler is the interface for handlers that are interested in EntityCreatedEvents.
 type EntityCreatedHandler func(*Entity)
+
+var serverClassStringFormat = `ServerClass: id=%d name=%s
+	dataTableId=%d
+	dataTableName=%s
+	baseClasses:
+		%s
+	props:
+		%s`
+
+func (sc *ServerClass) String() string {
+	baseClasses := make([]string, len(sc.baseClasses))
+	for i, bc := range sc.baseClasses {
+		baseClasses[i] = bc.name
+	}
+
+	props := make([]string, len(sc.flattenedProps))
+	for i, fProp := range sc.flattenedProps {
+		props[i] = fProp.name
+	}
+	return fmt.Sprintf(serverClassStringFormat, sc.id, sc.name, sc.dataTableID, sc.dataTableName, strings.Join(baseClasses, "\n\t\t"), strings.Join(props, "\n\t\t"))
+}
