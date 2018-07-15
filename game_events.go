@@ -492,10 +492,10 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 		}
 
 		p.eventDispatcher.Dispatch(events.SayTextEvent{
-			EntityIndex: int(st.EntIdx),
-			IsChat:      st.Chat,
-			IsChatAll:   st.Textallchat,
-			Text:        st.Text,
+			EntIdx:    int(st.EntIdx),
+			IsChat:    st.Chat,
+			IsChatAll: st.Textallchat,
+			Text:      st.Text,
 		})
 
 	case msg.ECstrike15UserMessages_CS_UM_SayText2:
@@ -505,9 +505,8 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 			p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error())})
 		}
 
-		sender := p.gameState.players[int(st.EntIdx)]
 		p.eventDispatcher.Dispatch(events.SayText2Event{
-			Sender:    sender,
+			EntIdx:    int(st.EntIdx),
 			IsChat:    st.Chat,
 			IsChatAll: st.Textallchat,
 			MsgName:   st.MsgName,
@@ -518,6 +517,15 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 		case "Cstrike_Chat_All":
 			fallthrough
 		case "Cstrike_Chat_AllDead":
+			var sender *common.Player
+			for _, pl := range p.gameState.players {
+				// This could be a problem if the player changed his name
+				// as the name is only set initially and never updated
+				if pl.Name == st.Params[0] {
+					sender = pl
+				}
+			}
+
 			p.eventDispatcher.Dispatch(events.ChatMessageEvent{
 				Sender:    sender,
 				Text:      st.Params[1],

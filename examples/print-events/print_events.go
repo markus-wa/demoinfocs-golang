@@ -52,6 +52,11 @@ func main() {
 		}
 	})
 
+	// Register handler for chat messages to print them
+	p.RegisterEventHandler(func(e events.ChatMessageEvent) {
+		fmt.Printf("Chat - %s says: %s\n", formatPlayer(e.Sender), e.Text)
+	})
+
 	// Parse to end
 	err = p.ParseToEnd()
 	checkError(err)
