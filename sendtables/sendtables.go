@@ -90,7 +90,7 @@ func (sc *ServerClass) newEntity(r *bit.BitReader, entityID int) *Entity {
 		props[i] = Property{entry: &sc.flattenedProps[i]}
 	}
 
-	entity := &Entity{id: entityID, props: props}
+	entity := &Entity{serverClass: sc, id: entityID, props: props}
 
 	if sc.preprocessedBaseline != nil {
 		entity.applyBaseline(sc.preprocessedBaseline)
