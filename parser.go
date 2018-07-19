@@ -57,7 +57,6 @@ type Parser struct {
 	bombsiteB            bombsite
 	equipmentMapping     map[*st.ServerClass]common.EquipmentElement     // Maps server classes to equipment-types
 	rawPlayers           map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
-	entityIDToPlayers    map[int]*common.Player                          // Temporary storage since we need to map players from entityID to userID later
 	additionalPlayerInfo [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
 	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
 	weapons              [maxEntities]common.Equipment                   // Used to remember what a weapon is (p250 / cz etc.)
@@ -237,7 +236,6 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.stParser = st.NewSendTableParser()
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
 	p.rawPlayers = make(map[int]*playerInfo)
-	p.entityIDToPlayers = make(map[int]*common.Player)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
 	p.gameState = newGameState()

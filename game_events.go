@@ -37,7 +37,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	debugGameEvent(d, ge)
 
 	// Ignore events before players are connected to speed things up
-	if len(p.gameState.players) == 0 && d.Name != "player_connect" {
+	if len(p.gameState.playersByUserID) == 0 && d.Name != "player_connect" {
 		return
 	}
 
@@ -86,14 +86,14 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		data = mapGameEventData(d, ge)
 
 		p.eventDispatcher.Dispatch(events.RoundMVPEvent{
-			Player: p.gameState.players[int(data["userid"].GetValShort())],
+			Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())],
 			Reason: events.RoundMVPReason(data["reason"].GetValShort()),
 		})
 
 	case "bot_takeover": // Bot got taken over
 		data = mapGameEventData(d, ge)
 
-		p.eventDispatcher.Dispatch(events.BotTakenOverEvent{Taker: p.gameState.players[int(data["userid"].GetValShort())]})
+		p.eventDispatcher.Dispatch(events.BotTakenOverEvent{Taker: p.gameState.playersByUserID[int(data["userid"].GetValShort())]})
 
 	case "begin_new_match": // Match started
 		p.eventDispatcher.Dispatch(events.MatchStartedEvent{})
@@ -105,17 +105,17 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		data = mapGameEventData(d, ge)
 
 		p.eventDispatcher.Dispatch(events.PlayerFootstepEvent{
-			Player: p.gameState.players[int(data["userid"].GetValShort())],
+			Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())],
 		})
 
 	case "player_jump": // Player jumped
 		data = mapGameEventData(d, ge)
-		p.eventDispatcher.Dispatch(events.PlayerJumpEvent{Player: p.gameState.players[int(data["userid"].GetValShort())]})
+		p.eventDispatcher.Dispatch(events.PlayerJumpEvent{Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())]})
 
 	case "weapon_fire": // Weapon was fired
 		data = mapGameEventData(d, ge)
 
-		shooter := p.gameState.players[int(data["userid"].GetValShort())]
+		shooter := p.gameState.playersByUserID[int(data["userid"].GetValShort())]
 		wep := common.NewEquipment(data["weapon"].GetValString())
 
 		p.eventDispatcher.Dispatch(events.WeaponFiredEvent{
@@ -126,13 +126,13 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "player_death": // Player died
 		data = mapGameEventData(d, ge)
 
-		killer := p.gameState.players[int(data["attacker"].GetValShort())]
+		killer := p.gameState.playersByUserID[int(data["attacker"].GetValShort())]
 		wep := common.NewSkinEquipment(data["weapon"].GetValString(), data["weapon_itemid"].GetValString())
 
 		p.eventDispatcher.Dispatch(events.PlayerKilledEvent{
-			Victim:            p.gameState.players[int(data["userid"].GetValShort())],
+			Victim:            p.gameState.playersByUserID[int(data["userid"].GetValShort())],
 			Killer:            killer,
-			Assister:          p.gameState.players[int(data["assister"].GetValShort())],
+			Assister:          p.gameState.playersByUserID[int(data["assister"].GetValShort())],
 			IsHeadshot:        data["headshot"].GetValBool(),
 			PenetratedObjects: int(data["penetrated"].GetValShort()),
 			Weapon:            getAttackingWeapon(&wep, killer),
@@ -141,11 +141,11 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "player_hurt": // Player got hurt
 		data = mapGameEventData(d, ge)
 
-		attacker := p.gameState.players[int(data["attacker"].GetValShort())]
+		attacker := p.gameState.playersByUserID[int(data["attacker"].GetValShort())]
 		wep := common.NewEquipment(data["weapon"].GetValString())
 
 		p.eventDispatcher.Dispatch(events.PlayerHurtEvent{
-			Player:       p.gameState.players[int(data["userid"].GetValShort())],
+			Player:       p.gameState.playersByUserID[int(data["userid"].GetValShort())],
 			Attacker:     attacker,
 			Health:       int(data["health"].GetValByte()),
 			Armor:        int(data["armor"].GetValByte()),
@@ -157,7 +157,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	case "player_blind": // Player got blinded by a flash
 		data = mapGameEventData(d, ge)
-		p.eventDispatcher.Dispatch(events.PlayerFlashedEvent{Player: p.gameState.players[int(data["userid"].GetValShort())]})
+		p.eventDispatcher.Dispatch(events.PlayerFlashedEvent{Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())]})
 
 	case "flashbang_detonate": // Flash exploded
 		fallthrough
@@ -175,7 +175,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		fallthrough
 	case "inferno_expire": // Incendiary expired
 		data = mapGameEventData(d, ge)
-		thrower := p.gameState.players[int(data["userid"].GetValShort())]
+		thrower := p.gameState.playersByUserID[int(data["userid"].GetValShort())]
 		position := r3.Vector{
 			X: float64(data["x"].ValFloat),
 			Y: float64(data["y"].ValFloat),
@@ -233,7 +233,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			}
 		}
 
-		pl := p.gameState.players[uid]
+		pl := p.gameState.playersByUserID[uid]
 		if pl != nil {
 			e := events.PlayerDisconnectEvent{
 				Player: pl,
@@ -241,17 +241,12 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			p.eventDispatcher.Dispatch(e)
 		}
 
-		delete(p.gameState.players, uid)
-		for k, v := range p.entityIDToPlayers {
-			if v == pl {
-				delete(p.entityIDToPlayers, k)
-			}
-		}
+		delete(p.gameState.playersByUserID, uid)
 
 	case "player_team": // Player changed team
 		data = mapGameEventData(d, ge)
 
-		player := p.gameState.players[int(data["userid"].GetValShort())]
+		player := p.gameState.playersByUserID[int(data["userid"].GetValShort())]
 		newTeam := common.Team(data["team"].GetValByte())
 
 		if player != nil {
@@ -285,7 +280,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "bomb_exploded": // Bomb exploded
 		data = mapGameEventData(d, ge)
 
-		e := events.BombEvent{Player: p.gameState.players[int(data["userid"].GetValShort())]}
+		e := events.BombEvent{Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())]}
 
 		site := int(data["site"].GetValShort())
 
@@ -327,7 +322,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		data = mapGameEventData(d, ge)
 
 		p.eventDispatcher.Dispatch(events.BombBeginDefuseEvent{
-			Player: p.gameState.players[int(data["userid"].GetValShort())],
+			Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())],
 			HasKit: data["haskit"].GetValBool(),
 		})
 
@@ -337,7 +332,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		fallthrough
 	case "item_remove": // Dropped?
 		data = mapGameEventData(d, ge)
-		player := p.gameState.players[int(data["userid"].GetValShort())]
+		player := p.gameState.playersByUserID[int(data["userid"].GetValShort())]
 		weapon := common.NewSkinEquipment(data["item"].GetValString(), "")
 
 		switch d.Name {
@@ -505,7 +500,7 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 			p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error())})
 		}
 
-		sender := p.gameState.players[int(st.EntIdx)]
+		sender := p.gameState.playersByUserID[int(st.EntIdx)]
 		p.eventDispatcher.Dispatch(events.SayText2Event{
 			Sender:    sender,
 			IsChat:    st.Chat,

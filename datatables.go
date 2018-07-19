@@ -10,11 +10,14 @@ import (
 )
 
 const (
-	maxEdictBits = 11
-	indexMask    = ((1 << maxEdictBits) - 1)
-	maxEntities  = (1 << maxEdictBits)
-	maxPlayers   = 64
-	maxWeapons   = 64
+	maxEdictBits                 = 11
+	entityHandleIndexMask        = ((1 << maxEdictBits) - 1)
+	entityHandleSerialNumberBits = 10
+	entityHandleBits             = maxEdictBits + entityHandleSerialNumberBits
+	invalidEntityHandle          = (1 << entityHandleBits) - 1
+	maxEntities                  = (1 << maxEdictBits)
+	maxPlayers                   = 64
+	maxWeapons                   = 64
 )
 
 func (p *Parser) mapEquipment() {
@@ -149,18 +152,22 @@ func (p *Parser) bindPlayers() {
 
 func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 	var pl *common.Player
-	playerIndex := playerEntity.ID() - 1
-	if p.entityIDToPlayers[playerIndex] != nil {
-		pl = p.entityIDToPlayers[playerIndex]
+	playerIndex := playerEntity.ID()
+	if p.gameState.playersByEntityID[playerIndex] != nil {
+		pl = p.gameState.playersByEntityID[playerIndex]
 	} else {
 		pl = common.NewPlayer()
-		p.entityIDToPlayers[playerIndex] = pl
+		p.gameState.playersByEntityID[playerIndex] = pl
 		pl.SteamID = -1
 		pl.Name = "unconnected"
 	}
 
 	pl.EntityID = playerEntity.ID()
 	pl.Entity = playerEntity
+
+	playerEntity.OnDestroy(func() {
+		delete(p.gameState.playersByEntityID, pl.EntityID)
+	})
 
 	// Position
 	playerEntity.FindProperty("cslocaldata.m_vecOrigin").OnUpdate(func(val st.PropertyValue) {
@@ -207,8 +214,8 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 	for i := range cache {
 		i2 := i // Copy for passing to handler
 		playerEntity.FindProperty(wepPrefix + fmt.Sprintf("%03d", i)).OnUpdate(func(val st.PropertyValue) {
-			entityID := val.IntVal & indexMask
-			if entityID != indexMask {
+			entityID := val.IntVal & entityHandleIndexMask
+			if entityID != entityHandleIndexMask {
 				if cache[i2] != 0 {
 					// Player already has a weapon in this slot.
 					delete(pl.RawWeapons, cache[i2])
@@ -232,7 +239,7 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 
 	// Active weapon
 	playerEntity.FindProperty("m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
-		pl.ActiveWeaponID = val.IntVal & indexMask
+		pl.ActiveWeaponID = val.IntVal & entityHandleIndexMask
 	})
 
 	for i := 0; i < 32; i++ {
@@ -278,17 +285,15 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
 	entity.FindProperty("m_hThrower").OnUpdate(func(val st.PropertyValue) {
-		throwerID := val.IntVal & indexMask
-		throwerIndex := throwerID - 1
+		throwerID := val.IntVal & entityHandleIndexMask
 
-		thrower := p.entityIDToPlayers[throwerIndex]
+		thrower := p.gameState.playersByEntityID[throwerID]
 		proj.Thrower = thrower
 	})
 
 	entity.FindProperty("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
-		ownerID := val.IntVal & indexMask
-		ownerIndex := ownerID - 1
-		player := p.entityIDToPlayers[ownerIndex]
+		ownerID := val.IntVal & entityHandleIndexMask
+		player := p.gameState.playersByEntityID[ownerID]
 		proj.Owner = player
 	})
 

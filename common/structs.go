@@ -42,6 +42,7 @@ type Player struct {
 	LastAlivePosition           r3.Vector
 	Velocity                    r3.Vector
 	EntityID                    int
+	UserID                      int
 	Name                        string
 	Hp                          int
 	Armor                       int

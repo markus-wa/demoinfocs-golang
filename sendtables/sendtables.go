@@ -148,7 +148,7 @@ var serverClassStringFormat = `ServerClass: id=%d name=%s
 	dataTableName=%s
 	baseClasses:
 		%s
-	props:
+	properties:
 		%s`
 
 func (sc *ServerClass) String() string {

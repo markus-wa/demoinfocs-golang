@@ -246,7 +246,8 @@ func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
 	for k, rp := range p.rawPlayers {
 		// We need to re-map the players from their entityID to their UID.
 		// This is necessary because we don't always have the UID when the player connects (or something like that, not really sure tbh).
-		if pl := p.entityIDToPlayers[k]; pl != nil {
+		// k+1 for index -> ID
+		if pl := p.gameState.playersByEntityID[k+1]; pl != nil {
 			pl.Name = rp.name
 			pl.SteamID = rp.xuid
 			pl.IsBot = rp.isFakePlayer
@@ -256,8 +257,9 @@ func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
 				pl.LastAlivePosition = pl.Position
 			}
 
-			if p.gameState.players[rp.userID] == nil {
-				p.gameState.players[rp.userID] = pl
+			if p.gameState.playersByUserID[rp.userID] == nil {
+				p.gameState.playersByUserID[rp.userID] = pl
+				pl.UserID = rp.userID
 
 				if pl.SteamID != 0 {
 					p.eventDispatcher.Dispatch(events.PlayerBindEvent{Player: pl})

@@ -10,8 +10,9 @@ type GameState struct {
 	ingameTick         int
 	tState             TeamState
 	ctState            TeamState
-	players            map[int]*common.Player
-	grenadeProjectiles map[int]*common.GrenadeProjectile // Used to keep track of grenades that have been thrown, but have not yet detonated.
+	playersByUserID    map[int]*common.Player            // Maps user-IDs to players
+	playersByEntityID  map[int]*common.Player            // Maps entity-IDs to players
+	grenadeProjectiles map[int]*common.GrenadeProjectile // Maps entity-IDs to nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	entities           map[int]*st.Entity                // Maps entity IDs to entities
 }
 
@@ -43,36 +44,13 @@ func (gs *GameState) TeamTerrorists() *TeamState {
 	return &gs.tState
 }
 
-// Participants returns all connected players.
-// This includes spectators.
-func (gs GameState) Participants() []*common.Player {
-	r := make([]*common.Player, 0, len(gs.players))
-	for _, ptcp := range gs.players {
-		r = append(r, ptcp)
+// Participants returns a struct with all currently connected players & spectators and utility functions.
+// The struct contains references to the original maps so it's always up-to-date.
+func (gs GameState) Participants() Participants {
+	return Participants{
+		playersByEntityID: gs.playersByEntityID,
+		playersByUserID:   gs.playersByUserID,
 	}
-	return r
-}
-
-// PlayingParticipants returns all players that aren't spectating or unassigned.
-func (gs GameState) PlayingParticipants() []*common.Player {
-	r := make([]*common.Player, 0, len(gs.players))
-	for _, ptcp := range gs.players {
-		if ptcp.Team != common.TeamSpectators && ptcp.Team != common.TeamUnassigned {
-			r = append(r, ptcp)
-		}
-	}
-	return r
-}
-
-// TeamMembers returns all players belonging to the requested team.
-func (gs GameState) TeamMembers(team common.Team) []*common.Player {
-	r := make([]*common.Player, 0, len(gs.players))
-	for _, ptcp := range gs.players {
-		if ptcp.Team == team {
-			r = append(r, ptcp)
-		}
-	}
-	return r
 }
 
 // GrenadeProjectiles returns a map from entity-IDs to all live grenade projectiles.
@@ -90,7 +68,8 @@ func (gs GameState) Entities() map[int]*st.Entity {
 
 func newGameState() GameState {
 	return GameState{
-		players:            make(map[int]*common.Player),
+		playersByEntityID:  make(map[int]*common.Player),
+		playersByUserID:    make(map[int]*common.Player),
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
 		entities:           make(map[int]*st.Entity),
 	}
@@ -126,4 +105,78 @@ func (ts TeamState) ClanName() string {
 // Watch out, in some demos this is upper-case and in some lower-case.
 func (ts TeamState) Flag() string {
 	return ts.flag
+}
+
+// Participants provides helper functions on top of the currently connected players.
+// E.g. ByUserID(), ByEntityID(), TeamMembers() etc.
+//
+// See GameState.Participants()
+type Participants struct {
+	playersByUserID   map[int]*common.Player // Maps user-IDs to players
+	playersByEntityID map[int]*common.Player // Maps entity-IDs to players
+}
+
+// ByUserID returns all currently connected players in a map where the key is the user-ID.
+// The map is a snapshot and is not updated (not a reference to the actual, underlying map).
+// Includes spectators.
+func (ptcp Participants) ByUserID() map[int]*common.Player {
+	res := make(map[int]*common.Player)
+	for k, v := range ptcp.playersByUserID {
+		res[k] = v
+	}
+	return res
+}
+
+// ByEntityID returns all currently connected players in a map where the key is the entity-ID.
+// The map is a snapshot and is not updated (not a reference to the actual, underlying map).
+// Includes spectators.
+func (ptcp Participants) ByEntityID() map[int]*common.Player {
+	res := make(map[int]*common.Player)
+	for k, v := range ptcp.playersByEntityID {
+		res[k] = v
+	}
+	return res
+}
+
+// All returns all currently connected players & spectators.
+func (ptcp Participants) All() []*common.Player {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, p := range ptcp.playersByUserID {
+		res = append(res, p)
+	}
+	return res
+}
+
+// Playing returns all players that aren't spectating or unassigned.
+func (ptcp Participants) Playing() []*common.Player {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, p := range ptcp.playersByUserID {
+		if p.Team != common.TeamSpectators && p.Team != common.TeamUnassigned {
+			res = append(res, p)
+		}
+	}
+	return res
+}
+
+// TeamMembers returns all players belonging to the requested team at this time.
+func (ptcp Participants) TeamMembers(team common.Team) []*common.Player {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, ptcp := range ptcp.playersByUserID {
+		if ptcp.Team == team {
+			res = append(res, ptcp)
+		}
+	}
+	return res
+}
+
+// FindByHandle attempts to find a player by his entity-handle.
+// The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
+//
+// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
+func (ptcp Participants) FindByHandle(handle int) *common.Player {
+	if handle == invalidEntityHandle {
+		return nil
+	}
+
+	return ptcp.playersByEntityID[handle&entityHandleIndexMask]
 }

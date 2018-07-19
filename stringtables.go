@@ -62,11 +62,11 @@ func (p *Parser) parseSingleStringTable(name string) {
 			switch name {
 			case stNameUserInfo:
 				player := parsePlayerInfo(bytes.NewReader(data))
-				pid, err := strconv.ParseInt(stringName, 10, 64)
+				playerIndex, err := strconv.ParseInt(stringName, 10, 64)
 				if err != nil {
-					panic("Couldn't parse id from string")
+					panic("Couldn't parse playerIndex from string")
 				}
-				p.rawPlayers[int(pid)] = player
+				p.rawPlayers[int(playerIndex)] = player
 
 			case stNameInstanceBaseline:
 				classID, err := strconv.ParseInt(stringName, 10, 64)
