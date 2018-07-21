@@ -209,6 +209,14 @@ type NadeProjectileThrownEvent struct {
 	Projectile *common.GrenadeProjectile
 }
 
+// NadeProjectileDestroyedEvent signals that a nade entity has been destroyed (i.e. it detonated / expired).
+// This is different from the other Nade events because it's sent out when the projectile entity is destroyed.
+//
+// Mainly useful for getting the full trajectory of the projectile.
+type NadeProjectileDestroyedEvent struct {
+	Projectile *common.GrenadeProjectile
+}
+
 // PlayerFlashedEvent signals that a player was flashed.
 type PlayerFlashedEvent struct {
 	Player *common.Player

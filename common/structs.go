@@ -116,15 +116,15 @@ type Equipment struct {
 // GrenadeProjectile is a grenade thrown intentionally by a player. It is used to track grenade projectile
 // positions between the time at which they are thrown and until they detonate.
 type GrenadeProjectile struct {
-	EntityID int
-	Weapon   EquipmentElement
-	Thrower  *Player
-	Owner    *Player
+	EntityID   int
+	Weapon     EquipmentElement
+	Thrower    *Player
+	Owner      *Player
+	Position   r3.Vector
+	Trajectory []r3.Vector
 
 	// uniqueID is used to distinguish different grenades (which potentially have the same, reused entityID) from each other.
 	uniqueID int64
-
-	Position r3.Vector
 }
 
 // Class returns the class of the equipment.

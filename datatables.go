@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	r3 "github.com/golang/geo/r3"
+
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
@@ -270,14 +272,18 @@ func (p *Parser) bindWeapons() {
 // It does NOT track the location of grenades lying on the ground, i.e. that were dropped by dead players.
 func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	entityID := entity.ID()
-	p.gameState.grenadeProjectiles[entityID] = common.NewGrenadeProjectile()
+
+	proj := common.NewGrenadeProjectile()
+	proj.EntityID = entityID
+	p.gameState.grenadeProjectiles[entityID] = proj
 
 	entity.OnDestroy(func() {
+		p.eventDispatcher.Dispatch(events.NadeProjectileDestroyedEvent{
+			Projectile: proj,
+		})
+
 		delete(p.gameState.grenadeProjectiles, entityID)
 	})
-
-	proj := p.gameState.grenadeProjectiles[entityID]
-	proj.EntityID = entityID
 
 	entity.FindProperty("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
 		proj.Weapon = p.grenadeModelIndices[val.IntVal]
@@ -297,8 +303,10 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 		proj.Owner = player
 	})
 
-	entity.FindProperty("m_vecOrigin").OnUpdate(func(st.PropertyValue) {
-		proj.Position = entity.Position()
+	entity.OnPositionUpdate(func(newPos r3.Vector) {
+		proj.Position = newPos
+
+		proj.Trajectory = append(proj.Trajectory, newPos)
 	})
 
 	// Some demos don't have this property as it seems

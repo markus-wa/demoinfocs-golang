@@ -44,39 +44,33 @@ func main() {
 	_, err = p.ParseHeader()
 	checkError(err)
 
-	nadePaths := make(map[int64]*nadePath) // Currently live projectiles
+	nadeTrajectories := make(map[int64]*nadePath) // Trajectories of all destroyed nades
 
-	storeNadePath := func(id int64, pos r3.Vector, wep common.EquipmentElement, team common.Team) {
-		if nadePaths[id] == nil {
-			nadePaths[id] = &nadePath{
-				wep:  wep,
-				team: team,
+	p.RegisterEventHandler(func(e events.NadeProjectileDestroyedEvent) {
+		id := e.Projectile.UniqueID()
+		if nadeTrajectories[id] == nil {
+			nadeTrajectories[id] = &nadePath{
+				wep:  e.Projectile.Weapon,
+				team: e.Projectile.Thrower.Team,
 			}
 		}
 
-		nadePaths[id].path = append(nadePaths[id].path, pos)
-	}
-
-	p.RegisterEventHandler(func(e events.NadeProjectileThrownEvent) {
-		storeNadePath(e.Projectile.UniqueID(), e.Projectile.Position, e.Projectile.Weapon, e.Projectile.Thrower.Team)
+		nadeTrajectories[id].path = e.Projectile.Trajectory
 	})
 
-	p.RegisterEventHandler(func(e events.NadeProjectileBouncedEvent) {
-		storeNadePath(e.Projectile.UniqueID(), e.Projectile.Position, e.Projectile.Weapon, e.Projectile.Thrower.Team)
-	})
-
-	var nadePathsFirstHalf []*nadePath
+	var nadeTrajectoriesFirstHalf []*nadePath
 	round := 0
 	p.RegisterEventHandler(func(events.RoundEndedEvent) {
 		round++
-		// Very cheap first half check (we only want the first teams CT-side nades in the example).
+		// Very cheap first half check
+		// We only want the first teams CT-side nades in the example so the image is not too cluttered
 		// Won't work with demos that have match-restarts etc.
 		if round == 15 {
 			// Copy all nade paths from the first 15 rounds
-			for _, np := range nadePaths {
-				nadePathsFirstHalf = append(nadePathsFirstHalf, np)
+			for _, np := range nadeTrajectories {
+				nadeTrajectoriesFirstHalf = append(nadeTrajectoriesFirstHalf, np)
 			}
-			nadePaths = make(map[int64]*nadePath)
+			nadeTrajectories = make(map[int64]*nadePath)
 		}
 	})
 
@@ -102,7 +96,7 @@ func main() {
 	gc.SetLineWidth(1)                      // 1 px lines
 	gc.SetFillColor(color.RGBA{0, 0, 0, 0}) // No fill, alpha 0
 
-	for _, np := range nadePathsFirstHalf {
+	for _, np := range nadeTrajectoriesFirstHalf {
 		if np.team != common.TeamCounterTerrorists {
 			// Only draw CT nades
 			continue
