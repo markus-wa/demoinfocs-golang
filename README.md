@@ -88,7 +88,7 @@ This doesn't look too interesting on it's own but that can be helped by quickly 
 
 * Game events
 * Grenade projectiles / trajectories - [doc](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState.GrenadeProjectiles) [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/nade-trajectories)
-* Access to entities, server-classes & data-tables
+* Access to entities, server-classes & data-tables - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/sendtables#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
 * Access to all net-messages
 * Chat & console messages <sup id="achat1">1</sup>
 * [Easy debugging](#debugging) via build-flags
