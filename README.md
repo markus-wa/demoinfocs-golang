@@ -86,11 +86,12 @@ This doesn't look too interesting on it's own but that can be helped by quickly 
 
 ## Features
 
-* Game events
+* Game events (kills, shots, round starts/ends, footsteps etc.) - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* Tracking of game-state (players, teams, grenades etc.) - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState)
 * Access to entities, server-classes & data-tables
-* Access to all net-messages
-* Chat & console messages <sup id="achat1">1</sup>
-* [Easy debugging](#debugging) via build-flags
+* Access to all net-messages - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
+* Chat & console messages <sup id="achat1">1</sup> - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#ChatMessageEvent) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* [Easy debugging via build-flags](#debugging)
 * Built with performance & concurrency in mind
 
 1. <small id="f1">Only for some demos; in MM demos the chat is encrypted for example.</small>
