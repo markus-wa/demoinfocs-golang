@@ -16,8 +16,8 @@
     "proto",
     "protoc-gen-gogo/descriptor"
   ]
-  revision = "1adfc126b41513cc696b209667c8656ea7aac67c"
-  version = "v1.0.0"
+  revision = "636bf0302bc95575d69441b25a2603156ffdddf1"
+  version = "v1.1.1"
 
 [[projects]]
   branch = "master"
@@ -29,13 +29,17 @@
   revision = "e2365dfdc4a05e4b8299a783240d4a7d5a65d4e4"
 
 [[projects]]
-  branch = "master"
+  branch = "convex-hull"
   name = "github.com/golang/geo"
   packages = [
+    "r1",
+    "r2",
     "r3",
-    "s1"
+    "s1",
+    "s2"
   ]
-  revision = "fb250ae94fbe10f86b4f1a9b70a19925da3410b9"
+  revision = "12889707c62e2a5059e345e30450c7e79c70a6fc"
+  source = "github.com/markus-wa/geo"
 
 [[projects]]
   branch = "master"
@@ -68,11 +72,11 @@
     "math/f64",
     "math/fixed"
   ]
-  revision = "cc896f830cedae125428bc9fe1b0362aa91b3fb1"
+  revision = "c73c2afc3b812cdd6385de5a50616511c4a3d458"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a463049e6cc430648437220b444e3c9aae5ddbf1ca545e34959302c6dbccb38f"
+  inputs-digest = "cda22bd3cd5cfcaa6e9fab1e1f64ed6670859d06ea62922ac4cb42f7e4e701f7"
   solver-name = "gps-cdcl"
   solver-version = 1
