@@ -18,6 +18,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
+	"github.com/markus-wa/demoinfocs-golang/metadata"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
@@ -35,6 +36,7 @@ var (
 	colorFlash       color.Color = color.RGBA{0x00, 0x00, 0xff, 0xff} // Blue, because of the color on the nade
 	colorSmoke       color.Color = color.RGBA{0xbe, 0xbe, 0xbe, 0xff} // Light gray
 	colorDecoy       color.Color = color.RGBA{0x96, 0x4b, 0x00, 0xff} // Brown, because it's shit :)
+	curMap           metadata.Map
 )
 
 type inferno []r3.Vector
@@ -55,8 +57,10 @@ func main() {
 
 	p := dem.NewParser(f)
 
-	_, err = p.ParseHeader()
+	hd, err := p.ParseHeader()
 	checkError(err)
+
+	curMap = metadata.MapNameToMap[hd.MapName]
 
 	nadeTrajectories := make(map[int64]*nadePath) // Trajectories of all destroyed nades
 
@@ -122,18 +126,18 @@ func main() {
 	err = p.ParseToEnd()
 	checkError(err)
 
-	// Draw image
+	// Use cache map overview as base
+	fMap, err := os.Open(fmt.Sprintf("../../metadata/maps/%s.jpg", hd.MapName))
+	checkError(err)
+
+	imgMap, _, err := image.Decode(fMap)
+	checkError(err)
 
 	// Create output canvas
-	dest := image.NewRGBA(image.Rect(0, 0, 1024, 1024))
+	dest := image.NewRGBA(imgMap.Bounds())
 
-	// Use cache map overview as base
-	fCache, err := os.Open("../de_cache.jpg")
-	checkError(err)
-
-	imgCache, _, err := image.Decode(fCache)
-	checkError(err)
-	draw.Draw(dest, dest.Bounds(), imgCache, image.Point{0, 0}, draw.Src)
+	// Draw image
+	draw.Draw(dest, dest.Bounds(), imgMap, image.Point{0, 0}, draw.Src)
 
 	// Initialize the graphic context
 	gc := draw2dimg.NewGraphicContext(dest)
@@ -171,11 +175,15 @@ func drawInfernos(gc *draw2dimg.GraphicContext, hulls []*s2.Loop) {
 
 func buildInfernoPath(gc *draw2dimg.GraphicContext, hull *s2.Loop) {
 	vertices := hull.Vertices()
-	gc.MoveTo(translateX(vertices[0].X), translateY(vertices[0].Y))
+	x, y, _ := curMap.TranslateScale(vertices[0].X, vertices[0].Y, 0)
+	gc.MoveTo(x, y)
+
 	for _, fire := range vertices[1:] {
-		gc.LineTo(translateX(fire.X), translateY(fire.Y))
+		x, y, _ := curMap.TranslateScale(fire.X, fire.Y, 0)
+		gc.LineTo(x, y)
 	}
-	gc.LineTo(translateX(vertices[0].X), translateY(vertices[0].Y))
+
+	gc.LineTo(x, y)
 }
 
 func drawTrajectories(gc *draw2dimg.GraphicContext, trajectories []*nadePath) {
@@ -209,36 +217,16 @@ func drawTrajectories(gc *draw2dimg.GraphicContext, trajectories []*nadePath) {
 		}
 
 		// Draw path
-		gc.MoveTo(translateX(np.path[0].X), translateY(np.path[0].Y)) // Move to a position to start the new path
+		x, y, _ := curMap.TranslateScale(np.path[0].X, np.path[0].Y, 0)
+		gc.MoveTo(x, y) // Move to a position to start the new path
 
 		for _, pos := range np.path[1:] {
-			gc.LineTo(translateX(pos.X), translateY(pos.Y))
+			x, y, _ := curMap.TranslateScale(pos.X, pos.Y, 0)
+			gc.LineTo(x, y)
 		}
 
 		gc.FillStroke()
 	}
-}
-
-// Rough translations for x & y coordinates from de_cache to 1024x1024 px.
-// This could be done nicer by only having to provide the mapping between two source & target coordinates and the max size.
-// Then we could calculate the correct stretch & offset automatically.
-
-func translateX(x float64) float64 {
-	const (
-		stretch = 0.18
-		offset  = 414
-	)
-
-	return x*stretch + offset
-}
-
-func translateY(y float64) float64 {
-	const (
-		stretch = -0.18
-		offset  = 630
-	)
-
-	return y*stretch + offset
 }
 
 func checkError(err error) {
