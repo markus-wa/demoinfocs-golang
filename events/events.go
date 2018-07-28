@@ -317,30 +317,30 @@ type PlayerDisconnectEvent struct {
 
 // SayTextEvent signals a chat message. It contains the raw
 // network message data for admin / console messages.
-// EntityIndex will probably always be 0
+// EntIdx will probably always be 0
 // See ChatMessageEvent and SayText2Event for player chat messages.
 type SayTextEvent struct {
-	EntityIndex int
-	Text        string
-	IsChat      bool
-	IsChatAll   bool
+	EntIdx    int // Not sure what this is, doesn't seem to be the entity-ID
+	Text      string
+	IsChat    bool // Not sure, from the net-message
+	IsChatAll bool // Seems to always be false, team chat might not be recorded
 }
 
-// SayText2Event signals a chat message. It just contains the raw network message
-// for player chat messages, ChatMessageEvent may be more interesting.
+// SayText2Event signals a chat message. It just contains the raw network message.
+// For player chat messages, ChatMessageEvent may be more interesting.
 // Team chat is generally not recorded so IsChatAll will probably always be false.
 // See SayTextEvent for admin / console messages.
 type SayText2Event struct {
-	Sender    *common.Player
-	MsgName   string
-	Params    []string
-	IsChat    bool
-	IsChatAll bool
+	EntIdx    int      // Not sure what this is, doesn't seem to be the entity-ID
+	MsgName   string   // The message type, e.g. Cstrike_Chat_All for global chat
+	Params    []string // The message's parameters, for Cstrike_Chat_All parameter 1 is the player and 2 the message for example
+	IsChat    bool     // Not sure, from the net-message
+	IsChatAll bool     // Seems to always be false, team chat might not be recorded
 }
 
 // ChatMessageEvent signals a player generated chat message.
 // Since team chat is generally not recorded IsChatAll will probably always be false.
-// See SayTextEvent for admin / console messages and SayText2Event for raw network packages.
+// See SayTextEvent for admin / console messages and SayText2Event for raw network package data.
 type ChatMessageEvent struct {
 	Sender    *common.Player
 	Text      string

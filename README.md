@@ -1,6 +1,6 @@
-# demoinfocs-golang
+# demoinfocs-golang - A CSGO Demo Parser
 
-Is a high performance CS:GO demo parser written in Go based on [Valve's demoinfogo](https://github.com/ValveSoftware/csgo-demoinfo) and [SatsHelix's demoinfo](https://github.com/StatsHelix/demoinfo).
+Is a Go library for super fast parsing and analysing of Counter Strike: Global Offensive (CSGO) demos (aka replays). It is based on [Valve's demoinfogo](https://github.com/ValveSoftware/csgo-demoinfo) and [SatsHelix's demoinfo](https://github.com/StatsHelix/demoinfo).
 
 [![GoDoc](https://godoc.org/github.com/markus-wa/demoinfocs-golang?status.svg)](https://godoc.org/github.com/markus-wa/demoinfocs-golang)
 [![Build Status](https://travis-ci.org/markus-wa/demoinfocs-golang.svg?branch=master)](https://travis-ci.org/markus-wa/demoinfocs-golang)
@@ -10,8 +10,7 @@ Is a high performance CS:GO demo parser written in Go based on [Valve's demoinfo
 
 ## Discussions / Chat
 
-You can use gitter to ask questions and discuss ideas about this project.<br>
-There are also [some other rooms](https://gitter.im/csgodemos) available around the topic of CS:GO demos.
+You can use gitter to ask questions and discuss ideas about this project.
 
 [![Gitter chat](https://badges.gitter.im/csgodemos/demoinfo-lib.png)](https://gitter.im/csgodemos/demoinfo-lib)
 
@@ -86,12 +85,13 @@ This doesn't look too interesting on it's own but that can be helped by quickly 
 
 ## Features
 
-* Game events
-* Grenade projectiles / trajectories - [doc](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState.GrenadeProjectiles) [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/nade-trajectories)
+* Game events (kills, shots, round starts/ends, footsteps etc.) - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* Tracking of game-state (players, teams, grenades etc.) - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState)
+* Grenade projectiles / trajectories - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/nade-trajectories)
 * Access to entities, server-classes & data-tables - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/sendtables#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
-* Access to all net-messages
-* Chat & console messages <sup id="achat1">1</sup>
-* [Easy debugging](#debugging) via build-flags
+* Access to all net-messages - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
+* Chat & console messages <sup id="achat1">1</sup> - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#ChatMessageEvent) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* [Easy debugging via build-flags](#debugging)
 * Built with performance & concurrency in mind
 
 1. <small id="f1">Only for some demos; in MM demos the chat is encrypted for example.</small>

@@ -8,4 +8,4 @@ Here you can find a overview of examples on how to use demoinfocs-golang.
 |[nade-trajectories](nade-trajectories)|Map overview with grenade trajectories|
 |[entities](entities)|Using unhandled data from entities (`Parser.ServerClasses()`)|
 |[net-messages](net-messages)|Parsing and handling custom net-messages|
-|[print-events](print-events)|Printig kills & scores|
+|[print-events](print-events)|Printing kills, scores & chat messages|
