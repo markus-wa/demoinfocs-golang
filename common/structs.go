@@ -4,6 +4,7 @@ import (
 	"math/rand"
 
 	r3 "github.com/golang/geo/r3"
+	s2 "github.com/golang/geo/s2"
 
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
@@ -140,7 +141,7 @@ func (e Equipment) UniqueID() int64 {
 	return e.uniqueID
 }
 
-// NewGrenadeProjectile creates a grenade projectile and sets.
+// NewGrenadeProjectile creates a grenade projectile and sets the Unique-ID.
 //
 // Intended for internal use only.
 func NewGrenadeProjectile() *GrenadeProjectile {
@@ -179,4 +180,52 @@ func NewSkinEquipment(eqName string, skinID string) Equipment {
 // Intended for internal use only.
 func NewPlayer() *Player {
 	return &Player{RawWeapons: make(map[int]*Equipment)}
+}
+
+// Inferno is a list of Fires with helper functions.
+// Also contains already extinguished fires.
+//
+// See also: Inferno.Active() and Fire.IsBurning
+type Inferno struct {
+	EntityID int
+	Fires    []*Fire
+
+	// uniqueID is used to distinguish different infernos (which potentially have the same, reused entityID) from each other.
+	uniqueID int64
+}
+
+// Fire is a component of an Inferno.
+type Fire struct {
+	r3.Vector
+
+	IsBurning bool
+}
+
+// Active returns an Inferno containing only the active fires of the original.
+// The returned Inferno will have the same Unique-ID as the original.
+func (inf Inferno) Active() Inferno {
+	res := Inferno{
+		uniqueID: inf.uniqueID,
+	}
+	res.Fires = make([]*Fire, 0, len(inf.Fires))
+	for i := range inf.Fires {
+		res.Fires = append(res.Fires, inf.Fires[i])
+	}
+	return res
+}
+
+// ConvexHull returns the convex hull of all the fires in the inferno.
+func (inf Inferno) ConvexHull() *s2.Loop {
+	q := s2.NewConvexHullQuery()
+	for i := range inf.Fires {
+		q.AddPoint(s2.Point{Vector: inf.Fires[i].Vector})
+	}
+	return q.ConvexHull()
+}
+
+// NewInferno creates a inferno and sets the Unique-ID.
+//
+// Intended for internal use only.
+func NewInferno() *Inferno {
+	return &Inferno{uniqueID: rand.Int63()}
 }

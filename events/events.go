@@ -397,3 +397,17 @@ type GenericGameEvent struct {
 	Name string
 	Data map[string]*msg.CSVCMsg_GameEventKeyT
 }
+
+// InfernoStartedEvent signals that the fire of a incendiary or Molotov has just started.
+// This is different from the FireNadeStartedEvent because it's sent out when the inferno entity is created instead of on the game-event.
+type InfernoStartedEvent struct {
+	Inferno *common.Inferno
+}
+
+// InfernoExpiredEvent signals that all fire from a incendiary or Molotov has extinguished.
+// This is different from the FireNadeExpiredEvent event because it's sent out when the inferno entity is destroyed instead of on the game-event.
+//
+// Mainly useful for getting the final area of an inferno.
+type InfernoExpiredEvent struct {
+	Inferno *common.Inferno
+}

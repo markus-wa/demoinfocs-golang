@@ -18,8 +18,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	"github.com/markus-wa/demoinfocs-golang/metadata"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
+	metadata "github.com/markus-wa/demoinfocs-golang/metadata"
 )
 
 type nadePath struct {
@@ -38,16 +37,6 @@ var (
 	colorDecoy       color.Color = color.RGBA{0x96, 0x4b, 0x00, 0xff} // Brown, because it's shit :)
 	curMap           metadata.Map
 )
-
-type inferno []r3.Vector
-
-func (inf inferno) convexHull() *s2.Loop {
-	q := s2.NewConvexHullQuery()
-	for i := range inf {
-		q.AddPoint(s2.Point{Vector: inf[i]})
-	}
-	return q.ConvexHull()
-}
 
 // Run like this: go run nade_trajectories.go -demo /path/to/demo.dem > nade_trajectories.jpg
 func main() {
@@ -76,50 +65,29 @@ func main() {
 		nadeTrajectories[id].path = e.Projectile.Trajectory
 	})
 
-	var infernos []*s2.Loop
+	var infernos []*common.Inferno
 
-	p.RegisterEventHandler(func(events.DataTablesParsedEvent) {
-		p.ServerClasses().FindByName("CInferno").OnEntityCreated(func(ent *st.Entity) {
-			origin := ent.Position()
-			var fires inferno
-			var nFires int
-			ent.FindProperty("m_fireCount").OnUpdate(func(val st.PropertyValue) {
-				for i := nFires; i < val.IntVal; i++ {
-					iStr := fmt.Sprintf("%03d", i)
-					offset := r3.Vector{
-						X: float64(ent.FindProperty("m_fireXDelta." + iStr).Value().IntVal),
-						Y: float64(ent.FindProperty("m_fireYDelta." + iStr).Value().IntVal),
-						Z: float64(ent.FindProperty("m_fireZDelta." + iStr).Value().IntVal),
-					}
-					fires = append(fires, origin.Add(offset))
-				}
-				nFires = val.IntVal
-			})
-
-			ent.OnDestroy(func() {
-				infernos = append(infernos, fires.convexHull())
-			})
-		})
+	p.RegisterEventHandler(func(e events.InfernoExpiredEvent) {
+		infernos = append(infernos, e.Inferno)
 	})
 
 	var nadeTrajectoriesFirst5Rounds []*nadePath
-	var infernosFirst5Rounds []*s2.Loop
+	var infernosFirst5Rounds []*common.Inferno
 	round := 0
 	p.RegisterEventHandler(func(events.RoundEndedEvent) {
 		round++
 		// We only want the data from the first 5 rounds so the image is not too cluttered
 		// This is a very cheap way to do it. Won't work with demos that have match-restarts etc.
 		if round == 5 {
-			// Copy all nade paths
+			// Copy nade paths
 			for _, np := range nadeTrajectories {
 				nadeTrajectoriesFirst5Rounds = append(nadeTrajectoriesFirst5Rounds, np)
 			}
 			nadeTrajectories = make(map[int64]*nadePath)
 
-			// And infernos
-			for _, hull := range infernos {
-				infernosFirst5Rounds = append(infernosFirst5Rounds, hull)
-			}
+			// Copy infernos
+			infernosFirst5Rounds = make([]*common.Inferno, len(infernos))
+			copy(infernosFirst5Rounds, infernos)
 		}
 	})
 
@@ -154,9 +122,15 @@ func main() {
 	})
 }
 
-func drawInfernos(gc *draw2dimg.GraphicContext, hulls []*s2.Loop) {
+func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
 	// Draw areas first
 	gc.SetFillColor(colorInferno)
+
+	// Calculate hulls
+	hulls := make([]*s2.Loop, len(infernos))
+	for i := range infernos {
+		hulls[i] = infernos[i].ConvexHull()
+	}
 
 	for _, hull := range hulls {
 		buildInfernoPath(gc, hull)
@@ -165,7 +139,7 @@ func drawInfernos(gc *draw2dimg.GraphicContext, hulls []*s2.Loop) {
 
 	// Then the outline
 	gc.SetStrokeColor(colorInfernoHull)
-	gc.SetLineWidth(2) // 2 px wide
+	gc.SetLineWidth(1) // 1 px wide
 
 	for _, hull := range hulls {
 		buildInfernoPath(gc, hull)

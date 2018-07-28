@@ -266,6 +266,7 @@ func (p *Parser) bindWeapons() {
 		}
 	}
 
+	p.stParser.ServerClasses().FindByName("CInferno").OnEntityCreated(p.bindNewInferno)
 }
 
 // bindGrenadeProjectiles keeps track of the location of live grenades (Parser.gameState.grenadeProjectiles), actively thrown by players.
@@ -276,6 +277,12 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	proj := common.NewGrenadeProjectile()
 	proj.EntityID = entityID
 	p.gameState.grenadeProjectiles[entityID] = proj
+
+	entity.OnCreateFinished(func() {
+		p.eventDispatcher.Dispatch(events.NadeProjectileThrownEvent{
+			Projectile: proj,
+		})
+	})
 
 	entity.OnDestroy(func() {
 		p.eventDispatcher.Dispatch(events.NadeProjectileDestroyedEvent{
@@ -322,12 +329,6 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 			}
 		})
 	}
-
-	entity.OnCreateFinished(func() {
-		p.eventDispatcher.Dispatch(events.NadeProjectileThrownEvent{
-			Projectile: proj,
-		})
-	})
 }
 
 func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) {
@@ -367,4 +368,42 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 	case common.EqDeagle:
 		wepFix("_pist_deagle", "_pist_revolver", common.EqRevolver)
 	}
+}
+
+func (p *Parser) bindNewInferno(entity *st.Entity) {
+	entityID := entity.ID()
+	inf := common.NewInferno()
+	inf.EntityID = entityID
+	p.gameState.infernos[entityID] = inf
+
+	entity.OnCreateFinished(func() {
+		p.eventDispatcher.Dispatch(events.InfernoStartedEvent{
+			Inferno: inf,
+		})
+	})
+
+	entity.OnDestroy(func() {
+		p.eventDispatcher.Dispatch(events.InfernoExpiredEvent{
+			Inferno: inf,
+		})
+	})
+
+	origin := entity.Position()
+	nFires := 0
+	entity.FindProperty("m_fireCount").OnUpdate(func(val st.PropertyValue) {
+		for i := nFires; i < val.IntVal; i++ {
+			iStr := fmt.Sprintf("%03d", i)
+			offset := r3.Vector{
+				X: float64(entity.FindProperty("m_fireXDelta." + iStr).Value().IntVal),
+				Y: float64(entity.FindProperty("m_fireYDelta." + iStr).Value().IntVal),
+				Z: float64(entity.FindProperty("m_fireZDelta." + iStr).Value().IntVal),
+			}
+
+			fire := &common.Fire{Vector: origin.Add(offset)}
+			entity.BindProperty("m_bFireIsBurning."+iStr, &fire.IsBurning, st.ValTypeBoolInt)
+
+			inf.Fires = append(inf.Fires, fire)
+		}
+		nFires = val.IntVal
+	})
 }

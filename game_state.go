@@ -12,7 +12,8 @@ type GameState struct {
 	ctState            TeamState
 	playersByUserID    map[int]*common.Player            // Maps user-IDs to players
 	playersByEntityID  map[int]*common.Player            // Maps entity-IDs to players
-	grenadeProjectiles map[int]*common.GrenadeProjectile // Maps entity-IDs to nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
+	grenadeProjectiles map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
+	infernos           map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	entities           map[int]*st.Entity                // Maps entity IDs to entities
 }
 
@@ -61,6 +62,11 @@ func (gs GameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 	return gs.grenadeProjectiles
 }
 
+// Infernos returns a map from entity-IDs to all currently burning infernos (fires from incendiaries and Molotovs).
+func (gs GameState) Infernos() map[int]*common.Inferno {
+	return gs.infernos
+}
+
 // Entities returns all currently existing entities.
 func (gs GameState) Entities() map[int]*st.Entity {
 	return gs.entities
@@ -71,6 +77,7 @@ func newGameState() GameState {
 		playersByEntityID:  make(map[int]*common.Player),
 		playersByUserID:    make(map[int]*common.Player),
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
+		infernos:           make(map[int]*common.Inferno),
 		entities:           make(map[int]*st.Entity),
 	}
 }
