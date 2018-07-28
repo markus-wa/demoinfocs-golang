@@ -35,8 +35,10 @@ var (
 	colorFlash       color.Color = color.RGBA{0x00, 0x00, 0xff, 0xff} // Blue, because of the color on the nade
 	colorSmoke       color.Color = color.RGBA{0xbe, 0xbe, 0xbe, 0xff} // Light gray
 	colorDecoy       color.Color = color.RGBA{0x96, 0x4b, 0x00, 0xff} // Brown, because it's shit :)
-	curMap           metadata.Map
 )
+
+// Store the curret map so we don't have to pass it to functions
+var curMap metadata.Map
 
 // Run like this: go run nade_trajectories.go -demo /path/to/demo.dem > nade_trajectories.jpg
 func main() {
@@ -94,7 +96,7 @@ func main() {
 	err = p.ParseToEnd()
 	checkError(err)
 
-	// Use cache map overview as base
+	// Use map overview as base image
 	fMap, err := os.Open(fmt.Sprintf("../../metadata/maps/%s.jpg", hd.MapName))
 	checkError(err)
 
@@ -105,7 +107,7 @@ func main() {
 	dest := image.NewRGBA(imgMap.Bounds())
 
 	// Draw image
-	draw.Draw(dest, dest.Bounds(), imgMap, image.Point{0, 0}, draw.Src)
+	draw.Draw(dest, dest.Bounds(), imgMap, image.ZP, draw.Src)
 
 	// Initialize the graphic context
 	gc := draw2dimg.NewGraphicContext(dest)
@@ -149,11 +151,11 @@ func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
 
 func buildInfernoPath(gc *draw2dimg.GraphicContext, hull *s2.Loop) {
 	vertices := hull.Vertices()
-	x, y, _ := curMap.TranslateScale(vertices[0].X, vertices[0].Y, 0)
+	x, y := curMap.TranslateScale(vertices[0].X, vertices[0].Y)
 	gc.MoveTo(x, y)
 
 	for _, fire := range vertices[1:] {
-		x, y, _ := curMap.TranslateScale(fire.X, fire.Y, 0)
+		x, y := curMap.TranslateScale(fire.X, fire.Y)
 		gc.LineTo(x, y)
 	}
 
@@ -191,11 +193,11 @@ func drawTrajectories(gc *draw2dimg.GraphicContext, trajectories []*nadePath) {
 		}
 
 		// Draw path
-		x, y, _ := curMap.TranslateScale(np.path[0].X, np.path[0].Y, 0)
+		x, y := curMap.TranslateScale(np.path[0].X, np.path[0].Y)
 		gc.MoveTo(x, y) // Move to a position to start the new path
 
 		for _, pos := range np.path[1:] {
-			x, y, _ := curMap.TranslateScale(pos.X, pos.Y, 0)
+			x, y := curMap.TranslateScale(pos.X, pos.Y)
 			gc.LineTo(x, y)
 		}
 

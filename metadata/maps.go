@@ -1,96 +1,112 @@
 package metadata
 
+import (
+	"github.com/golang/geo/r2"
+)
+
 // Map represents a CS:GO map. It contains information required to translate
-// in-game world coordinates to coordinates relative to (0, 0)
+// in-game world coordinates to coordinates relative to (0, 0) on the provided map-overviews (radar images).
 type Map struct {
-	Name string
-
-	PosX float64
-	PosY float64
-
+	Name   string
+	PZero  r2.Point
 	Scale  float64
 	Rotate float64
 	Zoom   float64
 }
 
-// Translate translates in-game world-relative coordinates to (0, 0) relative coordinates
-func (m Map) Translate(x, y, z float64) (float64, float64, float64) {
-	return x - m.PosX, m.PosY - y, z
+// Translate translates in-game world-relative coordinates to (0, 0) relative coordinates.
+func (m Map) Translate(x, y float64) (float64, float64) {
+	return x - m.PZero.X, m.PZero.Y - y
 }
 
-// TranslateScale translates and scales in-game world-relative coordinates to (0, 0) relative coordinates
-func (m Map) TranslateScale(x, y, z float64) (float64, float64, float64) {
-	x, y, z = m.Translate(x, y, z)
-	return x / m.Scale, y / m.Scale, z
+// TranslateScale translates and scales in-game world-relative coordinates to (0, 0) relative coordinates.
+func (m Map) TranslateScale(x, y float64) (float64, float64) {
+	x, y = m.Translate(x, y)
+	return x / m.Scale, y / m.Scale
 }
 
+// Pre-defined map translations.
 var (
 	MapDeCache = Map{
-		Name:  "de_cache",
-		PosX:  -2000,
-		PosY:  3250,
-		Scale: 5.5,
+		Name: "de_cache",
+		PZero: r2.Point{
+			X: -1950,
+			Y: 3200,
+		},
+		Scale: 5.4,
 	}
 
 	MapDeCanals = Map{
-		Name:  "de_canals",
-		PosX:  -2496,
-		PosY:  1792,
+		Name: "de_canals",
+		PZero: r2.Point{
+			X: -2496,
+			Y: 1792,
+		},
 		Scale: 4,
 	}
 
 	MapDeCbble = Map{
-		Name:  "de_cbble",
-		PosX:  -3840,
-		PosY:  3072,
+		Name: "de_cbble",
+		PZero: r2.Point{
+			X: -3840,
+			Y: 3072,
+		},
 		Scale: 6,
 	}
 
 	MapDeDust2 = Map{
-		Name:   "de_dust2",
-		PosX:   -2400,
-		PosY:   3383,
+		Name: "de_dust2",
+		PZero: r2.Point{
+			X: -2400,
+			Y: 3383,
+		},
 		Scale:  4.4,
 		Rotate: 1,
 		Zoom:   1.1,
 	}
 
 	MapDeInferno = Map{
-		Name:  "de_inferno",
-		PosX:  -2087,
-		PosY:  3870,
+		Name: "de_inferno",
+		PZero: r2.Point{
+			X: -2087,
+			Y: 3870,
+		},
 		Scale: 4.9,
 	}
 
 	MapDeMirage = Map{
-		Name:   "de_mirage",
-		PosX:   -3230,
-		PosY:   1713,
-		Scale:  5,
-		Rotate: 0,
-		Zoom:   0,
+		Name: "de_mirage",
+		PZero: r2.Point{
+			X: -3230,
+			Y: 1713,
+		},
+		Scale: 5,
 	}
 
 	MapDeNuke = Map{
-		Name:  "de_nuke",
-		PosX:  -3453,
-		PosY:  2887,
+		Name: "de_nuke",
+		PZero: r2.Point{
+			X: -3453,
+			Y: 2887,
+		},
 		Scale: 7,
 	}
 
 	MapDeOverpass = Map{
-		Name:   "de_overpass",
-		PosX:   -4831,
-		PosY:   1781,
-		Scale:  5.2,
-		Rotate: 0,
-		Zoom:   0,
+		Name: "de_overpass",
+		PZero: r2.Point{
+			X: -4831,
+			Y: 1781,
+		},
+		Scale: 5.2,
 	}
 
 	MapDeTrain = Map{
-		Name:  "de_train",
-		PosX:  -2477,
-		PosY:  2392,
+		Name: "de_train",
+		PZero: r2.Point{
+			X: -2477,
+			Y: 2392,
+		},
 		Scale: 4.7,
 	}
 )
