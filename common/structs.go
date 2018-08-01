@@ -214,8 +214,24 @@ func (inf Inferno) Active() Inferno {
 	return res
 }
 
-// ConvexHull returns the convex hull of all the fires in the inferno.
-func (inf Inferno) ConvexHull() *s2.Loop {
+// ConvexHull2D returns the 2D convex hull of all the fires in the inferno.
+// Useful for drawing on 2D maps.
+func (inf Inferno) ConvexHull2D() *s2.Loop {
+	q := s2.NewConvexHullQuery()
+	for i := range inf.Fires {
+		q.AddPoint(s2.Point{
+			Vector: r3.Vector{
+				X: inf.Fires[i].Vector.X,
+				Y: inf.Fires[i].Vector.Y,
+				Z: 1,
+			},
+		})
+	}
+	return q.ConvexHull()
+}
+
+// ConvexHull3D returns the 3D convex hull of all the fires in the inferno.
+func (inf Inferno) ConvexHull3D() *s2.Loop {
 	q := s2.NewConvexHullQuery()
 	for i := range inf.Fires {
 		q.AddPoint(s2.Point{Vector: inf.Fires[i].Vector})

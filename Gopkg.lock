@@ -29,7 +29,7 @@
   revision = "e2365dfdc4a05e4b8299a783240d4a7d5a65d4e4"
 
 [[projects]]
-  branch = "convex-hull"
+  branch = "master"
   name = "github.com/golang/geo"
   packages = [
     "r1",
@@ -38,8 +38,7 @@
     "s1",
     "s2"
   ]
-  revision = "12889707c62e2a5059e345e30450c7e79c70a6fc"
-  source = "github.com/markus-wa/geo"
+  revision = "0bf2f2ac7257e4d34a534fdd75594fd89a979e56"
 
 [[projects]]
   branch = "master"
@@ -77,6 +76,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cda22bd3cd5cfcaa6e9fab1e1f64ed6670859d06ea62922ac4cb42f7e4e701f7"
+  inputs-digest = "068fc45c7a07084452483deb3d56aa7a20dd8a452e433537d462236e11825698"
   solver-name = "gps-cdcl"
   solver-version = 1

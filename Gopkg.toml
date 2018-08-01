@@ -30,9 +30,8 @@
   version = "1.0.0"
 
 [[constraint]]
-  branch = "convex-hull"
+  branch = "master"
   name = "github.com/golang/geo"
-  source = "github.com/markus-wa/geo"
 
 [[constraint]]
   name = "github.com/markus-wa/gobitread"

@@ -57,10 +57,17 @@ func main() {
 
 	p.RegisterEventHandler(func(e events.NadeProjectileDestroyedEvent) {
 		id := e.Projectile.UniqueID()
+
+		// Sometimes the thrower is nil, in that case we want the team to be unassigned (which is the default value)
+		var team common.Team
+		if e.Projectile.Thrower != nil {
+			team = e.Projectile.Thrower.Team
+		}
+
 		if nadeTrajectories[id] == nil {
 			nadeTrajectories[id] = &nadePath{
 				wep:  e.Projectile.Weapon,
-				team: e.Projectile.Thrower.Team,
+				team: team,
 			}
 		}
 
@@ -131,7 +138,7 @@ func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
 	// Calculate hulls
 	hulls := make([]*s2.Loop, len(infernos))
 	for i := range infernos {
-		hulls[i] = infernos[i].ConvexHull()
+		hulls[i] = infernos[i].ConvexHull2D()
 	}
 
 	for _, hull := range hulls {
