@@ -15,6 +15,7 @@ type GameState struct {
 	grenadeProjectiles map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos           map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	entities           map[int]*st.Entity                // Maps entity IDs to entities
+	bomb               common.Bomb
 }
 
 type ingameTickNumber int
@@ -70,6 +71,11 @@ func (gs GameState) Infernos() map[int]*common.Inferno {
 // Entities returns all currently existing entities.
 func (gs GameState) Entities() map[int]*st.Entity {
 	return gs.entities
+}
+
+// Bomb returns the current bomb state.
+func (gs GameState) Bomb() *common.Bomb {
+	return &gs.bomb
 }
 
 func newGameState() GameState {

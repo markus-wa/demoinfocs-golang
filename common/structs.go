@@ -245,3 +245,9 @@ func (inf Inferno) ConvexHull3D() *s2.Loop {
 func NewInferno() *Inferno {
 	return &Inferno{uniqueID: rand.Int63()}
 }
+
+// Bomb tracks the bomb's position, and the player carrying it, if any.
+type Bomb struct {
+	Position r3.Vector
+	Player   *Player
+}

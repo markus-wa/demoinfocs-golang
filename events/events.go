@@ -271,6 +271,17 @@ type BombBeginDefuseEvent struct {
 	HasKit bool
 }
 
+// BombDropEvent signals that the bomb (C4) has been dropped.
+type BombDropEvent struct {
+	Player   *common.Player
+	EntityID int
+}
+
+// BombPickupEvent signals that the bomb (C4) has been picked up.
+type BombPickupEvent struct {
+	Player *common.Player
+}
+
 func (BombBeginDefuseEvent) implementsBombEventIf() {}
 
 // HitGroup is the type for the various HitGroupXYZ constants.
