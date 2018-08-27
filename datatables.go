@@ -386,6 +386,7 @@ func (p *Parser) bindNewInferno(entity *st.Entity) {
 		p.eventDispatcher.Dispatch(events.InfernoExpiredEvent{
 			Inferno: inf,
 		})
+		delete(p.gameState.infernos, entityID)
 	})
 
 	origin := entity.Position()
