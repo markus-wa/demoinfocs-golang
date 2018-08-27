@@ -90,11 +90,13 @@ func (p *Parser) ServerClasses() st.ServerClasses {
 }
 
 // Header returns the DemoHeader which contains the demo's metadata.
+// Only possible after ParserHeader() has been called.
 func (p *Parser) Header() common.DemoHeader {
 	return *p.header
 }
 
 // GameState returns the current game-state.
+// It contains most of the relevant information about the game such as players, teams, scores, grenades etc.
 func (p *Parser) GameState() *GameState {
 	return &p.gameState
 }

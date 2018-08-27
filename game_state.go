@@ -69,6 +69,7 @@ func (gs GameState) Infernos() map[int]*common.Inferno {
 }
 
 // Entities returns all currently existing entities.
+// (Almost?) everything in the game is an entity, such as weapons, players, fire etc.
 func (gs GameState) Entities() map[int]*st.Entity {
 	return gs.entities
 }
@@ -114,6 +115,7 @@ func (ts TeamState) ClanName() string {
 }
 
 // Flag returns the team's country flag.
+// E.g. DE, FR, etc.
 //
 // Watch out, in some demos this is upper-case and in some lower-case.
 func (ts TeamState) Flag() string {
@@ -121,7 +123,7 @@ func (ts TeamState) Flag() string {
 }
 
 // Participants provides helper functions on top of the currently connected players.
-// E.g. ByUserID(), ByEntityID(), TeamMembers() etc.
+// E.g. ByUserID(), ByEntityID(), TeamMembers(), etc.
 //
 // See GameState.Participants()
 type Participants struct {

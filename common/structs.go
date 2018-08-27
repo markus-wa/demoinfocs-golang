@@ -12,17 +12,17 @@ import (
 
 // DemoHeader contains information from a demo's header.
 type DemoHeader struct {
-	Filestamp       string
-	Protocol        int
-	NetworkProtocol int
-	ServerName      string
-	ClientName      string
-	MapName         string
-	GameDirectory   string
-	PlaybackTime    float32
-	PlaybackTicks   int
-	PlaybackFrames  int
-	SignonLength    int
+	Filestamp       string  // aka. File-type, must be HL2DEMO
+	Protocol        int     // Should be 4
+	NetworkProtocol int     // Not sure what this is for
+	ServerName      string  // Server's 'hostname' config value
+	ClientName      string  // Usually 'GOTV Demo'
+	MapName         string  // E.g. de_cache, de_nuke, cs_office, etc.
+	GameDirectory   string  // Usually 'csgo'
+	PlaybackTime    float32 // Demo duration in seconds (= PlaybackTicks / Server's tickrate)
+	PlaybackTicks   int     // Game duration in ticks (= PlaybackTime * Server's tickrate)
+	PlaybackFrames  int     // Amount of 'frames' aka demo-ticks recorded (= PlaybackTime * Demo's recording rate)
+	SignonLength    int     // Length of the Signon package in bytes
 }
 
 // FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
@@ -49,34 +49,32 @@ func (h DemoHeader) TickTime() time.Duration {
 
 // Player contains mostly game-relevant player information.
 type Player struct {
-	SteamID                     int64
-	Position                    r3.Vector
-	LastAlivePosition           r3.Vector
-	Velocity                    r3.Vector
-	EntityID                    int
-	UserID                      int
-	Name                        string
+	SteamID                     int64     // int64 representation of the User's Steam ID
+	Position                    r3.Vector // In-game coordinates. Like the one you get from cl_showpos 1
+	LastAlivePosition           r3.Vector // The location where the player was last alive. Should be equal to Position if the player is still alive.
+	Velocity                    r3.Vector // Movement velocity
+	EntityID                    int       // The ID of the player-entity, see Entity field
+	UserID                      int       // Mostly used in game-events to address this player
+	Name                        string    // Steam / in-game user name
 	Hp                          int
 	Armor                       int
 	Money                       int
 	CurrentEquipmentValue       int
 	FreezetimeEndEquipmentValue int
 	RoundStartEquipmentValue    int
-	ActiveWeaponID              int
-	RawWeapons                  map[int]*Equipment
-	AmmoLeft                    [32]int
+	ActiveWeaponID              int                // Used internally to set the active weapon, see ActiveWeapon()
+	RawWeapons                  map[int]*Equipment // All weapons the player is currently carrying
+	AmmoLeft                    [32]int            // Ammo left in the various weapons, index corresponds to key of RawWeapons
 	Entity                      *st.Entity
-	AdditionalPlayerInformation *AdditionalPlayerInformation
+	AdditionalPlayerInformation *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
 	ViewDirectionX              float32
 	ViewDirectionY              float32
-	FlashDuration               float32
+	FlashDuration               float32 // How long this player is flashed for from now on
 	Team                        Team
 	IsBot                       bool
 	IsDucking                   bool
-	IsDisconnected              bool
 	HasDefuseKit                bool
 	HasHelmet                   bool
-	Connected                   bool
 }
 
 // IsAlive returns true if the Hp of the player are > 0.
@@ -130,10 +128,10 @@ type Equipment struct {
 type GrenadeProjectile struct {
 	EntityID   int
 	Weapon     EquipmentElement
-	Thrower    *Player
-	Owner      *Player
+	Thrower    *Player // Always seems to be the same as Owner, even if the grenade was picked up
+	Owner      *Player // Always seems to be the same as Thrower, even if the grenade was picked up
 	Position   r3.Vector
-	Trajectory []r3.Vector
+	Trajectory []r3.Vector // List of all known locations of the grenade up to the current point
 
 	// uniqueID is used to distinguish different grenades (which potentially have the same, reused entityID) from each other.
 	uniqueID int64
