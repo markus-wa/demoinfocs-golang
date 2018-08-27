@@ -59,7 +59,7 @@ func TestDemoInfoCs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf("Header: %v - FrameRate()=%.2f frames/s ; FrameTime()=%.1fms\n", h, h.FrameRate(), h.FrameTime()*1000)
+	fmt.Printf("Header: %v - FrameRate()=%.2f frames/s ; FrameTime()=%s ; TickRate()=%.2f frames/s ; TickTime()=%s\n", h, h.FrameRate(), h.FrameTime(), h.TickRate(), h.TickTime())
 	h2 := p.Header()
 	if h != h2 {
 		t.Errorf("Headers returned by ParseHeader() & Header(), respectively, aren't equal; ParseHeader(): %v - Header(): %v", h, h2)
@@ -93,7 +93,7 @@ func TestDemoInfoCs(t *testing.T) {
 		ingameTick := gs.IngameTick()
 		currentFrame := p.CurrentFrame()
 		// Score + 1 for winner because it hasn't actually been updated yet
-		fmt.Printf("Round finished: score=%d:%d ; winnerSide=%s ; clanName=%q ; teamId=%d ; teamFlag=%s ; ingameTime=%.1fs ; progress=%.1f%% ; tick=%d ; frame=%d\n", winner.Score()+1, loser.Score(), winnerSide, winnerClan, winnerId, winnerFlag, ingameTime, progressPercent, ingameTick, currentFrame)
+		fmt.Printf("Round finished: score=%d:%d ; winnerSide=%s ; clanName=%q ; teamId=%d ; teamFlag=%s ; ingameTime=%s ; progress=%.1f%% ; tick=%d ; frame=%d\n", winner.Score()+1, loser.Score(), winnerSide, winnerClan, winnerId, winnerFlag, ingameTime, progressPercent, ingameTick, currentFrame)
 		if len(winnerClan) == 0 || winnerId == 0 || len(winnerFlag) == 0 || ingameTime == 0 || progressPercent == 0 || ingameTick == 0 || currentFrame == 0 {
 			t.Error("Unexprected default value, check output of last round")
 		}

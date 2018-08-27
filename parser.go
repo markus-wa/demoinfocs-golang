@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"io"
 	"sync"
+	"time"
 
 	r3 "github.com/golang/geo/r3"
 	dp "github.com/markus-wa/godispatch"
@@ -104,9 +105,9 @@ func (p *Parser) CurrentFrame() int {
 	return p.currentFrame
 }
 
-// CurrentTime returns the ingame time in seconds since the start of the demo.
-func (p *Parser) CurrentTime() float32 {
-	return float32(p.currentFrame) * p.header.FrameTime()
+// CurrentTime returns the time elapsed since the start of the demo
+func (p *Parser) CurrentTime() time.Duration {
+	return time.Duration(p.currentFrame) * p.header.FrameTime()
 }
 
 // Progress returns the parsing progress from 0 to 1.

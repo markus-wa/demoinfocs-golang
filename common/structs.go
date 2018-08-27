@@ -2,6 +2,7 @@ package common
 
 import (
 	"math/rand"
+	"time"
 
 	r3 "github.com/golang/geo/r3"
 	s2 "github.com/golang/geo/s2"
@@ -26,14 +27,24 @@ type DemoHeader struct {
 
 // FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
 // Not necessarily the tick-rate the server ran on during the game.
-// VolvoPlx128TixKTnxBye
 func (h DemoHeader) FrameRate() float32 {
 	return float32(h.PlaybackFrames) / h.PlaybackTime
 }
 
 // FrameTime returns the time a frame / demo-tick takes in seconds.
-func (h DemoHeader) FrameTime() float32 {
-	return h.PlaybackTime / float32(h.PlaybackFrames)
+func (h DemoHeader) FrameTime() time.Duration {
+	return time.Duration(h.PlaybackTime / float32(h.PlaybackFrames) * float32(time.Second))
+}
+
+// TickRate returns the tick-rate the server ran on during the game.
+// VolvoPlx128TixKTnxBye
+func (h DemoHeader) TickRate() float32 {
+	return float32(h.PlaybackTicks) / h.PlaybackTime
+}
+
+// TickTime returns the time a single tick takes in seconds.
+func (h DemoHeader) TickTime() time.Duration {
+	return time.Duration(h.PlaybackTime / float32(h.PlaybackTicks) * float32(time.Second))
 }
 
 // Player contains mostly game-relevant player information.
