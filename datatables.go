@@ -69,83 +69,40 @@ func (p *Parser) bindEntities() {
 }
 
 func (p *Parser) bindBomb() {
-	p.gameState.bomb = common.Bomb{}
 	bomb := &p.gameState.bomb
 
 	// Track bomb when it is not held by a player
-	p.stParser.ServerClasses().FindByName("CC4").OnEntityCreated(func(bomb *st.Entity) {
+	scDroppedC4 := p.stParser.ServerClasses().FindByName("CC4")
+	scDroppedC4.OnEntityCreated(func(bomb *st.Entity) {
 		bomb.OnPositionUpdate(func(pos r3.Vector) {
-			p.gameState.bomb.Player = nil // Bomb only has a position when not held by a player
-			p.gameState.bomb.Position = pos
+			// Bomb only has a position when not held by a player
+			p.gameState.bomb.Carrier = nil
+
+			p.gameState.bomb.LastOnGroundPosition = pos
 		})
 	})
 
 	// Track bomb when it has been planted
 	scPlantedC4 := p.stParser.ServerClasses().FindByName("CPlantedC4")
 	scPlantedC4.OnEntityCreated(func(bombEntity *st.Entity) {
-		p.gameState.bomb.Player = nil // Player can't hold the bomb when it has been planted
-		bomb.Position = bombEntity.Position()
+		// Player can't hold the bomb when it has been planted
+		p.gameState.bomb.Carrier = nil
+
+		bomb.LastOnGroundPosition = bombEntity.Position()
 	})
 
 	// Track bomb when it is being held by a player
 	scPlayerC4 := p.stParser.ServerClasses().FindByName("CC4")
 	scPlayerC4.OnEntityCreated(func(bombEntity *st.Entity) {
+		// TODO: @micvbang please document why this was introduced
 		wep := p.equipmentMapping[scPlayerC4]
 		if wep != common.EqBomb {
 			return
 		}
 
-		// TODO: fix this hack to "unregister" OnUpdate handlers
-		handlerRegistered := make(map[int]bool)
-
-		bombEntity.FindProperty("m_hPrevOwner").OnUpdate(func(val st.PropertyValue) {
-			ownerEntityID := val.IntVal & entityHandleIndexMask
-			handlerRegistered[ownerEntityID] = false
-		})
-
 		bombEntity.FindProperty("m_hOwner").OnUpdate(func(val st.PropertyValue) {
-			// TODO: for performance, it would be nice to be able to unregister the
-			// potential previous OnUpdate registrations from below, here
-
 			ownerEntityID := val.IntVal & entityHandleIndexMask
-			owner := p.gameState.playersByEntityID[ownerEntityID]
-			if owner == nil {
-				return
-			}
-			handlerRegistered[ownerEntityID] = true
-
-			updateBombPosition := func() {
-				if !handlerRegistered[ownerEntityID] {
-					return
-				}
-
-				// Because of the way that bomb entities are created and destroyed, m_hOwner and m_hPrevOwner
-				// aren't always triggered as one would expect when the bomb is planted, defused, and even
-				// dropped in some cases.
-				//
-				// An example: if a player drops the bomb directly to another player, i.e. the bomb never
-				// touches the ground, the bomb entity stays the same. In this case, the m_h{Prev}Owner
-				// properties are updated. Here, the does-player-still-hold-bomb check below is not required.
-				//
-				// If, instead, the bomb is dropped on the ground, the bomb entity is destroyed and a new one
-				// is created. In this case, the m_h{Prev}Owner properties are not updated, and we need the check
-				// below.
-				if _, hasBomb := owner.RawWeapons[bombEntity.ID()]; !hasBomb {
-					handlerRegistered[ownerEntityID] = false
-					return
-				}
-
-				bomb.Position = owner.Position
-				bomb.Player = owner
-			}
-
-			owner.Entity.FindProperty("cslocaldata.m_vecOrigin").OnUpdate(func(val st.PropertyValue) {
-				updateBombPosition()
-			})
-
-			owner.Entity.FindProperty("cslocaldata.m_vecOrigin[2]").OnUpdate(func(val st.PropertyValue) {
-				updateBombPosition()
-			})
+			bomb.Carrier = p.gameState.playersByEntityID[ownerEntityID]
 		})
 	})
 }
