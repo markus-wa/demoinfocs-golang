@@ -98,6 +98,7 @@ func TestDemoInfoCs(t *testing.T) {
 			t.Error("Unexprected default value, check output of last round")
 		}
 	})
+
 	// Check some things at match start
 	p.RegisterEventHandler(func(events.MatchStartedEvent) {
 		participants := gs.Participants()
@@ -117,6 +118,13 @@ func TestDemoInfoCs(t *testing.T) {
 		if nCTs := len(gs.TeamMembers(common.TeamCounterTerrorists)); nCTs != 5 {
 			// We know there should be 5 CTs at match start in the default demo
 			t.Error("Expected 5 CTs; got", nCTs)
+		}
+	})
+
+	// Regression test for grenade projectiles not being deleted at the end of the round (issue #42)
+	p.RegisterEventHandler(func(events.RoundStartedEvent) {
+		if nProjectiles := len(p.GameState().GrenadeProjectiles()); nProjectiles > 0 {
+			t.Error("Expected 0 GrenadeProjectiles at the start of the round, got", nProjectiles)
 		}
 	})
 
