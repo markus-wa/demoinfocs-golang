@@ -154,16 +154,34 @@ func (e *Entity) applyBaseline(baseline map[int]PropertyValue) {
 }
 
 const (
-	maxCoordInt   = 16384
-	propCellBits  = "m_cellbits"
-	propCellX     = "m_cellX"
-	propCellY     = "m_cellY"
-	propCellZ     = "m_cellZ"
-	propVecOrigin = "m_vecOrigin"
+	maxCoordInt = 16384
+
+	propCellBits          = "m_cellbits"
+	propCellX             = "m_cellX"
+	propCellY             = "m_cellY"
+	propCellZ             = "m_cellZ"
+	propVecOrigin         = "m_vecOrigin"
+	propVecOriginPlayerXY = "cslocaldata.m_vecOrigin"
+	propVecOriginPlayerZ  = "cslocaldata.m_vecOrigin[2]"
+
+	serverClassPlayer = "CCSPlayer"
 )
 
 // Position returns the entity's position in world coordinates.
 func (e *Entity) Position() r3.Vector {
+	// Player positions are calculated differently
+	if e.isPlayer() {
+		return e.positionPlayer()
+	}
+
+	return e.positionDefault()
+}
+
+func (e *Entity) isPlayer() bool {
+	return e.serverClass.name == serverClassPlayer
+}
+
+func (e *Entity) positionDefault() r3.Vector {
 	cellWidth := 1 << uint(e.FindProperty(propCellBits).value.IntVal)
 	cellX := e.FindProperty(propCellX).value.IntVal
 	cellY := e.FindProperty(propCellY).value.IntVal
@@ -177,9 +195,18 @@ func (e *Entity) Position() r3.Vector {
 	}
 }
 
+func (e *Entity) positionPlayer() r3.Vector {
+	xy := e.FindProperty(propVecOriginPlayerXY).value.VectorVal
+	z := float64(e.FindProperty(propVecOriginPlayerZ).value.FloatVal)
+	return r3.Vector{
+		X: xy.X,
+		Y: xy.Y,
+		Z: z,
+	}
+}
+
 // OnPositionUpdate registers a handler for the entity's position update.
 // The handler is called with the new position every time a position-relevant property is updated.
-// This does NOT work for players as their position is calculated differently.
 //
 // See also Position()
 func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
@@ -192,15 +219,19 @@ func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 		}
 	}
 
-	e.FindProperty(propCellX).OnUpdate(firePosUpdate)
-	e.FindProperty(propCellY).OnUpdate(firePosUpdate)
-	e.FindProperty(propCellZ).OnUpdate(firePosUpdate)
-	e.FindProperty(propVecOrigin).OnUpdate(firePosUpdate)
+	if e.isPlayer() {
+		e.FindProperty(propVecOriginPlayerXY).OnUpdate(firePosUpdate)
+		e.FindProperty(propVecOriginPlayerZ).OnUpdate(firePosUpdate)
+	} else {
+		e.FindProperty(propCellX).OnUpdate(firePosUpdate)
+		e.FindProperty(propCellY).OnUpdate(firePosUpdate)
+		e.FindProperty(propCellZ).OnUpdate(firePosUpdate)
+		e.FindProperty(propVecOrigin).OnUpdate(firePosUpdate)
+	}
 }
 
 // BindPosition binds the entity's position to a pointer variable.
 // The pointer is updated every time a position-relevant property is updated.
-// This does NOT work for players as their position is calculated differently.
 //
 // See also OnPositionUpdate()
 func (e *Entity) BindPosition(pos *r3.Vector) {
