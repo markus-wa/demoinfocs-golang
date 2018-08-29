@@ -95,8 +95,7 @@ func (p *Parser) bindBomb() {
 	scPlayerC4 := p.stParser.ServerClasses().FindByName("CC4")
 	scPlayerC4.OnEntityCreated(func(bombEntity *st.Entity) {
 		bombEntity.FindProperty("m_hOwner").OnUpdate(func(val st.PropertyValue) {
-			ownerEntityID := val.IntVal & entityHandleIndexMask
-			bomb.Carrier = p.gameState.playersByEntityID[ownerEntityID]
+			bomb.Carrier = p.gameState.Participants().FindByHandle(val.IntVal)
 		})
 	})
 }
@@ -328,16 +327,11 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
 	entity.FindProperty("m_hThrower").OnUpdate(func(val st.PropertyValue) {
-		throwerID := val.IntVal & entityHandleIndexMask
-
-		thrower := p.gameState.playersByEntityID[throwerID]
-		proj.Thrower = thrower
+		proj.Thrower = p.gameState.Participants().FindByHandle(val.IntVal)
 	})
 
 	entity.FindProperty("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
-		ownerID := val.IntVal & entityHandleIndexMask
-		player := p.gameState.playersByEntityID[ownerID]
-		proj.Owner = player
+		proj.Owner = p.gameState.Participants().FindByHandle(val.IntVal)
 	})
 
 	entity.OnPositionUpdate(func(newPos r3.Vector) {
