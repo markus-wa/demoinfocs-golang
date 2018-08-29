@@ -316,6 +316,17 @@ func (p *Parser) bindGrenadeProjectiles(event st.EntityCreatedEvent) {
 	})
 }
 
+// Seperate function because we also use it in round_officially_ended (issue #42)
+func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
+	// If the grenade projectile entity is destroyed AFTER round_officially_ended
+	// we already executed this code when we received that event.
+	if _, exists := p.gameState.grenadeProjectiles[proj.EntityID]; !exists {
+		return
+	}
+
+	delete(p.gameState.grenadeProjectiles, proj.EntityID)
+}
+
 func (p *Parser) bindWeapon(event st.EntityCreatedEvent) {
 	p.weapons[event.Entity.ID] = common.NewEquipment("")
 	eq := &p.weapons[event.Entity.ID]

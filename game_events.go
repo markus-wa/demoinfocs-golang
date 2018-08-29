@@ -79,7 +79,18 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			Winner:  t,
 		})
 
-	case "round_officially_ended": // Round ended. . . probably the event where you get teleported to the spawn (=> You can still walk around between round_end and this?)
+	case "round_officially_ended": // The event after which you get teleported to the spawn (=> You can still walk around between round_end and this event)
+		// Issue #42
+		// Sometimes grenades aren't deleted / destroyed via entity-updates at the end of the round,
+		// so we need to do it here for those that weren't.
+		//
+		// We're not deleting them from entitites though as that's supposed to be as close to the actual demo data as possible.
+		// We're also not using Entity.Destroy() because it would - in some cases - be called twice on the same entity
+		// and it's supposed to be called when the demo actually says so (same case as with GameState.entities).
+		for _, proj := range p.gameState.grenadeProjectiles {
+			p.nadeProjectileDestroyed(proj)
+		}
+
 		p.eventDispatcher.Dispatch(events.RoundOfficialyEndedEvent{})
 
 	case "round_mvp": // Round MVP was announced
