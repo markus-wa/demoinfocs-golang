@@ -285,11 +285,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	})
 
 	entity.OnDestroy(func() {
-		p.eventDispatcher.Dispatch(events.NadeProjectileDestroyedEvent{
-			Projectile: proj,
-		})
-
-		delete(p.gameState.grenadeProjectiles, entityID)
+		p.nadeProjectileDestroyed(proj)
 	})
 
 	entity.FindProperty("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
@@ -329,6 +325,21 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 			}
 		})
 	}
+}
+
+// Seperate function because we also use it in round_officially_ended (issue #42)
+func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
+	// If the grenade projectile entity is destroyed AFTER round_officially_ended
+	// we already executed this code when we received that event.
+	if _, exists := p.gameState.grenadeProjectiles[proj.EntityID]; !exists {
+		return
+	}
+
+	p.eventDispatcher.Dispatch(events.NadeProjectileDestroyedEvent{
+		Projectile: proj,
+	})
+
+	delete(p.gameState.grenadeProjectiles, proj.EntityID)
 }
 
 func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) {
@@ -383,10 +394,7 @@ func (p *Parser) bindNewInferno(entity *st.Entity) {
 	})
 
 	entity.OnDestroy(func() {
-		p.eventDispatcher.Dispatch(events.InfernoExpiredEvent{
-			Inferno: inf,
-		})
-		delete(p.gameState.infernos, entityID)
+		p.infernoExpired(inf)
 	})
 
 	origin := entity.Position()
@@ -407,4 +415,19 @@ func (p *Parser) bindNewInferno(entity *st.Entity) {
 		}
 		nFires = val.IntVal
 	})
+}
+
+// Seperate function because we also use it in round_officially_ended (issue #42)
+func (p *Parser) infernoExpired(inf *common.Inferno) {
+	// If the inferno entity is destroyed AFTER round_officially_ended
+	// we already executed this code when we received that event.
+	if _, exists := p.gameState.infernos[inf.EntityID]; !exists {
+		return
+	}
+
+	p.eventDispatcher.Dispatch(events.InfernoExpiredEvent{
+		Inferno: inf,
+	})
+
+	delete(p.gameState.infernos, inf.EntityID)
 }
