@@ -94,12 +94,6 @@ func (p *Parser) bindBomb() {
 	// Track bomb when it is being held by a player
 	scPlayerC4 := p.stParser.ServerClasses().FindByName("CC4")
 	scPlayerC4.OnEntityCreated(func(bombEntity *st.Entity) {
-		// TODO: @micvbang please document why this was introduced
-		wep := p.equipmentMapping[scPlayerC4]
-		if wep != common.EqBomb {
-			return
-		}
-
 		bombEntity.FindProperty("m_hOwner").OnUpdate(func(val st.PropertyValue) {
 			ownerEntityID := val.IntVal & entityHandleIndexMask
 			bomb.Carrier = p.gameState.playersByEntityID[ownerEntityID]
