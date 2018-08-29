@@ -2,13 +2,9 @@ language: go
 sudo: required
 
 go:
-  - 1.9.x
+  - 1.10.x
   - stable
   - master
-
-install:
-  # We need goverage to run go tests with -coverprofile for multiple packages
-  - go get github.com/haya14busa/goverage
 
 before_script:
   # We don't want to run the demo set test with race condition testing.
@@ -19,7 +15,7 @@ script:
   # Run race tests
   - go test -v -race -run "$race_tests" -timeout 15m
   # We run all tests again to get full coverage, technically unncecessary tho
-  - goverage -v -timeout 30m -coverprofile=coverage.txt $(go list ./... | grep -v msg | awk -vORS=' ' '{ print $1 }')
+  - go test -v -timeout 30m -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -v msg | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/')
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
