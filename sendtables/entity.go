@@ -141,20 +141,55 @@ func (e *Entity) ApplyBaseline(baseline map[int]PropValue) {
 	}
 }
 
-const maxCoordInt = 16384
+const (
+	maxCoordInt = 16384
+
+	propCellBits          = "m_cellbits"
+	propCellX             = "m_cellX"
+	propCellY             = "m_cellY"
+	propCellZ             = "m_cellZ"
+	propVecOrigin         = "m_vecOrigin"
+	propVecOriginPlayerXY = "cslocaldata.m_vecOrigin"
+	propVecOriginPlayerZ  = "cslocaldata.m_vecOrigin[2]"
+
+	serverClassPlayer = "CCSPlayer"
+)
 
 // Position returns the entity's position in world coordinates.
 func (e *Entity) Position() r3.Vector {
-	cellWidth := 1 << uint(e.FindProperty("m_cellbits").value.IntVal)
-	cellX := e.FindProperty("m_cellX").value.IntVal
-	cellY := e.FindProperty("m_cellY").value.IntVal
-	cellZ := e.FindProperty("m_cellZ").value.IntVal
-	offset := e.FindProperty("m_vecOrigin").value.VectorVal
+	// Player positions are calculated differently
+	if e.isPlayer() {
+		return e.positionPlayer()
+	}
+
+	return e.positionDefault()
+}
+
+func (e *Entity) isPlayer() bool {
+	return e.ServerClass.Name == serverClassPlayer
+}
+
+func (e *Entity) positionDefault() r3.Vector {
+	cellWidth := 1 << uint(e.FindProperty(propCellBits).value.IntVal)
+	cellX := e.FindProperty(propCellX).value.IntVal
+	cellY := e.FindProperty(propCellY).value.IntVal
+	cellZ := e.FindProperty(propCellZ).value.IntVal
+	offset := e.FindProperty(propVecOrigin).value.VectorVal
 
 	return r3.Vector{
 		X: coordFromCell(cellX, cellWidth, offset.X),
 		Y: coordFromCell(cellY, cellWidth, offset.Y),
 		Z: coordFromCell(cellZ, cellWidth, offset.Z),
+	}
+}
+
+func (e *Entity) positionPlayer() r3.Vector {
+	xy := e.FindProperty(propVecOriginPlayerXY).value.VectorVal
+	z := float64(e.FindProperty(propVecOriginPlayerZ).value.FloatVal)
+	return r3.Vector{
+		X: xy.X,
+		Y: xy.Y,
+		Z: z,
 	}
 }
 
