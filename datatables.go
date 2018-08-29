@@ -29,7 +29,6 @@ func (p *Parser) mapEquipment() {
 			if bc.Name() == "CBaseGrenade" { // Grenades projectiles, i.e. thrown by player
 				p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.DataTableName()[3:]))
 			}
-
 		}
 
 		if len(baseClasses) > 6 && baseClasses[6].Name() == "CWeaponCSBase" {
@@ -372,6 +371,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 		p.eventDispatcher.Dispatch(events.NadeProjectileDestroyedEvent{
 			Projectile: proj,
 		})
+
 		delete(p.gameState.grenadeProjectiles, entityID)
 	})
 
