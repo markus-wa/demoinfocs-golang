@@ -65,6 +65,40 @@ func (p *Parser) bindEntities() {
 	p.bindBombSites()
 	p.bindPlayers()
 	p.bindWeapons()
+	p.bindBomb()
+}
+
+func (p *Parser) bindBomb() {
+	bomb := &p.gameState.bomb
+
+	// Track bomb when it is not held by a player
+	scDroppedC4 := p.stParser.ServerClasses().FindByName("CC4")
+	scDroppedC4.OnEntityCreated(func(bomb *st.Entity) {
+		bomb.OnPositionUpdate(func(pos r3.Vector) {
+			// Bomb only has a position when not held by a player
+			p.gameState.bomb.Carrier = nil
+
+			p.gameState.bomb.LastOnGroundPosition = pos
+		})
+	})
+
+	// Track bomb when it has been planted
+	scPlantedC4 := p.stParser.ServerClasses().FindByName("CPlantedC4")
+	scPlantedC4.OnEntityCreated(func(bombEntity *st.Entity) {
+		// Player can't hold the bomb when it has been planted
+		p.gameState.bomb.Carrier = nil
+
+		bomb.LastOnGroundPosition = bombEntity.Position()
+	})
+
+	// Track bomb when it is being held by a player
+	scPlayerC4 := p.stParser.ServerClasses().FindByName("CC4")
+	scPlayerC4.OnEntityCreated(func(bombEntity *st.Entity) {
+		bombEntity.FindProperty("m_hOwner").OnUpdate(func(val st.PropertyValue) {
+			ownerEntityID := val.IntVal & entityHandleIndexMask
+			bomb.Carrier = p.gameState.playersByEntityID[ownerEntityID]
+		})
+	})
 }
 
 func (p *Parser) bindTeamScores() {

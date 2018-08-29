@@ -352,6 +352,18 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 				Weapon: weapon,
 			})
 		}
+	case "bomb_dropped": // Bomb dropped
+		player := p.gameState.playersByUserID[int(data["userid"].GetValShort())]
+		entityID := int(data["entityid"].GetValShort())
+
+		p.eventDispatcher.Dispatch(events.BombDropEvent{
+			Player:   player,
+			EntityID: entityID,
+		})
+	case "bomb_pickup": // Bomb picked up
+		p.eventDispatcher.Dispatch(events.BombPickupEvent{
+			Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())],
+		})
 
 	// TODO: Might be interesting:
 	case "player_connect_full": // Connecting finished
@@ -361,10 +373,6 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "weapon_zoom": // Zooming in
 		fallthrough
 	case "weapon_reload": // Weapon reloaded
-		fallthrough
-	case "bomb_dropped": // Bomb dropped
-		fallthrough
-	case "bomb_pickup": // Bomb picked up
 		fallthrough
 	case "round_time_warning": // Round time warning
 		fallthrough
