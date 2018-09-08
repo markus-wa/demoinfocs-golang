@@ -35,13 +35,13 @@ func (em *ValveMatchmakingTeamSwitchEmitter) Register(parser *dem.Parser, dispat
 }
 
 // Get to the last round of the first half
-func (em *ValveMatchmakingTeamSwitchEmitter) handleLastRoundHalf(events.LastRoundHalfEvent) {
+func (em *ValveMatchmakingTeamSwitchEmitter) handleLastRoundHalf(events.AnnouncementLastRoundHalf) {
 	em.parser.UnregisterEventHandler(em.currentHandlerID)
 	em.currentHandlerID = em.parser.RegisterEventHandler(em.handleRoundEnded)
 }
 
 // Get scores before switch
-func (em *ValveMatchmakingTeamSwitchEmitter) handleRoundEnded(ev events.RoundEndedEvent) {
+func (em *ValveMatchmakingTeamSwitchEmitter) handleRoundEnded(ev events.RoundEnd) {
 	em.tScoreBeforeSwitch = em.parser.GameState().TeamTerrorists().Score()
 	em.ctScoreBeforeSwitch = em.parser.GameState().TeamCounterTerrorists().Score()
 
@@ -58,13 +58,13 @@ func (em *ValveMatchmakingTeamSwitchEmitter) handleRoundEnded(ev events.RoundEnd
 }
 
 // Find first round of second half
-func (em *ValveMatchmakingTeamSwitchEmitter) handleRoundStarted(events.RoundStartedEvent) {
+func (em *ValveMatchmakingTeamSwitchEmitter) handleRoundStarted(events.RoundStart) {
 	em.parser.UnregisterEventHandler(em.currentHandlerID)
 	em.currentHandlerID = em.parser.RegisterEventHandler(em.handleTickDone)
 }
 
-// Wait for score to update - this isn't (necessarily?) the case after RoundStartedEvent
-func (em *ValveMatchmakingTeamSwitchEmitter) handleTickDone(events.TickDoneEvent) {
+// Wait for score to update - this isn't (necessarily?) the case after RoundStart
+func (em *ValveMatchmakingTeamSwitchEmitter) handleTickDone(events.TickDone) {
 	tScoreOk := em.parser.GameState().TeamTerrorists().Score() == em.ctScoreBeforeSwitch
 	ctScoreOk := em.parser.GameState().TeamCounterTerrorists().Score() == em.tScoreBeforeSwitch
 	if tScoreOk && ctScoreOk {

@@ -67,7 +67,7 @@ func TestDemoInfoCs(t *testing.T) {
 
 	fmt.Println("Registering handlers")
 	gs := p.GameState()
-	p.RegisterEventHandler(func(e events.RoundEndedEvent) {
+	p.RegisterEventHandler(func(e events.RoundEnd) {
 		var winner *dem.TeamState
 		var loser *dem.TeamState
 		var winnerSide string
@@ -100,7 +100,7 @@ func TestDemoInfoCs(t *testing.T) {
 	})
 
 	// Check some things at match start
-	p.RegisterEventHandler(func(events.MatchStartedEvent) {
+	p.RegisterEventHandler(func(events.MatchStart) {
 		participants := gs.Participants()
 		all := participants.All()
 		players := participants.Playing()
@@ -123,7 +123,7 @@ func TestDemoInfoCs(t *testing.T) {
 	})
 
 	// Regression test for grenade projectiles not being deleted at the end of the round (issue #42)
-	p.RegisterEventHandler(func(events.RoundStartedEvent) {
+	p.RegisterEventHandler(func(events.RoundStart) {
 		if nProjectiles := len(p.GameState().GrenadeProjectiles()); nProjectiles > 0 {
 			t.Error("Expected 0 GrenadeProjectiles at the start of the round, got", nProjectiles)
 		}
@@ -214,7 +214,7 @@ func TestValveMatchmakingFuzzyEmitters(t *testing.T) {
 
 	teamSwitchDone := false
 	tScoreBeforeSwap, ctScoreBeforeSwap := -1, -1
-	p.RegisterEventHandler(func(ev events.RoundEndedEvent) {
+	p.RegisterEventHandler(func(ev events.RoundEnd) {
 		switch ev.Winner {
 		case common.TeamTerrorists:
 			tScoreBeforeSwap = p.GameState().TeamTerrorists().Score() + 1
@@ -261,7 +261,7 @@ func TestCancelParseToEnd(t *testing.T) {
 	var tix int
 
 	var handlerID dispatch.HandlerIdentifier
-	handlerID = p.RegisterEventHandler(func(events.TickDoneEvent) {
+	handlerID = p.RegisterEventHandler(func(events.TickDone) {
 		tix++
 		if tix == maxTicks {
 			p.Cancel()

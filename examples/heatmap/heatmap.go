@@ -32,10 +32,10 @@ func main() {
 	// Get metadata for the map that's being played
 	m := metadata.MapNameToMap[header.MapName]
 
-	// Register handler for WeaponFiredEvent, triggered every time a shot is fired
+	// Register handler for WeaponFire, triggered every time a shot is fired
 	points := []heatmap.DataPoint{}
 	var bounds image.Rectangle
-	p.RegisterEventHandler(func(e events.WeaponFiredEvent) {
+	p.RegisterEventHandler(func(e events.WeaponFire) {
 		// Translate positions from in-game coordinates to radar overview
 		x, y := m.TranslateScale(e.Shooter.Position.X, e.Shooter.Position.Y)
 

@@ -23,7 +23,7 @@ func main() {
 	_, err = p.ParseHeader()
 	checkError(err)
 
-	p.RegisterEventHandler(func(events.DataTablesParsedEvent) {
+	p.RegisterEventHandler(func(events.DataTablesParsed) {
 		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent *st.Entity) {
 			ent.FindProperty("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 				x := p.GameState().Participants().FindByHandle(val.IntVal)

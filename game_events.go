@@ -28,7 +28,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	}()
 
 	if p.gameEventDescs == nil {
-		p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: "Received GameEvent but event descriptors are missing"})
+		p.eventDispatcher.Dispatch(events.ParserWarn{Message: "Received GameEvent but event descriptors are missing"})
 		return
 	}
 
@@ -46,20 +46,20 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	switch d.Name {
 	case "round_start": // Round started
 		data = mapGameEventData(d, ge)
-		p.eventDispatcher.Dispatch(events.RoundStartedEvent{
+		p.eventDispatcher.Dispatch(events.RoundStart{
 			TimeLimit: int(data["timelimit"].GetValLong()),
 			FragLimit: int(data["fraglimit"].GetValLong()),
 			Objective: data["objective"].GetValString(),
 		})
 
 	case "cs_win_panel_match": // Not sure, maybe match end event???
-		p.eventDispatcher.Dispatch(events.WinPanelMatchEvent{})
+		p.eventDispatcher.Dispatch(events.AnnouncementWinPanelMatch{})
 
 	case "round_announce_final": // 30th round for normal de_, not necessarily matchpoint
-		p.eventDispatcher.Dispatch(events.FinalRoundEvent{})
+		p.eventDispatcher.Dispatch(events.AnnouncementFinalRound{})
 
 	case "round_announce_last_round_half": // Last round of the half
-		p.eventDispatcher.Dispatch(events.LastRoundHalfEvent{})
+		p.eventDispatcher.Dispatch(events.AnnouncementLastRoundHalf{})
 
 	case "round_end": // Round ended and the winner was announced
 		data = mapGameEventData(d, ge)
@@ -73,7 +73,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			t = common.TeamCounterTerrorists
 		}
 
-		p.eventDispatcher.Dispatch(events.RoundEndedEvent{
+		p.eventDispatcher.Dispatch(events.RoundEnd{
 			Message: data["message"].GetValString(),
 			Reason:  events.RoundEndReason(data["reason"].GetValByte()),
 			Winner:  t,
@@ -95,12 +95,12 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			p.infernoExpired(inf)
 		}
 
-		p.eventDispatcher.Dispatch(events.RoundOfficiallyEndedEvent{})
+		p.eventDispatcher.Dispatch(events.RoundEndOfficial{})
 
 	case "round_mvp": // Round MVP was announced
 		data = mapGameEventData(d, ge)
 
-		p.eventDispatcher.Dispatch(events.RoundMVPEvent{
+		p.eventDispatcher.Dispatch(events.RoundMVPAnnouncement{
 			Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())],
 			Reason: events.RoundMVPReason(data["reason"].GetValShort()),
 		})
@@ -108,24 +108,24 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	case "bot_takeover": // Bot got taken over
 		data = mapGameEventData(d, ge)
 
-		p.eventDispatcher.Dispatch(events.BotTakenOverEvent{Taker: p.gameState.playersByUserID[int(data["userid"].GetValShort())]})
+		p.eventDispatcher.Dispatch(events.BotTakenOver{Taker: p.gameState.playersByUserID[int(data["userid"].GetValShort())]})
 
 	case "begin_new_match": // Match started
-		p.eventDispatcher.Dispatch(events.MatchStartedEvent{})
+		p.eventDispatcher.Dispatch(events.MatchStart{})
 
 	case "round_freeze_end": // Round start freeze ended
-		p.eventDispatcher.Dispatch(events.FreezetimeEndedEvent{})
+		p.eventDispatcher.Dispatch(events.RoundFreezetimeEnd{})
 
 	case "player_footstep": // Footstep sound
 		data = mapGameEventData(d, ge)
 
-		p.eventDispatcher.Dispatch(events.PlayerFootstepEvent{
+		p.eventDispatcher.Dispatch(events.Footstep{
 			Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())],
 		})
 
 	case "player_jump": // Player jumped
 		data = mapGameEventData(d, ge)
-		p.eventDispatcher.Dispatch(events.PlayerJumpEvent{Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())]})
+		p.eventDispatcher.Dispatch(events.PlayerJump{Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())]})
 
 	case "weapon_fire": // Weapon was fired
 		data = mapGameEventData(d, ge)
@@ -133,7 +133,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		shooter := p.gameState.playersByUserID[int(data["userid"].GetValShort())]
 		wep := common.NewEquipment(data["weapon"].GetValString())
 
-		p.eventDispatcher.Dispatch(events.WeaponFiredEvent{
+		p.eventDispatcher.Dispatch(events.WeaponFire{
 			Shooter: shooter,
 			Weapon:  getAttackingWeapon(&wep, shooter),
 		})
@@ -144,7 +144,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		killer := p.gameState.playersByUserID[int(data["attacker"].GetValShort())]
 		wep := common.NewSkinEquipment(data["weapon"].GetValString(), data["weapon_itemid"].GetValString())
 
-		p.eventDispatcher.Dispatch(events.PlayerKilledEvent{
+		p.eventDispatcher.Dispatch(events.Kill{
 			Victim:            p.gameState.playersByUserID[int(data["userid"].GetValShort())],
 			Killer:            killer,
 			Assister:          p.gameState.playersByUserID[int(data["assister"].GetValShort())],
@@ -159,7 +159,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		attacker := p.gameState.playersByUserID[int(data["attacker"].GetValShort())]
 		wep := common.NewEquipment(data["weapon"].GetValString())
 
-		p.eventDispatcher.Dispatch(events.PlayerHurtEvent{
+		p.eventDispatcher.Dispatch(events.PlayerHurt{
 			Player:       p.gameState.playersByUserID[int(data["userid"].GetValShort())],
 			Attacker:     attacker,
 			Health:       int(data["health"].GetValByte()),
@@ -172,7 +172,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	case "player_blind": // Player got blinded by a flash
 		data = mapGameEventData(d, ge)
-		p.eventDispatcher.Dispatch(events.PlayerFlashedEvent{Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())]})
+		p.eventDispatcher.Dispatch(events.PlayerFlashed{Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())]})
 
 	case "flashbang_detonate": // Flash exploded
 		fallthrough
@@ -200,28 +200,28 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		switch d.Name {
 		case "flashbang_detonate": // Flash exploded
-			p.eventDispatcher.Dispatch(events.FlashExplodedEvent{NadeEvent: buildNadeEvent(common.EqFlash, thrower, position, nadeEntityID)})
+			p.eventDispatcher.Dispatch(events.FlashExplode{GrenadeEvent: buildNadeEvent(common.EqFlash, thrower, position, nadeEntityID)})
 
 		case "hegrenade_detonate": // HE exploded
-			p.eventDispatcher.Dispatch(events.HeExplodedEvent{NadeEvent: buildNadeEvent(common.EqHE, thrower, position, nadeEntityID)})
+			p.eventDispatcher.Dispatch(events.HeExplode{GrenadeEvent: buildNadeEvent(common.EqHE, thrower, position, nadeEntityID)})
 
 		case "decoy_started": // Decoy started
-			p.eventDispatcher.Dispatch(events.DecoyStartEvent{NadeEvent: buildNadeEvent(common.EqDecoy, thrower, position, nadeEntityID)})
+			p.eventDispatcher.Dispatch(events.DecoyStart{GrenadeEvent: buildNadeEvent(common.EqDecoy, thrower, position, nadeEntityID)})
 
 		case "decoy_detonate": // Decoy exploded/expired
-			p.eventDispatcher.Dispatch(events.DecoyEndEvent{NadeEvent: buildNadeEvent(common.EqDecoy, thrower, position, nadeEntityID)})
+			p.eventDispatcher.Dispatch(events.DecoyExpire{GrenadeEvent: buildNadeEvent(common.EqDecoy, thrower, position, nadeEntityID)})
 
 		case "smokegrenade_detonate": // Smoke popped
-			p.eventDispatcher.Dispatch(events.SmokeStartEvent{NadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, nadeEntityID)})
+			p.eventDispatcher.Dispatch(events.SmokeStart{GrenadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, nadeEntityID)})
 
 		case "smokegrenade_expired": // Smoke expired
-			p.eventDispatcher.Dispatch(events.SmokeEndEvent{NadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, nadeEntityID)})
+			p.eventDispatcher.Dispatch(events.SmokeExpire{GrenadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, nadeEntityID)})
 
 		case "inferno_startburn": // Incendiary exploded/started
-			p.eventDispatcher.Dispatch(events.FireNadeStartEvent{NadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position, nadeEntityID)})
+			p.eventDispatcher.Dispatch(events.FireGrenadeStart{GrenadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position, nadeEntityID)})
 
 		case "inferno_expire": // Incendiary expired
-			p.eventDispatcher.Dispatch(events.FireNadeEndEvent{NadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position, nadeEntityID)})
+			p.eventDispatcher.Dispatch(events.FireGrenadeExpire{GrenadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position, nadeEntityID)})
 		}
 
 	case "player_connect": // Bot connected or player reconnected, players normally come in via string tables & data tables
@@ -250,7 +250,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		pl := p.gameState.playersByUserID[uid]
 		if pl != nil {
-			e := events.PlayerDisconnectEvent{
+			e := events.PlayerDisconnect{
 				Player: pl,
 			}
 			p.eventDispatcher.Dispatch(e)
@@ -268,7 +268,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			if player.Team != newTeam {
 				player.Team = newTeam
 
-				p.eventDispatcher.Dispatch(events.PlayerTeamChangeEvent{
+				p.eventDispatcher.Dispatch(events.PlayerTeamChange{
 					Player:  player,
 					IsBot:   data["isbot"].GetValBool(),
 					Silent:  data["silent"].GetValBool(),
@@ -276,12 +276,12 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 					OldTeam: common.Team(data["oldteam"].GetValByte()),
 				})
 			} else {
-				p.eventDispatcher.Dispatch(events.ParserWarnEvent{
+				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: "Player team swap game-event occurred but player.Team == newTeam",
 				})
 			}
 		} else {
-			p.eventDispatcher.Dispatch(events.ParserWarnEvent{
+			p.eventDispatcher.Dispatch(events.ParserWarn{
 				Message: "Player team swap game-event occurred but player is nil",
 			})
 		}
@@ -324,19 +324,19 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		switch d.Name {
 		case "bomb_beginplant":
-			p.eventDispatcher.Dispatch(events.BombBeginPlant{BombEvent: e})
+			p.eventDispatcher.Dispatch(events.BombPlantBegin{BombEvent: e})
 		case "bomb_planted":
-			p.eventDispatcher.Dispatch(events.BombPlantedEvent{BombEvent: e})
+			p.eventDispatcher.Dispatch(events.BombPlanted{BombEvent: e})
 		case "bomb_defused":
-			p.eventDispatcher.Dispatch(events.BombDefusedEvent{BombEvent: e})
+			p.eventDispatcher.Dispatch(events.BombDefused{BombEvent: e})
 		case "bomb_exploded":
-			p.eventDispatcher.Dispatch(events.BombExplodedEvent{BombEvent: e})
+			p.eventDispatcher.Dispatch(events.BombExplode{BombEvent: e})
 		}
 
 	case "bomb_begindefuse": // Defuse started
 		data = mapGameEventData(d, ge)
 
-		p.eventDispatcher.Dispatch(events.BombBeginDefuseEvent{
+		p.eventDispatcher.Dispatch(events.BombDefuseStart{
 			Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())],
 			HasKit: data["haskit"].GetValBool(),
 		})
@@ -352,17 +352,17 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		switch d.Name {
 		case "item_equip":
-			p.eventDispatcher.Dispatch(events.ItemEquipEvent{
+			p.eventDispatcher.Dispatch(events.ItemEquip{
 				Player: player,
 				Weapon: weapon,
 			})
 		case "item_pickup":
-			p.eventDispatcher.Dispatch(events.ItemPickupEvent{
+			p.eventDispatcher.Dispatch(events.ItemPickup{
 				Player: player,
 				Weapon: weapon,
 			})
 		case "item_remove":
-			p.eventDispatcher.Dispatch(events.ItemDropEvent{
+			p.eventDispatcher.Dispatch(events.ItemDrop{
 				Player: player,
 				Weapon: weapon,
 			})
@@ -371,12 +371,12 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		player := p.gameState.playersByUserID[int(data["userid"].GetValShort())]
 		entityID := int(data["entityid"].GetValShort())
 
-		p.eventDispatcher.Dispatch(events.BombDropEvent{
+		p.eventDispatcher.Dispatch(events.BombDrop{
 			Player:   player,
 			EntityID: entityID,
 		})
 	case "bomb_pickup": // Bomb picked up
-		p.eventDispatcher.Dispatch(events.BombPickupEvent{
+		p.eventDispatcher.Dispatch(events.BombPickup{
 			Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())],
 		})
 
@@ -441,7 +441,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		p.eventDispatcher.Dispatch(events.GenericGameEvent{Name: d.Name, Data: mapGameEventData(d, ge)})
 
 	default:
-		p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Unknown event %q", d.Name)})
+		p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Unknown event %q", d.Name)})
 		p.eventDispatcher.Dispatch(events.GenericGameEvent{Name: d.Name, Data: mapGameEventData(d, ge)})
 	}
 }
@@ -464,13 +464,13 @@ func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_Ga
 	return data
 }
 
-// Just so we can nicely create NadeEvents in one line
-func buildNadeEvent(nadeType common.EquipmentElement, thrower *common.Player, position r3.Vector, nadeEntityID int) events.NadeEvent {
-	return events.NadeEvent{
-		NadeType:     nadeType,
-		Thrower:      thrower,
-		Position:     position,
-		NadeEntityID: nadeEntityID,
+// Just so we can nicely create GrenadeEvents in one line
+func buildNadeEvent(nadeType common.EquipmentElement, thrower *common.Player, position r3.Vector, nadeEntityID int) events.GrenadeEvent {
+	return events.GrenadeEvent{
+		GrenadeType:     nadeType,
+		Thrower:         thrower,
+		Position:        position,
+		GrenadeEntityID: nadeEntityID,
 	}
 }
 
@@ -506,10 +506,10 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 		st := new(msg.CCSUsrMsg_SayText)
 		err := st.Unmarshal(um.MsgData)
 		if err != nil {
-			p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Failed to decode SayText message: %s", err.Error())})
+			p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Failed to decode SayText message: %s", err.Error())})
 		}
 
-		p.eventDispatcher.Dispatch(events.SayTextEvent{
+		p.eventDispatcher.Dispatch(events.SayText{
 			EntIdx:    int(st.EntIdx),
 			IsChat:    st.Chat,
 			IsChatAll: st.Textallchat,
@@ -520,10 +520,10 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 		st := new(msg.CCSUsrMsg_SayText2)
 		err := st.Unmarshal(um.MsgData)
 		if err != nil {
-			p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error())})
+			p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error())})
 		}
 
-		p.eventDispatcher.Dispatch(events.SayText2Event{
+		p.eventDispatcher.Dispatch(events.SayText2{
 			EntIdx:    int(st.EntIdx),
 			IsChat:    st.Chat,
 			IsChatAll: st.Textallchat,
@@ -544,7 +544,7 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 				}
 			}
 
-			p.eventDispatcher.Dispatch(events.ChatMessageEvent{
+			p.eventDispatcher.Dispatch(events.ChatMessage{
 				Sender:    sender,
 				Text:      st.Params[1],
 				IsChatAll: st.Textallchat,
@@ -554,7 +554,7 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 		case "#CSGO_Coach_Join_CT":
 
 		default:
-			p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)})
+			p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)})
 		}
 
 	default:

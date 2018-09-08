@@ -25,7 +25,7 @@ func main() {
 	fmt.Println("Map:", h.MapName)
 
 	// Register handler on kill events
-	p.RegisterEventHandler(func(e events.PlayerKilledEvent) {
+	p.RegisterEventHandler(func(e events.Kill) {
 		var hs string
 		if e.IsHeadshot {
 			hs = " (HS)"
@@ -38,7 +38,7 @@ func main() {
 	})
 
 	// Register handler on round end to figure out who won
-	p.RegisterEventHandler(func(e events.RoundEndedEvent) {
+	p.RegisterEventHandler(func(e events.RoundEnd) {
 		gs := p.GameState()
 		switch e.Winner {
 		case common.TeamTerrorists:
@@ -53,7 +53,7 @@ func main() {
 	})
 
 	// Register handler for chat messages to print them
-	p.RegisterEventHandler(func(e events.ChatMessageEvent) {
+	p.RegisterEventHandler(func(e events.ChatMessage) {
 		fmt.Printf("Chat - %s says: %s\n", formatPlayer(e.Sender), e.Text)
 	})
 

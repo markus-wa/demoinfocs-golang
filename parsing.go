@@ -203,7 +203,7 @@ func (p *Parser) parseFrame() bool {
 		p.mapEquipment()
 		p.bindEntities()
 
-		p.eventDispatcher.Dispatch(events.DataTablesParsedEvent{})
+		p.eventDispatcher.Dispatch(events.DataTablesParsed{})
 
 	case dcStringTables:
 		p.msgDispatcher.SyncQueues(p.msgQueue)
@@ -262,12 +262,12 @@ func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
 				pl.UserID = rp.userID
 
 				if pl.SteamID != 0 {
-					p.eventDispatcher.Dispatch(events.PlayerBindEvent{Player: pl})
+					p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 				}
 			}
 		}
 	}
 
 	p.currentFrame++
-	p.eventDispatcher.Dispatch(events.TickDoneEvent{})
+	p.eventDispatcher.Dispatch(events.TickDone{})
 }

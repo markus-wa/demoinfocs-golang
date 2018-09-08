@@ -58,10 +58,10 @@ func main() {
 	// Get metadata for the map that's being played
 	m := metadata.MapNameToMap[header.MapName]
 
-	// Register handler for WeaponFiredEvent, triggered every time a shot is fired
+	// Register handler for WeaponFire, triggered every time a shot is fired
 	points := []heatmap.DataPoint{}
 	var bounds image.Rectangle
-	p.RegisterEventHandler(func(e events.WeaponFiredEvent) {
+	p.RegisterEventHandler(func(e events.WeaponFire) {
 		// Translate positions from in-game coordinates to radar overview
 		x, y := m.TranslateScale(e.Shooter.Position.X, e.Shooter.Position.Y)
 
@@ -139,7 +139,7 @@ Running the above code (`go run heatmap.go > heatmap.png`) will create a JPEG of
 * Grenade projectiles / trajectories - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/nade-trajectories)
 * Access to entities, server-classes & data-tables - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/sendtables#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
 * Access to all net-messages - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
-* Chat & console messages <sup id="achat1">1</sup> - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#ChatMessageEvent) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* Chat & console messages <sup id="achat1">1</sup> - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
 * [Easy debugging via build-flags](#debugging)
 * Built with performance & concurrency in mind
 

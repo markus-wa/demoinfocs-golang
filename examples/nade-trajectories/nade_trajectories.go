@@ -55,7 +55,7 @@ func main() {
 
 	nadeTrajectories := make(map[int64]*nadePath) // Trajectories of all destroyed nades
 
-	p.RegisterEventHandler(func(e events.NadeProjectileDestroyedEvent) {
+	p.RegisterEventHandler(func(e events.GrenadeProjectileDestroy) {
 		id := e.Projectile.UniqueID()
 
 		// Sometimes the thrower is nil, in that case we want the team to be unassigned (which is the default value)
@@ -76,14 +76,14 @@ func main() {
 
 	var infernos []*common.Inferno
 
-	p.RegisterEventHandler(func(e events.InfernoExpiredEvent) {
+	p.RegisterEventHandler(func(e events.InfernoExpire) {
 		infernos = append(infernos, e.Inferno)
 	})
 
 	var nadeTrajectoriesFirst5Rounds []*nadePath
 	var infernosFirst5Rounds []*common.Inferno
 	round := 0
-	p.RegisterEventHandler(func(events.RoundEndedEvent) {
+	p.RegisterEventHandler(func(events.RoundEnd) {
 		round++
 		// We only want the data from the first 5 rounds so the image is not too cluttered
 		// This is a very cheap way to do it. Won't work with demos that have match-restarts etc.

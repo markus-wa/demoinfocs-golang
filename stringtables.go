@@ -121,7 +121,7 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 
 	p.stringTables = append(p.stringTables, tab)
 
-	p.eventDispatcher.Dispatch(events.StringTableCreatedEvent{TableName: tab.Name})
+	p.eventDispatcher.Dispatch(events.StringTableCreated{TableName: tab.Name})
 }
 
 func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {

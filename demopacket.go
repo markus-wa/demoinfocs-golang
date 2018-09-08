@@ -80,7 +80,7 @@ func (p *Parser) parsePacket() {
 			} else {
 				// Send a warning if the command is unknown
 				// This might mean our proto files are out of date
-				p.eventDispatcher.Dispatch(events.ParserWarnEvent{Message: fmt.Sprintf("Unknown message command %q", cmd)})
+				p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Unknown message command %q", cmd)})
 			}
 
 			// On to the next one
