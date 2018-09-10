@@ -205,11 +205,7 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 	})
 
 	// Position
-	playerEntity.FindProperty("cslocaldata.m_vecOrigin").OnUpdate(func(val st.PropertyValue) {
-		pl.Position.X = val.VectorVal.X
-		pl.Position.Y = val.VectorVal.Y
-	})
-	playerEntity.BindProperty("cslocaldata.m_vecOrigin[2]", &pl.Position.Z, st.ValTypeFloat64)
+	playerEntity.BindPosition(&pl.Position)
 
 	// General info
 	playerEntity.FindProperty("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
