@@ -17,6 +17,8 @@ There are also [some other rooms](https://gitter.im/csgodemos) available around 
 
 ## Go Get
 
+This might take a while as it downloads the test-data set (~ 10 demos).
+
 	go get -u github.com/markus-wa/demoinfocs-golang
 
 ## Example
