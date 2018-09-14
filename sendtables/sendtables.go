@@ -101,6 +101,8 @@ func (sc *ServerClass) newEntity(r *bit.BitReader, entityID int) *Entity {
 
 	entity := &Entity{serverClass: sc, id: entityID, props: props}
 
+	entity.initialize()
+
 	if sc.preprocessedBaseline != nil {
 		entity.applyBaseline(sc.preprocessedBaseline)
 	} else {
