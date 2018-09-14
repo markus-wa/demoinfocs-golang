@@ -17,6 +17,7 @@ type Entity struct {
 
 	onCreateFinished []func()
 	onDestroy        []func()
+	position         func() r3.Vector
 }
 
 // ServerClass returns the entity's server-class.
@@ -167,42 +168,54 @@ const (
 	serverClassPlayer = "CCSPlayer"
 )
 
-// Position returns the entity's position in world coordinates.
-func (e *Entity) Position() r3.Vector {
+// Sets up the Entity.Position() function
+// Necessary because FindProperty() is fairly slow
+// This way we only need to find the necessary properties once
+func (e *Entity) initialize() {
 	// Player positions are calculated differently
 	if e.isPlayer() {
-		return e.positionPlayer()
-	}
+		xyProp := e.FindProperty(propVecOriginPlayerXY)
+		zProp := e.FindProperty(propVecOriginPlayerZ)
 
-	return e.positionDefault()
+		e.position = func() r3.Vector {
+			xy := xyProp.value.VectorVal
+			z := float64(zProp.value.FloatVal)
+			return r3.Vector{
+				X: xy.X,
+				Y: xy.Y,
+				Z: z,
+			}
+		}
+	} else {
+		cellBitsProp := e.FindProperty(propCellBits)
+		cellXProp := e.FindProperty(propCellX)
+		cellYProp := e.FindProperty(propCellY)
+		cellZProp := e.FindProperty(propCellZ)
+		offsetProp := e.FindProperty(propVecOrigin)
+
+		e.position = func() r3.Vector {
+			cellWidth := 1 << uint(cellBitsProp.value.IntVal)
+			cellX := cellXProp.value.IntVal
+			cellY := cellYProp.value.IntVal
+			cellZ := cellZProp.value.IntVal
+			offset := offsetProp.value.VectorVal
+
+			return r3.Vector{
+				X: coordFromCell(cellX, cellWidth, offset.X),
+				Y: coordFromCell(cellY, cellWidth, offset.Y),
+				Z: coordFromCell(cellZ, cellWidth, offset.Z),
+			}
+		}
+	}
 }
 
 func (e *Entity) isPlayer() bool {
 	return e.serverClass.name == serverClassPlayer
 }
 
-func (e *Entity) positionDefault() r3.Vector {
-	cellWidth := 1 << uint(e.FindProperty(propCellBits).value.IntVal)
-	cellX := e.FindProperty(propCellX).value.IntVal
-	cellY := e.FindProperty(propCellY).value.IntVal
-	cellZ := e.FindProperty(propCellZ).value.IntVal
-	offset := e.FindProperty(propVecOrigin).value.VectorVal
-
-	return r3.Vector{
-		X: coordFromCell(cellX, cellWidth, offset.X),
-		Y: coordFromCell(cellY, cellWidth, offset.Y),
-		Z: coordFromCell(cellZ, cellWidth, offset.Z),
-	}
-}
-
-func (e *Entity) positionPlayer() r3.Vector {
-	xy := e.FindProperty(propVecOriginPlayerXY).value.VectorVal
-	z := float64(e.FindProperty(propVecOriginPlayerZ).value.FloatVal)
-	return r3.Vector{
-		X: xy.X,
-		Y: xy.Y,
-		Z: z,
-	}
+// Position returns the entity's position in world coordinates.
+func (e *Entity) Position() r3.Vector {
+	return e.position()
 }
 
 // OnPositionUpdate registers a handler for the entity's position update.
