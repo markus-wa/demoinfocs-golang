@@ -1,4 +1,8 @@
 // Package events contains all events that can be sent out from demoinfocs.Parser.
+//
+// Events are generally named in the tense that fits the best for each event.
+// E.g. SmokeExpired is in the past tense because it's sent out when the smoke has completely faded away
+// while SmokeStart is in the present tense because it's sent out when the smoke starts to bloom.
 package events
 
 import (
