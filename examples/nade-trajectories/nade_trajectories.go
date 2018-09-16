@@ -76,7 +76,7 @@ func main() {
 
 	var infernos []*common.Inferno
 
-	p.RegisterEventHandler(func(e events.InfernoExpire) {
+	p.RegisterEventHandler(func(e events.InfernoExpired) {
 		infernos = append(infernos, e.Inferno)
 	})
 
