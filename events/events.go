@@ -179,9 +179,8 @@ type SmokeStart struct {
 	GrenadeEvent
 }
 
-// SmokeExpire signals the end of a smoke (fade). Not sure if this means
-// it started to fade, completely faded or something in between.
-type SmokeExpire struct {
+// SmokeExpired signals that a smoke as completely faded away.
+type SmokeExpired struct {
 	GrenadeEvent
 }
 
@@ -190,8 +189,8 @@ type FireGrenadeStart struct {
 	GrenadeEvent
 }
 
-// FireGrenadeExpire signals the end of a molly/incendiary.
-type FireGrenadeExpire struct {
+// FireGrenadeExpired signals that all fires of a molly/incendiary have extinguished.
+type FireGrenadeExpired struct {
 	GrenadeEvent
 }
 
@@ -207,7 +206,7 @@ type GrenadeProjectileThrow struct {
 	Projectile *common.GrenadeProjectile
 }
 
-// GrenadeProjectileDestroy signals that a nade entity has been destroyed (i.e. it detonated / expired).
+// GrenadeProjectileDestroy signals that a nade entity is being destroyed (i.e. it detonated / expired).
 // This is different from the other Grenade events because it's sent out when the projectile entity is destroyed.
 //
 // Mainly useful for getting the full trajectory of the projectile.
@@ -269,8 +268,9 @@ type BombDefuseStart struct {
 	HasKit bool
 }
 
-// BombDrop signals that the bomb (C4) has been dropped.
-type BombDrop struct {
+// BombDropped signals that the bomb (C4) has been dropped onto the ground.
+// Not fired if it has been dropped to another player (see BombPickup for this).
+type BombDropped struct {
 	Player   *common.Player
 	EntityID int
 }
@@ -314,13 +314,13 @@ type PlayerHurt struct {
 	HitGroup     HitGroup
 }
 
-// PlayerConnect signals that a player has connected.
+// PlayerConnect signals that a player has started connecting.
 type PlayerConnect struct {
 	Player *common.Player
 }
 
-// PlayerDisconnect signals that a player has disconnected.
-type PlayerDisconnect struct {
+// PlayerDisconnected signals that a player has disconnected.
+type PlayerDisconnected struct {
 	Player *common.Player
 }
 
@@ -407,16 +407,16 @@ type GenericGameEvent struct {
 	Data map[string]*msg.CSVCMsg_GameEventKeyT
 }
 
-// InfernoStart signals that the fire of a incendiary or Molotov has just started.
+// InfernoStart signals that the fire of a incendiary or Molotov is starting.
 // This is different from the FireGrenadeStart because it's sent out when the inferno entity is created instead of on the game-event.
 type InfernoStart struct {
 	Inferno *common.Inferno
 }
 
-// InfernoExpire signals that all fire from a incendiary or Molotov has extinguished.
+// InfernoExpired signals that all fire from a incendiary or Molotov has extinguished.
 // This is different from the FireGrenadeExpire event because it's sent out when the inferno entity is destroyed instead of on the game-event.
 //
 // Mainly useful for getting the final area of an inferno.
-type InfernoExpire struct {
+type InfernoExpired struct {
 	Inferno *common.Inferno
 }

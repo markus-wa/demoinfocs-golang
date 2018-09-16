@@ -449,7 +449,7 @@ func (p *Parser) infernoExpired(inf *common.Inferno) {
 		return
 	}
 
-	p.eventDispatcher.Dispatch(events.InfernoExpire{
+	p.eventDispatcher.Dispatch(events.InfernoExpired{
 		Inferno: inf,
 	})
 

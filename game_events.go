@@ -215,13 +215,13 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			p.eventDispatcher.Dispatch(events.SmokeStart{GrenadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, nadeEntityID)})
 
 		case "smokegrenade_expired": // Smoke expired
-			p.eventDispatcher.Dispatch(events.SmokeExpire{GrenadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, nadeEntityID)})
+			p.eventDispatcher.Dispatch(events.SmokeExpired{GrenadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, nadeEntityID)})
 
 		case "inferno_startburn": // Incendiary exploded/started
 			p.eventDispatcher.Dispatch(events.FireGrenadeStart{GrenadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position, nadeEntityID)})
 
 		case "inferno_expire": // Incendiary expired
-			p.eventDispatcher.Dispatch(events.FireGrenadeExpire{GrenadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position, nadeEntityID)})
+			p.eventDispatcher.Dispatch(events.FireGrenadeExpired{GrenadeEvent: buildNadeEvent(common.EqIncendiary, thrower, position, nadeEntityID)})
 		}
 
 	case "player_connect": // Bot connected or player reconnected, players normally come in via string tables & data tables
@@ -250,7 +250,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		pl := p.gameState.playersByUserID[uid]
 		if pl != nil {
-			e := events.PlayerDisconnect{
+			e := events.PlayerDisconnected{
 				Player: pl,
 			}
 			p.eventDispatcher.Dispatch(e)
@@ -371,10 +371,11 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		player := p.gameState.playersByUserID[int(data["userid"].GetValShort())]
 		entityID := int(data["entityid"].GetValShort())
 
-		p.eventDispatcher.Dispatch(events.BombDrop{
+		p.eventDispatcher.Dispatch(events.BombDropped{
 			Player:   player,
 			EntityID: entityID,
 		})
+
 	case "bomb_pickup": // Bomb picked up
 		p.eventDispatcher.Dispatch(events.BombPickup{
 			Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())],
