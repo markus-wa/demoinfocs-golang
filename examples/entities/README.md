@@ -810,8 +810,8 @@ Property-update handlers that are registered in a entity-creation handler will b
 This example prints the life-cycle of all AWPs during the game - i.e. who picked up whose AWP:
 
 ```go
-p.RegisterEventHandler(func(events.DataTablesParsedEvent) {
-	// DataTablesParsedEvent has been sent out, register entity-creation handler
+p.RegisterEventHandler(func(events.DataTablesParsed) {
+	// DataTablesParsed has been sent out, register entity-creation handler
 	p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(entity *st.Entity) {
 		// Register update-hander on the owning entity (player who's holding the AWP)
 		entity.FindProperty("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {

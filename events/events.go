@@ -1,4 +1,8 @@
 // Package events contains all events that can be sent out from demoinfocs.Parser.
+//
+// Events are generally named in the tense that fits the best for each event.
+// E.g. SmokeExpired is in the past tense because it's sent out when the smoke has completely faded away
+// while SmokeStart is in the present tense because it's sent out when the smoke starts to bloom.
 package events
 
 import (
@@ -8,18 +12,25 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
-// TickDoneEvent signals that a tick is done.
-type TickDoneEvent struct{}
+// TickDone signals that a tick is done.
+type TickDone struct{}
 
-// MatchStartedEvent signals that the match has started.
-type MatchStartedEvent struct{}
+// MatchStart signals that the match has started.
+type MatchStart struct{}
 
-// RoundAnnounceMatchStartedEvent signals that the announcement "Match Started" has been displayed.
-type RoundAnnounceMatchStartedEvent struct{}
+// RoundStart signals that a new round has started.
+type RoundStart struct {
+	TimeLimit int
+	FragLimit int
+	Objective string
+}
+
+// RoundFreezetimeEnd signals that the freeze time is over.
+type RoundFreezetimeEnd struct{}
 
 // RoundEndReason is the type for the various RoundEndReasonXYZ constants.
 //
-// See RoundEndedEvent.
+// See RoundEnd.
 type RoundEndReason byte
 
 // RoundEndReason constants give information about why a round ended (Bomb defused, exploded etc.).
@@ -44,21 +55,22 @@ const (
 	RoundEndReasonCTSurrender          RoundEndReason = 18
 )
 
-// RoundEndedEvent signals that a round just finished.
+// RoundEnd signals that a round just finished.
 // Attention: TeamState.Score() won't be up to date yet after this.
 // Add +1 to the winner's score as a workaround.
-type RoundEndedEvent struct {
+type RoundEnd struct {
 	Message string
 	Reason  RoundEndReason
 	Winner  common.Team
 }
 
-// RoundOfficiallyEndedEvent signals that the round 'has officially ended', not exactly sure what that is tbh.
-type RoundOfficiallyEndedEvent struct{}
+// RoundEndOfficial signals that the round has 'officially' ended.
+// After RoundEnd and before this players are still able to walk around.
+type RoundEndOfficial struct{}
 
 // RoundMVPReason is the type for the various MVPReasonYXZ constants.
 //
-// See RoundMVPEvent.
+// See RoundMVPAnnouncement.
 type RoundMVPReason byte
 
 // RoundMVPReasons constants give information about why a player got the MVP award.
@@ -68,38 +80,31 @@ const (
 	MVPReasonBombPlanted      RoundMVPReason = 3
 )
 
-// RoundMVPEvent signals the announcement of the last rounds MVP.
-type RoundMVPEvent struct {
+// RoundMVPAnnouncement signals the announcement of the last rounds MVP.
+type RoundMVPAnnouncement struct {
 	Player *common.Player
 	Reason RoundMVPReason
 }
 
-// RoundStartedEvent signals that a new round has started.
-type RoundStartedEvent struct {
-	TimeLimit int
-	FragLimit int
-	Objective string
-}
+// AnnouncementMatchStarted signals that the announcement "Match Started" has been displayed.
+type AnnouncementMatchStarted struct{}
 
-// WinPanelMatchEvent signals that the 'win panel' has been displayed. I guess that's the final scoreboard.
-type WinPanelMatchEvent struct{}
+// AnnouncementLastRoundHalf signals the last round of the first half.
+type AnnouncementLastRoundHalf struct{}
 
-// FinalRoundEvent signals the 30th round, not raised if the match ends before that.
-type FinalRoundEvent struct{}
+// AnnouncementFinalRound signals the 30th round, not raised if the match ends before that.
+type AnnouncementFinalRound struct{}
 
-// LastRoundHalfEvent signals the last round of the first half.
-type LastRoundHalfEvent struct{}
+// AnnouncementWinPanelMatch signals that the 'win panel' has been displayed. I guess that's the final scoreboard.
+type AnnouncementWinPanelMatch struct{}
 
-// FreezetimeEndedEvent signals that the freeze time is over.
-type FreezetimeEndedEvent struct{}
-
-// PlayerFootstepEvent occurs when a player makes a footstep.
-type PlayerFootstepEvent struct {
+// Footstep occurs when a player makes a footstep.
+type Footstep struct {
 	Player *common.Player
 }
 
-// PlayerTeamChangeEvent occurs when a player swaps teams.
-type PlayerTeamChangeEvent struct {
+// PlayerTeamChange occurs when a player swaps teams.
+type PlayerTeamChange struct {
 	Player  *common.Player
 	NewTeam common.Team
 	OldTeam common.Team
@@ -107,13 +112,13 @@ type PlayerTeamChangeEvent struct {
 	IsBot   bool
 }
 
-// PlayerJumpEvent signals that a player has jumped.
-type PlayerJumpEvent struct {
+// PlayerJump signals that a player has jumped.
+type PlayerJump struct {
 	Player *common.Player
 }
 
-// PlayerKilledEvent signals that a player has been killed.
-type PlayerKilledEvent struct {
+// Kill signals that a player has been killed.
+type Kill struct {
 	Weapon            *common.Equipment
 	Victim            *common.Player
 	Killer            *common.Player
@@ -122,107 +127,103 @@ type PlayerKilledEvent struct {
 	IsHeadshot        bool
 }
 
-// BotTakenOverEvent signals that a player took over a bot.
-type BotTakenOverEvent struct {
+// BotTakenOver signals that a player took over a bot.
+type BotTakenOver struct {
 	Taker *common.Player
 }
 
-// WeaponFiredEvent signals that a weapon has been fired.
-type WeaponFiredEvent struct {
+// WeaponFire signals that a weapon has been fired.
+type WeaponFire struct {
 	Shooter *common.Player
 	Weapon  *common.Equipment
 }
 
-// FIXME: Currently handling NadeEventIf is really annoying. Improve that
-// Same with BombEventIf
-
-// NadeEventIf is the interface for all NadeEvents (except NadeProjectile* events).
+// GrenadeEventIf is the interface for all GrenadeEvents (except GrenadeProjectile* events).
 // Used to catch the different events with the same handler.
-type NadeEventIf interface {
-	Base() NadeEvent
+type GrenadeEventIf interface {
+	Base() GrenadeEvent
 }
 
-// NadeEvent contains the common attributes of nade events. Dont register
-// handlers on this tho, you want NadeEventIf for that
-type NadeEvent struct {
-	NadeType     common.EquipmentElement
-	Position     r3.Vector
-	Thrower      *common.Player
-	NadeEntityID int
+// GrenadeEvent contains the common attributes of nade events. Dont register
+// handlers on this tho, you want GrenadeEventIf for that
+type GrenadeEvent struct {
+	GrenadeType     common.EquipmentElement
+	Position        r3.Vector
+	Thrower         *common.Player
+	GrenadeEntityID int
 }
 
-// Base returns the NadeEvent itself, used for catching all events with NadeEventIf.
-func (ne NadeEvent) Base() NadeEvent {
+// Base returns the GrenadeEvent itself, used for catching all events with GrenadeEventIf.
+func (ne GrenadeEvent) Base() GrenadeEvent {
 	return ne
 }
 
-// HeExplodedEvent signals the explosion of a HE.
-type HeExplodedEvent struct {
-	NadeEvent
+// HeExplode signals the explosion of a HE.
+type HeExplode struct {
+	GrenadeEvent
 }
 
-// FlashExplodedEvent signals the explosion of a Flash.
-type FlashExplodedEvent struct {
-	NadeEvent
+// FlashExplode signals the explosion of a Flash.
+type FlashExplode struct {
+	GrenadeEvent
 }
 
-// DecoyStartEvent signals the start of a decoy.
-type DecoyStartEvent struct {
-	NadeEvent
+// DecoyStart signals the start of a decoy.
+type DecoyStart struct {
+	GrenadeEvent
 }
 
-// DecoyEndEvent signals the end of a decoy.
-type DecoyEndEvent struct {
-	NadeEvent
+// DecoyExpire signals the end of a decoy.
+type DecoyExpire struct {
+	GrenadeEvent
 }
 
-// SmokeStartEvent signals the start of a smoke (pop).
-type SmokeStartEvent struct {
-	NadeEvent
+// SmokeStart signals the start of a smoke (pop).
+type SmokeStart struct {
+	GrenadeEvent
 }
 
-// SmokeEndEvent signals the end of a smoke (fade). Not sure if this means
-// it started to fade, completely faded or something in between.
-type SmokeEndEvent struct {
-	NadeEvent
+// SmokeExpired signals that a smoke as completely faded away.
+type SmokeExpired struct {
+	GrenadeEvent
 }
 
-// FireNadeStartEvent signals the start of a molly/incendiary.
-type FireNadeStartEvent struct {
-	NadeEvent
+// FireGrenadeStart signals the start of a molly/incendiary.
+type FireGrenadeStart struct {
+	GrenadeEvent
 }
 
-// FireNadeEndEvent signals the end of a molly/incendiary.
-type FireNadeEndEvent struct {
-	NadeEvent
+// FireGrenadeExpired signals that all fires of a molly/incendiary have extinguished.
+type FireGrenadeExpired struct {
+	GrenadeEvent
 }
 
-// NadeProjectileBouncedEvent signals that a nade has just bounced off a wall/floor/ceiling or object.
-type NadeProjectileBouncedEvent struct {
+// GrenadeProjectileBounce signals that a nade has just bounced off a wall/floor/ceiling or object.
+type GrenadeProjectileBounce struct {
 	Projectile *common.GrenadeProjectile
 	BounceNr   int
 }
 
-// NadeProjectileThrownEvent signals that a nade has just been thrown.
-// This is different from the WeaponFiredEvent because it's sent out when the projectile entity is created.
-type NadeProjectileThrownEvent struct {
+// GrenadeProjectileThrow signals that a nade has just been thrown.
+// This is different from the WeaponFired because it's sent out when the projectile entity is created.
+type GrenadeProjectileThrow struct {
 	Projectile *common.GrenadeProjectile
 }
 
-// NadeProjectileDestroyedEvent signals that a nade entity has been destroyed (i.e. it detonated / expired).
-// This is different from the other Nade events because it's sent out when the projectile entity is destroyed.
+// GrenadeProjectileDestroy signals that a nade entity is being destroyed (i.e. it detonated / expired).
+// This is different from the other Grenade events because it's sent out when the projectile entity is destroyed.
 //
 // Mainly useful for getting the full trajectory of the projectile.
-type NadeProjectileDestroyedEvent struct {
+type GrenadeProjectileDestroy struct {
 	Projectile *common.GrenadeProjectile
 }
 
-// PlayerFlashedEvent signals that a player was flashed.
-type PlayerFlashedEvent struct {
+// PlayerFlashed signals that a player was flashed.
+type PlayerFlashed struct {
 	Player *common.Player
 }
 
-// BombEventIf is the interface for all the bomb events. Like NadeEventIf for NadeEvents.
+// BombEventIf is the interface for all the bomb events. Like GrenadeEventIf for GrenadeEvents.
 type BombEventIf interface {
 	implementsBombEventIf()
 }
@@ -245,48 +246,49 @@ type BombEvent struct {
 // Make BombEvent implement BombEventIf
 func (BombEvent) implementsBombEventIf() {}
 
-// BombBeginPlant signals the start of a plant.
-type BombBeginPlant struct {
+// BombPlantBegin signals the start of a plant.
+type BombPlantBegin struct {
 	BombEvent
 }
 
-// BombPlantedEvent signals that the bomb has been planted.
-type BombPlantedEvent struct {
+// BombPlanted signals that the bomb has been planted.
+type BombPlanted struct {
 	BombEvent
 }
 
-// BombDefusedEvent signals that the bomb has been defused.
-type BombDefusedEvent struct {
+// BombDefused signals that the bomb has been defused.
+type BombDefused struct {
 	BombEvent
 }
 
-// BombExplodedEvent signals that the bomb has exploded.
-type BombExplodedEvent struct {
+// BombExplode signals that the bomb has exploded.
+type BombExplode struct {
 	BombEvent
 }
 
-// BombBeginDefuseEvent signals the start of defusing.
-type BombBeginDefuseEvent struct {
+// BombDefuseStart signals the start of defusing.
+type BombDefuseStart struct {
 	Player *common.Player
 	HasKit bool
 }
 
-// BombDropEvent signals that the bomb (C4) has been dropped.
-type BombDropEvent struct {
+// BombDropped signals that the bomb (C4) has been dropped onto the ground.
+// Not fired if it has been dropped to another player (see BombPickup for this).
+type BombDropped struct {
 	Player   *common.Player
 	EntityID int
 }
 
-// BombPickupEvent signals that the bomb (C4) has been picked up.
-type BombPickupEvent struct {
+// BombPickup signals that the bomb (C4) has been picked up.
+type BombPickup struct {
 	Player *common.Player
 }
 
-func (BombBeginDefuseEvent) implementsBombEventIf() {}
+func (BombDefuseStart) implementsBombEventIf() {}
 
 // HitGroup is the type for the various HitGroupXYZ constants.
 //
-// See PlayerHurtEvent.
+// See PlayerHurt.
 type HitGroup byte
 
 // HitGroup constants give information about where a player got hit.
@@ -303,8 +305,8 @@ const (
 	HitGroupGear     HitGroup = 10
 )
 
-// PlayerHurtEvent signals that a player has been damaged.
-type PlayerHurtEvent struct {
+// PlayerHurt signals that a player has been damaged.
+type PlayerHurt struct {
 	Player       *common.Player
 	Attacker     *common.Player
 	Health       int
@@ -316,32 +318,32 @@ type PlayerHurtEvent struct {
 	HitGroup     HitGroup
 }
 
-// PlayerBindEvent signals that a player has connected.
-type PlayerBindEvent struct {
+// PlayerConnect signals that a player has started connecting.
+type PlayerConnect struct {
 	Player *common.Player
 }
 
-// PlayerDisconnectEvent signals that a player has disconnected.
-type PlayerDisconnectEvent struct {
+// PlayerDisconnected signals that a player has disconnected.
+type PlayerDisconnected struct {
 	Player *common.Player
 }
 
-// SayTextEvent signals a chat message. It contains the raw
+// SayText signals a chat message. It contains the raw
 // network message data for admin / console messages.
 // EntIdx will probably always be 0
-// See ChatMessageEvent and SayText2Event for player chat messages.
-type SayTextEvent struct {
+// See ChatMessage and SayText2 for player chat messages.
+type SayText struct {
 	EntIdx    int // Not sure what this is, doesn't seem to be the entity-ID
 	Text      string
 	IsChat    bool // Not sure, from the net-message
 	IsChatAll bool // Seems to always be false, team chat might not be recorded
 }
 
-// SayText2Event signals a chat message. It just contains the raw network message.
-// For player chat messages, ChatMessageEvent may be more interesting.
+// SayText2 signals a chat message. It just contains the raw network message.
+// For player chat messages, ChatMessage may be more interesting.
 // Team chat is generally not recorded so IsChatAll will probably always be false.
-// See SayTextEvent for admin / console messages.
-type SayText2Event struct {
+// See SayText for admin / console messages.
+type SayText2 struct {
 	EntIdx    int      // Not sure what this is, doesn't seem to be the entity-ID
 	MsgName   string   // The message type, e.g. Cstrike_Chat_All for global chat
 	Params    []string // The message's parameters, for Cstrike_Chat_All parameter 1 is the player and 2 the message for example
@@ -349,18 +351,18 @@ type SayText2Event struct {
 	IsChatAll bool     // Seems to always be false, team chat might not be recorded
 }
 
-// ChatMessageEvent signals a player generated chat message.
+// ChatMessage signals a player generated chat message.
 // Since team chat is generally not recorded IsChatAll will probably always be false.
-// See SayTextEvent for admin / console messages and SayText2Event for raw network package data.
-type ChatMessageEvent struct {
+// See SayText for admin / console messages and SayText2 for raw network package data.
+type ChatMessage struct {
 	Sender    *common.Player
 	Text      string
 	IsChatAll bool
 }
 
-// RankUpdateEvent signals the new rank. Not sure if this
+// RankUpdate signals the new rank. Not sure if this
 // only occurs if the rank changed.
-type RankUpdateEvent struct {
+type RankUpdate struct {
 	SteamID    int64
 	RankOld    int
 	RankNew    int
@@ -368,38 +370,38 @@ type RankUpdateEvent struct {
 	RankChange float32
 }
 
-// ItemEquipEvent signals an item was equipped.
-type ItemEquipEvent struct {
+// ItemEquip signals an item was equipped.
+type ItemEquip struct {
 	Weapon common.Equipment
 	Player *common.Player
 }
 
-// ItemPickupEvent signals an item was bought or picked up.
-type ItemPickupEvent struct {
+// ItemPickup signals an item was bought or picked up.
+type ItemPickup struct {
 	Weapon common.Equipment
 	Player *common.Player
 }
 
-// ItemDropEvent signals an item was dropped.
-type ItemDropEvent struct {
+// ItemDrop signals an item was dropped.
+type ItemDrop struct {
 	Weapon common.Equipment
 	Player *common.Player
 }
 
-// DataTablesParsedEvent signals that the datatables were parsed.
+// DataTablesParsed signals that the datatables were parsed.
 // You can use the Parser.SendTableParser() after this event to register update notification on entities & properties.
-type DataTablesParsedEvent struct{}
+type DataTablesParsed struct{}
 
-// StringTableCreatedEvent signals that a string table was created via net message.
+// StringTableCreated signals that a string table was created via net message.
 // Can be useful for figuring out when player-info is available via Parser.GameState().[Playing]Participants().
-// E.g. after the table 'userinfo' has been created the player-data should be available after the next TickDoneEvent.
+// E.g. after the table 'userinfo' has been created the player-data should be available after the next TickDone.
 // The reason it's not immediately available is because we need to do some post-processing to prep that data after a tick has finished.
-type StringTableCreatedEvent struct {
+type StringTableCreated struct {
 	TableName string
 }
 
-// ParserWarnEvent signals that a non-fatal problem occurred during parsing.
-type ParserWarnEvent struct {
+// ParserWarn signals that a non-fatal problem occurred during parsing.
+type ParserWarn struct {
 	Message string
 }
 
@@ -409,16 +411,16 @@ type GenericGameEvent struct {
 	Data map[string]*msg.CSVCMsg_GameEventKeyT
 }
 
-// InfernoStartedEvent signals that the fire of a incendiary or Molotov has just started.
-// This is different from the FireNadeStartedEvent because it's sent out when the inferno entity is created instead of on the game-event.
-type InfernoStartedEvent struct {
+// InfernoStart signals that the fire of a incendiary or Molotov is starting.
+// This is different from the FireGrenadeStart because it's sent out when the inferno entity is created instead of on the game-event.
+type InfernoStart struct {
 	Inferno *common.Inferno
 }
 
-// InfernoExpiredEvent signals that all fire from a incendiary or Molotov has extinguished.
-// This is different from the FireNadeExpiredEvent event because it's sent out when the inferno entity is destroyed instead of on the game-event.
+// InfernoExpired signals that all fire from a incendiary or Molotov has extinguished.
+// This is different from the FireGrenadeExpire event because it's sent out when the inferno entity is destroyed instead of on the game-event.
 //
 // Mainly useful for getting the final area of an inferno.
-type InfernoExpiredEvent struct {
+type InfernoExpired struct {
 	Inferno *common.Inferno
 }

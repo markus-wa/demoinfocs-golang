@@ -29,7 +29,7 @@ Example (without error handling):
 	p := dem.NewParser(f)
 	header := p.ParseHeader()
 	fmt.Println("Map:", header.MapName)
-	p.RegisterEventHandler(func(e events.BombExplodedEvent) {
+	p.RegisterEventHandler(func(e events.BombExplode) {
 		fmt.Printf(e.Site, "went BOOM!")
 	})
 	p.ParseToEnd()
@@ -84,7 +84,7 @@ func (bbi boundingBoxInformation) contains(point r3.Vector) bool {
 }
 
 // ServerClasses returns the server-classes of this demo.
-// These are available after events.DataTablesParsedEvent has been fired.
+// These are available after events.DataTablesParsed has been fired.
 func (p *Parser) ServerClasses() st.ServerClasses {
 	return p.stParser.ServerClasses()
 }
@@ -128,7 +128,7 @@ To catch all events func(interface{}) can be used.
 
 Example:
 
-	parser.RegisterEventHandler(func(e events.WeaponFiredEvent) {
+	parser.RegisterEventHandler(func(e events.WeaponFired) {
 		fmt.Printf("%s fired his %s\n", e.Shooter.Name, e.Weapon.Weapon)
 	})
 

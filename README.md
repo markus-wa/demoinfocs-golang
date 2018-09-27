@@ -20,7 +20,7 @@ You can use gitter to ask questions and discuss ideas about this project.
 
 ## Example
 
-This is a simple example on how to use the library. It collects all positions where weapons were fired from (using `events.WeaponFiredEvent`) and creates a heatmap using [go-heatmap](https://github.com/dustin/go-heatmap).
+This is a simple example on how to use the library. It collects all positions where weapons were fired from (using `events.WeaponFire`) and creates a heatmap using [go-heatmap](https://github.com/dustin/go-heatmap).
 
 Check out the [examples](examples) folder for more examples and the [godoc of the `events` package](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events) for some information about the other available events and their purpose.
 
@@ -58,10 +58,10 @@ func main() {
 	// Get metadata for the map that's being played
 	m := metadata.MapNameToMap[header.MapName]
 
-	// Register handler for WeaponFiredEvent, triggered every time a shot is fired
+	// Register handler for WeaponFire, triggered every time a shot is fired
 	points := []heatmap.DataPoint{}
 	var bounds image.Rectangle
-	p.RegisterEventHandler(func(e events.WeaponFiredEvent) {
+	p.RegisterEventHandler(func(e events.WeaponFire) {
 		// Translate positions from in-game coordinates to radar overview
 		x, y := m.TranslateScale(e.Shooter.Position.X, e.Shooter.Position.Y)
 
@@ -139,7 +139,7 @@ Running the above code (`go run heatmap.go > heatmap.png`) will create a JPEG of
 * Grenade projectiles / trajectories - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/nade-trajectories)
 * Access to entities, server-classes & data-tables - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/sendtables#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
 * Access to all net-messages - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
-* Chat & console messages <sup id="achat1">1</sup> - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#ChatMessageEvent) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* Chat & console messages <sup id="achat1">1</sup> - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
 * [Easy debugging via build-flags](#debugging)
 * Built with performance & concurrency in mind
 
