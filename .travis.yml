@@ -15,7 +15,7 @@ script:
   # Run race tests
   - go test -v -race -run "$race_tests" -timeout 15m
   # We run all tests again to get full coverage, technically unncecessary tho
-  - go test -v -timeout 30m -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -v msg | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/')
+  - go test -v -timeout 30m -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -v msg | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/') ./...
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
