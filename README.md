@@ -17,8 +17,6 @@ There are also [some other rooms](https://gitter.im/csgodemos) available around 
 
 ## Go Get
 
-This might take a while if you have Git LFS installed as it downloads the test-data set (~ 10 demos).
-
 	go get -u github.com/markus-wa/demoinfocs-golang
 
 ## Example
@@ -145,7 +143,7 @@ To run tests [Git LFS](https://git-lfs.github.com) is required.
 ```sh
 git submodule init
 git submodule update
-pushd cs-demos && git lfs pull && popd
+pushd cs-demos && git lfs pull -I '*' && popd
 go test
 ```
 

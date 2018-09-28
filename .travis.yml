@@ -9,6 +9,8 @@ go:
 install:
   # We need goverage to run go tests with -coverprofile for multiple packages
   - go get github.com/haya14busa/goverage
+  # Download test data
+  - pushd cs-demos && git lfs pull -I '*' && popd
 
 before_script:
   # We don't want to run the demo set test with race condition testing.
