@@ -7,13 +7,16 @@ go:
   - master
 
 before_script:
-  # We don't want to run the demo set test with race condition testing.
-  # The demo set is large and race tests take a lot longer
-  - race_tests=$(go test -list . | grep -v "TestDemoSet\|Benchmark" | head -n -1 | awk -vORS=\| '{ print $1 }' | sed 's/|$/\n/')
+  # Download test data
+  - pushd cs-demos && git lfs pull -I '*' && popd
 
 script:
+  # Get list of tests to run with race detection.
+  # We don't want to run the entire demo set with it because it's large and race tests take a lot longer.
+  - race_tests=$(go test -list . | grep -v "TestDemoSet\|Benchmark" | head -n -1 | awk -vORS=\| '{ print $1 }' | sed 's/|$/\n/')
   # Run race tests
   - go test -v -race -run "$race_tests" -timeout 15m
+
   # We run all tests again to get full coverage, technically unncecessary tho
   - go test -v -timeout 30m -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -v msg | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/') ./...
 

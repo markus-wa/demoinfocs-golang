@@ -192,7 +192,7 @@ To run tests [Git LFS](https://git-lfs.github.com) is required.
 ```sh
 git submodule init
 git submodule update
-pushd cs-demos && git lfs pull && popd
+pushd cs-demos && git lfs pull -I '*' && popd
 go test
 ```
 
