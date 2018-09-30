@@ -194,7 +194,7 @@ func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		}
 
 		if len(userdata) == 0 {
-			break
+			continue
 		}
 
 		switch tab.Name {
