@@ -42,7 +42,9 @@ func (inf Inferno) Active() Inferno {
 
 	res.Fires = make([]*Fire, 0, len(inf.Fires))
 	for _, f := range inf.Fires {
-		res.Fires = append(res.Fires, f)
+		if f.IsBurning {
+			res.Fires = append(res.Fires, f)
+		}
 	}
 
 	return res
