@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
 
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
@@ -44,7 +45,7 @@ func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 	h.ClientName = p.bitReader.ReadCString(maxOsPath)
 	h.MapName = p.bitReader.ReadCString(maxOsPath)
 	h.GameDirectory = p.bitReader.ReadCString(maxOsPath)
-	h.PlaybackTime = p.bitReader.ReadFloat()
+	h.PlaybackTime = time.Duration(p.bitReader.ReadFloat() * float32(time.Second))
 	h.PlaybackTicks = p.bitReader.ReadSignedInt(32)
 	h.PlaybackFrames = p.bitReader.ReadSignedInt(32)
 	h.SignonLength = p.bitReader.ReadSignedInt(32)

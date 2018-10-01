@@ -21,39 +21,39 @@ const (
 
 // DemoHeader contains information from a demo's header.
 type DemoHeader struct {
-	Filestamp       string  // aka. File-type, must be HL2DEMO
-	Protocol        int     // Should be 4
-	NetworkProtocol int     // Not sure what this is for
-	ServerName      string  // Server's 'hostname' config value
-	ClientName      string  // Usually 'GOTV Demo'
-	MapName         string  // E.g. de_cache, de_nuke, cs_office, etc.
-	GameDirectory   string  // Usually 'csgo'
-	PlaybackTime    float32 // Demo duration in seconds (= PlaybackTicks / Server's tickrate)
-	PlaybackTicks   int     // Game duration in ticks (= PlaybackTime * Server's tickrate)
-	PlaybackFrames  int     // Amount of 'frames' aka demo-ticks recorded (= PlaybackTime * Demo's recording rate)
-	SignonLength    int     // Length of the Signon package in bytes
+	Filestamp       string        // aka. File-type, must be HL2DEMO
+	Protocol        int           // Should be 4
+	NetworkProtocol int           // Not sure what this is for
+	ServerName      string        // Server's 'hostname' config value
+	ClientName      string        // Usually 'GOTV Demo'
+	MapName         string        // E.g. de_cache, de_nuke, cs_office, etc.
+	GameDirectory   string        // Usually 'csgo'
+	PlaybackTime    time.Duration // Demo duration in seconds (= PlaybackTicks / Server's tickrate)
+	PlaybackTicks   int           // Game duration in ticks (= PlaybackTime * Server's tickrate)
+	PlaybackFrames  int           // Amount of 'frames' aka demo-ticks recorded (= PlaybackTime * Demo's recording rate)
+	SignonLength    int           // Length of the Signon package in bytes
 }
 
 // FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
 // Not necessarily the tick-rate the server ran on during the game.
-func (h DemoHeader) FrameRate() float32 {
-	return float32(h.PlaybackFrames) / h.PlaybackTime
+func (h DemoHeader) FrameRate() float64 {
+	return float64(h.PlaybackFrames) / h.PlaybackTime.Seconds()
 }
 
 // FrameTime returns the time a frame / demo-tick takes in seconds.
 func (h DemoHeader) FrameTime() time.Duration {
-	return time.Duration(h.PlaybackTime / float32(h.PlaybackFrames) * float32(time.Second))
+	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackFrames))
 }
 
 // TickRate returns the tick-rate the server ran on during the game.
 // VolvoPlx128TixKTnxBye
-func (h DemoHeader) TickRate() float32 {
-	return float32(h.PlaybackTicks) / h.PlaybackTime
+func (h DemoHeader) TickRate() float64 {
+	return float64(h.PlaybackTicks) / h.PlaybackTime.Seconds()
 }
 
 // TickTime returns the time a single tick takes in seconds.
 func (h DemoHeader) TickTime() time.Duration {
-	return time.Duration(h.PlaybackTime / float32(h.PlaybackTicks) * float32(time.Second))
+	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackTicks))
 }
 
 // GrenadeProjectile is a grenade thrown intentionally by a player. It is used to track grenade projectile
