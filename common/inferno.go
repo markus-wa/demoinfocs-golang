@@ -26,6 +26,13 @@ type Fire struct {
 	IsBurning bool
 }
 
+// UniqueID returns the unique id of the inferno.
+// The unique id is a random int generated internally by this library and can be used to differentiate
+// infernos from each other. This is needed because demo-files reuse entity ids.
+func (inf Inferno) UniqueID() int64 {
+	return inf.uniqueID
+}
+
 // Active returns an Inferno containing only the active fires of the original.
 // The returned Inferno will have the same Unique-ID as the original.
 func (inf Inferno) Active() Inferno {
