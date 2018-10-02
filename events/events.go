@@ -371,18 +371,21 @@ type RankUpdate struct {
 }
 
 // ItemEquip signals an item was equipped.
+// This event is not available in all demos.
 type ItemEquip struct {
 	Weapon common.Equipment
 	Player *common.Player
 }
 
 // ItemPickup signals an item was bought or picked up.
+// This event is not available in all demos.
 type ItemPickup struct {
 	Weapon common.Equipment
 	Player *common.Player
 }
 
 // ItemDrop signals an item was dropped.
+// This event is not available in all demos.
 type ItemDrop struct {
 	Weapon common.Equipment
 	Player *common.Player

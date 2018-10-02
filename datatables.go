@@ -368,29 +368,28 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) {
 	entityID := entity.ID()
-	p.weapons[entityID] = common.NewEquipment("")
+	p.weapons[entityID] = common.NewEquipment(wepType)
 	eq := &p.weapons[entityID]
 	eq.EntityID = entityID
-	eq.Weapon = wepType
 	eq.AmmoInMagazine = -1
 
 	entity.FindProperty("m_iClip1").OnUpdate(func(val st.PropertyValue) {
 		eq.AmmoInMagazine = val.IntVal - 1
 	})
 
-	entity.BindProperty("LocalWeaponData.m_iPrimaryAmmoType", &eq.AmmoType, st.ValTypeInt)
+	eq.AmmoType = entity.FindProperty("LocalWeaponData.m_iPrimaryAmmoType").Value().IntVal
 
 	// Detect alternative weapons (P2k -> USP, M4A4 -> M4A1-S etc.)
+	modelIndex := entity.FindProperty("m_nModelIndex").Value().IntVal
+	eq.OriginalString = p.modelPreCache[modelIndex]
+
 	wepFix := func(defaultName, altName string, alt common.EquipmentElement) {
-		entity.FindProperty("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
-			eq.OriginalString = p.modelPreCache[val.IntVal]
-			// Check 'altName' first because otherwise the m4a1_s is recognized as m4a4
-			if strings.Contains(eq.OriginalString, altName) {
-				eq.Weapon = alt
-			} else if !strings.Contains(eq.OriginalString, defaultName) {
-				panic(fmt.Sprintf("Unknown weapon model %q", eq.OriginalString))
-			}
-		})
+		// Check 'altName' first because otherwise the m4a1_s is recognized as m4a4
+		if strings.Contains(eq.OriginalString, altName) {
+			eq.Weapon = alt
+		} else if !strings.Contains(eq.OriginalString, defaultName) {
+			panic(fmt.Sprintf("Unknown weapon model %q", eq.OriginalString))
+		}
 	}
 
 	switch eq.Weapon {
