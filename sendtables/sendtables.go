@@ -163,5 +163,16 @@ func (sc *ServerClass) String() string {
 	for i, fProp := range sc.flattenedProps {
 		props[i] = fProp.name
 	}
-	return fmt.Sprintf(serverClassStringFormat, sc.id, sc.name, sc.dataTableID, sc.dataTableName, strings.Join(baseClasses, "\n\t\t"), strings.Join(props, "\n\t\t"))
+
+	baseClassesStr := "-"
+	if len(baseClasses) > 0 {
+		baseClassesStr = strings.Join(baseClasses, "\n\t\t")
+	}
+
+	propsStr := "-"
+	if len(props) > 0 {
+		propsStr = strings.Join(props, "\n\t\t")
+	}
+
+	return fmt.Sprintf(serverClassStringFormat, sc.id, sc.name, sc.dataTableID, sc.dataTableName, baseClassesStr, propsStr)
 }
