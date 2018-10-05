@@ -80,6 +80,7 @@ const (
 	EqM4A4   EquipmentElement = 304
 	EqM4A1   EquipmentElement = 305
 	EqScout  EquipmentElement = 306
+	EqSSG08  EquipmentElement = 306
 	EqSG556  EquipmentElement = 307
 	EqSG553  EquipmentElement = 307
 	EqAUG    EquipmentElement = 308
@@ -158,6 +159,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["sg556"] = EqSG556
 	eqNameToWeapon["smokegrenade"] = EqSmoke
 	eqNameToWeapon["smokegrenadeprojectile"] = EqSmoke
+	eqNameToWeapon["ssg08"] = EqScout
 	eqNameToWeapon["taser"] = EqZeus
 	eqNameToWeapon["tec9"] = EqTec9
 	eqNameToWeapon["ump45"] = EqUMP
