@@ -42,8 +42,8 @@ func (em *ValveMatchmakingTeamSwitchEmitter) handleLastRoundHalf(events.Announce
 
 // Get scores before switch
 func (em *ValveMatchmakingTeamSwitchEmitter) handleRoundEnded(ev events.RoundEnd) {
-	em.tScoreBeforeSwitch = em.parser.GameState().TeamTerrorists().Score()
-	em.ctScoreBeforeSwitch = em.parser.GameState().TeamCounterTerrorists().Score()
+	em.tScoreBeforeSwitch = em.parser.GameState().TeamTerrorists().Score
+	em.ctScoreBeforeSwitch = em.parser.GameState().TeamCounterTerrorists().Score
 
 	// Score hasn't been updated yet because CS:GO demos are weird
 	switch ev.Winner {
@@ -65,8 +65,8 @@ func (em *ValveMatchmakingTeamSwitchEmitter) handleRoundStarted(events.RoundStar
 
 // Wait for score to update - this isn't (necessarily?) the case after RoundStart
 func (em *ValveMatchmakingTeamSwitchEmitter) handleTickDone(events.TickDone) {
-	tScoreOk := em.parser.GameState().TeamTerrorists().Score() == em.ctScoreBeforeSwitch
-	ctScoreOk := em.parser.GameState().TeamCounterTerrorists().Score() == em.tScoreBeforeSwitch
+	tScoreOk := em.parser.GameState().TeamTerrorists().Score == em.ctScoreBeforeSwitch
+	ctScoreOk := em.parser.GameState().TeamCounterTerrorists().Score == em.tScoreBeforeSwitch
 	if tScoreOk && ctScoreOk {
 		em.dispatch(TeamSwitchEvent{})
 

@@ -8,8 +8,8 @@ import (
 // GameState contains all game-state relevant information.
 type GameState struct {
 	ingameTick         int
-	tState             TeamState
-	ctState            TeamState
+	tState             common.TeamState
+	ctState            common.TeamState
 	playersByUserID    map[int]*common.Player            // Maps user-IDs to players
 	playersByEntityID  map[int]*common.Player            // Maps entity-IDs to players
 	grenadeProjectiles map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
@@ -35,14 +35,14 @@ func (gs GameState) IngameTick() int {
 // TeamCounterTerrorists returns the TeamState of the CT team.
 //
 // Make sure to handle swapping sides properly if you keep the reference.
-func (gs *GameState) TeamCounterTerrorists() *TeamState {
+func (gs *GameState) TeamCounterTerrorists() *common.TeamState {
 	return &gs.ctState
 }
 
 // TeamTerrorists returns the TeamState of the T team.
 //
 // Make sure to handle swapping sides properly if you keep the reference.
-func (gs *GameState) TeamTerrorists() *TeamState {
+func (gs *GameState) TeamTerrorists() *common.TeamState {
 	return &gs.tState
 }
 
@@ -87,39 +87,6 @@ func newGameState() GameState {
 		infernos:           make(map[int]*common.Inferno),
 		entities:           make(map[int]*st.Entity),
 	}
-}
-
-// TeamState contains a team's ID, score, clan name & country flag.
-type TeamState struct {
-	id       int
-	score    int
-	clanName string
-	flag     string
-}
-
-// ID returns the team-ID.
-//
-// This stays the same even after switching sides.
-func (ts TeamState) ID() int {
-	return ts.id
-}
-
-// Score returns the team's number of rounds won.
-func (ts TeamState) Score() int {
-	return ts.score
-}
-
-// ClanName returns the team's clan name.
-func (ts TeamState) ClanName() string {
-	return ts.clanName
-}
-
-// Flag returns the team's country flag.
-// E.g. DE, FR, etc.
-//
-// Watch out, in some demos this is upper-case and in some lower-case.
-func (ts TeamState) Flag() string {
-	return ts.flag
 }
 
 // Participants provides helper functions on top of the currently connected players.

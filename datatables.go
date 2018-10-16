@@ -115,7 +115,7 @@ func (p *Parser) bindTeamScores() {
 		entity.FindProperty("m_szTeamname").OnUpdate(func(val st.PropertyValue) {
 			team := val.StringVal
 
-			var s *TeamState
+			var s *common.TeamState
 
 			switch team {
 			case "CT":
@@ -133,16 +133,23 @@ func (p *Parser) bindTeamScores() {
 
 			if s != nil {
 				// Set values that were already updated
-				s.id = teamID
-				s.clanName = clanName
-				s.flag = flagImage
-				s.score = score
+				s.ID = teamID
+				s.ClanName = clanName
+				s.Flag = flagImage
+				s.Score = score
 
 				// Register direct updates for the future
 				// Except for teamId, it doesn't change; players swap teams instead
-				entity.BindProperty("m_szClanTeamname", &s.clanName, st.ValTypeString)
-				entity.BindProperty("m_szTeamFlagImage", &s.flag, st.ValTypeString)
-				entity.BindProperty("m_scoreTotal", &s.score, st.ValTypeInt)
+				entity.BindProperty("m_szClanTeamname", &s.ClanName, st.ValTypeString)
+				entity.BindProperty("m_szTeamFlagImage", &s.Flag, st.ValTypeString)
+
+				entity.FindProperty("m_scoreTotal").OnUpdate(func(val st.PropertyValue) {
+					s.Score = val.IntVal
+
+					p.eventDispatcher.Dispatch(events.ScoreUpdated{
+						TeamState: s,
+					})
+				})
 			}
 		})
 	})

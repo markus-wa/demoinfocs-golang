@@ -68,8 +68,8 @@ func TestDemoInfoCs(t *testing.T) {
 	fmt.Println("Registering handlers")
 	gs := p.GameState()
 	p.RegisterEventHandler(func(e events.RoundEnd) {
-		var winner *dem.TeamState
-		var loser *dem.TeamState
+		var winner *common.TeamState
+		var loser *common.TeamState
 		var winnerSide string
 		switch e.Winner {
 		case common.TeamTerrorists:
@@ -85,15 +85,15 @@ func TestDemoInfoCs(t *testing.T) {
 			fmt.Println("Round finished: No winner (tie)")
 			return
 		}
-		winnerClan := winner.ClanName()
-		winnerId := winner.ID()
-		winnerFlag := winner.Flag()
+		winnerClan := winner.ClanName
+		winnerId := winner.ID
+		winnerFlag := winner.Flag
 		ingameTime := p.CurrentTime()
 		progressPercent := p.Progress() * 100
 		ingameTick := gs.IngameTick()
 		currentFrame := p.CurrentFrame()
 		// Score + 1 for winner because it hasn't actually been updated yet
-		fmt.Printf("Round finished: score=%d:%d ; winnerSide=%s ; clanName=%q ; teamId=%d ; teamFlag=%s ; ingameTime=%s ; progress=%.1f%% ; tick=%d ; frame=%d\n", winner.Score()+1, loser.Score(), winnerSide, winnerClan, winnerId, winnerFlag, ingameTime, progressPercent, ingameTick, currentFrame)
+		fmt.Printf("Round finished: score=%d:%d ; winnerSide=%s ; clanName=%q ; teamId=%d ; teamFlag=%s ; ingameTime=%s ; progress=%.1f%% ; tick=%d ; frame=%d\n", winner.Score+1, loser.Score, winnerSide, winnerClan, winnerId, winnerFlag, ingameTime, progressPercent, ingameTick, currentFrame)
 		if len(winnerClan) == 0 || winnerId == 0 || len(winnerFlag) == 0 || ingameTime == 0 || progressPercent == 0 || ingameTick == 0 || currentFrame == 0 {
 			t.Error("Unexprected default value, check output of last round")
 		}
@@ -217,19 +217,19 @@ func TestValveMatchmakingFuzzyEmitters(t *testing.T) {
 	p.RegisterEventHandler(func(ev events.RoundEnd) {
 		switch ev.Winner {
 		case common.TeamTerrorists:
-			tScoreBeforeSwap = p.GameState().TeamTerrorists().Score() + 1
+			tScoreBeforeSwap = p.GameState().TeamTerrorists().Score + 1
 
 		case common.TeamCounterTerrorists:
-			ctScoreBeforeSwap = p.GameState().TeamCounterTerrorists().Score() + 1
+			ctScoreBeforeSwap = p.GameState().TeamCounterTerrorists().Score + 1
 		}
 	})
 
 	p.RegisterEventHandler(func(fuzzy.TeamSwitchEvent) {
 		teamSwitchDone = true
-		if tScoreBeforeSwap != p.GameState().TeamCounterTerrorists().Score() {
+		if tScoreBeforeSwap != p.GameState().TeamCounterTerrorists().Score {
 			t.Error("T-Score before swap != CT-Score after swap")
 		}
-		if ctScoreBeforeSwap != p.GameState().TeamTerrorists().Score() {
+		if ctScoreBeforeSwap != p.GameState().TeamTerrorists().Score {
 			t.Error("CT-Score before swap != T-Score after swap")
 		}
 	})

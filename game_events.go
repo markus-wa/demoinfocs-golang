@@ -67,9 +67,9 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		t := common.TeamSpectators
 
 		switch data["winner"].GetValByte() {
-		case int32(p.gameState.tState.id):
+		case int32(p.gameState.tState.ID):
 			t = common.TeamTerrorists
-		case int32(p.gameState.ctState.id):
+		case int32(p.gameState.ctState.ID):
 			t = common.TeamCounterTerrorists
 		}
 
