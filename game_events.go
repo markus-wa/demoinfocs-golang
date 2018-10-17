@@ -36,11 +36,6 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	debugGameEvent(d, ge)
 
-	// Ignore events before players are connected to speed things up
-	if len(p.gameState.playersByUserID) == 0 && d.Name != "player_connect" {
-		return
-	}
-
 	var data map[string]*msg.CSVCMsg_GameEventKeyT
 
 	switch d.Name {
