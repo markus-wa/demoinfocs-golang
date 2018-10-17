@@ -427,3 +427,11 @@ type InfernoStart struct {
 type InfernoExpired struct {
 	Inferno *common.Inferno
 }
+
+// ScoreUpdated signals that the score of one of the teams has been updated.
+// It has been observed that some demos do not always trigger the RoundEnd event as one would expect.
+//
+// ScoreUpdated can be used to circumvent missing RoundEnd events in some cases, as (we assume) it is required in order to show the correct score in-game.
+type ScoreUpdated struct {
+	TeamState *common.TeamState
+}

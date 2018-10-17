@@ -102,3 +102,17 @@ func (b Bomb) Position() r3.Vector {
 
 	return b.LastOnGroundPosition
 }
+
+// TeamState contains a team's ID, score, clan name & country flag.
+type TeamState struct {
+	// ID stays the same even after switching sides.
+	ID int
+
+	Score    int
+	ClanName string
+
+	// Flag, e.g. DE, FR, etc.
+	//
+	// Watch out, in some demos this is upper-case and in some lower-case.
+	Flag string
+}
