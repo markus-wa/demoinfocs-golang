@@ -11,7 +11,7 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
-func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
+func (p *parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -22,7 +22,7 @@ func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 	}
 }
 
-func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
+func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -501,7 +501,7 @@ func getCommunityID(guid string) int64 {
 	return valveMagicNumber + authID*2 + authSrv
 }
 
-func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
+func (p *parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()

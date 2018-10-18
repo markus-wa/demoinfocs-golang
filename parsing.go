@@ -36,7 +36,7 @@ var (
 // ParseHeader attempts to parse the header of the demo.
 //
 // Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match HL2DEMO.
-func (p *Parser) ParseHeader() (common.DemoHeader, error) {
+func (p *parser) ParseHeader() (common.DemoHeader, error) {
 	var h common.DemoHeader
 	h.Filestamp = p.bitReader.ReadCString(8)
 	h.Protocol = p.bitReader.ReadSignedInt(32)
@@ -69,7 +69,7 @@ func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 // Aborts and returns ErrCancelled if Cancel() is called before the end.
 //
 // See also: ParseNextFrame() for other possible errors.
-func (p *Parser) ParseToEnd() (err error) {
+func (p *parser) ParseToEnd() (err error) {
 	defer func() {
 		if err == nil {
 			err = recoverFromUnexpectedEOF(recover())
@@ -115,7 +115,7 @@ func recoverFromUnexpectedEOF(r interface{}) error {
 
 // Cancel aborts ParseToEnd().
 // All information that was already read up to this point may still be used (and new events may still be sent out).
-func (p *Parser) Cancel() {
+func (p *parser) Cancel() {
 	p.cancelChan <- struct{}{}
 }
 
@@ -123,14 +123,14 @@ func (p *Parser) Cancel() {
 ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
 
 Returns true unless the demo command 'stop' or an error was encountered.
-Returns an error if the header hasn't been parsed yet - see Parser.ParseHeader().
+Returns an error if the header hasn't been parsed yet - see parser.ParseHeader().
 
 May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
 May panic if the demo is corrupt in some way.
 
 See also: ParseToEnd() for parsing the complete demo in one go (faster).
 */
-func (p *Parser) ParseNextFrame() (b bool, err error) {
+func (p *parser) ParseNextFrame() (b bool, err error) {
 	defer func() {
 		if err == nil {
 			err = recoverFromUnexpectedEOF(recover())
@@ -170,7 +170,7 @@ const (
 	dcStringTables   demoCommand = 9
 )
 
-func (p *Parser) parseFrame() bool {
+func (p *parser) parseFrame() bool {
 	cmd := demoCommand(p.bitReader.ReadSingleByte())
 
 	// Send ingame tick number update
@@ -239,7 +239,7 @@ type frameParsedTokenType struct{}
 
 var frameParsedToken = new(frameParsedTokenType)
 
-func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
+func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()

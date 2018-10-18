@@ -38,7 +38,7 @@ type playerInfo struct {
 	isHltv bool
 }
 
-func (p *Parser) parseStringTables() {
+func (p *parser) parseStringTables() {
 	p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 	tables := int(p.bitReader.ReadSingleByte())
 	for i := 0; i < tables; i++ {
@@ -49,7 +49,7 @@ func (p *Parser) parseStringTables() {
 	p.bitReader.EndChunk()
 }
 
-func (p *Parser) parseSingleStringTable(name string) {
+func (p *parser) parseSingleStringTable(name string) {
 	strings := p.bitReader.ReadSignedInt(16)
 	for i := 0; i < strings; i++ {
 		stringName := p.bitReader.ReadString()
@@ -96,7 +96,7 @@ func (p *Parser) parseSingleStringTable(name string) {
 	}
 }
 
-func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
+func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 	// No need for recoverFromUnexpectedEOF here as we do that in processStringTable already
 
 	cTab := p.stringTables[tab.TableId]
@@ -114,7 +114,7 @@ func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 	}
 }
 
-func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	// No need for recoverFromUnexpectedEOF here as we do that in processStringTable already
 
 	p.processStringTable(tab)
@@ -124,7 +124,7 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	p.eventDispatcher.Dispatch(events.StringTableCreated{TableName: tab.Name})
 }
 
-func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()

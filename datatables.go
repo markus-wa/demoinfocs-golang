@@ -22,7 +22,7 @@ const (
 	maxWeapons                   = 64
 )
 
-func (p *Parser) mapEquipment() {
+func (p *parser) mapEquipment() {
 	for _, sc := range p.stParser.ServerClasses() {
 		baseClasses := sc.BaseClasses()
 		for _, bc := range baseClasses {
@@ -60,7 +60,7 @@ func (p *Parser) mapEquipment() {
 }
 
 // Bind the attributes of the various entities to our structs on the parser
-func (p *Parser) bindEntities() {
+func (p *parser) bindEntities() {
 	p.bindTeamScores()
 	p.bindBombSites()
 	p.bindPlayers()
@@ -68,7 +68,7 @@ func (p *Parser) bindEntities() {
 	p.bindBomb()
 }
 
-func (p *Parser) bindBomb() {
+func (p *parser) bindBomb() {
 	bomb := &p.gameState.bomb
 
 	// Track bomb when it is not held by a player
@@ -100,7 +100,7 @@ func (p *Parser) bindBomb() {
 	})
 }
 
-func (p *Parser) bindTeamScores() {
+func (p *parser) bindTeamScores() {
 	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity *st.Entity) {
 		teamID := -1
 		var clanName string
@@ -155,7 +155,7 @@ func (p *Parser) bindTeamScores() {
 	})
 }
 
-func (p *Parser) bindBombSites() {
+func (p *parser) bindBombSites() {
 	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(playerResource *st.Entity) {
 		playerResource.BindProperty("m_bombsiteCenterA", &p.bombsiteA.center, st.ValTypeVector)
 		playerResource.BindProperty("m_bombsiteCenterB", &p.bombsiteB.center, st.ValTypeVector)
@@ -170,7 +170,7 @@ func (p *Parser) bindBombSites() {
 	})
 }
 
-func (p *Parser) bindPlayers() {
+func (p *parser) bindPlayers() {
 	p.stParser.ServerClasses().FindByName("CCSPlayer").OnEntityCreated(func(player *st.Entity) {
 		p.bindNewPlayer(player)
 	})
@@ -192,7 +192,7 @@ func (p *Parser) bindPlayers() {
 	})
 }
 
-func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
+func (p *parser) bindNewPlayer(playerEntity *st.Entity) {
 	var pl *common.Player
 	playerIndex := playerEntity.ID()
 	if p.gameState.playersByEntityID[playerIndex] != nil {
@@ -286,7 +286,7 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 	}
 }
 
-func (p *Parser) bindWeapons() {
+func (p *parser) bindWeapons() {
 	for _, sc := range p.stParser.ServerClasses() {
 		for _, bc := range sc.BaseClasses() {
 			switch bc.Name() {
@@ -305,9 +305,9 @@ func (p *Parser) bindWeapons() {
 	p.stParser.ServerClasses().FindByName("CInferno").OnEntityCreated(p.bindNewInferno)
 }
 
-// bindGrenadeProjectiles keeps track of the location of live grenades (Parser.gameState.grenadeProjectiles), actively thrown by players.
+// bindGrenadeProjectiles keeps track of the location of live grenades (parser.gameState.grenadeProjectiles), actively thrown by players.
 // It does NOT track the location of grenades lying on the ground, i.e. that were dropped by dead players.
-func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
+func (p *parser) bindGrenadeProjectiles(entity *st.Entity) {
 	entityID := entity.ID()
 
 	proj := common.NewGrenadeProjectile()
@@ -359,7 +359,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 }
 
 // Seperate function because we also use it in round_officially_ended (issue #42)
-func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
+func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	// If the grenade projectile entity is destroyed AFTER round_officially_ended
 	// we already executed this code when we received that event.
 	if _, exists := p.gameState.grenadeProjectiles[proj.EntityID]; !exists {
@@ -373,7 +373,7 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	delete(p.gameState.grenadeProjectiles, proj.EntityID)
 }
 
-func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) {
+func (p *parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) {
 	entityID := entity.ID()
 	p.weapons[entityID] = common.NewEquipment(wepType)
 	eq := &p.weapons[entityID]
@@ -416,7 +416,7 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 	}
 }
 
-func (p *Parser) bindNewInferno(entity *st.Entity) {
+func (p *parser) bindNewInferno(entity *st.Entity) {
 	entityID := entity.ID()
 	inf := common.NewInferno()
 	inf.EntityID = entityID
@@ -453,7 +453,7 @@ func (p *Parser) bindNewInferno(entity *st.Entity) {
 }
 
 // Seperate function because we also use it in round_officially_ended (issue #42)
-func (p *Parser) infernoExpired(inf *common.Inferno) {
+func (p *parser) infernoExpired(inf *common.Inferno) {
 	// If the inferno entity is destroyed AFTER round_officially_ended
 	// we already executed this code when we received that event.
 	if _, exists := p.gameState.infernos[inf.EntityID]; !exists {

@@ -3,6 +3,7 @@
 This example shows how to use unhandled data of entities by registering entity-creation and property-update handlers on server-classes & entities respectively.
 
 ## Finding interesting server-classes & entity-properties
+
 You can use the build tag `debugdemoinfocs` and the set `debugServerClasses=YES` with ldflags to find interesting server-classes and their properties.
 
 Example: `go run myprogram.go -tags debugdemoinfocs -ldflags '-X github.com/markus-wa/demoinfocs-golang.debugServerClasses=YES' | grep ServerClass`
@@ -264,6 +265,7 @@ ServerClass: id=247 name=SmokeTrail
 ServerClass: id=248 name=SporeExplosion
 ServerClass: id=249 name=SporeTrail
 ```
+
 </details>
 
 If you remove the `grep ServerClass` it will also print all properties that this server-class has.
@@ -798,12 +800,13 @@ ServerClass: id=202 name=CWeaponAWP
 		m_zoomLevel
 		m_iBurstShotsRemaining
 ```
+
 </details>
 
 ## Registering entity-creation & property-update handlers
 
 Registering the entity-creation handlers needs to be done after the DataTablesParsedEvent has been dispatched.
-Before that the server-classes won't be available in `Parser.ServerClasses()`.
+Before that the server-classes won't be available in `parser.ServerClasses()`.
 
 Property-update handlers that are registered in a entity-creation handler will be triggered with the initial value.
 

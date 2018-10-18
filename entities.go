@@ -9,7 +9,7 @@ import (
 
 const entitySentinel = 9999
 
-func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
+func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()

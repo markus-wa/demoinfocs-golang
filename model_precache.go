@@ -19,7 +19,7 @@ var modelPrecacheNameToEq = []struct {
 	// @micvbang TODO: add all other weapons too.
 }
 
-func (p *Parser) processModelPreCacheUpdate() {
+func (p *parser) processModelPreCacheUpdate() {
 	for i, name := range p.modelPreCache {
 		for _, nade := range modelPrecacheNameToEq {
 			if strings.Contains(name, nade.name) {

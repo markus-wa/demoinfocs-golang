@@ -19,7 +19,7 @@ type TeamSwitchEvent struct{}
 //
 // See also: github.com/markus-wa/demoinfocs-golang/ParserConfig.AdditionalEventEmitters
 type ValveMatchmakingTeamSwitchEmitter struct {
-	parser              *dem.Parser
+	parser              dem.Parser
 	dispatch            func(interface{})
 	currentHandlerID    dp.HandlerIdentifier
 	tScoreBeforeSwitch  int
@@ -27,7 +27,7 @@ type ValveMatchmakingTeamSwitchEmitter struct {
 }
 
 // Register registers the emitter on the parser. It should only be used by the parser.
-func (em *ValveMatchmakingTeamSwitchEmitter) Register(parser *dem.Parser, dispatch func(interface{})) {
+func (em *ValveMatchmakingTeamSwitchEmitter) Register(parser dem.Parser, dispatch func(interface{})) {
 	em.parser = parser
 	em.dispatch = dispatch
 
