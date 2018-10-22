@@ -438,7 +438,7 @@ func (p *Parser) bindNewInferno(entity *st.Entity) {
 				Z: float64(entity.FindProperty("m_fireZDelta." + iStr).Value().IntVal),
 			}
 
-			fire := &common.Fire{Vector: origin.Add(offset)}
+			fire := &common.Fire{Vector: origin.Add(offset), IsBurning: true}
 			entity.BindProperty("m_bFireIsBurning."+iStr, &fire.IsBurning, st.ValTypeBoolInt)
 
 			inf.Fires = append(inf.Fires, fire)
