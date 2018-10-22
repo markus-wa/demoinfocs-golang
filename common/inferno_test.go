@@ -67,9 +67,9 @@ func TestInfernoConvexHull2D(t *testing.T) {
 	}
 
 	expectedHull := s2.LoopFromPoints([]s2.Point{
-		s2.Point{Vector: r3.Vector{X: 4, Y: 7, Z: 0}},
-		s2.Point{Vector: r3.Vector{X: 1, Y: 2, Z: 0}},
-		s2.Point{Vector: r3.Vector{X: 7, Y: 2, Z: 0}},
+		s2.Point{Vector: r3.Vector{X: 4, Y: 7, Z: 1}},
+		s2.Point{Vector: r3.Vector{X: 1, Y: 2, Z: 1}},
+		s2.Point{Vector: r3.Vector{X: 7, Y: 2, Z: 1}},
 	})
 
 	assert.ElementsMatch(t, expectedHull.Vertices(), inf.ConvexHull2D().Vertices(), "ConvexHull2D should be as expected")
