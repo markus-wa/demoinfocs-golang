@@ -60,7 +60,7 @@ func (inf Inferno) ConvexHull2D() *s2.Loop {
 			Vector: r3.Vector{
 				X: f.Vector.X,
 				Y: f.Vector.Y,
-				Z: 0,
+				Z: 1,
 			},
 		})
 	}
