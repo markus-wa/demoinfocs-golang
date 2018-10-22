@@ -147,6 +147,8 @@ pushd cs-demos && git lfs pull -I '*' && popd
 go test
 ```
 
+Here's a cool [gist of a pre-commit hook](https://gist.github.com/micvbang/4c8cb1f24cfe04d1a0dfab010eb851d8) to run tests before each commit. You can put this inside the `.git/hooks` directory to avoid commiting/pushing code with build errors or failing tests.
+
 ### Debugging
 
 You can use the build tag `debugdemoinfocs` (i.e. `go test -tags debugdemoinfocs -v`) to print out debugging information - such as game events or unhandled demo-messages - during the parsing process.<br>
