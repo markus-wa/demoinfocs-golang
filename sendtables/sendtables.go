@@ -92,7 +92,7 @@ func (sc *ServerClass) PropertyEntries() []string {
 	return names
 }
 
-func (sc *ServerClass) newEntity(r *bit.BitReader, entityID int) *Entity {
+func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int) *Entity {
 	propCount := len(sc.flattenedProps)
 	props := make([]Property, propCount)
 	for i := range sc.flattenedProps {
@@ -115,7 +115,7 @@ func (sc *ServerClass) newEntity(r *bit.BitReader, entityID int) *Entity {
 		}
 	}
 
-	entity.ApplyUpdate(r)
+	entity.ApplyUpdate(entityDataReader)
 
 	// Fire created-handlers so update-handlers can be registered
 	for _, h := range sc.createdHandlers {

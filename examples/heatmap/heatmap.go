@@ -72,9 +72,10 @@ func main() {
 	draw.Draw(img, bounds, imgHeatmap, image.ZP, draw.Over)
 
 	// Write to stdout
-	jpeg.Encode(os.Stdout, img, &jpeg.Options{
+	err = jpeg.Encode(os.Stdout, img, &jpeg.Options{
 		Quality: 90,
 	})
+	checkError(err)
 }
 
 func updatedBounds(b image.Rectangle, x, y int) image.Rectangle {

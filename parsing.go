@@ -88,7 +88,7 @@ func (p *Parser) ParseToEnd() (err error) {
 		default:
 			if !p.parseFrame() {
 				// Make sure all the messages of the demo are handled
-				p.msgDispatcher.SyncQueues(p.msgQueue)
+				p.msgDispatcher.SyncAllQueues()
 
 				// Close msgQueue
 				close(p.msgQueue)
@@ -144,7 +144,7 @@ func (p *Parser) ParseNextFrame() (b bool, err error) {
 	b = p.parseFrame()
 
 	// Make sure all the messages of the frame are handled
-	p.msgDispatcher.SyncQueues(p.msgQueue)
+	p.msgDispatcher.SyncAllQueues()
 
 	// Close msgQueue if we are done
 	if !b {
@@ -193,7 +193,7 @@ func (p *Parser) parseFrame() bool {
 		p.bitReader.Skip(p.bitReader.ReadSignedInt(32) << 3)
 
 	case dcDataTables:
-		p.msgDispatcher.SyncQueues(p.msgQueue)
+		p.msgDispatcher.SyncAllQueues()
 
 		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 		p.stParser.ParsePacket(p.bitReader)
@@ -207,7 +207,7 @@ func (p *Parser) parseFrame() bool {
 		p.eventDispatcher.Dispatch(events.DataTablesParsed{})
 
 	case dcStringTables:
-		p.msgDispatcher.SyncQueues(p.msgQueue)
+		p.msgDispatcher.SyncAllQueues()
 
 		p.parseStringTables()
 

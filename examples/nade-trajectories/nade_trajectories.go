@@ -126,9 +126,10 @@ func main() {
 	drawTrajectories(gc, nadeTrajectoriesFirst5Rounds)
 
 	// Write to standard output
-	jpeg.Encode(os.Stdout, dest, &jpeg.Options{
+	err = jpeg.Encode(os.Stdout, dest, &jpeg.Options{
 		Quality: 90,
 	})
+	checkError(err)
 }
 
 func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
@@ -162,7 +163,7 @@ func buildInfernoPath(gc *draw2dimg.GraphicContext, hull *s2.Loop) {
 	gc.MoveTo(x, y)
 
 	for _, fire := range vertices[1:] {
-		x, y := curMap.TranslateScale(fire.X, fire.Y)
+		x, y = curMap.TranslateScale(fire.X, fire.Y)
 		gc.LineTo(x, y)
 	}
 
