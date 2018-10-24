@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/draw"
 	"image/jpeg"
-	"log"
 	"os"
 
 	heatmap "github.com/dustin/go-heatmap"
@@ -96,6 +95,6 @@ func updatedBounds(b image.Rectangle, x, y int) image.Rectangle {
 
 func checkError(err error) {
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }

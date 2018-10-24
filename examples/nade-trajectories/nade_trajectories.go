@@ -7,7 +7,6 @@ import (
 	"image/draw"
 	"image/jpeg"
 	_ "image/jpeg"
-	"log"
 	"os"
 
 	r3 "github.com/golang/geo/r3"
@@ -215,6 +214,6 @@ func drawTrajectories(gc *draw2dimg.GraphicContext, trajectories []*nadePath) {
 
 func checkError(err error) {
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
