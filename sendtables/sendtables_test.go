@@ -24,7 +24,7 @@ func TestServerClassPropertyEntries(t *testing.T) {
 	var sc ServerClass
 	assert.Empty(t, sc.PropertyEntries())
 
-	sc.flattenedProps = []flattenedPropEntry{flattenedPropEntry{name: "prop1"}, flattenedPropEntry{name: "prop2"}}
+	sc.flattenedProps = []flattenedPropEntry{{name: "prop1"}, {name: "prop2"}}
 
 	assert.ElementsMatch(t, []string{"prop1", "prop2"}, sc.PropertyEntries())
 }
@@ -47,8 +47,8 @@ func TestServerClassString(t *testing.T) {
 
 	assert.Equal(t, expectedString, sc.String())
 
-	sc.baseClasses = []*ServerClass{&ServerClass{name: "AnotherClass"}, &ServerClass{name: "YetAnotherClass"}}
-	sc.flattenedProps = []flattenedPropEntry{flattenedPropEntry{name: "prop1"}, flattenedPropEntry{name: "prop2"}}
+	sc.baseClasses = []*ServerClass{{name: "AnotherClass"}, {name: "YetAnotherClass"}}
+	sc.flattenedProps = []flattenedPropEntry{{name: "prop1"}, {name: "prop2"}}
 
 	expectedString = `ServerClass: id=1 name=TestClass
 	dataTableId=2
