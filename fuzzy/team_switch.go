@@ -4,7 +4,6 @@ import (
 	dem "github.com/markus-wa/demoinfocs-golang"
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
-	dp "github.com/markus-wa/godispatch"
 )
 
 // TeamSwitchEvent signals that the teams have switched.
@@ -21,7 +20,7 @@ type TeamSwitchEvent struct{}
 type ValveMatchmakingTeamSwitchEmitter struct {
 	parser              dem.Parser
 	dispatch            func(interface{})
-	currentHandlerID    dp.HandlerIdentifier
+	currentHandlerID    dem.HandlerIdentifier
 	tScoreBeforeSwitch  int
 	ctScoreBeforeSwitch int
 }
