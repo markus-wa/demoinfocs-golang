@@ -141,26 +141,13 @@ func TestDemoInfoCs(t *testing.T) {
 	})
 
 	ts := time.Now()
-	var done int64
-	go func() {
-		// 5 minute timeout (for a really slow machine with race condition testing)
-		timer := time.NewTimer(time.Minute * 5)
-		<-timer.C
-		if atomic.LoadInt64(&done) == 0 {
-			t.Error("Parsing timeout")
-			p.Cancel()
-			timer.Reset(time.Second * 1)
-			<-timer.C
-			t.Fatal("Parser locked up for more than one second after cancellation")
-		}
-	}()
 
 	frameByFrameCount := 1000
 	fmt.Printf("Parsing frame by frame (%d frames)\n", frameByFrameCount)
 	for i := 0; i < frameByFrameCount; i++ {
-		ok, err := p.ParseNextFrame()
-		if err != nil {
-			t.Fatal(err)
+		ok, errFrame := p.ParseNextFrame()
+		if errFrame != nil {
+			t.Fatal(errFrame)
 		}
 		if !ok {
 			t.Fatalf("Parser reported end of demo after less than %d frames", frameByFrameCount)
@@ -173,7 +160,6 @@ func TestDemoInfoCs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	atomic.StoreInt64(&done, 1)
 	fmt.Printf("Took %s\n", time.Since(ts))
 }
 
