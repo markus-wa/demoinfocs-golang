@@ -270,6 +270,7 @@ type Equipment struct {
 	AmmoInMagazine int              // Amount of bullets in the weapon's magazine
 	AmmoReserve    int              // Amount of reserve bullets
 	OriginalString string           // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
+	ZoomLevel      int
 
 	uniqueID int64
 }
