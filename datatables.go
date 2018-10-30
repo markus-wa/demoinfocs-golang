@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	r3 "github.com/golang/geo/r3"
-
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
@@ -379,7 +378,6 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 	eq := &p.weapons[entityID]
 	eq.EntityID = entityID
 	eq.AmmoInMagazine = -1
-	eq.ZoomLevel = 0
 
 	entity.FindProperty("m_iClip1").OnUpdate(func(val st.PropertyValue) {
 		eq.AmmoInMagazine = val.IntVal - 1
