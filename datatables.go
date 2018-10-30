@@ -384,6 +384,11 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 		eq.AmmoInMagazine = val.IntVal - 1
 	})
 
+	// Only weapons with scopes have m_zoomLevel property
+	if entity.FindProperty("m_zoomLevel") != nil {
+		entity.BindProperty("m_zoomLevel", &eq.ZoomLevel, st.ValTypeInt)
+	}
+
 	eq.AmmoType = entity.FindProperty("LocalWeaponData.m_iPrimaryAmmoType").Value().IntVal
 
 	// Detect alternative weapons (P2k -> USP, M4A4 -> M4A1-S etc.)
