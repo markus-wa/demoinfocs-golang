@@ -71,6 +71,7 @@ func formatPlayer(p *common.Player) string {
 	}
 	return p.Name
 }
+
 func checkError(err error) {
 	if err != nil {
 		log.Fatal(err)
