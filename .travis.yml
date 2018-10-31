@@ -9,8 +9,9 @@ go:
 env:
   - GO111MODULE=on
 
-# Disable Travis's default 'go get' step, since we use Go modules
-install: true
+# Override Travis's default 'go get' step, since we use Go modules
+install:
+  - go mod download
 
 before_script:
   # Fetch refs for linter
