@@ -18,8 +18,9 @@ import (
 Parser can parse a CS:GO demo.
 Creating a Parser is done via NewParser().
 
-To start off use Parser.ParseHeader() to parse the demo header.
-After parsing the header Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo.
+To start off you may use Parser.ParseHeader() to parse the demo header
+(this can be skipped and will be done automatically if neccessary).
+Further, Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo.
 
 Use Parser.RegisterEventHandler() to receive notifications about events.
 

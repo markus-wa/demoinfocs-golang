@@ -19,9 +19,6 @@ func main() {
 
 	p := dem.NewParser(f)
 
-	_, err = p.ParseHeader()
-	checkError(err)
-
 	p.RegisterEventHandler(func(events.DataTablesParsed) {
 		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent *st.Entity) {
 			ent.FindProperty("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {

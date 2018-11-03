@@ -40,14 +40,11 @@ import (
 func main() {
 	f, err := os.Open("/path/to/demo.dem")
 	defer f.Close()
-	checkError(err)
+	if err != nil {
+		panic(err)
+	}
 
 	p := dem.NewParser(f)
-
-	// Parse header
-	h, err := p.ParseHeader()
-	checkError(err)
-	fmt.Println("Map:", h.MapName)
 
 	// Register handler on kill events
 	p.RegisterEventHandler(func(e events.Kill) {
@@ -64,10 +61,6 @@ func main() {
 
 	// Parse to end
 	err = p.ParseToEnd()
-	checkError(err)
-}
-
-func checkError(err error) {
 	if err != nil {
 		panic(err)
 	}

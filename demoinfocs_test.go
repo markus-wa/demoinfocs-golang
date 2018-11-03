@@ -171,10 +171,6 @@ func TestUnexpectedEndOfDemo(t *testing.T) {
 	defer f.Close()
 
 	p := dem.NewParser(f)
-	_, err = p.ParseHeader()
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	err = p.ParseToEnd()
 	if err != dem.ErrUnexpectedEndOfDemo {
@@ -193,10 +189,6 @@ func TestValveMatchmakingFuzzyEmitters(t *testing.T) {
 	cfg.AdditionalEventEmitters = []dem.EventEmitter{new(fuzzy.ValveMatchmakingTeamSwitchEmitter)}
 
 	p := dem.NewParserWithConfig(f, cfg)
-	_, err = p.ParseHeader()
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	teamSwitchDone := false
 	tScoreBeforeSwap, ctScoreBeforeSwap := -1, -1
@@ -222,7 +214,7 @@ func TestValveMatchmakingFuzzyEmitters(t *testing.T) {
 
 	err = p.ParseToEnd()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal("Parsing failed:", err)
 	}
 
 	if !teamSwitchDone {
@@ -238,10 +230,6 @@ func TestCancelParseToEnd(t *testing.T) {
 	defer f.Close()
 
 	p := dem.NewParser(f)
-	_, err = p.ParseHeader()
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	maxTicks := 100
 	var tix int
@@ -268,31 +256,24 @@ func TestInvalidFileType(t *testing.T) {
 	invalidDemoData := make([]byte, 2048)
 	rand.Read(invalidDemoData)
 
-	p := dem.NewParser(bytes.NewBuffer(invalidDemoData))
+	msgWrongError := "Invalid demo but error was not ErrInvalidFileType:"
 
+	p := dem.NewParser(bytes.NewBuffer(invalidDemoData))
 	_, err := p.ParseHeader()
 	if err != dem.ErrInvalidFileType {
-		t.Fatal("Invalid demo but error was not ErrInvalidFileType:", err)
+		t.Fatal("ParseHeader():", msgWrongError, err)
 	}
-}
 
-func TestHeaderNotParsed(t *testing.T) {
-	f, err := os.Open(defaultDemPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	p := dem.NewParser(f)
-
+	p = dem.NewParser(bytes.NewBuffer(invalidDemoData))
 	_, err = p.ParseNextFrame()
-	if err != dem.ErrHeaderNotParsed {
-		t.Fatal("Tried to parse tick before header but error was not ErrHeaderNotParsed:", err)
+	if err != dem.ErrInvalidFileType {
+		t.Fatal("ParseNextFrame():", msgWrongError, err)
 	}
 
+	p = dem.NewParser(bytes.NewBuffer(invalidDemoData))
 	err = p.ParseToEnd()
-	if err != dem.ErrHeaderNotParsed {
-		t.Fatal("Tried to parse tick before header but error was not ErrHeaderNotParsed:", err)
+	if err != dem.ErrInvalidFileType {
+		t.Fatal("ParseToEnd():", msgWrongError, err)
 	}
 }
 
@@ -323,14 +304,9 @@ func parseDefaultDemo(tb testing.TB) {
 
 	p := dem.NewParser(f)
 
-	_, err = p.ParseHeader()
-	if err != nil {
-		tb.Fatal(err)
-	}
-
 	err = p.ParseToEnd()
 	if err != nil {
-		tb.Fatal(err)
+		tb.Fatal("Parsing failed:", err)
 	}
 }
 
@@ -369,15 +345,10 @@ func TestDemoSet(t *testing.T) {
 				}()
 
 				p := dem.NewParser(f)
-				_, err = p.ParseHeader()
-				if err != nil {
-					t.Error(err)
-					return
-				}
 
 				err = p.ParseToEnd()
 				if err != nil {
-					t.Error(err)
+					t.Errorf("Parsing of '%s/%s' failed: %s\n", demSetPath, name, err)
 					return
 				}
 			}()
@@ -412,11 +383,6 @@ func BenchmarkInMemory(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		p := dem.NewParser(bytes.NewReader(d))
-
-		_, err = p.ParseHeader()
-		if err != nil {
-			b.Fatal(err)
-		}
 
 		err = p.ParseToEnd()
 		if err != nil {

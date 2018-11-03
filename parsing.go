@@ -28,12 +28,10 @@ var (
 
 	// ErrInvalidFileType signals that the input isn't a valid CS:GO demo.
 	ErrInvalidFileType = errors.New("Invalid File-Type; expecting HL2DEMO in the first 8 bytes")
-
-	// ErrHeaderNotParsed signals that the header hasn't been parsed before attempting to parse a tick.
-	ErrHeaderNotParsed = errors.New("Header must be parsed before trying to parse a tick. See Parser.ParseHeader()")
 )
 
-// ParseHeader attempts to parse the header of the demo.
+// ParseHeader attempts to parse the header of the demo and returns it.
+// If not done manually this will be called by Parser.ParseNextFrame() or Parser.ParseToEnd().
 //
 // Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match HL2DEMO.
 func (p *Parser) ParseHeader() (common.DemoHeader, error) {
@@ -77,7 +75,10 @@ func (p *Parser) ParseToEnd() (err error) {
 	}()
 
 	if p.header == nil {
-		return ErrHeaderNotParsed
+		_, err := p.ParseHeader()
+		if err != nil {
+			return err
+		}
 	}
 
 	for {
@@ -123,7 +124,6 @@ func (p *Parser) Cancel() {
 ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
 
 Returns true unless the demo command 'stop' or an error was encountered.
-Returns an error if the header hasn't been parsed yet - see Parser.ParseHeader().
 
 May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
 May panic if the demo is corrupt in some way.
@@ -138,7 +138,10 @@ func (p *Parser) ParseNextFrame() (b bool, err error) {
 	}()
 
 	if p.header == nil {
-		return false, ErrHeaderNotParsed
+		_, err := p.ParseHeader()
+		if err != nil {
+			return false, err
+		}
 	}
 
 	b = p.parseFrame()

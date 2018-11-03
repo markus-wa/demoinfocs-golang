@@ -12,12 +12,11 @@ import (
 func TestReadmeExample(t *testing.T) {
 	f, err := os.Open(defaultDemPath)
 	defer f.Close()
-	checkError(err)
+	if err != nil {
+		panic(err)
+	}
 
 	p := dem.NewParser(f)
-
-	_, err = p.ParseHeader()
-	checkError(err)
 
 	// Register handler on kill events
 	p.RegisterEventHandler(func(e events.Kill) {
@@ -34,10 +33,6 @@ func TestReadmeExample(t *testing.T) {
 
 	// Parse to end
 	err = p.ParseToEnd()
-	checkError(err)
-}
-
-func checkError(err error) {
 	if err != nil {
 		panic(err)
 	}

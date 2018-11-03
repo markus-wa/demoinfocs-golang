@@ -47,10 +47,10 @@ func main() {
 
 	p := dem.NewParser(f)
 
-	hd, err := p.ParseHeader()
+	header, err := p.ParseHeader()
 	checkError(err)
 
-	curMap = metadata.MapNameToMap[hd.MapName]
+	curMap = metadata.MapNameToMap[header.MapName]
 
 	nadeTrajectories := make(map[int64]*nadePath) // Trajectories of all destroyed nades
 
@@ -103,7 +103,7 @@ func main() {
 	checkError(err)
 
 	// Use map overview as base image
-	fMap, err := os.Open(fmt.Sprintf("../../metadata/maps/%s.jpg", hd.MapName))
+	fMap, err := os.Open(fmt.Sprintf("../../metadata/maps/%s.jpg", header.MapName))
 	checkError(err)
 
 	imgMap, _, err := image.Decode(fMap)

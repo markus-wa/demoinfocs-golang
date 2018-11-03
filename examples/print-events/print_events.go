@@ -19,9 +19,9 @@ func main() {
 	p := dem.NewParser(f)
 
 	// Parse header
-	h, err := p.ParseHeader()
+	header, err := p.ParseHeader()
 	checkError(err)
-	fmt.Println("Map:", h.MapName)
+	fmt.Println("Map:", header.MapName)
 
 	// Register handler on kill events
 	p.RegisterEventHandler(func(e events.Kill) {
