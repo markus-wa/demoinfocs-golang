@@ -20,117 +20,80 @@ You can use gitter to ask questions and discuss ideas about this project.
 
 ## Example
 
-This is a simple example on how to use the library. It collects all positions where weapons were fired from (using `events.WeaponFire`) and creates a heatmap using [go-heatmap](https://github.com/dustin/go-heatmap).
+This is a simple example on how to handle game events using this library.
+It prints all kills in a given demo (killer, weapon, victim, was it a wallbang/headshot?) by registering a handler for [`events.Kill`](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#Kill).
 
-Check out the [examples](examples) folder for more examples and the [godoc of the `events` package](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events) for some information about the other available events and their purpose.
+Check out the [godoc of the `events` package](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events) for some information about the other available events and their purpose.
 
 ```go
 package main
 
 import (
 	"fmt"
-	"image"
-	"image/draw"
-	"image/jpeg"
-	"log"
 	"os"
-
-	heatmap "github.com/dustin/go-heatmap"
-	schemes "github.com/dustin/go-heatmap/schemes"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
 	events "github.com/markus-wa/demoinfocs-golang/events"
-	metadata "github.com/markus-wa/demoinfocs-golang/metadata"
 )
 
-// Run like this: go run heatmap.go > out.jpg
+// Run like this: go run print_kills.go
 func main() {
 	f, err := os.Open("/path/to/demo.dem")
-	checkError(err)
 	defer f.Close()
+	checkError(err)
 
 	p := dem.NewParser(f)
 
-	// Parse header (contains map-name etc.)
-	header, err := p.ParseHeader()
+	// Parse header
+	h, err := p.ParseHeader()
 	checkError(err)
+	fmt.Println("Map:", h.MapName)
 
-	// Get metadata for the map that's being played
-	m := metadata.MapNameToMap[header.MapName]
-
-	// Register handler for WeaponFire, triggered every time a shot is fired
-	points := []heatmap.DataPoint{}
-	var bounds image.Rectangle
-	p.RegisterEventHandler(func(e events.WeaponFire) {
-		// Translate positions from in-game coordinates to radar overview
-		x, y := m.TranslateScale(e.Shooter.Position.X, e.Shooter.Position.Y)
-
-		// Track bounds to get around the normalization done by the heatmap library
-		bounds = updatedBounds(bounds, int(x), int(y))
-
-		// Add shooter's position as datapoint
-		// Invert Y since it expects data to be ordered from bottom to top
-		points = append(points, heatmap.P(x, y*-1))
+	// Register handler on kill events
+	p.RegisterEventHandler(func(e events.Kill) {
+		var hs string
+		if e.IsHeadshot {
+			hs = " (HS)"
+		}
+		var wallBang string
+		if e.PenetratedObjects > 0 {
+			wallBang = " (WB)"
+		}
+		fmt.Printf("%s <%v%s%s> %s\n", e.Killer.Name, e.Weapon.Weapon, hs, wallBang, e.Victim.Name)
 	})
 
 	// Parse to end
 	err = p.ParseToEnd()
 	checkError(err)
-
-	// Get map overview as base image
-	fMap, err := os.Open(fmt.Sprintf("../../metadata/maps/%s.jpg", header.MapName))
-	checkError(err)
-
-	imgMap, _, err := image.Decode(fMap)
-	checkError(err)
-
-	// Create output canvas
-	img := image.NewRGBA(imgMap.Bounds())
-
-	draw.Draw(img, imgMap.Bounds(), imgMap, image.ZP, draw.Over)
-
-	// Generate heatmap
-	width := bounds.Max.X - bounds.Min.X
-	height := bounds.Max.Y - bounds.Min.Y
-	imgHeatmap := heatmap.Heatmap(image.Rect(0, 0, width, height), points, 15, 128, schemes.AlphaFire)
-
-	// Draw it on top of the overview
-	draw.Draw(img, bounds, imgHeatmap, image.ZP, draw.Over)
-
-	// Write to stdout
-	jpeg.Encode(os.Stdout, img, &jpeg.Options{
-		Quality: 90,
-	})
-}
-
-func updatedBounds(b image.Rectangle, x, y int) image.Rectangle {
-	if b.Min.X > x || b.Min.X == 0 {
-		b.Min.X = x
-	} else if b.Max.X < x {
-		b.Max.X = x
-	}
-
-	if b.Min.Y > y || b.Min.Y == 0 {
-		b.Min.Y = y
-	} else if b.Max.Y < y {
-		b.Max.Y = y
-	}
-
-	return b
 }
 
 func checkError(err error) {
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
 ```
 
-### Result
+### Sample output
 
-Running the above code (`go run heatmap.go > heatmap.png`) will create a JPEG of a radar overview with dots on all the locations where shots were fired.
+Running the code above will print something like this:
 
-![Resulting heatmap](https://raw.githubusercontent.com/markus-wa/demoinfocs-golang/master/examples/heatmap/heatmap.jpg)
+```
+xms <AK-47 (HS)> crisby
+tiziaN <USP-S (HS)> Ex6TenZ
+tiziaN <USP-S> mistou
+tiziaN <USP-S (HS)> ALEX
+xms <Glock-18 (HS)> tiziaN
+...
+keev <AWP (HS) (WB)> to1nou
+...
+```
+
+### More examples
+
+Check out the [examples](examples) folder for more examples, like [how to generate heatmaps](examples/heatmap) like this one:
+
+![Example heatmap](https://raw.githubusercontent.com/markus-wa/demoinfocs-golang/master/examples/heatmap/heatmap.jpg)
 
 ## Features
 
