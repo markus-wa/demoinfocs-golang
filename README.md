@@ -147,7 +147,7 @@ Running the above code (`go run heatmap.go > heatmap.png`) will create a JPEG of
 
 ## Performance / Benchmarks
 
-One of the top priorities of this parser is performance and concurrency.
+Two of the top priorities of this parser are performance and concurrency.
 
 Here are some benchmark results from a system with a Intel i7 2600k CPU and SSD disk running Windows 10 and a demo with 85'000 frames.
 
