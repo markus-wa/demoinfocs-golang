@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	proto "github.com/gogo/protobuf/proto"
@@ -46,6 +45,6 @@ func main() {
 
 func checkError(err error) {
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }

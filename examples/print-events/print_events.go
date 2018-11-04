@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
@@ -74,6 +73,6 @@ func formatPlayer(p *common.Player) string {
 
 func checkError(err error) {
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }

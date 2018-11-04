@@ -4,11 +4,11 @@ import (
 	"flag"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
 // DemoPathFromArgs returns the value of the -demo command line flag.
+// Panics if an error occurs.
 func DemoPathFromArgs() string {
 	fl := new(flag.FlagSet)
 
@@ -16,7 +16,7 @@ func DemoPathFromArgs() string {
 
 	err := fl.Parse(os.Args[1:])
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	demPath := *demPathPtr
@@ -25,12 +25,13 @@ func DemoPathFromArgs() string {
 }
 
 // RedirectStdout redirects standard output to dev null.
+// Panics if an error occurs.
 func RedirectStdout(f func()) {
 	// Redirect stdout, the resulting image is written to this
 	old := os.Stdout
 	r, w, err := os.Pipe()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	os.Stdout = w
