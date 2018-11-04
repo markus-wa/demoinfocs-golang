@@ -3,6 +3,7 @@
 This example shows how to use unhandled data of entities by registering entity-creation and property-update handlers on server-classes & entities respectively.
 
 ## Finding interesting server-classes & entity-properties
+
 You can use the build tag `debugdemoinfocs` and the set `debugServerClasses=YES` with ldflags to find interesting server-classes and their properties.
 
 Example: `go run myprogram.go -tags debugdemoinfocs -ldflags '-X github.com/markus-wa/demoinfocs-golang.debugServerClasses=YES' | grep ServerClass`
