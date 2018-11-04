@@ -433,5 +433,7 @@ type InfernoExpired struct {
 //
 // ScoreUpdated can be used to circumvent missing RoundEnd events in some cases, as (we assume) it is required in order to show the correct score in-game.
 type ScoreUpdated struct {
+	OldScore  int
+	NewScore  int
 	TeamState *common.TeamState
 }

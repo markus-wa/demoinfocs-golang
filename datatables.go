@@ -144,9 +144,12 @@ func (p *Parser) bindTeamScores() {
 				entity.BindProperty("m_szTeamFlagImage", &s.Flag, st.ValTypeString)
 
 				entity.FindProperty("m_scoreTotal").OnUpdate(func(val st.PropertyValue) {
+					oldScore := s.Score
 					s.Score = val.IntVal
 
 					p.eventDispatcher.Dispatch(events.ScoreUpdated{
+						OldScore:  oldScore,
+						NewScore:  val.IntVal,
 						TeamState: s,
 					})
 				})
