@@ -123,7 +123,7 @@ func (p *parser) Cancel() {
 ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
 
 Returns true unless the demo command 'stop' or an error was encountered.
-Returns an error if the header hasn't been parsed yet - see parser.ParseHeader().
+Returns an error if the header hasn't been parsed yet - see Parser.ParseHeader().
 
 May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
 May panic if the demo is corrupt in some way.

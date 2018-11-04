@@ -6,11 +6,12 @@ import (
 	"time"
 
 	r3 "github.com/golang/geo/r3"
+	dp "github.com/markus-wa/godispatch"
+
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
-	dp "github.com/markus-wa/godispatch"
 )
 
 /*
@@ -42,10 +43,10 @@ type Parser interface {
 	CurrentFrame() int
 	CurrentTime() time.Duration
 	Progress() float32
-	RegisterEventHandler(handler interface{}) HandlerIdentifier
-	UnregisterEventHandler(identifier HandlerIdentifier)
-	RegisterNetMessageHandler(handler interface{}) HandlerIdentifier
-	UnregisterNetMessageHandler(identifier HandlerIdentifier)
+	RegisterEventHandler(handler interface{}) dp.HandlerIdentifier
+	UnregisterEventHandler(identifier dp.HandlerIdentifier)
+	RegisterNetMessageHandler(handler interface{}) dp.HandlerIdentifier
+	UnregisterNetMessageHandler(identifier dp.HandlerIdentifier)
 	ParseHeader() (common.DemoHeader, error)
 	ParseToEnd() (err error)
 	Cancel()
@@ -153,14 +154,14 @@ Parameter handler has to be of type interface{} because lolnogenerics.
 
 Returns a identifier with which the handler can be removed via UnregisterEventHandler().
 */
-func (p *parser) RegisterEventHandler(handler interface{}) HandlerIdentifier {
-	return HandlerIdentifier(p.eventDispatcher.RegisterHandler(handler))
+func (p *parser) RegisterEventHandler(handler interface{}) dp.HandlerIdentifier {
+	return p.eventDispatcher.RegisterHandler(handler)
 }
 
 // UnregisterEventHandler removes a game event handler via identifier.
 //
 // The identifier is returned at registration by RegisterEventHandler().
-func (p *parser) UnregisterEventHandler(identifier HandlerIdentifier) {
+func (p *parser) UnregisterEventHandler(identifier dp.HandlerIdentifier) {
 	p.eventDispatcher.UnregisterHandler(dp.HandlerIdentifier(identifier))
 }
 
@@ -173,18 +174,15 @@ Returns a identifier with which the handler can be removed via UnregisterNetMess
 
 See also: RegisterEventHandler()
 */
-
-type HandlerIdentifier *int
-
-func (p *parser) RegisterNetMessageHandler(handler interface{}) HandlerIdentifier {
-	return HandlerIdentifier(p.msgDispatcher.RegisterHandler(handler))
+func (p *parser) RegisterNetMessageHandler(handler interface{}) dp.HandlerIdentifier {
+	return p.msgDispatcher.RegisterHandler(handler)
 }
 
 // UnregisterNetMessageHandler removes a net-message handler via identifier.
 //
 // The identifier is returned at registration by RegisterNetMessageHandler().
-func (p *parser) UnregisterNetMessageHandler(identifier HandlerIdentifier) {
-	p.msgDispatcher.UnregisterHandler(dp.HandlerIdentifier(identifier))
+func (p *parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
+	p.msgDispatcher.UnregisterHandler(identifier)
 }
 
 func (p *parser) error() (err error) {

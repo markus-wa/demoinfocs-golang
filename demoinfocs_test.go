@@ -14,6 +14,8 @@ import (
 	"time"
 
 	proto "github.com/gogo/protobuf/proto"
+	dispatch "github.com/markus-wa/godispatch"
+
 	dem "github.com/markus-wa/demoinfocs-golang"
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
@@ -132,7 +134,7 @@ func TestDemoInfoCs(t *testing.T) {
 	})
 
 	// Net-message stuff
-	var netTickHandlerID dem.HandlerIdentifier
+	var netTickHandlerID dispatch.HandlerIdentifier
 	netTickHandlerID = p.RegisterNetMessageHandler(func(tick *msg.CNETMsg_Tick) {
 		fmt.Println("Net-message tick handled, unregistering - tick:", tick.Tick)
 		p.UnregisterNetMessageHandler(netTickHandlerID)
@@ -244,7 +246,7 @@ func TestCancelParseToEnd(t *testing.T) {
 	maxTicks := 100
 	var tix int
 
-	var handlerID dem.HandlerIdentifier
+	var handlerID dispatch.HandlerIdentifier
 	handlerID = p.RegisterEventHandler(func(events.TickDone) {
 		tix++
 		if tix == maxTicks {

@@ -50,9 +50,9 @@ cfg.AdditionalNetMessageCreators = map[int]dem.NetMessageCreator{
 
 ## Registering net-message handlers
 
-To register a handler for net-messages `parser.RegisterNetMessageHandler()` can be used.
+To register a handler for net-messages `Parser.RegisterNetMessageHandler()` can be used.
 
-When using `parser.ParseToEnd()` net-messages and events are dispatched asynchronously. To get around this you can use `parser.ParseNextFrame()` instead.
+When using `Parser.ParseToEnd()` net-messages and events are dispatched asynchronously. To get around this you can use `Parser.ParseNextFrame()` instead.
 
 Example:
 
@@ -145,5 +145,4 @@ cvar tv_transmitall=1
 cvar steamworks_sessionid_server=0
 cvar steamworks_sessionid_server=1169497558498
 ```
-
 </details>

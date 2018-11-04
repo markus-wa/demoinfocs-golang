@@ -1,4 +1,4 @@
-// Package events contains all events that can be sent out from demoinfocs.parser.
+// Package events contains all events that can be sent out from demoinfocs.Parser.
 //
 // Events are generally named in the tense that fits the best for each event.
 // E.g. SmokeExpired is in the past tense because it's sent out when the smoke has completely faded away
@@ -392,11 +392,11 @@ type ItemDrop struct {
 }
 
 // DataTablesParsed signals that the datatables were parsed.
-// You can use the parser.SendTableParser() after this event to register update notification on entities & properties.
+// After this event server-classes are available via Parser.ServerClasses() for registering update notification on entities & properties.
 type DataTablesParsed struct{}
 
 // StringTableCreated signals that a string table was created via net message.
-// Can be useful for figuring out when player-info is available via parser.GameState().[Playing]Participants().
+// Can be useful for figuring out when player-info is available via Parser.GameState().[Playing]Participants().
 // E.g. after the table 'userinfo' has been created the player-data should be available after the next TickDone.
 // The reason it's not immediately available is because we need to do some post-processing to prep that data after a tick has finished.
 type StringTableCreated struct {

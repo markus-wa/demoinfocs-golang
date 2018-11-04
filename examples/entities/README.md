@@ -265,7 +265,6 @@ ServerClass: id=247 name=SmokeTrail
 ServerClass: id=248 name=SporeExplosion
 ServerClass: id=249 name=SporeTrail
 ```
-
 </details>
 
 If you remove the `grep ServerClass` it will also print all properties that this server-class has.
@@ -800,13 +799,12 @@ ServerClass: id=202 name=CWeaponAWP
 		m_zoomLevel
 		m_iBurstShotsRemaining
 ```
-
 </details>
 
 ## Registering entity-creation & property-update handlers
 
 Registering the entity-creation handlers needs to be done after the DataTablesParsedEvent has been dispatched.
-Before that the server-classes won't be available in `parser.ServerClasses()`.
+Before that the server-classes won't be available in `Parser.ServerClasses()`.
 
 Property-update handlers that are registered in a entity-creation handler will be triggered with the initial value.
 

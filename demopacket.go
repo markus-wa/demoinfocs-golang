@@ -5,60 +5,15 @@ import (
 	"sync"
 
 	proto "github.com/gogo/protobuf/proto"
+
 	events "github.com/markus-wa/demoinfocs-golang/events"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
 //
-// See also: ParserConfig.AdditionalNetMessageCreators & parser.RegisterNetMessageHandler()
+// See also: ParserConfig.AdditionalNetMessageCreators & Parser.RegisterNetMessageHandler()
 type NetMessageCreator func() proto.Message
-
-func NewNetMessageFunc(t interface{}) (int, func() proto.Message) {
-	switch t.(type) {
-	case msg.CNETMsg_NOP:
-		return int(msg.NET_Messages_net_NOP), func() proto.Message {
-			return new(msg.CNETMsg_NOP)
-		}
-	case msg.CNETMsg_Disconnect:
-		return int(msg.NET_Messages_net_Disconnect), func() proto.Message {
-			return new(msg.CNETMsg_Disconnect)
-		}
-	case msg.CNETMsg_File:
-		return int(msg.NET_Messages_net_File), func() proto.Message {
-			return new(msg.CNETMsg_File)
-		}
-	case msg.CNETMsg_SplitScreenUser:
-		return int(msg.NET_Messages_net_SplitScreenUser), func() proto.Message {
-			return new(msg.CNETMsg_SplitScreenUser)
-		}
-	case msg.CNETMsg_Tick:
-		return int(msg.NET_Messages_net_Tick), func() proto.Message {
-			return new(msg.CNETMsg_Tick)
-		}
-	case msg.CNETMsg_StringCmd:
-		return int(msg.NET_Messages_net_StringCmd), func() proto.Message {
-			return new(msg.CNETMsg_StringCmd)
-		}
-	case msg.CNETMsg_SetConVar:
-		return int(msg.NET_Messages_net_SetConVar), func() proto.Message {
-			return new(msg.CNETMsg_SetConVar)
-		}
-	case msg.CNETMsg_SignonState:
-		return int(msg.NET_Messages_net_SignonState), func() proto.Message {
-			return new(msg.CNETMsg_SignonState)
-		}
-	case msg.CNETMsg_PlayerAvatarData:
-		return int(msg.NET_Messages_net_PlayerAvatarData), func() proto.Message {
-			return new(msg.CNETMsg_PlayerAvatarData)
-		}
-
-	default:
-		return -1, func() proto.Message {
-			return nil
-		}
-	}
-}
 
 var byteSlicePool = sync.Pool{
 	New: func() interface{} {

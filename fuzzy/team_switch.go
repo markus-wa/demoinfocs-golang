@@ -1,6 +1,8 @@
 package fuzzy
 
 import (
+	dp "github.com/markus-wa/godispatch"
+
 	dem "github.com/markus-wa/demoinfocs-golang"
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
@@ -20,7 +22,7 @@ type TeamSwitchEvent struct{}
 type ValveMatchmakingTeamSwitchEmitter struct {
 	parser              dem.Parser
 	dispatch            func(interface{})
-	currentHandlerID    dem.HandlerIdentifier
+	currentHandlerID    dp.HandlerIdentifier
 	tScoreBeforeSwitch  int
 	ctScoreBeforeSwitch int
 }
