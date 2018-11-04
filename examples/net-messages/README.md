@@ -23,7 +23,6 @@ Example: `go run myprogram.go -tags debugdemoinfocs | grep "UnhandledMessage" | 
       3 UnhandledMessage: id=7 name=net_SignonState
       1 UnhandledMessage: id=8 name=svc_ServerInfo
 ```
-
 </details>
 
 ## Configuring a `NetMessageCreator`
