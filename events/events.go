@@ -437,3 +437,20 @@ type ScoreUpdated struct {
 	NewScore  int
 	TeamState *common.TeamState
 }
+
+// GamePhaseChanged signals that the game phase has changed. This event is for advanced usage, as more
+// user friendly events are available for important game phase changes, such as TeamSideSwitch and GameHalfEnded.
+type GamePhaseChanged struct {
+	OldGamePhase common.GamePhase
+	NewGamePhase common.GamePhase
+}
+
+// TeamSideSwitch signals that teams are switching sides, i.e. swapping between T and CT.
+// TeamSideSwitch is usually dispatched in the beginning of a round, just after OnRoundStart.
+type TeamSideSwitch struct {
+}
+
+// GameHalfEnded signals that the currently ongoing game half has ended.
+// GameHalfEnded is usually dispatched in the end of a round, just before RoundEndOfficial.
+type GameHalfEnded struct {
+}

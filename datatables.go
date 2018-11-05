@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	r3 "github.com/golang/geo/r3"
-
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
@@ -66,6 +65,7 @@ func (p *Parser) bindEntities() {
 	p.bindPlayers()
 	p.bindWeapons()
 	p.bindBomb()
+	p.bindGameRules()
 }
 
 func (p *Parser) bindBomb() {
@@ -468,4 +468,53 @@ func (p *Parser) infernoExpired(inf *common.Inferno) {
 	})
 
 	delete(p.gameState.infernos, inf.EntityID)
+}
+
+func (p *Parser) bindGameRules() {
+	grPrefix := func(s string) string {
+		return fmt.Sprintf("%s.%s", gameRulesPrefix, s)
+	}
+
+	gameRules := p.ServerClasses().FindByName("CCSGameRulesProxy")
+	gameRules.OnEntityCreated(func(entity *st.Entity) {
+		entity.FindProperty(grPrefix("m_gamePhase")).OnUpdate(func(val st.PropertyValue) {
+			oldGamePhase := p.gameState.gamePhase
+			p.gameState.gamePhase = common.GamePhase(val.IntVal)
+
+			p.eventDispatcher.Dispatch(events.GamePhaseChanged{
+				OldGamePhase: oldGamePhase,
+				NewGamePhase: p.gameState.gamePhase,
+			})
+
+			switch p.gameState.gamePhase {
+			case common.GamePhaseTeamSideSwitch:
+				p.eventDispatcher.Dispatch(events.TeamSideSwitch{})
+			case common.GamePhaseGameHalfEnded:
+				p.eventDispatcher.Dispatch(events.GameHalfEnded{})
+			}
+		})
+
+		entity.BindProperty(grPrefix("m_totalRoundsPlayed"), &p.gameState.totalRoundsPlayed, st.ValTypeInt)
+
+		// TODO: seems like this is more reliable than RoundEnd events
+		// "m_eRoundWinReason"
+
+		// TODO: future fields to use
+		// "m_iRoundWinStatus"
+		// "m_nOvertimePlaying"
+		// "m_bGameRestart"
+		// "m_MatchDevice"
+		// "m_bHasMatchStarted"
+		// "m_numBestOfMaps"
+		// "m_fWarmupPeriodEnd"
+		// "m_timeUntilNextPhaseStarts"
+
+		// TODO: timeout data
+		// "m_bTerroristTimeOutActive"
+		// "m_bCTTimeOutActive"
+		// "m_flTerroristTimeOutRemaining"
+		// "m_flCTTimeOutRemaining"
+		// "m_nTerroristTimeOuts"
+		// "m_nCTTimeOuts"
+	})
 }
