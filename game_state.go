@@ -81,6 +81,7 @@ func (gs GameState) Bomb() *common.Bomb {
 	return &gs.bomb
 }
 
+// TotalRoundsPlayed returns the amount of total rounds played according to CCSGameRulesProxy.
 func (gs GameState) TotalRoundsPlayed() int {
 	return gs.totalRoundsPlayed
 }
