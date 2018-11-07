@@ -15,6 +15,7 @@ const maxOsPath = 260
 const (
 	playerWeaponPrefix    = "m_hMyWeapons."
 	playerWeaponPrePrefix = "bcc_nonlocaldata."
+	gameRulesPrefix       = "cs_gamerules_data"
 )
 
 // Parsing errors

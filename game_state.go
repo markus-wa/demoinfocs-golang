@@ -16,6 +16,8 @@ type GameState struct {
 	infernos           map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	entities           map[int]*st.Entity                // Maps entity IDs to entities
 	bomb               common.Bomb
+	totalRoundsPlayed  int
+	gamePhase          common.GamePhase
 }
 
 type ingameTickNumber int
@@ -77,6 +79,11 @@ func (gs GameState) Entities() map[int]*st.Entity {
 // Bomb returns the current bomb state.
 func (gs GameState) Bomb() *common.Bomb {
 	return &gs.bomb
+}
+
+// TotalRoundsPlayed returns the amount of total rounds played according to CCSGameRulesProxy.
+func (gs GameState) TotalRoundsPlayed() int {
+	return gs.totalRoundsPlayed
 }
 
 func newGameState() GameState {
