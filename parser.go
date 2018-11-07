@@ -14,9 +14,11 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
+//go:generate ifacemaker -f parser.go -f parsing.go -s Parser -i IParser -p demoinfocs -D -y "IParser is an auto-generated interface for Parser, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o parser_interface.go
+
 /*
 Parser can parse a CS:GO demo.
-Creating a Parser is done via NewParser().
+Creating a new instance is done via NewParser().
 
 To start off you may use Parser.ParseHeader() to parse the demo header
 (this can be skipped and will be done automatically if necessary).
@@ -98,7 +100,7 @@ func (p *Parser) Header() common.DemoHeader {
 
 // GameState returns the current game-state.
 // It contains most of the relevant information about the game such as players, teams, scores, grenades etc.
-func (p *Parser) GameState() *GameState {
+func (p *Parser) GameState() IGameState {
 	return &p.gameState
 }
 

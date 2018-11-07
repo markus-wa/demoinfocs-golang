@@ -5,6 +5,9 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
+//go:generate ifacemaker -f game_state.go -s GameState -i IGameState -p demoinfocs -D -y "IGameState is an auto-generated interface for GameState." -c "DO NOT EDIT: Auto generated" -o game_state_interface.go
+//go:generate ifacemaker -f game_state.go -s Participants -i IParticipants -p demoinfocs -D -y "IParticipants is an auto-generated interface for Participants." -c "DO NOT EDIT: Auto generated" -o participants_interface.go
+
 // GameState contains all game-state relevant information.
 type GameState struct {
 	ingameTick         int
@@ -52,7 +55,7 @@ func (gs *GameState) TeamTerrorists() *common.TeamState {
 
 // Participants returns a struct with all currently connected players & spectators and utility functions.
 // The struct contains references to the original maps so it's always up-to-date.
-func (gs GameState) Participants() Participants {
+func (gs GameState) Participants() IParticipants {
 	return Participants{
 		playersByEntityID: gs.playersByEntityID,
 		playersByUserID:   gs.playersByUserID,
