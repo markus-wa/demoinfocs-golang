@@ -7,11 +7,23 @@ go:
   - master
 
 before_script:
+  # Fetch refs for linter
+  - git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+  - git fetch
+
+  # Install golangci-lint
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $GOPATH/bin v1.12.2
+
   # Download test data
   - pushd cs-demos && git lfs pull -I '*' && popd
 
 script:
   - go build
+
+  # Lint changed code
+  - if [[ "$TRAVIS_COMMIT_RANGE" != "" ]]; then commit_range=${TRAVIS_COMMIT_RANGE/.../..} && git diff $commit_range > /dev/null && base_rev=$commit_range || true; fi
+  - if [[ "$base_rev" = "" ]]; then base_rev='origin/master'; fi && echo "Linting changes between/since $base_rev"
+  - golangci-lint run --new-from-rev $base_rev
 
   # Get list of tests to run with race detection.
   # We don't want to run the entire demo set with it because it's large and race tests take a lot longer.
