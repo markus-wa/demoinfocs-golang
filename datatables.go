@@ -495,6 +495,7 @@ func (p *Parser) bindGameRules() {
 		})
 
 		entity.BindProperty(grPrefix("m_totalRoundsPlayed"), &p.gameState.totalRoundsPlayed, st.ValTypeInt)
+		entity.BindProperty(grPrefix("m_bWarmupPeriod"), &p.gameState.isWarmupPeriod, st.ValTypeBoolInt)
 
 		// TODO: seems like this is more reliable than RoundEnd events
 		// "m_eRoundWinReason"
