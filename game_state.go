@@ -19,6 +19,7 @@ type GameState struct {
 	totalRoundsPlayed  int
 	gamePhase          common.GamePhase
 	isWarmupPeriod     bool
+	isMatchStarted     bool
 }
 
 type ingameTickNumber int
@@ -90,6 +91,11 @@ func (gs GameState) TotalRoundsPlayed() int {
 // IsWarmupPeriod returns whether the game is currently in warmup period.
 func (gs GameState) IsWarmupPeriod() bool {
 	return gs.isWarmupPeriod
+}
+
+// IsGameStarted returns whether the match has started according to CCSGameRulesProxy.
+func (gs GameState) IsMatchStarted() bool {
+	return gs.isMatchStarted
 }
 
 func newGameState() GameState {
