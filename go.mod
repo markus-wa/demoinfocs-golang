@@ -11,6 +11,7 @@ require (
 	github.com/markus-wa/gobitread v0.2.2
 	github.com/markus-wa/godispatch v1.1.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.2.2
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81 // indirect
 )

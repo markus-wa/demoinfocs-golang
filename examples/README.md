@@ -9,3 +9,4 @@ Here you can find a overview of examples on how to use demoinfocs-golang.
 |[entities](entities)|Using unhandled data from entities (`Parser.ServerClasses()`)|
 |[net-messages](net-messages)|Parsing and handling custom net-messages|
 |[print-events](print-events)|Printing kills, scores & chat messages|
+|[mocking](mocking)|Using the `fake` package to write unit tests for your code|
