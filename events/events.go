@@ -7,6 +7,7 @@ package events
 
 import (
 	r3 "github.com/golang/geo/r3"
+
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
