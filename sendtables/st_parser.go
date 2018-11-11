@@ -12,6 +12,8 @@ import (
 )
 
 // SendTableParser provides functions for parsing send-tables.
+//
+// Intended for internal use only.
 type SendTableParser struct {
 	sendTables         []sendTable
 	serverClasses      ServerClasses
@@ -62,11 +64,15 @@ type excludeEntry struct {
 }
 
 // ServerClasses returns the parsed server-classes.
+//
+// Intended for internal use only.
 func (p *SendTableParser) ServerClasses() ServerClasses {
 	return p.serverClasses
 }
 
 // ParsePacket parses a send-table packet.
+//
+// Intended for internal use only.
 func (p *SendTableParser) ParsePacket(r *bit.BitReader) {
 	for {
 		t := msg.SVC_Messages(r.ReadVarInt32())
