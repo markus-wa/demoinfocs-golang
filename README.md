@@ -150,6 +150,12 @@ There is one caveat however: Beta features - which are marked as such via commen
 
 It's recommended to use some kind of dependency management system such as [dep](https://github.com/golang/dep) to ensure reproducible builds.
 
+## Projects using demoinfocs-golang
+
+- [noesis.gg](https://www.noesis.gg/)
+
+If your project is using this library feel free to submit a PR or send a message in Gitter to be included in the list.
+
 ## Development
 
 ### Running tests
