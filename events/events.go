@@ -454,3 +454,10 @@ type TeamSideSwitch struct {
 // GameHalfEnded is usually dispatched in the end of a round, just before RoundEndOfficial.
 type GameHalfEnded struct {
 }
+
+// MatchStartChanged signals that the value of data table DT_GameRulesProxy.m_bHasMatchStarted has changed
+// This can be useful for some demos where the MatchStart event is not sent.
+type MatchStartedChanged struct {
+	OldIsStarted bool
+	NewIsStarted bool
+}
