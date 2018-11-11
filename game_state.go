@@ -88,12 +88,12 @@ func (gs GameState) TotalRoundsPlayed() int {
 	return gs.totalRoundsPlayed
 }
 
-// IsWarmupPeriod returns whether the game is currently in warmup period.
+// IsWarmupPeriod returns whether the game is currently in warmup period according to CCSGameRulesProxy.
 func (gs GameState) IsWarmupPeriod() bool {
 	return gs.isWarmupPeriod
 }
 
-// IsGameStarted returns whether the match has started according to CCSGameRulesProxy.
+// IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.
 func (gs GameState) IsMatchStarted() bool {
 	return gs.isMatchStarted
 }

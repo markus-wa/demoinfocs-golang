@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	r3 "github.com/golang/geo/r3"
+
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
