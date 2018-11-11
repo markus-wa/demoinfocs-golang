@@ -204,7 +204,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			p.eventDispatcher.Dispatch(events.DecoyStart{GrenadeEvent: buildNadeEvent(common.EqDecoy, thrower, position, nadeEntityID)})
 
 		case "decoy_detonate": // Decoy exploded/expired
-			p.eventDispatcher.Dispatch(events.DecoyExpire{GrenadeEvent: buildNadeEvent(common.EqDecoy, thrower, position, nadeEntityID)})
+			p.eventDispatcher.Dispatch(events.DecoyExpired{GrenadeEvent: buildNadeEvent(common.EqDecoy, thrower, position, nadeEntityID)})
 
 		case "smokegrenade_detonate": // Smoke popped
 			p.eventDispatcher.Dispatch(events.SmokeStart{GrenadeEvent: buildNadeEvent(common.EqSmoke, thrower, position, nadeEntityID)})

@@ -173,8 +173,8 @@ type DecoyStart struct {
 	GrenadeEvent
 }
 
-// DecoyExpire signals the end of a decoy.
-type DecoyExpire struct {
+// DecoyExpired signals the end of a decoy.
+type DecoyExpired struct {
 	GrenadeEvent
 }
 
