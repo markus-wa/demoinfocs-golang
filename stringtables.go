@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
-	"github.com/markus-wa/demoinfocs-golang/events"
+	events "github.com/markus-wa/demoinfocs-golang/events"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
@@ -145,7 +145,7 @@ func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	nEntryBits := 0
 
 	for nTmp != 0 {
-		nTmp = nTmp >> 1
+		nTmp >>= 1
 		nEntryBits++
 	}
 	if nEntryBits > 0 {

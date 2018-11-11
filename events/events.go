@@ -272,6 +272,8 @@ type BombDefuseStart struct {
 	HasKit bool
 }
 
+func (BombDefuseStart) implementsBombEventIf() {}
+
 // BombDropped signals that the bomb (C4) has been dropped onto the ground.
 // Not fired if it has been dropped to another player (see BombPickup for this).
 type BombDropped struct {
@@ -283,8 +285,6 @@ type BombDropped struct {
 type BombPickup struct {
 	Player *common.Player
 }
-
-func (BombDefuseStart) implementsBombEventIf() {}
 
 // HitGroup is the type for the various HitGroupXYZ constants.
 //

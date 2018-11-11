@@ -243,6 +243,7 @@ func initEqElementToName() {
 const weaponPrefix = "weapon_"
 
 // MapEquipment creates an EquipmentElement from the name of the weapon / equipment.
+// Returns EqUnknown if no mapping can be found.
 func MapEquipment(eqName string) EquipmentElement {
 	eqName = strings.TrimPrefix(eqName, weaponPrefix)
 
@@ -251,10 +252,7 @@ func MapEquipment(eqName string) EquipmentElement {
 		wep = EqKnife
 	} else {
 		// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentElement
-		var ok bool
-		if wep, ok = eqNameToWeapon[eqName]; !ok {
-			// TODO: Return error / warning for unmapped weapons
-		}
+		wep = eqNameToWeapon[eqName]
 	}
 
 	return wep

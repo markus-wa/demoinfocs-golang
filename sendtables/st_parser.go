@@ -152,14 +152,18 @@ func (p *SendTableParser) flattenDataTable(serverClassIndex int) {
 	fProps := p.serverClasses[serverClassIndex].flattenedProps
 
 	// Sort priorities
-	prioMap := make(map[int]struct{})
-	prioMap[64] = struct{}{}
+	prioSet := make(map[int]struct{})
+	prioSet[64] = struct{}{}
 	for _, v := range fProps {
-		prioMap[v.prop.priority] = struct{}{}
+		prioSet[v.prop.priority] = struct{}{}
 	}
-	var prios []int
-	for k := range prioMap {
-		prios = append(prios, k)
+	prios := make([]int, len(prioSet))
+	{
+		i := 0
+		for k := range prioSet {
+			prios[i] = k
+			i++
+		}
 	}
 	sort.Ints(prios)
 

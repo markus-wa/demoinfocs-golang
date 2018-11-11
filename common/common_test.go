@@ -29,12 +29,12 @@ func TestDemoHeader(t *testing.T) {
 	header := DemoHeader{
 		PlaybackFrames: 256,
 		PlaybackTicks:  512,
-		PlaybackTime:   time.Duration(4 * time.Second),
+		PlaybackTime:   4 * time.Second,
 	}
 
 	assert.Equal(t, float64(64), header.FrameRate(), "FrameRate should be 64")
-	assert.Equal(t, time.Duration(time.Second/64), header.FrameTime(), "FrameTime should be 1/64 sec")
+	assert.Equal(t, time.Second/64, header.FrameTime(), "FrameTime should be 1/64 sec")
 
 	assert.Equal(t, float64(128.0), header.TickRate(), "TickRate should be 128")
-	assert.Equal(t, time.Duration(time.Second/128), header.TickTime(), "TickTime should be 1/128")
+	assert.Equal(t, time.Second/128, header.TickTime(), "TickTime should be 1/128")
 }

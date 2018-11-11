@@ -86,15 +86,15 @@ func TestDemoInfoCs(t *testing.T) {
 			return
 		}
 		winnerClan := winner.ClanName
-		winnerId := winner.ID
+		winnerID := winner.ID
 		winnerFlag := winner.Flag
 		ingameTime := p.CurrentTime()
 		progressPercent := p.Progress() * 100
 		ingameTick := gs.IngameTick()
 		currentFrame := p.CurrentFrame()
 		// Score + 1 for winner because it hasn't actually been updated yet
-		fmt.Printf("Round finished: score=%d:%d ; winnerSide=%s ; clanName=%q ; teamId=%d ; teamFlag=%s ; ingameTime=%s ; progress=%.1f%% ; tick=%d ; frame=%d\n", winner.Score+1, loser.Score, winnerSide, winnerClan, winnerId, winnerFlag, ingameTime, progressPercent, ingameTick, currentFrame)
-		if len(winnerClan) == 0 || winnerId == 0 || len(winnerFlag) == 0 || ingameTime == 0 || progressPercent == 0 || ingameTick == 0 || currentFrame == 0 {
+		fmt.Printf("Round finished: score=%d:%d ; winnerSide=%s ; clanName=%q ; teamId=%d ; teamFlag=%s ; ingameTime=%s ; progress=%.1f%% ; tick=%d ; frame=%d\n", winner.Score+1, loser.Score, winnerSide, winnerClan, winnerID, winnerFlag, ingameTime, progressPercent, ingameTick, currentFrame)
+		if len(winnerClan) == 0 || winnerID == 0 || len(winnerFlag) == 0 || ingameTime == 0 || progressPercent == 0 || ingameTick == 0 || currentFrame == 0 {
 			t.Error("Unexprected default value, check output of last round")
 		}
 	})
@@ -254,12 +254,15 @@ func TestCancelParseToEnd(t *testing.T) {
 
 func TestInvalidFileType(t *testing.T) {
 	invalidDemoData := make([]byte, 2048)
-	rand.Read(invalidDemoData)
+	_, err := rand.Read(invalidDemoData)
+	if err != nil {
+		t.Fatal("Failed to read random data:", err)
+	}
 
 	msgWrongError := "Invalid demo but error was not ErrInvalidFileType:"
 
 	p := dem.NewParser(bytes.NewBuffer(invalidDemoData))
-	_, err := p.ParseHeader()
+	_, err = p.ParseHeader()
 	if err != dem.ErrInvalidFileType {
 		t.Fatal("ParseHeader():", msgWrongError, err)
 	}

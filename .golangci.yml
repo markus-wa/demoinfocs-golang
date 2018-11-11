@@ -13,3 +13,7 @@ linters:
     - gochecknoinits
     - gochecknoglobals
     - lll
+linters-settings:
+  gocritic:
+    disabled-checks:
+      - ifElseChain

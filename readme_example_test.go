@@ -11,10 +11,10 @@ import (
 
 func TestReadmeExample(t *testing.T) {
 	f, err := os.Open(defaultDemPath)
-	defer f.Close()
 	if err != nil {
 		panic(err)
 	}
+	defer f.Close()
 
 	p := dem.NewParser(f)
 

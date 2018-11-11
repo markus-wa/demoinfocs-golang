@@ -39,10 +39,10 @@ import (
 // Run like this: go run print_kills.go
 func main() {
 	f, err := os.Open("/path/to/demo.dem")
-	defer f.Close()
 	if err != nil {
 		panic(err)
 	}
+	defer f.Close()
 
 	p := dem.NewParser(f)
 
@@ -152,7 +152,7 @@ pushd cs-demos && git lfs pull -I '*' && popd
 go test
 ```
 
-Here's a cool [gist of a pre-commit hook](https://gist.github.com/micvbang/4c8cb1f24cfe04d1a0dfab010eb851d8) to run tests before each commit. You can put this inside the `.git/hooks` directory to avoid commiting/pushing code with build errors or failing tests.
+Here's a cool [gist of a pre-commit hook](https://gist.github.com/micvbang/4c8cb1f24cfe04d1a0dfab010eb851d8) to run tests before each commit. You can put this inside the `.git/hooks` directory to avoid committing/pushing code with build errors or failing tests.
 
 ### Debugging
 

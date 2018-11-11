@@ -99,7 +99,7 @@ func (propertyDecoder) decodeProp(prop *Property, reader *bit.BitReader) {
 		prop.value.ArrayVal = propDecoder.decodeArray(prop.entry, reader)
 
 	case propTypeString:
-		prop.value.StringVal = propDecoder.decodeString(prop.entry.prop, reader)
+		prop.value.StringVal = propDecoder.decodeString(reader)
 
 	default:
 		panic(fmt.Sprintf("Unknown prop type %d", prop.entry.prop.rawType))
@@ -286,7 +286,7 @@ func (propertyDecoder) decodeArray(fProp *flattenedPropEntry, reader *bit.BitRea
 
 	numBits := 1
 
-	for maxElements := (numElement >> 1); maxElements != 0; maxElements = maxElements >> 1 {
+	for maxElements := (numElement >> 1); maxElements != 0; maxElements >>= 1 {
 		numBits++
 	}
 
@@ -304,7 +304,7 @@ func (propertyDecoder) decodeArray(fProp *flattenedPropEntry, reader *bit.BitRea
 	return res
 }
 
-func (propertyDecoder) decodeString(fProp *sendTableProperty, reader *bit.BitReader) string {
+func (propertyDecoder) decodeString(reader *bit.BitReader) string {
 	length := int(reader.ReadInt(dataTableMaxStringBits))
 	if length > dataTableMaxStringLength {
 		length = dataTableMaxStringLength

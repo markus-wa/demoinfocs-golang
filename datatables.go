@@ -362,7 +362,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	}
 }
 
-// Seperate function because we also use it in round_officially_ended (issue #42)
+// Separate function because we also use it in round_officially_ended (issue #42)
 func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	// If the grenade projectile entity is destroyed AFTER round_officially_ended
 	// we already executed this code when we received that event.
@@ -456,7 +456,7 @@ func (p *Parser) bindNewInferno(entity *st.Entity) {
 	})
 }
 
-// Seperate function because we also use it in round_officially_ended (issue #42)
+// Separate function because we also use it in round_officially_ended (issue #42)
 func (p *Parser) infernoExpired(inf *common.Inferno) {
 	// If the inferno entity is destroyed AFTER round_officially_ended
 	// we already executed this code when we received that event.

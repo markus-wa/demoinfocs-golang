@@ -103,7 +103,7 @@ func newBitReader(underlying io.Reader, buffer *[]byte) *BitReader {
 	return br
 }
 
-var smallBufferPool sync.Pool = sync.Pool{
+var smallBufferPool = sync.Pool{
 	New: func() interface{} {
 		b := make([]byte, smallBuffer)
 		return &b
