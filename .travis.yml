@@ -30,7 +30,7 @@ before_script:
   - pushd cs-demos && git lfs pull -I '*' && popd
 
 script:
-  - go build
+  - go build ./...
 
   # Lint changed code
   - if [[ "$TRAVIS_COMMIT_RANGE" != "" ]]; then commit_range=${TRAVIS_COMMIT_RANGE/.../..} && git diff $commit_range > /dev/null && base_rev=$commit_range || true; fi
