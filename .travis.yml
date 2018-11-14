@@ -6,6 +6,11 @@ go:
   - stable
   - master
 
+matrix:
+  # Failing on the development version of Go isn't too bad.
+  allow_failures:
+    - go: master
+
 env:
   - GO111MODULE=on
 
