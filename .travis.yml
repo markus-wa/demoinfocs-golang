@@ -2,9 +2,16 @@ language: go
 sudo: required
 
 go:
-  - 1.10.x
+  - 1.11.x
   - stable
   - master
+
+env:
+  - GO111MODULE=on
+
+# Override Travis's default 'go get' step, since we use Go modules
+install:
+  - go mod download
 
 before_script:
   # Fetch refs for linter
