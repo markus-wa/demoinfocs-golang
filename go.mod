@@ -8,7 +8,7 @@ require (
 	github.com/golang/geo v0.0.0-20180801001241-0bf2f2ac7257
 	github.com/llgcode/draw2d v0.0.0-20180124133339-274031cf2abe
 	github.com/llgcode/ps v0.0.0-20150911083025-f1443b32eedb // indirect
-	github.com/markus-wa/gobitread v0.2.1
+	github.com/markus-wa/gobitread v0.2.2
 	github.com/markus-wa/godispatch v1.1.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.2.2
