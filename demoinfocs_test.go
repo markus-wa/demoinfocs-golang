@@ -19,7 +19,6 @@ import (
 	dem "github.com/markus-wa/demoinfocs-golang"
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
-	fuzzy "github.com/markus-wa/demoinfocs-golang/fuzzy"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
@@ -175,50 +174,6 @@ func TestUnexpectedEndOfDemo(t *testing.T) {
 	err = p.ParseToEnd()
 	if err != dem.ErrUnexpectedEndOfDemo {
 		t.Fatal("Parsing cancelled but error was not ErrUnexpectedEndOfDemo:", err)
-	}
-}
-
-func TestValveMatchmakingFuzzyEmitters(t *testing.T) {
-	f, err := os.Open(valveMatchmakingDemoPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	cfg := dem.DefaultParserConfig
-	cfg.AdditionalEventEmitters = []dem.EventEmitter{new(fuzzy.ValveMatchmakingTeamSwitchEmitter)}
-
-	p := dem.NewParserWithConfig(f, cfg)
-
-	teamSwitchDone := false
-	tScoreBeforeSwap, ctScoreBeforeSwap := -1, -1
-	p.RegisterEventHandler(func(ev events.RoundEnd) {
-		switch ev.Winner {
-		case common.TeamTerrorists:
-			tScoreBeforeSwap = p.GameState().TeamTerrorists().Score + 1
-
-		case common.TeamCounterTerrorists:
-			ctScoreBeforeSwap = p.GameState().TeamCounterTerrorists().Score + 1
-		}
-	})
-
-	p.RegisterEventHandler(func(fuzzy.TeamSwitchEvent) {
-		teamSwitchDone = true
-		if tScoreBeforeSwap != p.GameState().TeamCounterTerrorists().Score {
-			t.Error("T-Score before swap != CT-Score after swap")
-		}
-		if ctScoreBeforeSwap != p.GameState().TeamTerrorists().Score {
-			t.Error("CT-Score before swap != T-Score after swap")
-		}
-	})
-
-	err = p.ParseToEnd()
-	if err != nil {
-		t.Fatal("Parsing failed:", err)
-	}
-
-	if !teamSwitchDone {
-		t.Fatal("TeamSwitchEvent not received")
 	}
 }
 
