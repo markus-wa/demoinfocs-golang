@@ -178,4 +178,7 @@ After installing these use `go generate ./msg` to generate the protobuf code.
 
 
 ## License
+
+This project is licensed under the [MIT license](LICENSE.md).
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmarkus-wa%2Fdemoinfocs-golang.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmarkus-wa%2Fdemoinfocs-golang?ref=badge_large)
