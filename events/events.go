@@ -455,9 +455,16 @@ type TeamSideSwitch struct {
 type GameHalfEnded struct {
 }
 
-// MatchStartChanged signals that the value of data table DT_GameRulesProxy.m_bHasMatchStarted has changed
+// MatchStartedChanged signals that the value of data table DT_GameRulesProxy.m_bHasMatchStarted has changed
 // This can be useful for some demos where the MatchStart event is not sent.
 type MatchStartedChanged struct {
 	OldIsStarted bool
 	NewIsStarted bool
+}
+
+// IsWarmupPeriodChanged signals that the value of data table DT_GameRulesProxy.m_bIsWarmupPeriod has changed.
+// This can be useful to ignore things that happen during the warmup.
+type IsWarmupPeriodChanged struct {
+	OldIsWarmupPeriod bool
+	NewIsWarmupPeriod bool
 }

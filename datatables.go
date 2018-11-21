@@ -496,7 +496,15 @@ func (p *Parser) bindGameRules() {
 		})
 
 		entity.BindProperty(grPrefix("m_totalRoundsPlayed"), &p.gameState.totalRoundsPlayed, st.ValTypeInt)
-		entity.BindProperty(grPrefix("m_bWarmupPeriod"), &p.gameState.isWarmupPeriod, st.ValTypeBoolInt)
+		entity.FindProperty(grPrefix("m_bWarmupPeriod")).OnUpdate(func(val st.PropertyValue) {
+			oldIsWarmupPeriod := p.gameState.isWarmupPeriod
+			p.gameState.isWarmupPeriod = val.IntVal == 1
+
+			p.eventDispatcher.Dispatch(events.IsWarmupPeriodChanged{
+				OldIsWarmupPeriod: oldIsWarmupPeriod,
+				NewIsWarmupPeriod: p.gameState.isWarmupPeriod,
+			})
+		})
 
 		entity.FindProperty(grPrefix("m_bHasMatchStarted")).OnUpdate(func(val st.PropertyValue) {
 			oldMatchStarted := p.gameState.isMatchStarted
