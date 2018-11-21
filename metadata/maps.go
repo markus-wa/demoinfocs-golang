@@ -1,3 +1,5 @@
+// Package metadata provides metadata and utility functions,
+// like translations from ingame coordinates to radar image pixels.
 package metadata
 
 import (
@@ -20,6 +22,7 @@ func (m Map) Translate(x, y float64) (float64, float64) {
 }
 
 // TranslateScale translates and scales in-game world-relative coordinates to (0, 0) relative coordinates.
+// The outputs are pixel coordinates for the radar images found in the maps folder.
 func (m Map) TranslateScale(x, y float64) (float64, float64) {
 	x, y = m.Translate(x, y)
 	return x / m.Scale, y / m.Scale
