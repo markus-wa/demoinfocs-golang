@@ -9,11 +9,9 @@ import (
 // Map represents a CS:GO map. It contains information required to translate
 // in-game world coordinates to coordinates relative to (0, 0) on the provided map-overviews (radar images).
 type Map struct {
-	Name   string
-	PZero  r2.Point
-	Scale  float64
-	Rotate float64
-	Zoom   float64
+	Name  string
+	PZero r2.Point
+	Scale float64
 }
 
 // Translate translates in-game world-relative coordinates to (0, 0) relative coordinates.
@@ -63,9 +61,10 @@ var (
 			X: -2400,
 			Y: 3383,
 		},
-		Scale:  4.4,
-		Rotate: 1,
-		Zoom:   1.1,
+		Scale: 4.4,
+		// Not sure what these are:
+		//Rotate: 1,
+		//Zoom:   1.1,
 	}
 
 	MapDeInferno = Map{
