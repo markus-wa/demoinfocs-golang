@@ -7,16 +7,17 @@ import (
 	"image/draw"
 	"image/jpeg"
 	_ "image/jpeg"
-	"log"
 	"os"
 
 	r3 "github.com/golang/geo/r3"
+	s2 "github.com/golang/geo/s2"
 	draw2dimg "github.com/llgcode/draw2d/draw2dimg"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
 	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
+	metadata "github.com/markus-wa/demoinfocs-golang/metadata"
 )
 
 type nadePath struct {
@@ -26,12 +27,17 @@ type nadePath struct {
 }
 
 var (
-	colorFire  color.Color = color.RGBA{0xff, 0x00, 0x00, 0xff} // Red
-	colorHE    color.Color = color.RGBA{0xff, 0xff, 0x00, 0xff} // Yellow
-	colorFlash color.Color = color.RGBA{0x00, 0x00, 0xff, 0xff} // Blue, because of the color on the nade
-	colorSmoke color.Color = color.RGBA{0xbe, 0xbe, 0xbe, 0xff} // Light gray
-	colorDecoy color.Color = color.RGBA{0x96, 0x4b, 0x00, 0xff} // Brown, because it's shit :)
+	colorFireNade    color.Color = color.RGBA{0xff, 0x00, 0x00, 0xff} // Red
+	colorInferno     color.Color = color.RGBA{0xff, 0xa5, 0x00, 0xff} // Orange
+	colorInfernoHull color.Color = color.RGBA{0xff, 0xff, 0x00, 0xff} // Yellow
+	colorHE          color.Color = color.RGBA{0x00, 0xff, 0x00, 0xff} // Green
+	colorFlash       color.Color = color.RGBA{0x00, 0x00, 0xff, 0xff} // Blue, because of the color on the nade
+	colorSmoke       color.Color = color.RGBA{0xbe, 0xbe, 0xbe, 0xff} // Light gray
+	colorDecoy       color.Color = color.RGBA{0x96, 0x4b, 0x00, 0xff} // Brown, because it's shit :)
 )
+
+// Store the curret map so we don't have to pass it to functions
+var curMap metadata.Map
 
 // Run like this: go run nade_trajectories.go -demo /path/to/demo.dem > nade_trajectories.jpg
 func main() {
@@ -41,79 +47,139 @@ func main() {
 
 	p := dem.NewParser(f)
 
-	_, err = p.ParseHeader()
+	header, err := p.ParseHeader()
 	checkError(err)
 
-	nadePaths := make(map[int64]*nadePath) // Currently live projectiles
+	curMap = metadata.MapNameToMap[header.MapName]
 
-	storeNadePath := func(id int64, pos r3.Vector, wep common.EquipmentElement, team common.Team) {
-		if nadePaths[id] == nil {
-			nadePaths[id] = &nadePath{
-				wep:  wep,
+	nadeTrajectories := make(map[int64]*nadePath) // Trajectories of all destroyed nades
+
+	p.RegisterEventHandler(func(e events.GrenadeProjectileDestroy) {
+		id := e.Projectile.UniqueID()
+
+		// Sometimes the thrower is nil, in that case we want the team to be unassigned (which is the default value)
+		var team common.Team
+		if e.Projectile.Thrower != nil {
+			team = e.Projectile.Thrower.Team
+		}
+
+		if nadeTrajectories[id] == nil {
+			nadeTrajectories[id] = &nadePath{
+				wep:  e.Projectile.Weapon,
 				team: team,
 			}
 		}
 
-		nadePaths[id].path = append(nadePaths[id].path, pos)
-	}
-
-	p.RegisterEventHandler(func(e events.NadeProjectileThrownEvent) {
-		storeNadePath(e.Projectile.UniqueID(), e.Projectile.Position, e.Projectile.Weapon, e.Projectile.Thrower.Team)
+		nadeTrajectories[id].path = e.Projectile.Trajectory
 	})
 
-	p.RegisterEventHandler(func(e events.NadeProjectileBouncedEvent) {
-		storeNadePath(e.Projectile.UniqueID(), e.Projectile.Position, e.Projectile.Weapon, e.Projectile.Thrower.Team)
+	var infernos []*common.Inferno
+
+	p.RegisterEventHandler(func(e events.InfernoExpired) {
+		infernos = append(infernos, e.Inferno)
 	})
 
-	var nadePathsFirstHalf []*nadePath
+	var nadeTrajectoriesFirst5Rounds []*nadePath
+	var infernosFirst5Rounds []*common.Inferno
 	round := 0
-	p.RegisterEventHandler(func(events.RoundEndedEvent) {
+	p.RegisterEventHandler(func(events.RoundEnd) {
 		round++
-		// Very cheap first half check (we only want the first teams CT-side nades in the example).
-		// Won't work with demos that have match-restarts etc.
-		if round == 15 {
-			// Copy all nade paths from the first 15 rounds
-			for _, np := range nadePaths {
-				nadePathsFirstHalf = append(nadePathsFirstHalf, np)
+		// We only want the data from the first 5 rounds so the image is not too cluttered
+		// This is a very cheap way to do it. Won't work with demos that have match-restarts etc.
+		if round == 5 {
+			// Copy nade paths
+			for _, np := range nadeTrajectories {
+				nadeTrajectoriesFirst5Rounds = append(nadeTrajectoriesFirst5Rounds, np)
 			}
-			nadePaths = make(map[int64]*nadePath)
+			nadeTrajectories = make(map[int64]*nadePath)
+
+			// Copy infernos
+			infernosFirst5Rounds = make([]*common.Inferno, len(infernos))
+			copy(infernosFirst5Rounds, infernos)
 		}
 	})
 
 	err = p.ParseToEnd()
 	checkError(err)
 
-	// Draw image
+	// Use map overview as base image
+	fMap, err := os.Open(fmt.Sprintf("../../metadata/maps/%s.jpg", header.MapName))
+	checkError(err)
+
+	imgMap, _, err := image.Decode(fMap)
+	checkError(err)
 
 	// Create output canvas
-	dest := image.NewRGBA(image.Rect(0, 0, 1024, 1024))
+	dest := image.NewRGBA(imgMap.Bounds())
 
-	// Use cache map overview as base
-	fCache, err := os.Open("../de_cache.jpg")
-	checkError(err)
-
-	imgCache, _, err := image.Decode(fCache)
-	checkError(err)
-	draw.Draw(dest, dest.Bounds(), imgCache, image.Point{0, 0}, draw.Src)
+	// Draw image
+	draw.Draw(dest, dest.Bounds(), imgMap, image.ZP, draw.Src)
 
 	// Initialize the graphic context
 	gc := draw2dimg.NewGraphicContext(dest)
 
+	// Draw infernos first so they're in the background
+	drawInfernos(gc, infernosFirst5Rounds)
+
+	// Then trajectories on top of everything
+	drawTrajectories(gc, nadeTrajectoriesFirst5Rounds)
+
+	// Write to standard output
+	err = jpeg.Encode(os.Stdout, dest, &jpeg.Options{
+		Quality: 90,
+	})
+	checkError(err)
+}
+
+func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
+	// Draw areas first
+	gc.SetFillColor(colorInferno)
+
+	// Calculate hulls
+	hulls := make([]*s2.Loop, len(infernos))
+	for i := range infernos {
+		hulls[i] = infernos[i].ConvexHull2D()
+	}
+
+	for _, hull := range hulls {
+		buildInfernoPath(gc, hull)
+		gc.Fill()
+	}
+
+	// Then the outline
+	gc.SetStrokeColor(colorInfernoHull)
+	gc.SetLineWidth(1) // 1 px wide
+
+	for _, hull := range hulls {
+		buildInfernoPath(gc, hull)
+		gc.FillStroke()
+	}
+}
+
+func buildInfernoPath(gc *draw2dimg.GraphicContext, hull *s2.Loop) {
+	vertices := hull.Vertices()
+	x, y := curMap.TranslateScale(vertices[0].X, vertices[0].Y)
+	gc.MoveTo(x, y)
+
+	for _, fire := range vertices[1:] {
+		x, y = curMap.TranslateScale(fire.X, fire.Y)
+		gc.LineTo(x, y)
+	}
+
+	gc.LineTo(x, y)
+}
+
+func drawTrajectories(gc *draw2dimg.GraphicContext, trajectories []*nadePath) {
 	gc.SetLineWidth(1)                      // 1 px lines
 	gc.SetFillColor(color.RGBA{0, 0, 0, 0}) // No fill, alpha 0
 
-	for _, np := range nadePathsFirstHalf {
-		if np.team != common.TeamCounterTerrorists {
-			// Only draw CT nades
-			continue
-		}
-
+	for _, np := range trajectories {
 		// Set colors
 		switch np.wep {
 		case common.EqMolotov:
 			fallthrough
 		case common.EqIncendiary:
-			gc.SetStrokeColor(colorFire)
+			gc.SetStrokeColor(colorFireNade)
 
 		case common.EqHE:
 			gc.SetStrokeColor(colorHE)
@@ -134,43 +200,20 @@ func main() {
 		}
 
 		// Draw path
-		gc.MoveTo(translateX(np.path[0].X), translateY(np.path[0].Y)) // Move to a position to start the new path
+		x, y := curMap.TranslateScale(np.path[0].X, np.path[0].Y)
+		gc.MoveTo(x, y) // Move to a position to start the new path
 
 		for _, pos := range np.path[1:] {
-			gc.LineTo(translateX(pos.X), translateY(pos.Y))
+			x, y := curMap.TranslateScale(pos.X, pos.Y)
+			gc.LineTo(x, y)
 		}
 
 		gc.FillStroke()
 	}
-
-	// Write to standard output
-	jpeg.Encode(os.Stdout, dest, &jpeg.Options{
-		Quality: 90,
-	})
-}
-
-// Rough translations for x & y coordinates from de_cache to 1024x1024 px.
-// This could be done nicer by only having to provide the mapping between two source & target coordinates and the max size.
-// Then we could calculate the correct stretch & offset automatically.
-
-const (
-	stretchX = 0.18
-	offsetX  = 414
-
-	stretchY = -0.18
-	offsetY  = 630
-)
-
-func translateX(x float64) float64 {
-	return x*stretchX + offsetX
-}
-
-func translateY(y float64) float64 {
-	return y*stretchY + offsetY
 }
 
 func checkError(err error) {
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }

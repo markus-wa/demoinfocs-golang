@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
@@ -20,12 +19,12 @@ func main() {
 	p := dem.NewParser(f)
 
 	// Parse header
-	h, err := p.ParseHeader()
+	header, err := p.ParseHeader()
 	checkError(err)
-	fmt.Println("Map:", h.MapName)
+	fmt.Println("Map:", header.MapName)
 
 	// Register handler on kill events
-	p.RegisterEventHandler(func(e events.PlayerKilledEvent) {
+	p.RegisterEventHandler(func(e events.Kill) {
 		var hs string
 		if e.IsHeadshot {
 			hs = " (HS)"
@@ -38,14 +37,14 @@ func main() {
 	})
 
 	// Register handler on round end to figure out who won
-	p.RegisterEventHandler(func(e events.RoundEndedEvent) {
+	p.RegisterEventHandler(func(e events.RoundEnd) {
 		gs := p.GameState()
 		switch e.Winner {
 		case common.TeamTerrorists:
 			// Winner's score + 1 because it hasn't actually been updated yet
-			fmt.Printf("Round finished: winnerSide=T  ; score=%d:%d\n", gs.TState().Score()+1, gs.CTState().Score())
+			fmt.Printf("Round finished: winnerSide=T  ; score=%d:%d\n", gs.TeamTerrorists().Score+1, gs.TeamCounterTerrorists().Score)
 		case common.TeamCounterTerrorists:
-			fmt.Printf("Round finished: winnerSide=CT ; score=%d:%d\n", gs.CTState().Score()+1, gs.TState().Score())
+			fmt.Printf("Round finished: winnerSide=CT ; score=%d:%d\n", gs.TeamCounterTerrorists().Score+1, gs.TeamTerrorists().Score)
 		default:
 			// Probably match medic or something similar
 			fmt.Println("Round finished: No winner (tie)")
@@ -53,7 +52,7 @@ func main() {
 	})
 
 	// Register handler for chat messages to print them
-	p.RegisterEventHandler(func(e events.ChatMessageEvent) {
+	p.RegisterEventHandler(func(e events.ChatMessage) {
 		fmt.Printf("Chat - %s says: %s\n", formatPlayer(e.Sender), e.Text)
 	})
 
@@ -71,8 +70,9 @@ func formatPlayer(p *common.Player) string {
 	}
 	return p.Name
 }
+
 func checkError(err error) {
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }

@@ -69,20 +69,19 @@ const specialFloatFlags = propFlagNoScale | propFlagCoord | propFlagCellCoord | 
 
 var propDecoder propertyDecoder
 
-// PropValue stores parsed & decoded send-table values.
+// PropertyValue stores parsed & decoded send-table values.
 // For instance player health, location etc.
-// Might be renamed in a future major release (Deprecated).
-type PropValue struct {
+type PropertyValue struct {
 	VectorVal r3.Vector
 	IntVal    int
-	ArrayVal  []PropValue
+	ArrayVal  []PropertyValue
 	StringVal string
 	FloatVal  float32
 }
 
 type propertyDecoder struct{}
 
-func (propertyDecoder) decodeProp(prop *PropertyEntry, reader *bit.BitReader) {
+func (propertyDecoder) decodeProp(prop *Property, reader *bit.BitReader) {
 	switch prop.entry.prop.rawType {
 	case propTypeFloat:
 		prop.value.FloatVal = propDecoder.decodeFloat(prop.entry.prop, reader)
@@ -100,7 +99,7 @@ func (propertyDecoder) decodeProp(prop *PropertyEntry, reader *bit.BitReader) {
 		prop.value.ArrayVal = propDecoder.decodeArray(prop.entry, reader)
 
 	case propTypeString:
-		prop.value.StringVal = propDecoder.decodeString(prop.entry.prop, reader)
+		prop.value.StringVal = propDecoder.decodeString(reader)
 
 	default:
 		panic(fmt.Sprintf("Unknown prop type %d", prop.entry.prop.rawType))
@@ -282,19 +281,19 @@ func (propertyDecoder) decodeVector(prop *sendTableProperty, reader *bit.BitRead
 	return res
 }
 
-func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader *bit.BitReader) []PropValue {
+func (propertyDecoder) decodeArray(fProp *flattenedPropEntry, reader *bit.BitReader) []PropertyValue {
 	numElement := fProp.prop.numberOfElements
 
 	numBits := 1
 
-	for maxElements := (numElement >> 1); maxElements != 0; maxElements = maxElements >> 1 {
+	for maxElements := (numElement >> 1); maxElements != 0; maxElements >>= 1 {
 		numBits++
 	}
 
-	res := make([]PropValue, int(reader.ReadInt(numBits)))
+	res := make([]PropertyValue, int(reader.ReadInt(numBits)))
 
-	tmp := &PropertyEntry{
-		entry: &FlattenedPropEntry{prop: fProp.arrayElementProp},
+	tmp := &Property{
+		entry: &flattenedPropEntry{prop: fProp.arrayElementProp},
 	}
 
 	for i := range res {
@@ -305,7 +304,7 @@ func (propertyDecoder) decodeArray(fProp *FlattenedPropEntry, reader *bit.BitRea
 	return res
 }
 
-func (propertyDecoder) decodeString(fProp *sendTableProperty, reader *bit.BitReader) string {
+func (propertyDecoder) decodeString(reader *bit.BitReader) string {
 	length := int(reader.ReadInt(dataTableMaxStringBits))
 	if length > dataTableMaxStringLength {
 		length = dataTableMaxStringLength

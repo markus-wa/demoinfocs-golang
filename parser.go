@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"io"
 	"sync"
+	"time"
 
 	r3 "github.com/golang/geo/r3"
 	dp "github.com/markus-wa/godispatch"
@@ -13,12 +14,15 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
+//go:generate ifacemaker -f parser.go -f parsing.go -s Parser -i IParser -p demoinfocs -D -y "IParser is an auto-generated interface for Parser, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o parser_interface.go
+
 /*
 Parser can parse a CS:GO demo.
-Creating a Parser is done via NewParser().
+Creating a new instance is done via NewParser().
 
-To start off use Parser.ParseHeader() to parse the demo header.
-After parsing the header Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo.
+To start off you may use Parser.ParseHeader() to parse the demo header
+(this can be skipped and will be done automatically if necessary).
+Further, Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo.
 
 Use Parser.RegisterEventHandler() to receive notifications about events.
 
@@ -28,7 +32,7 @@ Example (without error handling):
 	p := dem.NewParser(f)
 	header := p.ParseHeader()
 	fmt.Println("Map:", header.MapName)
-	p.RegisterEventHandler(func(e events.BombExplodedEvent) {
+	p.RegisterEventHandler(func(e events.BombExplode) {
 		fmt.Printf(e.Site, "went BOOM!")
 	})
 	p.ParseToEnd()
@@ -39,7 +43,7 @@ type Parser struct {
 	// Important fields
 
 	bitReader                    *bit.BitReader
-	stParser                     st.SendTableParser
+	stParser                     *st.SendTableParser
 	additionalNetMessageCreators map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                     chan interface{}          // Queue of net-messages
 	msgDispatcher                dp.Dispatcher             // Net-message dispatcher
@@ -53,21 +57,17 @@ type Parser struct {
 
 	// Additional fields, mainly caching & tracking things
 
-	bombsiteA             bombsite
-	bombsiteB             bombsite
-	equipmentMapping      map[*st.ServerClass]common.EquipmentElement     // Maps server classes to equipment-types
-	rawPlayers            map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
-	entityIDToPlayers     map[int]*common.Player                          // Temporary storage since we need to map players from entityID to userID later
-	additionalPlayerInfo  [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
-	entities              map[int]*st.Entity                              // Maps entity IDs to entities
-	modelPreCache         []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
-	weapons               [maxEntities]common.Equipment                   // Used to remember what a weapon is (p250 / cz etc.)
-	triggers              map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
-	instanceBaselines     map[int][]byte                                  // Maps server-class IDs to instance baselines
-	preprocessedBaselines map[int]map[int]st.PropValue                    // Maps server-class IDs to preprocessed baselines (preprocessed-baseline = property-index to value map)
-	gameEventDescs        map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
-	grenadeModelIndices   map[int]common.EquipmentElement                 // Used to map model indices to grenades (used for grenade projectiles)
-	stringTables          []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
+	bombsiteA            bombsite
+	bombsiteB            bombsite
+	equipmentMapping     map[*st.ServerClass]common.EquipmentElement     // Maps server classes to equipment-types
+	rawPlayers           map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
+	additionalPlayerInfo [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
+	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
+	weapons              [maxEntities]common.Equipment                   // Used to remember what a weapon is (p250 / cz etc.)
+	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
+	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
+	grenadeModelIndices  map[int]common.EquipmentElement                 // Used to map model indices to grenades (used for grenade projectiles)
+	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
 }
 
 type bombsite struct {
@@ -86,26 +86,22 @@ func (bbi boundingBoxInformation) contains(point r3.Vector) bool {
 		point.Z >= bbi.min.Z && point.Z <= bbi.max.Z
 }
 
-// SendTableParser returns the sendtable parser.
-//
-// This is a beta feature and may be changed or replaced without notice.
-func (p *Parser) SendTableParser() *st.SendTableParser {
-	return &p.stParser
+// ServerClasses returns the server-classes of this demo.
+// These are available after events.DataTablesParsed has been fired.
+func (p *Parser) ServerClasses() st.ServerClasses {
+	return p.stParser.ServerClasses()
 }
 
 // Header returns the DemoHeader which contains the demo's metadata.
+// Only possible after ParserHeader() has been called.
 func (p *Parser) Header() common.DemoHeader {
 	return *p.header
 }
 
 // GameState returns the current game-state.
-func (p *Parser) GameState() *GameState {
+// It contains most of the relevant information about the game such as players, teams, scores, grenades etc.
+func (p *Parser) GameState() IGameState {
 	return &p.gameState
-}
-
-// Entities returns the available entities.
-func (p *Parser) Entities() map[int]*st.Entity {
-	return p.entities
 }
 
 // CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
@@ -114,9 +110,9 @@ func (p *Parser) CurrentFrame() int {
 	return p.currentFrame
 }
 
-// CurrentTime returns the ingame time in seconds since the start of the demo.
-func (p *Parser) CurrentTime() float32 {
-	return float32(p.currentFrame) * p.header.FrameTime()
+// CurrentTime returns the time elapsed since the start of the demo
+func (p *Parser) CurrentTime() time.Duration {
+	return time.Duration(p.currentFrame) * p.header.FrameTime()
 }
 
 // Progress returns the parsing progress from 0 to 1.
@@ -135,7 +131,7 @@ To catch all events func(interface{}) can be used.
 
 Example:
 
-	parser.RegisterEventHandler(func(e events.WeaponFiredEvent) {
+	parser.RegisterEventHandler(func(e events.WeaponFired) {
 		fmt.Printf("%s fired his %s\n", e.Shooter.Name, e.Weapon.Weapon)
 	})
 
@@ -162,8 +158,6 @@ The handler must be of type func(*<MessageType>) where MessageType is the kind o
 Returns a identifier with which the handler can be removed via UnregisterNetMessageHandler().
 
 See also: RegisterEventHandler()
-
-This is a beta feature and may be changed or replaced without notice.
 */
 func (p *Parser) RegisterNetMessageHandler(handler interface{}) dp.HandlerIdentifier {
 	return p.msgDispatcher.RegisterHandler(handler)
@@ -216,20 +210,6 @@ type ParserConfig struct {
 	// Check out demopacket.go to see which net-messages are already being parsed by default.
 	// This is a beta feature and may be changed or replaced without notice.
 	AdditionalNetMessageCreators map[int]NetMessageCreator
-
-	// AdditionalEventEmitters contains additional event emitters - either from the fuzzy package or custom ones.
-	// This is mainly used to add logic specifically for one type of demo (e.g. Matchmaking, FaceIt etc.).
-	// This is a beta feature and may be changed or replaced without notice.
-	// See also: package fuzzy for existing emitters with fuzzy-logic that depends on the demo-type.
-	AdditionalEventEmitters []EventEmitter
-}
-
-// EventEmitter is the interface to define additional event-emitters.
-// The emitters may fire additional events by calling the eventDispatcher function received during registration of the emitter.
-//
-// See also: package fuzzy for existing emitters with fuzzy-logic that depends on the demo-type.
-type EventEmitter interface {
-	Register(parser *Parser, eventDispatcher func(event interface{}))
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
@@ -245,12 +225,9 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 
 	// Init parser
 	p.bitReader = bit.NewLargeBitReader(demostream)
-	p.instanceBaselines = make(map[int][]byte)
-	p.preprocessedBaselines = make(map[int]map[int]st.PropValue)
+	p.stParser = st.NewSendTableParser()
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
 	p.rawPlayers = make(map[int]*playerInfo)
-	p.entityIDToPlayers = make(map[int]*common.Player)
-	p.entities = make(map[int]*st.Entity)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
 	p.gameState = newGameState()
@@ -271,10 +248,6 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	}
 
 	p.additionalNetMessageCreators = config.AdditionalNetMessageCreators
-
-	for _, emitter := range config.AdditionalEventEmitters {
-		emitter.Register(&p, p.eventDispatcher.Dispatch)
-	}
 
 	return &p
 }

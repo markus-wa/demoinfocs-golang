@@ -2,15 +2,27 @@ package demoinfocs
 
 import (
 	"github.com/markus-wa/demoinfocs-golang/common"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
+
+//go:generate ifacemaker -f game_state.go -s GameState -i IGameState -p demoinfocs -D -y "IGameState is an auto-generated interface for GameState." -c "DO NOT EDIT: Auto generated" -o game_state_interface.go
+//go:generate ifacemaker -f game_state.go -s Participants -i IParticipants -p demoinfocs -D -y "IParticipants is an auto-generated interface for Participants." -c "DO NOT EDIT: Auto generated" -o participants_interface.go
 
 // GameState contains all game-state relevant information.
 type GameState struct {
 	ingameTick         int
-	tState             TeamState
-	ctState            TeamState
-	players            map[int]*common.Player
-	grenadeProjectiles map[int]*common.GrenadeProjectile // Used to keep track of grenades that have been thrown, but have not yet detonated.
+	tState             common.TeamState
+	ctState            common.TeamState
+	playersByUserID    map[int]*common.Player            // Maps user-IDs to players
+	playersByEntityID  map[int]*common.Player            // Maps entity-IDs to players
+	grenadeProjectiles map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
+	infernos           map[int]*common.Inferno           // Maps entity-IDs to active infernos.
+	entities           map[int]*st.Entity                // Maps entity IDs to entities
+	bomb               common.Bomb
+	totalRoundsPlayed  int
+	gamePhase          common.GamePhase
+	isWarmupPeriod     bool
+	isMatchStarted     bool
 }
 
 type ingameTickNumber int
@@ -27,50 +39,27 @@ func (gs GameState) IngameTick() int {
 	return gs.ingameTick
 }
 
-// CTState returns the TeamState of the CT team.
+// TeamCounterTerrorists returns the TeamState of the CT team.
 //
 // Make sure to handle swapping sides properly if you keep the reference.
-func (gs *GameState) CTState() *TeamState {
+func (gs *GameState) TeamCounterTerrorists() *common.TeamState {
 	return &gs.ctState
 }
 
-// TState returns the TeamState of the T team.
+// TeamTerrorists returns the TeamState of the T team.
 //
 // Make sure to handle swapping sides properly if you keep the reference.
-func (gs *GameState) TState() *TeamState {
+func (gs *GameState) TeamTerrorists() *common.TeamState {
 	return &gs.tState
 }
 
-// Participants returns all connected players.
-// This includes spectators.
-func (gs GameState) Participants() []*common.Player {
-	r := make([]*common.Player, 0, len(gs.players))
-	for _, ptcp := range gs.players {
-		r = append(r, ptcp)
+// Participants returns a struct with all currently connected players & spectators and utility functions.
+// The struct contains references to the original maps so it's always up-to-date.
+func (gs GameState) Participants() IParticipants {
+	return Participants{
+		playersByEntityID: gs.playersByEntityID,
+		playersByUserID:   gs.playersByUserID,
 	}
-	return r
-}
-
-// PlayingParticipants returns all players that aren't spectating or unassigned.
-func (gs GameState) PlayingParticipants() []*common.Player {
-	r := make([]*common.Player, 0, len(gs.players))
-	for _, ptcp := range gs.players {
-		if ptcp.Team != common.TeamSpectators && ptcp.Team != common.TeamUnassigned {
-			r = append(r, ptcp)
-		}
-	}
-	return r
-}
-
-// TeamMembers returns all players belonging to the requested team.
-func (gs GameState) TeamMembers(team common.Team) []*common.Player {
-	r := make([]*common.Player, 0, len(gs.players))
-	for _, ptcp := range gs.players {
-		if ptcp.Team == team {
-			r = append(r, ptcp)
-		}
-	}
-	return r
 }
 
 // GrenadeProjectiles returns a map from entity-IDs to all live grenade projectiles.
@@ -81,41 +70,117 @@ func (gs GameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 	return gs.grenadeProjectiles
 }
 
+// Infernos returns a map from entity-IDs to all currently burning infernos (fires from incendiaries and Molotovs).
+func (gs GameState) Infernos() map[int]*common.Inferno {
+	return gs.infernos
+}
+
+// Entities returns all currently existing entities.
+// (Almost?) everything in the game is an entity, such as weapons, players, fire etc.
+func (gs GameState) Entities() map[int]*st.Entity {
+	return gs.entities
+}
+
+// Bomb returns the current bomb state.
+func (gs GameState) Bomb() *common.Bomb {
+	return &gs.bomb
+}
+
+// TotalRoundsPlayed returns the amount of total rounds played according to CCSGameRulesProxy.
+func (gs GameState) TotalRoundsPlayed() int {
+	return gs.totalRoundsPlayed
+}
+
+// IsWarmupPeriod returns whether the game is currently in warmup period according to CCSGameRulesProxy.
+func (gs GameState) IsWarmupPeriod() bool {
+	return gs.isWarmupPeriod
+}
+
+// IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.
+func (gs GameState) IsMatchStarted() bool {
+	return gs.isMatchStarted
+}
+
 func newGameState() GameState {
 	return GameState{
-		players:            make(map[int]*common.Player),
+		playersByEntityID:  make(map[int]*common.Player),
+		playersByUserID:    make(map[int]*common.Player),
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
+		infernos:           make(map[int]*common.Inferno),
+		entities:           make(map[int]*st.Entity),
 	}
 }
 
-// TeamState contains a team's ID, score, clan name & country flag.
-type TeamState struct {
-	id       int
-	score    int
-	clanName string
-	flag     string
-}
-
-// ID returns the team-ID.
+// Participants provides helper functions on top of the currently connected players.
+// E.g. ByUserID(), ByEntityID(), TeamMembers(), etc.
 //
-// This stays the same even after switching sides.
-func (ts TeamState) ID() int {
-	return ts.id
+// See GameState.Participants()
+type Participants struct {
+	playersByUserID   map[int]*common.Player // Maps user-IDs to players
+	playersByEntityID map[int]*common.Player // Maps entity-IDs to players
 }
 
-// Score returns the team's number of rounds won.
-func (ts TeamState) Score() int {
-	return ts.score
+// ByUserID returns all currently connected players in a map where the key is the user-ID.
+// The map is a snapshot and is not updated (not a reference to the actual, underlying map).
+// Includes spectators.
+func (ptcp Participants) ByUserID() map[int]*common.Player {
+	res := make(map[int]*common.Player)
+	for k, v := range ptcp.playersByUserID {
+		res[k] = v
+	}
+	return res
 }
 
-// ClanName returns the team's clan name.
-func (ts TeamState) ClanName() string {
-	return ts.clanName
+// ByEntityID returns all currently connected players in a map where the key is the entity-ID.
+// The map is a snapshot and is not updated (not a reference to the actual, underlying map).
+// Includes spectators.
+func (ptcp Participants) ByEntityID() map[int]*common.Player {
+	res := make(map[int]*common.Player)
+	for k, v := range ptcp.playersByEntityID {
+		res[k] = v
+	}
+	return res
 }
 
-// Flag returns the team's country flag.
+// All returns all currently connected players & spectators.
+func (ptcp Participants) All() []*common.Player {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, p := range ptcp.playersByUserID {
+		res = append(res, p)
+	}
+	return res
+}
+
+// Playing returns all players that aren't spectating or unassigned.
+func (ptcp Participants) Playing() []*common.Player {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, p := range ptcp.playersByUserID {
+		if p.Team != common.TeamSpectators && p.Team != common.TeamUnassigned {
+			res = append(res, p)
+		}
+	}
+	return res
+}
+
+// TeamMembers returns all players belonging to the requested team at this time.
+func (ptcp Participants) TeamMembers(team common.Team) []*common.Player {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, ptcp := range ptcp.playersByUserID {
+		if ptcp.Team == team {
+			res = append(res, ptcp)
+		}
+	}
+	return res
+}
+
+// FindByHandle attempts to find a player by his entity-handle.
+// The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
 //
-// Watch out, in some demos this is upper-case and in some lower-case.
-func (ts TeamState) Flag() string {
-	return ts.flag
+// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
+func (ptcp Participants) FindByHandle(handle int) *common.Player {
+	if handle == invalidEntityHandle {
+		return nil
+	}
+
+	return ptcp.playersByEntityID[handle&entityHandleIndexMask]
 }

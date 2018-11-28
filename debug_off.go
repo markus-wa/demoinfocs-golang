@@ -6,6 +6,7 @@ package demoinfocs
 
 import (
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 const isDebug = false
@@ -23,5 +24,9 @@ func debugIngameTick(tickNr int) {
 }
 
 func debugDemoCommand(cmd demoCommand) {
+	// NOP
+}
+
+func debugAllServerClasses(classes st.ServerClasses) {
 	// NOP
 }

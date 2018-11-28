@@ -1,0 +1,19 @@
+run:
+  deadline: 5m
+  build-tags:
+    - debugdemoinfocs
+  skip-dirs:
+    - msg
+  skip-files:
+    - parser_interface.go
+    - game_state_interface.go
+linters:
+  enable-all: true
+  disable:
+    - gochecknoinits
+    - gochecknoglobals
+    - lll
+linters-settings:
+  gocritic:
+    disabled-checks:
+      - ifElseChain

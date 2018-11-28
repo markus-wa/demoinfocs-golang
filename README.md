@@ -1,6 +1,6 @@
-# demoinfocs-golang
+# demoinfocs-golang - A CSGO Demo Parser
 
-Is a high performance demo parser for the game Counter Strike: Global Offensive (CS:GO) written in Go and based on [Valve's demoinfogo](https://github.com/ValveSoftware/csgo-demoinfo) and [SatsHelix's demoinfo](https://github.com/StatsHelix/demoinfo).
+Is a Go library for super fast parsing and analysing of Counter Strike: Global Offensive (CSGO) demos (aka replays). It is based on [Valve's demoinfogo](https://github.com/ValveSoftware/csgo-demoinfo) and [SatsHelix's demoinfo](https://github.com/StatsHelix/demoinfo).
 
 [![GoDoc](https://godoc.org/github.com/markus-wa/demoinfocs-golang?status.svg)](https://godoc.org/github.com/markus-wa/demoinfocs-golang)
 [![Build Status](https://travis-ci.org/markus-wa/demoinfocs-golang.svg?branch=master)](https://travis-ci.org/markus-wa/demoinfocs-golang)
@@ -11,87 +11,102 @@ Is a high performance demo parser for the game Counter Strike: Global Offensive 
 
 ## Discussions / Chat
 
-You can use gitter to ask questions and discuss ideas about this project.<br>
-There are also [some other rooms](https://gitter.im/csgodemos) available around the topic of CS:GO demos.
+You can use gitter to ask questions and discuss ideas about this project.
 
 [![Gitter chat](https://badges.gitter.im/csgodemos/demoinfo-lib.png)](https://gitter.im/csgodemos/demoinfo-lib)
 
+## Requirements
+
+This library is intended to be used with `go 1.11` or higher as it is built using Go modules.
+
+It's recommended to use modules for consumers as well if possible.
+If you are unfamiliar with Go modules there's a [list of recommended resources](https://github.com/markus-wa/demoinfocs-golang/wiki/Go-Modules#recommended-links--articles) in the wiki.
+
 ## Go Get
 
+	go get -u github.com/markus-wa/demoinfocs-golang@v1.0.0
+
+	# For non-module projects / GOPATH (not recommended)
 	go get -u github.com/markus-wa/demoinfocs-golang
 
 ## Example
 
-This is a simple example on how to use the library. It collects all positions where weapons were fired from (using `events.WeaponFiredEvent`) and creates a heatmap using [go-heatmap](https://github.com/dustin/go-heatmap).
+This is a simple example on how to handle game events using this library.
+It prints all kills in a given demo (killer, weapon, victim, was it a wallbang/headshot?) by registering a handler for [`events.Kill`](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#Kill).
 
-Check out the [examples](examples) folder for more examples and the [godoc of the `events` package](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events) for some information about the other available events and their purpose.
+Check out the [godoc of the `events` package](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events) for some information about the other available events and their purpose.
 
 ```go
 package main
 
 import (
-	"image"
-	"image/png"
-	"log"
+	"fmt"
 	"os"
-
-	heatmap "github.com/dustin/go-heatmap"
-	schemes "github.com/dustin/go-heatmap/schemes"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 )
 
-// Run like this: go run heatmap.go > out.png
+// Run like this: go run print_kills.go
 func main() {
 	f, err := os.Open("/path/to/demo.dem")
-	checkErr(err)
+	if err != nil {
+		panic(err)
+	}
 	defer f.Close()
 
 	p := dem.NewParser(f)
 
-	// Parse header (contains map-name etc.)
-	_, err = p.ParseHeader()
-	checkErr(err)
-
-	// Register handler for WeaponFiredEvent, triggered every time a shot is fired
-	points := []heatmap.DataPoint{}
-	p.RegisterEventHandler(func(e events.WeaponFiredEvent) {
-		// Add shooter's position as datapoint
-		points = append(points, heatmap.P(e.Shooter.Position.X, e.Shooter.Position.Y))
+	// Register handler on kill events
+	p.RegisterEventHandler(func(e events.Kill) {
+		var hs string
+		if e.IsHeadshot {
+			hs = " (HS)"
+		}
+		var wallBang string
+		if e.PenetratedObjects > 0 {
+			wallBang = " (WB)"
+		}
+		fmt.Printf("%s <%v%s%s> %s\n", e.Killer.Name, e.Weapon.Weapon, hs, wallBang, e.Victim.Name)
 	})
 
 	// Parse to end
 	err = p.ParseToEnd()
-	checkErr(err)
-
-	// Generate heatmap and write to standard output
-	img := heatmap.Heatmap(image.Rect(0, 0, 1024, 1024), points, 15, 128, schemes.AlphaFire)
-	png.Encode(os.Stdout, img)
-}
-
-func checkErr(err error) {
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
 ```
 
-### Result
+### Sample output
 
-Running the above code (`go run heatmap.go > heatmap.png`) will create a PNG with dots on all the locations where shots were fired (the heatmap 'overlay').
+Running the code above will print something like this:
 
-This doesn't look too interesting on it's own but that can be helped by quickly mapping it to the map overview in an image editing tool (2 min tops, no skills required).
+```
+xms <AK-47 (HS)> crisby
+tiziaN <USP-S (HS)> Ex6TenZ
+tiziaN <USP-S> mistou
+tiziaN <USP-S (HS)> ALEX
+xms <Glock-18 (HS)> tiziaN
+...
+keev <AWP (HS) (WB)> to1nou
+...
+```
 
-![Resulting heatmap before and after mapping to map overview](https://raw.githubusercontent.com/markus-wa/demoinfocs-golang/master/examples/heatmap/heatmap.jpg)
+### More examples
+
+Check out the [examples](examples) folder for more examples, like [how to generate heatmaps](examples/heatmap) like this one:
+
+![Example heatmap](https://raw.githubusercontent.com/markus-wa/demoinfocs-golang/master/examples/heatmap/heatmap.jpg)
 
 ## Features
 
 * Game events (kills, shots, round starts/ends, footsteps etc.) - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
 * Tracking of game-state (players, teams, grenades etc.) - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState)
-* Access to entities, server-classes & data-tables
+* Grenade projectiles / trajectories - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/nade-trajectories)
+* Access to entities, server-classes & data-tables - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/sendtables#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
 * Access to all net-messages - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
-* Chat & console messages <sup id="achat1">1</sup> - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#ChatMessageEvent) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* Chat & console messages <sup id="achat1">1</sup> - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
 * [Easy debugging via build-flags](#debugging)
 * Built with performance & concurrency in mind
 
@@ -99,7 +114,7 @@ This doesn't look too interesting on it's own but that can be helped by quickly 
 
 ## Performance / Benchmarks
 
-One of the top priorities of this parser is performance and concurrency.
+Two of the top priorities of this parser are performance and concurrency.
 
 Here are some benchmark results from a system with a Intel i7 2600k CPU and SSD disk running Windows 10 and a demo with 85'000 frames.
 
@@ -148,14 +163,14 @@ pushd cs-demos && git lfs pull -I '*' && popd
 go test
 ```
 
-Here's a cool [gist of a pre-commit hook](https://gist.github.com/micvbang/4c8cb1f24cfe04d1a0dfab010eb851d8) to run tests before each commit. You can put this inside the `.git/hooks` directory to avoid commiting/pushing code with build errors or failing tests.
+Here's a cool [gist of a pre-commit hook](https://gist.github.com/micvbang/4c8cb1f24cfe04d1a0dfab010eb851d8) to run tests before each commit. You can put this inside the `.git/hooks` directory to avoid committing/pushing code with build errors or failing tests.
 
 ### Debugging
 
 You can use the build tag `debugdemoinfocs` (i.e. `go test -tags debugdemoinfocs -v`) to print out debugging information - such as game events or unhandled demo-messages - during the parsing process.<br>
 Side-note: The tag isn't called `debug` to avoid naming conflicts with other libs (and underscores in tags don't work, apparently).
 
-To change the default debugging behavior Go's `ldflags` parameter can be used. Example for additionally printing out the ingame-tick-numbers: `-ldflags '-X github.com/markus-wa/demoinfocs-golang.debugIngameTicks=YES'`
+To change the default debugging behavior, Go's `ldflags` parameter can be used. Example for additionally printing out all server-classes with their properties: `-ldflags '-X github.com/markus-wa/demoinfocs-golang.debugServerClasses=YES'`
 
 Check out `debug_on.go` for any other settings that can be changed.
 

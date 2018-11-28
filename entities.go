@@ -5,7 +5,6 @@ import (
 
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 const entitySentinel = 9999
@@ -27,44 +26,20 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 
 		if r.ReadBit() {
 			// Leave PVS
-			p.entities[currentEntity].Destroy()
-			delete(p.entities, currentEntity)
+			p.gameState.entities[currentEntity].Destroy()
+			delete(p.gameState.entities, currentEntity)
 
 			// 'Force Delete' flag, not exactly sure what it's supposed to do
 			r.ReadBit()
 		} else {
 			if r.ReadBit() {
 				// Enter PVS
-				e := p.readEnterPVS(r, currentEntity)
-				p.entities[currentEntity] = e
-				e.ApplyUpdate(r)
-				e.ServerClass.FireEntityCreatedEvent(e)
+				p.gameState.entities[currentEntity] = p.stParser.ReadEnterPVS(r, currentEntity)
 			} else {
 				// Delta Update
-				p.entities[currentEntity].ApplyUpdate(r)
+				p.gameState.entities[currentEntity].ApplyUpdate(r)
 			}
 		}
 	}
 	r.Pool()
-}
-
-func (p *Parser) readEnterPVS(reader *bit.BitReader, entityID int) *st.Entity {
-	scID := int(reader.ReadInt(p.stParser.ClassBits()))
-	reader.Skip(10) // Serial Number
-
-	newEntity := st.NewEntity(entityID, p.stParser.ServerClasses()[scID])
-
-	if p.preprocessedBaselines[scID] != nil {
-		newEntity.ApplyBaseline(p.preprocessedBaselines[scID])
-	} else {
-		if p.instanceBaselines[scID] != nil {
-			r := bit.NewSmallBitReader(bytes.NewReader(p.instanceBaselines[scID]))
-			p.preprocessedBaselines[scID] = newEntity.InitializeBaseline(r)
-			r.Pool()
-		} else {
-			p.preprocessedBaselines[scID] = make(map[int]st.PropValue)
-		}
-	}
-
-	return newEntity
 }

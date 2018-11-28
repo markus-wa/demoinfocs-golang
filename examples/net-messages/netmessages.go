@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	proto "github.com/gogo/protobuf/proto"
@@ -28,10 +27,6 @@ func main() {
 
 	p := dem.NewParserWithConfig(f, cfg)
 
-	// Parse header (contains map-name etc.)
-	_, err = p.ParseHeader()
-	checkError(err)
-
 	// Register handler for ConVar updates
 	p.RegisterNetMessageHandler(func(m *msg.CNETMsg_SetConVar) {
 		for _, cvar := range m.Convars.Cvars {
@@ -46,6 +41,6 @@ func main() {
 
 func checkError(err error) {
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
