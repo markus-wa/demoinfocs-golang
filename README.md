@@ -97,7 +97,7 @@ keev <AWP (HS) (WB)> to1nou
 
 Check out the [examples](examples) folder for more examples, like [how to generate heatmaps](examples/heatmap) like this one:
 
-![Example heatmap](https://raw.githubusercontent.com/markus-wa/demoinfocs-golang/master/examples/heatmap/heatmap.jpg)
+<img alt="sample heatmap" src="https://raw.githubusercontent.com/markus-wa/demoinfocs-golang/master/examples/heatmap/heatmap.jpg" width="50%">
 
 ## Features
 
