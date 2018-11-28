@@ -24,10 +24,9 @@ If you are unfamiliar with Go modules there's a [list of recommended resources](
 
 ## Go Get
 
-	go get -u github.com/markus-wa/demoinfocs-golang@v1.0.0
-
-	# For non-module projects / GOPATH (not recommended)
 	go get -u github.com/markus-wa/demoinfocs-golang
+
+If you are on a `v0.x` version of the library, check out the [`v0.5` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v0.5). However, it's highly suggested to switch to master (v1.0.0), which contains many new features and improvements.
 
 ## Example
 
