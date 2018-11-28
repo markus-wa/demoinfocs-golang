@@ -26,7 +26,7 @@ If you are unfamiliar with Go modules there's a [list of recommended resources](
 
 	go get -u github.com/markus-wa/demoinfocs-golang
 
-If you are on a `v0.x` version of the library, check out the [`v0.5` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v0.5). However, it's highly suggested to switch to master (v1.0.0), which contains many new features and improvements.
+If you are using a older (`v0.x`) version of the library, check out the [`v0.5` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v0.5). However, it's highly recommended to switch to master (v1.0.0), which contains many new features and improvements. It also promises compatibility with new relases for the foreseeable future.
 
 ## Example
 
