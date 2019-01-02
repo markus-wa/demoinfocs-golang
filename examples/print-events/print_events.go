@@ -62,6 +62,10 @@ func main() {
 }
 
 func formatPlayer(p *common.Player) string {
+	if p == nil {
+		return "?"
+	}
+
 	switch p.Team {
 	case common.TeamTerrorists:
 		return "[T]" + p.Name
