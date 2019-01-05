@@ -31,14 +31,12 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 
 			// 'Force Delete' flag, not exactly sure what it's supposed to do
 			r.ReadBit()
+		} else if r.ReadBit() {
+			// Enter PVS
+			p.gameState.entities[currentEntity] = p.stParser.ReadEnterPVS(r, currentEntity)
 		} else {
-			if r.ReadBit() {
-				// Enter PVS
-				p.gameState.entities[currentEntity] = p.stParser.ReadEnterPVS(r, currentEntity)
-			} else {
-				// Delta Update
-				p.gameState.entities[currentEntity].ApplyUpdate(r)
-			}
+			// Delta Update
+			p.gameState.entities[currentEntity].ApplyUpdate(r)
 		}
 	}
 	r.Pool()
