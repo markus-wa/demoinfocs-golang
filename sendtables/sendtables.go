@@ -105,14 +105,12 @@ func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int) 
 
 	if sc.preprocessedBaseline != nil {
 		entity.applyBaseline(sc.preprocessedBaseline)
+	} else if sc.instanceBaseline != nil {
+		r := bit.NewSmallBitReader(bytes.NewReader(sc.instanceBaseline))
+		sc.preprocessedBaseline = entity.initializeBaseline(r)
+		r.Pool()
 	} else {
-		if sc.instanceBaseline != nil {
-			r := bit.NewSmallBitReader(bytes.NewReader(sc.instanceBaseline))
-			sc.preprocessedBaseline = entity.initializeBaseline(r)
-			r.Pool()
-		} else {
-			sc.preprocessedBaseline = make(map[int]PropertyValue)
-		}
+		sc.preprocessedBaseline = make(map[int]PropertyValue)
 	}
 
 	entity.ApplyUpdate(entityDataReader)
