@@ -282,13 +282,7 @@ func (propertyDecoder) decodeVector(prop *sendTableProperty, reader *bit.BitRead
 }
 
 func (propertyDecoder) decodeArray(fProp *flattenedPropEntry, reader *bit.BitReader) []PropertyValue {
-	numElement := fProp.prop.numberOfElements
-
-	numBits := 1
-
-	for maxElements := (numElement >> 1); maxElements != 0; maxElements >>= 1 {
-		numBits++
-	}
+	numBits := int(math.Floor(math.Log2(float64(fProp.prop.numberOfElements))) + 1)
 
 	res := make([]PropertyValue, int(reader.ReadInt(numBits)))
 
