@@ -18,12 +18,12 @@ const (
 	no  = "NO"
 )
 
-// Can be overridden via -ldflags '-X github.com/markus-wa/demoinfocs-golang.debugIngameTicks=YES'
+// Can be overridden via -ldflags '-X github.com/markus-wa/demoinfocs-golang.debugServerClasses=YES'
 // Oh and btw we cant use bools for this, Go says 'cannot use -X with non-string symbol'
 var debugGameEvents = yes
-var debugUnhandledMessages = yes
-var debugIngameTicks = no
-var debugDemoCommands = yes
+var debugUnhandledMessages = no
+var debugIngameTicks = yes
+var debugDemoCommands = no
 var debugServerClasses = no
 
 func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
