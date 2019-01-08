@@ -27,7 +27,7 @@ type Player struct {
 	AdditionalPlayerInformation *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
 	ViewDirectionX              float32
 	ViewDirectionY              float32
-	FlashDuration               float32 // How long this player is flashed for from now on
+	FlashDuration               float32 // Blindness duration from the flashbang currently affecting the player (seconds)
 	Team                        Team
 	IsBot                       bool
 	IsDucking                   bool
@@ -39,6 +39,26 @@ type Player struct {
 func (p *Player) IsAlive() bool {
 	return p.Hp > 0
 }
+
+// IsBlinded returns true if the player is currently flashed (FlashDuration > 0).
+func (p *Player) IsBlinded() bool {
+	return p.FlashDuration > 0
+}
+
+/*
+Some interesting data regarding flashes.
+
+player time flash-duration
+10 49m0.613347564s 0
+10 49m50.54364714s 3.4198754
+10 49m53.122207212s 3.8876143
+10 49m54.84124726s 2.1688643
+10 49m58.552811s 0
+
+Going by the last two lines, the player should not have been blinded at ~49m57.0, but he was only cleared at ~49m58.5
+
+This isn't very conclusive but it looks like IsFlashed isn't super reliable currently.
+*/
 
 // ActiveWeapon returns the currently active / equipped weapon of the player.
 func (p *Player) ActiveWeapon() *Equipment {

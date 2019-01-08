@@ -48,3 +48,12 @@ func TestPlayerAlive(t *testing.T) {
 	pl.Hp = -10
 	assert.Equal(t, false, pl.IsAlive(), "Should be dead")
 }
+
+func TestPlayerFlashed(t *testing.T) {
+	pl := NewPlayer()
+
+	assert.False(t, pl.IsBlinded(), "Should not be flashed")
+
+	pl.FlashDuration = 2.3
+	assert.True(t, pl.IsBlinded(), "Should be flashed")
+}
