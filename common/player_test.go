@@ -2,6 +2,7 @@ package common
 
 import (
 	"testing"
+	"time"
 
 	assert "github.com/stretchr/testify/assert"
 )
@@ -56,4 +57,14 @@ func TestPlayerFlashed(t *testing.T) {
 
 	pl.FlashDuration = 2.3
 	assert.True(t, pl.IsBlinded(), "Should be flashed")
+}
+
+func TestPlayer_FlashDurationTime(t *testing.T) {
+	p := NewPlayer()
+
+	assert.Equal(t, time.Duration(0), p.FlashDurationTime())
+
+	p.FlashDuration = 2.3
+
+	assert.Equal(t, 2300*time.Millisecond, p.FlashDurationTime())
 }

@@ -1,6 +1,8 @@
 package common
 
 import (
+	"time"
+
 	r3 "github.com/golang/geo/r3"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
@@ -43,6 +45,11 @@ func (p *Player) IsAlive() bool {
 // IsBlinded returns true if the player is currently flashed (FlashDuration > 0).
 func (p *Player) IsBlinded() bool {
 	return p.FlashDuration > 0
+}
+
+// FlashDurationTime returns the duration of the blinding effect as time.Duration instead of float32 in seconds.
+func (p *Player) FlashDurationTime() time.Duration {
+	return time.Duration(float32(time.Second) * p.FlashDuration)
 }
 
 /*
