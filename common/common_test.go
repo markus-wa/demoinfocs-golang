@@ -38,3 +38,8 @@ func TestDemoHeader(t *testing.T) {
 	assert.Equal(t, float64(128.0), header.TickRate(), "TickRate should be 128")
 	assert.Equal(t, time.Second/128, header.TickTime(), "TickTime should be 1/128")
 }
+
+func TestTeamState(t *testing.T) {
+	assert.Equal(t, TeamTerrorists, NewTeamState(TeamTerrorists).Team())
+	assert.Equal(t, TeamCounterTerrorists, NewTeamState(TeamCounterTerrorists).Team())
+}

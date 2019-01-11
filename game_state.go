@@ -110,6 +110,8 @@ func newGameState() GameState {
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
 		infernos:           make(map[int]*common.Inferno),
 		entities:           make(map[int]*st.Entity),
+		tState:             common.NewTeamState(common.TeamTerrorists),
+		ctState:            common.NewTeamState(common.TeamCounterTerrorists),
 	}
 }
 
