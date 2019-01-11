@@ -6,6 +6,8 @@
 package events
 
 import (
+	"time"
+
 	r3 "github.com/golang/geo/r3"
 
 	common "github.com/markus-wa/demoinfocs-golang/common"
@@ -220,7 +222,14 @@ type GrenadeProjectileDestroy struct {
 
 // PlayerFlashed signals that a player was flashed.
 type PlayerFlashed struct {
-	Player *common.Player
+	Player   *common.Player
+	Attacker *common.Player
+}
+
+// FlashDuration returns the duration of the blinding effect.
+// This is just a shortcut for Player.FlashDurationTime().
+func (e PlayerFlashed) FlashDuration() time.Duration {
+	return e.Player.FlashDurationTime()
 }
 
 // BombEventIf is the interface for all the bomb events. Like GrenadeEventIf for GrenadeEvents.
