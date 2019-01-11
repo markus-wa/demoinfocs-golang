@@ -23,6 +23,7 @@ type GameState struct {
 	gamePhase          common.GamePhase
 	isWarmupPeriod     bool
 	isMatchStarted     bool
+	lastFlasher        *common.Player // Last player whose flash exploded, used to find the attacker for player_blind events
 }
 
 type ingameTickNumber int

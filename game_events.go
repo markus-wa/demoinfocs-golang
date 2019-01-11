@@ -167,7 +167,13 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	case "player_blind": // Player got blinded by a flash
 		data = mapGameEventData(d, ge)
-		p.eventDispatcher.Dispatch(events.PlayerFlashed{Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())]})
+
+		// Player.FlashDuration hasn't been updated yet,
+		// so we need to wait until the end of the tick before dispatching
+		p.currentFlashEvents = append(p.currentFlashEvents, events.PlayerFlashed{
+			Player:   p.gameState.playersByUserID[int(data["userid"].GetValShort())],
+			Attacker: p.gameState.lastFlasher,
+		})
 
 	case "flashbang_detonate": // Flash exploded
 		fallthrough
@@ -195,6 +201,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 		switch d.Name {
 		case "flashbang_detonate": // Flash exploded
+			p.gameState.lastFlasher = thrower
 			p.eventDispatcher.Dispatch(events.FlashExplode{GrenadeEvent: buildNadeEvent(common.EqFlash, thrower, position, nadeEntityID)})
 
 		case "hegrenade_detonate": // HE exploded
