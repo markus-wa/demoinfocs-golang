@@ -5,8 +5,10 @@ import (
 	"encoding/binary"
 	"io"
 	"strconv"
+	"strings"
 
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
+	common "github.com/markus-wa/demoinfocs-golang/common"
 	events "github.com/markus-wa/demoinfocs-golang/events"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
@@ -50,8 +52,8 @@ func (p *Parser) parseStringTables() {
 }
 
 func (p *Parser) parseSingleStringTable(name string) {
-	strings := p.bitReader.ReadSignedInt(16)
-	for i := 0; i < strings; i++ {
+	nStrings := p.bitReader.ReadSignedInt(16)
+	for i := 0; i < nStrings; i++ {
 		stringName := p.bitReader.ReadString()
 		if len(stringName) >= 100 {
 			panic("Someone said that Roy said I should panic")
@@ -245,4 +247,24 @@ func parsePlayerInfo(reader io.Reader) *playerInfo {
 
 	br.Pool()
 	return res
+}
+
+var modelPreCacheSubstringToEq = map[string]common.EquipmentElement{
+	"flashbang_dropped":         common.EqFlash,
+	"fraggrenade_dropped":       common.EqHE,
+	"smokegrenade_thrown":       common.EqSmoke,
+	"molotov_dropped":           common.EqMolotov,
+	"incendiarygrenade_dropped": common.EqIncendiary,
+	"decoy_dropped":             common.EqDecoy,
+	// @micvbang TODO: add all other weapons too.
+}
+
+func (p *Parser) processModelPreCacheUpdate() {
+	for i, name := range p.modelPreCache {
+		for eqName, eq := range modelPreCacheSubstringToEq {
+			if strings.Contains(name, eqName) {
+				p.grenadeModelIndices[i] = eq
+			}
+		}
+	}
 }
