@@ -230,7 +230,7 @@ func (p *Parser) parseFrame() bool {
 		panic("Found CustomData but not handled")
 
 	default:
-		panic(fmt.Sprintf("Canny handle it anymoe (command %v unknown)", cmd))
+		panic(fmt.Sprintf("I haven't programmed that pathway yet (command %v unknown)", cmd))
 	}
 
 	// Queue up some post processing
