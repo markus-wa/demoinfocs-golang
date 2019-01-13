@@ -3,8 +3,9 @@ package common
 import (
 	"math/rand"
 
+	quickhull "github.com/markus-wa/quickhull-go"
+
 	r3 "github.com/golang/geo/r3"
-	s2 "github.com/golang/geo/s2"
 )
 
 // Inferno is a list of Fires with helper functions.
@@ -50,33 +51,31 @@ func (inf Inferno) Active() Inferno {
 	return res
 }
 
-// ConvexHull2D returns the 2D convex hull of all the fires in the inferno.
+// ConvexHull2D returns the vertices making up the 2D convex hull of all the fires in the inferno.
 // Useful for drawing on 2D maps.
-func (inf Inferno) ConvexHull2D() *s2.Loop {
-	q := s2.NewConvexHullQuery()
+func (inf Inferno) ConvexHull2D() []r3.Vector {
+	pointCloud := make([]r3.Vector, 0, len(inf.Fires))
 
 	for _, f := range inf.Fires {
-		q.AddPoint(s2.Point{
-			Vector: r3.Vector{
-				X: f.Vector.X,
-				Y: f.Vector.Y,
-				Z: 1,
-			},
+		pointCloud = append(pointCloud, r3.Vector{
+			X: f.Vector.X,
+			Y: f.Vector.Y,
+			Z: 0,
 		})
 	}
 
-	return q.ConvexHull()
+	return quickhull.ConvexHull(pointCloud)
 }
 
-// ConvexHull3D returns the 3D convex hull of all the fires in the inferno.
-func (inf Inferno) ConvexHull3D() *s2.Loop {
-	q := s2.NewConvexHullQuery()
+// ConvexHull3D returns the vertices making up the 3D convex hull of all the fires in the inferno.
+func (inf Inferno) ConvexHull3D() []r3.Vector {
+	pointCloud := make([]r3.Vector, len(inf.Fires))
 
-	for _, f := range inf.Fires {
-		q.AddPoint(s2.Point{Vector: f.Vector})
+	for i, f := range inf.Fires {
+		pointCloud[i] = f.Vector
 	}
 
-	return q.ConvexHull()
+	return quickhull.ConvexHull(pointCloud)
 }
 
 // NewInferno creates a inferno and sets the Unique-ID.

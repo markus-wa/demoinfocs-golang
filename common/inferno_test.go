@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	r3 "github.com/golang/geo/r3"
-	s2 "github.com/golang/geo/s2"
 	assert "github.com/stretchr/testify/assert"
 )
 
@@ -40,7 +39,7 @@ func TestInfernoActive(t *testing.T) {
 }
 
 func TestInfernoConvexHull2D(t *testing.T) {
-	// Construct a  Inferno that looks roughly like this.
+	// Construct a Inferno that looks roughly like this.
 	// D should be inside the 2D Convex Hull but a corner of the 3D Convex Hull
 	//
 	//         C
@@ -66,15 +65,43 @@ func TestInfernoConvexHull2D(t *testing.T) {
 		},
 	}
 
-	expectedHull := s2.LoopFromPoints([]s2.Point{
-		{Vector: r3.Vector{X: 4, Y: 7, Z: 1}},
-		{Vector: r3.Vector{X: 1, Y: 2, Z: 1}},
-		{Vector: r3.Vector{X: 7, Y: 2, Z: 1}},
-	})
+	expectedHull := []r3.Vector{
+		{X: 1, Y: 2, Z: 0},
+		{X: 4, Y: 7, Z: 0},
+		{X: 7, Y: 2, Z: 0},
+	}
 
-	assert.ElementsMatch(t, expectedHull.Vertices(), inf.ConvexHull2D().Vertices(), "ConvexHull2D should be as expected")
-	assert.True(t, inf.ConvexHull2D().BoundaryEqual(expectedHull), "Boundary of expected and actual should be equal")
+	assert.ElementsMatch(t, expectedHull, inf.ConvexHull2D(), "ConvexHull2D should be as expected")
 
 	// 3D-hull should be different
-	assert.NotEqual(t, expectedHull.NumVertices(), inf.ConvexHull3D().NumVertices(), "3D hull should contain the vertex 'D'")
+	assert.NotEqual(t, len(expectedHull), len(inf.ConvexHull3D()), "3D hull should contain the vertex 'D'")
+}
+
+// Just check that all fires are passed to quickhull.ConvexHull()
+func TestInfernoConvexHull3D(t *testing.T) {
+	inf := Inferno{
+		Fires: []*Fire{
+			{
+				Vector: r3.Vector{X: 1, Y: 2, Z: 3},
+			},
+			{
+				Vector: r3.Vector{X: 4, Y: 7, Z: 6},
+			},
+			{
+				Vector: r3.Vector{X: 7, Y: 2, Z: 9},
+			},
+			{
+				Vector: r3.Vector{X: 4, Y: 4, Z: 12},
+			},
+		},
+	}
+
+	expectedHull := []r3.Vector{
+		{X: 1, Y: 2, Z: 3},
+		{X: 4, Y: 7, Z: 6},
+		{X: 7, Y: 2, Z: 9},
+		{X: 4, Y: 4, Z: 12},
+	}
+
+	assert.ElementsMatch(t, expectedHull, inf.ConvexHull3D(), "ConvexHull3D should contain all fire locations")
 }

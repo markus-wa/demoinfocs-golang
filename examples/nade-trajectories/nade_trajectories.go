@@ -9,15 +9,14 @@ import (
 	_ "image/jpeg"
 	"os"
 
-	r3 "github.com/golang/geo/r3"
-	s2 "github.com/golang/geo/s2"
-	draw2dimg "github.com/llgcode/draw2d/draw2dimg"
+	"github.com/golang/geo/r3"
+	"github.com/llgcode/draw2d/draw2dimg"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
+	"github.com/markus-wa/demoinfocs-golang/common"
+	"github.com/markus-wa/demoinfocs-golang/events"
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	metadata "github.com/markus-wa/demoinfocs-golang/metadata"
+	"github.com/markus-wa/demoinfocs-golang/metadata"
 )
 
 type nadePath struct {
@@ -136,7 +135,7 @@ func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
 	gc.SetFillColor(colorInferno)
 
 	// Calculate hulls
-	hulls := make([]*s2.Loop, len(infernos))
+	hulls := make([][]r3.Vector, len(infernos))
 	for i := range infernos {
 		hulls[i] = infernos[i].ConvexHull2D()
 	}
@@ -156,8 +155,7 @@ func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
 	}
 }
 
-func buildInfernoPath(gc *draw2dimg.GraphicContext, hull *s2.Loop) {
-	vertices := hull.Vertices()
+func buildInfernoPath(gc *draw2dimg.GraphicContext, vertices []r3.Vector) {
 	x, y := curMap.TranslateScale(vertices[0].X, vertices[0].Y)
 	gc.MoveTo(x, y)
 
