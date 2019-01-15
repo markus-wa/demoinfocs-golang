@@ -152,7 +152,7 @@ It's recommended to use some kind of dependency management system such as [dep](
 
 ## Projects using demoinfocs-golang
 
-- [noesis.gg](https://www.noesis.gg/)
+- [noesis.gg](https://www.noesis.gg/) - A suite of explorative tools to help you analyze and improve your CS:GO performance.
 
 If your project is using this library feel free to submit a PR or send a message in Gitter to be included in the list.
 
