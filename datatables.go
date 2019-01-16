@@ -61,7 +61,7 @@ func (p *Parser) mapEquipment() {
 
 // Bind the attributes of the various entities to our structs on the parser
 func (p *Parser) bindEntities() {
-	p.bindTeamScores()
+	p.bindTeamStates()
 	p.bindBombSites()
 	p.bindPlayers()
 	p.bindWeapons()
@@ -101,61 +101,43 @@ func (p *Parser) bindBomb() {
 	})
 }
 
-func (p *Parser) bindTeamScores() {
+func (p *Parser) bindTeamStates() {
 	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity *st.Entity) {
-		teamID := -1
-		var clanName string
-		var flagImage string
-		score := 0
+		team := entity.FindProperty("m_szTeamname").Value().StringVal
 
-		entity.BindProperty("m_iTeamNum", &teamID, st.ValTypeInt)
-		entity.BindProperty("m_szClanTeamname", &clanName, st.ValTypeString)
-		entity.BindProperty("m_szTeamFlagImage", &flagImage, st.ValTypeString)
-		entity.BindProperty("m_scoreTotal", &score, st.ValTypeInt)
+		var s *common.TeamState
 
-		entity.FindProperty("m_szTeamname").OnUpdate(func(val st.PropertyValue) {
-			team := val.StringVal
+		switch team {
+		case "CT":
+			s = &p.gameState.ctState
 
-			var s *common.TeamState
+		case "TERRORIST":
+			s = &p.gameState.tState
 
-			switch team {
-			case "CT":
-				s = &p.gameState.ctState
+		case "Unassigned": // Ignore
+		case "Spectator": // Ignore
 
-			case "TERRORIST":
-				s = &p.gameState.tState
+		default:
+			panic(fmt.Sprintf("Unexpected team %q", team))
+		}
 
-			case "Unassigned": // Ignore
-			case "Spectator": // Ignore
+		if s != nil {
+			// Register updates
+			entity.BindProperty("m_iTeamNum", &s.ID, st.ValTypeInt)
+			entity.BindProperty("m_szClanTeamname", &s.ClanName, st.ValTypeString)
+			entity.BindProperty("m_szTeamFlagImage", &s.Flag, st.ValTypeString)
 
-			default:
-				panic(fmt.Sprintf("Unexpected team %q", team))
-			}
+			entity.FindProperty("m_scoreTotal").OnUpdate(func(val st.PropertyValue) {
+				oldScore := s.Score
+				s.Score = val.IntVal
 
-			if s != nil {
-				// Set values that were already updated
-				s.ID = teamID
-				s.ClanName = clanName
-				s.Flag = flagImage
-				s.Score = score
-
-				// Register direct updates for the future
-				// Except for teamId, it doesn't change; players swap teams instead
-				entity.BindProperty("m_szClanTeamname", &s.ClanName, st.ValTypeString)
-				entity.BindProperty("m_szTeamFlagImage", &s.Flag, st.ValTypeString)
-
-				entity.FindProperty("m_scoreTotal").OnUpdate(func(val st.PropertyValue) {
-					oldScore := s.Score
-					s.Score = val.IntVal
-
-					p.eventDispatcher.Dispatch(events.ScoreUpdated{
-						OldScore:  oldScore,
-						NewScore:  val.IntVal,
-						TeamState: s,
-					})
+				p.eventDispatcher.Dispatch(events.ScoreUpdated{
+					OldScore:  oldScore,
+					NewScore:  val.IntVal,
+					TeamState: s,
 				})
-			}
-		})
+			})
+		}
 	})
 }
 
