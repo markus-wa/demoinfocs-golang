@@ -104,5 +104,5 @@ func TestInfernoConvexHull3D(t *testing.T) {
 		{X: 4, Y: 4, Z: 12},
 	}
 
-	assert.ElementsMatch(t, expectedHull, inf.ConvexHull3D(), "ConvexHull3D should contain all fire locations")
+	assert.ElementsMatch(t, expectedHull, inf.ConvexHull3D().Vertices, "ConvexHull3D should contain all fire locations")
 }
