@@ -1,9 +1,9 @@
 package common
 
 import (
-	"github.com/golang/geo/r2"
 	"testing"
 
+	r2 "github.com/golang/geo/r2"
 	r3 "github.com/golang/geo/r3"
 	assert "github.com/stretchr/testify/assert"
 )

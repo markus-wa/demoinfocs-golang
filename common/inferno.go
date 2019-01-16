@@ -4,8 +4,8 @@ import (
 	"math/rand"
 	"sort"
 
-	"github.com/golang/geo/r2"
-	"github.com/golang/geo/r3"
+	r2 "github.com/golang/geo/r2"
+	r3 "github.com/golang/geo/r3"
 	quickhull "github.com/markus-wa/quickhull-go"
 )
 
