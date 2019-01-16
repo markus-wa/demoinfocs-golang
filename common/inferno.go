@@ -122,15 +122,15 @@ func sortPointsClockwise(points []r2.Point) {
 	sort.Sort(sorter)
 }
 
-// ConvexHull3D returns the triangles making up the 3D convex hull of all the fires in the inferno.
-func (inf Inferno) ConvexHull3D() [][3]r3.Vector {
+// ConvexHull3D returns the 3D convex hull of all the fires in the inferno.
+func (inf Inferno) ConvexHull3D() quickhull.ConvexHull {
 	pointCloud := make([]r3.Vector, len(inf.Fires))
 
 	for i, f := range inf.Fires {
 		pointCloud[i] = f.Vector
 	}
 
-	return convexHull(pointCloud).Triangles()
+	return convexHull(pointCloud)
 }
 
 func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
