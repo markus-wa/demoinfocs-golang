@@ -9,6 +9,7 @@ import (
 	_ "image/jpeg"
 	"os"
 
+	"github.com/golang/geo/r2"
 	"github.com/golang/geo/r3"
 	"github.com/llgcode/draw2d/draw2dimg"
 
@@ -135,7 +136,7 @@ func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
 	gc.SetFillColor(colorInferno)
 
 	// Calculate hulls
-	hulls := make([][]r3.Vector, len(infernos))
+	hulls := make([][]r2.Point, len(infernos))
 	for i := range infernos {
 		hulls[i] = infernos[i].ConvexHull2D()
 	}
@@ -155,16 +156,16 @@ func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
 	}
 }
 
-func buildInfernoPath(gc *draw2dimg.GraphicContext, vertices []r3.Vector) {
-	x, y := curMap.TranslateScale(vertices[0].X, vertices[0].Y)
-	gc.MoveTo(x, y)
+func buildInfernoPath(gc *draw2dimg.GraphicContext, vertices []r2.Point) {
+	xOrigin, yOrigin := curMap.TranslateScale(vertices[0].X, vertices[0].Y)
+	gc.MoveTo(xOrigin, yOrigin)
 
 	for _, fire := range vertices[1:] {
-		x, y = curMap.TranslateScale(fire.X, fire.Y)
+		x, y := curMap.TranslateScale(fire.X, fire.Y)
 		gc.LineTo(x, y)
 	}
 
-	gc.LineTo(x, y)
+	gc.LineTo(xOrigin, yOrigin)
 }
 
 func drawTrajectories(gc *draw2dimg.GraphicContext, trajectories []*nadePath) {

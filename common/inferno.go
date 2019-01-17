@@ -2,10 +2,11 @@ package common
 
 import (
 	"math/rand"
+	"sort"
 
-	quickhull "github.com/markus-wa/quickhull-go"
-
+	r2 "github.com/golang/geo/r2"
 	r3 "github.com/golang/geo/r3"
+	quickhull "github.com/markus-wa/quickhull-go"
 )
 
 // Inferno is a list of Fires with helper functions.
@@ -51,31 +52,89 @@ func (inf Inferno) Active() Inferno {
 	return res
 }
 
-// ConvexHull2D returns the vertices making up the 2D convex hull of all the fires in the inferno.
+// ConvexHull2D returns clockwise sorted corner points making up the 2D convex hull of all the fires in the inferno.
 // Useful for drawing on 2D maps.
-func (inf Inferno) ConvexHull2D() []r3.Vector {
-	pointCloud := make([]r3.Vector, 0, len(inf.Fires))
-
-	for _, f := range inf.Fires {
-		pointCloud = append(pointCloud, r3.Vector{
-			X: f.Vector.X,
-			Y: f.Vector.Y,
-			Z: 0,
-		})
+func (inf Inferno) ConvexHull2D() []r2.Point {
+	pointCloud := make([]r3.Vector, len(inf.Fires))
+	for i, f := range inf.Fires {
+		pointCloud[i] = f.Vector
+		pointCloud[i].Z = 0
 	}
 
-	return quickhull.ConvexHull(pointCloud)
+	vertices := convexHull(convexHull(pointCloud).Vertices).Vertices
+	points := make([]r2.Point, len(vertices))
+	for i, v := range vertices {
+		points[i] = r2.Point{X: v.X, Y: v.Y}
+	}
+	sortPointsClockwise(points)
+
+	return points
 }
 
-// ConvexHull3D returns the vertices making up the 3D convex hull of all the fires in the inferno.
-func (inf Inferno) ConvexHull3D() []r3.Vector {
+// pointsClockwiseSorter implements the Sort interface for slices of Point
+// with a comparator for sorting points in clockwise order around their center.
+type pointsClockwiseSorter struct {
+	center r2.Point
+	points []r2.Point
+}
+
+func (s pointsClockwiseSorter) Len() int { return len(s.points) }
+
+func (s pointsClockwiseSorter) Swap(i, j int) { s.points[i], s.points[j] = s.points[j], s.points[i] }
+
+func (s pointsClockwiseSorter) Less(i, j int) bool {
+	a, b := s.points[i], s.points[j]
+
+	if a.X-s.center.X >= 0 && b.X-s.center.X < 0 {
+		return true
+	}
+	if a.X-s.center.X < 0 && b.X-s.center.X >= 0 {
+		return false
+	}
+	if a.X-s.center.X == 0 && b.X-s.center.X == 0 {
+		if a.Y-s.center.Y >= 0 || b.Y-s.center.Y >= 0 {
+			return a.Y > b.Y
+		}
+		return b.Y > a.Y
+	}
+
+	// compute the cross product of vectors (s.center -> a) X (s.center -> b)
+	det := (a.X-s.center.X)*(b.Y-s.center.Y) - (b.X-s.center.X)*(a.Y-s.center.Y)
+	if det < 0 {
+		return true
+	}
+	if det > 0 {
+		return false
+	}
+
+	// points a and b are on the same line from the s.center
+	// check which point is closer to the s.center
+	d1 := (a.X-s.center.X)*(a.X-s.center.X) + (a.Y-s.center.Y)*(a.Y-s.center.Y)
+	d2 := (b.X-s.center.X)*(b.X-s.center.X) + (b.Y-s.center.Y)*(b.Y-s.center.Y)
+	return d1 > d2
+}
+
+func sortPointsClockwise(points []r2.Point) {
+	sorter := pointsClockwiseSorter{
+		center: r2.RectFromPoints(points...).Center(),
+		points: points,
+	}
+	sort.Sort(sorter)
+}
+
+// ConvexHull3D returns the 3D convex hull of all the fires in the inferno.
+func (inf Inferno) ConvexHull3D() quickhull.ConvexHull {
 	pointCloud := make([]r3.Vector, len(inf.Fires))
 
 	for i, f := range inf.Fires {
 		pointCloud[i] = f.Vector
 	}
 
-	return quickhull.ConvexHull(pointCloud)
+	return convexHull(pointCloud)
+}
+
+func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
+	return new(quickhull.QuickHull).ConvexHull(pointCloud, false, false, 0)
 }
 
 // NewInferno creates a inferno and sets the Unique-ID.

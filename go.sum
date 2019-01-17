@@ -16,6 +16,8 @@ github.com/markus-wa/gobitread v0.2.2 h1:4Z4oJ8Bf1XnOy6JZ2/9AdFKVAoxdq7awRjrb+j2
 github.com/markus-wa/gobitread v0.2.2/go.mod h1:PcWXMH4gx7o2CKslbkFkLyJB/aHW7JVRG3MRZe3PINg=
 github.com/markus-wa/godispatch v1.1.0 h1:J8O+hRkOCexDUQevaSKWDtKeZ3+HcmbEUKY1uYraAjY=
 github.com/markus-wa/godispatch v1.1.0/go.mod h1:6o18u24oo58yseMXYD0zQFI6LbSkjJSSBQ4YyDqFX5c=
+github.com/markus-wa/quickhull-go v0.0.0-20190116183559-9fb9702adbda h1:F7blFtp+y3qD7GE+9mY3YLtUGnmE+6CSlwwAxEl/q5Y=
+github.com/markus-wa/quickhull-go v0.0.0-20190116183559-9fb9702adbda/go.mod h1:gMPnFb0DpuzRpbHesp64Nq4oFXE5SglAD86nlKrkETs=
 github.com/markus-wa/quickhull-go v1.0.1 h1:msrwpA4mlVI2Rww6ZzQuCxv+axXVknMaMJYO1om37Mk=
 github.com/markus-wa/quickhull-go v1.0.1/go.mod h1:gMPnFb0DpuzRpbHesp64Nq4oFXE5SglAD86nlKrkETs=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

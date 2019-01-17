@@ -9,7 +9,7 @@ require (
 	github.com/llgcode/ps v0.0.0-20150911083025-f1443b32eedb // indirect
 	github.com/markus-wa/gobitread v0.2.2
 	github.com/markus-wa/godispatch v1.1.0
-	github.com/markus-wa/quickhull-go v1.0.1
+	github.com/markus-wa/quickhull-go v0.0.0-20190116183559-9fb9702adbda
 	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.2.2
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81 // indirect

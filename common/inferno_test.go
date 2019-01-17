@@ -3,6 +3,7 @@ package common
 import (
 	"testing"
 
+	r2 "github.com/golang/geo/r2"
 	r3 "github.com/golang/geo/r3"
 	assert "github.com/stretchr/testify/assert"
 )
@@ -65,16 +66,16 @@ func TestInfernoConvexHull2D(t *testing.T) {
 		},
 	}
 
-	expectedHull := []r3.Vector{
-		{X: 1, Y: 2, Z: 0},
-		{X: 4, Y: 7, Z: 0},
-		{X: 7, Y: 2, Z: 0},
+	expectedHull := []r2.Point{
+		{X: 1, Y: 2},
+		{X: 4, Y: 7},
+		{X: 7, Y: 2},
 	}
 
 	assert.ElementsMatch(t, expectedHull, inf.ConvexHull2D(), "ConvexHull2D should be as expected")
 
 	// 3D-hull should be different
-	assert.NotEqual(t, len(expectedHull), len(inf.ConvexHull3D()), "3D hull should contain the vertex 'D'")
+	assert.NotEqual(t, len(expectedHull), len(inf.ConvexHull3D().Vertices), "3D hull should contain the vertex 'D'")
 }
 
 // Just check that all fires are passed to quickhull.ConvexHull()
@@ -103,5 +104,5 @@ func TestInfernoConvexHull3D(t *testing.T) {
 		{X: 4, Y: 4, Z: 12},
 	}
 
-	assert.ElementsMatch(t, expectedHull, inf.ConvexHull3D(), "ConvexHull3D should contain all fire locations")
+	assert.ElementsMatch(t, expectedHull, inf.ConvexHull3D().Vertices, "ConvexHull3D should contain all fire locations")
 }
