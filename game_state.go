@@ -24,6 +24,7 @@ type GameState struct {
 	isWarmupPeriod     bool
 	isMatchStarted     bool
 	lastFlasher        *common.Player // Last player whose flash exploded, used to find the attacker for player_blind events
+	currentDefuser     *common.Player // Player currently defusing the bomb, if any
 }
 
 type ingameTickNumber int

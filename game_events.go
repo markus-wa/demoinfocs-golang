@@ -331,15 +331,19 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			p.eventDispatcher.Dispatch(events.BombPlanted{BombEvent: e})
 		case "bomb_defused":
 			p.eventDispatcher.Dispatch(events.BombDefused{BombEvent: e})
+			p.gameState.currentDefuser = nil
 		case "bomb_exploded":
 			p.eventDispatcher.Dispatch(events.BombExplode{BombEvent: e})
+			p.gameState.currentDefuser = nil
 		}
 
 	case "bomb_begindefuse": // Defuse started
 		data = mapGameEventData(d, ge)
 
+		p.gameState.currentDefuser = p.gameState.playersByUserID[int(data["userid"].GetValShort())]
+
 		p.eventDispatcher.Dispatch(events.BombDefuseStart{
-			Player: p.gameState.playersByUserID[int(data["userid"].GetValShort())],
+			Player: p.gameState.currentDefuser,
 			HasKit: data["haskit"].GetValBool(),
 		})
 

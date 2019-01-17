@@ -283,6 +283,13 @@ type BombDefuseStart struct {
 
 func (BombDefuseStart) implementsBombEventIf() {}
 
+// BombDefuseAborted signals that the defuser aborted the action.
+type BombDefuseAborted struct {
+	Player *common.Player
+}
+
+func (BombDefuseAborted) implementsBombEventIf() {}
+
 // BombDropped signals that the bomb (C4) has been dropped onto the ground.
 // Not fired if it has been dropped to another player (see BombPickup for this).
 type BombDropped struct {

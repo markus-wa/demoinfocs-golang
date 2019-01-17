@@ -33,6 +33,7 @@ type Player struct {
 	Team                        Team
 	IsBot                       bool
 	IsDucking                   bool
+	IsDefusing                  bool
 	HasDefuseKit                bool
 	HasHelmet                   bool
 }
