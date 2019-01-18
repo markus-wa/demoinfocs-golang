@@ -270,6 +270,14 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 		i2 := i // Copy so it stays the same
 		playerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
 	}
+
+	playerEntity.FindProperty("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
+		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.IntVal == 0 {
+			p.eventDispatcher.Dispatch(events.BombDefuseAborted{Player: pl})
+			p.gameState.currentDefuser = nil
+		}
+		pl.IsDefusing = val.IntVal != 0
+	})
 }
 
 func (p *Parser) bindWeapons() {
