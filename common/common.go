@@ -117,6 +117,9 @@ type TeamState struct {
 	//
 	// Watch out, in some demos this is upper-case and in some lower-case.
 	Flag string
+
+	// Terrorist TeamState for CTs, CT TeamState for Terrorists
+	Opponent *TeamState
 }
 
 // Team returns the team for which the TeamState contains data.

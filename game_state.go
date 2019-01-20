@@ -41,6 +41,19 @@ func (gs GameState) IngameTick() int {
 	return gs.ingameTick
 }
 
+// Team returns the TeamState corresponding to team.
+// Returns nil if team != TeamTerrorists && team != TeamCounterTerrorists.
+//
+// Make sure to handle swapping sides properly if you keep the reference.
+func (gs *GameState) Team(team common.Team) *common.TeamState {
+	if team == common.TeamTerrorists {
+		return &gs.tState
+	} else if team == common.TeamCounterTerrorists {
+		return &gs.ctState
+	}
+	return nil
+}
+
 // TeamCounterTerrorists returns the TeamState of the CT team.
 //
 // Make sure to handle swapping sides properly if you keep the reference.
@@ -103,8 +116,8 @@ func (gs GameState) IsMatchStarted() bool {
 	return gs.isMatchStarted
 }
 
-func newGameState() GameState {
-	return GameState{
+func newGameState() *GameState {
+	gs := &GameState{
 		playersByEntityID:  make(map[int]*common.Player),
 		playersByUserID:    make(map[int]*common.Player),
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
@@ -113,6 +126,11 @@ func newGameState() GameState {
 		tState:             common.NewTeamState(common.TeamTerrorists),
 		ctState:            common.NewTeamState(common.TeamCounterTerrorists),
 	}
+
+	gs.tState.Opponent = &gs.ctState
+	gs.ctState.Opponent = &gs.tState
+
+	return gs
 }
 
 // Participants provides helper functions on top of the currently connected players.
