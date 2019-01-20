@@ -14,6 +14,11 @@ type IGameState interface {
 	//
 	// Watch out, I've seen this return wonky negative numbers at the start of demos.
 	IngameTick() int
+	// Team returns the TeamState corresponding to team.
+	// Returns nil if team != TeamTerrorists && team != TeamCounterTerrorists.
+	//
+	// Make sure to handle swapping sides properly if you keep the reference.
+	Team(team common.Team) *common.TeamState
 	// TeamCounterTerrorists returns the TeamState of the CT team.
 	//
 	// Make sure to handle swapping sides properly if you keep the reference.

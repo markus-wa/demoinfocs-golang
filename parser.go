@@ -232,7 +232,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.rawPlayers = make(map[int]*playerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
-	p.gameState = newGameState()
+	p.gameState = *newGameState()
 	p.grenadeModelIndices = make(map[int]common.EquipmentElement)
 
 	// Attach proto msg handlers
