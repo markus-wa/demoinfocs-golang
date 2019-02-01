@@ -203,6 +203,7 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 	// General info
 	playerEntity.FindProperty("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
 		pl.Team = common.Team(val.IntVal) // Need to cast to team so we can't use BindProperty
+		pl.TeamState = p.gameState.Team(pl.Team)
 	})
 	playerEntity.BindProperty("m_iHealth", &pl.Hp, st.ValTypeInt)
 	playerEntity.BindProperty("m_ArmorValue", &pl.Armor, st.ValTypeInt)
