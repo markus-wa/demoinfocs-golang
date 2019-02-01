@@ -51,7 +51,7 @@ type Parser struct {
 	eventDispatcher              dp.Dispatcher
 	currentFrame                 int                // Demo-frame, not ingame-tick
 	header                       *common.DemoHeader // Pointer so we can check for nil
-	gameState                    GameState
+	gameState                    *GameState
 	cancelChan                   chan struct{} // Non-anime-related, used for aborting the parsing
 	err                          error         // Contains a error that occurred during parsing if any
 	errLock                      sync.Mutex    // Used to sync up error mutations between parsing & handling go-routines
@@ -103,7 +103,7 @@ func (p *Parser) Header() common.DemoHeader {
 // GameState returns the current game-state.
 // It contains most of the relevant information about the game such as players, teams, scores, grenades etc.
 func (p *Parser) GameState() IGameState {
-	return &p.gameState
+	return p.gameState
 }
 
 // CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
@@ -232,7 +232,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.rawPlayers = make(map[int]*playerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
-	p.gameState = *newGameState()
+	p.gameState = newGameState()
 	p.grenadeModelIndices = make(map[int]common.EquipmentElement)
 
 	// Attach proto msg handlers
