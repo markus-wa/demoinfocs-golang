@@ -2,11 +2,13 @@ package demoinfocs
 
 import (
 	"crypto/rand"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
 	"github.com/markus-wa/demoinfocs-golang/msg"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 // See #90
