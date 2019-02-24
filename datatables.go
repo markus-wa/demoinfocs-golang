@@ -13,11 +13,11 @@ import (
 
 const (
 	maxEdictBits                 = 11
-	entityHandleIndexMask        = ((1 << maxEdictBits) - 1)
+	entityHandleIndexMask        = (1 << maxEdictBits) - 1
 	entityHandleSerialNumberBits = 10
 	entityHandleBits             = maxEdictBits + entityHandleSerialNumberBits
 	invalidEntityHandle          = (1 << entityHandleBits) - 1
-	maxEntities                  = (1 << maxEdictBits)
+	maxEntities                  = 1 << maxEdictBits
 	maxPlayers                   = 64
 	maxWeapons                   = 64
 )
