@@ -245,31 +245,6 @@ type frameParsedTokenType struct{}
 var frameParsedToken = new(frameParsedTokenType)
 
 func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
-	for k, rp := range p.rawPlayers {
-		// We need to re-map the players from their entityID to their UID.
-		// This is necessary because we don't always have the UID when the player connects (or something like that, not really sure tbh).
-		// k+1 for index -> ID
-		if pl := p.gameState.playersByEntityID[k+1]; pl != nil {
-			pl.Name = rp.name
-			pl.SteamID = rp.xuid
-			pl.IsBot = rp.isFakePlayer
-			pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[pl.EntityID]
-
-			if pl.IsAlive() {
-				pl.LastAlivePosition = pl.Position
-			}
-
-			if p.gameState.playersByUserID[rp.userID] == nil {
-				p.gameState.playersByUserID[rp.userID] = pl
-				pl.UserID = rp.userID
-
-				if pl.SteamID != 0 {
-					p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
-				}
-			}
-		}
-	}
-
 	// PlayerFlashed events need to be dispatched at the end of the tick
 	// because Player.FlashDuration is updated after the game-events are parsed.
 	for _, e := range p.currentFlashEvents {
