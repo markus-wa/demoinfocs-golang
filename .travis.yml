@@ -52,7 +52,11 @@ script:
   - go test -v -race -run "$race_tests" -timeout 15m
 
   # We run all tests again to get full coverage, technically unncecessary tho
-  - go test -v -timeout 30m -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -v msg | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/') ./...
+  - coverpkg_ignore='/msg'
+  # coverpkg for multiple mains is broken in 1.12, so we need to exclude the examples from coverage
+  # https://github.com/golang/go/issues/30374
+  - if ! [[ "$TRAVIS_GO_VERSION" =~ ^1\.11 ]]; then coverpkg_ignore="${coverpkg_ignore}|/examples"; fi
+  - go test -v -timeout 30m -coverprofile=coverage.txt -coverpkg=$(go list ./... | grep -v -E ${coverpkg_ignore} | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/') ./...
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
