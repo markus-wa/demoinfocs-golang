@@ -49,9 +49,9 @@ func (p *Player) IsAlive() bool {
 }
 
 // IsBlinded returns true if the player is currently flashed.
-// This is more accurate than 'FlashDuration != 0' as it takes into account the FlashTick and GameState.IngameTick().
+// This is more accurate than 'FlashDuration != 0' as it also takes into account FlashTick, DemoHeader.TickRate() and GameState.IngameTick().
 func (p *Player) IsBlinded() bool {
-	return p.FlashDuration > float32(p.ingameTickProvider()-p.FlashTick)/float32(p.tickRate)
+	return p.FlashDurationTimeRemaining() > 0
 }
 
 // FlashDurationTime returns the duration of the blinding effect as time.Duration instead of float32 in seconds.
@@ -60,7 +60,28 @@ func (p *Player) FlashDurationTime() time.Duration {
 	if !p.IsBlinded() {
 		return time.Duration(0)
 	}
+	return p.flashDurationTimeFull()
+}
+
+func (p *Player) flashDurationTimeFull() time.Duration {
 	return time.Duration(float32(time.Second) * p.FlashDuration)
+}
+
+// FlashDurationTimeRemaining returns the remaining duration of the blinding effect (or 0 if the player is not currently blinded).
+// It takes into consideration FlashDuration, FlashTick, DemoHeader.TickRate() and GameState.IngameTick().
+func (p *Player) FlashDurationTimeRemaining() time.Duration {
+	// In case the demo header is broken
+	// TODO: read tickRate from CVARs as fallback
+	if p.tickRate == 0 {
+		return time.Duration(p.FlashDuration) * time.Second
+	}
+
+	timeSinceFlash := time.Duration(float64(p.ingameTickProvider()-p.FlashTick) / p.tickRate * float64(time.Second))
+	remaining := p.flashDurationTimeFull() - timeSinceFlash
+	if remaining < 0 {
+		return 0
+	}
+	return remaining
 }
 
 /*
