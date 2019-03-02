@@ -30,6 +30,7 @@ type Player struct {
 	ViewDirectionX              float32
 	ViewDirectionY              float32
 	FlashDuration               float32 // Blindness duration from the flashbang currently affecting the player (seconds)
+	FlashTick                   int     // In-game tick at which the player was last flashed
 	Team                        Team
 	TeamState                   *TeamState // When keeping the reference make sure you notice when the player changes teams
 	IsBot                       bool
@@ -37,6 +38,9 @@ type Player struct {
 	IsDefusing                  bool
 	HasDefuseKit                bool
 	HasHelmet                   bool
+
+	tickRate           float64            // the in-game tick rate, used for IsBlinded()
+	ingameTickProvider ingameTickProvider // provider for the current in-game tick, used for IsBlinded()
 }
 
 // IsAlive returns true if the Hp of the player are > 0.
@@ -44,13 +48,18 @@ func (p *Player) IsAlive() bool {
 	return p.Hp > 0
 }
 
-// IsBlinded returns true if the player is currently flashed (FlashDuration > 0).
+// IsBlinded returns true if the player is currently flashed.
+// This is more accurate than 'FlashDuration != 0' as it takes into account the FlashTick and GameState.IngameTick().
 func (p *Player) IsBlinded() bool {
-	return p.FlashDuration > 0
+	return p.FlashDuration > float32(p.ingameTickProvider()-p.FlashTick)/float32(p.tickRate)
 }
 
 // FlashDurationTime returns the duration of the blinding effect as time.Duration instead of float32 in seconds.
+// Will return 0 if IsBlinded() returns false.
 func (p *Player) FlashDurationTime() time.Duration {
+	if !p.IsBlinded() {
+		return time.Duration(0)
+	}
 	return time.Duration(float32(time.Second) * p.FlashDuration)
 }
 
@@ -95,9 +104,16 @@ type AdditionalPlayerInformation struct {
 	TotalCashSpent int
 }
 
+// ingameTickProvider is a function that returns the current ingame tick of the demo related to a player.
+type ingameTickProvider func() int
+
 // NewPlayer creates a *Player with an initialized equipment map.
 //
 // Intended for internal use only.
-func NewPlayer() *Player {
-	return &Player{RawWeapons: make(map[int]*Equipment)}
+func NewPlayer(tickRate float64, ingameTickProvider ingameTickProvider) *Player {
+	return &Player{
+		RawWeapons:         make(map[int]*Equipment),
+		tickRate:           tickRate,
+		ingameTickProvider: ingameTickProvider,
+	}
 }
