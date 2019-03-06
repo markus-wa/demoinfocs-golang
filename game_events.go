@@ -12,10 +12,6 @@ import (
 )
 
 func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
 	p.gameEventDescs = make(map[int32]*msg.CSVCMsg_GameEventListDescriptorT)
 	for _, d := range gel.GetDescriptors() {
 		p.gameEventDescs[d.GetEventid()] = d
@@ -23,10 +19,6 @@ func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 }
 
 func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
 	if p.gameEventDescs == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{Message: "Received GameEvent but event descriptors are missing"})
 		return
@@ -516,10 +508,6 @@ func getCommunityID(guid string) int64 {
 }
 
 func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
 	switch msg.ECstrike15UserMessages(um.MsgType) {
 	case msg.ECstrike15UserMessages_CS_UM_SayText:
 		st := new(msg.CCSUsrMsg_SayText)

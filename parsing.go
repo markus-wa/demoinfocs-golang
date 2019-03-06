@@ -246,10 +246,6 @@ type frameParsedTokenType struct{}
 var frameParsedToken = new(frameParsedTokenType)
 
 func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
 	for k, rp := range p.rawPlayers {
 		// We need to re-map the players from their entityID to their UID.
 		// This is necessary because we don't always have the UID when the player connects (or something like that, not really sure tbh).
