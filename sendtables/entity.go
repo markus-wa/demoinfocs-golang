@@ -9,6 +9,8 @@ import (
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 )
 
+//go:generate ifacemaker -f entity.go -s Entity -i IEntity -p sendtables -D -y "IEntity is an auto-generated interface for Entity, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o entity_interface.go
+
 // Entity stores a entity in the game (e.g. players etc.) with its properties.
 type Entity struct {
 	serverClass *ServerClass
@@ -56,7 +58,7 @@ func (e *Entity) FindProperty(name string) *Property {
 // BindProperty combines FindProperty() & Property.Bind() into one.
 // Essentially binds a property's value to a pointer.
 // See the docs of the two individual functions for more info.
-func (e *Entity) BindProperty(name string, variable interface{}, valueType propertyValueType) {
+func (e *Entity) BindProperty(name string, variable interface{}, valueType PropertyValueType) {
 	e.FindProperty(name).Bind(variable, valueType)
 }
 
@@ -296,12 +298,13 @@ func (pe *Property) Value() PropertyValue {
 	return pe.value
 }
 
-type propertyValueType int
+// PropertyValueType specifies the type of a PropertyValue
+type PropertyValueType int
 
 // Possible types of property values.
 // See Property.Bind()
 const (
-	ValTypeInt propertyValueType = iota
+	ValTypeInt PropertyValueType = iota
 	ValTypeFloat32
 	ValTypeFloat64 // Like ValTypeFloat32 but with additional cast to float64
 	ValTypeString
@@ -339,7 +342,7 @@ This will bind the property's value to i so every time it's updated i is updated
 
 The valueType indicates which field of the PropertyValue to use for the binding.
 */
-func (pe *Property) Bind(variable interface{}, valueType propertyValueType) {
+func (pe *Property) Bind(variable interface{}, valueType PropertyValueType) {
 	var binder PropertyUpdateHandler
 	switch valueType {
 	case ValTypeInt:

@@ -178,7 +178,7 @@ func (p *Parser) bindPlayers() {
 	})
 }
 
-func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
+func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 	entityID := playerEntity.ID()
 	rp := p.rawPlayers[entityID-1]
 
@@ -206,6 +206,7 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 
 	playerEntity.OnDestroy(func() {
 		delete(p.gameState.playersByEntityID, entityID)
+		pl.Entity = nil
 	})
 
 	// Position
