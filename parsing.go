@@ -133,8 +133,16 @@ May panic if the demo is corrupt in some way.
 
 See also: ParseToEnd() for parsing the complete demo in one go (faster).
 */
-func (p *Parser) ParseNextFrame() (b bool, err error) {
+func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
 	defer func() {
+		// Make sure all the messages of the frame are handled
+		p.msgDispatcher.SyncAllQueues()
+
+		// Close msgQueue (only if we are done)
+		if p.msgQueue != nil && !moreFrames {
+			close(p.msgQueue)
+		}
+
 		if err == nil {
 			err = recoverFromUnexpectedEOF(recover())
 		}
@@ -147,17 +155,9 @@ func (p *Parser) ParseNextFrame() (b bool, err error) {
 		}
 	}
 
-	b = p.parseFrame()
+	moreFrames = p.parseFrame()
 
-	// Make sure all the messages of the frame are handled
-	p.msgDispatcher.SyncAllQueues()
-
-	// Close msgQueue if we are done
-	if !b {
-		close(p.msgQueue)
-	}
-
-	return b, p.error()
+	return moreFrames, p.error()
 }
 
 // Demo commands as documented at https://developer.valvesoftware.com/wiki/DEM_Format

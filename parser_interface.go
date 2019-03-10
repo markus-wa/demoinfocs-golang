@@ -110,5 +110,5 @@ type IParser interface {
 
 	   See also: ParseToEnd() for parsing the complete demo in one go (faster).
 	*/
-	ParseNextFrame() (b bool, err error)
+	ParseNextFrame() (moreFrames bool, err error)
 }
