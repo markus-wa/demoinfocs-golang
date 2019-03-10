@@ -84,9 +84,9 @@ func (p *Parser) ParseToEnd() (err error) {
 	}()
 
 	if p.header == nil {
-		_, err := p.ParseHeader()
+		_, err = p.ParseHeader()
 		if err != nil {
-			return err
+			return
 		}
 	}
 
@@ -101,8 +101,8 @@ func (p *Parser) ParseToEnd() (err error) {
 			}
 		}
 
-		if pErr := p.error(); pErr != nil {
-			return pErr
+		if err = p.error(); err != nil {
+			return
 		}
 	}
 }
@@ -141,9 +141,9 @@ func (p *Parser) ParseNextFrame() (b bool, err error) {
 	}()
 
 	if p.header == nil {
-		_, err := p.ParseHeader()
+		_, err = p.ParseHeader()
 		if err != nil {
-			return false, err
+			return
 		}
 	}
 
@@ -157,8 +157,7 @@ func (p *Parser) ParseNextFrame() (b bool, err error) {
 		close(p.msgQueue)
 	}
 
-	err = p.error()
-	return
+	return b, p.error()
 }
 
 // Demo commands as documented at https://developer.valvesoftware.com/wiki/DEM_Format
