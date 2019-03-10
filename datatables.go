@@ -193,7 +193,7 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 			pl = common.NewPlayer()
 			pl.Name = rp.name
 			pl.SteamID = rp.xuid
-			pl.IsBot = rp.isFakePlayer
+			pl.IsBot = rp.isFakePlayer || rp.guid == "BOT"
 			pl.UserID = rp.userID
 		}
 	}
