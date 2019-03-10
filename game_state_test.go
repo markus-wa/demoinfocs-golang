@@ -59,8 +59,7 @@ func TestParticipants_All(t *testing.T) {
 
 	allPlayers := gs.Participants().All()
 
-	assert.Len(t, allPlayers, 1)
-	assert.Equal(t, pl, allPlayers[0])
+	assert.ElementsMatch(t, []*common.Player{pl}, allPlayers)
 }
 
 func TestParticipants_Playing(t *testing.T) {
@@ -84,8 +83,7 @@ func TestParticipants_Playing(t *testing.T) {
 	playing := gs.Participants().Playing()
 
 	assert.Len(t, playing, 2)
-	assert.Equal(t, terrorist, playing[0])
-	assert.Equal(t, ct, playing[1])
+	assert.ElementsMatch(t, []*common.Player{terrorist, ct}, playing)
 }
 
 func TestParticipants_TeamMembers(t *testing.T) {
@@ -106,10 +104,9 @@ func TestParticipants_TeamMembers(t *testing.T) {
 	def := common.NewPlayer()
 	gs.playersByUserID[4] = def
 
-	playing := gs.Participants().TeamMembers(common.TeamCounterTerrorists)
+	cts := gs.Participants().TeamMembers(common.TeamCounterTerrorists)
 
-	assert.Len(t, playing, 1)
-	assert.Equal(t, ct, playing[0])
+	assert.ElementsMatch(t, []*common.Player{ct}, cts)
 }
 
 func TestParticipants_FindByHandle(t *testing.T) {
