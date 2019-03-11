@@ -117,9 +117,7 @@ func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int) 
 
 	// Fire created-handlers so update-handlers can be registered
 	for _, h := range sc.createdHandlers {
-		if h != nil {
-			h(entity)
-		}
+		h(entity)
 	}
 
 	// Fire update-handlers
