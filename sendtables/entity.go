@@ -321,9 +321,7 @@ func (pe *Property) OnUpdate(handler PropertyUpdateHandler) {
 // Trigger all the registered PropertyUpdateHandlers on this entry.
 func (pe *Property) firePropertyUpdate() {
 	for _, h := range pe.updateHandlers {
-		if h != nil {
-			h(pe.value)
-		}
+		h(pe.value)
 	}
 }
 
