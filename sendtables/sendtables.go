@@ -120,11 +120,6 @@ func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int) 
 		h(entity)
 	}
 
-	// Fire update-handlers
-	for _, v := range entity.props {
-		v.firePropertyUpdate()
-	}
-
 	// Fire all post-creation actions
 	for _, f := range entity.onCreateFinished {
 		f()
