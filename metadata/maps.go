@@ -31,10 +31,10 @@ var (
 	MapDeCache = Map{
 		Name: "de_cache",
 		PZero: r2.Point{
-			X: -1950,
-			Y: 3200,
+			X: -2000,
+			Y: 3250,
 		},
-		Scale: 5.4,
+		Scale: 5.5,
 	}
 
 	MapDeCanals = Map{
@@ -58,13 +58,10 @@ var (
 	MapDeDust2 = Map{
 		Name: "de_dust2",
 		PZero: r2.Point{
-			X: -2400,
-			Y: 3383,
+			X: -2476,
+			Y: 3239,
 		},
 		Scale: 4.4,
-		// Not sure what these are:
-		//Rotate: 1,
-		//Zoom:   1.1,
 	}
 
 	MapDeInferno = Map{
