@@ -143,7 +143,7 @@ type Participants struct {
 }
 
 // ByUserID returns all currently connected players in a map where the key is the user-ID.
-// The map is a snapshot and is not updated (not a reference to the actual, underlying map).
+// The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
 // Includes spectators.
 func (ptcp Participants) ByUserID() map[int]*common.Player {
 	res := make(map[int]*common.Player)
@@ -154,7 +154,7 @@ func (ptcp Participants) ByUserID() map[int]*common.Player {
 }
 
 // ByEntityID returns all currently connected players in a map where the key is the entity-ID.
-// The map is a snapshot and is not updated (not a reference to the actual, underlying map).
+// The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
 // Includes spectators.
 func (ptcp Participants) ByEntityID() map[int]*common.Player {
 	res := make(map[int]*common.Player)
@@ -165,6 +165,7 @@ func (ptcp Participants) ByEntityID() map[int]*common.Player {
 }
 
 // All returns all currently connected players & spectators.
+// The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) All() []*common.Player {
 	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
 	for _, p := range ptcp.playersByUserID {
@@ -174,6 +175,7 @@ func (ptcp Participants) All() []*common.Player {
 }
 
 // Playing returns all players that aren't spectating or unassigned.
+// The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) Playing() []*common.Player {
 	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
 	for _, p := range ptcp.playersByUserID {
@@ -185,6 +187,7 @@ func (ptcp Participants) Playing() []*common.Player {
 }
 
 // TeamMembers returns all players belonging to the requested team at this time.
+// The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) TeamMembers(team common.Team) []*common.Player {
 	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
 	for _, ptcp := range ptcp.playersByUserID {
