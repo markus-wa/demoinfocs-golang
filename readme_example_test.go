@@ -10,6 +10,10 @@ import (
 )
 
 func TestReadmeExample(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
 	f, err := os.Open(defaultDemPath)
 	if err != nil {
 		panic(err)

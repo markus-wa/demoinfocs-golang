@@ -40,6 +40,10 @@ func init() {
 }
 
 func TestDemoInfoCs(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
 	f, err := os.Open(defaultDemPath)
 	if err != nil {
 		t.Fatal(err)
@@ -163,6 +167,10 @@ func TestDemoInfoCs(t *testing.T) {
 }
 
 func TestUnexpectedEndOfDemo(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
 	f, err := os.Open(unexpectedEndOfDemoPath)
 	if err != nil {
 		t.Fatal(err)
@@ -236,6 +244,10 @@ func TestInvalidFileType(t *testing.T) {
 }
 
 func TestConcurrent(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
 	t.Logf("Running concurrency test with %d demos\n", concurrentDemos)
 
 	var i int64
@@ -278,6 +290,10 @@ func runConcurrently(runner func()) {
 }
 
 func TestDemoSet(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
 	dems, err := ioutil.ReadDir(demSetPath)
 	if err != nil {
 		t.Fatal(err)
