@@ -286,7 +286,7 @@ func (geh gameEventHandler) playerBlind(desc *msg.CSVCMsg_GameEventListDescripto
 
 	// Player.FlashDuration hasn't been updated yet,
 	// so we need to wait until the end of the tick before dispatching
-	geh.parser.currentFlashEvents = append(geh.parser.currentFlashEvents, events.PlayerFlashed{
+	geh.parser.delayedEvents = append(geh.parser.delayedEvents, events.PlayerFlashed{
 		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
 		Attacker: geh.gameState().lastFlasher,
 	})
@@ -390,7 +390,10 @@ func (geh gameEventHandler) playerTeam(desc *msg.CSVCMsg_GameEventListDescriptor
 			player.Team = newTeam
 
 			oldTeam := common.Team(data["oldteam"].GetValByte())
-			geh.dispatch(events.PlayerTeamChange{
+			// Delayed for two reasons
+			// - team IDs of other players changing teams in the same tick might not have changed yet
+			// - player entities might not have been re-created yet after a reconnect
+			geh.parser.delayedEvents = append(geh.parser.delayedEvents, events.PlayerTeamChange{
 				Player:       player,
 				IsBot:        data["isbot"].GetValBool(),
 				Silent:       data["silent"].GetValBool(),
