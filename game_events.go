@@ -374,9 +374,9 @@ func (geh gameEventHandler) playerDisconnect(desc *msg.CSVCMsg_GameEventListDesc
 		geh.dispatch(events.PlayerDisconnected{
 			Player: pl,
 		})
-	}
 
-	delete(geh.gameState().playersByUserID, uid)
+		geh.playerByUserID(uid).IsConnected = false
+	}
 }
 
 func (geh gameEventHandler) playerTeam(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {

@@ -204,6 +204,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 	pl.EntityID = entityID
 	pl.Entity = playerEntity
 	pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[entityID]
+	pl.IsConnected = true
 
 	playerEntity.OnDestroy(func() {
 		delete(p.gameState.playersByEntityID, entityID)
