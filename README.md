@@ -121,9 +121,11 @@ Here are some benchmark results from a system with a Intel i7 2600k CPU and SSD 
 
 |Benchmark|Description|Average Duration|Speed|
 |-|-|-|-|
-|`BenchmarkConcurrent`|Read and parse 8 demos concurrently|2.90 s (per 8 demos)|~234'000 ticks / s|
-|`BenchmarkDemoInfoCs`|Read demo from drive and parse|1.39 s|~61'000 ticks / s
-|`BenchmarkInMemory`|Read demo from memory and parse|1.38 s|~61'000 ticks / s
+|`BenchmarkConcurrent`|Read and parse 8 demos concurrently|2.84 s (per 8 demos)|~240'000 ticks / s|
+|`BenchmarkDemoInfoCs`|Read demo from drive and parse|1.24 s|~68'000 ticks / s
+|`BenchmarkInMemory`|Read demo from memory and parse|1.21 s|~70'000 ticks / s
+
+*That's about 1h of gameplay per second when parsing in parallel (recorded at 64 ticks per second) - or 18 minues per second when only parsing a single demo at a time.*
 
 ### Raw output
 
@@ -132,14 +134,15 @@ $ go test -run _NONE_ -bench . -benchtime 30s -benchmem -concurrentdemos 8
 goos: windows
 goarch: amd64
 pkg: github.com/markus-wa/demoinfocs-golang
-BenchmarkDemoInfoCs-8                 30        1397398190 ns/op        162254528 B/op    839779 allocs/op
-BenchmarkInMemory-8                   30        1384877250 ns/op        162109924 B/op    839628 allocs/op
-BenchmarkConcurrent-8                 20        2902574295 ns/op        1297042534 B/op  6717163 allocs/op
+BenchmarkDemoInfoCs-8             30    1237133300 ns/op    256055133 B/op    879104 allocs/op
+BenchmarkInMemory-8               30    1216333013 ns/op    255900492 B/op    878900 allocs/op
+BenchmarkConcurrent-8             20    2840799900 ns/op    2046866843 B/op  7031208 allocs/op
 --- BENCH: BenchmarkConcurrent-8
-        demoinfocs_test.go:425: Running concurrency benchmark with 8 demos
-        demoinfocs_test.go:425: Running concurrency benchmark with 8 demos
+    demoinfocs_test.go:369: Running concurrency benchmark with 8 demos
+    demoinfocs_test.go:369: Running concurrency benchmark with 8 demos
+    demoinfocs_test.go:369: Running concurrency benchmark with 8 demos
 PASS
-ok      github.com/markus-wa/demoinfocs-golang  147.800s
+ok      github.com/markus-wa/demoinfocs-golang  165.244s
 ```
 
 ## Versioning
