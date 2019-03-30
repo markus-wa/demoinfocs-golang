@@ -179,26 +179,42 @@ func (p *Parser) bindPlayers() {
 }
 
 func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
-	var pl *common.Player
-	playerIndex := playerEntity.ID()
-	if p.gameState.playersByEntityID[playerIndex] != nil {
-		pl = p.gameState.playersByEntityID[playerIndex]
-	} else {
-		pl = common.NewPlayer()
-		p.gameState.playersByEntityID[playerIndex] = pl
-		pl.SteamID = -1
-		pl.Name = "unconnected"
-	}
+	entityID := playerEntity.ID()
+	rp := p.rawPlayers[entityID-1]
 
-	pl.EntityID = playerEntity.ID()
+	isNew := false
+	pl := p.gameState.playersByEntityID[entityID]
+	if pl == nil {
+		pl = p.gameState.playersByUserID[rp.userID]
+
+		if pl == nil {
+			isNew = true
+
+			pl = common.NewPlayer()
+			pl.Name = rp.name
+			pl.SteamID = rp.xuid
+			pl.IsBot = rp.isFakePlayer
+			pl.UserID = rp.userID
+		}
+	}
+	p.gameState.playersByEntityID[entityID] = pl
+	p.gameState.playersByUserID[rp.userID] = pl
+
+	pl.EntityID = entityID
 	pl.Entity = playerEntity
+	pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[entityID]
 
 	playerEntity.OnDestroy(func() {
-		delete(p.gameState.playersByEntityID, pl.EntityID)
+		delete(p.gameState.playersByEntityID, entityID)
 	})
 
 	// Position
-	playerEntity.BindPosition(&pl.Position)
+	playerEntity.OnPositionUpdate(func(pos r3.Vector) {
+		pl.Position = pos
+		if pl.IsAlive() {
+			pl.LastAlivePosition = pos
+		}
+	})
 
 	// General info
 	playerEntity.FindProperty("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
@@ -279,6 +295,10 @@ func (p *Parser) bindNewPlayer(playerEntity *st.Entity) {
 		}
 		pl.IsDefusing = val.IntVal != 0
 	})
+
+	if isNew && pl.SteamID != 0 {
+		p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
+	}
 }
 
 func (p *Parser) bindWeapons() {

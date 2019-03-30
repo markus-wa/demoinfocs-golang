@@ -314,7 +314,10 @@ const (
 type PropertyUpdateHandler func(PropertyValue)
 
 // OnUpdate registers a handler for updates of the Property's value.
+//
+// The handler will be called with the current value upon registration.
 func (pe *Property) OnUpdate(handler PropertyUpdateHandler) {
+	handler(pe.value)
 	pe.updateHandlers = append(pe.updateHandlers, handler)
 }
 
