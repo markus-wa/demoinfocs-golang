@@ -134,7 +134,7 @@ func TestParticipants_FindByHandle_InvalidEntityHandle(t *testing.T) {
 	assert.Nil(t, found)
 }
 
-func TestParticipants_SuppressNoEntity(t *testing.T) {
+func TestParticipants_Connected_SuppressNoEntity(t *testing.T) {
 	gs := newGameState()
 	pl := newPlayer()
 	gs.playersByUserID[0] = pl
@@ -142,12 +142,12 @@ func TestParticipants_SuppressNoEntity(t *testing.T) {
 	pl2.IsConnected = true
 	gs.playersByUserID[1] = pl2
 
-	allPlayers := gs.Participants().All()
+	allPlayers := gs.Participants().Connected()
 
 	assert.ElementsMatch(t, []*common.Player{pl}, allPlayers)
 }
 
-func TestParticipants_SuppressNotConnected(t *testing.T) {
+func TestParticipants_Connected_SuppressNotConnected(t *testing.T) {
 	gs := newGameState()
 	pl := newPlayer()
 	gs.playersByUserID[0] = pl
@@ -155,7 +155,7 @@ func TestParticipants_SuppressNotConnected(t *testing.T) {
 	pl2.IsConnected = false
 	gs.playersByUserID[1] = pl2
 
-	allPlayers := gs.Participants().All()
+	allPlayers := gs.Participants().Connected()
 
 	assert.ElementsMatch(t, []*common.Player{pl}, allPlayers)
 }

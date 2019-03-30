@@ -26,6 +26,11 @@ func (ptcp *Participants) All() []*common.Player {
 	return ptcp.Called().Get(0).([]*common.Player)
 }
 
+// Connected is a mock-implementation of IParticipants.Connected().
+func (ptcp *Participants) Connected() []*common.Player {
+	return ptcp.Called().Get(0).([]*common.Player)
+}
+
 // Playing is a mock-implementation of IParticipants.Playing().
 func (ptcp *Participants) Playing() []*common.Player {
 	return ptcp.Called().Get(0).([]*common.Player)
