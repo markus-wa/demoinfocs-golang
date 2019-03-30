@@ -25,7 +25,7 @@ type Player struct {
 	ActiveWeaponID              int                // Used internally to set the active weapon, see ActiveWeapon()
 	RawWeapons                  map[int]*Equipment // All weapons the player is currently carrying
 	AmmoLeft                    [32]int            // Ammo left in the various weapons, index corresponds to key of RawWeapons
-	Entity                      *st.Entity
+	Entity                      st.IEntity
 	AdditionalPlayerInformation *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
 	ViewDirectionX              float32
 	ViewDirectionY              float32
