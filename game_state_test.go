@@ -138,7 +138,7 @@ func TestParticipants_SuppressNoEntity(t *testing.T) {
 	gs := newGameState()
 	pl := newPlayer()
 	gs.playersByUserID[0] = pl
-	gs.playersByUserID[1] = common.NewPlayer()
+	gs.playersByUserID[1] = common.NewPlayer(0, func() int { return 0 })
 
 	allPlayers := gs.Participants().All()
 
@@ -146,7 +146,7 @@ func TestParticipants_SuppressNoEntity(t *testing.T) {
 }
 
 func newPlayer() *common.Player {
-	pl := common.NewPlayer()
+	pl := common.NewPlayer(0, func() int { return 0 })
 	pl.Entity = new(st.Entity)
 	return pl
 }

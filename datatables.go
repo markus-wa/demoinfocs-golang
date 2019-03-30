@@ -190,7 +190,8 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 		if pl == nil {
 			isNew = true
 
-			pl = common.NewPlayer()
+			// TODO: read tickRate from CVARs as fallback
+			pl = common.NewPlayer(p.header.TickRate(), p.gameState.IngameTick)
 			pl.Name = rp.name
 			pl.SteamID = rp.xuid
 			pl.IsBot = rp.isFakePlayer || rp.guid == "BOT"
@@ -231,7 +232,14 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 
 	playerEntity.BindProperty("m_angEyeAngles[1]", &pl.ViewDirectionX, st.ValTypeFloat32)
 	playerEntity.BindProperty("m_angEyeAngles[0]", &pl.ViewDirectionY, st.ValTypeFloat32)
-	playerEntity.BindProperty("m_flFlashDuration", &pl.FlashDuration, st.ValTypeFloat32)
+	playerEntity.FindProperty("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
+		if val.FloatVal == 0 {
+			pl.FlashTick = 0
+		} else {
+			pl.FlashTick = p.gameState.ingameTick
+		}
+		pl.FlashDuration = val.FloatVal
+	})
 
 	// Velocity
 	playerEntity.BindProperty("localdata.m_vecVelocity[0]", &pl.Velocity.X, st.ValTypeFloat64)

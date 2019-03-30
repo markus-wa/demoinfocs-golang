@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 	fakest "github.com/markus-wa/demoinfocs-golang/sendtables/fake"
@@ -19,7 +20,7 @@ func (DevNullReader) Read(p []byte) (n int, err error) {
 }
 
 func TestParser_BindNewPlayer_Issue98(t *testing.T) {
-	p := NewParser(new(DevNullReader))
+	p := newParser()
 
 	p.rawPlayers = map[int]*playerInfo{
 		0: {
@@ -45,7 +46,7 @@ func TestParser_BindNewPlayer_Issue98(t *testing.T) {
 }
 
 func TestParser_BindNewPlayer_Issue98_Reconnect(t *testing.T) {
-	p := NewParser(new(DevNullReader))
+	p := newParser()
 
 	p.rawPlayers = map[int]*playerInfo{
 		0: {
@@ -67,6 +68,12 @@ func TestParser_BindNewPlayer_Issue98_Reconnect(t *testing.T) {
 
 	assert.Len(t, p.GameState().Participants().All(), 1)
 
+}
+
+func newParser() *Parser {
+	p := NewParser(new(DevNullReader))
+	p.header = &common.DemoHeader{}
+	return p
 }
 
 func fakePlayerEntity(id int) st.IEntity {
