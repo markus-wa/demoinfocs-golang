@@ -42,7 +42,7 @@ func TestParser_BindNewPlayer_Issue98(t *testing.T) {
 	player := fakePlayerEntity(2)
 	p.bindNewPlayer(player)
 
-	assert.Len(t, p.GameState().Participants().All(), 1)
+	assert.Len(t, p.GameState().Participants().Connected(), 1)
 }
 
 func TestParser_BindNewPlayer_Issue98_Reconnect(t *testing.T) {

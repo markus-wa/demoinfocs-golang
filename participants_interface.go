@@ -20,9 +20,12 @@ type IParticipants interface {
 	// The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
 	// Includes spectators.
 	ByEntityID() map[int]*common.Player
-	// All returns all currently connected players & spectators.
+	// All returns all currently known players & spectators, including disconnected ones, of the demo.
 	// The returned slice is a snapshot and is not updated on changes.
 	All() []*common.Player
+	// Connected returns all currently connected players & spectators.
+	// The returned slice is a snapshot and is not updated on changes.
+	Connected() []*common.Player
 	// Playing returns all players that aren't spectating or unassigned.
 	// The returned slice is a snapshot and is not updated on changes.
 	Playing() []*common.Player

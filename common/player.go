@@ -34,6 +34,7 @@ type Player struct {
 	Team                        Team
 	TeamState                   *TeamState // When keeping the reference make sure you notice when the player changes teams
 	IsBot                       bool
+	IsConnected                 bool
 	IsDucking                   bool
 	IsDefusing                  bool
 	HasDefuseKit                bool

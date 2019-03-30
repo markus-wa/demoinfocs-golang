@@ -150,7 +150,7 @@ func (ptcp Participants) ByUserID() map[int]*common.Player {
 	for k, v := range ptcp.playersByUserID {
 		// We need to check if the player entity hasn't been destroyed yet
 		// See https://github.com/markus-wa/demoinfocs-golang/issues/98
-		if v.Entity != nil {
+		if v.IsConnected && v.Entity != nil {
 			res[k] = v
 		}
 	}
@@ -168,9 +168,19 @@ func (ptcp Participants) ByEntityID() map[int]*common.Player {
 	return res
 }
 
-// All returns all currently connected players & spectators.
+// All returns all currently known players & spectators, including disconnected ones, of the demo.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) All() []*common.Player {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, p := range ptcp.playersByUserID {
+		res = append(res, p)
+	}
+	return res
+}
+
+// Connected returns all currently connected players & spectators.
+// The returned slice is a snapshot and is not updated on changes.
+func (ptcp Participants) Connected() []*common.Player {
 	res, original := ptcp.initalizeSliceFromByUserID()
 	for _, p := range original {
 		res = append(res, p)
