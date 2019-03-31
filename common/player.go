@@ -105,11 +105,6 @@ func (p *Player) ActiveWeapon() *Equipment {
 	return p.RawWeapons[p.ActiveWeaponID]
 }
 
-// ActiveWeaponID returns the currently active / equipped weapon ID of the player.
-func (p *Player) ActiveWeaponID() int {
-	return int(p.RawWeapons[p.ActiveWeaponID].Weapon)
-}
-
 // Weapons returns all weapons in the player's possession.
 func (p *Player) Weapons() []*Equipment {
 	res := make([]*Equipment, 0, len(p.RawWeapons))
