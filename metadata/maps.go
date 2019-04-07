@@ -42,6 +42,7 @@ var (
 	MapDeNuke     = makeMap("de_nuke", -3453, 2887, 7)
 	MapDeOverpass = makeMap("de_overpass", -4831, 1781, 5.2)
 	MapDeTrain    = makeMap("de_train", -2477, 2392, 4.7)
+	MapDeVertigo  = makeMap("de_vertigo", -3168, 1762, 4)
 )
 
 // MapNameToMap translates a map name to a Map.
@@ -55,4 +56,5 @@ var MapNameToMap = map[string]Map{
 	"de_nuke":     MapDeNuke,
 	"de_overpass": MapDeOverpass,
 	"de_train":    MapDeTrain,
+	"de_vertigo":  MapDeVertigo,
 }
