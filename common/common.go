@@ -41,7 +41,12 @@ func (h DemoHeader) FrameRate() float64 {
 }
 
 // FrameTime returns the time a frame / demo-tick takes in seconds.
+//
+// Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
 func (h DemoHeader) FrameTime() time.Duration {
+	if h.PlaybackFrames == 0 {
+		return 0
+	}
 	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackFrames))
 }
 
