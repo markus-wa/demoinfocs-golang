@@ -674,11 +674,11 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 
 		for _, v := range st.RankUpdate {
 			p.eventDispatcher.Dispatch(events.RankUpdate{
-				SteamID:	int64(v.AccountId),
-				RankOld:	int(v.RankOld),
-				RankNew:	int(v.RankNew),
-				WinCount:	int(v.NumWins),
-				RankChange:	v.RankChange,
+				SteamID:    int64(v.AccountId),
+				RankOld:    int(v.RankOld),
+				RankNew:    int(v.RankNew),
+				WinCount:   int(v.NumWins),
+				RankChange: v.RankChange,
 			})
 		}
 	default:
