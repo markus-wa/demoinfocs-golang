@@ -115,7 +115,7 @@ Check out the [examples](examples) folder for more examples, like [how to genera
 
 Two of the top priorities of this parser are performance and concurrency.
 
-Here are some benchmark results from a system with a Intel i7 2600k CPU and SSD disk running Windows 10 and a demo with 85'000 frames.
+Here are some benchmark results from a system with an Intel i7 2600k CPU and a SSD disk running Windows 10 and a demo with 85'000 frames.
 
 ### Overview
 
