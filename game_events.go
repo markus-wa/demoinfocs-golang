@@ -665,7 +665,22 @@ func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 		default:
 			p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)})
 		}
+	case msg.ECstrike15UserMessages_CS_UM_ServerRankUpdate:
+		st := new(msg.CCSUsrMsg_ServerRankUpdate)
+		err := st.Unmarshal(um.MsgData)
+		if err != nil {
+			p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Failed to decode ServerRankUpdate message: %s", err.Error())})
+		}
 
+		for _, v := range st.RankUpdate {
+			p.eventDispatcher.Dispatch(events.RankUpdate{
+				SteamID:    int64(v.AccountId),
+				RankOld:    int(v.RankOld),
+				RankNew:    int(v.RankNew),
+				WinCount:   int(v.NumWins),
+				RankChange: v.RankChange,
+			})
+		}
 	default:
 		// TODO: handle more user messages (if they are interesting)
 		// Maybe msg.ECstrike15UserMessages_CS_UM_RadioText

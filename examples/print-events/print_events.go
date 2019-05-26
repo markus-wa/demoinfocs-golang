@@ -56,6 +56,10 @@ func main() {
 		fmt.Printf("Chat - %s says: %s\n", formatPlayer(e.Sender), e.Text)
 	})
 
+	p.RegisterEventHandler(func(e events.RankUpdate) {
+		fmt.Printf("Rank Update: %d went from rank %d to rank %d, change: %f\n", e.SteamID, e.RankOld, e.RankNew, e.RankChange)
+	})
+
 	// Parse to end
 	err = p.ParseToEnd()
 	checkError(err)
