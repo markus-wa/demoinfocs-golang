@@ -186,6 +186,10 @@ func TestUnexpectedEndOfDemo(t *testing.T) {
 }
 
 func TestCancelParseToEnd(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
 	f, err := os.Open(defaultDemPath)
 	if err != nil {
 		t.Fatal(err)

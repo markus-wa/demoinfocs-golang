@@ -48,6 +48,7 @@ type Parser struct {
 	msgQueue                     chan interface{}          // Queue of net-messages
 	msgDispatcher                dp.Dispatcher             // Net-message dispatcher
 	gameEventHandler             gameEventHandler
+	userMessageHandler           userMessageHandler
 	eventDispatcher              dp.Dispatcher
 	currentFrame                 int                // Demo-frame, not ingame-tick
 	header                       *common.DemoHeader // Pointer so we can check for nil
@@ -235,6 +236,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.gameState = newGameState()
 	p.grenadeModelIndices = make(map[int]common.EquipmentElement)
 	p.gameEventHandler = newGameEventHandler(&p)
+	p.userMessageHandler = newUserMessageHandler(&p)
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)
