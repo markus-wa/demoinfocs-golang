@@ -54,108 +54,128 @@ func TestGameState_Participants(t *testing.T) {
 }
 
 func TestParticipants_All(t *testing.T) {
-	gs := newGameState()
 	pl := newPlayer()
-	gs.playersByUserID[0] = pl
+	ptcps := Participants{
+		playersByUserID: map[int]*common.Player{0: pl},
+	}
 
-	allPlayers := gs.Participants().All()
+	allPlayers := ptcps.All()
 
 	assert.ElementsMatch(t, []*common.Player{pl}, allPlayers)
 }
 
 func TestParticipants_Playing(t *testing.T) {
-	gs := newGameState()
-
 	terrorist := newPlayer()
 	terrorist.Team = common.TeamTerrorists
-	gs.playersByUserID[0] = terrorist
 	ct := newPlayer()
 	ct.Team = common.TeamCounterTerrorists
-	gs.playersByUserID[1] = ct
 	unassigned := newPlayer()
 	unassigned.Team = common.TeamUnassigned
-	gs.playersByUserID[2] = unassigned
 	spectator := newPlayer()
 	spectator.Team = common.TeamSpectators
-	gs.playersByUserID[3] = spectator
 	def := newPlayer()
-	gs.playersByUserID[4] = def
 
-	playing := gs.Participants().Playing()
+	ptcps := Participants{
+		playersByUserID: map[int]*common.Player{
+			0: terrorist,
+			1: ct,
+			2: unassigned,
+			3: spectator,
+			4: def,
+		},
+	}
+
+	playing := ptcps.Playing()
 
 	assert.Len(t, playing, 2)
 	assert.ElementsMatch(t, []*common.Player{terrorist, ct}, playing)
 }
 
 func TestParticipants_TeamMembers(t *testing.T) {
-	gs := newGameState()
-
 	terrorist := newPlayer()
 	terrorist.Team = common.TeamTerrorists
-	gs.playersByUserID[0] = terrorist
 	ct := newPlayer()
 	ct.Team = common.TeamCounterTerrorists
-	gs.playersByUserID[1] = ct
 	unassigned := newPlayer()
 	unassigned.Team = common.TeamUnassigned
-	gs.playersByUserID[2] = unassigned
 	spectator := newPlayer()
 	spectator.Team = common.TeamSpectators
-	gs.playersByUserID[3] = spectator
 	def := newPlayer()
-	gs.playersByUserID[4] = def
 
-	cts := gs.Participants().TeamMembers(common.TeamCounterTerrorists)
+	ptcps := Participants{
+		playersByUserID: map[int]*common.Player{
+			0: terrorist,
+			1: ct,
+			2: unassigned,
+			3: spectator,
+			4: def,
+		},
+	}
+
+	cts := ptcps.TeamMembers(common.TeamCounterTerrorists)
 
 	assert.ElementsMatch(t, []*common.Player{ct}, cts)
 }
 
 func TestParticipants_FindByHandle(t *testing.T) {
-	gs := newGameState()
-
 	pl := newPlayer()
 	pl.Team = common.TeamTerrorists
-	gs.playersByEntityID[3000&entityHandleIndexMask] = pl
 
-	found := gs.Participants().FindByHandle(3000)
+	ptcps := Participants{
+		playersByEntityID: map[int]*common.Player{
+			3000&entityHandleIndexMask: pl,
+		},
+	}
+
+	found := ptcps .FindByHandle(3000)
 
 	assert.Equal(t, pl, found)
 }
 
 func TestParticipants_FindByHandle_InvalidEntityHandle(t *testing.T) {
-	gs := newGameState()
-
 	pl := newPlayer()
 	pl.Team = common.TeamTerrorists
-	gs.playersByEntityID[invalidEntityHandle&entityHandleIndexMask] = pl
+	ptcps := Participants{
+		playersByEntityID: map[int]*common.Player{
+			invalidEntityHandle&entityHandleIndexMask: pl,
+		},
+	}
 
-	found := gs.Participants().FindByHandle(invalidEntityHandle)
+	found := ptcps.FindByHandle(invalidEntityHandle)
 
 	assert.Nil(t, found)
 }
 
 func TestParticipants_Connected_SuppressNoEntity(t *testing.T) {
-	gs := newGameState()
 	pl := newPlayer()
-	gs.playersByUserID[0] = pl
 	pl2 := common.NewPlayer(0, func() int { return 0 })
 	pl2.IsConnected = true
-	gs.playersByUserID[1] = pl2
 
-	allPlayers := gs.Participants().Connected()
+	ptcps := Participants{
+		playersByUserID: map[int]*common.Player{
+			0: pl,
+			1: pl2,
+		},
+	}
+
+	allPlayers := ptcps.Connected()
 
 	assert.ElementsMatch(t, []*common.Player{pl}, allPlayers)
 }
 
 func TestParticipants_Connected_SuppressNotConnected(t *testing.T) {
-	gs := newGameState()
 	pl := newPlayer()
-	gs.playersByUserID[0] = pl
 	pl2 := newPlayer()
 	pl2.IsConnected = false
-	gs.playersByUserID[1] = pl2
 
-	allPlayers := gs.Participants().Connected()
+	ptcps := Participants{
+		playersByUserID: map[int]*common.Player{
+			0: pl,
+			1: pl2,
+		},
+	}
+
+	allPlayers := ptcps.Connected()
 
 	assert.ElementsMatch(t, []*common.Player{pl}, allPlayers)
 }
