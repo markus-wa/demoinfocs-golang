@@ -1,10 +1,13 @@
 package fake
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 
-	common "github.com/markus-wa/demoinfocs-golang/common"
+	dem "github.com/markus-wa/demoinfocs-golang"
+	"github.com/markus-wa/demoinfocs-golang/common"
 )
+
+var _ dem.IParticipants = new(Participants)
 
 // Participants is a mock for of demoinfocs.IParticipants.
 type Participants struct {
@@ -44,4 +47,14 @@ func (ptcp *Participants) TeamMembers(team common.Team) []*common.Player {
 // FindByHandle is a mock-implementation of IParticipants.FindByHandle().
 func (ptcp *Participants) FindByHandle(handle int) *common.Player {
 	return ptcp.Called().Get(0).(*common.Player)
+}
+
+// SpottersOf is a mock-implementation of IParticipants.SpottersOf().
+func (ptcp *Participants) SpottersOf(spotted *common.Player) []*common.Player {
+	return ptcp.Called().Get(0).([]*common.Player)
+}
+
+// SpottedBy is a mock-implementation of IParticipants.SpottedBy().
+func (ptcp *Participants) SpottedBy(spotter *common.Player) []*common.Player {
+	return ptcp.Called().Get(0).([]*common.Player)
 }

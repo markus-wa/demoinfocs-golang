@@ -7,6 +7,7 @@ import (
 
 	"github.com/markus-wa/demoinfocs-golang/common"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/sendtables/fake"
 )
 
 func TestNewGameState(t *testing.T) {
@@ -178,6 +179,78 @@ func TestParticipants_Connected_SuppressNotConnected(t *testing.T) {
 	allPlayers := ptcps.Connected()
 
 	assert.ElementsMatch(t, []*common.Player{pl}, allPlayers)
+}
+
+func TestParticipants_SpottersOf(t *testing.T) {
+	spotter1 := newPlayer()
+	spotter1.EntityID = 1
+	spotter2 := newPlayer()
+	spotter2.EntityID = 35
+	nonSpotter := newPlayer()
+	nonSpotter.EntityID = 5
+
+	spotted := newPlayer()
+	entity := new(fake.Entity)
+	prop0 := new(fake.Property)
+	prop0.On("Value").Return(st.PropertyValue{IntVal: 1})
+	entity.On("FindPropertyI", "m_bSpottedByMask.000").Return(prop0)
+	prop1 := new(fake.Property)
+	prop1.On("Value").Return(st.PropertyValue{IntVal: 1 << 2})
+	entity.On("FindPropertyI", "m_bSpottedByMask.001").Return(prop1)
+	spotted.Entity = entity
+	spotted.EntityID = 3
+
+	ptcps := Participants{
+		playersByUserID: map[int]*common.Player{
+			0: spotted,
+			1: spotter1,
+			2: spotter2,
+			3: nonSpotter,
+		},
+	}
+
+	spotters := ptcps.SpottersOf(spotted)
+
+	assert.ElementsMatch(t, []*common.Player{spotter1, spotter2}, spotters)
+}
+
+func TestParticipants_SpottedBy(t *testing.T) {
+	spotted1 := newPlayer()
+	spotted1.EntityID = 1
+	spotted2 := newPlayer()
+	spotted2.EntityID = 35
+
+	entity := new(fake.Entity)
+	prop0 := new(fake.Property)
+	prop0.On("Value").Return(st.PropertyValue{IntVal: 1})
+	entity.On("FindPropertyI", "m_bSpottedByMask.000").Return(prop0)
+	spotted1.Entity = entity
+	spotted2.Entity = entity
+
+	unSpotted := newPlayer()
+	unSpotted.EntityID = 5
+	spotter := newPlayer()
+	spotter.EntityID = 1
+
+	unSpottedEntity := new(fake.Entity)
+	unSpottedProp := new(fake.Property)
+	unSpottedProp.On("Value").Return(st.PropertyValue{IntVal: 0})
+	unSpottedEntity.On("FindPropertyI", "m_bSpottedByMask.000").Return(unSpottedProp)
+	unSpotted.Entity = unSpottedEntity
+	spotter.Entity = unSpottedEntity
+
+	ptcps := Participants{
+		playersByUserID: map[int]*common.Player{
+			0: spotter,
+			1: spotted1,
+			2: spotted2,
+			3: unSpotted,
+		},
+	}
+
+	spotted := ptcps.SpottedBy(spotter)
+
+	assert.ElementsMatch(t, []*common.Player{spotted1, spotted2}, spotted)
 }
 
 func newPlayer() *common.Player {

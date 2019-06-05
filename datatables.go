@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	r3 "github.com/golang/geo/r3"
+	"github.com/golang/geo/r3"
 
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
+	"github.com/markus-wa/demoinfocs-golang/common"
+	"github.com/markus-wa/demoinfocs-golang/events"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
@@ -220,7 +220,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 	})
 
 	// General info
-	playerEntity.FindProperty("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
+	playerEntity.FindPropertyI("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
 		pl.Team = common.Team(val.IntVal) // Need to cast to team so we can't use BindProperty
 		pl.TeamState = p.gameState.Team(pl.Team)
 	})
@@ -233,7 +233,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 
 	playerEntity.BindProperty("m_angEyeAngles[1]", &pl.ViewDirectionX, st.ValTypeFloat32)
 	playerEntity.BindProperty("m_angEyeAngles[0]", &pl.ViewDirectionY, st.ValTypeFloat32)
-	playerEntity.FindProperty("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
+	playerEntity.FindPropertyI("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
 		if val.FloatVal == 0 {
 			pl.FlashTick = 0
 		} else {
@@ -254,7 +254,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 
 	// Some demos have an additional prefix for player weapons weapon
 	var wepPrefix string
-	if playerEntity.FindProperty(playerWeaponPrefix+"000") != nil {
+	if playerEntity.FindPropertyI(playerWeaponPrefix+"000") != nil {
 		wepPrefix = playerWeaponPrefix
 	} else {
 		wepPrefix = playerWeaponPrePrefix + playerWeaponPrefix
@@ -264,7 +264,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 	var cache [maxWeapons]int
 	for i := range cache {
 		i2 := i // Copy for passing to handler
-		playerEntity.FindProperty(wepPrefix + fmt.Sprintf("%03d", i)).OnUpdate(func(val st.PropertyValue) {
+		playerEntity.FindPropertyI(wepPrefix + fmt.Sprintf("%03d", i)).OnUpdate(func(val st.PropertyValue) {
 			entityID := val.IntVal & entityHandleIndexMask
 			if entityID != entityHandleIndexMask {
 				if cache[i2] != 0 {
@@ -289,7 +289,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 	}
 
 	// Active weapon
-	playerEntity.FindProperty("m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
+	playerEntity.FindPropertyI("m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
 		pl.ActiveWeaponID = val.IntVal & entityHandleIndexMask
 	})
 
@@ -298,7 +298,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 		playerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
 	}
 
-	playerEntity.FindProperty("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
+	playerEntity.FindPropertyI("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
 		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.IntVal == 0 {
 			p.eventDispatcher.Dispatch(events.BombDefuseAborted{Player: pl})
 			p.gameState.currentDefuser = nil

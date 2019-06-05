@@ -228,3 +228,23 @@ func (ptcp Participants) initalizeSliceFromByUserID() ([]*common.Player, map[int
 	byUserID := ptcp.ByUserID()
 	return make([]*common.Player, 0, len(byUserID)), byUserID
 }
+
+// SpottersOf returns a list of all players who have spotted the passed player.
+func (ptcp Participants) SpottersOf(spotted *common.Player) (spotters []*common.Player) {
+	for _, other := range ptcp.playersByUserID {
+		if spotted.IsSpottedBy(other) {
+			spotters = append(spotters, other)
+		}
+	}
+	return
+}
+
+// SpottedBy returns a list of all players that the passed player has spotted.
+func (ptcp Participants) SpottedBy(spotter *common.Player) (spotted []*common.Player) {
+	for _, other := range ptcp.playersByUserID {
+		if other.Entity != nil && other.IsSpottedBy(spotter) {
+			spotted = append(spotted, other)
+		}
+	}
+	return
+}

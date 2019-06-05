@@ -3,7 +3,7 @@ package common
 import (
 	"time"
 
-	r3 "github.com/golang/geo/r3"
+	"github.com/golang/geo/r3"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
@@ -112,6 +112,30 @@ func (p *Player) Weapons() []*Equipment {
 		res = append(res, w)
 	}
 	return res
+}
+
+// IsSpottedBy returns true if the player has been spotted by the other player.
+func (p *Player) IsSpottedBy(other *Player) bool {
+	if p.Entity == nil {
+		return false
+	}
+
+	// TODO extract ClientSlot() function
+	clientSlot := other.EntityID - 1
+	bit := uint(clientSlot)
+	var mask st.IProperty
+	if bit < 32 {
+		mask = p.Entity.FindPropertyI("m_bSpottedByMask.000")
+	} else {
+		bit -= 32
+		mask = p.Entity.FindPropertyI("m_bSpottedByMask.001")
+	}
+	return (mask.Value().IntVal & (1 << bit)) != 0
+}
+
+// HasSpotted returns true if the player has spotted the other player.
+func (p *Player) HasSpotted(other *Player) bool {
+	return other.IsSpottedBy(p)
 }
 
 // AdditionalPlayerInformation contains mostly scoreboard information.

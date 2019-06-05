@@ -13,6 +13,8 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
+var _ dem.IParser = new(Parser)
+
 // Parser is a mock for of demoinfocs.IParser.
 type Parser struct {
 	mock.Mock

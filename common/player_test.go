@@ -4,7 +4,10 @@ import (
 	"testing"
 	"time"
 
-	assert "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/markus-wa/demoinfocs-golang/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/sendtables/fake"
 )
 
 func TestPlayerActiveWeapon(t *testing.T) {
@@ -119,6 +122,64 @@ func TestPlayer_FlashDurationTimeRemaining_Fallback(t *testing.T) {
 	pl.FlashDuration = 2
 	pl.FlashTick = 128 * 2
 	assert.Equal(t, 2*time.Second, pl.FlashDurationTimeRemaining())
+}
+
+func TestPlayer_IsSpottedBy_HasSpotted_True(t *testing.T) {
+	pl := newPlayer(0)
+	entity := new(fake.Entity)
+	pl.Entity = entity
+	pl.EntityID = 1
+	prop := new(fake.Property)
+	prop.On("Value").Return(sendtables.PropertyValue{IntVal: 2})
+	entity.On("FindPropertyI", "m_bSpottedByMask.000").Return(prop)
+
+	other := newPlayer(0)
+	other.EntityID = 2
+
+	assert.True(t, pl.IsSpottedBy(other))
+	assert.True(t, other.HasSpotted(pl))
+}
+
+func TestPlayer_IsSpottedBy_HasSpotted_False(t *testing.T) {
+	pl := newPlayer(0)
+	entity := new(fake.Entity)
+	pl.Entity = entity
+	pl.EntityID = 1
+	prop := new(fake.Property)
+	prop.On("Value").Return(sendtables.PropertyValue{IntVal: 0})
+	entity.On("FindPropertyI", "m_bSpottedByMask.000").Return(prop)
+
+	other := newPlayer(0)
+	other.EntityID = 2
+
+	assert.False(t, pl.IsSpottedBy(other))
+	assert.False(t, other.HasSpotted(pl))
+}
+
+func TestPlayer_IsSpottedBy_HasSpotted_BitOver32(t *testing.T) {
+	pl := newPlayer(0)
+	entity := new(fake.Entity)
+	prop := new(fake.Property)
+	prop.On("Value").Return(sendtables.PropertyValue{IntVal: 1})
+	entity.On("FindPropertyI", "m_bSpottedByMask.001").Return(prop)
+	pl.Entity = entity
+	pl.EntityID = 1
+
+	other := newPlayer(0)
+	other.EntityID = 33
+
+	assert.True(t, pl.IsSpottedBy(other))
+	assert.True(t, other.HasSpotted(pl))
+}
+
+func TestPlayer_IsSpottedBy_EntityNull(t *testing.T) {
+	pl := new(Player)
+	pl.EntityID = 1
+	other := new(Player)
+	other.EntityID = 2
+
+	assert.False(t, pl.IsSpottedBy(other))
+	assert.False(t, other.HasSpotted(pl))
 }
 
 func newPlayer(tick int) *Player {

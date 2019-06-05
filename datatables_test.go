@@ -84,7 +84,7 @@ func fakePlayerEntity(id int) st.IEntity {
 		destroyCallback = args.Get(0).(func())
 	})
 	entity.On("OnPositionUpdate", mock.Anything).Return()
-	entity.On("FindProperty", mock.Anything).Return(new(st.Property))
+	entity.On("FindPropertyI", mock.Anything).Return(new(st.Property))
 	entity.On("BindProperty", mock.Anything, mock.Anything, mock.Anything).Return(new(st.Property))
 	entity.On("Destroy").Run(func(mock.Arguments) {
 		destroyCallback()

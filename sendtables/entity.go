@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"sync"
 
-	r3 "github.com/golang/geo/r3"
+	"github.com/golang/geo/r3"
 
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 )
 
 //go:generate ifacemaker -f entity.go -s Entity -i IEntity -p sendtables -D -y "IEntity is an auto-generated interface for Entity, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o entity_interface.go
+//go:generate ifacemaker -f entity.go -s Property -i IProperty -p sendtables -D -y "IProperty is an auto-generated interface for Property, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o property_interface.go
 
 // Entity stores a entity in the game (e.g. players etc.) with its properties.
 type Entity struct {
@@ -32,18 +33,21 @@ func (e *Entity) ID() int {
 	return e.id
 }
 
-// Properties returns all properties of the Entity.
-func (e *Entity) Properties() []Property {
+// Properties is deprecated, use PropertiesI() instead which returns a slice of interfaces.
+func (e *Entity) Properties() (out []Property) {
 	return e.props
 }
 
-// FindProperty finds a property on the Entity by name.
-//
-// Returns nil if the property wasn't found.
-//
-// Panics if more than one property with the same name was found.
-func (e *Entity) FindProperty(name string) *Property {
-	var prop *Property
+// PropertiesI returns all properties of the Entity.
+func (e *Entity) PropertiesI() (out []IProperty) {
+	for i := range e.props {
+		out = append(out, &e.props[i])
+	}
+	return
+}
+
+// FindProperty is deprecated, use FindPropertyI() instead which returns an interface.
+func (e *Entity) FindProperty(name string) (prop *Property) {
 	for i := range e.props {
 		if e.props[i].entry.name == name {
 			if prop != nil {
@@ -51,6 +55,20 @@ func (e *Entity) FindProperty(name string) *Property {
 			}
 			prop = &e.props[i]
 		}
+	}
+	return
+}
+
+// FindPropertyI finds a property on the Entity by name.
+//
+// Returns nil if the property wasn't found.
+//
+// Panics if more than one property with the same name was found.
+func (e *Entity) FindPropertyI(name string) IProperty {
+	prop := e.FindProperty(name)
+	if prop == nil {
+		// See https://stackoverflow.com/questions/13476349/check-for-nil-and-nil-interface-in-go
+		return nil
 	}
 	return prop
 }
@@ -180,8 +198,8 @@ func (e *Entity) initialize() {
 		zProp := e.FindProperty(propVecOriginPlayerZ)
 
 		e.position = func() r3.Vector {
-			xy := xyProp.value.VectorVal
-			z := float64(zProp.value.FloatVal)
+			xy := xyProp.Value().VectorVal
+			z := float64(zProp.Value().FloatVal)
 			return r3.Vector{
 				X: xy.X,
 				Y: xy.Y,
@@ -196,11 +214,11 @@ func (e *Entity) initialize() {
 		offsetProp := e.FindProperty(propVecOrigin)
 
 		e.position = func() r3.Vector {
-			cellWidth := 1 << uint(cellBitsProp.value.IntVal)
-			cellX := cellXProp.value.IntVal
-			cellY := cellYProp.value.IntVal
-			cellZ := cellZProp.value.IntVal
-			offset := offsetProp.value.VectorVal
+			cellWidth := 1 << uint(cellBitsProp.Value().IntVal)
+			cellX := cellXProp.Value().IntVal
+			cellY := cellYProp.Value().IntVal
+			cellZ := cellZProp.Value().IntVal
+			offset := offsetProp.Value().VectorVal
 
 			return r3.Vector{
 				X: coordFromCell(cellX, cellWidth, offset.X),

@@ -3,7 +3,7 @@
 package sendtables
 
 import (
-	r3 "github.com/golang/geo/r3"
+	"github.com/golang/geo/r3"
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
 )
 
@@ -14,15 +14,19 @@ type IEntity interface {
 	ServerClass() *ServerClass
 	// ID returns the entity's ID.
 	ID() int
-	// Properties returns all properties of the Entity.
-	Properties() []Property
-	// FindProperty finds a property on the Entity by name.
+	// Properties is deprecated, use PropertiesI() instead.
+	Properties() (out []Property)
+	// PropertiesI returns all properties of the Entity.
+	PropertiesI() (out []IProperty)
+	// FindProperty is deprecated, use FindPropertyI() instead.
+	FindProperty(name string) (prop *Property)
+	// FindPropertyI finds a property on the Entity by name.
 	//
 	// Returns nil if the property wasn't found.
 	//
 	// Panics if more than one property with the same name was found.
-	FindProperty(name string) *Property
-	// BindProperty combines FindProperty() & Property.Bind() into one.
+	FindPropertyI(name string) (prop IProperty)
+	// BindProperty combines FindPropertyI() & Property.Bind() into one.
 	// Essentially binds a property's value to a pointer.
 	// See the docs of the two individual functions for more info.
 	BindProperty(name string, variable interface{}, valueType PropertyValueType)

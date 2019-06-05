@@ -37,4 +37,8 @@ type IParticipants interface {
 	//
 	// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
 	FindByHandle(handle int) *common.Player
+	// SpottersOf returns a list of all players who have spotted the passed player.
+	SpottersOf(spotted *common.Player) (spotters []*common.Player)
+	// SpottedBy returns a list of all players that the passed player has spotted.
+	SpottedBy(spotter *common.Player) (spotted []*common.Player)
 }

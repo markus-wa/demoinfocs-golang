@@ -8,6 +8,8 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
+var _ dem.IGameState = new(GameState)
+
 // GameState is a mock for of demoinfocs.IGameState.
 type GameState struct {
 	mock.Mock
@@ -25,6 +27,11 @@ func (gs *GameState) TeamCounterTerrorists() *common.TeamState {
 
 // TeamTerrorists is a mock-implementation of IGameState.TeamTerrorists().
 func (gs *GameState) TeamTerrorists() *common.TeamState {
+	return gs.Called().Get(0).(*common.TeamState)
+}
+
+// Team is a mock-implementation of IGameState.Team().
+func (gs *GameState) Team(team common.Team) *common.TeamState {
 	return gs.Called().Get(0).(*common.TeamState)
 }
 
