@@ -25,10 +25,10 @@ func (p *Property) Value() st.PropertyValue {
 
 // OnUpdate is a mock-implementation of IProperty.OnUpdate().
 func (p *Property) OnUpdate(handler st.PropertyUpdateHandler) {
-	p.Called()
+	p.Called(handler)
 }
 
 // Bind is a mock-implementation of IProperty.Bind().
 func (p *Property) Bind(variable interface{}, valueType st.PropertyValueType) {
-	p.Called()
+	p.Called(variable, valueType)
 }

@@ -306,6 +306,15 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 		pl.IsDefusing = val.IntVal != 0
 	})
 
+	spottedByMaskProp := playerEntity.FindPropertyI("m_bSpottedByMask.000")
+	if spottedByMaskProp != nil {
+		spottersChanged := func(val st.PropertyValue) {
+			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
+		}
+		spottedByMaskProp.OnUpdate(spottersChanged)
+		playerEntity.FindPropertyI("m_bSpottedByMask.001").OnUpdate(spottersChanged)
+	}
+
 	if isNew && pl.SteamID != 0 {
 		p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 	}
