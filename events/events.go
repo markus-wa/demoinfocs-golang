@@ -111,15 +111,16 @@ type Footstep struct {
 type PlayerTeamChange struct {
 	Player *common.Player
 
-	NewTeam common.Team
 	// TeamState of the old team.
 	// May be nil if player changed from spectators/unassigned (OldTeam == TeamSpectators || OldTeam == TeamUnassigned).
 	NewTeamState *common.TeamState
 
-	OldTeam common.Team
 	// TeamState of the old team.
 	// May be nil if player changed from spectators/unassigned (OldTeam == TeamSpectators || OldTeam == TeamUnassigned).
 	OldTeamState *common.TeamState
+
+	NewTeam common.Team
+	OldTeam common.Team
 
 	Silent bool
 	IsBot  bool

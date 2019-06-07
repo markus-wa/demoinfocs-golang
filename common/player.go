@@ -9,6 +9,9 @@ import (
 
 // Player contains mostly game-relevant player information.
 type Player struct {
+	tickRate           float64            // the in-game tick rate, used for IsBlinded()
+	ingameTickProvider ingameTickProvider // provider for the current in-game tick, used for IsBlinded()
+
 	SteamID                     int64     // int64 representation of the User's Steam ID
 	Position                    r3.Vector // In-game coordinates. Like the one you get from cl_showpos 1
 	LastAlivePosition           r3.Vector // The location where the player was last alive. Should be equal to Position if the player is still alive.
@@ -29,19 +32,16 @@ type Player struct {
 	AdditionalPlayerInformation *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
 	ViewDirectionX              float32
 	ViewDirectionY              float32
-	FlashDuration               float32 // Blindness duration from the flashbang currently affecting the player (seconds)
-	FlashTick                   int     // In-game tick at which the player was last flashed
-	Team                        Team
+	FlashDuration               float32    // Blindness duration from the flashbang currently affecting the player (seconds)
+	FlashTick                   int        // In-game tick at which the player was last flashed
 	TeamState                   *TeamState // When keeping the reference make sure you notice when the player changes teams
+	Team                        Team
 	IsBot                       bool
 	IsConnected                 bool
 	IsDucking                   bool
 	IsDefusing                  bool
 	HasDefuseKit                bool
 	HasHelmet                   bool
-
-	tickRate           float64            // the in-game tick rate, used for IsBlinded()
-	ingameTickProvider ingameTickProvider // provider for the current in-game tick, used for IsBlinded()
 }
 
 // IsAlive returns true if the Hp of the player are > 0.
