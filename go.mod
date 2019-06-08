@@ -14,3 +14,5 @@ require (
 	github.com/stretchr/testify v1.2.2
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81 // indirect
 )
+
+go 1.11
