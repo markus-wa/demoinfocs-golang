@@ -3,16 +3,26 @@
 
 package msg
 
-import proto "github.com/gogo/protobuf/proto"
-import fmt "fmt"
-import math "math"
-
-import io "io"
+import (
+	encoding_binary "encoding/binary"
+	fmt "fmt"
+	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type NET_Messages int32
 
@@ -39,6 +49,7 @@ var NET_Messages_name = map[int32]string{
 	7:   "net_SignonState",
 	100: "net_PlayerAvatarData",
 }
+
 var NET_Messages_value = map[string]int32{
 	"net_NOP":              0,
 	"net_Disconnect":       1,
@@ -56,9 +67,11 @@ func (x NET_Messages) Enum() *NET_Messages {
 	*p = x
 	return p
 }
+
 func (x NET_Messages) String() string {
 	return proto.EnumName(NET_Messages_name, int32(x))
 }
+
 func (x *NET_Messages) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(NET_Messages_value, data, "NET_Messages")
 	if err != nil {
@@ -67,7 +80,10 @@ func (x *NET_Messages) UnmarshalJSON(data []byte) error {
 	*x = NET_Messages(value)
 	return nil
 }
-func (NET_Messages) EnumDescriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{0} }
+
+func (NET_Messages) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{0}
+}
 
 type CLC_Messages int32
 
@@ -100,6 +116,7 @@ var CLC_Messages_name = map[int32]string{
 	18: "clc_CmdKeyValues",
 	20: "clc_HltvReplay",
 }
+
 var CLC_Messages_value = map[string]int32{
 	"clc_ClientInfo":         8,
 	"clc_Move":               9,
@@ -120,9 +137,11 @@ func (x CLC_Messages) Enum() *CLC_Messages {
 	*p = x
 	return p
 }
+
 func (x CLC_Messages) String() string {
 	return proto.EnumName(CLC_Messages_name, int32(x))
 }
+
 func (x *CLC_Messages) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(CLC_Messages_value, data, "CLC_Messages")
 	if err != nil {
@@ -131,7 +150,10 @@ func (x *CLC_Messages) UnmarshalJSON(data []byte) error {
 	*x = CLC_Messages(value)
 	return nil
 }
-func (CLC_Messages) EnumDescriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{1} }
+
+func (CLC_Messages) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{1}
+}
 
 type VoiceDataFormatT int32
 
@@ -144,6 +166,7 @@ var VoiceDataFormatT_name = map[int32]string{
 	0: "VOICEDATA_FORMAT_STEAM",
 	1: "VOICEDATA_FORMAT_ENGINE",
 }
+
 var VoiceDataFormatT_value = map[string]int32{
 	"VOICEDATA_FORMAT_STEAM":  0,
 	"VOICEDATA_FORMAT_ENGINE": 1,
@@ -154,9 +177,11 @@ func (x VoiceDataFormatT) Enum() *VoiceDataFormatT {
 	*p = x
 	return p
 }
+
 func (x VoiceDataFormatT) String() string {
 	return proto.EnumName(VoiceDataFormatT_name, int32(x))
 }
+
 func (x *VoiceDataFormatT) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(VoiceDataFormatT_value, data, "VoiceDataFormatT")
 	if err != nil {
@@ -165,7 +190,10 @@ func (x *VoiceDataFormatT) UnmarshalJSON(data []byte) error {
 	*x = VoiceDataFormatT(value)
 	return nil
 }
-func (VoiceDataFormatT) EnumDescriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{2} }
+
+func (VoiceDataFormatT) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{2}
+}
 
 type ESplitScreenMessageType int32
 
@@ -180,6 +208,7 @@ var ESplitScreenMessageType_name = map[int32]string{
 	1: "MSG_SPLITSCREEN_REMOVEUSER",
 	// Duplicate value: 1: "MSG_SPLITSCREEN_TYPE_BITS",
 }
+
 var ESplitScreenMessageType_value = map[string]int32{
 	"MSG_SPLITSCREEN_ADDUSER":    0,
 	"MSG_SPLITSCREEN_REMOVEUSER": 1,
@@ -191,9 +220,11 @@ func (x ESplitScreenMessageType) Enum() *ESplitScreenMessageType {
 	*p = x
 	return p
 }
+
 func (x ESplitScreenMessageType) String() string {
 	return proto.EnumName(ESplitScreenMessageType_name, int32(x))
 }
+
 func (x *ESplitScreenMessageType) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(ESplitScreenMessageType_value, data, "ESplitScreenMessageType")
 	if err != nil {
@@ -202,8 +233,9 @@ func (x *ESplitScreenMessageType) UnmarshalJSON(data []byte) error {
 	*x = ESplitScreenMessageType(value)
 	return nil
 }
+
 func (ESplitScreenMessageType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{3}
+	return fileDescriptor_52cbc162d33bb4fa, []int{3}
 }
 
 type SVC_Messages int32
@@ -271,6 +303,7 @@ var SVC_Messages_name = map[int32]string{
 	36: "svc_HltvReplay",
 	38: "svc_Broadcast_Command",
 }
+
 var SVC_Messages_value = map[string]int32{
 	"svc_ServerInfo":        8,
 	"svc_SendTable":         9,
@@ -308,9 +341,11 @@ func (x SVC_Messages) Enum() *SVC_Messages {
 	*p = x
 	return p
 }
+
 func (x SVC_Messages) String() string {
 	return proto.EnumName(SVC_Messages_name, int32(x))
 }
+
 func (x *SVC_Messages) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(SVC_Messages_value, data, "SVC_Messages")
 	if err != nil {
@@ -319,7 +354,10 @@ func (x *SVC_Messages) UnmarshalJSON(data []byte) error {
 	*x = SVC_Messages(value)
 	return nil
 }
-func (SVC_Messages) EnumDescriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{4} }
+
+func (SVC_Messages) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{4}
+}
 
 type ReplayEventTypeT int32
 
@@ -336,6 +374,7 @@ var ReplayEventTypeT_name = map[int32]string{
 	2: "REPLAY_EVENT_GENERIC",
 	3: "REPLAY_EVENT_STUCK_NEED_FULL_UPDATE",
 }
+
 var ReplayEventTypeT_value = map[string]int32{
 	"REPLAY_EVENT_CANCEL":                 0,
 	"REPLAY_EVENT_DEATH":                  1,
@@ -348,9 +387,11 @@ func (x ReplayEventTypeT) Enum() *ReplayEventTypeT {
 	*p = x
 	return p
 }
+
 func (x ReplayEventTypeT) String() string {
 	return proto.EnumName(ReplayEventTypeT_name, int32(x))
 }
+
 func (x *ReplayEventTypeT) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(ReplayEventTypeT_value, data, "ReplayEventTypeT")
 	if err != nil {
@@ -359,7 +400,10 @@ func (x *ReplayEventTypeT) UnmarshalJSON(data []byte) error {
 	*x = ReplayEventTypeT(value)
 	return nil
 }
-func (ReplayEventTypeT) EnumDescriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{5} }
+
+func (ReplayEventTypeT) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{5}
+}
 
 type CMsgVector struct {
 	X float32 `protobuf:"fixed32,1,opt,name=x" json:"x"`
@@ -367,10 +411,38 @@ type CMsgVector struct {
 	Z float32 `protobuf:"fixed32,3,opt,name=z" json:"z"`
 }
 
-func (m *CMsgVector) Reset()                    { *m = CMsgVector{} }
-func (m *CMsgVector) String() string            { return proto.CompactTextString(m) }
-func (*CMsgVector) ProtoMessage()               {}
-func (*CMsgVector) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{0} }
+func (m *CMsgVector) Reset()         { *m = CMsgVector{} }
+func (m *CMsgVector) String() string { return proto.CompactTextString(m) }
+func (*CMsgVector) ProtoMessage()    {}
+func (*CMsgVector) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{0}
+}
+func (m *CMsgVector) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgVector) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgVector.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgVector) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgVector.Merge(m, src)
+}
+func (m *CMsgVector) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgVector) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgVector.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgVector proto.InternalMessageInfo
 
 func (m *CMsgVector) GetX() float32 {
 	if m != nil {
@@ -398,10 +470,38 @@ type CMsgVector2D struct {
 	Y float32 `protobuf:"fixed32,2,opt,name=y" json:"y"`
 }
 
-func (m *CMsgVector2D) Reset()                    { *m = CMsgVector2D{} }
-func (m *CMsgVector2D) String() string            { return proto.CompactTextString(m) }
-func (*CMsgVector2D) ProtoMessage()               {}
-func (*CMsgVector2D) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{1} }
+func (m *CMsgVector2D) Reset()         { *m = CMsgVector2D{} }
+func (m *CMsgVector2D) String() string { return proto.CompactTextString(m) }
+func (*CMsgVector2D) ProtoMessage()    {}
+func (*CMsgVector2D) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{1}
+}
+func (m *CMsgVector2D) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgVector2D) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgVector2D.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgVector2D) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgVector2D.Merge(m, src)
+}
+func (m *CMsgVector2D) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgVector2D) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgVector2D.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgVector2D proto.InternalMessageInfo
 
 func (m *CMsgVector2D) GetX() float32 {
 	if m != nil {
@@ -423,10 +523,38 @@ type CMsgQAngle struct {
 	Z float32 `protobuf:"fixed32,3,opt,name=z" json:"z"`
 }
 
-func (m *CMsgQAngle) Reset()                    { *m = CMsgQAngle{} }
-func (m *CMsgQAngle) String() string            { return proto.CompactTextString(m) }
-func (*CMsgQAngle) ProtoMessage()               {}
-func (*CMsgQAngle) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{2} }
+func (m *CMsgQAngle) Reset()         { *m = CMsgQAngle{} }
+func (m *CMsgQAngle) String() string { return proto.CompactTextString(m) }
+func (*CMsgQAngle) ProtoMessage()    {}
+func (*CMsgQAngle) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{2}
+}
+func (m *CMsgQAngle) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgQAngle) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgQAngle.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgQAngle) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgQAngle.Merge(m, src)
+}
+func (m *CMsgQAngle) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgQAngle) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgQAngle.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgQAngle proto.InternalMessageInfo
 
 func (m *CMsgQAngle) GetX() float32 {
 	if m != nil {
@@ -456,10 +584,38 @@ type CMsgRGBA struct {
 	A int32 `protobuf:"varint,4,opt,name=a" json:"a"`
 }
 
-func (m *CMsgRGBA) Reset()                    { *m = CMsgRGBA{} }
-func (m *CMsgRGBA) String() string            { return proto.CompactTextString(m) }
-func (*CMsgRGBA) ProtoMessage()               {}
-func (*CMsgRGBA) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{3} }
+func (m *CMsgRGBA) Reset()         { *m = CMsgRGBA{} }
+func (m *CMsgRGBA) String() string { return proto.CompactTextString(m) }
+func (*CMsgRGBA) ProtoMessage()    {}
+func (*CMsgRGBA) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{3}
+}
+func (m *CMsgRGBA) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgRGBA) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgRGBA.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgRGBA) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgRGBA.Merge(m, src)
+}
+func (m *CMsgRGBA) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgRGBA) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgRGBA.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgRGBA proto.InternalMessageInfo
 
 func (m *CMsgRGBA) GetR() int32 {
 	if m != nil {
@@ -497,10 +653,38 @@ type CNETMsg_Tick struct {
 	HltvReplayFlags                 uint32 `protobuf:"varint,7,opt,name=hltv_replay_flags,json=hltvReplayFlags" json:"hltv_replay_flags"`
 }
 
-func (m *CNETMsg_Tick) Reset()                    { *m = CNETMsg_Tick{} }
-func (m *CNETMsg_Tick) String() string            { return proto.CompactTextString(m) }
-func (*CNETMsg_Tick) ProtoMessage()               {}
-func (*CNETMsg_Tick) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{4} }
+func (m *CNETMsg_Tick) Reset()         { *m = CNETMsg_Tick{} }
+func (m *CNETMsg_Tick) String() string { return proto.CompactTextString(m) }
+func (*CNETMsg_Tick) ProtoMessage()    {}
+func (*CNETMsg_Tick) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{4}
+}
+func (m *CNETMsg_Tick) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CNETMsg_Tick) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CNETMsg_Tick.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CNETMsg_Tick) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CNETMsg_Tick.Merge(m, src)
+}
+func (m *CNETMsg_Tick) XXX_Size() int {
+	return m.Size()
+}
+func (m *CNETMsg_Tick) XXX_DiscardUnknown() {
+	xxx_messageInfo_CNETMsg_Tick.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CNETMsg_Tick proto.InternalMessageInfo
 
 func (m *CNETMsg_Tick) GetTick() uint32 {
 	if m != nil {
@@ -541,10 +725,38 @@ type CNETMsg_StringCmd struct {
 	Command string `protobuf:"bytes,1,opt,name=command" json:"command"`
 }
 
-func (m *CNETMsg_StringCmd) Reset()                    { *m = CNETMsg_StringCmd{} }
-func (m *CNETMsg_StringCmd) String() string            { return proto.CompactTextString(m) }
-func (*CNETMsg_StringCmd) ProtoMessage()               {}
-func (*CNETMsg_StringCmd) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{5} }
+func (m *CNETMsg_StringCmd) Reset()         { *m = CNETMsg_StringCmd{} }
+func (m *CNETMsg_StringCmd) String() string { return proto.CompactTextString(m) }
+func (*CNETMsg_StringCmd) ProtoMessage()    {}
+func (*CNETMsg_StringCmd) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{5}
+}
+func (m *CNETMsg_StringCmd) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CNETMsg_StringCmd) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CNETMsg_StringCmd.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CNETMsg_StringCmd) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CNETMsg_StringCmd.Merge(m, src)
+}
+func (m *CNETMsg_StringCmd) XXX_Size() int {
+	return m.Size()
+}
+func (m *CNETMsg_StringCmd) XXX_DiscardUnknown() {
+	xxx_messageInfo_CNETMsg_StringCmd.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CNETMsg_StringCmd proto.InternalMessageInfo
 
 func (m *CNETMsg_StringCmd) GetCommand() string {
 	if m != nil {
@@ -561,10 +773,38 @@ type CNETMsg_SignonState struct {
 	MapName           string   `protobuf:"bytes,5,opt,name=map_name,json=mapName" json:"map_name"`
 }
 
-func (m *CNETMsg_SignonState) Reset()                    { *m = CNETMsg_SignonState{} }
-func (m *CNETMsg_SignonState) String() string            { return proto.CompactTextString(m) }
-func (*CNETMsg_SignonState) ProtoMessage()               {}
-func (*CNETMsg_SignonState) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{6} }
+func (m *CNETMsg_SignonState) Reset()         { *m = CNETMsg_SignonState{} }
+func (m *CNETMsg_SignonState) String() string { return proto.CompactTextString(m) }
+func (*CNETMsg_SignonState) ProtoMessage()    {}
+func (*CNETMsg_SignonState) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{6}
+}
+func (m *CNETMsg_SignonState) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CNETMsg_SignonState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CNETMsg_SignonState.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CNETMsg_SignonState) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CNETMsg_SignonState.Merge(m, src)
+}
+func (m *CNETMsg_SignonState) XXX_Size() int {
+	return m.Size()
+}
+func (m *CNETMsg_SignonState) XXX_DiscardUnknown() {
+	xxx_messageInfo_CNETMsg_SignonState.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CNETMsg_SignonState proto.InternalMessageInfo
 
 func (m *CNETMsg_SignonState) GetSignonState() uint32 {
 	if m != nil {
@@ -605,10 +845,38 @@ type CMsg_CVars struct {
 	Cvars []*CMsg_CVars_CVar `protobuf:"bytes,1,rep,name=cvars" json:"cvars,omitempty"`
 }
 
-func (m *CMsg_CVars) Reset()                    { *m = CMsg_CVars{} }
-func (m *CMsg_CVars) String() string            { return proto.CompactTextString(m) }
-func (*CMsg_CVars) ProtoMessage()               {}
-func (*CMsg_CVars) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{7} }
+func (m *CMsg_CVars) Reset()         { *m = CMsg_CVars{} }
+func (m *CMsg_CVars) String() string { return proto.CompactTextString(m) }
+func (*CMsg_CVars) ProtoMessage()    {}
+func (*CMsg_CVars) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{7}
+}
+func (m *CMsg_CVars) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsg_CVars) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsg_CVars.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsg_CVars) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsg_CVars.Merge(m, src)
+}
+func (m *CMsg_CVars) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsg_CVars) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsg_CVars.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsg_CVars proto.InternalMessageInfo
 
 func (m *CMsg_CVars) GetCvars() []*CMsg_CVars_CVar {
 	if m != nil {
@@ -623,10 +891,38 @@ type CMsg_CVars_CVar struct {
 	DictionaryName uint32 `protobuf:"varint,3,opt,name=dictionary_name,json=dictionaryName" json:"dictionary_name"`
 }
 
-func (m *CMsg_CVars_CVar) Reset()                    { *m = CMsg_CVars_CVar{} }
-func (m *CMsg_CVars_CVar) String() string            { return proto.CompactTextString(m) }
-func (*CMsg_CVars_CVar) ProtoMessage()               {}
-func (*CMsg_CVars_CVar) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{7, 0} }
+func (m *CMsg_CVars_CVar) Reset()         { *m = CMsg_CVars_CVar{} }
+func (m *CMsg_CVars_CVar) String() string { return proto.CompactTextString(m) }
+func (*CMsg_CVars_CVar) ProtoMessage()    {}
+func (*CMsg_CVars_CVar) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{7, 0}
+}
+func (m *CMsg_CVars_CVar) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsg_CVars_CVar) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsg_CVars_CVar.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsg_CVars_CVar) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsg_CVars_CVar.Merge(m, src)
+}
+func (m *CMsg_CVars_CVar) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsg_CVars_CVar) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsg_CVars_CVar.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsg_CVars_CVar proto.InternalMessageInfo
 
 func (m *CMsg_CVars_CVar) GetName() string {
 	if m != nil {
@@ -653,10 +949,38 @@ type CNETMsg_SetConVar struct {
 	Convars *CMsg_CVars `protobuf:"bytes,1,opt,name=convars" json:"convars,omitempty"`
 }
 
-func (m *CNETMsg_SetConVar) Reset()                    { *m = CNETMsg_SetConVar{} }
-func (m *CNETMsg_SetConVar) String() string            { return proto.CompactTextString(m) }
-func (*CNETMsg_SetConVar) ProtoMessage()               {}
-func (*CNETMsg_SetConVar) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{8} }
+func (m *CNETMsg_SetConVar) Reset()         { *m = CNETMsg_SetConVar{} }
+func (m *CNETMsg_SetConVar) String() string { return proto.CompactTextString(m) }
+func (*CNETMsg_SetConVar) ProtoMessage()    {}
+func (*CNETMsg_SetConVar) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{8}
+}
+func (m *CNETMsg_SetConVar) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CNETMsg_SetConVar) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CNETMsg_SetConVar.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CNETMsg_SetConVar) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CNETMsg_SetConVar.Merge(m, src)
+}
+func (m *CNETMsg_SetConVar) XXX_Size() int {
+	return m.Size()
+}
+func (m *CNETMsg_SetConVar) XXX_DiscardUnknown() {
+	xxx_messageInfo_CNETMsg_SetConVar.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CNETMsg_SetConVar proto.InternalMessageInfo
 
 func (m *CNETMsg_SetConVar) GetConvars() *CMsg_CVars {
 	if m != nil {
@@ -668,19 +992,75 @@ func (m *CNETMsg_SetConVar) GetConvars() *CMsg_CVars {
 type CNETMsg_NOP struct {
 }
 
-func (m *CNETMsg_NOP) Reset()                    { *m = CNETMsg_NOP{} }
-func (m *CNETMsg_NOP) String() string            { return proto.CompactTextString(m) }
-func (*CNETMsg_NOP) ProtoMessage()               {}
-func (*CNETMsg_NOP) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{9} }
+func (m *CNETMsg_NOP) Reset()         { *m = CNETMsg_NOP{} }
+func (m *CNETMsg_NOP) String() string { return proto.CompactTextString(m) }
+func (*CNETMsg_NOP) ProtoMessage()    {}
+func (*CNETMsg_NOP) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{9}
+}
+func (m *CNETMsg_NOP) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CNETMsg_NOP) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CNETMsg_NOP.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CNETMsg_NOP) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CNETMsg_NOP.Merge(m, src)
+}
+func (m *CNETMsg_NOP) XXX_Size() int {
+	return m.Size()
+}
+func (m *CNETMsg_NOP) XXX_DiscardUnknown() {
+	xxx_messageInfo_CNETMsg_NOP.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CNETMsg_NOP proto.InternalMessageInfo
 
 type CNETMsg_Disconnect struct {
 	Text string `protobuf:"bytes,1,opt,name=text" json:"text"`
 }
 
-func (m *CNETMsg_Disconnect) Reset()                    { *m = CNETMsg_Disconnect{} }
-func (m *CNETMsg_Disconnect) String() string            { return proto.CompactTextString(m) }
-func (*CNETMsg_Disconnect) ProtoMessage()               {}
-func (*CNETMsg_Disconnect) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{10} }
+func (m *CNETMsg_Disconnect) Reset()         { *m = CNETMsg_Disconnect{} }
+func (m *CNETMsg_Disconnect) String() string { return proto.CompactTextString(m) }
+func (*CNETMsg_Disconnect) ProtoMessage()    {}
+func (*CNETMsg_Disconnect) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{10}
+}
+func (m *CNETMsg_Disconnect) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CNETMsg_Disconnect) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CNETMsg_Disconnect.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CNETMsg_Disconnect) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CNETMsg_Disconnect.Merge(m, src)
+}
+func (m *CNETMsg_Disconnect) XXX_Size() int {
+	return m.Size()
+}
+func (m *CNETMsg_Disconnect) XXX_DiscardUnknown() {
+	xxx_messageInfo_CNETMsg_Disconnect.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CNETMsg_Disconnect proto.InternalMessageInfo
 
 func (m *CNETMsg_Disconnect) GetText() string {
 	if m != nil {
@@ -696,10 +1076,38 @@ type CNETMsg_File struct {
 	Deny             bool   `protobuf:"varint,4,opt,name=deny" json:"deny"`
 }
 
-func (m *CNETMsg_File) Reset()                    { *m = CNETMsg_File{} }
-func (m *CNETMsg_File) String() string            { return proto.CompactTextString(m) }
-func (*CNETMsg_File) ProtoMessage()               {}
-func (*CNETMsg_File) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{11} }
+func (m *CNETMsg_File) Reset()         { *m = CNETMsg_File{} }
+func (m *CNETMsg_File) String() string { return proto.CompactTextString(m) }
+func (*CNETMsg_File) ProtoMessage()    {}
+func (*CNETMsg_File) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{11}
+}
+func (m *CNETMsg_File) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CNETMsg_File) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CNETMsg_File.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CNETMsg_File) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CNETMsg_File.Merge(m, src)
+}
+func (m *CNETMsg_File) XXX_Size() int {
+	return m.Size()
+}
+func (m *CNETMsg_File) XXX_DiscardUnknown() {
+	xxx_messageInfo_CNETMsg_File.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CNETMsg_File proto.InternalMessageInfo
 
 func (m *CNETMsg_File) GetTransferId() int32 {
 	if m != nil {
@@ -737,8 +1145,34 @@ func (m *CNETMsg_SplitScreenUser) Reset()         { *m = CNETMsg_SplitScreenUser
 func (m *CNETMsg_SplitScreenUser) String() string { return proto.CompactTextString(m) }
 func (*CNETMsg_SplitScreenUser) ProtoMessage()    {}
 func (*CNETMsg_SplitScreenUser) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{12}
+	return fileDescriptor_52cbc162d33bb4fa, []int{12}
 }
+func (m *CNETMsg_SplitScreenUser) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CNETMsg_SplitScreenUser) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CNETMsg_SplitScreenUser.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CNETMsg_SplitScreenUser) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CNETMsg_SplitScreenUser.Merge(m, src)
+}
+func (m *CNETMsg_SplitScreenUser) XXX_Size() int {
+	return m.Size()
+}
+func (m *CNETMsg_SplitScreenUser) XXX_DiscardUnknown() {
+	xxx_messageInfo_CNETMsg_SplitScreenUser.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CNETMsg_SplitScreenUser proto.InternalMessageInfo
 
 func (m *CNETMsg_SplitScreenUser) GetSlot() int32 {
 	if m != nil {
@@ -756,8 +1190,34 @@ func (m *CNETMsg_PlayerAvatarData) Reset()         { *m = CNETMsg_PlayerAvatarDa
 func (m *CNETMsg_PlayerAvatarData) String() string { return proto.CompactTextString(m) }
 func (*CNETMsg_PlayerAvatarData) ProtoMessage()    {}
 func (*CNETMsg_PlayerAvatarData) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{13}
+	return fileDescriptor_52cbc162d33bb4fa, []int{13}
 }
+func (m *CNETMsg_PlayerAvatarData) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CNETMsg_PlayerAvatarData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CNETMsg_PlayerAvatarData.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CNETMsg_PlayerAvatarData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CNETMsg_PlayerAvatarData.Merge(m, src)
+}
+func (m *CNETMsg_PlayerAvatarData) XXX_Size() int {
+	return m.Size()
+}
+func (m *CNETMsg_PlayerAvatarData) XXX_DiscardUnknown() {
+	xxx_messageInfo_CNETMsg_PlayerAvatarData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CNETMsg_PlayerAvatarData proto.InternalMessageInfo
 
 func (m *CNETMsg_PlayerAvatarData) GetAccountid() uint32 {
 	if m != nil {
@@ -783,10 +1243,38 @@ type CCLCMsg_ClientInfo struct {
 	CustomFiles  []uint32 `protobuf:"fixed32,7,rep,name=custom_files,json=customFiles" json:"custom_files,omitempty"`
 }
 
-func (m *CCLCMsg_ClientInfo) Reset()                    { *m = CCLCMsg_ClientInfo{} }
-func (m *CCLCMsg_ClientInfo) String() string            { return proto.CompactTextString(m) }
-func (*CCLCMsg_ClientInfo) ProtoMessage()               {}
-func (*CCLCMsg_ClientInfo) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{14} }
+func (m *CCLCMsg_ClientInfo) Reset()         { *m = CCLCMsg_ClientInfo{} }
+func (m *CCLCMsg_ClientInfo) String() string { return proto.CompactTextString(m) }
+func (*CCLCMsg_ClientInfo) ProtoMessage()    {}
+func (*CCLCMsg_ClientInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{14}
+}
+func (m *CCLCMsg_ClientInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCLCMsg_ClientInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCLCMsg_ClientInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCLCMsg_ClientInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCLCMsg_ClientInfo.Merge(m, src)
+}
+func (m *CCLCMsg_ClientInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCLCMsg_ClientInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCLCMsg_ClientInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCLCMsg_ClientInfo proto.InternalMessageInfo
 
 func (m *CCLCMsg_ClientInfo) GetSendTableCrc() uint32 {
 	if m != nil {
@@ -843,10 +1331,38 @@ type CCLCMsg_Move struct {
 	Data              []byte `protobuf:"bytes,3,opt,name=data" json:"data"`
 }
 
-func (m *CCLCMsg_Move) Reset()                    { *m = CCLCMsg_Move{} }
-func (m *CCLCMsg_Move) String() string            { return proto.CompactTextString(m) }
-func (*CCLCMsg_Move) ProtoMessage()               {}
-func (*CCLCMsg_Move) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{15} }
+func (m *CCLCMsg_Move) Reset()         { *m = CCLCMsg_Move{} }
+func (m *CCLCMsg_Move) String() string { return proto.CompactTextString(m) }
+func (*CCLCMsg_Move) ProtoMessage()    {}
+func (*CCLCMsg_Move) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{15}
+}
+func (m *CCLCMsg_Move) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCLCMsg_Move) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCLCMsg_Move.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCLCMsg_Move) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCLCMsg_Move.Merge(m, src)
+}
+func (m *CCLCMsg_Move) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCLCMsg_Move) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCLCMsg_Move.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCLCMsg_Move proto.InternalMessageInfo
 
 func (m *CCLCMsg_Move) GetNumBackupCommands() uint32 {
 	if m != nil {
@@ -878,10 +1394,38 @@ type CCLCMsg_VoiceData struct {
 	UncompressedSampleOffset uint32            `protobuf:"varint,6,opt,name=uncompressed_sample_offset,json=uncompressedSampleOffset" json:"uncompressed_sample_offset"`
 }
 
-func (m *CCLCMsg_VoiceData) Reset()                    { *m = CCLCMsg_VoiceData{} }
-func (m *CCLCMsg_VoiceData) String() string            { return proto.CompactTextString(m) }
-func (*CCLCMsg_VoiceData) ProtoMessage()               {}
-func (*CCLCMsg_VoiceData) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{16} }
+func (m *CCLCMsg_VoiceData) Reset()         { *m = CCLCMsg_VoiceData{} }
+func (m *CCLCMsg_VoiceData) String() string { return proto.CompactTextString(m) }
+func (*CCLCMsg_VoiceData) ProtoMessage()    {}
+func (*CCLCMsg_VoiceData) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{16}
+}
+func (m *CCLCMsg_VoiceData) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCLCMsg_VoiceData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCLCMsg_VoiceData.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCLCMsg_VoiceData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCLCMsg_VoiceData.Merge(m, src)
+}
+func (m *CCLCMsg_VoiceData) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCLCMsg_VoiceData) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCLCMsg_VoiceData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCLCMsg_VoiceData proto.InternalMessageInfo
 
 const Default_CCLCMsg_VoiceData_Format VoiceDataFormatT = VoiceDataFormatT_VOICEDATA_FORMAT_ENGINE
 
@@ -932,10 +1476,38 @@ type CCLCMsg_BaselineAck struct {
 	BaselineNr   int32 `protobuf:"varint,2,opt,name=baseline_nr,json=baselineNr" json:"baseline_nr"`
 }
 
-func (m *CCLCMsg_BaselineAck) Reset()                    { *m = CCLCMsg_BaselineAck{} }
-func (m *CCLCMsg_BaselineAck) String() string            { return proto.CompactTextString(m) }
-func (*CCLCMsg_BaselineAck) ProtoMessage()               {}
-func (*CCLCMsg_BaselineAck) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{17} }
+func (m *CCLCMsg_BaselineAck) Reset()         { *m = CCLCMsg_BaselineAck{} }
+func (m *CCLCMsg_BaselineAck) String() string { return proto.CompactTextString(m) }
+func (*CCLCMsg_BaselineAck) ProtoMessage()    {}
+func (*CCLCMsg_BaselineAck) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{17}
+}
+func (m *CCLCMsg_BaselineAck) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCLCMsg_BaselineAck) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCLCMsg_BaselineAck.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCLCMsg_BaselineAck) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCLCMsg_BaselineAck.Merge(m, src)
+}
+func (m *CCLCMsg_BaselineAck) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCLCMsg_BaselineAck) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCLCMsg_BaselineAck.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCLCMsg_BaselineAck proto.InternalMessageInfo
 
 func (m *CCLCMsg_BaselineAck) GetBaselineTick() int32 {
 	if m != nil {
@@ -955,10 +1527,38 @@ type CCLCMsg_ListenEvents struct {
 	EventMask []uint32 `protobuf:"fixed32,1,rep,name=event_mask,json=eventMask" json:"event_mask,omitempty"`
 }
 
-func (m *CCLCMsg_ListenEvents) Reset()                    { *m = CCLCMsg_ListenEvents{} }
-func (m *CCLCMsg_ListenEvents) String() string            { return proto.CompactTextString(m) }
-func (*CCLCMsg_ListenEvents) ProtoMessage()               {}
-func (*CCLCMsg_ListenEvents) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{18} }
+func (m *CCLCMsg_ListenEvents) Reset()         { *m = CCLCMsg_ListenEvents{} }
+func (m *CCLCMsg_ListenEvents) String() string { return proto.CompactTextString(m) }
+func (*CCLCMsg_ListenEvents) ProtoMessage()    {}
+func (*CCLCMsg_ListenEvents) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{18}
+}
+func (m *CCLCMsg_ListenEvents) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCLCMsg_ListenEvents) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCLCMsg_ListenEvents.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCLCMsg_ListenEvents) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCLCMsg_ListenEvents.Merge(m, src)
+}
+func (m *CCLCMsg_ListenEvents) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCLCMsg_ListenEvents) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCLCMsg_ListenEvents.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCLCMsg_ListenEvents proto.InternalMessageInfo
 
 func (m *CCLCMsg_ListenEvents) GetEventMask() []uint32 {
 	if m != nil {
@@ -978,8 +1578,34 @@ func (m *CCLCMsg_RespondCvarValue) Reset()         { *m = CCLCMsg_RespondCvarVal
 func (m *CCLCMsg_RespondCvarValue) String() string { return proto.CompactTextString(m) }
 func (*CCLCMsg_RespondCvarValue) ProtoMessage()    {}
 func (*CCLCMsg_RespondCvarValue) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{19}
+	return fileDescriptor_52cbc162d33bb4fa, []int{19}
 }
+func (m *CCLCMsg_RespondCvarValue) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCLCMsg_RespondCvarValue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCLCMsg_RespondCvarValue.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCLCMsg_RespondCvarValue) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCLCMsg_RespondCvarValue.Merge(m, src)
+}
+func (m *CCLCMsg_RespondCvarValue) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCLCMsg_RespondCvarValue) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCLCMsg_RespondCvarValue.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCLCMsg_RespondCvarValue proto.InternalMessageInfo
 
 func (m *CCLCMsg_RespondCvarValue) GetCookie() int32 {
 	if m != nil {
@@ -1023,10 +1649,38 @@ type CCLCMsg_FileCRCCheck struct {
 	PackFileNumber int32  `protobuf:"varint,11,opt,name=pack_file_number,json=packFileNumber" json:"pack_file_number"`
 }
 
-func (m *CCLCMsg_FileCRCCheck) Reset()                    { *m = CCLCMsg_FileCRCCheck{} }
-func (m *CCLCMsg_FileCRCCheck) String() string            { return proto.CompactTextString(m) }
-func (*CCLCMsg_FileCRCCheck) ProtoMessage()               {}
-func (*CCLCMsg_FileCRCCheck) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{20} }
+func (m *CCLCMsg_FileCRCCheck) Reset()         { *m = CCLCMsg_FileCRCCheck{} }
+func (m *CCLCMsg_FileCRCCheck) String() string { return proto.CompactTextString(m) }
+func (*CCLCMsg_FileCRCCheck) ProtoMessage()    {}
+func (*CCLCMsg_FileCRCCheck) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{20}
+}
+func (m *CCLCMsg_FileCRCCheck) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCLCMsg_FileCRCCheck) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCLCMsg_FileCRCCheck.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCLCMsg_FileCRCCheck) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCLCMsg_FileCRCCheck.Merge(m, src)
+}
+func (m *CCLCMsg_FileCRCCheck) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCLCMsg_FileCRCCheck) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCLCMsg_FileCRCCheck.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCLCMsg_FileCRCCheck proto.InternalMessageInfo
 
 func (m *CCLCMsg_FileCRCCheck) GetCodePath() int32 {
 	if m != nil {
@@ -1113,8 +1767,34 @@ func (m *CCLCMsg_LoadingProgress) Reset()         { *m = CCLCMsg_LoadingProgress
 func (m *CCLCMsg_LoadingProgress) String() string { return proto.CompactTextString(m) }
 func (*CCLCMsg_LoadingProgress) ProtoMessage()    {}
 func (*CCLCMsg_LoadingProgress) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{21}
+	return fileDescriptor_52cbc162d33bb4fa, []int{21}
 }
+func (m *CCLCMsg_LoadingProgress) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCLCMsg_LoadingProgress) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCLCMsg_LoadingProgress.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCLCMsg_LoadingProgress) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCLCMsg_LoadingProgress.Merge(m, src)
+}
+func (m *CCLCMsg_LoadingProgress) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCLCMsg_LoadingProgress) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCLCMsg_LoadingProgress.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCLCMsg_LoadingProgress proto.InternalMessageInfo
 
 func (m *CCLCMsg_LoadingProgress) GetProgress() int32 {
 	if m != nil {
@@ -1131,8 +1811,34 @@ func (m *CCLCMsg_SplitPlayerConnect) Reset()         { *m = CCLCMsg_SplitPlayerC
 func (m *CCLCMsg_SplitPlayerConnect) String() string { return proto.CompactTextString(m) }
 func (*CCLCMsg_SplitPlayerConnect) ProtoMessage()    {}
 func (*CCLCMsg_SplitPlayerConnect) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{22}
+	return fileDescriptor_52cbc162d33bb4fa, []int{22}
 }
+func (m *CCLCMsg_SplitPlayerConnect) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCLCMsg_SplitPlayerConnect) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCLCMsg_SplitPlayerConnect.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCLCMsg_SplitPlayerConnect) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCLCMsg_SplitPlayerConnect.Merge(m, src)
+}
+func (m *CCLCMsg_SplitPlayerConnect) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCLCMsg_SplitPlayerConnect) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCLCMsg_SplitPlayerConnect.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCLCMsg_SplitPlayerConnect proto.InternalMessageInfo
 
 func (m *CCLCMsg_SplitPlayerConnect) GetConvars() *CMsg_CVars {
 	if m != nil {
@@ -1145,10 +1851,38 @@ type CCLCMsg_CmdKeyValues struct {
 	Keyvalues []byte `protobuf:"bytes,1,opt,name=keyvalues" json:"keyvalues"`
 }
 
-func (m *CCLCMsg_CmdKeyValues) Reset()                    { *m = CCLCMsg_CmdKeyValues{} }
-func (m *CCLCMsg_CmdKeyValues) String() string            { return proto.CompactTextString(m) }
-func (*CCLCMsg_CmdKeyValues) ProtoMessage()               {}
-func (*CCLCMsg_CmdKeyValues) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{23} }
+func (m *CCLCMsg_CmdKeyValues) Reset()         { *m = CCLCMsg_CmdKeyValues{} }
+func (m *CCLCMsg_CmdKeyValues) String() string { return proto.CompactTextString(m) }
+func (*CCLCMsg_CmdKeyValues) ProtoMessage()    {}
+func (*CCLCMsg_CmdKeyValues) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{23}
+}
+func (m *CCLCMsg_CmdKeyValues) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCLCMsg_CmdKeyValues) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCLCMsg_CmdKeyValues.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCLCMsg_CmdKeyValues) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCLCMsg_CmdKeyValues.Merge(m, src)
+}
+func (m *CCLCMsg_CmdKeyValues) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCLCMsg_CmdKeyValues) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCLCMsg_CmdKeyValues.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCLCMsg_CmdKeyValues proto.InternalMessageInfo
 
 func (m *CCLCMsg_CmdKeyValues) GetKeyvalues() []byte {
 	if m != nil {
@@ -1182,10 +1916,38 @@ type CSVCMsg_ServerInfo struct {
 	UgcMapId                  uint64  `protobuf:"varint,22,opt,name=ugc_map_id,json=ugcMapId" json:"ugc_map_id"`
 }
 
-func (m *CSVCMsg_ServerInfo) Reset()                    { *m = CSVCMsg_ServerInfo{} }
-func (m *CSVCMsg_ServerInfo) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_ServerInfo) ProtoMessage()               {}
-func (*CSVCMsg_ServerInfo) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{24} }
+func (m *CSVCMsg_ServerInfo) Reset()         { *m = CSVCMsg_ServerInfo{} }
+func (m *CSVCMsg_ServerInfo) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_ServerInfo) ProtoMessage()    {}
+func (*CSVCMsg_ServerInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{24}
+}
+func (m *CSVCMsg_ServerInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_ServerInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_ServerInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_ServerInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_ServerInfo.Merge(m, src)
+}
+func (m *CSVCMsg_ServerInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_ServerInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_ServerInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_ServerInfo proto.InternalMessageInfo
 
 func (m *CSVCMsg_ServerInfo) GetProtocol() int32 {
 	if m != nil {
@@ -1346,10 +2108,38 @@ type CSVCMsg_ClassInfo struct {
 	Classes        []*CSVCMsg_ClassInfoClassT `protobuf:"bytes,2,rep,name=classes" json:"classes,omitempty"`
 }
 
-func (m *CSVCMsg_ClassInfo) Reset()                    { *m = CSVCMsg_ClassInfo{} }
-func (m *CSVCMsg_ClassInfo) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_ClassInfo) ProtoMessage()               {}
-func (*CSVCMsg_ClassInfo) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{25} }
+func (m *CSVCMsg_ClassInfo) Reset()         { *m = CSVCMsg_ClassInfo{} }
+func (m *CSVCMsg_ClassInfo) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_ClassInfo) ProtoMessage()    {}
+func (*CSVCMsg_ClassInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{25}
+}
+func (m *CSVCMsg_ClassInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_ClassInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_ClassInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_ClassInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_ClassInfo.Merge(m, src)
+}
+func (m *CSVCMsg_ClassInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_ClassInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_ClassInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_ClassInfo proto.InternalMessageInfo
 
 func (m *CSVCMsg_ClassInfo) GetCreateOnClient() bool {
 	if m != nil {
@@ -1375,8 +2165,34 @@ func (m *CSVCMsg_ClassInfoClassT) Reset()         { *m = CSVCMsg_ClassInfoClassT
 func (m *CSVCMsg_ClassInfoClassT) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_ClassInfoClassT) ProtoMessage()    {}
 func (*CSVCMsg_ClassInfoClassT) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{25, 0}
+	return fileDescriptor_52cbc162d33bb4fa, []int{25, 0}
 }
+func (m *CSVCMsg_ClassInfoClassT) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_ClassInfoClassT) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_ClassInfoClassT.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_ClassInfoClassT) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_ClassInfoClassT.Merge(m, src)
+}
+func (m *CSVCMsg_ClassInfoClassT) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_ClassInfoClassT) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_ClassInfoClassT.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_ClassInfoClassT proto.InternalMessageInfo
 
 func (m *CSVCMsg_ClassInfoClassT) GetClassId() int32 {
 	if m != nil {
@@ -1406,10 +2222,38 @@ type CSVCMsg_SendTable struct {
 	Props        []*CSVCMsg_SendTableSendpropT `protobuf:"bytes,4,rep,name=props" json:"props,omitempty"`
 }
 
-func (m *CSVCMsg_SendTable) Reset()                    { *m = CSVCMsg_SendTable{} }
-func (m *CSVCMsg_SendTable) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_SendTable) ProtoMessage()               {}
-func (*CSVCMsg_SendTable) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{26} }
+func (m *CSVCMsg_SendTable) Reset()         { *m = CSVCMsg_SendTable{} }
+func (m *CSVCMsg_SendTable) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_SendTable) ProtoMessage()    {}
+func (*CSVCMsg_SendTable) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{26}
+}
+func (m *CSVCMsg_SendTable) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_SendTable) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_SendTable.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_SendTable) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_SendTable.Merge(m, src)
+}
+func (m *CSVCMsg_SendTable) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_SendTable) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_SendTable.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_SendTable proto.InternalMessageInfo
 
 func (m *CSVCMsg_SendTable) GetIsEnd() bool {
 	if m != nil {
@@ -1455,8 +2299,34 @@ func (m *CSVCMsg_SendTableSendpropT) Reset()         { *m = CSVCMsg_SendTableSen
 func (m *CSVCMsg_SendTableSendpropT) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_SendTableSendpropT) ProtoMessage()    {}
 func (*CSVCMsg_SendTableSendpropT) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{26, 0}
+	return fileDescriptor_52cbc162d33bb4fa, []int{26, 0}
 }
+func (m *CSVCMsg_SendTableSendpropT) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_SendTableSendpropT) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_SendTableSendpropT.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_SendTableSendpropT) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_SendTableSendpropT.Merge(m, src)
+}
+func (m *CSVCMsg_SendTableSendpropT) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_SendTableSendpropT) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_SendTableSendpropT.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_SendTableSendpropT proto.InternalMessageInfo
 
 func (m *CSVCMsg_SendTableSendpropT) GetType() int32 {
 	if m != nil {
@@ -1525,10 +2395,38 @@ type CSVCMsg_Print struct {
 	Text string `protobuf:"bytes,1,opt,name=text" json:"text"`
 }
 
-func (m *CSVCMsg_Print) Reset()                    { *m = CSVCMsg_Print{} }
-func (m *CSVCMsg_Print) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_Print) ProtoMessage()               {}
-func (*CSVCMsg_Print) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{27} }
+func (m *CSVCMsg_Print) Reset()         { *m = CSVCMsg_Print{} }
+func (m *CSVCMsg_Print) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_Print) ProtoMessage()    {}
+func (*CSVCMsg_Print) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{27}
+}
+func (m *CSVCMsg_Print) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_Print) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_Print.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_Print) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_Print.Merge(m, src)
+}
+func (m *CSVCMsg_Print) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_Print) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_Print.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_Print proto.InternalMessageInfo
 
 func (m *CSVCMsg_Print) GetText() string {
 	if m != nil {
@@ -1541,10 +2439,38 @@ type CSVCMsg_SetPause struct {
 	Paused bool `protobuf:"varint,1,opt,name=paused" json:"paused"`
 }
 
-func (m *CSVCMsg_SetPause) Reset()                    { *m = CSVCMsg_SetPause{} }
-func (m *CSVCMsg_SetPause) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_SetPause) ProtoMessage()               {}
-func (*CSVCMsg_SetPause) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{28} }
+func (m *CSVCMsg_SetPause) Reset()         { *m = CSVCMsg_SetPause{} }
+func (m *CSVCMsg_SetPause) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_SetPause) ProtoMessage()    {}
+func (*CSVCMsg_SetPause) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{28}
+}
+func (m *CSVCMsg_SetPause) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_SetPause) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_SetPause.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_SetPause) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_SetPause.Merge(m, src)
+}
+func (m *CSVCMsg_SetPause) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_SetPause) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_SetPause.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_SetPause proto.InternalMessageInfo
 
 func (m *CSVCMsg_SetPause) GetPaused() bool {
 	if m != nil {
@@ -1557,10 +2483,38 @@ type CSVCMsg_SetView struct {
 	EntityIndex int32 `protobuf:"varint,1,opt,name=entity_index,json=entityIndex" json:"entity_index"`
 }
 
-func (m *CSVCMsg_SetView) Reset()                    { *m = CSVCMsg_SetView{} }
-func (m *CSVCMsg_SetView) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_SetView) ProtoMessage()               {}
-func (*CSVCMsg_SetView) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{29} }
+func (m *CSVCMsg_SetView) Reset()         { *m = CSVCMsg_SetView{} }
+func (m *CSVCMsg_SetView) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_SetView) ProtoMessage()    {}
+func (*CSVCMsg_SetView) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{29}
+}
+func (m *CSVCMsg_SetView) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_SetView) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_SetView.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_SetView) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_SetView.Merge(m, src)
+}
+func (m *CSVCMsg_SetView) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_SetView) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_SetView.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_SetView proto.InternalMessageInfo
 
 func (m *CSVCMsg_SetView) GetEntityIndex() int32 {
 	if m != nil {
@@ -1584,8 +2538,34 @@ func (m *CSVCMsg_CreateStringTable) Reset()         { *m = CSVCMsg_CreateStringT
 func (m *CSVCMsg_CreateStringTable) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_CreateStringTable) ProtoMessage()    {}
 func (*CSVCMsg_CreateStringTable) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{30}
+	return fileDescriptor_52cbc162d33bb4fa, []int{30}
 }
+func (m *CSVCMsg_CreateStringTable) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_CreateStringTable) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_CreateStringTable.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_CreateStringTable) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_CreateStringTable.Merge(m, src)
+}
+func (m *CSVCMsg_CreateStringTable) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_CreateStringTable) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_CreateStringTable.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_CreateStringTable proto.InternalMessageInfo
 
 func (m *CSVCMsg_CreateStringTable) GetName() string {
 	if m != nil {
@@ -1653,8 +2633,34 @@ func (m *CSVCMsg_UpdateStringTable) Reset()         { *m = CSVCMsg_UpdateStringT
 func (m *CSVCMsg_UpdateStringTable) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_UpdateStringTable) ProtoMessage()    {}
 func (*CSVCMsg_UpdateStringTable) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{31}
+	return fileDescriptor_52cbc162d33bb4fa, []int{31}
 }
+func (m *CSVCMsg_UpdateStringTable) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_UpdateStringTable) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_UpdateStringTable.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_UpdateStringTable) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_UpdateStringTable.Merge(m, src)
+}
+func (m *CSVCMsg_UpdateStringTable) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_UpdateStringTable) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_UpdateStringTable.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_UpdateStringTable proto.InternalMessageInfo
 
 func (m *CSVCMsg_UpdateStringTable) GetTableId() int32 {
 	if m != nil {
@@ -1683,10 +2689,38 @@ type CSVCMsg_VoiceInit struct {
 	Version *int32 `protobuf:"varint,3,opt,name=version,def=0" json:"version,omitempty"`
 }
 
-func (m *CSVCMsg_VoiceInit) Reset()                    { *m = CSVCMsg_VoiceInit{} }
-func (m *CSVCMsg_VoiceInit) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_VoiceInit) ProtoMessage()               {}
-func (*CSVCMsg_VoiceInit) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{32} }
+func (m *CSVCMsg_VoiceInit) Reset()         { *m = CSVCMsg_VoiceInit{} }
+func (m *CSVCMsg_VoiceInit) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_VoiceInit) ProtoMessage()    {}
+func (*CSVCMsg_VoiceInit) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{32}
+}
+func (m *CSVCMsg_VoiceInit) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_VoiceInit) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_VoiceInit.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_VoiceInit) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_VoiceInit.Merge(m, src)
+}
+func (m *CSVCMsg_VoiceInit) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_VoiceInit) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_VoiceInit.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_VoiceInit proto.InternalMessageInfo
 
 const Default_CSVCMsg_VoiceInit_Version int32 = 0
 
@@ -1724,10 +2758,38 @@ type CSVCMsg_VoiceData struct {
 	UncompressedSampleOffset uint32            `protobuf:"varint,10,opt,name=uncompressed_sample_offset,json=uncompressedSampleOffset" json:"uncompressed_sample_offset"`
 }
 
-func (m *CSVCMsg_VoiceData) Reset()                    { *m = CSVCMsg_VoiceData{} }
-func (m *CSVCMsg_VoiceData) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_VoiceData) ProtoMessage()               {}
-func (*CSVCMsg_VoiceData) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{33} }
+func (m *CSVCMsg_VoiceData) Reset()         { *m = CSVCMsg_VoiceData{} }
+func (m *CSVCMsg_VoiceData) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_VoiceData) ProtoMessage()    {}
+func (*CSVCMsg_VoiceData) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{33}
+}
+func (m *CSVCMsg_VoiceData) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_VoiceData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_VoiceData.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_VoiceData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_VoiceData.Merge(m, src)
+}
+func (m *CSVCMsg_VoiceData) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_VoiceData) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_VoiceData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_VoiceData proto.InternalMessageInfo
 
 const Default_CSVCMsg_VoiceData_Format VoiceDataFormatT = VoiceDataFormatT_VOICEDATA_FORMAT_ENGINE
 
@@ -1806,10 +2868,38 @@ type CSVCMsg_FixAngle struct {
 	Angle    *CMsgQAngle `protobuf:"bytes,2,opt,name=angle" json:"angle,omitempty"`
 }
 
-func (m *CSVCMsg_FixAngle) Reset()                    { *m = CSVCMsg_FixAngle{} }
-func (m *CSVCMsg_FixAngle) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_FixAngle) ProtoMessage()               {}
-func (*CSVCMsg_FixAngle) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{34} }
+func (m *CSVCMsg_FixAngle) Reset()         { *m = CSVCMsg_FixAngle{} }
+func (m *CSVCMsg_FixAngle) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_FixAngle) ProtoMessage()    {}
+func (*CSVCMsg_FixAngle) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{34}
+}
+func (m *CSVCMsg_FixAngle) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_FixAngle) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_FixAngle.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_FixAngle) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_FixAngle.Merge(m, src)
+}
+func (m *CSVCMsg_FixAngle) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_FixAngle) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_FixAngle.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_FixAngle proto.InternalMessageInfo
 
 func (m *CSVCMsg_FixAngle) GetRelative() bool {
 	if m != nil {
@@ -1833,8 +2923,34 @@ func (m *CSVCMsg_CrosshairAngle) Reset()         { *m = CSVCMsg_CrosshairAngle{}
 func (m *CSVCMsg_CrosshairAngle) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_CrosshairAngle) ProtoMessage()    {}
 func (*CSVCMsg_CrosshairAngle) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{35}
+	return fileDescriptor_52cbc162d33bb4fa, []int{35}
 }
+func (m *CSVCMsg_CrosshairAngle) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_CrosshairAngle) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_CrosshairAngle.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_CrosshairAngle) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_CrosshairAngle.Merge(m, src)
+}
+func (m *CSVCMsg_CrosshairAngle) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_CrosshairAngle) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_CrosshairAngle.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_CrosshairAngle proto.InternalMessageInfo
 
 func (m *CSVCMsg_CrosshairAngle) GetAngle() *CMsgQAngle {
 	if m != nil {
@@ -1847,10 +2963,38 @@ type CSVCMsg_Prefetch struct {
 	SoundIndex int32 `protobuf:"varint,1,opt,name=sound_index,json=soundIndex" json:"sound_index"`
 }
 
-func (m *CSVCMsg_Prefetch) Reset()                    { *m = CSVCMsg_Prefetch{} }
-func (m *CSVCMsg_Prefetch) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_Prefetch) ProtoMessage()               {}
-func (*CSVCMsg_Prefetch) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{36} }
+func (m *CSVCMsg_Prefetch) Reset()         { *m = CSVCMsg_Prefetch{} }
+func (m *CSVCMsg_Prefetch) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_Prefetch) ProtoMessage()    {}
+func (*CSVCMsg_Prefetch) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{36}
+}
+func (m *CSVCMsg_Prefetch) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_Prefetch) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_Prefetch.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_Prefetch) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_Prefetch.Merge(m, src)
+}
+func (m *CSVCMsg_Prefetch) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_Prefetch) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_Prefetch.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_Prefetch proto.InternalMessageInfo
 
 func (m *CSVCMsg_Prefetch) GetSoundIndex() int32 {
 	if m != nil {
@@ -1867,10 +3011,38 @@ type CSVCMsg_BSPDecal struct {
 	LowPriority       bool        `protobuf:"varint,5,opt,name=low_priority,json=lowPriority" json:"low_priority"`
 }
 
-func (m *CSVCMsg_BSPDecal) Reset()                    { *m = CSVCMsg_BSPDecal{} }
-func (m *CSVCMsg_BSPDecal) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_BSPDecal) ProtoMessage()               {}
-func (*CSVCMsg_BSPDecal) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{37} }
+func (m *CSVCMsg_BSPDecal) Reset()         { *m = CSVCMsg_BSPDecal{} }
+func (m *CSVCMsg_BSPDecal) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_BSPDecal) ProtoMessage()    {}
+func (*CSVCMsg_BSPDecal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{37}
+}
+func (m *CSVCMsg_BSPDecal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_BSPDecal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_BSPDecal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_BSPDecal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_BSPDecal.Merge(m, src)
+}
+func (m *CSVCMsg_BSPDecal) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_BSPDecal) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_BSPDecal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_BSPDecal proto.InternalMessageInfo
 
 func (m *CSVCMsg_BSPDecal) GetPos() *CMsgVector {
 	if m != nil {
@@ -1913,10 +3085,38 @@ type CSVCMsg_SplitScreen struct {
 	PlayerIndex int32                    `protobuf:"varint,3,opt,name=player_index,json=playerIndex" json:"player_index"`
 }
 
-func (m *CSVCMsg_SplitScreen) Reset()                    { *m = CSVCMsg_SplitScreen{} }
-func (m *CSVCMsg_SplitScreen) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_SplitScreen) ProtoMessage()               {}
-func (*CSVCMsg_SplitScreen) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{38} }
+func (m *CSVCMsg_SplitScreen) Reset()         { *m = CSVCMsg_SplitScreen{} }
+func (m *CSVCMsg_SplitScreen) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_SplitScreen) ProtoMessage()    {}
+func (*CSVCMsg_SplitScreen) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{38}
+}
+func (m *CSVCMsg_SplitScreen) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_SplitScreen) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_SplitScreen.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_SplitScreen) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_SplitScreen.Merge(m, src)
+}
+func (m *CSVCMsg_SplitScreen) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_SplitScreen) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_SplitScreen.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_SplitScreen proto.InternalMessageInfo
 
 const Default_CSVCMsg_SplitScreen_Type ESplitScreenMessageType = ESplitScreenMessageType_MSG_SPLITSCREEN_ADDUSER
 
@@ -1946,10 +3146,38 @@ type CSVCMsg_GetCvarValue struct {
 	CvarName string `protobuf:"bytes,2,opt,name=cvar_name,json=cvarName" json:"cvar_name"`
 }
 
-func (m *CSVCMsg_GetCvarValue) Reset()                    { *m = CSVCMsg_GetCvarValue{} }
-func (m *CSVCMsg_GetCvarValue) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_GetCvarValue) ProtoMessage()               {}
-func (*CSVCMsg_GetCvarValue) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{39} }
+func (m *CSVCMsg_GetCvarValue) Reset()         { *m = CSVCMsg_GetCvarValue{} }
+func (m *CSVCMsg_GetCvarValue) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_GetCvarValue) ProtoMessage()    {}
+func (*CSVCMsg_GetCvarValue) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{39}
+}
+func (m *CSVCMsg_GetCvarValue) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_GetCvarValue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_GetCvarValue.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_GetCvarValue) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_GetCvarValue.Merge(m, src)
+}
+func (m *CSVCMsg_GetCvarValue) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_GetCvarValue) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_GetCvarValue.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_GetCvarValue proto.InternalMessageInfo
 
 func (m *CSVCMsg_GetCvarValue) GetCookie() int32 {
 	if m != nil {
@@ -1970,10 +3198,38 @@ type CSVCMsg_Menu struct {
 	MenuKeyValues []byte `protobuf:"bytes,2,opt,name=menu_key_values,json=menuKeyValues" json:"menu_key_values"`
 }
 
-func (m *CSVCMsg_Menu) Reset()                    { *m = CSVCMsg_Menu{} }
-func (m *CSVCMsg_Menu) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_Menu) ProtoMessage()               {}
-func (*CSVCMsg_Menu) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{40} }
+func (m *CSVCMsg_Menu) Reset()         { *m = CSVCMsg_Menu{} }
+func (m *CSVCMsg_Menu) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_Menu) ProtoMessage()    {}
+func (*CSVCMsg_Menu) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{40}
+}
+func (m *CSVCMsg_Menu) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_Menu) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_Menu.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_Menu) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_Menu.Merge(m, src)
+}
+func (m *CSVCMsg_Menu) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_Menu) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_Menu.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_Menu proto.InternalMessageInfo
 
 func (m *CSVCMsg_Menu) GetDialogType() int32 {
 	if m != nil {
@@ -1995,10 +3251,38 @@ type CSVCMsg_UserMessage struct {
 	Passthrough int32  `protobuf:"varint,3,opt,name=passthrough" json:"passthrough"`
 }
 
-func (m *CSVCMsg_UserMessage) Reset()                    { *m = CSVCMsg_UserMessage{} }
-func (m *CSVCMsg_UserMessage) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_UserMessage) ProtoMessage()               {}
-func (*CSVCMsg_UserMessage) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{41} }
+func (m *CSVCMsg_UserMessage) Reset()         { *m = CSVCMsg_UserMessage{} }
+func (m *CSVCMsg_UserMessage) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_UserMessage) ProtoMessage()    {}
+func (*CSVCMsg_UserMessage) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{41}
+}
+func (m *CSVCMsg_UserMessage) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_UserMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_UserMessage.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_UserMessage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_UserMessage.Merge(m, src)
+}
+func (m *CSVCMsg_UserMessage) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_UserMessage) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_UserMessage.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_UserMessage proto.InternalMessageInfo
 
 func (m *CSVCMsg_UserMessage) GetMsgType() int32 {
 	if m != nil {
@@ -2025,10 +3309,38 @@ type CSVCMsg_PaintmapData struct {
 	Paintmap []byte `protobuf:"bytes,1,opt,name=paintmap" json:"paintmap"`
 }
 
-func (m *CSVCMsg_PaintmapData) Reset()                    { *m = CSVCMsg_PaintmapData{} }
-func (m *CSVCMsg_PaintmapData) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_PaintmapData) ProtoMessage()               {}
-func (*CSVCMsg_PaintmapData) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{42} }
+func (m *CSVCMsg_PaintmapData) Reset()         { *m = CSVCMsg_PaintmapData{} }
+func (m *CSVCMsg_PaintmapData) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_PaintmapData) ProtoMessage()    {}
+func (*CSVCMsg_PaintmapData) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{42}
+}
+func (m *CSVCMsg_PaintmapData) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_PaintmapData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_PaintmapData.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_PaintmapData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_PaintmapData.Merge(m, src)
+}
+func (m *CSVCMsg_PaintmapData) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_PaintmapData) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_PaintmapData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_PaintmapData proto.InternalMessageInfo
 
 func (m *CSVCMsg_PaintmapData) GetPaintmap() []byte {
 	if m != nil {
@@ -2044,10 +3356,38 @@ type CSVCMsg_GameEvent struct {
 	Passthrough int32                    `protobuf:"varint,4,opt,name=passthrough" json:"passthrough"`
 }
 
-func (m *CSVCMsg_GameEvent) Reset()                    { *m = CSVCMsg_GameEvent{} }
-func (m *CSVCMsg_GameEvent) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_GameEvent) ProtoMessage()               {}
-func (*CSVCMsg_GameEvent) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{43} }
+func (m *CSVCMsg_GameEvent) Reset()         { *m = CSVCMsg_GameEvent{} }
+func (m *CSVCMsg_GameEvent) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_GameEvent) ProtoMessage()    {}
+func (*CSVCMsg_GameEvent) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{43}
+}
+func (m *CSVCMsg_GameEvent) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_GameEvent) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_GameEvent.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_GameEvent) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_GameEvent.Merge(m, src)
+}
+func (m *CSVCMsg_GameEvent) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_GameEvent) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_GameEvent.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_GameEvent proto.InternalMessageInfo
 
 func (m *CSVCMsg_GameEvent) GetEventName() string {
 	if m != nil {
@@ -2093,8 +3433,34 @@ func (m *CSVCMsg_GameEventKeyT) Reset()         { *m = CSVCMsg_GameEventKeyT{} }
 func (m *CSVCMsg_GameEventKeyT) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_GameEventKeyT) ProtoMessage()    {}
 func (*CSVCMsg_GameEventKeyT) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{43, 0}
+	return fileDescriptor_52cbc162d33bb4fa, []int{43, 0}
 }
+func (m *CSVCMsg_GameEventKeyT) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_GameEventKeyT) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_GameEventKeyT.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_GameEventKeyT) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_GameEventKeyT.Merge(m, src)
+}
+func (m *CSVCMsg_GameEventKeyT) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_GameEventKeyT) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_GameEventKeyT.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_GameEventKeyT proto.InternalMessageInfo
 
 func (m *CSVCMsg_GameEventKeyT) GetType() int32 {
 	if m != nil {
@@ -2167,8 +3533,34 @@ func (m *CSVCMsg_GameEventList) Reset()         { *m = CSVCMsg_GameEventList{} }
 func (m *CSVCMsg_GameEventList) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_GameEventList) ProtoMessage()    {}
 func (*CSVCMsg_GameEventList) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{44}
+	return fileDescriptor_52cbc162d33bb4fa, []int{44}
 }
+func (m *CSVCMsg_GameEventList) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_GameEventList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_GameEventList.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_GameEventList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_GameEventList.Merge(m, src)
+}
+func (m *CSVCMsg_GameEventList) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_GameEventList) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_GameEventList.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_GameEventList proto.InternalMessageInfo
 
 func (m *CSVCMsg_GameEventList) GetDescriptors() []*CSVCMsg_GameEventListDescriptorT {
 	if m != nil {
@@ -2186,8 +3578,34 @@ func (m *CSVCMsg_GameEventListKeyT) Reset()         { *m = CSVCMsg_GameEventList
 func (m *CSVCMsg_GameEventListKeyT) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_GameEventListKeyT) ProtoMessage()    {}
 func (*CSVCMsg_GameEventListKeyT) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{44, 0}
+	return fileDescriptor_52cbc162d33bb4fa, []int{44, 0}
 }
+func (m *CSVCMsg_GameEventListKeyT) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_GameEventListKeyT) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_GameEventListKeyT.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_GameEventListKeyT) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_GameEventListKeyT.Merge(m, src)
+}
+func (m *CSVCMsg_GameEventListKeyT) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_GameEventListKeyT) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_GameEventListKeyT.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_GameEventListKeyT proto.InternalMessageInfo
 
 func (m *CSVCMsg_GameEventListKeyT) GetType() int32 {
 	if m != nil {
@@ -2213,8 +3631,34 @@ func (m *CSVCMsg_GameEventListDescriptorT) Reset()         { *m = CSVCMsg_GameEv
 func (m *CSVCMsg_GameEventListDescriptorT) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_GameEventListDescriptorT) ProtoMessage()    {}
 func (*CSVCMsg_GameEventListDescriptorT) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{44, 1}
+	return fileDescriptor_52cbc162d33bb4fa, []int{44, 1}
 }
+func (m *CSVCMsg_GameEventListDescriptorT) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_GameEventListDescriptorT) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_GameEventListDescriptorT.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_GameEventListDescriptorT) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_GameEventListDescriptorT.Merge(m, src)
+}
+func (m *CSVCMsg_GameEventListDescriptorT) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_GameEventListDescriptorT) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_GameEventListDescriptorT.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_GameEventListDescriptorT proto.InternalMessageInfo
 
 func (m *CSVCMsg_GameEventListDescriptorT) GetEventid() int32 {
 	if m != nil {
@@ -2243,10 +3687,38 @@ type CSVCMsg_TempEntities struct {
 	EntityData []byte `protobuf:"bytes,3,opt,name=entity_data,json=entityData" json:"entity_data"`
 }
 
-func (m *CSVCMsg_TempEntities) Reset()                    { *m = CSVCMsg_TempEntities{} }
-func (m *CSVCMsg_TempEntities) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_TempEntities) ProtoMessage()               {}
-func (*CSVCMsg_TempEntities) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{45} }
+func (m *CSVCMsg_TempEntities) Reset()         { *m = CSVCMsg_TempEntities{} }
+func (m *CSVCMsg_TempEntities) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_TempEntities) ProtoMessage()    {}
+func (*CSVCMsg_TempEntities) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{45}
+}
+func (m *CSVCMsg_TempEntities) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_TempEntities) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_TempEntities.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_TempEntities) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_TempEntities.Merge(m, src)
+}
+func (m *CSVCMsg_TempEntities) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_TempEntities) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_TempEntities.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_TempEntities proto.InternalMessageInfo
 
 func (m *CSVCMsg_TempEntities) GetReliable() bool {
 	if m != nil {
@@ -2283,8 +3755,34 @@ func (m *CSVCMsg_PacketEntities) Reset()         { *m = CSVCMsg_PacketEntities{}
 func (m *CSVCMsg_PacketEntities) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_PacketEntities) ProtoMessage()    {}
 func (*CSVCMsg_PacketEntities) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{46}
+	return fileDescriptor_52cbc162d33bb4fa, []int{46}
 }
+func (m *CSVCMsg_PacketEntities) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_PacketEntities) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_PacketEntities.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_PacketEntities) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_PacketEntities.Merge(m, src)
+}
+func (m *CSVCMsg_PacketEntities) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_PacketEntities) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_PacketEntities.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_PacketEntities proto.InternalMessageInfo
 
 func (m *CSVCMsg_PacketEntities) GetMaxEntries() int32 {
 	if m != nil {
@@ -2340,10 +3838,38 @@ type CSVCMsg_Sounds struct {
 	Sounds        []*CSVCMsg_SoundsSounddataT `protobuf:"bytes,2,rep,name=sounds" json:"sounds,omitempty"`
 }
 
-func (m *CSVCMsg_Sounds) Reset()                    { *m = CSVCMsg_Sounds{} }
-func (m *CSVCMsg_Sounds) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_Sounds) ProtoMessage()               {}
-func (*CSVCMsg_Sounds) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{47} }
+func (m *CSVCMsg_Sounds) Reset()         { *m = CSVCMsg_Sounds{} }
+func (m *CSVCMsg_Sounds) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_Sounds) ProtoMessage()    {}
+func (*CSVCMsg_Sounds) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{47}
+}
+func (m *CSVCMsg_Sounds) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_Sounds) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_Sounds.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_Sounds) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_Sounds.Merge(m, src)
+}
+func (m *CSVCMsg_Sounds) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_Sounds) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_Sounds.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_Sounds proto.InternalMessageInfo
 
 func (m *CSVCMsg_Sounds) GetReliableSound() bool {
 	if m != nil {
@@ -2383,8 +3909,34 @@ func (m *CSVCMsg_SoundsSounddataT) Reset()         { *m = CSVCMsg_SoundsSounddat
 func (m *CSVCMsg_SoundsSounddataT) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_SoundsSounddataT) ProtoMessage()    {}
 func (*CSVCMsg_SoundsSounddataT) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{47, 0}
+	return fileDescriptor_52cbc162d33bb4fa, []int{47, 0}
 }
+func (m *CSVCMsg_SoundsSounddataT) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_SoundsSounddataT) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_SoundsSounddataT.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_SoundsSounddataT) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_SoundsSounddataT.Merge(m, src)
+}
+func (m *CSVCMsg_SoundsSounddataT) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_SoundsSounddataT) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_SoundsSounddataT.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_SoundsSounddataT proto.InternalMessageInfo
 
 func (m *CSVCMsg_SoundsSounddataT) GetOriginX() int32 {
 	if m != nil {
@@ -2511,10 +4063,38 @@ type CSVCMsg_EntityMsg struct {
 	EntData  []byte `protobuf:"bytes,3,opt,name=ent_data,json=entData" json:"ent_data"`
 }
 
-func (m *CSVCMsg_EntityMsg) Reset()                    { *m = CSVCMsg_EntityMsg{} }
-func (m *CSVCMsg_EntityMsg) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_EntityMsg) ProtoMessage()               {}
-func (*CSVCMsg_EntityMsg) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{48} }
+func (m *CSVCMsg_EntityMsg) Reset()         { *m = CSVCMsg_EntityMsg{} }
+func (m *CSVCMsg_EntityMsg) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_EntityMsg) ProtoMessage()    {}
+func (*CSVCMsg_EntityMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{48}
+}
+func (m *CSVCMsg_EntityMsg) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_EntityMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_EntityMsg.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_EntityMsg) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_EntityMsg.Merge(m, src)
+}
+func (m *CSVCMsg_EntityMsg) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_EntityMsg) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_EntityMsg.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_EntityMsg proto.InternalMessageInfo
 
 func (m *CSVCMsg_EntityMsg) GetEntIndex() int32 {
 	if m != nil {
@@ -2541,10 +4121,38 @@ type CSVCMsg_CmdKeyValues struct {
 	Keyvalues []byte `protobuf:"bytes,1,opt,name=keyvalues" json:"keyvalues"`
 }
 
-func (m *CSVCMsg_CmdKeyValues) Reset()                    { *m = CSVCMsg_CmdKeyValues{} }
-func (m *CSVCMsg_CmdKeyValues) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_CmdKeyValues) ProtoMessage()               {}
-func (*CSVCMsg_CmdKeyValues) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{49} }
+func (m *CSVCMsg_CmdKeyValues) Reset()         { *m = CSVCMsg_CmdKeyValues{} }
+func (m *CSVCMsg_CmdKeyValues) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_CmdKeyValues) ProtoMessage()    {}
+func (*CSVCMsg_CmdKeyValues) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{49}
+}
+func (m *CSVCMsg_CmdKeyValues) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_CmdKeyValues) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_CmdKeyValues.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_CmdKeyValues) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_CmdKeyValues.Merge(m, src)
+}
+func (m *CSVCMsg_CmdKeyValues) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_CmdKeyValues) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_CmdKeyValues.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_CmdKeyValues proto.InternalMessageInfo
 
 func (m *CSVCMsg_CmdKeyValues) GetKeyvalues() []byte {
 	if m != nil {
@@ -2562,8 +4170,34 @@ func (m *CSVCMsg_EncryptedData) Reset()         { *m = CSVCMsg_EncryptedData{} }
 func (m *CSVCMsg_EncryptedData) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_EncryptedData) ProtoMessage()    {}
 func (*CSVCMsg_EncryptedData) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{50}
+	return fileDescriptor_52cbc162d33bb4fa, []int{50}
 }
+func (m *CSVCMsg_EncryptedData) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_EncryptedData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_EncryptedData.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_EncryptedData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_EncryptedData.Merge(m, src)
+}
+func (m *CSVCMsg_EncryptedData) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_EncryptedData) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_EncryptedData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_EncryptedData proto.InternalMessageInfo
 
 func (m *CSVCMsg_EncryptedData) GetEncrypted() []byte {
 	if m != nil {
@@ -2589,10 +4223,38 @@ type CSVCMsg_HltvReplay struct {
 	ReplaySlowdownRate  float32 `protobuf:"fixed32,7,opt,name=replay_slowdown_rate,json=replaySlowdownRate" json:"replay_slowdown_rate"`
 }
 
-func (m *CSVCMsg_HltvReplay) Reset()                    { *m = CSVCMsg_HltvReplay{} }
-func (m *CSVCMsg_HltvReplay) String() string            { return proto.CompactTextString(m) }
-func (*CSVCMsg_HltvReplay) ProtoMessage()               {}
-func (*CSVCMsg_HltvReplay) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{51} }
+func (m *CSVCMsg_HltvReplay) Reset()         { *m = CSVCMsg_HltvReplay{} }
+func (m *CSVCMsg_HltvReplay) String() string { return proto.CompactTextString(m) }
+func (*CSVCMsg_HltvReplay) ProtoMessage()    {}
+func (*CSVCMsg_HltvReplay) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{51}
+}
+func (m *CSVCMsg_HltvReplay) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_HltvReplay) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_HltvReplay.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_HltvReplay) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_HltvReplay.Merge(m, src)
+}
+func (m *CSVCMsg_HltvReplay) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_HltvReplay) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_HltvReplay.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_HltvReplay proto.InternalMessageInfo
 
 func (m *CSVCMsg_HltvReplay) GetDelay() int32 {
 	if m != nil {
@@ -2651,10 +4313,38 @@ type CCLCMsg_HltvReplay struct {
 	EventTime             float32 `protobuf:"fixed32,5,opt,name=event_time,json=eventTime" json:"event_time"`
 }
 
-func (m *CCLCMsg_HltvReplay) Reset()                    { *m = CCLCMsg_HltvReplay{} }
-func (m *CCLCMsg_HltvReplay) String() string            { return proto.CompactTextString(m) }
-func (*CCLCMsg_HltvReplay) ProtoMessage()               {}
-func (*CCLCMsg_HltvReplay) Descriptor() ([]byte, []int) { return fileDescriptorNetmessages, []int{52} }
+func (m *CCLCMsg_HltvReplay) Reset()         { *m = CCLCMsg_HltvReplay{} }
+func (m *CCLCMsg_HltvReplay) String() string { return proto.CompactTextString(m) }
+func (*CCLCMsg_HltvReplay) ProtoMessage()    {}
+func (*CCLCMsg_HltvReplay) Descriptor() ([]byte, []int) {
+	return fileDescriptor_52cbc162d33bb4fa, []int{52}
+}
+func (m *CCLCMsg_HltvReplay) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCLCMsg_HltvReplay) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCLCMsg_HltvReplay.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCLCMsg_HltvReplay) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCLCMsg_HltvReplay.Merge(m, src)
+}
+func (m *CCLCMsg_HltvReplay) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCLCMsg_HltvReplay) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCLCMsg_HltvReplay.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCLCMsg_HltvReplay proto.InternalMessageInfo
 
 func (m *CCLCMsg_HltvReplay) GetRequest() int32 {
 	if m != nil {
@@ -2699,8 +4389,34 @@ func (m *CSVCMsg_Broadcast_Command) Reset()         { *m = CSVCMsg_Broadcast_Com
 func (m *CSVCMsg_Broadcast_Command) String() string { return proto.CompactTextString(m) }
 func (*CSVCMsg_Broadcast_Command) ProtoMessage()    {}
 func (*CSVCMsg_Broadcast_Command) Descriptor() ([]byte, []int) {
-	return fileDescriptorNetmessages, []int{53}
+	return fileDescriptor_52cbc162d33bb4fa, []int{53}
 }
+func (m *CSVCMsg_Broadcast_Command) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CSVCMsg_Broadcast_Command) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CSVCMsg_Broadcast_Command.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CSVCMsg_Broadcast_Command) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CSVCMsg_Broadcast_Command.Merge(m, src)
+}
+func (m *CSVCMsg_Broadcast_Command) XXX_Size() int {
+	return m.Size()
+}
+func (m *CSVCMsg_Broadcast_Command) XXX_DiscardUnknown() {
+	xxx_messageInfo_CSVCMsg_Broadcast_Command.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CSVCMsg_Broadcast_Command proto.InternalMessageInfo
 
 func (m *CSVCMsg_Broadcast_Command) GetCmd() string {
 	if m != nil {
@@ -2710,6 +4426,12 @@ func (m *CSVCMsg_Broadcast_Command) GetCmd() string {
 }
 
 func init() {
+	proto.RegisterEnum("NET_Messages", NET_Messages_name, NET_Messages_value)
+	proto.RegisterEnum("CLC_Messages", CLC_Messages_name, CLC_Messages_value)
+	proto.RegisterEnum("VoiceDataFormatT", VoiceDataFormatT_name, VoiceDataFormatT_value)
+	proto.RegisterEnum("ESplitScreenMessageType", ESplitScreenMessageType_name, ESplitScreenMessageType_value)
+	proto.RegisterEnum("SVC_Messages", SVC_Messages_name, SVC_Messages_value)
+	proto.RegisterEnum("ReplayEventTypeT", ReplayEventTypeT_name, ReplayEventTypeT_value)
 	proto.RegisterType((*CMsgVector)(nil), "CMsgVector")
 	proto.RegisterType((*CMsgVector2D)(nil), "CMsgVector2D")
 	proto.RegisterType((*CMsgQAngle)(nil), "CMsgQAngle")
@@ -2771,13 +4493,288 @@ func init() {
 	proto.RegisterType((*CSVCMsg_HltvReplay)(nil), "CSVCMsg_HltvReplay")
 	proto.RegisterType((*CCLCMsg_HltvReplay)(nil), "CCLCMsg_HltvReplay")
 	proto.RegisterType((*CSVCMsg_Broadcast_Command)(nil), "CSVCMsg_Broadcast_Command")
-	proto.RegisterEnum("NET_Messages", NET_Messages_name, NET_Messages_value)
-	proto.RegisterEnum("CLC_Messages", CLC_Messages_name, CLC_Messages_value)
-	proto.RegisterEnum("VoiceDataFormatT", VoiceDataFormatT_name, VoiceDataFormatT_value)
-	proto.RegisterEnum("ESplitScreenMessageType", ESplitScreenMessageType_name, ESplitScreenMessageType_value)
-	proto.RegisterEnum("SVC_Messages", SVC_Messages_name, SVC_Messages_value)
-	proto.RegisterEnum("ReplayEventTypeT", ReplayEventTypeT_name, ReplayEventTypeT_value)
 }
+
+func init() { proto.RegisterFile("netmessages.proto", fileDescriptor_52cbc162d33bb4fa) }
+
+var fileDescriptor_52cbc162d33bb4fa = []byte{
+	// 4373 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x7a, 0x4d, 0x6c, 0x24, 0x49,
+	0x56, 0x7f, 0x57, 0xf9, 0xa3, 0xca, 0x51, 0x65, 0x3b, 0x1d, 0xee, 0x8f, 0x1a, 0xcf, 0xb6, 0xbb,
+	0x3b, 0xfb, 0x3f, 0x33, 0x3d, 0xfd, 0x9f, 0xf1, 0x8e, 0xba, 0x67, 0x86, 0xa5, 0x47, 0x7b, 0xb0,
+	0xcb, 0xe5, 0x6e, 0x6b, 0x6d, 0xb7, 0xb7, 0xaa, 0xda, 0xc3, 0x8c, 0x90, 0x42, 0xe1, 0xcc, 0x70,
+	0x39, 0xe5, 0xfc, 0xa8, 0xcd, 0x88, 0x2a, 0xbb, 0x46, 0x42, 0x70, 0x82, 0x1b, 0xe2, 0x00, 0x42,
+	0x48, 0x48, 0xc0, 0x09, 0x09, 0x71, 0x06, 0x21, 0x24, 0xce, 0x7b, 0xdc, 0x23, 0xa7, 0x65, 0x35,
+	0x73, 0x42, 0xe2, 0x84, 0x40, 0x70, 0x03, 0xbd, 0x17, 0x19, 0x99, 0x91, 0x55, 0xf6, 0xec, 0x2c,
+	0x70, 0xb1, 0x5c, 0xbf, 0xf7, 0x8b, 0xc8, 0x88, 0x17, 0x2f, 0xde, 0x57, 0x26, 0x59, 0x8b, 0x85,
+	0x8a, 0x84, 0x94, 0x7c, 0x20, 0xe4, 0xd6, 0x30, 0x4d, 0x54, 0xb2, 0xf1, 0x70, 0x90, 0x24, 0x83,
+	0x50, 0x7c, 0x1f, 0x7f, 0x9d, 0x8e, 0xce, 0xbe, 0xef, 0x0b, 0xe9, 0xa5, 0xc1, 0x50, 0x25, 0xa9,
+	0x66, 0xb8, 0xaf, 0x08, 0x69, 0x1f, 0xca, 0xc1, 0x89, 0xf0, 0x54, 0x92, 0x52, 0x4a, 0x2a, 0x57,
+	0xad, 0xca, 0xc3, 0xca, 0x93, 0xea, 0xce, 0xfc, 0x4f, 0x7f, 0xfe, 0xe0, 0x56, 0xb7, 0x72, 0x05,
+	0xd8, 0xa4, 0x55, 0xb5, 0xb1, 0x09, 0x60, 0x5f, 0xb5, 0xe6, 0x6c, 0xec, 0x2b, 0xf7, 0x53, 0xd2,
+	0x2c, 0x66, 0x7a, 0xb6, 0xfb, 0x5d, 0xe7, 0x32, 0x2b, 0xf8, 0xf1, 0x76, 0x3c, 0x08, 0xc5, 0xff,
+	0x6a, 0x05, 0x5f, 0x92, 0x3a, 0xcc, 0xd4, 0x7d, 0xb9, 0xb3, 0x0d, 0xf2, 0x14, 0xe7, 0x59, 0x30,
+	0x72, 0xdc, 0xdd, 0x00, 0xe7, 0xc9, 0xb1, 0x01, 0x60, 0xa7, 0x38, 0x4f, 0x8e, 0x9d, 0x02, 0xc6,
+	0x5b, 0xf3, 0x36, 0xc6, 0xdd, 0xbf, 0xad, 0x92, 0x66, 0xfb, 0xa8, 0xd3, 0x3f, 0x94, 0x03, 0xd6,
+	0x0f, 0xbc, 0x0b, 0xda, 0x22, 0xf3, 0x2a, 0xf0, 0x2e, 0xf0, 0x19, 0xcb, 0x19, 0x0f, 0x11, 0xfa,
+	0x6b, 0xe4, 0xf6, 0x79, 0x22, 0x15, 0xf3, 0x92, 0x68, 0x38, 0x52, 0x5c, 0x05, 0x49, 0xac, 0x82,
+	0x48, 0xe0, 0x8c, 0x86, 0xb9, 0x0e, 0x8c, 0x76, 0x99, 0x40, 0x7f, 0x4c, 0xdc, 0xeb, 0x06, 0x32,
+	0xa9, 0x7c, 0xe6, 0x8b, 0x71, 0x80, 0x48, 0x6b, 0xc1, 0x9a, 0xe6, 0xc1, 0x35, 0xd3, 0xf4, 0x94,
+	0xbf, 0x6b, 0xc8, 0xf4, 0x35, 0x79, 0x84, 0x53, 0x9e, 0xa5, 0x3c, 0x12, 0x52, 0xf1, 0x54, 0x5d,
+	0x33, 0xe3, 0xa2, 0x35, 0xe3, 0x26, 0xd0, 0xf7, 0x4a, 0xec, 0xd2, 0x84, 0x1f, 0x91, 0xb5, 0xf3,
+	0x50, 0x8d, 0x59, 0x2a, 0x86, 0x21, 0x9f, 0xb0, 0xb3, 0x90, 0x0f, 0x64, 0xab, 0x66, 0x4d, 0xb0,
+	0x0a, 0xe2, 0x2e, 0x4a, 0xf7, 0x40, 0xe8, 0x3e, 0x27, 0x6b, 0x46, 0x71, 0x3d, 0x95, 0x06, 0xf1,
+	0xa0, 0x1d, 0xf9, 0x74, 0x93, 0xd4, 0xbc, 0x24, 0x8a, 0x78, 0xec, 0xa3, 0x02, 0x97, 0xb2, 0xc1,
+	0x06, 0x74, 0xff, 0xb9, 0x42, 0xd6, 0xf3, 0x51, 0xc1, 0x20, 0x4e, 0xe2, 0x9e, 0xe2, 0x4a, 0xd0,
+	0xf7, 0x48, 0x53, 0xe2, 0x4f, 0x26, 0xe1, 0x77, 0x49, 0xfb, 0x0d, 0x69, 0x11, 0xdf, 0x21, 0x0d,
+	0x39, 0xe4, 0x97, 0x31, 0xf3, 0x92, 0x51, 0xac, 0xf0, 0xd4, 0x0d, 0x8f, 0xa0, 0xa0, 0x0d, 0x38,
+	0x7d, 0x46, 0x68, 0x3c, 0x8a, 0x98, 0x14, 0xe9, 0x58, 0xa4, 0x0c, 0x16, 0x2d, 0x52, 0x89, 0xf6,
+	0x60, 0xd8, 0x4e, 0x3c, 0x8a, 0x7a, 0x28, 0x3e, 0xd6, 0x52, 0xfa, 0x21, 0xa1, 0x19, 0x91, 0xc5,
+	0x42, 0x5d, 0x26, 0xe9, 0x45, 0xe0, 0xcb, 0xd6, 0xfc, 0xc3, 0xb9, 0x27, 0x4b, 0xdd, 0xb5, 0x4c,
+	0x72, 0x94, 0x0b, 0xe8, 0x03, 0x52, 0x8f, 0xf8, 0x90, 0xc5, 0x3c, 0x12, 0x78, 0x76, 0xf9, 0x5e,
+	0x23, 0x3e, 0x3c, 0xe2, 0x91, 0x70, 0xff, 0xa2, 0xa2, 0x6f, 0x00, 0x6b, 0x9f, 0xf0, 0x54, 0xd2,
+	0x77, 0xc9, 0x82, 0x37, 0xe6, 0xa9, 0x6c, 0x55, 0x1e, 0xce, 0x3d, 0x69, 0x3c, 0x73, 0xb6, 0x0a,
+	0xd9, 0x16, 0xfc, 0xed, 0x6a, 0xf1, 0xc6, 0x05, 0x99, 0x87, 0x9f, 0x60, 0x88, 0x38, 0xb7, 0xad,
+	0x47, 0x44, 0xe8, 0x06, 0x59, 0x18, 0xf3, 0x70, 0x24, 0x70, 0xf7, 0x46, 0xa4, 0x21, 0xfa, 0x21,
+	0x59, 0xf5, 0x03, 0x0f, 0x8e, 0x94, 0xa7, 0x13, 0xbd, 0x38, 0x7b, 0xd7, 0x2b, 0x85, 0x10, 0xd7,
+	0xf8, 0xc2, 0x3a, 0x44, 0xa1, 0xda, 0x49, 0x0c, 0x4f, 0x7e, 0x07, 0x0e, 0x31, 0xce, 0xd6, 0x5a,
+	0x79, 0xd2, 0x78, 0xd6, 0xb0, 0xd6, 0xda, 0x35, 0x32, 0x77, 0x99, 0x34, 0xcc, 0xd8, 0xa3, 0xd7,
+	0xc7, 0xee, 0x16, 0xa1, 0xe6, 0xe7, 0x6e, 0x20, 0xbd, 0x24, 0x8e, 0x85, 0xa7, 0xf0, 0x3a, 0x89,
+	0x2b, 0x55, 0xde, 0x05, 0x20, 0xee, 0x5f, 0x56, 0x8a, 0x9b, 0xb7, 0x17, 0x84, 0x78, 0xb4, 0x2a,
+	0xe5, 0xb1, 0x3c, 0x13, 0x29, 0x0b, 0xfc, 0xd2, 0x25, 0x27, 0x46, 0xb0, 0xef, 0xd3, 0x47, 0x64,
+	0xe9, 0x2c, 0x08, 0x85, 0xde, 0x9b, 0xad, 0x81, 0x3a, 0xc0, 0xb0, 0x2b, 0xfa, 0x9c, 0xac, 0x07,
+	0xd2, 0x98, 0xb2, 0x2f, 0xa2, 0x84, 0x81, 0x08, 0x15, 0x51, 0x37, 0xc7, 0x1f, 0x48, 0x6d, 0xcc,
+	0xbb, 0x22, 0x4a, 0xf0, 0xf1, 0x2d, 0x32, 0xef, 0x8b, 0x78, 0x82, 0xd7, 0xd9, 0xb0, 0x10, 0x71,
+	0x9f, 0x93, 0x7b, 0xb9, 0x92, 0x86, 0x61, 0xa0, 0x7a, 0x5e, 0x2a, 0x44, 0xfc, 0x46, 0x0a, 0x3c,
+	0x24, 0x19, 0x26, 0xaa, 0xb4, 0x58, 0x44, 0xdc, 0x13, 0xd2, 0x32, 0x83, 0xb4, 0x81, 0x6d, 0x8f,
+	0xb9, 0xe2, 0xe9, 0x2e, 0x57, 0x9c, 0xba, 0x64, 0x89, 0x7b, 0x68, 0xc0, 0xd9, 0x3e, 0xcd, 0xf1,
+	0x14, 0x30, 0xbd, 0x4b, 0xe6, 0xd2, 0xc1, 0x29, 0x6e, 0xb0, 0x99, 0x49, 0x01, 0x70, 0xff, 0xb4,
+	0x4a, 0x68, 0xbb, 0x7d, 0xa0, 0x0f, 0x24, 0x0c, 0x44, 0xac, 0xf6, 0xe3, 0xb3, 0x84, 0x3e, 0x25,
+	0x2b, 0x52, 0xc4, 0x3e, 0x53, 0xfc, 0x34, 0x14, 0xcc, 0x4b, 0x3d, 0x9c, 0xb7, 0x96, 0x8d, 0x6c,
+	0x82, 0xac, 0x0f, 0xa2, 0x76, 0xea, 0xe1, 0x65, 0xd3, 0x17, 0x63, 0xf6, 0x12, 0x35, 0xb4, 0x44,
+	0xdf, 0xa2, 0xfb, 0xa4, 0x16, 0x48, 0x06, 0x17, 0xbf, 0xa4, 0xbb, 0xc5, 0x40, 0xbe, 0x0a, 0xd5,
+	0x18, 0x4e, 0x22, 0x57, 0x73, 0x49, 0x6d, 0x75, 0xa3, 0x5c, 0xfa, 0x98, 0x90, 0xb3, 0x34, 0x10,
+	0xb1, 0x2f, 0xe1, 0x48, 0x6d, 0x17, 0xb7, 0x94, 0xe1, 0xfb, 0x3e, 0xac, 0xc7, 0x90, 0xf0, 0x50,
+	0x17, 0xad, 0x43, 0x6d, 0x64, 0x12, 0x3c, 0xd7, 0x47, 0xa4, 0xe9, 0x8d, 0xa4, 0x4a, 0x22, 0x3c,
+	0x4f, 0xf0, 0x4f, 0x73, 0x4f, 0x6a, 0xdd, 0x86, 0xc6, 0xe0, 0x10, 0xa5, 0xfb, 0xfb, 0x60, 0x55,
+	0x99, 0x7a, 0x0e, 0x93, 0xb1, 0xa0, 0x1f, 0x93, 0x75, 0xf0, 0x04, 0xa7, 0xdc, 0xbb, 0x18, 0x0d,
+	0x59, 0xe6, 0x87, 0x64, 0x49, 0xeb, 0x6b, 0xf1, 0x28, 0xda, 0x41, 0x79, 0x3b, 0x13, 0xd3, 0x2d,
+	0x02, 0xfe, 0x81, 0xc5, 0xe2, 0xb2, 0x18, 0x62, 0xab, 0x69, 0x25, 0x1e, 0x45, 0x47, 0xe2, 0x32,
+	0xe7, 0x83, 0xf1, 0x70, 0xc5, 0x51, 0x4d, 0xcd, 0xdc, 0x78, 0xb8, 0xe2, 0xee, 0x5f, 0x55, 0xc9,
+	0x9a, 0x59, 0xd0, 0x49, 0x12, 0x78, 0x02, 0x2d, 0xc0, 0xf0, 0x2b, 0xd3, 0x7c, 0x90, 0x5c, 0x8d,
+	0x02, 0x1f, 0x9f, 0xb6, 0x68, 0x24, 0x80, 0xd0, 0x36, 0x59, 0x3c, 0x4b, 0xd2, 0x88, 0x2b, 0x7c,
+	0xca, 0xca, 0x33, 0xba, 0x95, 0xcf, 0xb7, 0x87, 0x38, 0x53, 0x2f, 0xee, 0x9d, 0xbc, 0xde, 0x6f,
+	0x77, 0x76, 0xb7, 0xfb, 0xdb, 0x6c, 0xef, 0x75, 0xf7, 0x70, 0xbb, 0xcf, 0x3a, 0x47, 0x2f, 0xf7,
+	0x8f, 0x3a, 0xdd, 0x6c, 0x28, 0xfd, 0xff, 0x60, 0x27, 0x3f, 0x19, 0x89, 0xd8, 0x13, 0xec, 0x74,
+	0xa2, 0x84, 0x2c, 0x05, 0xc4, 0x65, 0x23, 0xdb, 0x01, 0x91, 0x26, 0xa3, 0xbf, 0x60, 0xf1, 0x28,
+	0x3a, 0x15, 0x69, 0xe9, 0x04, 0x97, 0x33, 0xd9, 0x11, 0x8a, 0xe8, 0x0e, 0xd9, 0x18, 0xc5, 0x10,
+	0xe2, 0x52, 0x21, 0xa5, 0xf0, 0x99, 0xe4, 0xd1, 0x30, 0x14, 0x2c, 0x39, 0x3b, 0x93, 0x42, 0x95,
+	0x62, 0x51, 0xcb, 0xe6, 0xf5, 0x90, 0xf6, 0x1a, 0x59, 0xee, 0x80, 0xac, 0x1b, 0x5d, 0xed, 0x70,
+	0x29, 0xc2, 0x20, 0x16, 0xdb, 0xde, 0x05, 0x7d, 0x9f, 0x2c, 0x9f, 0x66, 0x3f, 0x59, 0x1e, 0x9c,
+	0xcd, 0x9a, 0x9b, 0x46, 0x84, 0xe1, 0xfb, 0x1d, 0xd2, 0xc8, 0xa9, 0x71, 0x5a, 0xca, 0x0a, 0x88,
+	0x11, 0x1c, 0xa5, 0xee, 0x27, 0xe4, 0xb6, 0x79, 0xd0, 0x41, 0x20, 0x95, 0x88, 0x3b, 0x63, 0x11,
+	0x2b, 0x49, 0xef, 0x13, 0x22, 0xe0, 0x3f, 0x16, 0x71, 0x79, 0x81, 0x9e, 0xba, 0xd6, 0x5d, 0x42,
+	0xe4, 0x90, 0xcb, 0x0b, 0xf7, 0x8f, 0x2a, 0xa4, 0x65, 0xc6, 0x75, 0x85, 0x1c, 0x26, 0xb1, 0xdf,
+	0x1e, 0xf3, 0xf4, 0x04, 0x5d, 0xef, 0xf7, 0xc8, 0xa2, 0x97, 0x24, 0x17, 0x81, 0x28, 0x2d, 0x2f,
+	0xc3, 0x30, 0x70, 0x29, 0xae, 0x46, 0x92, 0x79, 0x89, 0x2f, 0xca, 0x0b, 0xd3, 0x82, 0x76, 0xe2,
+	0x8b, 0xdc, 0xeb, 0xcf, 0xdd, 0xec, 0xf5, 0xe7, 0x67, 0xbc, 0xbe, 0xfb, 0xe7, 0x73, 0xc5, 0x7e,
+	0xe0, 0x1e, 0xb4, 0xbb, 0xed, 0xf6, 0xb9, 0xf0, 0x2e, 0xe0, 0x8a, 0xc2, 0xe3, 0xd8, 0x90, 0xab,
+	0xf3, 0xd2, 0xb2, 0xea, 0x00, 0x1f, 0x73, 0x75, 0x0e, 0x4f, 0x44, 0xa9, 0xed, 0x4a, 0x11, 0x01,
+	0xb5, 0xe3, 0x60, 0xb8, 0x6c, 0xf9, 0xa2, 0x72, 0xb5, 0x83, 0x68, 0x2f, 0x93, 0xd0, 0x87, 0xa4,
+	0x9e, 0xb3, 0xe6, 0xa7, 0x7d, 0x32, 0x32, 0xde, 0x27, 0xcb, 0xe8, 0xb6, 0xcf, 0x52, 0xee, 0xe5,
+	0xf9, 0x4e, 0x3e, 0x19, 0x88, 0xf6, 0x32, 0x09, 0xb8, 0xbe, 0xc8, 0xff, 0x04, 0x4d, 0x26, 0x77,
+	0x7d, 0x91, 0xff, 0x09, 0xe0, 0xe0, 0xd8, 0xec, 0xac, 0x04, 0x00, 0xf0, 0x7d, 0x38, 0xf5, 0x39,
+	0x97, 0xe7, 0x4c, 0x4d, 0x86, 0xa2, 0x55, 0x9f, 0x9e, 0xfb, 0x15, 0x97, 0xe7, 0xfd, 0xc9, 0x50,
+	0x40, 0xd4, 0x46, 0x6e, 0x28, 0xe2, 0xd6, 0x92, 0xc5, 0xaa, 0x01, 0x7a, 0x20, 0x62, 0xfa, 0x2e,
+	0x69, 0x0e, 0xb9, 0x77, 0x81, 0x9b, 0x06, 0x9f, 0x45, 0xec, 0x83, 0x02, 0x09, 0xec, 0x79, 0xdf,
+	0x07, 0x0f, 0x51, 0xf0, 0xb2, 0xdb, 0xd1, 0xb0, 0xb8, 0x2b, 0x86, 0xab, 0xaf, 0x87, 0xfb, 0x19,
+	0xb9, 0x97, 0x5b, 0x5c, 0xc2, 0xfd, 0x20, 0x1e, 0x1c, 0xa7, 0xc9, 0x00, 0xee, 0x00, 0x28, 0x6f,
+	0x98, 0xfd, 0x5f, 0x3e, 0x23, 0x83, 0xba, 0x6d, 0xb2, 0x61, 0x06, 0x63, 0x04, 0xd2, 0x11, 0xa5,
+	0x9d, 0xc5, 0xd8, 0xef, 0x18, 0xaf, 0x5f, 0x14, 0x36, 0xd2, 0x8e, 0xfc, 0x1f, 0x89, 0x09, 0x9a,
+	0xad, 0x84, 0x68, 0x74, 0x21, 0x26, 0x68, 0x48, 0xb2, 0xe4, 0x90, 0x0a, 0xd8, 0xfd, 0x8f, 0x45,
+	0x42, 0xdb, 0xbd, 0x13, 0xbd, 0x02, 0x8c, 0x10, 0x18, 0x75, 0xf4, 0xca, 0x55, 0xe2, 0x25, 0xe1,
+	0xcc, 0xca, 0x11, 0xbd, 0x36, 0xd6, 0x2c, 0x5c, 0x17, 0x6b, 0xde, 0x23, 0xcd, 0x40, 0x32, 0x5f,
+	0xf8, 0x81, 0xc7, 0x95, 0xf0, 0x4b, 0x01, 0xa7, 0x11, 0xc8, 0x5d, 0x23, 0xa0, 0x3f, 0x24, 0xad,
+	0x40, 0x82, 0x5b, 0x09, 0xbc, 0x80, 0x87, 0x6c, 0xcc, 0xc3, 0xb1, 0xc8, 0x12, 0xbd, 0x52, 0x10,
+	0xba, 0x13, 0xc8, 0xd7, 0x19, 0xe9, 0x04, 0x38, 0x7a, 0xd9, 0x76, 0x4c, 0x5b, 0xf8, 0x65, 0x31,
+	0x6d, 0xf1, 0xda, 0x98, 0xb6, 0x47, 0xee, 0x23, 0xc5, 0x0f, 0x52, 0x70, 0x80, 0xf1, 0x80, 0xa9,
+	0x84, 0x0d, 0xd3, 0xe4, 0x6a, 0xc2, 0x52, 0x01, 0xc3, 0xee, 0x58, 0xc3, 0xde, 0x82, 0x61, 0x39,
+	0xb3, 0x9f, 0x1c, 0x03, 0xaf, 0x0b, 0x34, 0x7a, 0x8f, 0xcc, 0x7b, 0x2c, 0xd1, 0x59, 0xf6, 0x42,
+	0x6e, 0xcf, 0xaf, 0xc1, 0x09, 0x41, 0x0e, 0x89, 0x41, 0xbc, 0x6e, 0x05, 0xf1, 0xc5, 0x88, 0x0f,
+	0x21, 0x7c, 0x3f, 0x26, 0xc4, 0xc3, 0xc0, 0x8f, 0x8c, 0x25, 0x8b, 0xb1, 0xa4, 0x71, 0x20, 0x6d,
+	0x11, 0x47, 0x62, 0x56, 0x6e, 0x65, 0x04, 0xc4, 0xa2, 0xae, 0x68, 0x69, 0x9e, 0x13, 0xbc, 0x43,
+	0x1a, 0x11, 0xbf, 0x62, 0x7a, 0x02, 0x59, 0xb2, 0x64, 0x12, 0xf1, 0x2b, 0x9d, 0x69, 0xc8, 0x82,
+	0xc6, 0xa5, 0x14, 0xb2, 0xd5, 0x9c, 0xa1, 0x21, 0x0e, 0x34, 0x9d, 0x30, 0x33, 0xcc, 0x8e, 0x96,
+	0x4b, 0x77, 0x08, 0x05, 0xbd, 0x30, 0x51, 0xe0, 0x13, 0xc0, 0x9d, 0xb3, 0x20, 0x56, 0x22, 0x1d,
+	0xf3, 0xb0, 0xb5, 0x62, 0x15, 0x7e, 0x4d, 0x10, 0xed, 0x67, 0x12, 0xb8, 0xb7, 0x03, 0x1e, 0x09,
+	0xe6, 0x07, 0x69, 0x6b, 0xd5, 0xce, 0xb6, 0x01, 0xdd, 0x0d, 0xd2, 0x52, 0x3a, 0xee, 0x5c, 0x93,
+	0x8e, 0x83, 0x97, 0x00, 0xc2, 0x20, 0x4d, 0x46, 0x19, 0x6d, 0xcd, 0xa2, 0x35, 0x23, 0x3e, 0x7c,
+	0x09, 0x22, 0xe4, 0x3e, 0x20, 0x75, 0x79, 0x91, 0xa5, 0xcf, 0xd4, 0x9e, 0x4c, 0x5e, 0x4c, 0xb2,
+	0x4c, 0x64, 0x09, 0xeb, 0x2f, 0x64, 0xac, 0xdb, 0x0e, 0x0f, 0x60, 0x43, 0x19, 0x8e, 0x4e, 0xc3,
+	0xc0, 0x63, 0xc1, 0xb0, 0x75, 0xdb, 0xf2, 0x59, 0x75, 0x0d, 0xef, 0x0f, 0xa9, 0x4b, 0xc8, 0x68,
+	0xe0, 0x31, 0x58, 0x56, 0xe0, 0xb7, 0xee, 0x3e, 0xac, 0x3c, 0x99, 0x37, 0x9c, 0xd1, 0xc0, 0x3b,
+	0xe4, 0xc3, 0x7d, 0xdf, 0xfd, 0xcf, 0x0a, 0x59, 0x33, 0x37, 0x0f, 0xd5, 0x8b, 0x17, 0x6f, 0x8b,
+	0x38, 0x5e, 0x2a, 0xb8, 0x12, 0x2c, 0x89, 0xb3, 0x43, 0xc3, 0x0b, 0x68, 0xcc, 0x6e, 0x45, 0x4b,
+	0x5f, 0xc7, 0xfa, 0xe0, 0xe8, 0xc7, 0xa4, 0x66, 0xce, 0xac, 0x8a, 0xe5, 0xc7, 0xc6, 0xd6, 0xcc,
+	0xa4, 0x5b, 0xc8, 0x60, 0xaa, 0x6b, 0xa8, 0x1b, 0xbf, 0x95, 0x8d, 0x62, 0x0a, 0x34, 0xa2, 0xff,
+	0x9d, 0xca, 0xcc, 0x35, 0x61, 0xdf, 0xa7, 0x1f, 0x90, 0x55, 0xc8, 0x5f, 0x32, 0x73, 0x9b, 0x49,
+	0xce, 0x97, 0x41, 0x88, 0xd6, 0x86, 0xca, 0x41, 0x1b, 0x86, 0xe9, 0x66, 0x82, 0xdd, 0x12, 0xe2,
+	0x58, 0x9c, 0xfc, 0xfb, 0x5c, 0xb1, 0xf5, 0x9e, 0x49, 0x60, 0xe9, 0xdb, 0x64, 0x31, 0x90, 0x4c,
+	0x64, 0x15, 0xa6, 0xd9, 0xf0, 0x42, 0x20, 0x3b, 0xb1, 0x0f, 0x87, 0x1c, 0x0b, 0x75, 0xd3, 0x22,
+	0x9a, 0xb1, 0x50, 0xc5, 0x1a, 0xde, 0x27, 0xcb, 0xb1, 0x10, 0x3e, 0x38, 0x1d, 0x88, 0x65, 0x69,
+	0xc9, 0xe5, 0x34, 0x51, 0xb4, 0xab, 0x25, 0xf4, 0x39, 0x59, 0x18, 0xa6, 0xc9, 0x50, 0x57, 0x83,
+	0x8d, 0x67, 0xf7, 0xb7, 0x66, 0x96, 0xb5, 0x05, 0x19, 0x36, 0x70, 0x98, 0xea, 0x6a, 0xee, 0xc6,
+	0xdf, 0x54, 0x09, 0x29, 0x50, 0xac, 0x84, 0x20, 0x36, 0x95, 0x4a, 0x05, 0x95, 0xc5, 0xa4, 0x31,
+	0x4f, 0x67, 0x97, 0x5b, 0x1b, 0xf3, 0xf4, 0x28, 0x0b, 0xfd, 0xba, 0x20, 0xb7, 0x03, 0xb0, 0x86,
+	0xb4, 0x0b, 0x0e, 0x92, 0x34, 0x50, 0x93, 0x52, 0x2a, 0x97, 0xa3, 0xe0, 0x4e, 0x7c, 0x35, 0x5b,
+	0xa7, 0x2e, 0xfa, 0xda, 0x4e, 0xdf, 0x23, 0x4d, 0x48, 0x75, 0x45, 0x28, 0x22, 0xbc, 0xfa, 0x8b,
+	0xb6, 0x87, 0x8e, 0x47, 0x51, 0x27, 0x13, 0x80, 0x41, 0x87, 0xc9, 0x25, 0xd3, 0x49, 0x48, 0xcd,
+	0xba, 0xa9, 0xf5, 0x30, 0xb9, 0xd4, 0x29, 0xd0, 0x63, 0x42, 0xce, 0x83, 0xc1, 0x79, 0xc6, 0xa9,
+	0x5b, 0x9c, 0x25, 0xc0, 0x35, 0xe9, 0x01, 0xa9, 0x63, 0x46, 0x1e, 0x28, 0x59, 0x0e, 0xc1, 0x90,
+	0x86, 0x07, 0x4a, 0xba, 0xef, 0x93, 0x65, 0xa3, 0xdf, 0xe3, 0x34, 0x88, 0xbf, 0xad, 0x88, 0xfc,
+	0x88, 0x38, 0xc5, 0x51, 0xa8, 0x63, 0x3e, 0x92, 0x98, 0x87, 0x0d, 0xe1, 0x9f, 0xb2, 0x81, 0x64,
+	0x98, 0xfb, 0x82, 0xac, 0x5a, 0x23, 0x4e, 0x02, 0x71, 0x09, 0x1a, 0x10, 0xb1, 0x0a, 0xd4, 0x84,
+	0x05, 0xb1, 0x2f, 0xae, 0x4a, 0x27, 0xd4, 0xd0, 0x92, 0x7d, 0x10, 0xb8, 0x3f, 0xaf, 0x92, 0xb7,
+	0xf2, 0x6b, 0x83, 0x17, 0xac, 0x57, 0x78, 0xd1, 0x6f, 0x29, 0xd8, 0x33, 0xaf, 0x29, 0x62, 0x95,
+	0x06, 0x42, 0x96, 0x73, 0xbf, 0x88, 0x5f, 0x75, 0x34, 0x0e, 0x34, 0x3c, 0x89, 0x8c, 0x66, 0x1f,
+	0x36, 0x81, 0x83, 0xc8, 0x68, 0x9f, 0x90, 0xdb, 0x23, 0x29, 0x52, 0x86, 0xd7, 0xed, 0x2c, 0xb8,
+	0x82, 0x5c, 0x3b, 0xf8, 0x4a, 0x94, 0x82, 0xdf, 0x1a, 0x30, 0xb0, 0x32, 0x00, 0x79, 0x2f, 0xf8,
+	0x0a, 0xfd, 0x5f, 0x31, 0x0c, 0x07, 0x94, 0x32, 0x30, 0x33, 0x00, 0xb9, 0xcf, 0xc9, 0x7a, 0x99,
+	0xab, 0x4f, 0xcb, 0x36, 0x0d, 0xc7, 0x1e, 0x00, 0xc7, 0x56, 0x58, 0x69, 0x6d, 0xd6, 0x4a, 0x31,
+	0xfb, 0xc5, 0x70, 0x84, 0x65, 0x4f, 0xdd, 0xca, 0x32, 0x88, 0x16, 0xc0, 0x54, 0xee, 0x9f, 0x54,
+	0x0a, 0x05, 0xbf, 0x19, 0xfa, 0x53, 0x0a, 0x7e, 0x40, 0xea, 0xfa, 0x62, 0x4f, 0xfb, 0x20, 0x44,
+	0xf7, 0x7d, 0x53, 0xeb, 0x79, 0xe7, 0x3c, 0x1e, 0x08, 0xff, 0x5a, 0x7d, 0x43, 0xad, 0xd7, 0xd6,
+	0x72, 0x4b, 0xed, 0xf6, 0xda, 0xe6, 0x6e, 0x58, 0x5b, 0x58, 0x38, 0x23, 0xac, 0xbb, 0xf6, 0xe3,
+	0x40, 0xd1, 0x4d, 0x52, 0xfb, 0xc9, 0x88, 0x87, 0x70, 0xf9, 0x4a, 0x2b, 0xca, 0x40, 0xd0, 0x09,
+	0x78, 0x10, 0xaf, 0xdc, 0xaa, 0x41, 0x88, 0xbe, 0x4d, 0x6a, 0x63, 0x91, 0x4a, 0xc8, 0x85, 0xf1,
+	0xa8, 0x5f, 0x54, 0x3e, 0xea, 0x1a, 0xc4, 0xfd, 0x87, 0xb9, 0xa9, 0xc7, 0x61, 0xd9, 0x08, 0x25,
+	0x46, 0xe1, 0xec, 0x8b, 0x12, 0x43, 0x3b, 0x79, 0x97, 0x2c, 0x41, 0x1a, 0x12, 0x44, 0xb0, 0x9c,
+	0xaa, 0x65, 0x0d, 0x05, 0x9c, 0x97, 0x97, 0x73, 0x33, 0xe5, 0xe5, 0x7b, 0xa4, 0xc9, 0x47, 0x7e,
+	0x00, 0xfa, 0xc5, 0xe2, 0xc7, 0x76, 0x26, 0x8d, 0x4c, 0x02, 0x45, 0x10, 0x5c, 0xf2, 0x31, 0xac,
+	0x48, 0xab, 0x6b, 0xc1, 0x4e, 0x18, 0xc7, 0xa5, 0x95, 0x72, 0xa9, 0x44, 0x5a, 0x4a, 0xa2, 0x32,
+	0xcc, 0x2a, 0x65, 0x6b, 0xff, 0x97, 0xa5, 0x6c, 0xfd, 0x57, 0x29, 0x65, 0x97, 0xfe, 0xa7, 0xa5,
+	0x2c, 0xf9, 0x4e, 0xa5, 0xec, 0xe7, 0x85, 0x67, 0xda, 0x0b, 0xae, 0x74, 0x13, 0xfc, 0x21, 0xa9,
+	0x43, 0x86, 0xa8, 0x82, 0xb1, 0x28, 0xf9, 0xa6, 0x1c, 0xa5, 0x8f, 0xc8, 0x02, 0x07, 0x2a, 0x1e,
+	0x9f, 0x49, 0xe4, 0x75, 0x0b, 0xbd, 0xab, 0x25, 0xee, 0x67, 0xe4, 0x6e, 0xe1, 0x83, 0x12, 0x29,
+	0xcf, 0x79, 0x90, 0xea, 0xe9, 0xf3, 0xc1, 0x95, 0x1b, 0x07, 0xff, 0x7a, 0xb1, 0xaa, 0xe3, 0x54,
+	0x9c, 0x09, 0xe5, 0x9d, 0xa3, 0xfd, 0x27, 0xa3, 0xd8, 0xbf, 0xc6, 0xfb, 0x11, 0x14, 0x68, 0xe7,
+	0xf7, 0x8b, 0x4a, 0x31, 0x76, 0xa7, 0x77, 0xbc, 0x2b, 0x3c, 0x1e, 0xd2, 0xfb, 0x64, 0x6e, 0x98,
+	0x94, 0xcb, 0x0e, 0xfd, 0xa2, 0xa0, 0x0b, 0x38, 0x5c, 0x48, 0x1f, 0x78, 0x0c, 0x9c, 0xf5, 0x28,
+	0x15, 0xd9, 0x23, 0x4a, 0x17, 0x12, 0x09, 0x7d, 0x2d, 0xc7, 0x27, 0xcd, 0xf8, 0xe3, 0xb9, 0x1b,
+	0xfc, 0x31, 0xfa, 0xd5, 0xc4, 0x17, 0x61, 0xc6, 0x9b, 0x2f, 0xf9, 0x55, 0x10, 0xe4, 0xf3, 0x41,
+	0xe0, 0xca, 0xc3, 0xa4, 0x9d, 0xf7, 0x37, 0xc2, 0xe4, 0xf2, 0x38, 0x13, 0xb8, 0x7f, 0x56, 0x21,
+	0xeb, 0x79, 0x70, 0x28, 0x3a, 0x7d, 0xb4, 0x63, 0x85, 0xee, 0x95, 0x67, 0xad, 0xad, 0x8e, 0x25,
+	0x3c, 0xd4, 0x6f, 0x66, 0xa0, 0xb8, 0x7c, 0x71, 0xef, 0xb0, 0xf7, 0x92, 0xf5, 0x8e, 0x0f, 0xf6,
+	0xfb, 0xbd, 0x76, 0xb7, 0xd3, 0x39, 0x62, 0xdb, 0xbb, 0xbb, 0x6f, 0x7a, 0x9d, 0x6e, 0x16, 0xe7,
+	0x4d, 0xb3, 0xb0, 0x3a, 0xdd, 0x2c, 0x84, 0x15, 0x66, 0xf9, 0xf2, 0x35, 0x3b, 0xd6, 0x12, 0x7d,
+	0x08, 0x9f, 0x93, 0xdb, 0x66, 0x81, 0x2f, 0x85, 0xfa, 0xae, 0xbd, 0x87, 0x47, 0x64, 0xc9, 0xbb,
+	0x36, 0xc3, 0xa8, 0x7b, 0x59, 0x8a, 0xe1, 0x7a, 0xa4, 0x69, 0x26, 0x3e, 0x14, 0xf1, 0x08, 0x54,
+	0xeb, 0x07, 0x3c, 0x4c, 0x06, 0x6c, 0x26, 0x69, 0x21, 0x5a, 0x80, 0xe5, 0xf4, 0x07, 0x64, 0x35,
+	0x12, 0xf1, 0x88, 0x5d, 0x88, 0x09, 0xcb, 0x2a, 0x48, 0xbb, 0x63, 0xb9, 0x0c, 0xc2, 0xbc, 0xd2,
+	0x74, 0x7f, 0xbb, 0x50, 0xef, 0x1b, 0x29, 0xd2, 0x4c, 0x75, 0x98, 0xba, 0xcb, 0x6b, 0x1e, 0x54,
+	0x8b, 0xe4, 0xc0, 0x14, 0xed, 0x40, 0x40, 0x7f, 0x63, 0x4f, 0x0f, 0x04, 0xf4, 0x36, 0xef, 0x92,
+	0xc6, 0x90, 0x4b, 0xa9, 0xce, 0xd3, 0x64, 0x34, 0x38, 0x9f, 0x52, 0x5f, 0x21, 0x70, 0x7f, 0x50,
+	0xa8, 0xef, 0x98, 0x07, 0xb1, 0x8a, 0xf8, 0x10, 0xc7, 0x43, 0x12, 0x95, 0xfd, 0x2e, 0x55, 0xc0,
+	0x39, 0xea, 0xfe, 0x8b, 0xe5, 0x8f, 0x5f, 0xf2, 0x48, 0x60, 0xbf, 0x08, 0x5c, 0xa1, 0x6e, 0x17,
+	0xcd, 0x04, 0x7e, 0xdd, 0x34, 0xc2, 0x04, 0x6b, 0x93, 0xd4, 0xf0, 0x47, 0xd6, 0xd4, 0xcb, 0x77,
+	0x97, 0x81, 0xf4, 0x03, 0x32, 0x7f, 0x21, 0x26, 0x10, 0xef, 0x21, 0xb7, 0x6c, 0x6d, 0xcd, 0x3c,
+	0x66, 0x0b, 0xb4, 0xab, 0xba, 0xc8, 0x9a, 0xde, 0xea, 0xfc, 0x0d, 0x5b, 0xdd, 0xf8, 0xfb, 0x2a,
+	0x59, 0xc0, 0x71, 0xdf, 0x92, 0x78, 0x82, 0x27, 0xe7, 0x21, 0xd3, 0x41, 0xae, 0x64, 0x18, 0x4b,
+	0x63, 0x1e, 0xea, 0xd0, 0x0b, 0xc6, 0x03, 0xa4, 0xb3, 0x30, 0xc9, 0x3a, 0x8f, 0x79, 0xda, 0x37,
+	0xe6, 0xe1, 0x1e, 0xa0, 0x3a, 0x81, 0x0d, 0x59, 0x98, 0xc4, 0x83, 0xd2, 0x82, 0x6a, 0x63, 0x1e,
+	0x1e, 0x24, 0xc5, 0x1c, 0xf2, 0x3c, 0x49, 0x55, 0x29, 0xed, 0x80, 0x71, 0x3d, 0x40, 0xcd, 0x1c,
+	0xe0, 0xc8, 0x4b, 0x79, 0x06, 0xcc, 0x01, 0x2e, 0x3c, 0x27, 0x24, 0x49, 0x88, 0x51, 0xa3, 0x6e,
+	0x13, 0x92, 0x24, 0x34, 0xbb, 0x19, 0x05, 0xb1, 0xfa, 0xf4, 0x63, 0x8c, 0x05, 0xf3, 0xd6, 0x6e,
+	0xde, 0x20, 0x0c, 0x76, 0x0d, 0xa4, 0xcb, 0x6c, 0xcf, 0x4b, 0x76, 0xb0, 0x1f, 0xf3, 0xf0, 0x73,
+	0x8d, 0xbb, 0x7f, 0x5c, 0x25, 0x77, 0x66, 0xce, 0xe1, 0x20, 0x90, 0x8a, 0x76, 0x48, 0xa3, 0x78,
+	0xd9, 0x6a, 0x5e, 0xe6, 0x3c, 0xde, 0xba, 0x96, 0xbc, 0x55, 0x30, 0x99, 0xea, 0xda, 0xe3, 0x36,
+	0x3e, 0xfb, 0xe5, 0xa7, 0x63, 0xf2, 0xc9, 0xea, 0x74, 0x3e, 0xb9, 0xf1, 0x15, 0x69, 0xda, 0x33,
+	0xdb, 0x16, 0x56, 0xb9, 0xce, 0xc2, 0x6e, 0x9c, 0x89, 0x7e, 0x54, 0xb2, 0xbd, 0xef, 0xdd, 0xb0,
+	0x0d, 0xcb, 0xfe, 0xdc, 0xdf, 0xad, 0x14, 0x77, 0xa8, 0x2f, 0xa2, 0x61, 0x07, 0xfc, 0x31, 0xa4,
+	0x51, 0x3a, 0xb8, 0x05, 0x90, 0x8a, 0xcd, 0x04, 0x37, 0x44, 0xa7, 0xf3, 0xdb, 0xea, 0x0d, 0xf9,
+	0xed, 0x3b, 0x24, 0x73, 0xf2, 0xd7, 0xe4, 0x63, 0x5a, 0x80, 0xf9, 0xd8, 0x5f, 0x57, 0x8b, 0x40,
+	0x78, 0xcc, 0xbd, 0x0b, 0xa1, 0xf2, 0xa5, 0x4c, 0xe5, 0xdb, 0x95, 0x1b, 0xf2, 0xed, 0x0f, 0xc9,
+	0xea, 0x08, 0x93, 0xcc, 0xeb, 0x53, 0xc5, 0x95, 0x4c, 0x68, 0xe8, 0x0f, 0x48, 0x1d, 0x3b, 0x54,
+	0x61, 0xb6, 0xa8, 0xdc, 0x00, 0x03, 0xb9, 0x0b, 0x60, 0x31, 0x1f, 0x33, 0x9d, 0xe6, 0x52, 0x4e,
+	0x9e, 0xcd, 0x67, 0x1a, 0xdb, 0xa0, 0xb0, 0x9c, 0x57, 0xba, 0x13, 0x06, 0x05, 0x8b, 0xc6, 0xc7,
+	0xb1, 0xb3, 0x34, 0x89, 0x4a, 0xb7, 0x62, 0x09, 0xf1, 0xbd, 0x34, 0x89, 0xa6, 0xd5, 0x55, 0xbb,
+	0x41, 0x5d, 0xff, 0xb6, 0x40, 0x56, 0xf2, 0xd8, 0x06, 0x51, 0x1d, 0x73, 0x22, 0x73, 0x36, 0x0c,
+	0x03, 0x7d, 0xe9, 0xdc, 0x96, 0x8d, 0x0c, 0xd9, 0xf4, 0x39, 0x59, 0x44, 0x8e, 0x69, 0x20, 0xbc,
+	0xbd, 0x55, 0x9e, 0x6d, 0x0b, 0xa5, 0xba, 0x05, 0xd0, 0xcd, 0xa8, 0x1b, 0xff, 0x35, 0x9f, 0xe5,
+	0x16, 0x1a, 0x07, 0x15, 0x26, 0x69, 0x30, 0x08, 0x62, 0xa6, 0xf3, 0x8c, 0x35, 0xa3, 0x42, 0x8d,
+	0xfe, 0x86, 0x45, 0xd0, 0x19, 0xec, 0x14, 0xe1, 0x0b, 0x8b, 0xa0, 0x3f, 0x13, 0x98, 0x22, 0x7c,
+	0x09, 0x91, 0x70, 0x9c, 0x84, 0xa3, 0xa9, 0xf7, 0xf2, 0x19, 0x86, 0x61, 0x4d, 0x84, 0x3c, 0x0b,
+	0x56, 0xa8, 0xf6, 0x6a, 0x1e, 0xd6, 0x40, 0x70, 0x62, 0xde, 0xa2, 0xe6, 0xa9, 0x65, 0x96, 0x2e,
+	0xda, 0xda, 0xcf, 0xf3, 0xce, 0x2c, 0x5f, 0x9c, 0x4e, 0x58, 0x6a, 0x37, 0x25, 0x2c, 0x9b, 0xa4,
+	0x06, 0xc5, 0x49, 0x2c, 0xc2, 0x52, 0xae, 0x6a, 0x40, 0x28, 0x17, 0x86, 0x81, 0xf2, 0xce, 0x4b,
+	0x75, 0xb1, 0x86, 0x8a, 0xf2, 0x8a, 0xcc, 0x96, 0x57, 0x8f, 0xc8, 0x92, 0x4e, 0xe1, 0xe2, 0x51,
+	0x84, 0xbd, 0xbb, 0xbc, 0xd7, 0x84, 0xf0, 0xd1, 0x28, 0xc2, 0x86, 0xa0, 0xa1, 0xb0, 0x73, 0x1e,
+	0xfb, 0xa1, 0xc0, 0xf6, 0x5d, 0xd1, 0x10, 0xcc, 0x98, 0xaf, 0x50, 0x86, 0x09, 0xf3, 0x50, 0xf0,
+	0x0b, 0x91, 0x32, 0xbd, 0x83, 0x52, 0x17, 0x6f, 0x39, 0x93, 0xe1, 0x95, 0x9b, 0x80, 0x5a, 0x53,
+	0x1e, 0xfb, 0x49, 0xc4, 0xa4, 0x10, 0x3e, 0xb6, 0xf1, 0xf2, 0x0b, 0xa7, 0x05, 0x3d, 0x21, 0xfc,
+	0x22, 0xd3, 0x0c, 0xc5, 0x58, 0x84, 0xd8, 0xc7, 0x2b, 0x67, 0x9a, 0x07, 0x80, 0x03, 0x2d, 0x90,
+	0x4c, 0x8a, 0x58, 0x81, 0x8e, 0xb1, 0x9b, 0x67, 0x8c, 0x92, 0x04, 0xb2, 0x97, 0xe1, 0x70, 0x3b,
+	0x02, 0xc9, 0x78, 0x74, 0x8a, 0x05, 0xd1, 0x9a, 0x5d, 0xef, 0x04, 0x72, 0x5b, 0xc3, 0xee, 0x55,
+	0x11, 0xb6, 0xf5, 0x5a, 0x0f, 0x25, 0x86, 0x23, 0x08, 0xda, 0xb3, 0xf9, 0x6e, 0x1d, 0x5f, 0xa7,
+	0xc2, 0x49, 0xd9, 0xfd, 0xae, 0xea, 0x75, 0xfd, 0xae, 0x07, 0x04, 0xc8, 0xb3, 0x2e, 0xaa, 0x26,
+	0x62, 0x85, 0x17, 0xee, 0x45, 0xe1, 0x27, 0x7f, 0xe5, 0x76, 0xfb, 0x6f, 0x16, 0xd1, 0xa7, 0x13,
+	0x7b, 0xe9, 0x64, 0xa8, 0x84, 0x6f, 0xde, 0x1c, 0x0b, 0x03, 0x94, 0x07, 0xe7, 0x30, 0xac, 0x0c,
+	0x1d, 0x36, 0x44, 0x95, 0xd2, 0xd2, 0x2f, 0xc4, 0x04, 0xd2, 0x29, 0xf7, 0x9f, 0xaa, 0x45, 0x33,
+	0xff, 0x55, 0xfe, 0x55, 0x07, 0x18, 0x18, 0x5e, 0x81, 0x92, 0x46, 0x34, 0x04, 0xd6, 0x30, 0x4c,
+	0x83, 0x88, 0xa7, 0x13, 0xa6, 0x78, 0x3a, 0x10, 0xe5, 0x24, 0x76, 0x39, 0x93, 0xf5, 0x51, 0x44,
+	0x9f, 0x82, 0x5f, 0xc1, 0x77, 0xef, 0x52, 0x25, 0x43, 0x96, 0xa5, 0x0d, 0x79, 0xa7, 0x41, 0xcb,
+	0x7a, 0x2a, 0x19, 0x6e, 0x2b, 0x48, 0x20, 0x73, 0x2e, 0x4f, 0x15, 0x90, 0x4b, 0x2f, 0x24, 0x0d,
+	0x99, 0xa7, 0x6a, 0x5b, 0xd1, 0x1f, 0x90, 0x3b, 0x86, 0x1d, 0x26, 0x97, 0x7e, 0x72, 0x19, 0xb3,
+	0x53, 0x31, 0x08, 0xca, 0x2f, 0x93, 0xd6, 0xb3, 0x31, 0x19, 0x63, 0x07, 0x08, 0x50, 0x89, 0x4c,
+	0x8f, 0x14, 0xb1, 0x5f, 0xba, 0xd5, 0x6b, 0xe5, 0x71, 0x9d, 0xd8, 0xa7, 0x9f, 0x92, 0xdb, 0xd3,
+	0xa3, 0x52, 0xae, 0xca, 0xdd, 0x2f, 0x5a, 0x1e, 0xd6, 0xe5, 0x4a, 0xb8, 0xff, 0x5a, 0x29, 0x5e,
+	0xd2, 0x5b, 0x1a, 0xde, 0x24, 0xb5, 0x14, 0x3c, 0x87, 0x2c, 0xd7, 0xef, 0x06, 0x44, 0xb7, 0x63,
+	0x9e, 0x13, 0x8a, 0x78, 0x90, 0xbd, 0x95, 0xab, 0xe6, 0x57, 0x34, 0x13, 0x1e, 0xa0, 0x8c, 0xbe,
+	0x4f, 0x96, 0xcb, 0xcb, 0xb2, 0xb3, 0xb3, 0xa6, 0xb4, 0x16, 0x44, 0x7f, 0x48, 0x5a, 0xe5, 0xf3,
+	0x63, 0xc5, 0x05, 0xb0, 0xf5, 0x7d, 0xa7, 0x74, 0x92, 0x1d, 0x73, 0x1b, 0xf2, 0x3c, 0x17, 0x3f,
+	0x78, 0xb2, 0xbd, 0xa6, 0xce, 0x73, 0xfb, 0x41, 0x24, 0xdc, 0xe7, 0x45, 0xef, 0x66, 0x27, 0x4d,
+	0xb8, 0x0f, 0xb5, 0x3e, 0xcb, 0xde, 0x90, 0xe3, 0xbb, 0xbb, 0xa8, 0xfc, 0x51, 0x10, 0x00, 0x4f,
+	0xff, 0xae, 0x42, 0x9a, 0x47, 0x9d, 0x3e, 0xcb, 0x6a, 0x01, 0x49, 0x1b, 0xa4, 0x16, 0x0b, 0xc5,
+	0x8e, 0x5e, 0x1f, 0x3b, 0xb7, 0x28, 0xd5, 0xed, 0xdc, 0xe2, 0x7b, 0x12, 0xa7, 0x42, 0x9b, 0xa4,
+	0x0e, 0xd8, 0x5e, 0x10, 0x0a, 0xa7, 0x4a, 0xef, 0x91, 0x75, 0xf8, 0x35, 0xf5, 0x5d, 0x86, 0x33,
+	0x67, 0x68, 0xfd, 0xc0, 0xbb, 0x70, 0xe6, 0xe9, 0x1a, 0x59, 0x46, 0x9a, 0xf9, 0x50, 0xc9, 0x59,
+	0xc8, 0x21, 0xf3, 0xd9, 0x8b, 0xb3, 0x48, 0xd7, 0xc9, 0x2a, 0x42, 0xc5, 0xf7, 0x46, 0x4e, 0x8d,
+	0xb6, 0xc8, 0x6d, 0x00, 0xa7, 0x3f, 0xe2, 0x70, 0xfc, 0xa7, 0x7f, 0x58, 0x25, 0xcd, 0xf6, 0x41,
+	0xbb, 0x58, 0x3b, 0x25, 0x2b, 0x5e, 0xe8, 0x59, 0x9f, 0x65, 0x38, 0x75, 0x58, 0x07, 0x60, 0x87,
+	0xc9, 0x58, 0x38, 0x4b, 0xf0, 0x50, 0xf8, 0x95, 0x77, 0x3b, 0x1c, 0x02, 0x0f, 0x05, 0xc8, 0x7a,
+	0xdf, 0xed, 0x34, 0xe8, 0x6d, 0xe2, 0x00, 0x68, 0xbf, 0x9b, 0x76, 0x9a, 0xb0, 0x14, 0x40, 0xa7,
+	0xdf, 0x3c, 0x3b, 0xcb, 0x86, 0x6f, 0xbf, 0xfb, 0x75, 0x56, 0x40, 0x39, 0x38, 0x4b, 0xf9, 0x7d,
+	0xa3, 0xb3, 0x4a, 0x37, 0xc8, 0x5d, 0x10, 0xcc, 0xbe, 0x4b, 0x74, 0x1c, 0x7a, 0x87, 0xac, 0x15,
+	0x9b, 0xc8, 0xb6, 0xe6, 0xac, 0x99, 0x27, 0xd8, 0xae, 0xcc, 0xa1, 0x66, 0xc7, 0x85, 0x8d, 0x3b,
+	0xb7, 0x9f, 0x1e, 0x90, 0xb5, 0x99, 0x6e, 0x0e, 0x3c, 0x71, 0xa6, 0x9f, 0xd3, 0xeb, 0x77, 0xb6,
+	0x0f, 0x9d, 0x5b, 0xf4, 0x6d, 0x72, 0x53, 0xaf, 0xc7, 0xa9, 0x3c, 0x9d, 0x90, 0x7b, 0x37, 0x94,
+	0xdb, 0x30, 0xee, 0x86, 0x82, 0xdb, 0xb9, 0x45, 0x37, 0xc9, 0xc6, 0xb4, 0xb0, 0xdb, 0x39, 0x7c,
+	0x7d, 0xd2, 0x41, 0x79, 0x85, 0xde, 0x27, 0x6f, 0x4d, 0xcb, 0xfb, 0x5f, 0x1c, 0x77, 0xd8, 0xce,
+	0x7e, 0xbf, 0xe7, 0x54, 0x36, 0xaa, 0x4e, 0xe5, 0xe9, 0x37, 0xf3, 0xa4, 0xd9, 0x3b, 0x29, 0x9f,
+	0xaf, 0x1c, 0x7b, 0xd6, 0x0b, 0x50, 0xa7, 0x0e, 0x27, 0xaa, 0xb1, 0xec, 0x45, 0x80, 0x3e, 0x64,
+	0x80, 0xf2, 0x17, 0x2b, 0x0e, 0xa1, 0x0e, 0x69, 0x6a, 0x96, 0xee, 0x51, 0x3b, 0x0d, 0xfa, 0x16,
+	0xb9, 0x83, 0xa4, 0xe9, 0x36, 0xb2, 0xd3, 0x34, 0xa2, 0x99, 0x06, 0xa8, 0xb3, 0x6c, 0xa6, 0xce,
+	0x1b, 0x90, 0xce, 0x4a, 0x09, 0x42, 0x93, 0x5a, 0xa5, 0xcb, 0x64, 0x09, 0x20, 0x6c, 0x9e, 0x3b,
+	0x0e, 0x5d, 0x21, 0x04, 0x1f, 0x8e, 0x39, 0x99, 0xb3, 0x46, 0x57, 0x49, 0x23, 0x5b, 0xcc, 0x49,
+	0x20, 0x2e, 0x1d, 0x6a, 0x56, 0x67, 0xfa, 0x54, 0xce, 0x3a, 0xbd, 0x4b, 0xa8, 0x5e, 0x9d, 0xdd,
+	0x60, 0x72, 0x6e, 0x1b, 0xa6, 0xe9, 0xff, 0x38, 0x77, 0xc0, 0x7c, 0x71, 0xb2, 0xe2, 0x88, 0x9c,
+	0xbb, 0x06, 0xb4, 0x8a, 0x7c, 0xe7, 0x1e, 0x18, 0x16, 0x80, 0x59, 0x18, 0xce, 0xe0, 0x96, 0x59,
+	0x7f, 0x5e, 0x71, 0x38, 0x6f, 0x99, 0xa7, 0x97, 0xb3, 0x7a, 0x67, 0x03, 0x6c, 0x10, 0x70, 0xbb,
+	0xec, 0x70, 0xde, 0x36, 0x6b, 0x32, 0xfd, 0x2c, 0xe7, 0x7b, 0x70, 0xe7, 0x00, 0x39, 0x14, 0xf1,
+	0xc8, 0xb9, 0x6f, 0x9e, 0x5b, 0x2a, 0x69, 0x9c, 0x4d, 0x33, 0x99, 0xdd, 0x46, 0x71, 0x1e, 0x18,
+	0xd4, 0xee, 0x0e, 0x38, 0x8f, 0x0c, 0x5a, 0x32, 0x7e, 0xb7, 0xd8, 0x90, 0x15, 0xa1, 0x9d, 0xc7,
+	0xc6, 0x4a, 0xac, 0x3b, 0xf1, 0xff, 0xcc, 0x91, 0xce, 0xf8, 0x45, 0xe7, 0xdd, 0xa7, 0xbf, 0x57,
+	0x21, 0x6b, 0x9a, 0x87, 0xab, 0x03, 0xcb, 0x66, 0x0a, 0xae, 0x6e, 0xb7, 0x73, 0x7c, 0xb0, 0xfd,
+	0x05, 0xeb, 0x9c, 0x74, 0x8e, 0xfa, 0xac, 0xbd, 0x7d, 0xd4, 0xee, 0x1c, 0x38, 0xb7, 0x40, 0x37,
+	0x25, 0xc1, 0x6e, 0x67, 0xbb, 0xff, 0xca, 0xa9, 0x80, 0x6f, 0x28, 0xe1, 0x2f, 0x3b, 0x47, 0x9d,
+	0xee, 0x7e, 0xdb, 0xa9, 0xd2, 0xf7, 0xc8, 0xe3, 0x92, 0xa4, 0xd7, 0x7f, 0xd3, 0xfe, 0x11, 0x3b,
+	0xea, 0x74, 0x76, 0xd9, 0xde, 0x9b, 0x83, 0x03, 0xf6, 0xe6, 0x78, 0x77, 0xbb, 0xdf, 0x71, 0xe6,
+	0x76, 0x1e, 0xfe, 0xf4, 0xeb, 0xcd, 0xca, 0xcf, 0xbe, 0xde, 0xac, 0xfc, 0xe2, 0xeb, 0xcd, 0xca,
+	0x1f, 0x7c, 0xb3, 0x79, 0xeb, 0x67, 0xdf, 0x6c, 0xde, 0xfa, 0xc7, 0x6f, 0x36, 0x6f, 0x7d, 0x39,
+	0x17, 0xc9, 0xc1, 0xef, 0x54, 0x6e, 0xfd, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0xe9, 0xa9, 0xb1,
+	0xb6, 0x8b, 0x2c, 0x00, 0x00,
+}
+
 func (m *CMsgVector) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -2795,13 +4792,16 @@ func (m *CMsgVector) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0xd
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.X))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.X))))
+	i += 4
 	dAtA[i] = 0x15
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.Y))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Y))))
+	i += 4
 	dAtA[i] = 0x1d
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.Z))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Z))))
+	i += 4
 	return i, nil
 }
 
@@ -2822,10 +4822,12 @@ func (m *CMsgVector2D) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0xd
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.X))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.X))))
+	i += 4
 	dAtA[i] = 0x15
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.Y))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Y))))
+	i += 4
 	return i, nil
 }
 
@@ -2846,13 +4848,16 @@ func (m *CMsgQAngle) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0xd
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.X))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.X))))
+	i += 4
 	dAtA[i] = 0x15
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.Y))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Y))))
+	i += 4
 	dAtA[i] = 0x1d
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.Z))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Z))))
+	i += 4
 	return i, nil
 }
 
@@ -3065,9 +5070,9 @@ func (m *CNETMsg_SetConVar) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintNetmessages(dAtA, i, uint64(m.Convars.Size()))
-		n1, err := m.Convars.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n1, err1 := m.Convars.MarshalTo(dAtA[i:])
+		if err1 != nil {
+			return 0, err1
 		}
 		i += n1
 	}
@@ -3220,7 +5225,8 @@ func (m *CCLCMsg_ClientInfo) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0xd
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(m.SendTableCrc))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.SendTableCrc))
+	i += 4
 	dAtA[i] = 0x10
 	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.ServerCount))
@@ -3251,14 +5257,8 @@ func (m *CCLCMsg_ClientInfo) MarshalTo(dAtA []byte) (int, error) {
 		for _, num := range m.CustomFiles {
 			dAtA[i] = 0x3d
 			i++
-			dAtA[i] = uint8(num)
-			i++
-			dAtA[i] = uint8(num >> 8)
-			i++
-			dAtA[i] = uint8(num >> 16)
-			i++
-			dAtA[i] = uint8(num >> 24)
-			i++
+			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(num))
+			i += 4
 		}
 	}
 	return i, nil
@@ -3317,7 +5317,8 @@ func (m *CCLCMsg_VoiceData) MarshalTo(dAtA []byte) (int, error) {
 	}
 	dAtA[i] = 0x11
 	i++
-	i = encodeFixed64Netmessages(dAtA, i, uint64(m.Xuid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Xuid))
+	i += 8
 	if m.Format != nil {
 		dAtA[i] = 0x18
 		i++
@@ -3378,14 +5379,8 @@ func (m *CCLCMsg_ListenEvents) MarshalTo(dAtA []byte) (int, error) {
 		for _, num := range m.EventMask {
 			dAtA[i] = 0xd
 			i++
-			dAtA[i] = uint8(num)
-			i++
-			dAtA[i] = uint8(num >> 8)
-			i++
-			dAtA[i] = uint8(num >> 16)
-			i++
-			dAtA[i] = uint8(num >> 24)
-			i++
+			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(num))
+			i += 4
 		}
 	}
 	return i, nil
@@ -3519,9 +5514,9 @@ func (m *CCLCMsg_SplitPlayerConnect) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintNetmessages(dAtA, i, uint64(m.Convars.Size()))
-		n2, err := m.Convars.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n2, err2 := m.Convars.MarshalTo(dAtA[i:])
+		if err2 != nil {
+			return 0, err2
 		}
 		i += n2
 	}
@@ -3610,13 +5605,16 @@ func (m *CSVCMsg_ServerInfo) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.COs))
 	dAtA[i] = 0x45
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(m.MapCrc))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.MapCrc))
+	i += 4
 	dAtA[i] = 0x4d
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(m.ClientCrc))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.ClientCrc))
+	i += 4
 	dAtA[i] = 0x55
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(m.StringTableCrc))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.StringTableCrc))
+	i += 4
 	dAtA[i] = 0x58
 	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.MaxClients))
@@ -3628,7 +5626,8 @@ func (m *CSVCMsg_ServerInfo) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.PlayerSlot))
 	dAtA[i] = 0x75
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.TickInterval))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.TickInterval))))
+	i += 4
 	dAtA[i] = 0x7a
 	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.GameDir)))
@@ -3834,10 +5833,12 @@ func (m *CSVCMsg_SendTableSendpropT) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumElements))
 	dAtA[i] = 0x3d
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.LowValue))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.LowValue))))
+	i += 4
 	dAtA[i] = 0x45
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.HighValue))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.HighValue))))
+	i += 4
 	dAtA[i] = 0x48
 	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumBits))
@@ -4052,7 +6053,8 @@ func (m *CSVCMsg_VoiceData) MarshalTo(dAtA []byte) (int, error) {
 	i++
 	dAtA[i] = 0x19
 	i++
-	i = encodeFixed64Netmessages(dAtA, i, uint64(m.Xuid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Xuid))
+	i += 8
 	dAtA[i] = 0x20
 	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.AudibleMask))
@@ -4114,9 +6116,9 @@ func (m *CSVCMsg_FixAngle) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x12
 		i++
 		i = encodeVarintNetmessages(dAtA, i, uint64(m.Angle.Size()))
-		n3, err := m.Angle.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n3, err3 := m.Angle.MarshalTo(dAtA[i:])
+		if err3 != nil {
+			return 0, err3
 		}
 		i += n3
 	}
@@ -4142,9 +6144,9 @@ func (m *CSVCMsg_CrosshairAngle) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintNetmessages(dAtA, i, uint64(m.Angle.Size()))
-		n4, err := m.Angle.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n4, err4 := m.Angle.MarshalTo(dAtA[i:])
+		if err4 != nil {
+			return 0, err4
 		}
 		i += n4
 	}
@@ -4191,9 +6193,9 @@ func (m *CSVCMsg_BSPDecal) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintNetmessages(dAtA, i, uint64(m.Pos.Size()))
-		n5, err := m.Pos.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n5, err5 := m.Pos.MarshalTo(dAtA[i:])
+		if err5 != nil {
+			return 0, err5
 		}
 		i += n5
 	}
@@ -4416,7 +6418,8 @@ func (m *CSVCMsg_GameEventKeyT) MarshalTo(dAtA []byte) (int, error) {
 	i += copy(dAtA[i:], m.ValString)
 	dAtA[i] = 0x1d
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.ValFloat))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.ValFloat))))
+	i += 4
 	dAtA[i] = 0x20
 	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.ValLong))
@@ -4692,7 +6695,8 @@ func (m *CSVCMsg_SoundsSounddataT) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.Volume))
 	dAtA[i] = 0x2d
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.DelayValue))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.DelayValue))))
+	i += 4
 	dAtA[i] = 0x30
 	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.SequenceNumber))
@@ -4713,7 +6717,8 @@ func (m *CSVCMsg_SoundsSounddataT) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.SoundNum))
 	dAtA[i] = 0x65
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(m.SoundNumHandle))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.SoundNumHandle))
+	i += 4
 	dAtA[i] = 0x68
 	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.SpeakerEntity))
@@ -4862,7 +6867,8 @@ func (m *CSVCMsg_HltvReplay) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.ReplaySlowdownEnd))
 	dAtA[i] = 0x3d
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.ReplaySlowdownRate))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.ReplaySlowdownRate))))
+	i += 4
 	return i, nil
 }
 
@@ -4886,16 +6892,19 @@ func (m *CCLCMsg_HltvReplay) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.Request))
 	dAtA[i] = 0x15
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.SlowdownLength))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.SlowdownLength))))
+	i += 4
 	dAtA[i] = 0x1d
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.SlowdownRate))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.SlowdownRate))))
+	i += 4
 	dAtA[i] = 0x20
 	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.PrimaryTargetEntIndex))
 	dAtA[i] = 0x2d
 	i++
-	i = encodeFixed32Netmessages(dAtA, i, uint32(math.Float32bits(float32(m.EventTime))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.EventTime))))
+	i += 4
 	return i, nil
 }
 
@@ -4921,24 +6930,6 @@ func (m *CSVCMsg_Broadcast_Command) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
-func encodeFixed64Netmessages(dAtA []byte, offset int, v uint64) int {
-	dAtA[offset] = uint8(v)
-	dAtA[offset+1] = uint8(v >> 8)
-	dAtA[offset+2] = uint8(v >> 16)
-	dAtA[offset+3] = uint8(v >> 24)
-	dAtA[offset+4] = uint8(v >> 32)
-	dAtA[offset+5] = uint8(v >> 40)
-	dAtA[offset+6] = uint8(v >> 48)
-	dAtA[offset+7] = uint8(v >> 56)
-	return offset + 8
-}
-func encodeFixed32Netmessages(dAtA []byte, offset int, v uint32) int {
-	dAtA[offset] = uint8(v)
-	dAtA[offset+1] = uint8(v >> 8)
-	dAtA[offset+2] = uint8(v >> 16)
-	dAtA[offset+3] = uint8(v >> 24)
-	return offset + 4
-}
 func encodeVarintNetmessages(dAtA []byte, offset int, v uint64) int {
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
@@ -4949,6 +6940,9 @@ func encodeVarintNetmessages(dAtA []byte, offset int, v uint64) int {
 	return offset + 1
 }
 func (m *CMsgVector) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 5
@@ -4958,6 +6952,9 @@ func (m *CMsgVector) Size() (n int) {
 }
 
 func (m *CMsgVector2D) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 5
@@ -4966,6 +6963,9 @@ func (m *CMsgVector2D) Size() (n int) {
 }
 
 func (m *CMsgQAngle) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 5
@@ -4975,6 +6975,9 @@ func (m *CMsgQAngle) Size() (n int) {
 }
 
 func (m *CMsgRGBA) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.R))
@@ -4985,6 +6988,9 @@ func (m *CMsgRGBA) Size() (n int) {
 }
 
 func (m *CNETMsg_Tick) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Tick))
@@ -4996,6 +7002,9 @@ func (m *CNETMsg_Tick) Size() (n int) {
 }
 
 func (m *CNETMsg_StringCmd) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Command)
@@ -5004,6 +7013,9 @@ func (m *CNETMsg_StringCmd) Size() (n int) {
 }
 
 func (m *CNETMsg_SignonState) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.SignonState))
@@ -5021,6 +7033,9 @@ func (m *CNETMsg_SignonState) Size() (n int) {
 }
 
 func (m *CMsg_CVars) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Cvars) > 0 {
@@ -5033,6 +7048,9 @@ func (m *CMsg_CVars) Size() (n int) {
 }
 
 func (m *CMsg_CVars_CVar) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Name)
@@ -5044,6 +7062,9 @@ func (m *CMsg_CVars_CVar) Size() (n int) {
 }
 
 func (m *CNETMsg_SetConVar) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Convars != nil {
@@ -5054,12 +7075,18 @@ func (m *CNETMsg_SetConVar) Size() (n int) {
 }
 
 func (m *CNETMsg_NOP) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	return n
 }
 
 func (m *CNETMsg_Disconnect) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Text)
@@ -5068,6 +7095,9 @@ func (m *CNETMsg_Disconnect) Size() (n int) {
 }
 
 func (m *CNETMsg_File) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.TransferId))
@@ -5079,6 +7109,9 @@ func (m *CNETMsg_File) Size() (n int) {
 }
 
 func (m *CNETMsg_SplitScreenUser) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Slot))
@@ -5086,6 +7119,9 @@ func (m *CNETMsg_SplitScreenUser) Size() (n int) {
 }
 
 func (m *CNETMsg_PlayerAvatarData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Accountid))
@@ -5097,6 +7133,9 @@ func (m *CNETMsg_PlayerAvatarData) Size() (n int) {
 }
 
 func (m *CCLCMsg_ClientInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 5
@@ -5113,6 +7152,9 @@ func (m *CCLCMsg_ClientInfo) Size() (n int) {
 }
 
 func (m *CCLCMsg_Move) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.NumBackupCommands))
@@ -5125,6 +7167,9 @@ func (m *CCLCMsg_Move) Size() (n int) {
 }
 
 func (m *CCLCMsg_VoiceData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Data != nil {
@@ -5142,6 +7187,9 @@ func (m *CCLCMsg_VoiceData) Size() (n int) {
 }
 
 func (m *CCLCMsg_BaselineAck) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.BaselineTick))
@@ -5150,6 +7198,9 @@ func (m *CCLCMsg_BaselineAck) Size() (n int) {
 }
 
 func (m *CCLCMsg_ListenEvents) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.EventMask) > 0 {
@@ -5159,6 +7210,9 @@ func (m *CCLCMsg_ListenEvents) Size() (n int) {
 }
 
 func (m *CCLCMsg_RespondCvarValue) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Cookie))
@@ -5171,6 +7225,9 @@ func (m *CCLCMsg_RespondCvarValue) Size() (n int) {
 }
 
 func (m *CCLCMsg_FileCRCCheck) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.CodePath))
@@ -5193,6 +7250,9 @@ func (m *CCLCMsg_FileCRCCheck) Size() (n int) {
 }
 
 func (m *CCLCMsg_LoadingProgress) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Progress))
@@ -5200,6 +7260,9 @@ func (m *CCLCMsg_LoadingProgress) Size() (n int) {
 }
 
 func (m *CCLCMsg_SplitPlayerConnect) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Convars != nil {
@@ -5210,6 +7273,9 @@ func (m *CCLCMsg_SplitPlayerConnect) Size() (n int) {
 }
 
 func (m *CCLCMsg_CmdKeyValues) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Keyvalues != nil {
@@ -5220,6 +7286,9 @@ func (m *CCLCMsg_CmdKeyValues) Size() (n int) {
 }
 
 func (m *CSVCMsg_ServerInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Protocol))
@@ -5253,6 +7322,9 @@ func (m *CSVCMsg_ServerInfo) Size() (n int) {
 }
 
 func (m *CSVCMsg_ClassInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -5266,6 +7338,9 @@ func (m *CSVCMsg_ClassInfo) Size() (n int) {
 }
 
 func (m *CSVCMsg_ClassInfoClassT) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.ClassId))
@@ -5277,6 +7352,9 @@ func (m *CSVCMsg_ClassInfoClassT) Size() (n int) {
 }
 
 func (m *CSVCMsg_SendTable) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -5293,6 +7371,9 @@ func (m *CSVCMsg_SendTable) Size() (n int) {
 }
 
 func (m *CSVCMsg_SendTableSendpropT) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Type))
@@ -5310,6 +7391,9 @@ func (m *CSVCMsg_SendTableSendpropT) Size() (n int) {
 }
 
 func (m *CSVCMsg_Print) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Text)
@@ -5318,6 +7402,9 @@ func (m *CSVCMsg_Print) Size() (n int) {
 }
 
 func (m *CSVCMsg_SetPause) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -5325,6 +7412,9 @@ func (m *CSVCMsg_SetPause) Size() (n int) {
 }
 
 func (m *CSVCMsg_SetView) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.EntityIndex))
@@ -5332,6 +7422,9 @@ func (m *CSVCMsg_SetView) Size() (n int) {
 }
 
 func (m *CSVCMsg_CreateStringTable) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Name)
@@ -5350,6 +7443,9 @@ func (m *CSVCMsg_CreateStringTable) Size() (n int) {
 }
 
 func (m *CSVCMsg_UpdateStringTable) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.TableId))
@@ -5362,6 +7458,9 @@ func (m *CSVCMsg_UpdateStringTable) Size() (n int) {
 }
 
 func (m *CSVCMsg_VoiceInit) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Quality))
@@ -5374,6 +7473,9 @@ func (m *CSVCMsg_VoiceInit) Size() (n int) {
 }
 
 func (m *CSVCMsg_VoiceData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Client))
@@ -5395,6 +7497,9 @@ func (m *CSVCMsg_VoiceData) Size() (n int) {
 }
 
 func (m *CSVCMsg_FixAngle) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -5406,6 +7511,9 @@ func (m *CSVCMsg_FixAngle) Size() (n int) {
 }
 
 func (m *CSVCMsg_CrosshairAngle) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Angle != nil {
@@ -5416,6 +7524,9 @@ func (m *CSVCMsg_CrosshairAngle) Size() (n int) {
 }
 
 func (m *CSVCMsg_Prefetch) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.SoundIndex))
@@ -5423,6 +7534,9 @@ func (m *CSVCMsg_Prefetch) Size() (n int) {
 }
 
 func (m *CSVCMsg_BSPDecal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Pos != nil {
@@ -5437,6 +7551,9 @@ func (m *CSVCMsg_BSPDecal) Size() (n int) {
 }
 
 func (m *CSVCMsg_SplitScreen) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Type != nil {
@@ -5448,6 +7565,9 @@ func (m *CSVCMsg_SplitScreen) Size() (n int) {
 }
 
 func (m *CSVCMsg_GetCvarValue) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Cookie))
@@ -5457,6 +7577,9 @@ func (m *CSVCMsg_GetCvarValue) Size() (n int) {
 }
 
 func (m *CSVCMsg_Menu) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.DialogType))
@@ -5468,6 +7591,9 @@ func (m *CSVCMsg_Menu) Size() (n int) {
 }
 
 func (m *CSVCMsg_UserMessage) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.MsgType))
@@ -5480,6 +7606,9 @@ func (m *CSVCMsg_UserMessage) Size() (n int) {
 }
 
 func (m *CSVCMsg_PaintmapData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Paintmap != nil {
@@ -5490,6 +7619,9 @@ func (m *CSVCMsg_PaintmapData) Size() (n int) {
 }
 
 func (m *CSVCMsg_GameEvent) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.EventName)
@@ -5506,6 +7638,9 @@ func (m *CSVCMsg_GameEvent) Size() (n int) {
 }
 
 func (m *CSVCMsg_GameEventKeyT) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Type))
@@ -5525,6 +7660,9 @@ func (m *CSVCMsg_GameEventKeyT) Size() (n int) {
 }
 
 func (m *CSVCMsg_GameEventList) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Descriptors) > 0 {
@@ -5537,6 +7675,9 @@ func (m *CSVCMsg_GameEventList) Size() (n int) {
 }
 
 func (m *CSVCMsg_GameEventListKeyT) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Type))
@@ -5546,6 +7687,9 @@ func (m *CSVCMsg_GameEventListKeyT) Size() (n int) {
 }
 
 func (m *CSVCMsg_GameEventListDescriptorT) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Eventid))
@@ -5561,6 +7705,9 @@ func (m *CSVCMsg_GameEventListDescriptorT) Size() (n int) {
 }
 
 func (m *CSVCMsg_TempEntities) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -5573,6 +7720,9 @@ func (m *CSVCMsg_TempEntities) Size() (n int) {
 }
 
 func (m *CSVCMsg_PacketEntities) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.MaxEntries))
@@ -5589,6 +7739,9 @@ func (m *CSVCMsg_PacketEntities) Size() (n int) {
 }
 
 func (m *CSVCMsg_Sounds) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -5602,6 +7755,9 @@ func (m *CSVCMsg_Sounds) Size() (n int) {
 }
 
 func (m *CSVCMsg_SoundsSounddataT) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sozNetmessages(uint64(m.OriginX))
@@ -5625,6 +7781,9 @@ func (m *CSVCMsg_SoundsSounddataT) Size() (n int) {
 }
 
 func (m *CSVCMsg_EntityMsg) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.EntIndex))
@@ -5637,6 +7796,9 @@ func (m *CSVCMsg_EntityMsg) Size() (n int) {
 }
 
 func (m *CSVCMsg_CmdKeyValues) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Keyvalues != nil {
@@ -5647,6 +7809,9 @@ func (m *CSVCMsg_CmdKeyValues) Size() (n int) {
 }
 
 func (m *CSVCMsg_EncryptedData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Encrypted != nil {
@@ -5658,6 +7823,9 @@ func (m *CSVCMsg_EncryptedData) Size() (n int) {
 }
 
 func (m *CSVCMsg_HltvReplay) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Delay))
@@ -5671,6 +7839,9 @@ func (m *CSVCMsg_HltvReplay) Size() (n int) {
 }
 
 func (m *CCLCMsg_HltvReplay) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovNetmessages(uint64(m.Request))
@@ -5682,6 +7853,9 @@ func (m *CCLCMsg_HltvReplay) Size() (n int) {
 }
 
 func (m *CSVCMsg_Broadcast_Command) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Cmd)
@@ -5690,14 +7864,7 @@ func (m *CSVCMsg_Broadcast_Command) Size() (n int) {
 }
 
 func sovNetmessages(x uint64) (n int) {
-	for {
-		n++
-		x >>= 7
-		if x == 0 {
-			break
-		}
-	}
-	return n
+	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozNetmessages(x uint64) (n int) {
 	return sovNetmessages(uint64((x << 1) ^ uint64((int64(x) >> 63))))
@@ -5717,7 +7884,7 @@ func (m *CMsgVector) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5739,11 +7906,8 @@ func (m *CMsgVector) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.X = float32(math.Float32frombits(v))
 		case 2:
 			if wireType != 5 {
@@ -5753,11 +7917,8 @@ func (m *CMsgVector) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Y = float32(math.Float32frombits(v))
 		case 3:
 			if wireType != 5 {
@@ -5767,11 +7928,8 @@ func (m *CMsgVector) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Z = float32(math.Float32frombits(v))
 		default:
 			iNdEx = preIndex
@@ -5780,6 +7938,9 @@ func (m *CMsgVector) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -5809,7 +7970,7 @@ func (m *CMsgVector2D) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5831,11 +7992,8 @@ func (m *CMsgVector2D) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.X = float32(math.Float32frombits(v))
 		case 2:
 			if wireType != 5 {
@@ -5845,11 +8003,8 @@ func (m *CMsgVector2D) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Y = float32(math.Float32frombits(v))
 		default:
 			iNdEx = preIndex
@@ -5858,6 +8013,9 @@ func (m *CMsgVector2D) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -5887,7 +8045,7 @@ func (m *CMsgQAngle) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5909,11 +8067,8 @@ func (m *CMsgQAngle) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.X = float32(math.Float32frombits(v))
 		case 2:
 			if wireType != 5 {
@@ -5923,11 +8078,8 @@ func (m *CMsgQAngle) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Y = float32(math.Float32frombits(v))
 		case 3:
 			if wireType != 5 {
@@ -5937,11 +8089,8 @@ func (m *CMsgQAngle) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Z = float32(math.Float32frombits(v))
 		default:
 			iNdEx = preIndex
@@ -5950,6 +8099,9 @@ func (m *CMsgQAngle) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -5979,7 +8131,7 @@ func (m *CMsgRGBA) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6007,7 +8159,7 @@ func (m *CMsgRGBA) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.R |= (int32(b) & 0x7F) << shift
+				m.R |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6026,7 +8178,7 @@ func (m *CMsgRGBA) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.G |= (int32(b) & 0x7F) << shift
+				m.G |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6045,7 +8197,7 @@ func (m *CMsgRGBA) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.B |= (int32(b) & 0x7F) << shift
+				m.B |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6064,7 +8216,7 @@ func (m *CMsgRGBA) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.A |= (int32(b) & 0x7F) << shift
+				m.A |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6076,6 +8228,9 @@ func (m *CMsgRGBA) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6105,7 +8260,7 @@ func (m *CNETMsg_Tick) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6133,7 +8288,7 @@ func (m *CNETMsg_Tick) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Tick |= (uint32(b) & 0x7F) << shift
+				m.Tick |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6152,7 +8307,7 @@ func (m *CNETMsg_Tick) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.HostComputationtime |= (uint32(b) & 0x7F) << shift
+				m.HostComputationtime |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6171,7 +8326,7 @@ func (m *CNETMsg_Tick) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.HostComputationtimeStdDeviation |= (uint32(b) & 0x7F) << shift
+				m.HostComputationtimeStdDeviation |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6190,7 +8345,7 @@ func (m *CNETMsg_Tick) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.HostFramestarttimeStdDeviation |= (uint32(b) & 0x7F) << shift
+				m.HostFramestarttimeStdDeviation |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6209,7 +8364,7 @@ func (m *CNETMsg_Tick) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.HltvReplayFlags |= (uint32(b) & 0x7F) << shift
+				m.HltvReplayFlags |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6221,6 +8376,9 @@ func (m *CNETMsg_Tick) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6250,7 +8408,7 @@ func (m *CNETMsg_StringCmd) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6278,7 +8436,7 @@ func (m *CNETMsg_StringCmd) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6288,6 +8446,9 @@ func (m *CNETMsg_StringCmd) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6300,6 +8461,9 @@ func (m *CNETMsg_StringCmd) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6329,7 +8493,7 @@ func (m *CNETMsg_SignonState) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6357,7 +8521,7 @@ func (m *CNETMsg_SignonState) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SignonState |= (uint32(b) & 0x7F) << shift
+				m.SignonState |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6376,7 +8540,7 @@ func (m *CNETMsg_SignonState) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SpawnCount |= (uint32(b) & 0x7F) << shift
+				m.SpawnCount |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6395,7 +8559,7 @@ func (m *CNETMsg_SignonState) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumServerPlayers |= (uint32(b) & 0x7F) << shift
+				m.NumServerPlayers |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6414,7 +8578,7 @@ func (m *CNETMsg_SignonState) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6424,6 +8588,9 @@ func (m *CNETMsg_SignonState) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6443,7 +8610,7 @@ func (m *CNETMsg_SignonState) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6453,6 +8620,9 @@ func (m *CNETMsg_SignonState) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6465,6 +8635,9 @@ func (m *CNETMsg_SignonState) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6494,7 +8667,7 @@ func (m *CMsg_CVars) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6522,7 +8695,7 @@ func (m *CMsg_CVars) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6531,6 +8704,9 @@ func (m *CMsg_CVars) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6546,6 +8722,9 @@ func (m *CMsg_CVars) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6575,7 +8754,7 @@ func (m *CMsg_CVars_CVar) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6603,7 +8782,7 @@ func (m *CMsg_CVars_CVar) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6613,6 +8792,9 @@ func (m *CMsg_CVars_CVar) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6632,7 +8814,7 @@ func (m *CMsg_CVars_CVar) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6642,6 +8824,9 @@ func (m *CMsg_CVars_CVar) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6661,7 +8846,7 @@ func (m *CMsg_CVars_CVar) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DictionaryName |= (uint32(b) & 0x7F) << shift
+				m.DictionaryName |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6673,6 +8858,9 @@ func (m *CMsg_CVars_CVar) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6702,7 +8890,7 @@ func (m *CNETMsg_SetConVar) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6730,7 +8918,7 @@ func (m *CNETMsg_SetConVar) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6739,6 +8927,9 @@ func (m *CNETMsg_SetConVar) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6756,6 +8947,9 @@ func (m *CNETMsg_SetConVar) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6785,7 +8979,7 @@ func (m *CNETMsg_NOP) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6806,6 +9000,9 @@ func (m *CNETMsg_NOP) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6835,7 +9032,7 @@ func (m *CNETMsg_Disconnect) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6863,7 +9060,7 @@ func (m *CNETMsg_Disconnect) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6873,6 +9070,9 @@ func (m *CNETMsg_Disconnect) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6885,6 +9085,9 @@ func (m *CNETMsg_Disconnect) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6914,7 +9117,7 @@ func (m *CNETMsg_File) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6942,7 +9145,7 @@ func (m *CNETMsg_File) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.TransferId |= (int32(b) & 0x7F) << shift
+				m.TransferId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6961,7 +9164,7 @@ func (m *CNETMsg_File) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6971,6 +9174,9 @@ func (m *CNETMsg_File) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6990,7 +9196,7 @@ func (m *CNETMsg_File) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7010,7 +9216,7 @@ func (m *CNETMsg_File) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7023,6 +9229,9 @@ func (m *CNETMsg_File) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7052,7 +9261,7 @@ func (m *CNETMsg_SplitScreenUser) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7080,7 +9289,7 @@ func (m *CNETMsg_SplitScreenUser) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Slot |= (int32(b) & 0x7F) << shift
+				m.Slot |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7092,6 +9301,9 @@ func (m *CNETMsg_SplitScreenUser) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7121,7 +9333,7 @@ func (m *CNETMsg_PlayerAvatarData) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7149,7 +9361,7 @@ func (m *CNETMsg_PlayerAvatarData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Accountid |= (uint32(b) & 0x7F) << shift
+				m.Accountid |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7168,7 +9380,7 @@ func (m *CNETMsg_PlayerAvatarData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7177,6 +9389,9 @@ func (m *CNETMsg_PlayerAvatarData) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7192,6 +9407,9 @@ func (m *CNETMsg_PlayerAvatarData) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7221,7 +9439,7 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7243,11 +9461,8 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.SendTableCrc = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			m.SendTableCrc = uint32(dAtA[iNdEx-4])
-			m.SendTableCrc |= uint32(dAtA[iNdEx-3]) << 8
-			m.SendTableCrc |= uint32(dAtA[iNdEx-2]) << 16
-			m.SendTableCrc |= uint32(dAtA[iNdEx-1]) << 24
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ServerCount", wireType)
@@ -7262,7 +9477,7 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ServerCount |= (uint32(b) & 0x7F) << shift
+				m.ServerCount |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7281,7 +9496,7 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7301,7 +9516,7 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7321,7 +9536,7 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.FriendsId |= (uint32(b) & 0x7F) << shift
+				m.FriendsId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7340,7 +9555,7 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7350,6 +9565,9 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7361,11 +9579,8 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 				if (iNdEx + 4) > l {
 					return io.ErrUnexpectedEOF
 				}
+				v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 				iNdEx += 4
-				v = uint32(dAtA[iNdEx-4])
-				v |= uint32(dAtA[iNdEx-3]) << 8
-				v |= uint32(dAtA[iNdEx-2]) << 16
-				v |= uint32(dAtA[iNdEx-1]) << 24
 				m.CustomFiles = append(m.CustomFiles, v)
 			} else if wireType == 2 {
 				var packedLen int
@@ -7378,7 +9593,7 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					packedLen |= (int(b) & 0x7F) << shift
+					packedLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -7387,19 +9602,24 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 					return ErrInvalidLengthNetmessages
 				}
 				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthNetmessages
+				}
 				if postIndex > l {
 					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				elementCount = packedLen / 4
+				if elementCount != 0 && len(m.CustomFiles) == 0 {
+					m.CustomFiles = make([]uint32, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v uint32
 					if (iNdEx + 4) > l {
 						return io.ErrUnexpectedEOF
 					}
+					v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 					iNdEx += 4
-					v = uint32(dAtA[iNdEx-4])
-					v |= uint32(dAtA[iNdEx-3]) << 8
-					v |= uint32(dAtA[iNdEx-2]) << 16
-					v |= uint32(dAtA[iNdEx-1]) << 24
 					m.CustomFiles = append(m.CustomFiles, v)
 				}
 			} else {
@@ -7412,6 +9632,9 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7441,7 +9664,7 @@ func (m *CCLCMsg_Move) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7469,7 +9692,7 @@ func (m *CCLCMsg_Move) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumBackupCommands |= (uint32(b) & 0x7F) << shift
+				m.NumBackupCommands |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7488,7 +9711,7 @@ func (m *CCLCMsg_Move) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumNewCommands |= (uint32(b) & 0x7F) << shift
+				m.NumNewCommands |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7507,7 +9730,7 @@ func (m *CCLCMsg_Move) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7516,6 +9739,9 @@ func (m *CCLCMsg_Move) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7531,6 +9757,9 @@ func (m *CCLCMsg_Move) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7560,7 +9789,7 @@ func (m *CCLCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7588,7 +9817,7 @@ func (m *CCLCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7597,6 +9826,9 @@ func (m *CCLCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7613,15 +9845,8 @@ func (m *CCLCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Xuid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Xuid = uint64(dAtA[iNdEx-8])
-			m.Xuid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Xuid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Xuid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Xuid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Xuid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Xuid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Xuid |= uint64(dAtA[iNdEx-1]) << 56
 		case 3:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Format", wireType)
@@ -7636,7 +9861,7 @@ func (m *CCLCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (VoiceDataFormatT(b) & 0x7F) << shift
+				v |= VoiceDataFormatT(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7656,7 +9881,7 @@ func (m *CCLCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SequenceBytes |= (int32(b) & 0x7F) << shift
+				m.SequenceBytes |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7675,7 +9900,7 @@ func (m *CCLCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SectionNumber |= (uint32(b) & 0x7F) << shift
+				m.SectionNumber |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7694,7 +9919,7 @@ func (m *CCLCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.UncompressedSampleOffset |= (uint32(b) & 0x7F) << shift
+				m.UncompressedSampleOffset |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7706,6 +9931,9 @@ func (m *CCLCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7735,7 +9963,7 @@ func (m *CCLCMsg_BaselineAck) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7763,7 +9991,7 @@ func (m *CCLCMsg_BaselineAck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BaselineTick |= (int32(b) & 0x7F) << shift
+				m.BaselineTick |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7782,7 +10010,7 @@ func (m *CCLCMsg_BaselineAck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BaselineNr |= (int32(b) & 0x7F) << shift
+				m.BaselineNr |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7794,6 +10022,9 @@ func (m *CCLCMsg_BaselineAck) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7823,7 +10054,7 @@ func (m *CCLCMsg_ListenEvents) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7843,11 +10074,8 @@ func (m *CCLCMsg_ListenEvents) Unmarshal(dAtA []byte) error {
 				if (iNdEx + 4) > l {
 					return io.ErrUnexpectedEOF
 				}
+				v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 				iNdEx += 4
-				v = uint32(dAtA[iNdEx-4])
-				v |= uint32(dAtA[iNdEx-3]) << 8
-				v |= uint32(dAtA[iNdEx-2]) << 16
-				v |= uint32(dAtA[iNdEx-1]) << 24
 				m.EventMask = append(m.EventMask, v)
 			} else if wireType == 2 {
 				var packedLen int
@@ -7860,7 +10088,7 @@ func (m *CCLCMsg_ListenEvents) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					packedLen |= (int(b) & 0x7F) << shift
+					packedLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -7869,19 +10097,24 @@ func (m *CCLCMsg_ListenEvents) Unmarshal(dAtA []byte) error {
 					return ErrInvalidLengthNetmessages
 				}
 				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthNetmessages
+				}
 				if postIndex > l {
 					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				elementCount = packedLen / 4
+				if elementCount != 0 && len(m.EventMask) == 0 {
+					m.EventMask = make([]uint32, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v uint32
 					if (iNdEx + 4) > l {
 						return io.ErrUnexpectedEOF
 					}
+					v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 					iNdEx += 4
-					v = uint32(dAtA[iNdEx-4])
-					v |= uint32(dAtA[iNdEx-3]) << 8
-					v |= uint32(dAtA[iNdEx-2]) << 16
-					v |= uint32(dAtA[iNdEx-1]) << 24
 					m.EventMask = append(m.EventMask, v)
 				}
 			} else {
@@ -7894,6 +10127,9 @@ func (m *CCLCMsg_ListenEvents) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7923,7 +10159,7 @@ func (m *CCLCMsg_RespondCvarValue) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7951,7 +10187,7 @@ func (m *CCLCMsg_RespondCvarValue) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Cookie |= (int32(b) & 0x7F) << shift
+				m.Cookie |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7970,7 +10206,7 @@ func (m *CCLCMsg_RespondCvarValue) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.StatusCode |= (int32(b) & 0x7F) << shift
+				m.StatusCode |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7989,7 +10225,7 @@ func (m *CCLCMsg_RespondCvarValue) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7999,6 +10235,9 @@ func (m *CCLCMsg_RespondCvarValue) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8018,7 +10257,7 @@ func (m *CCLCMsg_RespondCvarValue) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8028,6 +10267,9 @@ func (m *CCLCMsg_RespondCvarValue) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8040,6 +10282,9 @@ func (m *CCLCMsg_RespondCvarValue) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8069,7 +10314,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8097,7 +10342,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.CodePath |= (int32(b) & 0x7F) << shift
+				m.CodePath |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8116,7 +10361,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8126,6 +10371,9 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8145,7 +10393,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.CodeFilename |= (int32(b) & 0x7F) << shift
+				m.CodeFilename |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8164,7 +10412,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8174,6 +10422,9 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8193,7 +10444,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.FileFraction |= (int32(b) & 0x7F) << shift
+				m.FileFraction |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8212,7 +10463,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8221,6 +10472,9 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8243,7 +10497,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Crc |= (uint32(b) & 0x7F) << shift
+				m.Crc |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8262,7 +10516,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.FileHashType |= (int32(b) & 0x7F) << shift
+				m.FileHashType |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8281,7 +10535,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.FileLen |= (int32(b) & 0x7F) << shift
+				m.FileLen |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8300,7 +10554,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PackFileId |= (int32(b) & 0x7F) << shift
+				m.PackFileId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8319,7 +10573,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PackFileNumber |= (int32(b) & 0x7F) << shift
+				m.PackFileNumber |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8331,6 +10585,9 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8360,7 +10617,7 @@ func (m *CCLCMsg_LoadingProgress) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8388,7 +10645,7 @@ func (m *CCLCMsg_LoadingProgress) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Progress |= (int32(b) & 0x7F) << shift
+				m.Progress |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8400,6 +10657,9 @@ func (m *CCLCMsg_LoadingProgress) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8429,7 +10689,7 @@ func (m *CCLCMsg_SplitPlayerConnect) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8457,7 +10717,7 @@ func (m *CCLCMsg_SplitPlayerConnect) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8466,6 +10726,9 @@ func (m *CCLCMsg_SplitPlayerConnect) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8483,6 +10746,9 @@ func (m *CCLCMsg_SplitPlayerConnect) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8512,7 +10778,7 @@ func (m *CCLCMsg_CmdKeyValues) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8540,7 +10806,7 @@ func (m *CCLCMsg_CmdKeyValues) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8549,6 +10815,9 @@ func (m *CCLCMsg_CmdKeyValues) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8564,6 +10833,9 @@ func (m *CCLCMsg_CmdKeyValues) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8593,7 +10865,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8621,7 +10893,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Protocol |= (int32(b) & 0x7F) << shift
+				m.Protocol |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8640,7 +10912,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ServerCount |= (int32(b) & 0x7F) << shift
+				m.ServerCount |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8659,7 +10931,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8679,7 +10951,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8699,7 +10971,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8719,7 +10991,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8739,7 +11011,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.COs |= (int32(b) & 0x7F) << shift
+				m.COs |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8752,11 +11024,8 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.MapCrc = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			m.MapCrc = uint32(dAtA[iNdEx-4])
-			m.MapCrc |= uint32(dAtA[iNdEx-3]) << 8
-			m.MapCrc |= uint32(dAtA[iNdEx-2]) << 16
-			m.MapCrc |= uint32(dAtA[iNdEx-1]) << 24
 		case 9:
 			if wireType != 5 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ClientCrc", wireType)
@@ -8765,11 +11034,8 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.ClientCrc = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			m.ClientCrc = uint32(dAtA[iNdEx-4])
-			m.ClientCrc |= uint32(dAtA[iNdEx-3]) << 8
-			m.ClientCrc |= uint32(dAtA[iNdEx-2]) << 16
-			m.ClientCrc |= uint32(dAtA[iNdEx-1]) << 24
 		case 10:
 			if wireType != 5 {
 				return fmt.Errorf("proto: wrong wireType = %d for field StringTableCrc", wireType)
@@ -8778,11 +11044,8 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.StringTableCrc = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			m.StringTableCrc = uint32(dAtA[iNdEx-4])
-			m.StringTableCrc |= uint32(dAtA[iNdEx-3]) << 8
-			m.StringTableCrc |= uint32(dAtA[iNdEx-2]) << 16
-			m.StringTableCrc |= uint32(dAtA[iNdEx-1]) << 24
 		case 11:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MaxClients", wireType)
@@ -8797,7 +11060,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxClients |= (int32(b) & 0x7F) << shift
+				m.MaxClients |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8816,7 +11079,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxClasses |= (int32(b) & 0x7F) << shift
+				m.MaxClasses |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8835,7 +11098,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PlayerSlot |= (int32(b) & 0x7F) << shift
+				m.PlayerSlot |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8848,11 +11111,8 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.TickInterval = float32(math.Float32frombits(v))
 		case 15:
 			if wireType != 2 {
@@ -8868,7 +11128,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8878,6 +11138,9 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8897,7 +11160,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8907,6 +11170,9 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8926,7 +11192,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8936,6 +11202,9 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8955,7 +11224,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8965,6 +11234,9 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8984,7 +11256,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8994,6 +11266,9 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9013,7 +11288,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PublicIp |= (uint32(b) & 0x7F) << shift
+				m.PublicIp |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9032,7 +11307,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9052,7 +11327,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.UgcMapId |= (uint64(b) & 0x7F) << shift
+				m.UgcMapId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9064,6 +11339,9 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9093,7 +11371,7 @@ func (m *CSVCMsg_ClassInfo) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9121,7 +11399,7 @@ func (m *CSVCMsg_ClassInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9141,7 +11419,7 @@ func (m *CSVCMsg_ClassInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9150,6 +11428,9 @@ func (m *CSVCMsg_ClassInfo) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9165,6 +11446,9 @@ func (m *CSVCMsg_ClassInfo) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9194,7 +11478,7 @@ func (m *CSVCMsg_ClassInfoClassT) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9222,7 +11506,7 @@ func (m *CSVCMsg_ClassInfoClassT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ClassId |= (int32(b) & 0x7F) << shift
+				m.ClassId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9241,7 +11525,7 @@ func (m *CSVCMsg_ClassInfoClassT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9251,6 +11535,9 @@ func (m *CSVCMsg_ClassInfoClassT) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9270,7 +11557,7 @@ func (m *CSVCMsg_ClassInfoClassT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9280,6 +11567,9 @@ func (m *CSVCMsg_ClassInfoClassT) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9292,6 +11582,9 @@ func (m *CSVCMsg_ClassInfoClassT) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9321,7 +11614,7 @@ func (m *CSVCMsg_SendTable) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9349,7 +11642,7 @@ func (m *CSVCMsg_SendTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9369,7 +11662,7 @@ func (m *CSVCMsg_SendTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9379,6 +11672,9 @@ func (m *CSVCMsg_SendTable) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9398,7 +11694,7 @@ func (m *CSVCMsg_SendTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9418,7 +11714,7 @@ func (m *CSVCMsg_SendTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9427,6 +11723,9 @@ func (m *CSVCMsg_SendTable) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9442,6 +11741,9 @@ func (m *CSVCMsg_SendTable) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9471,7 +11773,7 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9499,7 +11801,7 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Type |= (int32(b) & 0x7F) << shift
+				m.Type |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9518,7 +11820,7 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9528,6 +11830,9 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9547,7 +11852,7 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Flags |= (int32(b) & 0x7F) << shift
+				m.Flags |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9566,7 +11871,7 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Priority |= (int32(b) & 0x7F) << shift
+				m.Priority |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9585,7 +11890,7 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9595,6 +11900,9 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9614,7 +11922,7 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumElements |= (int32(b) & 0x7F) << shift
+				m.NumElements |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9627,11 +11935,8 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.LowValue = float32(math.Float32frombits(v))
 		case 8:
 			if wireType != 5 {
@@ -9641,11 +11946,8 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.HighValue = float32(math.Float32frombits(v))
 		case 9:
 			if wireType != 0 {
@@ -9661,7 +11963,7 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumBits |= (int32(b) & 0x7F) << shift
+				m.NumBits |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9673,6 +11975,9 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9702,7 +12007,7 @@ func (m *CSVCMsg_Print) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9730,7 +12035,7 @@ func (m *CSVCMsg_Print) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9740,6 +12045,9 @@ func (m *CSVCMsg_Print) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9752,6 +12060,9 @@ func (m *CSVCMsg_Print) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9781,7 +12092,7 @@ func (m *CSVCMsg_SetPause) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9809,7 +12120,7 @@ func (m *CSVCMsg_SetPause) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9822,6 +12133,9 @@ func (m *CSVCMsg_SetPause) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9851,7 +12165,7 @@ func (m *CSVCMsg_SetView) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9879,7 +12193,7 @@ func (m *CSVCMsg_SetView) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EntityIndex |= (int32(b) & 0x7F) << shift
+				m.EntityIndex |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9891,6 +12205,9 @@ func (m *CSVCMsg_SetView) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9920,7 +12237,7 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9948,7 +12265,7 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9958,6 +12275,9 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9977,7 +12297,7 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxEntries |= (int32(b) & 0x7F) << shift
+				m.MaxEntries |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9996,7 +12316,7 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumEntries |= (int32(b) & 0x7F) << shift
+				m.NumEntries |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10015,7 +12335,7 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10035,7 +12355,7 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.UserDataSize |= (int32(b) & 0x7F) << shift
+				m.UserDataSize |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10054,7 +12374,7 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.UserDataSizeBits |= (int32(b) & 0x7F) << shift
+				m.UserDataSizeBits |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10073,7 +12393,7 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Flags |= (int32(b) & 0x7F) << shift
+				m.Flags |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10092,7 +12412,7 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10101,6 +12421,9 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10116,6 +12439,9 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10145,7 +12471,7 @@ func (m *CSVCMsg_UpdateStringTable) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10173,7 +12499,7 @@ func (m *CSVCMsg_UpdateStringTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.TableId |= (int32(b) & 0x7F) << shift
+				m.TableId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10192,7 +12518,7 @@ func (m *CSVCMsg_UpdateStringTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumChangedEntries |= (int32(b) & 0x7F) << shift
+				m.NumChangedEntries |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10211,7 +12537,7 @@ func (m *CSVCMsg_UpdateStringTable) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10220,6 +12546,9 @@ func (m *CSVCMsg_UpdateStringTable) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10235,6 +12564,9 @@ func (m *CSVCMsg_UpdateStringTable) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10264,7 +12596,7 @@ func (m *CSVCMsg_VoiceInit) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10292,7 +12624,7 @@ func (m *CSVCMsg_VoiceInit) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Quality |= (int32(b) & 0x7F) << shift
+				m.Quality |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10311,7 +12643,7 @@ func (m *CSVCMsg_VoiceInit) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10321,6 +12653,9 @@ func (m *CSVCMsg_VoiceInit) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10340,7 +12675,7 @@ func (m *CSVCMsg_VoiceInit) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10353,6 +12688,9 @@ func (m *CSVCMsg_VoiceInit) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10382,7 +12720,7 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10410,7 +12748,7 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Client |= (int32(b) & 0x7F) << shift
+				m.Client |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10429,7 +12767,7 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10443,15 +12781,8 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Xuid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Xuid = uint64(dAtA[iNdEx-8])
-			m.Xuid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Xuid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Xuid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Xuid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Xuid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Xuid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Xuid |= uint64(dAtA[iNdEx-1]) << 56
 		case 4:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AudibleMask", wireType)
@@ -10466,7 +12797,7 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AudibleMask |= (int32(b) & 0x7F) << shift
+				m.AudibleMask |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10485,7 +12816,7 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10494,6 +12825,9 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10516,7 +12850,7 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10536,7 +12870,7 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (VoiceDataFormatT(b) & 0x7F) << shift
+				v |= VoiceDataFormatT(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10556,7 +12890,7 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SequenceBytes |= (int32(b) & 0x7F) << shift
+				m.SequenceBytes |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10575,7 +12909,7 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SectionNumber |= (uint32(b) & 0x7F) << shift
+				m.SectionNumber |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10594,7 +12928,7 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.UncompressedSampleOffset |= (uint32(b) & 0x7F) << shift
+				m.UncompressedSampleOffset |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10606,6 +12940,9 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10635,7 +12972,7 @@ func (m *CSVCMsg_FixAngle) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10663,7 +13000,7 @@ func (m *CSVCMsg_FixAngle) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10683,7 +13020,7 @@ func (m *CSVCMsg_FixAngle) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10692,6 +13029,9 @@ func (m *CSVCMsg_FixAngle) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10709,6 +13049,9 @@ func (m *CSVCMsg_FixAngle) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10738,7 +13081,7 @@ func (m *CSVCMsg_CrosshairAngle) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10766,7 +13109,7 @@ func (m *CSVCMsg_CrosshairAngle) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10775,6 +13118,9 @@ func (m *CSVCMsg_CrosshairAngle) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10792,6 +13138,9 @@ func (m *CSVCMsg_CrosshairAngle) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10821,7 +13170,7 @@ func (m *CSVCMsg_Prefetch) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10849,7 +13198,7 @@ func (m *CSVCMsg_Prefetch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SoundIndex |= (int32(b) & 0x7F) << shift
+				m.SoundIndex |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10861,6 +13210,9 @@ func (m *CSVCMsg_Prefetch) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10890,7 +13242,7 @@ func (m *CSVCMsg_BSPDecal) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10918,7 +13270,7 @@ func (m *CSVCMsg_BSPDecal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10927,6 +13279,9 @@ func (m *CSVCMsg_BSPDecal) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10951,7 +13306,7 @@ func (m *CSVCMsg_BSPDecal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DecalTextureIndex |= (int32(b) & 0x7F) << shift
+				m.DecalTextureIndex |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10970,7 +13325,7 @@ func (m *CSVCMsg_BSPDecal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EntityIndex |= (int32(b) & 0x7F) << shift
+				m.EntityIndex |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10989,7 +13344,7 @@ func (m *CSVCMsg_BSPDecal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ModelIndex |= (int32(b) & 0x7F) << shift
+				m.ModelIndex |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11008,7 +13363,7 @@ func (m *CSVCMsg_BSPDecal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11021,6 +13376,9 @@ func (m *CSVCMsg_BSPDecal) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11050,7 +13408,7 @@ func (m *CSVCMsg_SplitScreen) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11078,7 +13436,7 @@ func (m *CSVCMsg_SplitScreen) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (ESplitScreenMessageType(b) & 0x7F) << shift
+				v |= ESplitScreenMessageType(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11098,7 +13456,7 @@ func (m *CSVCMsg_SplitScreen) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Slot |= (int32(b) & 0x7F) << shift
+				m.Slot |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11117,7 +13475,7 @@ func (m *CSVCMsg_SplitScreen) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PlayerIndex |= (int32(b) & 0x7F) << shift
+				m.PlayerIndex |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11129,6 +13487,9 @@ func (m *CSVCMsg_SplitScreen) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11158,7 +13519,7 @@ func (m *CSVCMsg_GetCvarValue) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11186,7 +13547,7 @@ func (m *CSVCMsg_GetCvarValue) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Cookie |= (int32(b) & 0x7F) << shift
+				m.Cookie |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11205,7 +13566,7 @@ func (m *CSVCMsg_GetCvarValue) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11215,6 +13576,9 @@ func (m *CSVCMsg_GetCvarValue) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11227,6 +13591,9 @@ func (m *CSVCMsg_GetCvarValue) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11256,7 +13623,7 @@ func (m *CSVCMsg_Menu) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11284,7 +13651,7 @@ func (m *CSVCMsg_Menu) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DialogType |= (int32(b) & 0x7F) << shift
+				m.DialogType |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11303,7 +13670,7 @@ func (m *CSVCMsg_Menu) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11312,6 +13679,9 @@ func (m *CSVCMsg_Menu) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11327,6 +13697,9 @@ func (m *CSVCMsg_Menu) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11356,7 +13729,7 @@ func (m *CSVCMsg_UserMessage) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11384,7 +13757,7 @@ func (m *CSVCMsg_UserMessage) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MsgType |= (int32(b) & 0x7F) << shift
+				m.MsgType |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11403,7 +13776,7 @@ func (m *CSVCMsg_UserMessage) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11412,6 +13785,9 @@ func (m *CSVCMsg_UserMessage) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11434,7 +13810,7 @@ func (m *CSVCMsg_UserMessage) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Passthrough |= (int32(b) & 0x7F) << shift
+				m.Passthrough |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11446,6 +13822,9 @@ func (m *CSVCMsg_UserMessage) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11475,7 +13854,7 @@ func (m *CSVCMsg_PaintmapData) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11503,7 +13882,7 @@ func (m *CSVCMsg_PaintmapData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11512,6 +13891,9 @@ func (m *CSVCMsg_PaintmapData) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11527,6 +13909,9 @@ func (m *CSVCMsg_PaintmapData) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11556,7 +13941,7 @@ func (m *CSVCMsg_GameEvent) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11584,7 +13969,7 @@ func (m *CSVCMsg_GameEvent) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11594,6 +13979,9 @@ func (m *CSVCMsg_GameEvent) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11613,7 +14001,7 @@ func (m *CSVCMsg_GameEvent) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Eventid |= (int32(b) & 0x7F) << shift
+				m.Eventid |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11632,7 +14020,7 @@ func (m *CSVCMsg_GameEvent) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11641,6 +14029,9 @@ func (m *CSVCMsg_GameEvent) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11663,7 +14054,7 @@ func (m *CSVCMsg_GameEvent) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Passthrough |= (int32(b) & 0x7F) << shift
+				m.Passthrough |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11675,6 +14066,9 @@ func (m *CSVCMsg_GameEvent) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11704,7 +14098,7 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11732,7 +14126,7 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Type |= (int32(b) & 0x7F) << shift
+				m.Type |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11751,7 +14145,7 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11761,6 +14155,9 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11774,11 +14171,8 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.ValFloat = float32(math.Float32frombits(v))
 		case 4:
 			if wireType != 0 {
@@ -11794,7 +14188,7 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ValLong |= (int32(b) & 0x7F) << shift
+				m.ValLong |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11813,7 +14207,7 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ValShort |= (int32(b) & 0x7F) << shift
+				m.ValShort |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11832,7 +14226,7 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ValByte |= (int32(b) & 0x7F) << shift
+				m.ValByte |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11851,7 +14245,7 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11871,7 +14265,7 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ValUint64 |= (uint64(b) & 0x7F) << shift
+				m.ValUint64 |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11890,7 +14284,7 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11899,6 +14293,9 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11914,6 +14311,9 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11943,7 +14343,7 @@ func (m *CSVCMsg_GameEventList) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11971,7 +14371,7 @@ func (m *CSVCMsg_GameEventList) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11980,6 +14380,9 @@ func (m *CSVCMsg_GameEventList) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11995,6 +14398,9 @@ func (m *CSVCMsg_GameEventList) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12024,7 +14430,7 @@ func (m *CSVCMsg_GameEventListKeyT) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12052,7 +14458,7 @@ func (m *CSVCMsg_GameEventListKeyT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Type |= (int32(b) & 0x7F) << shift
+				m.Type |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12071,7 +14477,7 @@ func (m *CSVCMsg_GameEventListKeyT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12081,6 +14487,9 @@ func (m *CSVCMsg_GameEventListKeyT) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12093,6 +14502,9 @@ func (m *CSVCMsg_GameEventListKeyT) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12122,7 +14534,7 @@ func (m *CSVCMsg_GameEventListDescriptorT) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12150,7 +14562,7 @@ func (m *CSVCMsg_GameEventListDescriptorT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Eventid |= (int32(b) & 0x7F) << shift
+				m.Eventid |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12169,7 +14581,7 @@ func (m *CSVCMsg_GameEventListDescriptorT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12179,6 +14591,9 @@ func (m *CSVCMsg_GameEventListDescriptorT) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12198,7 +14613,7 @@ func (m *CSVCMsg_GameEventListDescriptorT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12207,6 +14622,9 @@ func (m *CSVCMsg_GameEventListDescriptorT) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12222,6 +14640,9 @@ func (m *CSVCMsg_GameEventListDescriptorT) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12251,7 +14672,7 @@ func (m *CSVCMsg_TempEntities) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12279,7 +14700,7 @@ func (m *CSVCMsg_TempEntities) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12299,7 +14720,7 @@ func (m *CSVCMsg_TempEntities) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumEntries |= (int32(b) & 0x7F) << shift
+				m.NumEntries |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12318,7 +14739,7 @@ func (m *CSVCMsg_TempEntities) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12327,6 +14748,9 @@ func (m *CSVCMsg_TempEntities) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12342,6 +14766,9 @@ func (m *CSVCMsg_TempEntities) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12371,7 +14798,7 @@ func (m *CSVCMsg_PacketEntities) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12399,7 +14826,7 @@ func (m *CSVCMsg_PacketEntities) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxEntries |= (int32(b) & 0x7F) << shift
+				m.MaxEntries |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12418,7 +14845,7 @@ func (m *CSVCMsg_PacketEntities) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.UpdatedEntries |= (int32(b) & 0x7F) << shift
+				m.UpdatedEntries |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12437,7 +14864,7 @@ func (m *CSVCMsg_PacketEntities) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12457,7 +14884,7 @@ func (m *CSVCMsg_PacketEntities) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12477,7 +14904,7 @@ func (m *CSVCMsg_PacketEntities) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Baseline |= (int32(b) & 0x7F) << shift
+				m.Baseline |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12496,7 +14923,7 @@ func (m *CSVCMsg_PacketEntities) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DeltaFrom |= (int32(b) & 0x7F) << shift
+				m.DeltaFrom |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12515,7 +14942,7 @@ func (m *CSVCMsg_PacketEntities) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12524,6 +14951,9 @@ func (m *CSVCMsg_PacketEntities) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12539,6 +14969,9 @@ func (m *CSVCMsg_PacketEntities) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12568,7 +15001,7 @@ func (m *CSVCMsg_Sounds) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12596,7 +15029,7 @@ func (m *CSVCMsg_Sounds) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12616,7 +15049,7 @@ func (m *CSVCMsg_Sounds) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12625,6 +15058,9 @@ func (m *CSVCMsg_Sounds) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12640,6 +15076,9 @@ func (m *CSVCMsg_Sounds) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12669,7 +15108,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12697,7 +15136,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12718,7 +15157,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12739,7 +15178,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12760,7 +15199,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Volume |= (uint32(b) & 0x7F) << shift
+				m.Volume |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12773,11 +15212,8 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.DelayValue = float32(math.Float32frombits(v))
 		case 6:
 			if wireType != 0 {
@@ -12793,7 +15229,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SequenceNumber |= (int32(b) & 0x7F) << shift
+				m.SequenceNumber |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12812,7 +15248,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EntityIndex |= (int32(b) & 0x7F) << shift
+				m.EntityIndex |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12831,7 +15267,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Channel |= (int32(b) & 0x7F) << shift
+				m.Channel |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12850,7 +15286,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Pitch |= (int32(b) & 0x7F) << shift
+				m.Pitch |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12869,7 +15305,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Flags |= (int32(b) & 0x7F) << shift
+				m.Flags |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12888,7 +15324,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SoundNum |= (uint32(b) & 0x7F) << shift
+				m.SoundNum |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12901,11 +15337,8 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.SoundNumHandle = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			m.SoundNumHandle = uint32(dAtA[iNdEx-4])
-			m.SoundNumHandle |= uint32(dAtA[iNdEx-3]) << 8
-			m.SoundNumHandle |= uint32(dAtA[iNdEx-2]) << 16
-			m.SoundNumHandle |= uint32(dAtA[iNdEx-1]) << 24
 		case 13:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SpeakerEntity", wireType)
@@ -12920,7 +15353,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SpeakerEntity |= (int32(b) & 0x7F) << shift
+				m.SpeakerEntity |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12939,7 +15372,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.RandomSeed |= (int32(b) & 0x7F) << shift
+				m.RandomSeed |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12958,7 +15391,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SoundLevel |= (int32(b) & 0x7F) << shift
+				m.SoundLevel |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12977,7 +15410,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12997,7 +15430,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13010,6 +15443,9 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13039,7 +15475,7 @@ func (m *CSVCMsg_EntityMsg) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -13067,7 +15503,7 @@ func (m *CSVCMsg_EntityMsg) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EntIndex |= (int32(b) & 0x7F) << shift
+				m.EntIndex |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13086,7 +15522,7 @@ func (m *CSVCMsg_EntityMsg) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ClassId |= (int32(b) & 0x7F) << shift
+				m.ClassId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13105,7 +15541,7 @@ func (m *CSVCMsg_EntityMsg) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13114,6 +15550,9 @@ func (m *CSVCMsg_EntityMsg) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -13129,6 +15568,9 @@ func (m *CSVCMsg_EntityMsg) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13158,7 +15600,7 @@ func (m *CSVCMsg_CmdKeyValues) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -13186,7 +15628,7 @@ func (m *CSVCMsg_CmdKeyValues) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13195,6 +15637,9 @@ func (m *CSVCMsg_CmdKeyValues) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -13210,6 +15655,9 @@ func (m *CSVCMsg_CmdKeyValues) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13239,7 +15687,7 @@ func (m *CSVCMsg_EncryptedData) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -13267,7 +15715,7 @@ func (m *CSVCMsg_EncryptedData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13276,6 +15724,9 @@ func (m *CSVCMsg_EncryptedData) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -13298,7 +15749,7 @@ func (m *CSVCMsg_EncryptedData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.KeyType |= (int32(b) & 0x7F) << shift
+				m.KeyType |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13310,6 +15761,9 @@ func (m *CSVCMsg_EncryptedData) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13339,7 +15793,7 @@ func (m *CSVCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -13367,7 +15821,7 @@ func (m *CSVCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Delay |= (int32(b) & 0x7F) << shift
+				m.Delay |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13386,7 +15840,7 @@ func (m *CSVCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PrimaryTarget |= (int32(b) & 0x7F) << shift
+				m.PrimaryTarget |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13405,7 +15859,7 @@ func (m *CSVCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ReplayStopAt |= (int32(b) & 0x7F) << shift
+				m.ReplayStopAt |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13424,7 +15878,7 @@ func (m *CSVCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ReplayStartAt |= (int32(b) & 0x7F) << shift
+				m.ReplayStartAt |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13443,7 +15897,7 @@ func (m *CSVCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ReplaySlowdownBegin |= (int32(b) & 0x7F) << shift
+				m.ReplaySlowdownBegin |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13462,7 +15916,7 @@ func (m *CSVCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ReplaySlowdownEnd |= (int32(b) & 0x7F) << shift
+				m.ReplaySlowdownEnd |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13475,11 +15929,8 @@ func (m *CSVCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.ReplaySlowdownRate = float32(math.Float32frombits(v))
 		default:
 			iNdEx = preIndex
@@ -13488,6 +15939,9 @@ func (m *CSVCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13517,7 +15971,7 @@ func (m *CCLCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -13545,7 +15999,7 @@ func (m *CCLCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Request |= (int32(b) & 0x7F) << shift
+				m.Request |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13558,11 +16012,8 @@ func (m *CCLCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.SlowdownLength = float32(math.Float32frombits(v))
 		case 3:
 			if wireType != 5 {
@@ -13572,11 +16023,8 @@ func (m *CCLCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.SlowdownRate = float32(math.Float32frombits(v))
 		case 4:
 			if wireType != 0 {
@@ -13592,7 +16040,7 @@ func (m *CCLCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PrimaryTargetEntIndex |= (int32(b) & 0x7F) << shift
+				m.PrimaryTargetEntIndex |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13605,11 +16053,8 @@ func (m *CCLCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.EventTime = float32(math.Float32frombits(v))
 		default:
 			iNdEx = preIndex
@@ -13618,6 +16063,9 @@ func (m *CCLCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13647,7 +16095,7 @@ func (m *CSVCMsg_Broadcast_Command) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -13675,7 +16123,7 @@ func (m *CSVCMsg_Broadcast_Command) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13685,6 +16133,9 @@ func (m *CSVCMsg_Broadcast_Command) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthNetmessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthNetmessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -13697,6 +16148,9 @@ func (m *CSVCMsg_Broadcast_Command) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthNetmessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13765,8 +16219,11 @@ func skipNetmessages(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			iNdEx += length
 			if length < 0 {
+				return 0, ErrInvalidLengthNetmessages
+			}
+			iNdEx += length
+			if iNdEx < 0 {
 				return 0, ErrInvalidLengthNetmessages
 			}
 			return iNdEx, nil
@@ -13797,6 +16254,9 @@ func skipNetmessages(dAtA []byte) (n int, err error) {
 					return 0, err
 				}
 				iNdEx = start + next
+				if iNdEx < 0 {
+					return 0, ErrInvalidLengthNetmessages
+				}
 			}
 			return iNdEx, nil
 		case 4:
@@ -13815,281 +16275,3 @@ var (
 	ErrInvalidLengthNetmessages = fmt.Errorf("proto: negative length found during unmarshaling")
 	ErrIntOverflowNetmessages   = fmt.Errorf("proto: integer overflow")
 )
-
-func init() { proto.RegisterFile("netmessages.proto", fileDescriptorNetmessages) }
-
-var fileDescriptorNetmessages = []byte{
-	// 4344 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x7a, 0xcf, 0x6f, 0x24, 0x49,
-	0x56, 0x7f, 0x57, 0xf9, 0x47, 0x95, 0xa3, 0xca, 0x76, 0x3a, 0xdc, 0x3f, 0x6a, 0x3c, 0xd3, 0xee,
-	0xee, 0xec, 0xef, 0xcc, 0xf4, 0xf4, 0x77, 0xc6, 0x1a, 0x75, 0xcf, 0x0c, 0x4b, 0x8f, 0xf6, 0x60,
-	0x97, 0xcb, 0xdd, 0xd6, 0xda, 0x6e, 0x6f, 0x55, 0xb5, 0x87, 0x19, 0x21, 0x85, 0xc2, 0x99, 0xe1,
-	0x72, 0xca, 0xf9, 0xa3, 0x36, 0x23, 0xaa, 0xec, 0x6a, 0x09, 0xc1, 0x09, 0x6e, 0x88, 0x03, 0x08,
-	0x21, 0x21, 0x01, 0x27, 0x24, 0xc4, 0x19, 0x84, 0x90, 0x38, 0xef, 0x91, 0xbf, 0x60, 0x59, 0xcd,
-	0x9e, 0x90, 0x38, 0x21, 0x10, 0xdc, 0x40, 0xef, 0x45, 0x46, 0x66, 0x64, 0x95, 0x3d, 0x3b, 0x0b,
-	0x5c, 0x2c, 0xd7, 0xe7, 0x7d, 0x22, 0x32, 0xe2, 0xc5, 0x8b, 0xf7, 0x2b, 0x93, 0xac, 0xc5, 0x42,
-	0x45, 0x42, 0x4a, 0x3e, 0x10, 0x72, 0x6b, 0x98, 0x26, 0x2a, 0x71, 0x5f, 0x11, 0xd2, 0x3e, 0x94,
-	0x83, 0x13, 0xe1, 0xa9, 0x24, 0xa5, 0x94, 0x54, 0xae, 0x5a, 0x95, 0x87, 0x95, 0x27, 0xd5, 0x9d,
-	0xf9, 0x9f, 0xfe, 0xec, 0xc1, 0xad, 0x6e, 0xe5, 0x0a, 0xb0, 0x49, 0xab, 0x6a, 0x63, 0x13, 0xc0,
-	0xde, 0xb6, 0xe6, 0x6c, 0xec, 0xad, 0xfb, 0x05, 0x69, 0x16, 0x33, 0x3d, 0xdb, 0xfd, 0xbe, 0x73,
-	0x99, 0x15, 0xfc, 0x78, 0x3b, 0x1e, 0x84, 0xe2, 0x7f, 0xb5, 0x82, 0x6f, 0x48, 0x1d, 0x66, 0xea,
-	0xbe, 0xdc, 0xd9, 0x06, 0x79, 0x8a, 0xf3, 0x2c, 0x18, 0x39, 0xee, 0x6e, 0x80, 0xf3, 0xe4, 0xd8,
-	0x00, 0xb0, 0x53, 0x9c, 0x27, 0xc7, 0x4e, 0x01, 0xe3, 0xad, 0x79, 0x1b, 0xe3, 0xee, 0xdf, 0x56,
-	0x49, 0xb3, 0x7d, 0xd4, 0xe9, 0x1f, 0xca, 0x01, 0xeb, 0x07, 0xde, 0x05, 0x6d, 0x91, 0x79, 0x15,
-	0x78, 0x17, 0xf8, 0x8c, 0xe5, 0x8c, 0x87, 0x08, 0xfd, 0x35, 0x72, 0xfb, 0x3c, 0x91, 0x8a, 0x79,
-	0x49, 0x34, 0x1c, 0x29, 0xae, 0x82, 0x24, 0x56, 0x41, 0x24, 0x70, 0x46, 0xc3, 0x5c, 0x07, 0x46,
-	0xbb, 0x4c, 0xa0, 0x3f, 0x26, 0xee, 0x75, 0x03, 0x99, 0x54, 0x3e, 0xf3, 0xc5, 0x38, 0x40, 0xa4,
-	0xb5, 0x60, 0x4d, 0xf3, 0xe0, 0x9a, 0x69, 0x7a, 0xca, 0xdf, 0x35, 0x64, 0xfa, 0x9a, 0x3c, 0xc2,
-	0x29, 0xcf, 0x52, 0x1e, 0x09, 0xa9, 0x78, 0xaa, 0xae, 0x99, 0x71, 0xd1, 0x9a, 0x71, 0x13, 0xe8,
-	0x7b, 0x25, 0x76, 0x69, 0xc2, 0x4f, 0xc9, 0xda, 0x79, 0xa8, 0xc6, 0x2c, 0x15, 0xc3, 0x90, 0x4f,
-	0xd8, 0x59, 0xc8, 0x07, 0xb2, 0x55, 0xb3, 0x26, 0x58, 0x05, 0x71, 0x17, 0xa5, 0x7b, 0x20, 0x74,
-	0x9f, 0x93, 0x35, 0xa3, 0xb8, 0x9e, 0x4a, 0x83, 0x78, 0xd0, 0x8e, 0x7c, 0xba, 0x49, 0x6a, 0x5e,
-	0x12, 0x45, 0x3c, 0xf6, 0x51, 0x81, 0x4b, 0xd9, 0x60, 0x03, 0xba, 0xff, 0x5c, 0x21, 0xeb, 0xf9,
-	0xa8, 0x60, 0x10, 0x27, 0x71, 0x4f, 0x71, 0x25, 0xe8, 0x87, 0xa4, 0x29, 0xf1, 0x27, 0x93, 0xf0,
-	0xbb, 0xa4, 0xfd, 0x86, 0xb4, 0x88, 0xef, 0x93, 0x86, 0x1c, 0xf2, 0xcb, 0x98, 0x79, 0xc9, 0x28,
-	0x56, 0x78, 0xea, 0x86, 0x47, 0x50, 0xd0, 0x06, 0x9c, 0x3e, 0x23, 0x34, 0x1e, 0x45, 0x4c, 0x8a,
-	0x74, 0x2c, 0x52, 0x06, 0x8b, 0x16, 0xa9, 0x44, 0x7b, 0x30, 0x6c, 0x27, 0x1e, 0x45, 0x3d, 0x14,
-	0x1f, 0x6b, 0x29, 0xfd, 0x84, 0xd0, 0x8c, 0xc8, 0x62, 0xa1, 0x2e, 0x93, 0xf4, 0x22, 0xf0, 0x65,
-	0x6b, 0xfe, 0xe1, 0xdc, 0x93, 0xa5, 0xee, 0x5a, 0x26, 0x39, 0xca, 0x05, 0xf4, 0x01, 0xa9, 0x47,
-	0x7c, 0xc8, 0x62, 0x1e, 0x09, 0x3c, 0xbb, 0x7c, 0xaf, 0x11, 0x1f, 0x1e, 0xf1, 0x48, 0xb8, 0x7f,
-	0x51, 0xd1, 0x37, 0x80, 0xb5, 0x4f, 0x78, 0x2a, 0xe9, 0x07, 0x64, 0xc1, 0x1b, 0xf3, 0x54, 0xb6,
-	0x2a, 0x0f, 0xe7, 0x9e, 0x34, 0x9e, 0x39, 0x5b, 0x85, 0x6c, 0x0b, 0xfe, 0x76, 0xb5, 0x78, 0xe3,
-	0x82, 0xcc, 0xc3, 0x4f, 0x30, 0x44, 0x9c, 0xdb, 0xd6, 0x23, 0x22, 0x74, 0x83, 0x2c, 0x8c, 0x79,
-	0x38, 0x12, 0xb8, 0x7b, 0x23, 0xd2, 0x10, 0xfd, 0x84, 0xac, 0xfa, 0x81, 0x07, 0x47, 0xca, 0xd3,
-	0x89, 0x5e, 0x9c, 0xbd, 0xeb, 0x95, 0x42, 0x88, 0x6b, 0x7c, 0x61, 0x1d, 0xa2, 0x50, 0xed, 0x24,
-	0x86, 0x27, 0xbf, 0x0f, 0x87, 0x18, 0x67, 0x6b, 0xad, 0x3c, 0x69, 0x3c, 0x6b, 0x58, 0x6b, 0xed,
-	0x1a, 0x99, 0xbb, 0x4c, 0x1a, 0x66, 0xec, 0xd1, 0xeb, 0x63, 0x77, 0x8b, 0x50, 0xf3, 0x73, 0x37,
-	0x90, 0x5e, 0x12, 0xc7, 0xc2, 0x53, 0x78, 0x9d, 0xc4, 0x95, 0x2a, 0xef, 0x02, 0x10, 0xf7, 0x2f,
-	0x2b, 0xc5, 0xcd, 0xdb, 0x0b, 0x42, 0x3c, 0x5a, 0x95, 0xf2, 0x58, 0x9e, 0x89, 0x94, 0x05, 0x7e,
-	0xe9, 0x92, 0x13, 0x23, 0xd8, 0xf7, 0xe9, 0x23, 0xb2, 0x74, 0x16, 0x84, 0x42, 0xef, 0xcd, 0xd6,
-	0x40, 0x1d, 0x60, 0xd8, 0x15, 0x7d, 0x4e, 0xd6, 0x03, 0x69, 0x4c, 0xd9, 0x17, 0x51, 0xc2, 0x40,
-	0x84, 0x8a, 0xa8, 0x9b, 0xe3, 0x0f, 0xa4, 0x36, 0xe6, 0x5d, 0x11, 0x25, 0xf8, 0xf8, 0x16, 0x99,
-	0xf7, 0x45, 0x3c, 0xc1, 0xeb, 0x6c, 0x58, 0x88, 0xb8, 0xcf, 0xc9, 0xbd, 0x5c, 0x49, 0xc3, 0x30,
-	0x50, 0x3d, 0x2f, 0x15, 0x22, 0x7e, 0x23, 0x05, 0x1e, 0x92, 0x0c, 0x13, 0x55, 0x5a, 0x2c, 0x22,
-	0xee, 0x09, 0x69, 0x99, 0x41, 0xda, 0xc0, 0xb6, 0xc7, 0x5c, 0xf1, 0x74, 0x97, 0x2b, 0x4e, 0x5d,
-	0xb2, 0xc4, 0x3d, 0x34, 0xe0, 0x6c, 0x9f, 0xe6, 0x78, 0x0a, 0x98, 0xde, 0x25, 0x73, 0xe9, 0xe0,
-	0x14, 0x37, 0xd8, 0xcc, 0xa4, 0x00, 0xb8, 0x7f, 0x5a, 0x25, 0xb4, 0xdd, 0x3e, 0xd0, 0x07, 0x12,
-	0x06, 0x22, 0x56, 0xfb, 0xf1, 0x59, 0x42, 0x9f, 0x92, 0x15, 0x29, 0x62, 0x9f, 0x29, 0x7e, 0x1a,
-	0x0a, 0xe6, 0xa5, 0x1e, 0xce, 0x5b, 0xcb, 0x46, 0x36, 0x41, 0xd6, 0x07, 0x51, 0x3b, 0xf5, 0xf0,
-	0xb2, 0xe9, 0x8b, 0x31, 0x7b, 0x89, 0x1a, 0x5a, 0xa2, 0x6f, 0xd1, 0x7d, 0x52, 0x0b, 0x24, 0x83,
-	0x8b, 0x5f, 0xd2, 0xdd, 0x62, 0x20, 0x5f, 0x85, 0x6a, 0x0c, 0x27, 0x91, 0xab, 0xb9, 0xa4, 0xb6,
-	0xba, 0x51, 0x2e, 0x7d, 0x4c, 0xc8, 0x59, 0x1a, 0x88, 0xd8, 0x97, 0x70, 0xa4, 0xb6, 0x8b, 0x5b,
-	0xca, 0xf0, 0x7d, 0x1f, 0xd6, 0x63, 0x48, 0x78, 0xa8, 0x8b, 0xd6, 0xa1, 0x36, 0x32, 0x09, 0x9e,
-	0xeb, 0x23, 0xd2, 0xf4, 0x46, 0x52, 0x25, 0x11, 0x9e, 0x27, 0xf8, 0xa7, 0xb9, 0x27, 0xb5, 0x6e,
-	0x43, 0x63, 0x70, 0x88, 0xd2, 0xfd, 0x7d, 0xb0, 0xaa, 0x4c, 0x3d, 0x87, 0xc9, 0x58, 0xd0, 0xcf,
-	0xc8, 0x3a, 0x78, 0x82, 0x53, 0xee, 0x5d, 0x8c, 0x86, 0x2c, 0xf3, 0x43, 0xb2, 0xa4, 0xf5, 0xb5,
-	0x78, 0x14, 0xed, 0xa0, 0xbc, 0x9d, 0x89, 0xe9, 0x16, 0x01, 0xff, 0xc0, 0x62, 0x71, 0x59, 0x0c,
-	0xb1, 0xd5, 0xb4, 0x12, 0x8f, 0xa2, 0x23, 0x71, 0x99, 0xf3, 0xc1, 0x78, 0xb8, 0xe2, 0xa8, 0xa6,
-	0x66, 0x6e, 0x3c, 0x5c, 0x71, 0xf7, 0xaf, 0xaa, 0x64, 0xcd, 0x2c, 0xe8, 0x24, 0x09, 0x3c, 0x81,
-	0x16, 0x60, 0xf8, 0x95, 0x69, 0x3e, 0x48, 0xae, 0x46, 0x81, 0x8f, 0x4f, 0x5b, 0x34, 0x12, 0x40,
-	0x68, 0x9b, 0x2c, 0x9e, 0x25, 0x69, 0xc4, 0x15, 0x3e, 0x65, 0xe5, 0x19, 0xdd, 0xca, 0xe7, 0xdb,
-	0x43, 0x9c, 0xa9, 0x17, 0xf7, 0x4e, 0x5e, 0xef, 0xb7, 0x3b, 0xbb, 0xdb, 0xfd, 0x6d, 0xb6, 0xf7,
-	0xba, 0x7b, 0xb8, 0xdd, 0x67, 0x9d, 0xa3, 0x97, 0xfb, 0x47, 0x9d, 0x6e, 0x36, 0x94, 0xfe, 0x7f,
-	0xb0, 0x93, 0x9f, 0x8c, 0x44, 0xec, 0x09, 0x76, 0x3a, 0x51, 0x42, 0x96, 0x02, 0xe2, 0xb2, 0x91,
-	0xed, 0x80, 0x48, 0x93, 0xd1, 0x5f, 0xb0, 0x78, 0x14, 0x9d, 0x8a, 0xb4, 0x74, 0x82, 0xcb, 0x99,
-	0xec, 0x08, 0x45, 0x74, 0x87, 0x6c, 0x8c, 0x62, 0x08, 0x71, 0xa9, 0x90, 0x52, 0xf8, 0x4c, 0xf2,
-	0x68, 0x18, 0x0a, 0x96, 0x9c, 0x9d, 0x49, 0xa1, 0x4a, 0xb1, 0xa8, 0x65, 0xf3, 0x7a, 0x48, 0x7b,
-	0x8d, 0x2c, 0x77, 0x40, 0xd6, 0x8d, 0xae, 0x76, 0xb8, 0x14, 0x61, 0x10, 0x8b, 0x6d, 0xef, 0x82,
-	0x7e, 0x44, 0x96, 0x4f, 0xb3, 0x9f, 0x2c, 0x0f, 0xce, 0x66, 0xcd, 0x4d, 0x23, 0xc2, 0xf0, 0xfd,
-	0x3e, 0x69, 0xe4, 0xd4, 0x38, 0x2d, 0x65, 0x05, 0xc4, 0x08, 0x8e, 0x52, 0xf7, 0x73, 0x72, 0xdb,
-	0x3c, 0xe8, 0x20, 0x90, 0x4a, 0xc4, 0x9d, 0xb1, 0x88, 0x95, 0xa4, 0xf7, 0x09, 0x11, 0xf0, 0x1f,
-	0x8b, 0xb8, 0xbc, 0x40, 0x4f, 0x5d, 0xeb, 0x2e, 0x21, 0x72, 0xc8, 0xe5, 0x85, 0xfb, 0x47, 0x15,
-	0xd2, 0x32, 0xe3, 0xba, 0x42, 0x0e, 0x93, 0xd8, 0x6f, 0x8f, 0x79, 0x7a, 0x82, 0xae, 0xf7, 0x3d,
-	0xb2, 0xe8, 0x25, 0xc9, 0x45, 0x20, 0x4a, 0xcb, 0xcb, 0x30, 0x0c, 0x5c, 0x8a, 0xab, 0x91, 0x64,
-	0x5e, 0xe2, 0x8b, 0xf2, 0xc2, 0xb4, 0xa0, 0x9d, 0xf8, 0x22, 0xf7, 0xfa, 0x73, 0x37, 0x7b, 0xfd,
-	0xf9, 0x19, 0xaf, 0xef, 0xfe, 0xf9, 0x5c, 0xb1, 0x1f, 0xb8, 0x07, 0xed, 0x6e, 0xbb, 0x7d, 0x2e,
-	0xbc, 0x0b, 0xb8, 0xa2, 0xf0, 0x38, 0x36, 0xe4, 0xea, 0xbc, 0xb4, 0xac, 0x3a, 0xc0, 0xc7, 0x5c,
-	0x9d, 0xc3, 0x13, 0x51, 0x6a, 0xbb, 0x52, 0x44, 0x40, 0xed, 0x38, 0x18, 0x2e, 0x5b, 0xbe, 0xa8,
-	0x5c, 0xed, 0x20, 0xda, 0xcb, 0x24, 0xf4, 0x21, 0xa9, 0xe7, 0xac, 0xf9, 0x69, 0x9f, 0x8c, 0x8c,
-	0x8f, 0xc8, 0x32, 0xba, 0xed, 0xb3, 0x94, 0x7b, 0x79, 0xbe, 0x93, 0x4f, 0x06, 0xa2, 0xbd, 0x4c,
-	0x02, 0xae, 0x2f, 0xf2, 0x3f, 0x47, 0x93, 0xc9, 0x5d, 0x5f, 0xe4, 0x7f, 0x0e, 0x38, 0x38, 0x36,
-	0x3b, 0x2b, 0x01, 0x00, 0x7c, 0x1f, 0x4e, 0x7d, 0xce, 0xe5, 0x39, 0x53, 0x93, 0xa1, 0x68, 0xd5,
-	0xa7, 0xe7, 0x7e, 0xc5, 0xe5, 0x79, 0x7f, 0x32, 0x14, 0x10, 0xb5, 0x91, 0x1b, 0x8a, 0xb8, 0xb5,
-	0x64, 0xb1, 0x6a, 0x80, 0x1e, 0x88, 0x98, 0x7e, 0x40, 0x9a, 0x43, 0xee, 0x5d, 0xe0, 0xa6, 0xc1,
-	0x67, 0x11, 0xfb, 0xa0, 0x40, 0x02, 0x7b, 0xde, 0xf7, 0xc1, 0x43, 0x14, 0xbc, 0xec, 0x76, 0x34,
-	0x2c, 0xee, 0x8a, 0xe1, 0xea, 0xeb, 0xe1, 0x7e, 0x49, 0xee, 0xe5, 0x16, 0x97, 0x70, 0x3f, 0x88,
-	0x07, 0xc7, 0x69, 0x32, 0x80, 0x3b, 0x00, 0xca, 0x1b, 0x66, 0xff, 0x97, 0xcf, 0xc8, 0xa0, 0x6e,
-	0x9b, 0x6c, 0x98, 0xc1, 0x18, 0x81, 0x74, 0x44, 0x69, 0x67, 0x31, 0xf6, 0x7b, 0xc6, 0xeb, 0x17,
-	0x85, 0x8d, 0xb4, 0x23, 0xff, 0x47, 0x62, 0x82, 0x66, 0x2b, 0x21, 0x1a, 0x5d, 0x88, 0x09, 0x1a,
-	0x92, 0x2c, 0x39, 0xa4, 0x02, 0x76, 0xff, 0x63, 0x91, 0xd0, 0x76, 0xef, 0x44, 0xaf, 0x00, 0x23,
-	0x04, 0x46, 0x1d, 0xbd, 0x72, 0x95, 0x78, 0x49, 0x38, 0xb3, 0x72, 0x44, 0xaf, 0x8d, 0x35, 0x0b,
-	0xd7, 0xc5, 0x9a, 0x0f, 0x49, 0x33, 0x90, 0xcc, 0x17, 0x7e, 0xe0, 0x71, 0x25, 0xfc, 0x52, 0xc0,
-	0x69, 0x04, 0x72, 0xd7, 0x08, 0xe8, 0x0f, 0x49, 0x2b, 0x90, 0xe0, 0x56, 0x02, 0x2f, 0xe0, 0x21,
-	0x1b, 0xf3, 0x70, 0x2c, 0xb2, 0x44, 0xaf, 0x14, 0x84, 0xee, 0x04, 0xf2, 0x75, 0x46, 0x3a, 0x01,
-	0x8e, 0x5e, 0xb6, 0x1d, 0xd3, 0x16, 0x7e, 0x59, 0x4c, 0x5b, 0xbc, 0x36, 0xa6, 0xdd, 0x23, 0xf3,
-	0x1e, 0x4b, 0x74, 0x76, 0xbc, 0x90, 0xdb, 0xe1, 0x6b, 0x70, 0x1e, 0x90, 0xfb, 0x61, 0xf0, 0xad,
-	0x5b, 0xc1, 0x77, 0x31, 0xe2, 0x43, 0x08, 0xbb, 0x8f, 0x09, 0xf1, 0x30, 0x60, 0x23, 0x63, 0xc9,
-	0x62, 0x2c, 0x69, 0x1c, 0x48, 0x5b, 0xc4, 0x91, 0x98, 0x4d, 0x5b, 0x91, 0x9c, 0x58, 0xd4, 0x15,
-	0x2d, 0xcd, 0x63, 0xf9, 0xfb, 0xa4, 0x11, 0xf1, 0x2b, 0xa6, 0x27, 0x90, 0x25, 0x0b, 0x24, 0x11,
-	0xbf, 0xd2, 0x19, 0x82, 0x2c, 0x68, 0x5c, 0x4a, 0x21, 0x5b, 0xcd, 0x19, 0x1a, 0xe2, 0x40, 0xd3,
-	0x89, 0x2e, 0xc3, 0xac, 0x66, 0xb9, 0x64, 0xfb, 0x28, 0xe8, 0x85, 0x89, 0x82, 0xbb, 0x0c, 0x6e,
-	0x98, 0x05, 0xb1, 0x12, 0xe9, 0x98, 0x87, 0xad, 0x15, 0xab, 0x60, 0x6b, 0x82, 0x68, 0x3f, 0x93,
-	0xc0, 0x7d, 0x1b, 0xf0, 0x48, 0x30, 0x3f, 0x48, 0x5b, 0xab, 0x76, 0x96, 0x0c, 0xe8, 0x6e, 0x90,
-	0x96, 0xd2, 0x68, 0xe7, 0x9a, 0x34, 0x1a, 0x6e, 0x37, 0x10, 0x06, 0x69, 0x32, 0xca, 0x68, 0x6b,
-	0x16, 0xad, 0x19, 0xf1, 0xe1, 0x4b, 0x10, 0x21, 0xf7, 0x01, 0xa9, 0xcb, 0x8b, 0x2c, 0xed, 0xa5,
-	0xf6, 0x64, 0xf2, 0x62, 0x92, 0x65, 0x10, 0x4b, 0x58, 0x37, 0x21, 0x63, 0xdd, 0x76, 0x54, 0x00,
-	0x1b, 0xca, 0x70, 0x74, 0x1a, 0x06, 0x1e, 0x0b, 0x86, 0xad, 0xdb, 0x96, 0xaf, 0xa9, 0x6b, 0x78,
-	0x7f, 0x48, 0xf7, 0xc8, 0x7d, 0x34, 0x12, 0x3f, 0x48, 0x21, 0x04, 0xc2, 0x61, 0x25, 0x6c, 0x98,
-	0x26, 0x57, 0x13, 0x96, 0x0a, 0x30, 0x9c, 0x3b, 0x96, 0xe1, 0xbc, 0x03, 0x86, 0x93, 0x33, 0xfb,
-	0xc9, 0x31, 0xf0, 0xba, 0x40, 0xa3, 0x2e, 0x21, 0xa3, 0x81, 0xc7, 0x60, 0x7b, 0x81, 0xdf, 0xba,
-	0xfb, 0xb0, 0xf2, 0x64, 0xde, 0x3c, 0x6b, 0x34, 0xf0, 0x0e, 0xf9, 0x70, 0xdf, 0x77, 0xff, 0xb3,
-	0x42, 0xd6, 0xcc, 0xcd, 0xc3, 0x63, 0xc2, 0x8b, 0xb7, 0x45, 0x1c, 0x2f, 0x15, 0x5c, 0x09, 0x96,
-	0xc4, 0xd9, 0xe1, 0xe3, 0x05, 0x34, 0x0f, 0x5d, 0xd1, 0xd2, 0xd7, 0xb1, 0x36, 0x00, 0xfa, 0x19,
-	0xa9, 0x99, 0xb3, 0xaf, 0x62, 0xf9, 0xb1, 0xb1, 0x35, 0x33, 0xe9, 0x16, 0x32, 0x98, 0xea, 0x1a,
-	0xea, 0xc6, 0x6f, 0x65, 0xa3, 0x98, 0x02, 0xcd, 0xea, 0x7f, 0xa7, 0x32, 0x73, 0x4d, 0xd8, 0xf7,
-	0xe9, 0xc7, 0x64, 0x15, 0xf2, 0x97, 0xcc, 0x6c, 0x67, 0x92, 0xf3, 0x65, 0x10, 0xa2, 0xd5, 0xa2,
-	0x92, 0xf1, 0x2e, 0xc0, 0x74, 0x33, 0xc1, 0x6e, 0x09, 0x71, 0x2c, 0x4e, 0xfe, 0x7d, 0xae, 0xd8,
-	0x7a, 0xcf, 0x24, 0xb0, 0xf4, 0x5d, 0xb2, 0x18, 0x48, 0x26, 0xb2, 0x0a, 0xd3, 0x6c, 0x78, 0x21,
-	0x90, 0x9d, 0xd8, 0x07, 0x63, 0x89, 0x85, 0xba, 0x69, 0x11, 0xcd, 0x58, 0xa8, 0x62, 0x0d, 0x1f,
-	0x91, 0xe5, 0x58, 0x08, 0x1f, 0x9c, 0x0e, 0xc4, 0xb2, 0xb4, 0xe4, 0x72, 0x9a, 0x28, 0xda, 0xd5,
-	0x12, 0xfa, 0x9c, 0x2c, 0x0c, 0xd3, 0x64, 0xa8, 0xab, 0xc1, 0xc6, 0xb3, 0xfb, 0x5b, 0x33, 0xcb,
-	0xda, 0x82, 0x0c, 0x1b, 0x38, 0x4c, 0x75, 0x35, 0x77, 0xe3, 0x6f, 0xaa, 0x84, 0x14, 0x28, 0x56,
-	0x42, 0x10, 0x9b, 0x4a, 0xa5, 0x82, 0xca, 0x62, 0xd2, 0x98, 0xa7, 0xb3, 0xcb, 0xad, 0x8d, 0x79,
-	0x7a, 0x94, 0x85, 0x7e, 0x5d, 0x90, 0xdb, 0x01, 0x58, 0x43, 0xda, 0x05, 0x07, 0x49, 0x1a, 0xa8,
-	0x49, 0x29, 0x95, 0xcb, 0x51, 0x70, 0x4b, 0xbe, 0x9a, 0xad, 0x53, 0x17, 0x7d, 0x6d, 0xef, 0x1f,
-	0x92, 0x26, 0xa4, 0xba, 0x22, 0x14, 0x11, 0xba, 0x90, 0x45, 0xdb, 0x43, 0xc7, 0xa3, 0xa8, 0x93,
-	0x09, 0xe0, 0x62, 0x84, 0xc9, 0x25, 0xd3, 0x49, 0x48, 0xcd, 0xba, 0xf1, 0xf5, 0x30, 0xb9, 0xd4,
-	0x29, 0xd0, 0x63, 0x42, 0xce, 0x83, 0xc1, 0x79, 0xc6, 0xa9, 0x5b, 0x9c, 0x25, 0xc0, 0x35, 0xe9,
-	0x01, 0xa9, 0x63, 0x46, 0x1e, 0x28, 0x59, 0x0e, 0xc1, 0x90, 0x86, 0x07, 0x4a, 0xba, 0x1f, 0x91,
-	0x65, 0xa3, 0xdf, 0xe3, 0x34, 0x88, 0xbf, 0xab, 0x88, 0xfc, 0x94, 0x38, 0xc5, 0x51, 0xa8, 0x63,
-	0x3e, 0x92, 0x98, 0x87, 0x0d, 0xe1, 0x9f, 0xb2, 0x81, 0x64, 0x98, 0xfb, 0x82, 0xac, 0x5a, 0x23,
-	0x4e, 0x02, 0x71, 0x09, 0x1a, 0x10, 0xb1, 0x0a, 0xd4, 0x84, 0x05, 0xb1, 0x2f, 0xae, 0x4a, 0x27,
-	0xd4, 0xd0, 0x92, 0x7d, 0x10, 0xb8, 0x3f, 0xab, 0x92, 0x77, 0xf2, 0x6b, 0x83, 0x17, 0xac, 0x57,
-	0x78, 0xe3, 0xef, 0x28, 0xd8, 0x33, 0xef, 0x2b, 0x62, 0x95, 0x06, 0x42, 0x96, 0x73, 0xbf, 0x88,
-	0x5f, 0x75, 0x34, 0x0e, 0x34, 0x3c, 0x89, 0x8c, 0x66, 0x1f, 0x36, 0x81, 0x83, 0xc8, 0x68, 0x9f,
-	0x93, 0xdb, 0x23, 0x29, 0x52, 0x86, 0xd7, 0xed, 0x2c, 0xb8, 0x82, 0x5c, 0x3b, 0x78, 0x2b, 0x4a,
-	0xc1, 0x6f, 0x0d, 0x18, 0x58, 0x19, 0x80, 0xbc, 0x17, 0xbc, 0x45, 0x3f, 0x5a, 0x0c, 0xc3, 0x01,
-	0xa5, 0x0c, 0xcc, 0x0c, 0x40, 0xee, 0x73, 0xb2, 0x5e, 0xe6, 0xea, 0xd3, 0xb2, 0x4d, 0xc3, 0xb1,
-	0x07, 0xc0, 0xb1, 0x15, 0x56, 0x5a, 0x9b, 0xb5, 0x52, 0xcc, 0x7e, 0x31, 0xac, 0x61, 0xd9, 0x53,
-	0xb7, 0xb2, 0x0c, 0xa2, 0x05, 0x30, 0x95, 0xfb, 0x27, 0x95, 0x42, 0xc1, 0x6f, 0x86, 0xfe, 0x94,
-	0x82, 0x1f, 0x90, 0xba, 0xbe, 0xd8, 0xd3, 0x3e, 0x08, 0xd1, 0x7d, 0xdf, 0xd4, 0x7a, 0xde, 0x39,
-	0x8f, 0x07, 0xc2, 0xbf, 0x56, 0xdf, 0x50, 0xeb, 0xb5, 0xb5, 0xdc, 0x52, 0xbb, 0xbd, 0xb6, 0xb9,
-	0x1b, 0xd6, 0x16, 0x16, 0xce, 0x08, 0xeb, 0xae, 0xfd, 0x38, 0x50, 0x74, 0x93, 0xd4, 0x7e, 0x32,
-	0xe2, 0x21, 0x5c, 0xbe, 0xd2, 0x8a, 0x32, 0x10, 0x74, 0x02, 0x1e, 0xc4, 0x2b, 0xb7, 0x6a, 0x10,
-	0xa2, 0xef, 0x92, 0xda, 0x58, 0xa4, 0x12, 0x72, 0x61, 0x3c, 0xea, 0x17, 0x95, 0x4f, 0xbb, 0x06,
-	0x71, 0xff, 0x61, 0x6e, 0xea, 0x71, 0x58, 0x36, 0x42, 0x89, 0x51, 0x38, 0xfb, 0xa2, 0xc4, 0xd0,
-	0x4e, 0xde, 0x25, 0x4b, 0x10, 0x84, 0x82, 0x08, 0x96, 0x53, 0xb5, 0xac, 0xa1, 0x80, 0xf3, 0xf2,
-	0x72, 0x6e, 0xa6, 0xbc, 0xfc, 0x90, 0x34, 0xf9, 0xc8, 0x0f, 0x40, 0xbf, 0x58, 0xfc, 0xd8, 0xce,
-	0xa4, 0x91, 0x49, 0xa0, 0x08, 0x82, 0x4b, 0x3e, 0x86, 0x15, 0x69, 0x75, 0x2d, 0xd8, 0x09, 0xe3,
-	0xb8, 0xb4, 0x52, 0x2e, 0x95, 0x48, 0x4b, 0x49, 0x54, 0x86, 0x59, 0xa5, 0x6c, 0xed, 0xff, 0xb2,
-	0x94, 0xad, 0xff, 0x2a, 0xa5, 0xec, 0xd2, 0xff, 0xb4, 0x94, 0x25, 0xdf, 0xab, 0x94, 0xfd, 0xaa,
-	0xf0, 0x4c, 0x7b, 0xc1, 0x95, 0x6e, 0x82, 0x3f, 0x24, 0x75, 0xc8, 0x0f, 0x54, 0x30, 0x16, 0x25,
-	0xdf, 0x94, 0xa3, 0xf4, 0x11, 0x59, 0xe0, 0x40, 0xc5, 0xe3, 0x33, 0x89, 0xbc, 0x6e, 0xa1, 0x77,
-	0xb5, 0xc4, 0xfd, 0x92, 0xdc, 0x2d, 0x7c, 0x50, 0x22, 0xe5, 0x39, 0x0f, 0x52, 0x3d, 0x7d, 0x3e,
-	0xb8, 0x72, 0xe3, 0xe0, 0x5f, 0x2f, 0x56, 0x75, 0x9c, 0x8a, 0x33, 0xa1, 0xbc, 0x73, 0xb4, 0xff,
-	0x64, 0x14, 0xfb, 0xd7, 0x78, 0x3f, 0x82, 0x02, 0xed, 0xfc, 0x7e, 0x5e, 0x29, 0xc6, 0xee, 0xf4,
-	0x8e, 0x77, 0x85, 0xc7, 0x43, 0x7a, 0x9f, 0xcc, 0x0d, 0x93, 0x72, 0xd9, 0xa1, 0x5f, 0x14, 0x74,
-	0x01, 0x87, 0x0b, 0xe9, 0x03, 0x8f, 0x81, 0xb3, 0x1e, 0xa5, 0x22, 0x7b, 0x44, 0xe9, 0x42, 0x22,
-	0xa1, 0xaf, 0xe5, 0xf8, 0xa4, 0x19, 0x7f, 0x3c, 0x77, 0x83, 0x3f, 0x46, 0xbf, 0x9a, 0xf8, 0x22,
-	0xcc, 0x78, 0xf3, 0x25, 0xbf, 0x0a, 0x82, 0x7c, 0x3e, 0x08, 0x5c, 0x79, 0x98, 0xb4, 0xf3, 0xfe,
-	0x46, 0x98, 0x5c, 0x1e, 0x67, 0x02, 0xf7, 0xcf, 0x2a, 0x64, 0x3d, 0x0f, 0x0e, 0x45, 0xa7, 0x8f,
-	0x76, 0xac, 0xd0, 0xbd, 0xf2, 0xac, 0xb5, 0xd5, 0xb1, 0x84, 0x87, 0xfa, 0xbd, 0x0b, 0x14, 0x97,
-	0x2f, 0xee, 0x1d, 0xf6, 0x5e, 0xb2, 0xde, 0xf1, 0xc1, 0x7e, 0xbf, 0xd7, 0xee, 0x76, 0x3a, 0x47,
-	0x6c, 0x7b, 0x77, 0xf7, 0x4d, 0xaf, 0xd3, 0xcd, 0xe2, 0xbc, 0x69, 0x16, 0x56, 0xa7, 0x9b, 0x85,
-	0xb0, 0xc2, 0x2c, 0xef, 0xbe, 0x66, 0xc7, 0x5a, 0xa2, 0x0f, 0xe1, 0x2b, 0x72, 0xdb, 0x2c, 0xf0,
-	0xa5, 0x50, 0xdf, 0xb7, 0xf7, 0xf0, 0x88, 0x2c, 0x79, 0xd7, 0x66, 0x18, 0x75, 0x2f, 0x4b, 0x31,
-	0x5c, 0x8f, 0x34, 0xcd, 0xc4, 0x87, 0x22, 0x1e, 0x81, 0x6a, 0xfd, 0x80, 0x87, 0xc9, 0x80, 0xcd,
-	0x24, 0x2d, 0x44, 0x0b, 0xb0, 0x9c, 0xfe, 0x98, 0xac, 0x46, 0x22, 0x1e, 0xb1, 0x0b, 0x31, 0x61,
-	0x59, 0x05, 0x69, 0x77, 0x2c, 0x97, 0x41, 0x98, 0x57, 0x9a, 0xee, 0x6f, 0x17, 0xea, 0x7d, 0x23,
-	0x45, 0x9a, 0xa9, 0x0e, 0x4b, 0x00, 0x79, 0xcd, 0x83, 0x6a, 0x91, 0x1c, 0x98, 0xa2, 0x1d, 0x08,
-	0xe8, 0x6f, 0xec, 0xe9, 0x81, 0x80, 0xde, 0xe6, 0x03, 0xd2, 0x18, 0x72, 0x29, 0xd5, 0x79, 0x9a,
-	0x8c, 0x06, 0xe7, 0x53, 0xea, 0x2b, 0x04, 0xee, 0x0f, 0x0a, 0xf5, 0x1d, 0xf3, 0x20, 0x56, 0x11,
-	0x1f, 0xe2, 0x78, 0x48, 0xa2, 0xb2, 0xdf, 0xa5, 0x0a, 0x38, 0x47, 0xdd, 0x7f, 0xb1, 0xfc, 0xf1,
-	0x4b, 0x1e, 0x09, 0xec, 0x17, 0x81, 0x2b, 0xd4, 0xed, 0xa2, 0x99, 0xc0, 0xaf, 0x9b, 0x46, 0x98,
-	0x60, 0x6d, 0x92, 0x1a, 0xfe, 0xc8, 0x9a, 0x7a, 0xf9, 0xee, 0x32, 0x90, 0x7e, 0x4c, 0xe6, 0x2f,
-	0xc4, 0x04, 0xe2, 0x3d, 0xe4, 0x96, 0xad, 0xad, 0x99, 0xc7, 0x6c, 0x81, 0x76, 0x55, 0x17, 0x59,
-	0xd3, 0x5b, 0x9d, 0xbf, 0x61, 0xab, 0x1b, 0x7f, 0x5f, 0x25, 0x0b, 0x38, 0xee, 0x3b, 0x12, 0x4f,
-	0xf0, 0xe4, 0x3c, 0x64, 0x3a, 0xc8, 0x95, 0x0c, 0x63, 0x69, 0xcc, 0x43, 0x1d, 0x7a, 0xc1, 0x78,
-	0x80, 0x74, 0x16, 0x26, 0x59, 0xe7, 0x31, 0x4f, 0xfb, 0xc6, 0x3c, 0xdc, 0x03, 0x54, 0x27, 0xb0,
-	0x21, 0x0b, 0x93, 0x78, 0x50, 0x5a, 0x50, 0x6d, 0xcc, 0xc3, 0x83, 0xa4, 0x98, 0x43, 0x9e, 0x27,
-	0xa9, 0x2a, 0xa5, 0x1d, 0x30, 0xae, 0x07, 0xa8, 0x99, 0x03, 0x1c, 0x79, 0x29, 0xcf, 0x80, 0x39,
-	0xc0, 0x85, 0xe7, 0x84, 0x24, 0x09, 0x31, 0x6a, 0xd4, 0x6d, 0x42, 0x92, 0x84, 0x66, 0x37, 0xa3,
-	0x20, 0x56, 0x5f, 0x7c, 0x86, 0xb1, 0x60, 0xde, 0xda, 0xcd, 0x1b, 0x84, 0xc1, 0xae, 0x81, 0x74,
-	0x99, 0xed, 0x79, 0xc9, 0x0e, 0xf6, 0x63, 0x1e, 0x7e, 0xa5, 0x71, 0xf7, 0x8f, 0xab, 0xe4, 0xce,
-	0xcc, 0x39, 0x1c, 0x04, 0x52, 0xd1, 0x0e, 0x69, 0xf8, 0x42, 0x7a, 0x69, 0x30, 0x54, 0x49, 0xfe,
-	0x32, 0xe7, 0xf1, 0xd6, 0xb5, 0xe4, 0xad, 0x82, 0xc9, 0x54, 0xd7, 0x1e, 0xb7, 0xf1, 0xe5, 0x2f,
-	0x3f, 0x1d, 0x93, 0x4f, 0x56, 0xa7, 0xf3, 0xc9, 0x8d, 0xb7, 0xa4, 0x69, 0xcf, 0x6c, 0x5b, 0x58,
-	0xe5, 0x3a, 0x0b, 0xbb, 0x71, 0x26, 0xfa, 0x69, 0xc9, 0xf6, 0xde, 0xbb, 0x61, 0x1b, 0x96, 0xfd,
-	0xb9, 0xbf, 0x5b, 0x29, 0xee, 0x50, 0x5f, 0x44, 0xc3, 0x0e, 0xf8, 0x63, 0x48, 0xa3, 0x74, 0x70,
-	0x0b, 0x20, 0x15, 0x9b, 0x09, 0x6e, 0x88, 0x4e, 0xe7, 0xb7, 0xd5, 0x1b, 0xf2, 0xdb, 0xf7, 0x49,
-	0xe6, 0xe4, 0xaf, 0xc9, 0xc7, 0xb4, 0x00, 0xf3, 0xb1, 0xbf, 0xae, 0x16, 0x81, 0xf0, 0x98, 0x7b,
-	0x17, 0x42, 0xe5, 0x4b, 0x99, 0xca, 0xb7, 0x2b, 0x37, 0xe4, 0xdb, 0x9f, 0x90, 0xd5, 0x11, 0x26,
-	0x99, 0xd7, 0xa7, 0x8a, 0x2b, 0x99, 0xd0, 0xd0, 0x1f, 0x90, 0x3a, 0x76, 0xa8, 0xc2, 0x6c, 0x51,
-	0xb9, 0x01, 0x06, 0x72, 0x17, 0xc0, 0x62, 0x3e, 0x66, 0x3a, 0xcd, 0xa5, 0x9c, 0x3c, 0x9b, 0xcf,
-	0x34, 0xb6, 0x41, 0x61, 0x39, 0xaf, 0x74, 0x27, 0x0c, 0x0a, 0x16, 0x8d, 0x8f, 0x63, 0x67, 0x69,
-	0x12, 0x95, 0x6e, 0xc5, 0x12, 0xe2, 0x7b, 0x69, 0x12, 0x4d, 0xab, 0xab, 0x76, 0x83, 0xba, 0xfe,
-	0x6d, 0x81, 0xac, 0xe4, 0xb1, 0x0d, 0xa2, 0x3a, 0xe6, 0x44, 0xe6, 0x6c, 0x18, 0x06, 0xfa, 0xd2,
-	0xb9, 0x2d, 0x1b, 0x19, 0xb2, 0xe9, 0x73, 0xb2, 0x88, 0x1c, 0xd3, 0x40, 0x78, 0x77, 0xab, 0x3c,
-	0xdb, 0x16, 0x4a, 0x75, 0x0b, 0xa0, 0x9b, 0x51, 0x37, 0xfe, 0x6b, 0x3e, 0xcb, 0x2d, 0x34, 0x0e,
-	0x2a, 0x4c, 0xd2, 0x60, 0x10, 0xc4, 0x4c, 0xe7, 0x19, 0x6b, 0x46, 0x85, 0x1a, 0xfd, 0x0d, 0x8b,
-	0xa0, 0x33, 0xd8, 0x29, 0xc2, 0xd7, 0x16, 0x41, 0x7f, 0x26, 0x30, 0x45, 0xf8, 0x06, 0x22, 0xe1,
-	0x38, 0x09, 0x47, 0x53, 0xef, 0xe5, 0x33, 0x0c, 0xc3, 0x9a, 0x08, 0x79, 0x16, 0xac, 0x50, 0xed,
-	0xd5, 0x3c, 0xac, 0x81, 0xe0, 0xc4, 0xbc, 0x45, 0xcd, 0x53, 0xcb, 0x2c, 0x5d, 0xb4, 0xb5, 0x9f,
-	0xe7, 0x9d, 0x59, 0xbe, 0x38, 0x9d, 0xb0, 0xd4, 0x6e, 0x4a, 0x58, 0x36, 0x49, 0x0d, 0x8a, 0x93,
-	0x58, 0x84, 0xa5, 0x5c, 0xd5, 0x80, 0x50, 0x2e, 0x0c, 0x03, 0xe5, 0x9d, 0x97, 0xea, 0x62, 0x0d,
-	0x15, 0xe5, 0x15, 0x99, 0x2d, 0xaf, 0x1e, 0x91, 0x25, 0x9d, 0xc2, 0xc5, 0xa3, 0x08, 0x7b, 0x80,
-	0x79, 0xcf, 0x0a, 0xe1, 0xa3, 0x51, 0x84, 0x8d, 0x45, 0x43, 0x61, 0xe7, 0x3c, 0xf6, 0x43, 0x81,
-	0x6d, 0xc0, 0xa2, 0xb1, 0x98, 0x31, 0x5f, 0xa1, 0x0c, 0x13, 0xe6, 0xa1, 0xe0, 0x17, 0x22, 0x65,
-	0x7a, 0x07, 0xa5, 0x6e, 0xe0, 0x72, 0x26, 0xc3, 0x2b, 0x37, 0x01, 0xb5, 0xa6, 0x3c, 0xf6, 0x93,
-	0x88, 0x49, 0x21, 0x7c, 0x6c, 0x07, 0xe6, 0x17, 0x4e, 0x0b, 0x7a, 0x42, 0xf8, 0x45, 0xa6, 0x19,
-	0x8a, 0xb1, 0x08, 0xb1, 0x1f, 0x58, 0xce, 0x34, 0x0f, 0x00, 0x07, 0x5a, 0x20, 0x99, 0x14, 0xb1,
-	0x02, 0x1d, 0x63, 0x57, 0xd0, 0x18, 0x25, 0x09, 0x64, 0x2f, 0xc3, 0xe1, 0x76, 0x04, 0x92, 0xf1,
-	0xe8, 0x14, 0x0b, 0xa2, 0x35, 0xbb, 0xde, 0x09, 0xe4, 0xb6, 0x86, 0xdd, 0xab, 0x22, 0x6c, 0xeb,
-	0xb5, 0x1e, 0x4a, 0x0c, 0x47, 0x10, 0xb4, 0x67, 0xf3, 0xdd, 0x3a, 0xbe, 0x4e, 0x85, 0x93, 0xb2,
-	0xfb, 0x5d, 0xd5, 0xeb, 0xfa, 0x5d, 0x0f, 0x08, 0x90, 0x67, 0x5d, 0x54, 0x4d, 0xc4, 0x0a, 0x2f,
-	0xdc, 0x8b, 0xc2, 0x4f, 0xfe, 0xca, 0xed, 0xf6, 0xdf, 0x2c, 0xa2, 0x4f, 0x27, 0xf6, 0xd2, 0xc9,
-	0x50, 0x09, 0xdf, 0xbc, 0x39, 0x16, 0x06, 0x28, 0x0f, 0xce, 0x61, 0x58, 0x19, 0x3a, 0x6c, 0x88,
-	0x2a, 0xa5, 0xa5, 0x5f, 0x88, 0x09, 0xa4, 0x53, 0xee, 0x3f, 0x55, 0x8b, 0x66, 0xfe, 0xab, 0xfc,
-	0xab, 0x0e, 0x30, 0x30, 0xbc, 0x02, 0x25, 0x8d, 0x68, 0x08, 0xac, 0x61, 0x98, 0x06, 0x11, 0x4f,
-	0x27, 0x4c, 0xf1, 0x74, 0x20, 0xca, 0x49, 0xec, 0x72, 0x26, 0xeb, 0xa3, 0x88, 0x3e, 0x05, 0xbf,
-	0x82, 0xef, 0xde, 0xa5, 0x4a, 0x86, 0x2c, 0x4b, 0x1b, 0xf2, 0x4e, 0x83, 0x96, 0xf5, 0x54, 0x32,
-	0xdc, 0x56, 0x90, 0x40, 0xe6, 0x5c, 0x9e, 0x2a, 0x20, 0x97, 0x5e, 0x48, 0x1a, 0x32, 0x4f, 0xd5,
-	0xb6, 0xa2, 0x3f, 0x20, 0x77, 0x0c, 0x3b, 0x4c, 0x2e, 0xfd, 0xe4, 0x32, 0x66, 0xa7, 0x62, 0x10,
-	0x94, 0x5f, 0x26, 0xad, 0x67, 0x63, 0x32, 0xc6, 0x0e, 0x10, 0xa0, 0x12, 0x99, 0x1e, 0x29, 0x62,
-	0xbf, 0x74, 0xab, 0xd7, 0xca, 0xe3, 0x3a, 0xb1, 0x4f, 0xbf, 0x20, 0xb7, 0xa7, 0x47, 0xa5, 0x5c,
-	0x95, 0xbb, 0x5f, 0xb4, 0x3c, 0xac, 0xcb, 0x95, 0x70, 0xff, 0xb5, 0x52, 0xbc, 0xa4, 0xb7, 0x34,
-	0xbc, 0x49, 0x6a, 0x29, 0x78, 0x0e, 0x59, 0xae, 0xdf, 0x0d, 0x88, 0x6e, 0xc7, 0x3c, 0x27, 0x14,
-	0xf1, 0x20, 0x7b, 0x2b, 0x57, 0xcd, 0xaf, 0x68, 0x26, 0x3c, 0x40, 0x19, 0xfd, 0x88, 0x2c, 0x97,
-	0x97, 0x65, 0x67, 0x67, 0x4d, 0x69, 0x2d, 0x88, 0xfe, 0x90, 0xb4, 0xca, 0xe7, 0xc7, 0x8a, 0x0b,
-	0x60, 0xeb, 0xfb, 0x4e, 0xe9, 0x24, 0x3b, 0xe6, 0x36, 0xe4, 0x79, 0x2e, 0x7e, 0xf0, 0x64, 0x7b,
-	0x4d, 0x9d, 0xe7, 0xf6, 0x83, 0x48, 0xb8, 0xcf, 0x8b, 0xde, 0xcd, 0x4e, 0x9a, 0x70, 0x1f, 0x6a,
-	0x7d, 0x96, 0xbd, 0x21, 0xc7, 0x77, 0x77, 0x51, 0xf9, 0xa3, 0x20, 0x00, 0x9e, 0xfe, 0x5d, 0x85,
-	0x34, 0x8f, 0x3a, 0x7d, 0x96, 0xd5, 0x02, 0x92, 0x36, 0x48, 0x2d, 0x16, 0x8a, 0x1d, 0xbd, 0x3e,
-	0x76, 0x6e, 0x51, 0xaa, 0xdb, 0xb9, 0xc5, 0xf7, 0x24, 0x4e, 0x85, 0x36, 0x49, 0x1d, 0xb0, 0xbd,
-	0x20, 0x14, 0x4e, 0x95, 0xde, 0x23, 0xeb, 0xf0, 0x6b, 0xea, 0xbb, 0x0c, 0x67, 0xce, 0xd0, 0xfa,
-	0x81, 0x77, 0xe1, 0xcc, 0xd3, 0x35, 0xb2, 0x8c, 0x34, 0xf3, 0xa1, 0x92, 0xb3, 0x90, 0x43, 0xe6,
-	0xb3, 0x17, 0x67, 0x91, 0xae, 0x93, 0x55, 0x84, 0x8a, 0xef, 0x8d, 0x9c, 0x1a, 0x6d, 0x91, 0xdb,
-	0x00, 0x4e, 0x7f, 0xc4, 0xe1, 0xf8, 0x4f, 0xff, 0xb0, 0x4a, 0x9a, 0xed, 0x83, 0x76, 0xb1, 0x76,
-	0x4a, 0x56, 0xbc, 0xd0, 0xb3, 0x3e, 0xcb, 0x70, 0xea, 0xb0, 0x0e, 0xc0, 0x0e, 0x93, 0xb1, 0x70,
-	0x96, 0xe0, 0xa1, 0xf0, 0x2b, 0xef, 0x76, 0x38, 0x04, 0x1e, 0x0a, 0x90, 0xf5, 0xbe, 0xdb, 0x69,
-	0xd0, 0xdb, 0xc4, 0x01, 0xd0, 0x7e, 0x37, 0xed, 0x34, 0x61, 0x29, 0x80, 0x4e, 0xbf, 0x79, 0x76,
-	0x96, 0x0d, 0xdf, 0x7e, 0xf7, 0xeb, 0xac, 0x80, 0x72, 0x70, 0x96, 0xf2, 0xfb, 0x46, 0x67, 0x95,
-	0x6e, 0x90, 0xbb, 0x20, 0x98, 0x7d, 0x97, 0xe8, 0x38, 0xf4, 0x0e, 0x59, 0x2b, 0x36, 0x91, 0x6d,
-	0xcd, 0x59, 0x33, 0x4f, 0xb0, 0x5d, 0x99, 0x43, 0xcd, 0x8e, 0x0b, 0x1b, 0x77, 0x6e, 0x3f, 0x3d,
-	0x20, 0x6b, 0x33, 0xdd, 0x1c, 0x78, 0xe2, 0x4c, 0x3f, 0xa7, 0xd7, 0xef, 0x6c, 0x1f, 0x3a, 0xb7,
-	0xe8, 0xbb, 0xe4, 0xa6, 0x5e, 0x8f, 0x53, 0x79, 0x3a, 0x21, 0xf7, 0x6e, 0x28, 0xb7, 0x61, 0xdc,
-	0x0d, 0x05, 0xb7, 0x73, 0x8b, 0x6e, 0x92, 0x8d, 0x69, 0x61, 0xb7, 0x73, 0xf8, 0xfa, 0xa4, 0x83,
-	0xf2, 0x0a, 0xbd, 0x4f, 0xde, 0x99, 0x96, 0xf7, 0xbf, 0x3e, 0xee, 0xb0, 0x9d, 0xfd, 0x7e, 0xcf,
-	0xa9, 0x6c, 0x54, 0x9d, 0xca, 0xd3, 0x5f, 0xcc, 0x93, 0x66, 0xef, 0xa4, 0x7c, 0xbe, 0x72, 0xec,
-	0x59, 0x2f, 0x40, 0x9d, 0x3a, 0x9c, 0xa8, 0xc6, 0xb2, 0x17, 0x01, 0xfa, 0x90, 0x01, 0xca, 0x5f,
-	0xac, 0x38, 0x84, 0x3a, 0xa4, 0xa9, 0x59, 0xba, 0x47, 0xed, 0x34, 0xe8, 0x3b, 0xe4, 0x0e, 0x92,
-	0xa6, 0xdb, 0xc8, 0x4e, 0xd3, 0x88, 0x66, 0x1a, 0xa0, 0xce, 0xb2, 0x99, 0x3a, 0x6f, 0x40, 0x3a,
-	0x2b, 0x25, 0x08, 0x4d, 0x6a, 0x95, 0x2e, 0x93, 0x25, 0x80, 0xb0, 0x79, 0xee, 0x38, 0x74, 0x85,
-	0x10, 0x7c, 0x38, 0xe6, 0x64, 0xce, 0x1a, 0x5d, 0x25, 0x8d, 0x6c, 0x31, 0x27, 0x81, 0xb8, 0x74,
-	0xa8, 0x59, 0x9d, 0xe9, 0x53, 0x39, 0xeb, 0xf4, 0x2e, 0xa1, 0x7a, 0x75, 0x76, 0x83, 0xc9, 0xb9,
-	0x6d, 0x98, 0xa6, 0xff, 0xe3, 0xdc, 0x01, 0xf3, 0xc5, 0xc9, 0x8a, 0x23, 0x72, 0xee, 0x1a, 0xd0,
-	0x2a, 0xf2, 0x9d, 0x7b, 0x60, 0x58, 0x00, 0x66, 0x61, 0x38, 0x83, 0x5b, 0x66, 0xfd, 0x79, 0xc5,
-	0xe1, 0xbc, 0x63, 0x9e, 0x5e, 0xce, 0xea, 0x9d, 0x0d, 0xb0, 0x41, 0xc0, 0xed, 0xb2, 0xc3, 0x79,
-	0xd7, 0xac, 0xc9, 0xf4, 0xb3, 0x9c, 0xf7, 0xe0, 0xce, 0x01, 0x72, 0x28, 0xe2, 0x91, 0x73, 0xdf,
-	0x3c, 0xb7, 0x54, 0xd2, 0x38, 0x9b, 0x66, 0x32, 0xbb, 0x8d, 0xe2, 0x3c, 0x30, 0xa8, 0xdd, 0x1d,
-	0x70, 0x1e, 0x19, 0xb4, 0x64, 0xfc, 0x6e, 0xb1, 0x21, 0x2b, 0x42, 0x3b, 0x8f, 0x8d, 0x95, 0x58,
-	0x77, 0xe2, 0xff, 0x99, 0x23, 0x9d, 0xf1, 0x8b, 0xce, 0x07, 0x4f, 0x7f, 0xaf, 0x42, 0xd6, 0x34,
-	0x0f, 0x57, 0x07, 0x96, 0xcd, 0x14, 0x5c, 0xdd, 0x6e, 0xe7, 0xf8, 0x60, 0xfb, 0x6b, 0xd6, 0x39,
-	0xe9, 0x1c, 0xf5, 0x59, 0x7b, 0xfb, 0xa8, 0xdd, 0x39, 0x70, 0x6e, 0x81, 0x6e, 0x4a, 0x82, 0xdd,
-	0xce, 0x76, 0xff, 0x95, 0x53, 0x01, 0xdf, 0x50, 0xc2, 0x5f, 0x76, 0x8e, 0x3a, 0xdd, 0xfd, 0xb6,
-	0x53, 0xa5, 0x1f, 0x92, 0xc7, 0x25, 0x49, 0xaf, 0xff, 0xa6, 0xfd, 0x23, 0x76, 0xd4, 0xe9, 0xec,
-	0xb2, 0xbd, 0x37, 0x07, 0x07, 0xec, 0xcd, 0xf1, 0xee, 0x76, 0xbf, 0xe3, 0xcc, 0xed, 0xb4, 0x7e,
-	0xfa, 0xed, 0x66, 0xe5, 0x1f, 0xbf, 0xdd, 0xac, 0xfc, 0xfc, 0xdb, 0xcd, 0xca, 0x1f, 0xfc, 0x62,
-	0xf3, 0xd6, 0x37, 0x73, 0x91, 0x1c, 0xfc, 0x4e, 0xe5, 0xd6, 0x7f, 0x07, 0x00, 0x00, 0xff, 0xff,
-	0xfa, 0xce, 0x4d, 0x21, 0x61, 0x2c, 0x00, 0x00,
-}

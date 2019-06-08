@@ -192,12 +192,12 @@ Should you need to re-generate the protobuf generated code in the `msg` package,
 
 		go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
 
-[//]: # "The go get above needs two tabs so it's displayed as a) as part of the last list entry and b) as a code-block"
+[//]: # "The go get above needs two tabs so it's displayed a) as part of the last list entry and b) as a code-block"
 [//]: # "Oh and don't try to move these comments above it either"
 
 Make sure both are inside your `PATH` variable.
 
-After installing these use `go generate ./msg` to generate the protobuf code.
+After installing these use `go generate ./msg` to generate the protobuf code. If you're on Windows you'll need to run go generate from CMD, not Bash.
 
 
 ## License

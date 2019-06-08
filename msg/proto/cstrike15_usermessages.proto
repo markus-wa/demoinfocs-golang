@@ -1,3 +1,4 @@
+import "google/protobuf/descriptor.proto";
 import "netmessages.proto";
 import "cstrike15_gcmessages.proto";
 
@@ -69,6 +70,18 @@ enum ECstrike15UserMessages {
 	CS_UM_XpUpdate = 65;
 	CS_UM_QuestProgress = 66;
 	CS_UM_ScoreLeaderboardData = 67;
+	CS_UM_PlayerDecalDigitalSignature = 68;
+	CS_UM_WeaponSound = 69;
+	CS_UM_UpdateScreenHealthBar = 70;
+	CS_UM_EntityOutlineHighlight = 71;
+	CS_UM_SSUI = 72;
+	CS_UM_SurvivalStats = 73;
+	CS_UM_DisconnectToLobby2 = 74;
+}
+
+enum ECSUsrMsg_DisconnectToLobby_Action {
+	k_ECSUsrMsg_DisconnectToLobby_Action_Default = 0;
+	k_ECSUsrMsg_DisconnectToLobby_Action_GoQueue = 1;
 }
 
 message CCSUsrMsg_VGUIMenu {
@@ -235,6 +248,26 @@ message CCSUsrMsg_ReloadEffect {
 	optional float origin_z = 5;
 }
 
+message CCSUsrMsg_WeaponSound {
+	optional int32 entidx = 1;
+	optional float origin_x = 2;
+	optional float origin_y = 3;
+	optional float origin_z = 4;
+	optional string sound = 5;
+	optional float timestamp = 6;
+}
+
+message CCSUsrMsg_UpdateScreenHealthBar {
+	optional int32 entidx = 1;
+	optional float healthratio_old = 2;
+	optional float healthratio_new = 3;
+	optional int32 style = 4;
+}
+
+message CCSUsrMsg_EntityOutlineHighlight {
+	optional int32 entidx = 1;
+}
+
 message CCSUsrMsg_AdjustMoney {
 	optional int32 amount = 1;
 }
@@ -304,6 +337,10 @@ message CCSUsrMsg_ScoreLeaderboardData {
 	optional .ScoreLeaderboardData data = 1;
 }
 
+message CCSUsrMsg_PlayerDecalDigitalSignature {
+	optional .PlayerDecalDigitalSignature data = 1;
+}
+
 message CCSUsrMsg_XRankGet {
 	optional int32 mode_idx = 1;
 	optional int32 controller = 2;
@@ -328,6 +365,7 @@ message CCSUsrMsg_VoteStart {
 	optional string details_str = 5;
 	optional string other_team_str = 6;
 	optional bool is_yes_no_vote = 7;
+	optional int32 entidx_target = 8;
 }
 
 message CCSUsrMsg_VotePass {
@@ -360,6 +398,7 @@ message CCSUsrMsg_ServerRankUpdate {
 		optional int32 rank_new = 3;
 		optional int32 num_wins = 4;
 		optional float rank_change = 5;
+		optional int32 rank_type_id = 6;
 	}
 
 	repeated .CCSUsrMsg_ServerRankUpdate.RankUpdate rank_update = 1;
@@ -409,6 +448,41 @@ message CCSUsrMsg_RoundBackupFilenames {
 	optional int32 index = 2;
 	optional string filename = 3;
 	optional string nicename = 4;
+}
+
+message CCSUsrMsg_SSUI {
+	optional bool show = 1;
+	optional float start_time = 2;
+	optional float end_time = 3;
+}
+
+message CCSUsrMsg_SurvivalStats {
+	message Fact {
+		optional int32 type = 1;
+		optional int32 display = 2;
+		optional int32 value = 3;
+		optional float interestingness = 4;
+	}
+
+	message Placement {
+		optional uint64 xuid = 1;
+		optional int32 teamnumber = 2;
+		optional int32 placement = 3;
+	}
+
+	message Damage {
+		optional uint64 xuid = 1;
+		optional int32 to = 2;
+		optional int32 to_hits = 3;
+		optional int32 from = 4;
+		optional int32 from_hits = 5;
+	}
+
+	optional uint64 xuid = 1;
+	repeated .CCSUsrMsg_SurvivalStats.Fact facts = 2;
+	repeated .CCSUsrMsg_SurvivalStats.Placement users = 3;
+	repeated .CCSUsrMsg_SurvivalStats.Damage damages = 5;
+	optional int32 ticknumber = 4;
 }
 
 message CCSUsrMsg_ResetHud {

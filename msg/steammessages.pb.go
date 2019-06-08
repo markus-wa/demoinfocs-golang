@@ -3,18 +3,27 @@
 
 package msg
 
-import proto "github.com/gogo/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import google_protobuf "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
-
-import io "io"
-import github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
+import (
+	encoding_binary "encoding/binary"
+	fmt "fmt"
+	github_com_gogo_protobuf_proto "github.com/gogo/protobuf/proto"
+	proto "github.com/gogo/protobuf/proto"
+	descriptor "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type GCProtoBufMsgSrc int32
 
@@ -33,6 +42,7 @@ var GCProtoBufMsgSrc_name = map[int32]string{
 	3: "GCProtoBufMsgSrc_FromGC",
 	4: "GCProtoBufMsgSrc_ReplySystem",
 }
+
 var GCProtoBufMsgSrc_value = map[string]int32{
 	"GCProtoBufMsgSrc_Unspecified": 0,
 	"GCProtoBufMsgSrc_FromSystem":  1,
@@ -46,9 +56,11 @@ func (x GCProtoBufMsgSrc) Enum() *GCProtoBufMsgSrc {
 	*p = x
 	return p
 }
+
 func (x GCProtoBufMsgSrc) String() string {
 	return proto.EnumName(GCProtoBufMsgSrc_name, int32(x))
 }
+
 func (x *GCProtoBufMsgSrc) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(GCProtoBufMsgSrc_value, data, "GCProtoBufMsgSrc")
 	if err != nil {
@@ -57,7 +69,10 @@ func (x *GCProtoBufMsgSrc) UnmarshalJSON(data []byte) error {
 	*x = GCProtoBufMsgSrc(value)
 	return nil
 }
-func (GCProtoBufMsgSrc) EnumDescriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{0} }
+
+func (GCProtoBufMsgSrc) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{0}
+}
 
 type CMsgGCRoutingInfo_RoutingMethod int32
 
@@ -76,6 +91,7 @@ var CMsgGCRoutingInfo_RoutingMethod_name = map[int32]string{
 	3: "PROTOBUF_FIELD_UINT64",
 	4: "WEBAPI_PARAM_UINT64",
 }
+
 var CMsgGCRoutingInfo_RoutingMethod_value = map[string]int32{
 	"RANDOM":                0,
 	"DISCARD":               1,
@@ -89,9 +105,11 @@ func (x CMsgGCRoutingInfo_RoutingMethod) Enum() *CMsgGCRoutingInfo_RoutingMethod
 	*p = x
 	return p
 }
+
 func (x CMsgGCRoutingInfo_RoutingMethod) String() string {
 	return proto.EnumName(CMsgGCRoutingInfo_RoutingMethod_name, int32(x))
 }
+
 func (x *CMsgGCRoutingInfo_RoutingMethod) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(CMsgGCRoutingInfo_RoutingMethod_value, data, "CMsgGCRoutingInfo_RoutingMethod")
 	if err != nil {
@@ -100,8 +118,9 @@ func (x *CMsgGCRoutingInfo_RoutingMethod) UnmarshalJSON(data []byte) error {
 	*x = CMsgGCRoutingInfo_RoutingMethod(value)
 	return nil
 }
+
 func (CMsgGCRoutingInfo_RoutingMethod) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{51, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{51, 0}
 }
 
 type CMsgGCMsgSetOptions_Option int32
@@ -119,6 +138,7 @@ var CMsgGCMsgSetOptions_Option_name = map[int32]string{
 	2: "NOTIFY_ACHIEVEMENTS",
 	3: "NOTIFY_VAC_ACTION",
 }
+
 var CMsgGCMsgSetOptions_Option_value = map[string]int32{
 	"NOTIFY_USER_SESSIONS":   0,
 	"NOTIFY_SERVER_SESSIONS": 1,
@@ -131,9 +151,11 @@ func (x CMsgGCMsgSetOptions_Option) Enum() *CMsgGCMsgSetOptions_Option {
 	*p = x
 	return p
 }
+
 func (x CMsgGCMsgSetOptions_Option) String() string {
 	return proto.EnumName(CMsgGCMsgSetOptions_Option_name, int32(x))
 }
+
 func (x *CMsgGCMsgSetOptions_Option) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(CMsgGCMsgSetOptions_Option_value, data, "CMsgGCMsgSetOptions_Option")
 	if err != nil {
@@ -142,8 +164,70 @@ func (x *CMsgGCMsgSetOptions_Option) UnmarshalJSON(data []byte) error {
 	*x = CMsgGCMsgSetOptions_Option(value)
 	return nil
 }
+
 func (CMsgGCMsgSetOptions_Option) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{56, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{56, 0}
+}
+
+type CMsgDPPartnerMicroTxnsResponse_EErrorCode int32
+
+const (
+	CMsgDPPartnerMicroTxnsResponse_k_MsgValid                   CMsgDPPartnerMicroTxnsResponse_EErrorCode = 0
+	CMsgDPPartnerMicroTxnsResponse_k_MsgInvalidAppID            CMsgDPPartnerMicroTxnsResponse_EErrorCode = 1
+	CMsgDPPartnerMicroTxnsResponse_k_MsgInvalidPartnerInfo      CMsgDPPartnerMicroTxnsResponse_EErrorCode = 2
+	CMsgDPPartnerMicroTxnsResponse_k_MsgNoTransactions          CMsgDPPartnerMicroTxnsResponse_EErrorCode = 3
+	CMsgDPPartnerMicroTxnsResponse_k_MsgSQLFailure              CMsgDPPartnerMicroTxnsResponse_EErrorCode = 4
+	CMsgDPPartnerMicroTxnsResponse_k_MsgPartnerInfoDiscrepancy  CMsgDPPartnerMicroTxnsResponse_EErrorCode = 5
+	CMsgDPPartnerMicroTxnsResponse_k_MsgTransactionInsertFailed CMsgDPPartnerMicroTxnsResponse_EErrorCode = 7
+	CMsgDPPartnerMicroTxnsResponse_k_MsgAlreadyRunning          CMsgDPPartnerMicroTxnsResponse_EErrorCode = 8
+	CMsgDPPartnerMicroTxnsResponse_k_MsgInvalidTransactionData  CMsgDPPartnerMicroTxnsResponse_EErrorCode = 9
+)
+
+var CMsgDPPartnerMicroTxnsResponse_EErrorCode_name = map[int32]string{
+	0: "k_MsgValid",
+	1: "k_MsgInvalidAppID",
+	2: "k_MsgInvalidPartnerInfo",
+	3: "k_MsgNoTransactions",
+	4: "k_MsgSQLFailure",
+	5: "k_MsgPartnerInfoDiscrepancy",
+	7: "k_MsgTransactionInsertFailed",
+	8: "k_MsgAlreadyRunning",
+	9: "k_MsgInvalidTransactionData",
+}
+
+var CMsgDPPartnerMicroTxnsResponse_EErrorCode_value = map[string]int32{
+	"k_MsgValid":                   0,
+	"k_MsgInvalidAppID":            1,
+	"k_MsgInvalidPartnerInfo":      2,
+	"k_MsgNoTransactions":          3,
+	"k_MsgSQLFailure":              4,
+	"k_MsgPartnerInfoDiscrepancy":  5,
+	"k_MsgTransactionInsertFailed": 7,
+	"k_MsgAlreadyRunning":          8,
+	"k_MsgInvalidTransactionData":  9,
+}
+
+func (x CMsgDPPartnerMicroTxnsResponse_EErrorCode) Enum() *CMsgDPPartnerMicroTxnsResponse_EErrorCode {
+	p := new(CMsgDPPartnerMicroTxnsResponse_EErrorCode)
+	*p = x
+	return p
+}
+
+func (x CMsgDPPartnerMicroTxnsResponse_EErrorCode) String() string {
+	return proto.EnumName(CMsgDPPartnerMicroTxnsResponse_EErrorCode_name, int32(x))
+}
+
+func (x *CMsgDPPartnerMicroTxnsResponse_EErrorCode) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(CMsgDPPartnerMicroTxnsResponse_EErrorCode_value, data, "CMsgDPPartnerMicroTxnsResponse_EErrorCode")
+	if err != nil {
+		return err
+	}
+	*x = CMsgDPPartnerMicroTxnsResponse_EErrorCode(value)
+	return nil
+}
+
+func (CMsgDPPartnerMicroTxnsResponse_EErrorCode) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{60, 0}
 }
 
 type CMsgProtoBufHeader struct {
@@ -155,14 +239,43 @@ type CMsgProtoBufHeader struct {
 	TargetJobName    string            `protobuf:"bytes,12,opt,name=target_job_name,json=targetJobName" json:"target_job_name"`
 	Eresult          *int32            `protobuf:"varint,13,opt,name=eresult,def=2" json:"eresult,omitempty"`
 	ErrorMessage     string            `protobuf:"bytes,14,opt,name=error_message,json=errorMessage" json:"error_message"`
+	Ip               uint32            `protobuf:"varint,15,opt,name=ip" json:"ip"`
 	GcMsgSrc         *GCProtoBufMsgSrc `protobuf:"varint,200,opt,name=gc_msg_src,json=gcMsgSrc,enum=GCProtoBufMsgSrc,def=0" json:"gc_msg_src,omitempty"`
 	GcDirIndexSource uint32            `protobuf:"varint,201,opt,name=gc_dir_index_source,json=gcDirIndexSource" json:"gc_dir_index_source"`
 }
 
-func (m *CMsgProtoBufHeader) Reset()                    { *m = CMsgProtoBufHeader{} }
-func (m *CMsgProtoBufHeader) String() string            { return proto.CompactTextString(m) }
-func (*CMsgProtoBufHeader) ProtoMessage()               {}
-func (*CMsgProtoBufHeader) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{0} }
+func (m *CMsgProtoBufHeader) Reset()         { *m = CMsgProtoBufHeader{} }
+func (m *CMsgProtoBufHeader) String() string { return proto.CompactTextString(m) }
+func (*CMsgProtoBufHeader) ProtoMessage()    {}
+func (*CMsgProtoBufHeader) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{0}
+}
+func (m *CMsgProtoBufHeader) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgProtoBufHeader) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgProtoBufHeader.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgProtoBufHeader) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgProtoBufHeader.Merge(m, src)
+}
+func (m *CMsgProtoBufHeader) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgProtoBufHeader) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgProtoBufHeader.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgProtoBufHeader proto.InternalMessageInfo
 
 const Default_CMsgProtoBufHeader_JobIdSource uint64 = 18446744073709551615
 const Default_CMsgProtoBufHeader_JobIdTarget uint64 = 18446744073709551615
@@ -225,6 +338,13 @@ func (m *CMsgProtoBufHeader) GetErrorMessage() string {
 	return ""
 }
 
+func (m *CMsgProtoBufHeader) GetIp() uint32 {
+	if m != nil {
+		return m.Ip
+	}
+	return 0
+}
+
 func (m *CMsgProtoBufHeader) GetGcMsgSrc() GCProtoBufMsgSrc {
 	if m != nil && m.GcMsgSrc != nil {
 		return *m.GcMsgSrc
@@ -247,10 +367,38 @@ type CMsgWebAPIKey struct {
 	Domain           string  `protobuf:"bytes,5,opt,name=domain" json:"domain"`
 }
 
-func (m *CMsgWebAPIKey) Reset()                    { *m = CMsgWebAPIKey{} }
-func (m *CMsgWebAPIKey) String() string            { return proto.CompactTextString(m) }
-func (*CMsgWebAPIKey) ProtoMessage()               {}
-func (*CMsgWebAPIKey) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{1} }
+func (m *CMsgWebAPIKey) Reset()         { *m = CMsgWebAPIKey{} }
+func (m *CMsgWebAPIKey) String() string { return proto.CompactTextString(m) }
+func (*CMsgWebAPIKey) ProtoMessage()    {}
+func (*CMsgWebAPIKey) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{1}
+}
+func (m *CMsgWebAPIKey) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgWebAPIKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgWebAPIKey.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgWebAPIKey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgWebAPIKey.Merge(m, src)
+}
+func (m *CMsgWebAPIKey) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgWebAPIKey) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgWebAPIKey.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgWebAPIKey proto.InternalMessageInfo
 
 const Default_CMsgWebAPIKey_Status uint32 = 255
 const Default_CMsgWebAPIKey_AccountId uint32 = 0
@@ -302,10 +450,38 @@ type CMsgHttpRequest struct {
 	AbsoluteTimeout uint32                           `protobuf:"varint,8,opt,name=absolute_timeout,json=absoluteTimeout" json:"absolute_timeout"`
 }
 
-func (m *CMsgHttpRequest) Reset()                    { *m = CMsgHttpRequest{} }
-func (m *CMsgHttpRequest) String() string            { return proto.CompactTextString(m) }
-func (*CMsgHttpRequest) ProtoMessage()               {}
-func (*CMsgHttpRequest) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{2} }
+func (m *CMsgHttpRequest) Reset()         { *m = CMsgHttpRequest{} }
+func (m *CMsgHttpRequest) String() string { return proto.CompactTextString(m) }
+func (*CMsgHttpRequest) ProtoMessage()    {}
+func (*CMsgHttpRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{2}
+}
+func (m *CMsgHttpRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgHttpRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgHttpRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgHttpRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgHttpRequest.Merge(m, src)
+}
+func (m *CMsgHttpRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgHttpRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgHttpRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgHttpRequest proto.InternalMessageInfo
 
 func (m *CMsgHttpRequest) GetRequestMethod() uint32 {
 	if m != nil {
@@ -372,8 +548,34 @@ func (m *CMsgHttpRequest_RequestHeader) Reset()         { *m = CMsgHttpRequest_R
 func (m *CMsgHttpRequest_RequestHeader) String() string { return proto.CompactTextString(m) }
 func (*CMsgHttpRequest_RequestHeader) ProtoMessage()    {}
 func (*CMsgHttpRequest_RequestHeader) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{2, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{2, 0}
 }
+func (m *CMsgHttpRequest_RequestHeader) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgHttpRequest_RequestHeader) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgHttpRequest_RequestHeader.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgHttpRequest_RequestHeader) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgHttpRequest_RequestHeader.Merge(m, src)
+}
+func (m *CMsgHttpRequest_RequestHeader) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgHttpRequest_RequestHeader) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgHttpRequest_RequestHeader.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgHttpRequest_RequestHeader proto.InternalMessageInfo
 
 func (m *CMsgHttpRequest_RequestHeader) GetName() string {
 	if m != nil {
@@ -398,8 +600,34 @@ func (m *CMsgHttpRequest_QueryParam) Reset()         { *m = CMsgHttpRequest_Quer
 func (m *CMsgHttpRequest_QueryParam) String() string { return proto.CompactTextString(m) }
 func (*CMsgHttpRequest_QueryParam) ProtoMessage()    {}
 func (*CMsgHttpRequest_QueryParam) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{2, 1}
+	return fileDescriptor_662a1850681ae3f8, []int{2, 1}
 }
+func (m *CMsgHttpRequest_QueryParam) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgHttpRequest_QueryParam) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgHttpRequest_QueryParam.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgHttpRequest_QueryParam) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgHttpRequest_QueryParam.Merge(m, src)
+}
+func (m *CMsgHttpRequest_QueryParam) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgHttpRequest_QueryParam) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgHttpRequest_QueryParam.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgHttpRequest_QueryParam proto.InternalMessageInfo
 
 func (m *CMsgHttpRequest_QueryParam) GetName() string {
 	if m != nil {
@@ -425,10 +653,38 @@ type CMsgWebAPIRequest struct {
 	RoutingAppId  uint32           `protobuf:"varint,7,opt,name=routing_app_id,json=routingAppId" json:"routing_app_id"`
 }
 
-func (m *CMsgWebAPIRequest) Reset()                    { *m = CMsgWebAPIRequest{} }
-func (m *CMsgWebAPIRequest) String() string            { return proto.CompactTextString(m) }
-func (*CMsgWebAPIRequest) ProtoMessage()               {}
-func (*CMsgWebAPIRequest) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{3} }
+func (m *CMsgWebAPIRequest) Reset()         { *m = CMsgWebAPIRequest{} }
+func (m *CMsgWebAPIRequest) String() string { return proto.CompactTextString(m) }
+func (*CMsgWebAPIRequest) ProtoMessage()    {}
+func (*CMsgWebAPIRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{3}
+}
+func (m *CMsgWebAPIRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgWebAPIRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgWebAPIRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgWebAPIRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgWebAPIRequest.Merge(m, src)
+}
+func (m *CMsgWebAPIRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgWebAPIRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgWebAPIRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgWebAPIRequest proto.InternalMessageInfo
 
 func (m *CMsgWebAPIRequest) GetUNUSEDJobName() string {
 	if m != nil {
@@ -485,10 +741,38 @@ type CMsgHttpResponse struct {
 	Body       []byte                             `protobuf:"bytes,3,opt,name=body" json:"body"`
 }
 
-func (m *CMsgHttpResponse) Reset()                    { *m = CMsgHttpResponse{} }
-func (m *CMsgHttpResponse) String() string            { return proto.CompactTextString(m) }
-func (*CMsgHttpResponse) ProtoMessage()               {}
-func (*CMsgHttpResponse) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{4} }
+func (m *CMsgHttpResponse) Reset()         { *m = CMsgHttpResponse{} }
+func (m *CMsgHttpResponse) String() string { return proto.CompactTextString(m) }
+func (*CMsgHttpResponse) ProtoMessage()    {}
+func (*CMsgHttpResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{4}
+}
+func (m *CMsgHttpResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgHttpResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgHttpResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgHttpResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgHttpResponse.Merge(m, src)
+}
+func (m *CMsgHttpResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgHttpResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgHttpResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgHttpResponse proto.InternalMessageInfo
 
 func (m *CMsgHttpResponse) GetStatusCode() uint32 {
 	if m != nil {
@@ -520,8 +804,34 @@ func (m *CMsgHttpResponse_ResponseHeader) Reset()         { *m = CMsgHttpRespons
 func (m *CMsgHttpResponse_ResponseHeader) String() string { return proto.CompactTextString(m) }
 func (*CMsgHttpResponse_ResponseHeader) ProtoMessage()    {}
 func (*CMsgHttpResponse_ResponseHeader) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{4, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{4, 0}
 }
+func (m *CMsgHttpResponse_ResponseHeader) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgHttpResponse_ResponseHeader) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgHttpResponse_ResponseHeader.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgHttpResponse_ResponseHeader) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgHttpResponse_ResponseHeader.Merge(m, src)
+}
+func (m *CMsgHttpResponse_ResponseHeader) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgHttpResponse_ResponseHeader) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgHttpResponse_ResponseHeader.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgHttpResponse_ResponseHeader proto.InternalMessageInfo
 
 func (m *CMsgHttpResponse_ResponseHeader) GetName() string {
 	if m != nil {
@@ -542,10 +852,38 @@ type CMsgAMFindAccounts struct {
 	SearchString string `protobuf:"bytes,2,opt,name=search_string,json=searchString" json:"search_string"`
 }
 
-func (m *CMsgAMFindAccounts) Reset()                    { *m = CMsgAMFindAccounts{} }
-func (m *CMsgAMFindAccounts) String() string            { return proto.CompactTextString(m) }
-func (*CMsgAMFindAccounts) ProtoMessage()               {}
-func (*CMsgAMFindAccounts) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{5} }
+func (m *CMsgAMFindAccounts) Reset()         { *m = CMsgAMFindAccounts{} }
+func (m *CMsgAMFindAccounts) String() string { return proto.CompactTextString(m) }
+func (*CMsgAMFindAccounts) ProtoMessage()    {}
+func (*CMsgAMFindAccounts) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{5}
+}
+func (m *CMsgAMFindAccounts) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMFindAccounts) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMFindAccounts.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMFindAccounts) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMFindAccounts.Merge(m, src)
+}
+func (m *CMsgAMFindAccounts) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMFindAccounts) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMFindAccounts.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMFindAccounts proto.InternalMessageInfo
 
 func (m *CMsgAMFindAccounts) GetSearchType() uint32 {
 	if m != nil {
@@ -569,8 +907,34 @@ func (m *CMsgAMFindAccountsResponse) Reset()         { *m = CMsgAMFindAccountsRe
 func (m *CMsgAMFindAccountsResponse) String() string { return proto.CompactTextString(m) }
 func (*CMsgAMFindAccountsResponse) ProtoMessage()    {}
 func (*CMsgAMFindAccountsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{6}
+	return fileDescriptor_662a1850681ae3f8, []int{6}
 }
+func (m *CMsgAMFindAccountsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMFindAccountsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMFindAccountsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMFindAccountsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMFindAccountsResponse.Merge(m, src)
+}
+func (m *CMsgAMFindAccountsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMFindAccountsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMFindAccountsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMFindAccountsResponse proto.InternalMessageInfo
 
 func (m *CMsgAMFindAccountsResponse) GetSteamId() []uint64 {
 	if m != nil {
@@ -589,10 +953,38 @@ type CMsgNotifyWatchdog struct {
 	Text             string `protobuf:"bytes,7,opt,name=text" json:"text"`
 }
 
-func (m *CMsgNotifyWatchdog) Reset()                    { *m = CMsgNotifyWatchdog{} }
-func (m *CMsgNotifyWatchdog) String() string            { return proto.CompactTextString(m) }
-func (*CMsgNotifyWatchdog) ProtoMessage()               {}
-func (*CMsgNotifyWatchdog) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{7} }
+func (m *CMsgNotifyWatchdog) Reset()         { *m = CMsgNotifyWatchdog{} }
+func (m *CMsgNotifyWatchdog) String() string { return proto.CompactTextString(m) }
+func (*CMsgNotifyWatchdog) ProtoMessage()    {}
+func (*CMsgNotifyWatchdog) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{7}
+}
+func (m *CMsgNotifyWatchdog) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgNotifyWatchdog) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgNotifyWatchdog.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgNotifyWatchdog) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgNotifyWatchdog.Merge(m, src)
+}
+func (m *CMsgNotifyWatchdog) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgNotifyWatchdog) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgNotifyWatchdog.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgNotifyWatchdog proto.InternalMessageInfo
 
 func (m *CMsgNotifyWatchdog) GetSource() uint32 {
 	if m != nil {
@@ -647,10 +1039,38 @@ type CMsgAMGetLicenses struct {
 	Steamid uint64 `protobuf:"fixed64,1,opt,name=steamid" json:"steamid"`
 }
 
-func (m *CMsgAMGetLicenses) Reset()                    { *m = CMsgAMGetLicenses{} }
-func (m *CMsgAMGetLicenses) String() string            { return proto.CompactTextString(m) }
-func (*CMsgAMGetLicenses) ProtoMessage()               {}
-func (*CMsgAMGetLicenses) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{8} }
+func (m *CMsgAMGetLicenses) Reset()         { *m = CMsgAMGetLicenses{} }
+func (m *CMsgAMGetLicenses) String() string { return proto.CompactTextString(m) }
+func (*CMsgAMGetLicenses) ProtoMessage()    {}
+func (*CMsgAMGetLicenses) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{8}
+}
+func (m *CMsgAMGetLicenses) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMGetLicenses) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMGetLicenses.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMGetLicenses) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMGetLicenses.Merge(m, src)
+}
+func (m *CMsgAMGetLicenses) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMGetLicenses) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMGetLicenses.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMGetLicenses proto.InternalMessageInfo
 
 func (m *CMsgAMGetLicenses) GetSteamid() uint64 {
 	if m != nil {
@@ -665,10 +1085,38 @@ type CMsgPackageLicense struct {
 	OwnerId     uint32 `protobuf:"varint,3,opt,name=owner_id,json=ownerId" json:"owner_id"`
 }
 
-func (m *CMsgPackageLicense) Reset()                    { *m = CMsgPackageLicense{} }
-func (m *CMsgPackageLicense) String() string            { return proto.CompactTextString(m) }
-func (*CMsgPackageLicense) ProtoMessage()               {}
-func (*CMsgPackageLicense) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{9} }
+func (m *CMsgPackageLicense) Reset()         { *m = CMsgPackageLicense{} }
+func (m *CMsgPackageLicense) String() string { return proto.CompactTextString(m) }
+func (*CMsgPackageLicense) ProtoMessage()    {}
+func (*CMsgPackageLicense) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{9}
+}
+func (m *CMsgPackageLicense) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgPackageLicense) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgPackageLicense.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgPackageLicense) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgPackageLicense.Merge(m, src)
+}
+func (m *CMsgPackageLicense) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgPackageLicense) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgPackageLicense.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgPackageLicense proto.InternalMessageInfo
 
 func (m *CMsgPackageLicense) GetPackageId() uint32 {
 	if m != nil {
@@ -700,8 +1148,34 @@ func (m *CMsgAMGetLicensesResponse) Reset()         { *m = CMsgAMGetLicensesResp
 func (m *CMsgAMGetLicensesResponse) String() string { return proto.CompactTextString(m) }
 func (*CMsgAMGetLicensesResponse) ProtoMessage()    {}
 func (*CMsgAMGetLicensesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{10}
+	return fileDescriptor_662a1850681ae3f8, []int{10}
 }
+func (m *CMsgAMGetLicensesResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMGetLicensesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMGetLicensesResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMGetLicensesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMGetLicensesResponse.Merge(m, src)
+}
+func (m *CMsgAMGetLicensesResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMGetLicensesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMGetLicensesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMGetLicensesResponse proto.InternalMessageInfo
 
 func (m *CMsgAMGetLicensesResponse) GetLicense() []*CMsgPackageLicense {
 	if m != nil {
@@ -727,8 +1201,34 @@ func (m *CMsgAMGetUserGameStats) Reset()         { *m = CMsgAMGetUserGameStats{}
 func (m *CMsgAMGetUserGameStats) String() string { return proto.CompactTextString(m) }
 func (*CMsgAMGetUserGameStats) ProtoMessage()    {}
 func (*CMsgAMGetUserGameStats) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{11}
+	return fileDescriptor_662a1850681ae3f8, []int{11}
 }
+func (m *CMsgAMGetUserGameStats) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMGetUserGameStats) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMGetUserGameStats.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMGetUserGameStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMGetUserGameStats.Merge(m, src)
+}
+func (m *CMsgAMGetUserGameStats) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMGetUserGameStats) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMGetUserGameStats.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMGetUserGameStats proto.InternalMessageInfo
 
 func (m *CMsgAMGetUserGameStats) GetSteamId() uint64 {
 	if m != nil {
@@ -763,8 +1263,34 @@ func (m *CMsgAMGetUserGameStatsResponse) Reset()         { *m = CMsgAMGetUserGam
 func (m *CMsgAMGetUserGameStatsResponse) String() string { return proto.CompactTextString(m) }
 func (*CMsgAMGetUserGameStatsResponse) ProtoMessage()    {}
 func (*CMsgAMGetUserGameStatsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{12}
+	return fileDescriptor_662a1850681ae3f8, []int{12}
 }
+func (m *CMsgAMGetUserGameStatsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMGetUserGameStatsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMGetUserGameStatsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMGetUserGameStatsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMGetUserGameStatsResponse.Merge(m, src)
+}
+func (m *CMsgAMGetUserGameStatsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMGetUserGameStatsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMGetUserGameStatsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMGetUserGameStatsResponse proto.InternalMessageInfo
 
 const Default_CMsgAMGetUserGameStatsResponse_Eresult int32 = 2
 
@@ -812,8 +1338,34 @@ func (m *CMsgAMGetUserGameStatsResponse_Stats) Reset()         { *m = CMsgAMGetU
 func (m *CMsgAMGetUserGameStatsResponse_Stats) String() string { return proto.CompactTextString(m) }
 func (*CMsgAMGetUserGameStatsResponse_Stats) ProtoMessage()    {}
 func (*CMsgAMGetUserGameStatsResponse_Stats) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{12, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{12, 0}
 }
+func (m *CMsgAMGetUserGameStatsResponse_Stats) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMGetUserGameStatsResponse_Stats) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMGetUserGameStatsResponse_Stats.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMGetUserGameStatsResponse_Stats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMGetUserGameStatsResponse_Stats.Merge(m, src)
+}
+func (m *CMsgAMGetUserGameStatsResponse_Stats) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMGetUserGameStatsResponse_Stats) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMGetUserGameStatsResponse_Stats.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMGetUserGameStatsResponse_Stats proto.InternalMessageInfo
 
 func (m *CMsgAMGetUserGameStatsResponse_Stats) GetStatId() uint32 {
 	if m != nil {
@@ -843,8 +1395,34 @@ func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) String() string {
 }
 func (*CMsgAMGetUserGameStatsResponse_Achievement_Blocks) ProtoMessage() {}
 func (*CMsgAMGetUserGameStatsResponse_Achievement_Blocks) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{12, 1}
+	return fileDescriptor_662a1850681ae3f8, []int{12, 1}
 }
+func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMGetUserGameStatsResponse_Achievement_Blocks.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMGetUserGameStatsResponse_Achievement_Blocks.Merge(m, src)
+}
+func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMGetUserGameStatsResponse_Achievement_Blocks.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMGetUserGameStatsResponse_Achievement_Blocks proto.InternalMessageInfo
 
 func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) GetAchievementId() uint32 {
 	if m != nil {
@@ -876,8 +1454,34 @@ func (m *CMsgGCGetCommandList) Reset()         { *m = CMsgGCGetCommandList{} }
 func (m *CMsgGCGetCommandList) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCGetCommandList) ProtoMessage()    {}
 func (*CMsgGCGetCommandList) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{13}
+	return fileDescriptor_662a1850681ae3f8, []int{13}
 }
+func (m *CMsgGCGetCommandList) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCGetCommandList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCGetCommandList.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCGetCommandList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCGetCommandList.Merge(m, src)
+}
+func (m *CMsgGCGetCommandList) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCGetCommandList) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCGetCommandList.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCGetCommandList proto.InternalMessageInfo
 
 func (m *CMsgGCGetCommandList) GetAppId() uint32 {
 	if m != nil {
@@ -901,8 +1505,34 @@ func (m *CMsgGCGetCommandListResponse) Reset()         { *m = CMsgGCGetCommandLi
 func (m *CMsgGCGetCommandListResponse) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCGetCommandListResponse) ProtoMessage()    {}
 func (*CMsgGCGetCommandListResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{14}
+	return fileDescriptor_662a1850681ae3f8, []int{14}
 }
+func (m *CMsgGCGetCommandListResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCGetCommandListResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCGetCommandListResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCGetCommandListResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCGetCommandListResponse.Merge(m, src)
+}
+func (m *CMsgGCGetCommandListResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCGetCommandListResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCGetCommandListResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCGetCommandListResponse proto.InternalMessageInfo
 
 func (m *CMsgGCGetCommandListResponse) GetCommandName() []string {
 	if m != nil {
@@ -915,10 +1545,38 @@ type CGCMsgMemCachedGet struct {
 	Keys []string `protobuf:"bytes,1,rep,name=keys" json:"keys,omitempty"`
 }
 
-func (m *CGCMsgMemCachedGet) Reset()                    { *m = CGCMsgMemCachedGet{} }
-func (m *CGCMsgMemCachedGet) String() string            { return proto.CompactTextString(m) }
-func (*CGCMsgMemCachedGet) ProtoMessage()               {}
-func (*CGCMsgMemCachedGet) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{15} }
+func (m *CGCMsgMemCachedGet) Reset()         { *m = CGCMsgMemCachedGet{} }
+func (m *CGCMsgMemCachedGet) String() string { return proto.CompactTextString(m) }
+func (*CGCMsgMemCachedGet) ProtoMessage()    {}
+func (*CGCMsgMemCachedGet) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{15}
+}
+func (m *CGCMsgMemCachedGet) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgMemCachedGet) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgMemCachedGet.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgMemCachedGet) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgMemCachedGet.Merge(m, src)
+}
+func (m *CGCMsgMemCachedGet) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgMemCachedGet) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgMemCachedGet.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgMemCachedGet proto.InternalMessageInfo
 
 func (m *CGCMsgMemCachedGet) GetKeys() []string {
 	if m != nil {
@@ -935,8 +1593,34 @@ func (m *CGCMsgMemCachedGetResponse) Reset()         { *m = CGCMsgMemCachedGetRe
 func (m *CGCMsgMemCachedGetResponse) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgMemCachedGetResponse) ProtoMessage()    {}
 func (*CGCMsgMemCachedGetResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{16}
+	return fileDescriptor_662a1850681ae3f8, []int{16}
 }
+func (m *CGCMsgMemCachedGetResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgMemCachedGetResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgMemCachedGetResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgMemCachedGetResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgMemCachedGetResponse.Merge(m, src)
+}
+func (m *CGCMsgMemCachedGetResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgMemCachedGetResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgMemCachedGetResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgMemCachedGetResponse proto.InternalMessageInfo
 
 func (m *CGCMsgMemCachedGetResponse) GetValues() []*CGCMsgMemCachedGetResponse_ValueTag {
 	if m != nil {
@@ -954,8 +1638,34 @@ func (m *CGCMsgMemCachedGetResponse_ValueTag) Reset()         { *m = CGCMsgMemCa
 func (m *CGCMsgMemCachedGetResponse_ValueTag) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgMemCachedGetResponse_ValueTag) ProtoMessage()    {}
 func (*CGCMsgMemCachedGetResponse_ValueTag) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{16, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{16, 0}
 }
+func (m *CGCMsgMemCachedGetResponse_ValueTag) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgMemCachedGetResponse_ValueTag) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgMemCachedGetResponse_ValueTag.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgMemCachedGetResponse_ValueTag) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgMemCachedGetResponse_ValueTag.Merge(m, src)
+}
+func (m *CGCMsgMemCachedGetResponse_ValueTag) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgMemCachedGetResponse_ValueTag) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgMemCachedGetResponse_ValueTag.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgMemCachedGetResponse_ValueTag proto.InternalMessageInfo
 
 func (m *CGCMsgMemCachedGetResponse_ValueTag) GetFound() bool {
 	if m != nil {
@@ -975,10 +1685,38 @@ type CGCMsgMemCachedSet struct {
 	Keys []*CGCMsgMemCachedSet_KeyPair `protobuf:"bytes,1,rep,name=keys" json:"keys,omitempty"`
 }
 
-func (m *CGCMsgMemCachedSet) Reset()                    { *m = CGCMsgMemCachedSet{} }
-func (m *CGCMsgMemCachedSet) String() string            { return proto.CompactTextString(m) }
-func (*CGCMsgMemCachedSet) ProtoMessage()               {}
-func (*CGCMsgMemCachedSet) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{17} }
+func (m *CGCMsgMemCachedSet) Reset()         { *m = CGCMsgMemCachedSet{} }
+func (m *CGCMsgMemCachedSet) String() string { return proto.CompactTextString(m) }
+func (*CGCMsgMemCachedSet) ProtoMessage()    {}
+func (*CGCMsgMemCachedSet) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{17}
+}
+func (m *CGCMsgMemCachedSet) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgMemCachedSet) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgMemCachedSet.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgMemCachedSet) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgMemCachedSet.Merge(m, src)
+}
+func (m *CGCMsgMemCachedSet) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgMemCachedSet) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgMemCachedSet.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgMemCachedSet proto.InternalMessageInfo
 
 func (m *CGCMsgMemCachedSet) GetKeys() []*CGCMsgMemCachedSet_KeyPair {
 	if m != nil {
@@ -996,8 +1734,34 @@ func (m *CGCMsgMemCachedSet_KeyPair) Reset()         { *m = CGCMsgMemCachedSet_K
 func (m *CGCMsgMemCachedSet_KeyPair) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgMemCachedSet_KeyPair) ProtoMessage()    {}
 func (*CGCMsgMemCachedSet_KeyPair) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{17, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{17, 0}
 }
+func (m *CGCMsgMemCachedSet_KeyPair) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgMemCachedSet_KeyPair) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgMemCachedSet_KeyPair.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgMemCachedSet_KeyPair) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgMemCachedSet_KeyPair.Merge(m, src)
+}
+func (m *CGCMsgMemCachedSet_KeyPair) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgMemCachedSet_KeyPair) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgMemCachedSet_KeyPair.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgMemCachedSet_KeyPair proto.InternalMessageInfo
 
 func (m *CGCMsgMemCachedSet_KeyPair) GetName() string {
 	if m != nil {
@@ -1021,8 +1785,34 @@ func (m *CGCMsgMemCachedDelete) Reset()         { *m = CGCMsgMemCachedDelete{} }
 func (m *CGCMsgMemCachedDelete) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgMemCachedDelete) ProtoMessage()    {}
 func (*CGCMsgMemCachedDelete) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{18}
+	return fileDescriptor_662a1850681ae3f8, []int{18}
 }
+func (m *CGCMsgMemCachedDelete) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgMemCachedDelete) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgMemCachedDelete.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgMemCachedDelete) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgMemCachedDelete.Merge(m, src)
+}
+func (m *CGCMsgMemCachedDelete) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgMemCachedDelete) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgMemCachedDelete.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgMemCachedDelete proto.InternalMessageInfo
 
 func (m *CGCMsgMemCachedDelete) GetKeys() []string {
 	if m != nil {
@@ -1038,8 +1828,34 @@ func (m *CGCMsgMemCachedStats) Reset()         { *m = CGCMsgMemCachedStats{} }
 func (m *CGCMsgMemCachedStats) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgMemCachedStats) ProtoMessage()    {}
 func (*CGCMsgMemCachedStats) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{19}
+	return fileDescriptor_662a1850681ae3f8, []int{19}
 }
+func (m *CGCMsgMemCachedStats) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgMemCachedStats) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgMemCachedStats.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgMemCachedStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgMemCachedStats.Merge(m, src)
+}
+func (m *CGCMsgMemCachedStats) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgMemCachedStats) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgMemCachedStats.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgMemCachedStats proto.InternalMessageInfo
 
 type CGCMsgMemCachedStatsResponse struct {
 	CurrConnections uint64 `protobuf:"varint,1,opt,name=curr_connections,json=currConnections" json:"curr_connections"`
@@ -1062,8 +1878,34 @@ func (m *CGCMsgMemCachedStatsResponse) Reset()         { *m = CGCMsgMemCachedSta
 func (m *CGCMsgMemCachedStatsResponse) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgMemCachedStatsResponse) ProtoMessage()    {}
 func (*CGCMsgMemCachedStatsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{20}
+	return fileDescriptor_662a1850681ae3f8, []int{20}
 }
+func (m *CGCMsgMemCachedStatsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgMemCachedStatsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgMemCachedStatsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgMemCachedStatsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgMemCachedStatsResponse.Merge(m, src)
+}
+func (m *CGCMsgMemCachedStatsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgMemCachedStatsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgMemCachedStatsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgMemCachedStatsResponse proto.InternalMessageInfo
 
 func (m *CGCMsgMemCachedStatsResponse) GetCurrConnections() uint64 {
 	if m != nil {
@@ -1167,10 +2009,38 @@ type CGCMsgSQLStats struct {
 	SchemaCatalog uint32 `protobuf:"varint,1,opt,name=schema_catalog,json=schemaCatalog" json:"schema_catalog"`
 }
 
-func (m *CGCMsgSQLStats) Reset()                    { *m = CGCMsgSQLStats{} }
-func (m *CGCMsgSQLStats) String() string            { return proto.CompactTextString(m) }
-func (*CGCMsgSQLStats) ProtoMessage()               {}
-func (*CGCMsgSQLStats) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{21} }
+func (m *CGCMsgSQLStats) Reset()         { *m = CGCMsgSQLStats{} }
+func (m *CGCMsgSQLStats) String() string { return proto.CompactTextString(m) }
+func (*CGCMsgSQLStats) ProtoMessage()    {}
+func (*CGCMsgSQLStats) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{21}
+}
+func (m *CGCMsgSQLStats) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgSQLStats) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgSQLStats.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgSQLStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgSQLStats.Merge(m, src)
+}
+func (m *CGCMsgSQLStats) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgSQLStats) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgSQLStats.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgSQLStats proto.InternalMessageInfo
 
 func (m *CGCMsgSQLStats) GetSchemaCatalog() uint32 {
 	if m != nil {
@@ -1195,8 +2065,34 @@ func (m *CGCMsgSQLStatsResponse) Reset()         { *m = CGCMsgSQLStatsResponse{}
 func (m *CGCMsgSQLStatsResponse) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgSQLStatsResponse) ProtoMessage()    {}
 func (*CGCMsgSQLStatsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{22}
+	return fileDescriptor_662a1850681ae3f8, []int{22}
 }
+func (m *CGCMsgSQLStatsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgSQLStatsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgSQLStatsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgSQLStatsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgSQLStatsResponse.Merge(m, src)
+}
+func (m *CGCMsgSQLStatsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgSQLStatsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgSQLStatsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgSQLStatsResponse proto.InternalMessageInfo
 
 func (m *CGCMsgSQLStatsResponse) GetThreads() uint32 {
 	if m != nil {
@@ -1272,8 +2168,34 @@ func (m *CMsgAMAddFreeLicense) Reset()         { *m = CMsgAMAddFreeLicense{} }
 func (m *CMsgAMAddFreeLicense) String() string { return proto.CompactTextString(m) }
 func (*CMsgAMAddFreeLicense) ProtoMessage()    {}
 func (*CMsgAMAddFreeLicense) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{23}
+	return fileDescriptor_662a1850681ae3f8, []int{23}
 }
+func (m *CMsgAMAddFreeLicense) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMAddFreeLicense) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMAddFreeLicense.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMAddFreeLicense) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMAddFreeLicense.Merge(m, src)
+}
+func (m *CMsgAMAddFreeLicense) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMAddFreeLicense) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMAddFreeLicense.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMAddFreeLicense proto.InternalMessageInfo
 
 func (m *CMsgAMAddFreeLicense) GetSteamid() uint64 {
 	if m != nil {
@@ -1313,8 +2235,34 @@ func (m *CMsgAMAddFreeLicenseResponse) Reset()         { *m = CMsgAMAddFreeLicen
 func (m *CMsgAMAddFreeLicenseResponse) String() string { return proto.CompactTextString(m) }
 func (*CMsgAMAddFreeLicenseResponse) ProtoMessage()    {}
 func (*CMsgAMAddFreeLicenseResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{24}
+	return fileDescriptor_662a1850681ae3f8, []int{24}
 }
+func (m *CMsgAMAddFreeLicenseResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMAddFreeLicenseResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMAddFreeLicenseResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMAddFreeLicenseResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMAddFreeLicenseResponse.Merge(m, src)
+}
+func (m *CMsgAMAddFreeLicenseResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMAddFreeLicenseResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMAddFreeLicenseResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMAddFreeLicenseResponse proto.InternalMessageInfo
 
 const Default_CMsgAMAddFreeLicenseResponse_Eresult int32 = 2
 
@@ -1347,8 +2295,34 @@ func (m *CGCMsgGetIPLocation) Reset()         { *m = CGCMsgGetIPLocation{} }
 func (m *CGCMsgGetIPLocation) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgGetIPLocation) ProtoMessage()    {}
 func (*CGCMsgGetIPLocation) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{25}
+	return fileDescriptor_662a1850681ae3f8, []int{25}
 }
+func (m *CGCMsgGetIPLocation) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgGetIPLocation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgGetIPLocation.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgGetIPLocation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgGetIPLocation.Merge(m, src)
+}
+func (m *CGCMsgGetIPLocation) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgGetIPLocation) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgGetIPLocation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgGetIPLocation proto.InternalMessageInfo
 
 func (m *CGCMsgGetIPLocation) GetIps() []uint32 {
 	if m != nil {
@@ -1366,10 +2340,38 @@ type CIPLocationInfo struct {
 	City      string  `protobuf:"bytes,6,opt,name=city" json:"city"`
 }
 
-func (m *CIPLocationInfo) Reset()                    { *m = CIPLocationInfo{} }
-func (m *CIPLocationInfo) String() string            { return proto.CompactTextString(m) }
-func (*CIPLocationInfo) ProtoMessage()               {}
-func (*CIPLocationInfo) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{26} }
+func (m *CIPLocationInfo) Reset()         { *m = CIPLocationInfo{} }
+func (m *CIPLocationInfo) String() string { return proto.CompactTextString(m) }
+func (*CIPLocationInfo) ProtoMessage()    {}
+func (*CIPLocationInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{26}
+}
+func (m *CIPLocationInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CIPLocationInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CIPLocationInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CIPLocationInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CIPLocationInfo.Merge(m, src)
+}
+func (m *CIPLocationInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *CIPLocationInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_CIPLocationInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CIPLocationInfo proto.InternalMessageInfo
 
 func (m *CIPLocationInfo) GetIp() uint32 {
 	if m != nil {
@@ -1421,8 +2423,34 @@ func (m *CGCMsgGetIPLocationResponse) Reset()         { *m = CGCMsgGetIPLocation
 func (m *CGCMsgGetIPLocationResponse) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgGetIPLocationResponse) ProtoMessage()    {}
 func (*CGCMsgGetIPLocationResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{27}
+	return fileDescriptor_662a1850681ae3f8, []int{27}
 }
+func (m *CGCMsgGetIPLocationResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgGetIPLocationResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgGetIPLocationResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgGetIPLocationResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgGetIPLocationResponse.Merge(m, src)
+}
+func (m *CGCMsgGetIPLocationResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgGetIPLocationResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgGetIPLocationResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgGetIPLocationResponse proto.InternalMessageInfo
 
 func (m *CGCMsgGetIPLocationResponse) GetInfos() []*CIPLocationInfo {
 	if m != nil {
@@ -1440,8 +2468,34 @@ func (m *CGCMsgSystemStatsSchema) Reset()         { *m = CGCMsgSystemStatsSchema
 func (m *CGCMsgSystemStatsSchema) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgSystemStatsSchema) ProtoMessage()    {}
 func (*CGCMsgSystemStatsSchema) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{28}
+	return fileDescriptor_662a1850681ae3f8, []int{28}
 }
+func (m *CGCMsgSystemStatsSchema) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgSystemStatsSchema) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgSystemStatsSchema.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgSystemStatsSchema) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgSystemStatsSchema.Merge(m, src)
+}
+func (m *CGCMsgSystemStatsSchema) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgSystemStatsSchema) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgSystemStatsSchema.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgSystemStatsSchema proto.InternalMessageInfo
 
 func (m *CGCMsgSystemStatsSchema) GetGcAppId() uint32 {
 	if m != nil {
@@ -1464,8 +2518,34 @@ func (m *CGCMsgGetSystemStats) Reset()         { *m = CGCMsgGetSystemStats{} }
 func (m *CGCMsgGetSystemStats) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgGetSystemStats) ProtoMessage()    {}
 func (*CGCMsgGetSystemStats) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{29}
+	return fileDescriptor_662a1850681ae3f8, []int{29}
 }
+func (m *CGCMsgGetSystemStats) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgGetSystemStats) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgGetSystemStats.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgGetSystemStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgGetSystemStats.Merge(m, src)
+}
+func (m *CGCMsgGetSystemStats) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgGetSystemStats) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgGetSystemStats.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgGetSystemStats proto.InternalMessageInfo
 
 type CGCMsgGetSystemStatsResponse struct {
 	GcAppId            uint32 `protobuf:"varint,1,opt,name=gc_app_id,json=gcAppId" json:"gc_app_id"`
@@ -1487,8 +2567,34 @@ func (m *CGCMsgGetSystemStatsResponse) Reset()         { *m = CGCMsgGetSystemSta
 func (m *CGCMsgGetSystemStatsResponse) String() string { return proto.CompactTextString(m) }
 func (*CGCMsgGetSystemStatsResponse) ProtoMessage()    {}
 func (*CGCMsgGetSystemStatsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{30}
+	return fileDescriptor_662a1850681ae3f8, []int{30}
 }
+func (m *CGCMsgGetSystemStatsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCMsgGetSystemStatsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCMsgGetSystemStatsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCMsgGetSystemStatsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCMsgGetSystemStatsResponse.Merge(m, src)
+}
+func (m *CGCMsgGetSystemStatsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCMsgGetSystemStatsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCMsgGetSystemStatsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCMsgGetSystemStatsResponse proto.InternalMessageInfo
 
 func (m *CGCMsgGetSystemStatsResponse) GetGcAppId() uint32 {
 	if m != nil {
@@ -1590,10 +2696,38 @@ type CMsgAMSendEmail struct {
 	Tokens            []*CMsgAMSendEmail_ReplacementToken            `protobuf:"bytes,7,rep,name=tokens" json:"tokens,omitempty"`
 }
 
-func (m *CMsgAMSendEmail) Reset()                    { *m = CMsgAMSendEmail{} }
-func (m *CMsgAMSendEmail) String() string            { return proto.CompactTextString(m) }
-func (*CMsgAMSendEmail) ProtoMessage()               {}
-func (*CMsgAMSendEmail) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{31} }
+func (m *CMsgAMSendEmail) Reset()         { *m = CMsgAMSendEmail{} }
+func (m *CMsgAMSendEmail) String() string { return proto.CompactTextString(m) }
+func (*CMsgAMSendEmail) ProtoMessage()    {}
+func (*CMsgAMSendEmail) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{31}
+}
+func (m *CMsgAMSendEmail) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMSendEmail) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMSendEmail.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMSendEmail) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMSendEmail.Merge(m, src)
+}
+func (m *CMsgAMSendEmail) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMSendEmail) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMSendEmail.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMSendEmail proto.InternalMessageInfo
 
 func (m *CMsgAMSendEmail) GetSteamid() uint64 {
 	if m != nil {
@@ -1646,8 +2780,34 @@ func (m *CMsgAMSendEmail_ReplacementToken) Reset()         { *m = CMsgAMSendEmai
 func (m *CMsgAMSendEmail_ReplacementToken) String() string { return proto.CompactTextString(m) }
 func (*CMsgAMSendEmail_ReplacementToken) ProtoMessage()    {}
 func (*CMsgAMSendEmail_ReplacementToken) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{31, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{31, 0}
 }
+func (m *CMsgAMSendEmail_ReplacementToken) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMSendEmail_ReplacementToken) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMSendEmail_ReplacementToken.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMSendEmail_ReplacementToken) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMSendEmail_ReplacementToken.Merge(m, src)
+}
+func (m *CMsgAMSendEmail_ReplacementToken) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMSendEmail_ReplacementToken) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMSendEmail_ReplacementToken.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMSendEmail_ReplacementToken proto.InternalMessageInfo
 
 func (m *CMsgAMSendEmail_ReplacementToken) GetTokenName() string {
 	if m != nil {
@@ -1676,8 +2836,34 @@ func (m *CMsgAMSendEmail_PersonaNameReplacementToken) String() string {
 }
 func (*CMsgAMSendEmail_PersonaNameReplacementToken) ProtoMessage() {}
 func (*CMsgAMSendEmail_PersonaNameReplacementToken) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{31, 1}
+	return fileDescriptor_662a1850681ae3f8, []int{31, 1}
 }
+func (m *CMsgAMSendEmail_PersonaNameReplacementToken) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMSendEmail_PersonaNameReplacementToken) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMSendEmail_PersonaNameReplacementToken.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMSendEmail_PersonaNameReplacementToken) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMSendEmail_PersonaNameReplacementToken.Merge(m, src)
+}
+func (m *CMsgAMSendEmail_PersonaNameReplacementToken) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMSendEmail_PersonaNameReplacementToken) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMSendEmail_PersonaNameReplacementToken.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMSendEmail_PersonaNameReplacementToken proto.InternalMessageInfo
 
 func (m *CMsgAMSendEmail_PersonaNameReplacementToken) GetSteamid() uint64 {
 	if m != nil {
@@ -1701,8 +2887,34 @@ func (m *CMsgAMSendEmailResponse) Reset()         { *m = CMsgAMSendEmailResponse
 func (m *CMsgAMSendEmailResponse) String() string { return proto.CompactTextString(m) }
 func (*CMsgAMSendEmailResponse) ProtoMessage()    {}
 func (*CMsgAMSendEmailResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{32}
+	return fileDescriptor_662a1850681ae3f8, []int{32}
 }
+func (m *CMsgAMSendEmailResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMSendEmailResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMSendEmailResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMSendEmailResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMSendEmailResponse.Merge(m, src)
+}
+func (m *CMsgAMSendEmailResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMSendEmailResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMSendEmailResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMSendEmailResponse proto.InternalMessageInfo
 
 const Default_CMsgAMSendEmailResponse_Eresult uint32 = 2
 
@@ -1724,8 +2936,34 @@ func (m *CMsgGCGetEmailTemplate) Reset()         { *m = CMsgGCGetEmailTemplate{}
 func (m *CMsgGCGetEmailTemplate) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCGetEmailTemplate) ProtoMessage()    {}
 func (*CMsgGCGetEmailTemplate) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{33}
+	return fileDescriptor_662a1850681ae3f8, []int{33}
 }
+func (m *CMsgGCGetEmailTemplate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCGetEmailTemplate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCGetEmailTemplate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCGetEmailTemplate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCGetEmailTemplate.Merge(m, src)
+}
+func (m *CMsgGCGetEmailTemplate) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCGetEmailTemplate) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCGetEmailTemplate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCGetEmailTemplate proto.InternalMessageInfo
 
 func (m *CMsgGCGetEmailTemplate) GetAppId() uint32 {
 	if m != nil {
@@ -1765,8 +3003,34 @@ func (m *CMsgGCGetEmailTemplateResponse) Reset()         { *m = CMsgGCGetEmailTe
 func (m *CMsgGCGetEmailTemplateResponse) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCGetEmailTemplateResponse) ProtoMessage()    {}
 func (*CMsgGCGetEmailTemplateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{34}
+	return fileDescriptor_662a1850681ae3f8, []int{34}
 }
+func (m *CMsgGCGetEmailTemplateResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCGetEmailTemplateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCGetEmailTemplateResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCGetEmailTemplateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCGetEmailTemplateResponse.Merge(m, src)
+}
+func (m *CMsgGCGetEmailTemplateResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCGetEmailTemplateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCGetEmailTemplateResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCGetEmailTemplateResponse proto.InternalMessageInfo
 
 const Default_CMsgGCGetEmailTemplateResponse_Eresult uint32 = 2
 
@@ -1803,8 +3067,34 @@ func (m *CMsgAMGrantGuestPasses2) Reset()         { *m = CMsgAMGrantGuestPasses2
 func (m *CMsgAMGrantGuestPasses2) String() string { return proto.CompactTextString(m) }
 func (*CMsgAMGrantGuestPasses2) ProtoMessage()    {}
 func (*CMsgAMGrantGuestPasses2) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{35}
+	return fileDescriptor_662a1850681ae3f8, []int{35}
 }
+func (m *CMsgAMGrantGuestPasses2) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMGrantGuestPasses2) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMGrantGuestPasses2.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMGrantGuestPasses2) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMGrantGuestPasses2.Merge(m, src)
+}
+func (m *CMsgAMGrantGuestPasses2) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMGrantGuestPasses2) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMGrantGuestPasses2.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMGrantGuestPasses2 proto.InternalMessageInfo
 
 func (m *CMsgAMGrantGuestPasses2) GetSteamId() uint64 {
 	if m != nil {
@@ -1850,8 +3140,34 @@ func (m *CMsgAMGrantGuestPasses2Response) Reset()         { *m = CMsgAMGrantGues
 func (m *CMsgAMGrantGuestPasses2Response) String() string { return proto.CompactTextString(m) }
 func (*CMsgAMGrantGuestPasses2Response) ProtoMessage()    {}
 func (*CMsgAMGrantGuestPasses2Response) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{36}
+	return fileDescriptor_662a1850681ae3f8, []int{36}
 }
+func (m *CMsgAMGrantGuestPasses2Response) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgAMGrantGuestPasses2Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgAMGrantGuestPasses2Response.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgAMGrantGuestPasses2Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgAMGrantGuestPasses2Response.Merge(m, src)
+}
+func (m *CMsgAMGrantGuestPasses2Response) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgAMGrantGuestPasses2Response) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgAMGrantGuestPasses2Response.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgAMGrantGuestPasses2Response proto.InternalMessageInfo
 
 const Default_CMsgAMGrantGuestPasses2Response_Eresult int32 = 2
 const Default_CMsgAMGrantGuestPasses2Response_PassesGranted int32 = 0
@@ -1879,8 +3195,34 @@ func (m *CGCSystemMsg_GetAccountDetails) Reset()         { *m = CGCSystemMsg_Get
 func (m *CGCSystemMsg_GetAccountDetails) String() string { return proto.CompactTextString(m) }
 func (*CGCSystemMsg_GetAccountDetails) ProtoMessage()    {}
 func (*CGCSystemMsg_GetAccountDetails) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{37}
+	return fileDescriptor_662a1850681ae3f8, []int{37}
 }
+func (m *CGCSystemMsg_GetAccountDetails) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCSystemMsg_GetAccountDetails) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCSystemMsg_GetAccountDetails.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCSystemMsg_GetAccountDetails) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCSystemMsg_GetAccountDetails.Merge(m, src)
+}
+func (m *CGCSystemMsg_GetAccountDetails) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCSystemMsg_GetAccountDetails) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCSystemMsg_GetAccountDetails.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCSystemMsg_GetAccountDetails proto.InternalMessageInfo
 
 func (m *CGCSystemMsg_GetAccountDetails) GetSteamid() uint64 {
 	if m != nil {
@@ -1928,6 +3270,9 @@ type CGCSystemMsg_GetAccountDetails_Response struct {
 	PhoneVerificationTime  uint32  `protobuf:"varint,31,opt,name=phone_verification_time,json=phoneVerificationTime" json:"phone_verification_time"`
 	PhoneId                uint64  `protobuf:"varint,33,opt,name=phone_id,json=phoneId" json:"phone_id"`
 	IsPhoneIdentifying     bool    `protobuf:"varint,34,opt,name=is_phone_identifying,json=isPhoneIdentifying" json:"is_phone_identifying"`
+	RtIdentityLinked       uint32  `protobuf:"varint,35,opt,name=rt_identity_linked,json=rtIdentityLinked" json:"rt_identity_linked"`
+	RtBirthDate            uint32  `protobuf:"varint,36,opt,name=rt_birth_date,json=rtBirthDate" json:"rt_birth_date"`
+	TxnCountryCode         string  `protobuf:"bytes,37,opt,name=txn_country_code,json=txnCountryCode" json:"txn_country_code"`
 }
 
 func (m *CGCSystemMsg_GetAccountDetails_Response) Reset() {
@@ -1936,8 +3281,34 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Reset() {
 func (m *CGCSystemMsg_GetAccountDetails_Response) String() string { return proto.CompactTextString(m) }
 func (*CGCSystemMsg_GetAccountDetails_Response) ProtoMessage()    {}
 func (*CGCSystemMsg_GetAccountDetails_Response) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{38}
+	return fileDescriptor_662a1850681ae3f8, []int{38}
 }
+func (m *CGCSystemMsg_GetAccountDetails_Response) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCSystemMsg_GetAccountDetails_Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCSystemMsg_GetAccountDetails_Response.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCSystemMsg_GetAccountDetails_Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCSystemMsg_GetAccountDetails_Response.Merge(m, src)
+}
+func (m *CGCSystemMsg_GetAccountDetails_Response) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCSystemMsg_GetAccountDetails_Response) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCSystemMsg_GetAccountDetails_Response.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCSystemMsg_GetAccountDetails_Response proto.InternalMessageInfo
 
 const Default_CGCSystemMsg_GetAccountDetails_Response_EresultDeprecated uint32 = 2
 
@@ -2158,6 +3529,27 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) GetIsPhoneIdentifying() bool {
 	return false
 }
 
+func (m *CGCSystemMsg_GetAccountDetails_Response) GetRtIdentityLinked() uint32 {
+	if m != nil {
+		return m.RtIdentityLinked
+	}
+	return 0
+}
+
+func (m *CGCSystemMsg_GetAccountDetails_Response) GetRtBirthDate() uint32 {
+	if m != nil {
+		return m.RtBirthDate
+	}
+	return 0
+}
+
+func (m *CGCSystemMsg_GetAccountDetails_Response) GetTxnCountryCode() string {
+	if m != nil {
+		return m.TxnCountryCode
+	}
+	return ""
+}
+
 type CMsgGCGetPersonaNames struct {
 	Steamids []uint64 `protobuf:"fixed64,1,rep,name=steamids" json:"steamids,omitempty"`
 }
@@ -2166,8 +3558,34 @@ func (m *CMsgGCGetPersonaNames) Reset()         { *m = CMsgGCGetPersonaNames{} }
 func (m *CMsgGCGetPersonaNames) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCGetPersonaNames) ProtoMessage()    {}
 func (*CMsgGCGetPersonaNames) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{39}
+	return fileDescriptor_662a1850681ae3f8, []int{39}
 }
+func (m *CMsgGCGetPersonaNames) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCGetPersonaNames) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCGetPersonaNames.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCGetPersonaNames) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCGetPersonaNames.Merge(m, src)
+}
+func (m *CMsgGCGetPersonaNames) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCGetPersonaNames) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCGetPersonaNames.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCGetPersonaNames proto.InternalMessageInfo
 
 func (m *CMsgGCGetPersonaNames) GetSteamids() []uint64 {
 	if m != nil {
@@ -2185,8 +3603,34 @@ func (m *CMsgGCGetPersonaNames_Response) Reset()         { *m = CMsgGCGetPersona
 func (m *CMsgGCGetPersonaNames_Response) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCGetPersonaNames_Response) ProtoMessage()    {}
 func (*CMsgGCGetPersonaNames_Response) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{40}
+	return fileDescriptor_662a1850681ae3f8, []int{40}
 }
+func (m *CMsgGCGetPersonaNames_Response) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCGetPersonaNames_Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCGetPersonaNames_Response.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCGetPersonaNames_Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCGetPersonaNames_Response.Merge(m, src)
+}
+func (m *CMsgGCGetPersonaNames_Response) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCGetPersonaNames_Response) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCGetPersonaNames_Response.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCGetPersonaNames_Response proto.InternalMessageInfo
 
 func (m *CMsgGCGetPersonaNames_Response) GetSucceededLookups() []*CMsgGCGetPersonaNames_Response_PersonaName {
 	if m != nil {
@@ -2215,8 +3659,34 @@ func (m *CMsgGCGetPersonaNames_Response_PersonaName) String() string {
 }
 func (*CMsgGCGetPersonaNames_Response_PersonaName) ProtoMessage() {}
 func (*CMsgGCGetPersonaNames_Response_PersonaName) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{40, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{40, 0}
 }
+func (m *CMsgGCGetPersonaNames_Response_PersonaName) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCGetPersonaNames_Response_PersonaName) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCGetPersonaNames_Response_PersonaName.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCGetPersonaNames_Response_PersonaName) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCGetPersonaNames_Response_PersonaName.Merge(m, src)
+}
+func (m *CMsgGCGetPersonaNames_Response_PersonaName) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCGetPersonaNames_Response_PersonaName) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCGetPersonaNames_Response_PersonaName.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCGetPersonaNames_Response_PersonaName proto.InternalMessageInfo
 
 func (m *CMsgGCGetPersonaNames_Response_PersonaName) GetSteamid() uint64 {
 	if m != nil {
@@ -2241,8 +3711,34 @@ func (m *CMsgGCCheckFriendship) Reset()         { *m = CMsgGCCheckFriendship{} }
 func (m *CMsgGCCheckFriendship) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCCheckFriendship) ProtoMessage()    {}
 func (*CMsgGCCheckFriendship) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{41}
+	return fileDescriptor_662a1850681ae3f8, []int{41}
 }
+func (m *CMsgGCCheckFriendship) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCCheckFriendship) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCCheckFriendship.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCCheckFriendship) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCCheckFriendship.Merge(m, src)
+}
+func (m *CMsgGCCheckFriendship) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCCheckFriendship) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCCheckFriendship.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCCheckFriendship proto.InternalMessageInfo
 
 func (m *CMsgGCCheckFriendship) GetSteamidLeft() uint64 {
 	if m != nil {
@@ -2267,8 +3763,34 @@ func (m *CMsgGCCheckFriendship_Response) Reset()         { *m = CMsgGCCheckFrien
 func (m *CMsgGCCheckFriendship_Response) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCCheckFriendship_Response) ProtoMessage()    {}
 func (*CMsgGCCheckFriendship_Response) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{42}
+	return fileDescriptor_662a1850681ae3f8, []int{42}
 }
+func (m *CMsgGCCheckFriendship_Response) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCCheckFriendship_Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCCheckFriendship_Response.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCCheckFriendship_Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCCheckFriendship_Response.Merge(m, src)
+}
+func (m *CMsgGCCheckFriendship_Response) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCCheckFriendship_Response) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCCheckFriendship_Response.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCCheckFriendship_Response proto.InternalMessageInfo
 
 func (m *CMsgGCCheckFriendship_Response) GetSuccess() bool {
 	if m != nil {
@@ -2293,8 +3815,34 @@ func (m *CMsgGCMsgMasterSetDirectory) Reset()         { *m = CMsgGCMsgMasterSetD
 func (m *CMsgGCMsgMasterSetDirectory) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCMsgMasterSetDirectory) ProtoMessage()    {}
 func (*CMsgGCMsgMasterSetDirectory) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{43}
+	return fileDescriptor_662a1850681ae3f8, []int{43}
 }
+func (m *CMsgGCMsgMasterSetDirectory) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgMasterSetDirectory) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgMasterSetDirectory.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgMasterSetDirectory) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgMasterSetDirectory.Merge(m, src)
+}
+func (m *CMsgGCMsgMasterSetDirectory) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgMasterSetDirectory) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgMasterSetDirectory.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgMasterSetDirectory proto.InternalMessageInfo
 
 func (m *CMsgGCMsgMasterSetDirectory) GetMasterDirIndex() uint32 {
 	if m != nil {
@@ -2322,8 +3870,34 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Reset()         { *m = CMsgGCMsgMast
 func (m *CMsgGCMsgMasterSetDirectory_SubGC) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCMsgMasterSetDirectory_SubGC) ProtoMessage()    {}
 func (*CMsgGCMsgMasterSetDirectory_SubGC) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{43, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{43, 0}
 }
+func (m *CMsgGCMsgMasterSetDirectory_SubGC) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgMasterSetDirectory_SubGC) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgMasterSetDirectory_SubGC.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgMasterSetDirectory_SubGC) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgMasterSetDirectory_SubGC.Merge(m, src)
+}
+func (m *CMsgGCMsgMasterSetDirectory_SubGC) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgMasterSetDirectory_SubGC) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgMasterSetDirectory_SubGC.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgMasterSetDirectory_SubGC proto.InternalMessageInfo
 
 func (m *CMsgGCMsgMasterSetDirectory_SubGC) GetDirIndex() uint32 {
 	if m != nil {
@@ -2368,8 +3942,34 @@ func (m *CMsgGCMsgMasterSetDirectory_Response) Reset()         { *m = CMsgGCMsgM
 func (m *CMsgGCMsgMasterSetDirectory_Response) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCMsgMasterSetDirectory_Response) ProtoMessage()    {}
 func (*CMsgGCMsgMasterSetDirectory_Response) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{44}
+	return fileDescriptor_662a1850681ae3f8, []int{44}
 }
+func (m *CMsgGCMsgMasterSetDirectory_Response) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgMasterSetDirectory_Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgMasterSetDirectory_Response.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgMasterSetDirectory_Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgMasterSetDirectory_Response.Merge(m, src)
+}
+func (m *CMsgGCMsgMasterSetDirectory_Response) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgMasterSetDirectory_Response) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgMasterSetDirectory_Response.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgMasterSetDirectory_Response proto.InternalMessageInfo
 
 const Default_CMsgGCMsgMasterSetDirectory_Response_Eresult int32 = 2
 
@@ -2390,8 +3990,34 @@ func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) Reset() {
 func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCMsgWebAPIJobRequestForwardResponse) ProtoMessage()    {}
 func (*CMsgGCMsgWebAPIJobRequestForwardResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{45}
+	return fileDescriptor_662a1850681ae3f8, []int{45}
 }
+func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgWebAPIJobRequestForwardResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgWebAPIJobRequestForwardResponse.Merge(m, src)
+}
+func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgWebAPIJobRequestForwardResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgWebAPIJobRequestForwardResponse proto.InternalMessageInfo
 
 func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) GetDirIndex() uint32 {
 	if m != nil {
@@ -2408,8 +4034,34 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Request) Reset()         { *m = CGCSystem
 func (m *CGCSystemMsg_GetPurchaseTrust_Request) String() string { return proto.CompactTextString(m) }
 func (*CGCSystemMsg_GetPurchaseTrust_Request) ProtoMessage()    {}
 func (*CGCSystemMsg_GetPurchaseTrust_Request) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{46}
+	return fileDescriptor_662a1850681ae3f8, []int{46}
 }
+func (m *CGCSystemMsg_GetPurchaseTrust_Request) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCSystemMsg_GetPurchaseTrust_Request) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCSystemMsg_GetPurchaseTrust_Request.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCSystemMsg_GetPurchaseTrust_Request) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCSystemMsg_GetPurchaseTrust_Request.Merge(m, src)
+}
+func (m *CGCSystemMsg_GetPurchaseTrust_Request) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCSystemMsg_GetPurchaseTrust_Request) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCSystemMsg_GetPurchaseTrust_Request.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCSystemMsg_GetPurchaseTrust_Request proto.InternalMessageInfo
 
 func (m *CGCSystemMsg_GetPurchaseTrust_Request) GetSteamid() uint64 {
 	if m != nil {
@@ -2431,8 +4083,34 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Response) Reset() {
 func (m *CGCSystemMsg_GetPurchaseTrust_Response) String() string { return proto.CompactTextString(m) }
 func (*CGCSystemMsg_GetPurchaseTrust_Response) ProtoMessage()    {}
 func (*CGCSystemMsg_GetPurchaseTrust_Response) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{47}
+	return fileDescriptor_662a1850681ae3f8, []int{47}
 }
+func (m *CGCSystemMsg_GetPurchaseTrust_Response) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CGCSystemMsg_GetPurchaseTrust_Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CGCSystemMsg_GetPurchaseTrust_Response.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CGCSystemMsg_GetPurchaseTrust_Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CGCSystemMsg_GetPurchaseTrust_Response.Merge(m, src)
+}
+func (m *CGCSystemMsg_GetPurchaseTrust_Response) XXX_Size() int {
+	return m.Size()
+}
+func (m *CGCSystemMsg_GetPurchaseTrust_Response) XXX_DiscardUnknown() {
+	xxx_messageInfo_CGCSystemMsg_GetPurchaseTrust_Response.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CGCSystemMsg_GetPurchaseTrust_Response proto.InternalMessageInfo
 
 func (m *CGCSystemMsg_GetPurchaseTrust_Response) GetHasPriorPurchaseHistory() bool {
 	if m != nil {
@@ -2474,8 +4152,34 @@ func (m *CMsgGCHAccountVacStatusChange) Reset()         { *m = CMsgGCHAccountVac
 func (m *CMsgGCHAccountVacStatusChange) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCHAccountVacStatusChange) ProtoMessage()    {}
 func (*CMsgGCHAccountVacStatusChange) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{48}
+	return fileDescriptor_662a1850681ae3f8, []int{48}
 }
+func (m *CMsgGCHAccountVacStatusChange) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCHAccountVacStatusChange) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCHAccountVacStatusChange.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCHAccountVacStatusChange) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCHAccountVacStatusChange.Merge(m, src)
+}
+func (m *CMsgGCHAccountVacStatusChange) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCHAccountVacStatusChange) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCHAccountVacStatusChange.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCHAccountVacStatusChange proto.InternalMessageInfo
 
 func (m *CMsgGCHAccountVacStatusChange) GetSteamId() uint64 {
 	if m != nil {
@@ -2520,8 +4224,34 @@ func (m *CMsgGCGetPartnerAccountLink) Reset()         { *m = CMsgGCGetPartnerAcc
 func (m *CMsgGCGetPartnerAccountLink) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCGetPartnerAccountLink) ProtoMessage()    {}
 func (*CMsgGCGetPartnerAccountLink) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{49}
+	return fileDescriptor_662a1850681ae3f8, []int{49}
 }
+func (m *CMsgGCGetPartnerAccountLink) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCGetPartnerAccountLink) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCGetPartnerAccountLink.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCGetPartnerAccountLink) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCGetPartnerAccountLink.Merge(m, src)
+}
+func (m *CMsgGCGetPartnerAccountLink) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCGetPartnerAccountLink) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCGetPartnerAccountLink.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCGetPartnerAccountLink proto.InternalMessageInfo
 
 func (m *CMsgGCGetPartnerAccountLink) GetSteamid() uint64 {
 	if m != nil {
@@ -2539,8 +4269,34 @@ func (m *CMsgGCGetPartnerAccountLink_Response) Reset()         { *m = CMsgGCGetP
 func (m *CMsgGCGetPartnerAccountLink_Response) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCGetPartnerAccountLink_Response) ProtoMessage()    {}
 func (*CMsgGCGetPartnerAccountLink_Response) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{50}
+	return fileDescriptor_662a1850681ae3f8, []int{50}
 }
+func (m *CMsgGCGetPartnerAccountLink_Response) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCGetPartnerAccountLink_Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCGetPartnerAccountLink_Response.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCGetPartnerAccountLink_Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCGetPartnerAccountLink_Response.Merge(m, src)
+}
+func (m *CMsgGCGetPartnerAccountLink_Response) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCGetPartnerAccountLink_Response) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCGetPartnerAccountLink_Response.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCGetPartnerAccountLink_Response proto.InternalMessageInfo
 
 func (m *CMsgGCGetPartnerAccountLink_Response) GetPwid() uint32 {
 	if m != nil {
@@ -2564,10 +4320,38 @@ type CMsgGCRoutingInfo struct {
 	WebapiParam   string                           `protobuf:"bytes,5,opt,name=webapi_param,json=webapiParam" json:"webapi_param"`
 }
 
-func (m *CMsgGCRoutingInfo) Reset()                    { *m = CMsgGCRoutingInfo{} }
-func (m *CMsgGCRoutingInfo) String() string            { return proto.CompactTextString(m) }
-func (*CMsgGCRoutingInfo) ProtoMessage()               {}
-func (*CMsgGCRoutingInfo) Descriptor() ([]byte, []int) { return fileDescriptorSteammessages, []int{51} }
+func (m *CMsgGCRoutingInfo) Reset()         { *m = CMsgGCRoutingInfo{} }
+func (m *CMsgGCRoutingInfo) String() string { return proto.CompactTextString(m) }
+func (*CMsgGCRoutingInfo) ProtoMessage()    {}
+func (*CMsgGCRoutingInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{51}
+}
+func (m *CMsgGCRoutingInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCRoutingInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCRoutingInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCRoutingInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCRoutingInfo.Merge(m, src)
+}
+func (m *CMsgGCRoutingInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCRoutingInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCRoutingInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCRoutingInfo proto.InternalMessageInfo
 
 const Default_CMsgGCRoutingInfo_Method CMsgGCRoutingInfo_RoutingMethod = CMsgGCRoutingInfo_RANDOM
 const Default_CMsgGCRoutingInfo_Fallback CMsgGCRoutingInfo_RoutingMethod = CMsgGCRoutingInfo_DISCARD
@@ -2615,8 +4399,34 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting) Reset()         { *m = CMsgGCMsgMaster
 func (m *CMsgGCMsgMasterSetWebAPIRouting) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCMsgMasterSetWebAPIRouting) ProtoMessage()    {}
 func (*CMsgGCMsgMasterSetWebAPIRouting) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{52}
+	return fileDescriptor_662a1850681ae3f8, []int{52}
 }
+func (m *CMsgGCMsgMasterSetWebAPIRouting) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting.Merge(m, src)
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting proto.InternalMessageInfo
 
 func (m *CMsgGCMsgMasterSetWebAPIRouting) GetEntries() []*CMsgGCMsgMasterSetWebAPIRouting_Entry {
 	if m != nil {
@@ -2635,8 +4445,34 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Reset()         { *m = CMsgGCMsg
 func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCMsgMasterSetWebAPIRouting_Entry) ProtoMessage()    {}
 func (*CMsgGCMsgMasterSetWebAPIRouting_Entry) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{52, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{52, 0}
 }
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting_Entry.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting_Entry.Merge(m, src)
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting_Entry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting_Entry proto.InternalMessageInfo
 
 func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) GetInterfaceName() string {
 	if m != nil {
@@ -2667,8 +4503,34 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting) Reset()         { *m = CMsgGCMsgMas
 func (m *CMsgGCMsgMasterSetClientMsgRouting) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCMsgMasterSetClientMsgRouting) ProtoMessage()    {}
 func (*CMsgGCMsgMasterSetClientMsgRouting) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{53}
+	return fileDescriptor_662a1850681ae3f8, []int{53}
 }
+func (m *CMsgGCMsgMasterSetClientMsgRouting) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting.Merge(m, src)
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting proto.InternalMessageInfo
 
 func (m *CMsgGCMsgMasterSetClientMsgRouting) GetEntries() []*CMsgGCMsgMasterSetClientMsgRouting_Entry {
 	if m != nil {
@@ -2688,8 +4550,34 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) Reset() {
 func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCMsgMasterSetClientMsgRouting_Entry) ProtoMessage()    {}
 func (*CMsgGCMsgMasterSetClientMsgRouting_Entry) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{53, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{53, 0}
 }
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting_Entry.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting_Entry.Merge(m, src)
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting_Entry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting_Entry proto.InternalMessageInfo
 
 func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) GetMsgType() uint32 {
 	if m != nil {
@@ -2715,8 +4603,34 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) Reset() {
 func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCMsgMasterSetWebAPIRouting_Response) ProtoMessage()    {}
 func (*CMsgGCMsgMasterSetWebAPIRouting_Response) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{54}
+	return fileDescriptor_662a1850681ae3f8, []int{54}
 }
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting_Response.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting_Response.Merge(m, src)
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting_Response.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting_Response proto.InternalMessageInfo
 
 const Default_CMsgGCMsgMasterSetWebAPIRouting_Response_Eresult int32 = 2
 
@@ -2739,8 +4653,34 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) String() string {
 }
 func (*CMsgGCMsgMasterSetClientMsgRouting_Response) ProtoMessage() {}
 func (*CMsgGCMsgMasterSetClientMsgRouting_Response) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{55}
+	return fileDescriptor_662a1850681ae3f8, []int{55}
 }
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting_Response.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting_Response.Merge(m, src)
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting_Response.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting_Response proto.InternalMessageInfo
 
 const Default_CMsgGCMsgMasterSetClientMsgRouting_Response_Eresult int32 = 2
 
@@ -2760,8 +4700,34 @@ func (m *CMsgGCMsgSetOptions) Reset()         { *m = CMsgGCMsgSetOptions{} }
 func (m *CMsgGCMsgSetOptions) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCMsgSetOptions) ProtoMessage()    {}
 func (*CMsgGCMsgSetOptions) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{56}
+	return fileDescriptor_662a1850681ae3f8, []int{56}
 }
+func (m *CMsgGCMsgSetOptions) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgSetOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgSetOptions.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgSetOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgSetOptions.Merge(m, src)
+}
+func (m *CMsgGCMsgSetOptions) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgSetOptions) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgSetOptions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgSetOptions proto.InternalMessageInfo
 
 func (m *CMsgGCMsgSetOptions) GetOptions() []CMsgGCMsgSetOptions_Option {
 	if m != nil {
@@ -2786,8 +4752,34 @@ func (m *CMsgGCMsgSetOptions_MessageRange) Reset()         { *m = CMsgGCMsgSetOp
 func (m *CMsgGCMsgSetOptions_MessageRange) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCMsgSetOptions_MessageRange) ProtoMessage()    {}
 func (*CMsgGCMsgSetOptions_MessageRange) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{56, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{56, 0}
 }
+func (m *CMsgGCMsgSetOptions_MessageRange) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCMsgSetOptions_MessageRange) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCMsgSetOptions_MessageRange.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCMsgSetOptions_MessageRange) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCMsgSetOptions_MessageRange.Merge(m, src)
+}
+func (m *CMsgGCMsgSetOptions_MessageRange) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCMsgSetOptions_MessageRange) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCMsgSetOptions_MessageRange.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCMsgSetOptions_MessageRange proto.InternalMessageInfo
 
 func (m *CMsgGCMsgSetOptions_MessageRange) GetLow() uint32 {
 	if m != nil {
@@ -2804,23 +4796,53 @@ func (m *CMsgGCMsgSetOptions_MessageRange) GetHigh() uint32 {
 }
 
 type CMsgGCHUpdateSession struct {
-	SteamId       uint64                             `protobuf:"fixed64,1,opt,name=steam_id,json=steamId" json:"steam_id"`
-	AppId         uint32                             `protobuf:"varint,2,opt,name=app_id,json=appId" json:"app_id"`
-	Online        bool                               `protobuf:"varint,3,opt,name=online" json:"online"`
-	ServerSteamId uint64                             `protobuf:"fixed64,4,opt,name=server_steam_id,json=serverSteamId" json:"server_steam_id"`
-	ServerAddr    uint32                             `protobuf:"varint,5,opt,name=server_addr,json=serverAddr" json:"server_addr"`
-	ServerPort    uint32                             `protobuf:"varint,6,opt,name=server_port,json=serverPort" json:"server_port"`
-	OsType        uint32                             `protobuf:"varint,7,opt,name=os_type,json=osType" json:"os_type"`
-	ClientAddr    uint32                             `protobuf:"varint,8,opt,name=client_addr,json=clientAddr" json:"client_addr"`
-	ExtraFields   []*CMsgGCHUpdateSession_ExtraField `protobuf:"bytes,9,rep,name=extra_fields,json=extraFields" json:"extra_fields,omitempty"`
+	SteamId             uint64                             `protobuf:"fixed64,1,opt,name=steam_id,json=steamId" json:"steam_id"`
+	AppId               uint32                             `protobuf:"varint,2,opt,name=app_id,json=appId" json:"app_id"`
+	Online              bool                               `protobuf:"varint,3,opt,name=online" json:"online"`
+	ServerSteamId       uint64                             `protobuf:"fixed64,4,opt,name=server_steam_id,json=serverSteamId" json:"server_steam_id"`
+	ServerAddr          uint32                             `protobuf:"varint,5,opt,name=server_addr,json=serverAddr" json:"server_addr"`
+	ServerPort          uint32                             `protobuf:"varint,6,opt,name=server_port,json=serverPort" json:"server_port"`
+	OsType              uint32                             `protobuf:"varint,7,opt,name=os_type,json=osType" json:"os_type"`
+	ClientAddr          uint32                             `protobuf:"varint,8,opt,name=client_addr,json=clientAddr" json:"client_addr"`
+	ExtraFields         []*CMsgGCHUpdateSession_ExtraField `protobuf:"bytes,9,rep,name=extra_fields,json=extraFields" json:"extra_fields,omitempty"`
+	OwnerId             uint64                             `protobuf:"fixed64,10,opt,name=owner_id,json=ownerId" json:"owner_id"`
+	CmSessionSysid      uint32                             `protobuf:"varint,11,opt,name=cm_session_sysid,json=cmSessionSysid" json:"cm_session_sysid"`
+	CmSessionIdentifier uint32                             `protobuf:"varint,12,opt,name=cm_session_identifier,json=cmSessionIdentifier" json:"cm_session_identifier"`
+	DepotIds            []uint32                           `protobuf:"varint,13,rep,name=depot_ids,json=depotIds" json:"depot_ids,omitempty"`
 }
 
 func (m *CMsgGCHUpdateSession) Reset()         { *m = CMsgGCHUpdateSession{} }
 func (m *CMsgGCHUpdateSession) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCHUpdateSession) ProtoMessage()    {}
 func (*CMsgGCHUpdateSession) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{57}
+	return fileDescriptor_662a1850681ae3f8, []int{57}
 }
+func (m *CMsgGCHUpdateSession) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCHUpdateSession) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCHUpdateSession.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCHUpdateSession) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCHUpdateSession.Merge(m, src)
+}
+func (m *CMsgGCHUpdateSession) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCHUpdateSession) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCHUpdateSession.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCHUpdateSession proto.InternalMessageInfo
 
 func (m *CMsgGCHUpdateSession) GetSteamId() uint64 {
 	if m != nil {
@@ -2885,6 +4907,34 @@ func (m *CMsgGCHUpdateSession) GetExtraFields() []*CMsgGCHUpdateSession_ExtraFie
 	return nil
 }
 
+func (m *CMsgGCHUpdateSession) GetOwnerId() uint64 {
+	if m != nil {
+		return m.OwnerId
+	}
+	return 0
+}
+
+func (m *CMsgGCHUpdateSession) GetCmSessionSysid() uint32 {
+	if m != nil {
+		return m.CmSessionSysid
+	}
+	return 0
+}
+
+func (m *CMsgGCHUpdateSession) GetCmSessionIdentifier() uint32 {
+	if m != nil {
+		return m.CmSessionIdentifier
+	}
+	return 0
+}
+
+func (m *CMsgGCHUpdateSession) GetDepotIds() []uint32 {
+	if m != nil {
+		return m.DepotIds
+	}
+	return nil
+}
+
 type CMsgGCHUpdateSession_ExtraField struct {
 	Name  string `protobuf:"bytes,1,opt,name=name" json:"name"`
 	Value string `protobuf:"bytes,2,opt,name=value" json:"value"`
@@ -2894,8 +4944,34 @@ func (m *CMsgGCHUpdateSession_ExtraField) Reset()         { *m = CMsgGCHUpdateSe
 func (m *CMsgGCHUpdateSession_ExtraField) String() string { return proto.CompactTextString(m) }
 func (*CMsgGCHUpdateSession_ExtraField) ProtoMessage()    {}
 func (*CMsgGCHUpdateSession_ExtraField) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{57, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{57, 0}
 }
+func (m *CMsgGCHUpdateSession_ExtraField) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgGCHUpdateSession_ExtraField) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgGCHUpdateSession_ExtraField.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgGCHUpdateSession_ExtraField) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgGCHUpdateSession_ExtraField.Merge(m, src)
+}
+func (m *CMsgGCHUpdateSession_ExtraField) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgGCHUpdateSession_ExtraField) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgGCHUpdateSession_ExtraField.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgGCHUpdateSession_ExtraField proto.InternalMessageInfo
 
 func (m *CMsgGCHUpdateSession_ExtraField) GetName() string {
 	if m != nil {
@@ -2921,8 +4997,34 @@ func (m *CMsgNotificationOfSuspiciousActivity) Reset()         { *m = CMsgNotifi
 func (m *CMsgNotificationOfSuspiciousActivity) String() string { return proto.CompactTextString(m) }
 func (*CMsgNotificationOfSuspiciousActivity) ProtoMessage()    {}
 func (*CMsgNotificationOfSuspiciousActivity) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{58}
+	return fileDescriptor_662a1850681ae3f8, []int{58}
 }
+func (m *CMsgNotificationOfSuspiciousActivity) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgNotificationOfSuspiciousActivity) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgNotificationOfSuspiciousActivity.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgNotificationOfSuspiciousActivity) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgNotificationOfSuspiciousActivity.Merge(m, src)
+}
+func (m *CMsgNotificationOfSuspiciousActivity) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgNotificationOfSuspiciousActivity) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgNotificationOfSuspiciousActivity.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgNotificationOfSuspiciousActivity proto.InternalMessageInfo
 
 func (m *CMsgNotificationOfSuspiciousActivity) GetSteamid() uint64 {
 	if m != nil {
@@ -2958,8 +5060,34 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) String() st
 }
 func (*CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) ProtoMessage() {}
 func (*CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) Descriptor() ([]byte, []int) {
-	return fileDescriptorSteammessages, []int{58, 0}
+	return fileDescriptor_662a1850681ae3f8, []int{58, 0}
 }
+func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgNotificationOfSuspiciousActivity_MultipleGameInstances.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgNotificationOfSuspiciousActivity_MultipleGameInstances.Merge(m, src)
+}
+func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgNotificationOfSuspiciousActivity_MultipleGameInstances.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgNotificationOfSuspiciousActivity_MultipleGameInstances proto.InternalMessageInfo
 
 func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) GetAppInstanceCount() uint32 {
 	if m != nil {
@@ -2975,34 +5103,403 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) GetOtherSte
 	return nil
 }
 
+type CMsgDPPartnerMicroTxns struct {
+	Appid        uint32                                    `protobuf:"varint,1,opt,name=appid" json:"appid"`
+	GcName       string                                    `protobuf:"bytes,2,opt,name=gc_name,json=gcName" json:"gc_name"`
+	Partner      *CMsgDPPartnerMicroTxns_PartnerInfo       `protobuf:"bytes,3,opt,name=partner" json:"partner,omitempty"`
+	Transactions []*CMsgDPPartnerMicroTxns_PartnerMicroTxn `protobuf:"bytes,4,rep,name=transactions" json:"transactions,omitempty"`
+}
+
+func (m *CMsgDPPartnerMicroTxns) Reset()         { *m = CMsgDPPartnerMicroTxns{} }
+func (m *CMsgDPPartnerMicroTxns) String() string { return proto.CompactTextString(m) }
+func (*CMsgDPPartnerMicroTxns) ProtoMessage()    {}
+func (*CMsgDPPartnerMicroTxns) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{59}
+}
+func (m *CMsgDPPartnerMicroTxns) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgDPPartnerMicroTxns) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgDPPartnerMicroTxns.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgDPPartnerMicroTxns) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgDPPartnerMicroTxns.Merge(m, src)
+}
+func (m *CMsgDPPartnerMicroTxns) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgDPPartnerMicroTxns) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgDPPartnerMicroTxns.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgDPPartnerMicroTxns proto.InternalMessageInfo
+
+func (m *CMsgDPPartnerMicroTxns) GetAppid() uint32 {
+	if m != nil {
+		return m.Appid
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns) GetGcName() string {
+	if m != nil {
+		return m.GcName
+	}
+	return ""
+}
+
+func (m *CMsgDPPartnerMicroTxns) GetPartner() *CMsgDPPartnerMicroTxns_PartnerInfo {
+	if m != nil {
+		return m.Partner
+	}
+	return nil
+}
+
+func (m *CMsgDPPartnerMicroTxns) GetTransactions() []*CMsgDPPartnerMicroTxns_PartnerMicroTxn {
+	if m != nil {
+		return m.Transactions
+	}
+	return nil
+}
+
+type CMsgDPPartnerMicroTxns_PartnerMicroTxn struct {
+	InitTime       uint32 `protobuf:"varint,1,opt,name=init_time,json=initTime" json:"init_time"`
+	LastUpdateTime uint32 `protobuf:"varint,2,opt,name=last_update_time,json=lastUpdateTime" json:"last_update_time"`
+	TxnId          uint64 `protobuf:"varint,3,opt,name=txn_id,json=txnId" json:"txn_id"`
+	AccountId      uint32 `protobuf:"varint,4,opt,name=account_id,json=accountId" json:"account_id"`
+	LineItem       uint32 `protobuf:"varint,5,opt,name=line_item,json=lineItem" json:"line_item"`
+	ItemId         uint64 `protobuf:"varint,6,opt,name=item_id,json=itemId" json:"item_id"`
+	DefIndex       uint32 `protobuf:"varint,7,opt,name=def_index,json=defIndex" json:"def_index"`
+	Price          uint64 `protobuf:"varint,8,opt,name=price" json:"price"`
+	Tax            uint64 `protobuf:"varint,9,opt,name=tax" json:"tax"`
+	PriceUsd       uint64 `protobuf:"varint,10,opt,name=price_usd,json=priceUsd" json:"price_usd"`
+	TaxUsd         uint64 `protobuf:"varint,11,opt,name=tax_usd,json=taxUsd" json:"tax_usd"`
+	PurchaseType   uint32 `protobuf:"varint,12,opt,name=purchase_type,json=purchaseType" json:"purchase_type"`
+	SteamTxnType   uint32 `protobuf:"varint,13,opt,name=steam_txn_type,json=steamTxnType" json:"steam_txn_type"`
+	CountryCode    string `protobuf:"bytes,14,opt,name=country_code,json=countryCode" json:"country_code"`
+	RegionCode     string `protobuf:"bytes,15,opt,name=region_code,json=regionCode" json:"region_code"`
+	Quantity       int32  `protobuf:"varint,16,opt,name=quantity" json:"quantity"`
+	RefTransId     uint64 `protobuf:"varint,17,opt,name=ref_trans_id,json=refTransId" json:"ref_trans_id"`
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) Reset() {
+	*m = CMsgDPPartnerMicroTxns_PartnerMicroTxn{}
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) String() string { return proto.CompactTextString(m) }
+func (*CMsgDPPartnerMicroTxns_PartnerMicroTxn) ProtoMessage()    {}
+func (*CMsgDPPartnerMicroTxns_PartnerMicroTxn) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{59, 0}
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgDPPartnerMicroTxns_PartnerMicroTxn.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgDPPartnerMicroTxns_PartnerMicroTxn.Merge(m, src)
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgDPPartnerMicroTxns_PartnerMicroTxn.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgDPPartnerMicroTxns_PartnerMicroTxn proto.InternalMessageInfo
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetInitTime() uint32 {
+	if m != nil {
+		return m.InitTime
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetLastUpdateTime() uint32 {
+	if m != nil {
+		return m.LastUpdateTime
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetTxnId() uint64 {
+	if m != nil {
+		return m.TxnId
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetAccountId() uint32 {
+	if m != nil {
+		return m.AccountId
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetLineItem() uint32 {
+	if m != nil {
+		return m.LineItem
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetItemId() uint64 {
+	if m != nil {
+		return m.ItemId
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetDefIndex() uint32 {
+	if m != nil {
+		return m.DefIndex
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetPrice() uint64 {
+	if m != nil {
+		return m.Price
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetTax() uint64 {
+	if m != nil {
+		return m.Tax
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetPriceUsd() uint64 {
+	if m != nil {
+		return m.PriceUsd
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetTaxUsd() uint64 {
+	if m != nil {
+		return m.TaxUsd
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetPurchaseType() uint32 {
+	if m != nil {
+		return m.PurchaseType
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetSteamTxnType() uint32 {
+	if m != nil {
+		return m.SteamTxnType
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetCountryCode() string {
+	if m != nil {
+		return m.CountryCode
+	}
+	return ""
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetRegionCode() string {
+	if m != nil {
+		return m.RegionCode
+	}
+	return ""
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetQuantity() int32 {
+	if m != nil {
+		return m.Quantity
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) GetRefTransId() uint64 {
+	if m != nil {
+		return m.RefTransId
+	}
+	return 0
+}
+
+type CMsgDPPartnerMicroTxns_PartnerInfo struct {
+	PartnerId    uint32 `protobuf:"varint,1,opt,name=partner_id,json=partnerId" json:"partner_id"`
+	PartnerName  string `protobuf:"bytes,2,opt,name=partner_name,json=partnerName" json:"partner_name"`
+	CurrencyCode string `protobuf:"bytes,3,opt,name=currency_code,json=currencyCode" json:"currency_code"`
+	CurrencyName string `protobuf:"bytes,4,opt,name=currency_name,json=currencyName" json:"currency_name"`
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) Reset()         { *m = CMsgDPPartnerMicroTxns_PartnerInfo{} }
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) String() string { return proto.CompactTextString(m) }
+func (*CMsgDPPartnerMicroTxns_PartnerInfo) ProtoMessage()    {}
+func (*CMsgDPPartnerMicroTxns_PartnerInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{59, 1}
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgDPPartnerMicroTxns_PartnerInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgDPPartnerMicroTxns_PartnerInfo.Merge(m, src)
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgDPPartnerMicroTxns_PartnerInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgDPPartnerMicroTxns_PartnerInfo proto.InternalMessageInfo
+
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) GetPartnerId() uint32 {
+	if m != nil {
+		return m.PartnerId
+	}
+	return 0
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) GetPartnerName() string {
+	if m != nil {
+		return m.PartnerName
+	}
+	return ""
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) GetCurrencyCode() string {
+	if m != nil {
+		return m.CurrencyCode
+	}
+	return ""
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) GetCurrencyName() string {
+	if m != nil {
+		return m.CurrencyName
+	}
+	return ""
+}
+
+type CMsgDPPartnerMicroTxnsResponse struct {
+	Eresult    *uint32                                    `protobuf:"varint,1,opt,name=eresult,def=2" json:"eresult,omitempty"`
+	Eerrorcode *CMsgDPPartnerMicroTxnsResponse_EErrorCode `protobuf:"varint,2,opt,name=eerrorcode,enum=CMsgDPPartnerMicroTxnsResponse_EErrorCode,def=0" json:"eerrorcode,omitempty"`
+}
+
+func (m *CMsgDPPartnerMicroTxnsResponse) Reset()         { *m = CMsgDPPartnerMicroTxnsResponse{} }
+func (m *CMsgDPPartnerMicroTxnsResponse) String() string { return proto.CompactTextString(m) }
+func (*CMsgDPPartnerMicroTxnsResponse) ProtoMessage()    {}
+func (*CMsgDPPartnerMicroTxnsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_662a1850681ae3f8, []int{60}
+}
+func (m *CMsgDPPartnerMicroTxnsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CMsgDPPartnerMicroTxnsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CMsgDPPartnerMicroTxnsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CMsgDPPartnerMicroTxnsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CMsgDPPartnerMicroTxnsResponse.Merge(m, src)
+}
+func (m *CMsgDPPartnerMicroTxnsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CMsgDPPartnerMicroTxnsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CMsgDPPartnerMicroTxnsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CMsgDPPartnerMicroTxnsResponse proto.InternalMessageInfo
+
+const Default_CMsgDPPartnerMicroTxnsResponse_Eresult uint32 = 2
+const Default_CMsgDPPartnerMicroTxnsResponse_Eerrorcode CMsgDPPartnerMicroTxnsResponse_EErrorCode = CMsgDPPartnerMicroTxnsResponse_k_MsgValid
+
+func (m *CMsgDPPartnerMicroTxnsResponse) GetEresult() uint32 {
+	if m != nil && m.Eresult != nil {
+		return *m.Eresult
+	}
+	return Default_CMsgDPPartnerMicroTxnsResponse_Eresult
+}
+
+func (m *CMsgDPPartnerMicroTxnsResponse) GetEerrorcode() CMsgDPPartnerMicroTxnsResponse_EErrorCode {
+	if m != nil && m.Eerrorcode != nil {
+		return *m.Eerrorcode
+	}
+	return Default_CMsgDPPartnerMicroTxnsResponse_Eerrorcode
+}
+
 var E_KeyField = &proto.ExtensionDesc{
-	ExtendedType:  (*google_protobuf.FieldOptions)(nil),
+	ExtendedType:  (*descriptor.FieldOptions)(nil),
 	ExtensionType: (*bool)(nil),
 	Field:         60000,
 	Name:          "key_field",
-	Tag:           "varint,60000,opt,name=key_field,json=keyField,def=0",
+	Tag:           "varint,60000,opt,name=key_field,def=0",
 	Filename:      "steammessages.proto",
 }
 
 var E_MsgpoolSoftLimit = &proto.ExtensionDesc{
-	ExtendedType:  (*google_protobuf.MessageOptions)(nil),
+	ExtendedType:  (*descriptor.MessageOptions)(nil),
 	ExtensionType: (*int32)(nil),
 	Field:         60000,
 	Name:          "msgpool_soft_limit",
-	Tag:           "varint,60000,opt,name=msgpool_soft_limit,json=msgpoolSoftLimit,def=32",
+	Tag:           "varint,60000,opt,name=msgpool_soft_limit,def=32",
 	Filename:      "steammessages.proto",
 }
 
 var E_MsgpoolHardLimit = &proto.ExtensionDesc{
-	ExtendedType:  (*google_protobuf.MessageOptions)(nil),
+	ExtendedType:  (*descriptor.MessageOptions)(nil),
 	ExtensionType: (*int32)(nil),
 	Field:         60001,
 	Name:          "msgpool_hard_limit",
-	Tag:           "varint,60001,opt,name=msgpool_hard_limit,json=msgpoolHardLimit,def=384",
+	Tag:           "varint,60001,opt,name=msgpool_hard_limit,def=384",
 	Filename:      "steammessages.proto",
 }
 
 func init() {
+	proto.RegisterEnum("GCProtoBufMsgSrc", GCProtoBufMsgSrc_name, GCProtoBufMsgSrc_value)
+	proto.RegisterEnum("CMsgGCRoutingInfo_RoutingMethod", CMsgGCRoutingInfo_RoutingMethod_name, CMsgGCRoutingInfo_RoutingMethod_value)
+	proto.RegisterEnum("CMsgGCMsgSetOptions_Option", CMsgGCMsgSetOptions_Option_name, CMsgGCMsgSetOptions_Option_value)
+	proto.RegisterEnum("CMsgDPPartnerMicroTxnsResponse_EErrorCode", CMsgDPPartnerMicroTxnsResponse_EErrorCode_name, CMsgDPPartnerMicroTxnsResponse_EErrorCode_value)
 	proto.RegisterType((*CMsgProtoBufHeader)(nil), "CMsgProtoBufHeader")
 	proto.RegisterType((*CMsgWebAPIKey)(nil), "CMsgWebAPIKey")
 	proto.RegisterType((*CMsgHttpRequest)(nil), "CMsgHttpRequest")
@@ -3078,13 +5575,378 @@ func init() {
 	proto.RegisterType((*CMsgGCHUpdateSession_ExtraField)(nil), "CMsgGCHUpdateSession.ExtraField")
 	proto.RegisterType((*CMsgNotificationOfSuspiciousActivity)(nil), "CMsgNotificationOfSuspiciousActivity")
 	proto.RegisterType((*CMsgNotificationOfSuspiciousActivity_MultipleGameInstances)(nil), "CMsgNotificationOfSuspiciousActivity.MultipleGameInstances")
-	proto.RegisterEnum("GCProtoBufMsgSrc", GCProtoBufMsgSrc_name, GCProtoBufMsgSrc_value)
-	proto.RegisterEnum("CMsgGCRoutingInfo_RoutingMethod", CMsgGCRoutingInfo_RoutingMethod_name, CMsgGCRoutingInfo_RoutingMethod_value)
-	proto.RegisterEnum("CMsgGCMsgSetOptions_Option", CMsgGCMsgSetOptions_Option_name, CMsgGCMsgSetOptions_Option_value)
+	proto.RegisterType((*CMsgDPPartnerMicroTxns)(nil), "CMsgDPPartnerMicroTxns")
+	proto.RegisterType((*CMsgDPPartnerMicroTxns_PartnerMicroTxn)(nil), "CMsgDPPartnerMicroTxns.PartnerMicroTxn")
+	proto.RegisterType((*CMsgDPPartnerMicroTxns_PartnerInfo)(nil), "CMsgDPPartnerMicroTxns.PartnerInfo")
+	proto.RegisterType((*CMsgDPPartnerMicroTxnsResponse)(nil), "CMsgDPPartnerMicroTxnsResponse")
 	proto.RegisterExtension(E_KeyField)
 	proto.RegisterExtension(E_MsgpoolSoftLimit)
 	proto.RegisterExtension(E_MsgpoolHardLimit)
 }
+
+func init() { proto.RegisterFile("steammessages.proto", fileDescriptor_662a1850681ae3f8) }
+
+var fileDescriptor_662a1850681ae3f8 = []byte{
+	// 5700 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x7b, 0x4d, 0x6c, 0x23, 0xc9,
+	0x75, 0xff, 0x90, 0xfa, 0x7e, 0x12, 0x29, 0xaa, 0x35, 0x1f, 0x5c, 0xcd, 0x97, 0xb6, 0xd7, 0xb3,
+	0xab, 0xdd, 0x59, 0x73, 0x66, 0x67, 0x67, 0x3f, 0x2c, 0xdb, 0xf8, 0xaf, 0x86, 0xfa, 0x18, 0xee,
+	0x4a, 0x1a, 0x2d, 0xc9, 0xd1, 0xfe, 0x13, 0x04, 0x6e, 0x17, 0xbb, 0x8b, 0x64, 0xad, 0xc8, 0xee,
+	0xde, 0xae, 0xa2, 0x24, 0xde, 0x36, 0x09, 0x60, 0xd8, 0x97, 0x20, 0x40, 0x0e, 0xb9, 0x04, 0xbe,
+	0xc5, 0x08, 0x72, 0x48, 0xe2, 0x8b, 0x0f, 0xb9, 0x25, 0xbe, 0x38, 0x87, 0x00, 0x3e, 0x04, 0x48,
+	0x4e, 0x89, 0x63, 0x23, 0xc7, 0x20, 0x40, 0xae, 0x09, 0x90, 0xa0, 0x5e, 0x55, 0x35, 0xab, 0x49,
+	0xed, 0x68, 0x62, 0x9f, 0xc4, 0x7e, 0xbf, 0xf7, 0x5e, 0x7d, 0xbd, 0x7a, 0xef, 0xd5, 0xab, 0x12,
+	0xac, 0x72, 0x41, 0x49, 0xbf, 0x4f, 0x39, 0x27, 0x1d, 0xca, 0x2b, 0x71, 0x12, 0x89, 0x68, 0x6d,
+	0xbd, 0x13, 0x45, 0x9d, 0x1e, 0x7d, 0x80, 0x5f, 0xad, 0x41, 0xfb, 0x41, 0x40, 0xb9, 0x9f, 0xb0,
+	0x58, 0x44, 0x89, 0xe2, 0x70, 0xff, 0x6a, 0x1a, 0x9c, 0xea, 0x01, 0xef, 0x1c, 0xc9, 0xaf, 0x27,
+	0x83, 0xf6, 0x53, 0x4a, 0x02, 0x9a, 0x38, 0x6f, 0xc3, 0xb2, 0xdf, 0x63, 0x34, 0x14, 0x1e, 0xaa,
+	0xf5, 0x58, 0x50, 0xce, 0xad, 0xe7, 0x36, 0x66, 0x9f, 0x4c, 0xff, 0xec, 0x9f, 0xef, 0x5e, 0xa9,
+	0x17, 0x14, 0xd8, 0x90, 0x58, 0x2d, 0x70, 0x1e, 0xc2, 0x8a, 0xe1, 0xa6, 0x9c, 0xb3, 0x28, 0x94,
+	0xfc, 0xf9, 0xf5, 0xdc, 0xc6, 0x8c, 0xe6, 0xd7, 0xca, 0x1a, 0x0a, 0xad, 0x05, 0xce, 0x06, 0x14,
+	0x78, 0x34, 0x48, 0x7c, 0xea, 0x91, 0x38, 0x96, 0xdc, 0x53, 0xeb, 0xb9, 0x8d, 0x82, 0xe6, 0x5e,
+	0x54, 0xd0, 0x56, 0x1c, 0xd7, 0x02, 0xe7, 0x43, 0x28, 0x7c, 0x1e, 0xb5, 0x3c, 0x16, 0x78, 0x8a,
+	0x5a, 0x06, 0xd9, 0x8f, 0xcd, 0xab, 0xef, 0x7c, 0xf8, 0xf8, 0xf1, 0xfb, 0x1f, 0x3c, 0x7e, 0xfc,
+	0xf0, 0x83, 0x77, 0x3f, 0x78, 0xf8, 0x8d, 0xf7, 0xde, 0x7b, 0xe7, 0xfd, 0x77, 0xde, 0xab, 0x2f,
+	0x7e, 0x1e, 0xb5, 0x6a, 0x41, 0x03, 0x19, 0x2d, 0x49, 0x41, 0x92, 0x0e, 0x15, 0xe5, 0xc5, 0x4b,
+	0x25, 0x9b, 0xc8, 0x28, 0x47, 0xaf, 0x44, 0x3c, 0xa9, 0x20, 0x24, 0x7d, 0x5a, 0x5e, 0x5a, 0xcf,
+	0x6d, 0x2c, 0x98, 0xd1, 0x2b, 0xf0, 0xe3, 0xa8, 0x75, 0x48, 0xfa, 0xd4, 0xb9, 0x09, 0x73, 0x34,
+	0xa1, 0x7c, 0xd0, 0x13, 0xe5, 0x82, 0x1c, 0xf3, 0x66, 0xee, 0x51, 0xdd, 0x50, 0x9c, 0x37, 0xa1,
+	0x40, 0x93, 0x24, 0x4a, 0x3c, 0xbd, 0x32, 0xe5, 0xa2, 0xa5, 0x68, 0x09, 0xa1, 0x03, 0x85, 0x38,
+	0x57, 0x21, 0xcf, 0xe2, 0xf2, 0xb2, 0x35, 0x11, 0x79, 0x16, 0x3b, 0x87, 0x00, 0x1d, 0xdf, 0xeb,
+	0xf3, 0x8e, 0xc7, 0x13, 0xbf, 0xfc, 0x33, 0xb9, 0x0a, 0xc5, 0x47, 0x2b, 0x95, 0xbd, 0xaa, 0x59,
+	0xb1, 0x03, 0xde, 0x69, 0x24, 0xfe, 0xe6, 0xad, 0x71, 0x8a, 0xf7, 0x3c, 0xe4, 0x31, 0xf5, 0x59,
+	0x9b, 0xd1, 0xa0, 0x3e, 0xdf, 0xf1, 0x15, 0xd5, 0x79, 0x0c, 0xab, 0x1d, 0xdf, 0x0b, 0x58, 0xe2,
+	0xb1, 0x30, 0xa0, 0xe7, 0x66, 0x56, 0xff, 0x2e, 0x67, 0xb5, 0x5b, 0xea, 0xf8, 0xdb, 0x2c, 0xa9,
+	0x49, 0x5c, 0xcd, 0xe5, 0x26, 0x7c, 0xf9, 0xa3, 0xdb, 0x5f, 0xe6, 0xbf, 0xff, 0xa3, 0xdb, 0x5f,
+	0xce, 0xbb, 0x7f, 0x9d, 0x83, 0x82, 0x34, 0x99, 0xcf, 0x68, 0x6b, 0xeb, 0xa8, 0xf6, 0x09, 0x1d,
+	0x3a, 0x37, 0x61, 0x96, 0x0b, 0x22, 0x06, 0x1c, 0x8d, 0xa4, 0xb0, 0x39, 0xf5, 0xe8, 0xbd, 0xf7,
+	0xea, 0x9a, 0xe4, 0xac, 0x03, 0x10, 0xdf, 0x8f, 0x06, 0xa1, 0x30, 0x56, 0x51, 0xd8, 0xcc, 0x3d,
+	0xac, 0x2f, 0x68, 0x62, 0x2d, 0x70, 0x1e, 0x80, 0x13, 0x0f, 0x5a, 0x3d, 0xc6, 0xbb, 0x34, 0xf1,
+	0x3a, 0x49, 0x34, 0x18, 0x59, 0x84, 0xe4, 0x2c, 0xa5, 0xe0, 0x9e, 0xc4, 0x6a, 0x81, 0x6c, 0xef,
+	0x84, 0x0e, 0x25, 0xd3, 0xb4, 0xd5, 0xeb, 0x99, 0x13, 0x3a, 0xac, 0x05, 0xce, 0x2d, 0x98, 0x0d,
+	0xa2, 0x3e, 0x61, 0x61, 0x79, 0xc6, 0x9a, 0x6a, 0x4d, 0x73, 0x7f, 0x6f, 0x1a, 0x96, 0x65, 0xe7,
+	0x9f, 0x0a, 0x11, 0xd7, 0xe9, 0x17, 0x03, 0xca, 0x85, 0x73, 0x1f, 0x8a, 0x89, 0xfa, 0xe9, 0xf5,
+	0xa9, 0xe8, 0x46, 0xca, 0xd6, 0x8d, 0xda, 0x82, 0xc6, 0x0e, 0x10, 0x72, 0xd6, 0x61, 0xbe, 0x1b,
+	0x71, 0x81, 0x46, 0x91, 0xb7, 0x1a, 0x48, 0xa9, 0xce, 0x75, 0x98, 0x1a, 0x24, 0x3d, 0xec, 0xbf,
+	0x01, 0x25, 0xc1, 0xf9, 0x10, 0xe6, 0xba, 0xb8, 0xbb, 0x78, 0x79, 0x7a, 0x7d, 0x6a, 0x63, 0xf1,
+	0xd1, 0x9d, 0xca, 0x58, 0x4f, 0x2a, 0xfa, 0xaf, 0xda, 0x84, 0x75, 0xc3, 0xee, 0x6c, 0x02, 0x48,
+	0x63, 0x8c, 0x49, 0x42, 0xfa, 0xbc, 0x3c, 0x83, 0xc2, 0x37, 0x27, 0x84, 0x3f, 0x1d, 0xd0, 0x64,
+	0x78, 0x24, 0x79, 0xea, 0x0b, 0x1d, 0x2a, 0xf0, 0x17, 0x77, 0xbe, 0x05, 0x8b, 0x71, 0xc4, 0x53,
+	0xe1, 0xd9, 0xcb, 0x85, 0x41, 0xf2, 0x6b, 0xe9, 0x32, 0x4c, 0xb7, 0xa2, 0x60, 0x58, 0x9e, 0x5b,
+	0xcf, 0x6d, 0x2c, 0xe9, 0xc1, 0x20, 0xc5, 0x79, 0x00, 0x25, 0xd2, 0xe2, 0x51, 0x6f, 0x20, 0xa8,
+	0x27, 0x58, 0x9f, 0x46, 0x03, 0x51, 0x9e, 0xb7, 0xa6, 0x6d, 0xd9, 0xa0, 0x4d, 0x05, 0xae, 0xed,
+	0x40, 0x21, 0x33, 0x3c, 0xa9, 0x1b, 0x67, 0x31, 0x67, 0x4d, 0x14, 0x52, 0x9c, 0x35, 0x98, 0x39,
+	0x25, 0xbd, 0x41, 0x76, 0x82, 0x15, 0x69, 0xed, 0x09, 0xc0, 0xa8, 0xaf, 0x2f, 0xab, 0x63, 0x29,
+	0xa3, 0xc3, 0xfd, 0x49, 0x1e, 0x56, 0x46, 0x16, 0x6c, 0xcc, 0xe0, 0x6d, 0x58, 0x7e, 0x7e, 0xf8,
+	0xbc, 0xb1, 0xb3, 0x3d, 0xda, 0xf5, 0xb6, 0xda, 0x82, 0x02, 0xcd, 0xae, 0xbf, 0x0f, 0x45, 0x16,
+	0x0a, 0x9a, 0xb4, 0x89, 0x4f, 0xbd, 0x09, 0x6b, 0x28, 0xa4, 0x18, 0x32, 0xdf, 0x83, 0x45, 0x65,
+	0x59, 0x8a, 0xd3, 0x36, 0x0d, 0x50, 0x00, 0xb2, 0xdd, 0x81, 0xb9, 0x53, 0x9a, 0x48, 0x17, 0x99,
+	0x31, 0x6c, 0x43, 0x74, 0xde, 0x80, 0x39, 0x12, 0x33, 0xef, 0x84, 0x0e, 0xd1, 0xb6, 0x17, 0x1f,
+	0x15, 0x2b, 0x99, 0x8d, 0x58, 0x9f, 0x25, 0x31, 0x93, 0x1b, 0xf2, 0x2d, 0x98, 0xd3, 0x56, 0x5b,
+	0x9e, 0x45, 0xc6, 0xd2, 0xf8, 0x82, 0xd7, 0x0d, 0x83, 0xf3, 0x16, 0x14, 0x93, 0x68, 0x20, 0x58,
+	0xd8, 0x31, 0xbe, 0x78, 0xce, 0x6a, 0x7b, 0x49, 0x63, 0xe8, 0x8c, 0xdd, 0x7f, 0xcc, 0x41, 0x69,
+	0xa4, 0x88, 0xc7, 0x51, 0xc8, 0x71, 0x70, 0x6a, 0xab, 0x7b, 0x7e, 0x14, 0xd0, 0xcc, 0xde, 0x01,
+	0x05, 0x54, 0xa3, 0x80, 0x3a, 0x9b, 0x23, 0xf3, 0xcf, 0xa3, 0x11, 0xae, 0x57, 0xc6, 0x55, 0x55,
+	0xcc, 0x8f, 0xf1, 0x0d, 0x60, 0xcc, 0x70, 0x6a, 0xdc, 0x0c, 0xd7, 0x76, 0xa1, 0x98, 0x15, 0xfa,
+	0xf5, 0xcc, 0xca, 0x6d, 0xab, 0x30, 0xb8, 0x75, 0xb0, 0xcb, 0xc2, 0x60, 0x4b, 0xb9, 0x26, 0x8e,
+	0x43, 0xa3, 0x24, 0xf1, 0xbb, 0x9e, 0x18, 0xc6, 0xe3, 0x43, 0x43, 0xa0, 0x39, 0x8c, 0xa9, 0x74,
+	0xf2, 0x9a, 0x8d, 0x8b, 0x84, 0x85, 0x9d, 0x4c, 0x03, 0x4b, 0x0a, 0x6a, 0x20, 0xe2, 0x7e, 0x00,
+	0x6b, 0x93, 0xed, 0xa4, 0x53, 0xf9, 0x0a, 0xcc, 0x5b, 0xf1, 0x76, 0x6a, 0x63, 0xb6, 0x3e, 0xc7,
+	0x55, 0x8c, 0x75, 0xff, 0x3b, 0xa7, 0x7a, 0x78, 0x18, 0x09, 0xd6, 0x1e, 0x7e, 0x46, 0x84, 0xdf,
+	0x0d, 0xa2, 0x8e, 0xf4, 0x76, 0xda, 0x83, 0xdb, 0x9d, 0xd3, 0x34, 0xe7, 0x35, 0x00, 0xd2, 0xa3,
+	0x89, 0x50, 0xdd, 0xcf, 0x5b, 0x1c, 0x0b, 0x48, 0xc7, 0xde, 0xbf, 0x03, 0x2b, 0x8a, 0x29, 0xa0,
+	0x5c, 0xb0, 0x90, 0x08, 0x69, 0x7f, 0x76, 0x3c, 0x2e, 0x21, 0xbc, 0x3d, 0x42, 0xa5, 0x13, 0xf4,
+	0x13, 0x26, 0x98, 0x4f, 0x7a, 0x68, 0xa9, 0xf3, 0xc6, 0x09, 0x1a, 0xaa, 0x5c, 0x05, 0xe9, 0x15,
+	0xd0, 0x4e, 0x8d, 0x1e, 0xa4, 0xc8, 0x55, 0x20, 0x71, 0xcc, 0x02, 0xb4, 0xcc, 0xd4, 0x77, 0x23,
+	0x09, 0xa5, 0xe8, 0xb9, 0x40, 0x0b, 0x4c, 0xd7, 0x4e, 0x52, 0xdc, 0x77, 0xd5, 0x8e, 0xdd, 0x3a,
+	0xd8, 0xa3, 0x62, 0x9f, 0xf9, 0x34, 0xe4, 0x94, 0xcb, 0xfd, 0x82, 0xd3, 0x33, 0x96, 0x9d, 0x18,
+	0xa2, 0xfb, 0xfb, 0x7a, 0xce, 0x8e, 0x88, 0x7f, 0x42, 0x3a, 0x54, 0xcb, 0xc9, 0x59, 0x89, 0x15,
+	0xc5, 0xe4, 0x35, 0xe9, 0xac, 0x68, 0x7a, 0x2d, 0x70, 0xde, 0x80, 0x25, 0xd9, 0x5d, 0xcf, 0x4f,
+	0x28, 0x11, 0x34, 0xc8, 0x4c, 0xde, 0xa2, 0x44, 0xaa, 0x0a, 0x70, 0xee, 0xc2, 0x7c, 0x74, 0x16,
+	0xd2, 0x64, 0x3c, 0x8b, 0x99, 0x43, 0x6a, 0x2d, 0x70, 0xbb, 0xf0, 0xca, 0x44, 0xd7, 0xd3, 0x15,
+	0xff, 0x3a, 0xcc, 0xf5, 0x14, 0x0d, 0x17, 0x7c, 0xf1, 0xd1, 0x6a, 0x65, 0xb2, 0xc7, 0x75, 0xc3,
+	0x23, 0x97, 0x5b, 0xa7, 0x1a, 0x76, 0x7f, 0x34, 0xcd, 0x0d, 0xe1, 0x7a, 0xda, 0xd2, 0x73, 0x4e,
+	0x93, 0x3d, 0xd2, 0xa7, 0x0d, 0x41, 0x04, 0x97, 0x9d, 0xbc, 0x30, 0x91, 0x33, 0xe6, 0xe5, 0xdc,
+	0x86, 0xb9, 0x0e, 0xe9, 0x53, 0x13, 0xa2, 0x0d, 0x3e, 0x2b, 0x89, 0xb5, 0xc0, 0xb9, 0x0a, 0x33,
+	0x72, 0x2b, 0xf3, 0xf2, 0xd4, 0xfa, 0xd4, 0x46, 0xa1, 0xae, 0x3e, 0xdc, 0x1f, 0x4c, 0xc3, 0x9d,
+	0x8b, 0x1b, 0x4c, 0xc7, 0xf7, 0x9b, 0x36, 0x6c, 0x25, 0x57, 0x53, 0x13, 0xc9, 0xd5, 0x37, 0x4d,
+	0xaf, 0x54, 0x3c, 0xbd, 0x57, 0x79, 0x71, 0x67, 0x2a, 0xea, 0x4b, 0xc9, 0x38, 0x04, 0x1c, 0xe2,
+	0x77, 0x19, 0x3d, 0xa5, 0x7d, 0x99, 0xb9, 0xb6, 0x7a, 0x91, 0x7f, 0x62, 0x82, 0xeb, 0xa3, 0xcb,
+	0x34, 0x6d, 0x59, 0x92, 0x4f, 0x50, 0xb2, 0xbe, 0x62, 0x69, 0x53, 0xa4, 0xb5, 0x4f, 0x60, 0x46,
+	0x4d, 0xff, 0x6d, 0x69, 0xa8, 0x44, 0x8c, 0x9b, 0x1b, 0xa6, 0x48, 0xb5, 0x40, 0x1a, 0x24, 0xc2,
+	0x23, 0xef, 0x94, 0x1a, 0xa4, 0xa4, 0x1f, 0x63, 0xe0, 0xfb, 0x93, 0x1c, 0x38, 0x93, 0xcd, 0xca,
+	0x38, 0x64, 0x0f, 0x63, 0xac, 0x85, 0x82, 0x85, 0xd5, 0x02, 0xe7, 0xd1, 0xd8, 0x98, 0xd9, 0x28,
+	0x27, 0x4b, 0xf7, 0xba, 0x35, 0x0a, 0x26, 0x65, 0xee, 0xc1, 0xe2, 0x20, 0x94, 0x6d, 0x61, 0x98,
+	0xc7, 0x55, 0x98, 0x33, 0x3e, 0x50, 0x01, 0x32, 0xc2, 0xbb, 0xdf, 0x85, 0xab, 0x72, 0xce, 0xf6,
+	0xaa, 0x7b, 0x54, 0x54, 0xa3, 0x7e, 0x9f, 0x84, 0xc1, 0x3e, 0xe3, 0x42, 0xe6, 0x6a, 0x3a, 0xac,
+	0xe4, 0xc6, 0xf6, 0x7b, 0x2d, 0x90, 0x9d, 0xf7, 0x15, 0xaf, 0x17, 0x27, 0xb4, 0xcd, 0xce, 0xb3,
+	0x41, 0x54, 0x63, 0x47, 0x08, 0xb9, 0x5b, 0x70, 0xeb, 0xa2, 0x16, 0x52, 0x53, 0x7b, 0x15, 0x96,
+	0x8c, 0x32, 0x1d, 0x00, 0xa6, 0x36, 0x16, 0xea, 0x8b, 0x9a, 0x26, 0x03, 0xac, 0xbb, 0x01, 0x4e,
+	0x75, 0x4f, 0x2a, 0x39, 0xa0, 0xfd, 0x2a, 0xf1, 0xbb, 0x34, 0xd8, 0xa3, 0xc2, 0x71, 0x60, 0xfa,
+	0x84, 0x0e, 0xb9, 0x16, 0xc0, 0xdf, 0xee, 0x0f, 0x73, 0xb0, 0x36, 0xc9, 0x9a, 0xb6, 0xf5, 0x2d,
+	0x98, 0xc5, 0xc5, 0xe2, 0x7a, 0xd7, 0x7e, 0xad, 0xf2, 0xd5, 0xcc, 0x15, 0x5c, 0xbf, 0x26, 0xe9,
+	0xd4, 0xb5, 0xcc, 0xda, 0x13, 0x98, 0x37, 0x34, 0xe9, 0x0e, 0xdb, 0xd1, 0x20, 0x54, 0xd3, 0x63,
+	0xfc, 0xa8, 0x22, 0xbd, 0x30, 0x87, 0xf9, 0x5e, 0x6e, 0x62, 0x2c, 0x0d, 0x2a, 0x9c, 0x07, 0xd6,
+	0x58, 0x30, 0xcf, 0x9b, 0x60, 0xa9, 0x7c, 0x42, 0x87, 0x47, 0x84, 0x25, 0x6a, 0xa0, 0x6b, 0xff,
+	0x0f, 0xe6, 0x34, 0xe1, 0xd7, 0x4c, 0xa6, 0xee, 0xc3, 0xb5, 0xb1, 0x46, 0xb6, 0x69, 0x8f, 0x0a,
+	0x7a, 0xe1, 0xb4, 0x5e, 0x87, 0xab, 0xe3, 0x3d, 0x42, 0x4f, 0xf2, 0xe7, 0xd3, 0x70, 0xeb, 0x22,
+	0x20, 0x9d, 0xf0, 0x07, 0x50, 0xf2, 0x07, 0x49, 0xe2, 0xf9, 0x51, 0x18, 0x52, 0x5f, 0x06, 0x21,
+	0x75, 0xd8, 0x98, 0x4e, 0x4f, 0x98, 0x83, 0x24, 0xa9, 0x8e, 0x40, 0xb9, 0xe5, 0xfc, 0x7e, 0xe0,
+	0xc9, 0x73, 0x5f, 0xde, 0xe2, 0x9b, 0xf5, 0xfb, 0xb8, 0xe6, 0x1a, 0xe6, 0x54, 0xf9, 0x15, 0x1b,
+	0x96, 0xd3, 0xf8, 0x2a, 0x2c, 0x48, 0xb8, 0xdd, 0x1b, 0xf0, 0x2e, 0x46, 0xb8, 0xe9, 0x34, 0xc2,
+	0xf5, 0x83, 0x5d, 0x49, 0x95, 0x9e, 0x4d, 0x26, 0xe5, 0x5d, 0x26, 0x38, 0x46, 0x39, 0xc3, 0x31,
+	0xd7, 0xa1, 0xe2, 0x29, 0x13, 0x5c, 0xee, 0x6a, 0xc9, 0xd0, 0x67, 0x9c, 0x53, 0x8e, 0xd1, 0xce,
+	0xb0, 0xc8, 0xf4, 0xfc, 0x00, 0xc9, 0x72, 0x77, 0x05, 0x38, 0x5d, 0x4a, 0xd1, 0x9c, 0xc5, 0x05,
+	0x0a, 0x40, 0x5d, 0x6f, 0x42, 0x41, 0xb3, 0x69, 0x75, 0xf3, 0x16, 0xe3, 0x92, 0x82, 0xb4, 0xc6,
+	0xd7, 0x00, 0x5a, 0x43, 0x41, 0xb9, 0x97, 0x50, 0x12, 0x94, 0x17, 0xec, 0x66, 0x91, 0x5e, 0xa7,
+	0x24, 0x90, 0xfa, 0x14, 0xd3, 0x59, 0xc2, 0x84, 0xa0, 0x21, 0x9e, 0xaa, 0x53, 0x7d, 0x08, 0x7d,
+	0xa6, 0x10, 0xb9, 0x47, 0x7b, 0xac, 0xcf, 0x84, 0xd7, 0x27, 0xe7, 0x08, 0xe0, 0x39, 0xda, 0xf0,
+	0x16, 0x10, 0x3b, 0xd0, 0x90, 0x6c, 0x1c, 0x97, 0x89, 0x09, 0xda, 0xe7, 0x78, 0x68, 0x4e, 0x1b,
+	0x97, 0xf4, 0x9a, 0x24, 0x3b, 0x2e, 0x2c, 0xd0, 0x53, 0xa6, 0x17, 0xb1, 0x60, 0xf3, 0xa4, 0x64,
+	0x69, 0x71, 0xaa, 0xb1, 0xa2, 0x85, 0x2b, 0x92, 0xfb, 0x6d, 0x28, 0x2a, 0x5b, 0x69, 0x7c, 0xba,
+	0xaf, 0xfc, 0xeb, 0x7d, 0x28, 0x72, 0xbf, 0x4b, 0xfb, 0xc4, 0xf3, 0x89, 0x20, 0xbd, 0xa8, 0x93,
+	0x75, 0x82, 0x0a, 0xab, 0x2a, 0xc8, 0xfd, 0x9f, 0x29, 0xb8, 0x9e, 0x95, 0x4f, 0xad, 0xec, 0x0e,
+	0xcc, 0x89, 0xae, 0x9c, 0x37, 0x9e, 0x51, 0x60, 0x88, 0x32, 0x55, 0xd2, 0x3f, 0x8d, 0x21, 0x8e,
+	0x65, 0x06, 0x25, 0x0d, 0x57, 0x0d, 0x2a, 0xbb, 0x66, 0x44, 0x88, 0x2f, 0xd8, 0x29, 0xcd, 0x24,
+	0x09, 0x05, 0x8d, 0x6d, 0x21, 0xe4, 0x7c, 0x00, 0x57, 0xa3, 0x98, 0x26, 0x98, 0x64, 0x71, 0x8f,
+	0x0f, 0x5a, 0x7d, 0xb9, 0x06, 0xd9, 0x63, 0xee, 0xea, 0x88, 0xa3, 0x61, 0x18, 0x9c, 0x5d, 0xb8,
+	0x15, 0x27, 0x34, 0x26, 0x09, 0x0d, 0x3c, 0x19, 0x32, 0xd0, 0x7f, 0x73, 0x8f, 0x9e, 0x53, 0x7f,
+	0x20, 0x15, 0xd8, 0x69, 0xd8, 0x9a, 0xe1, 0x6c, 0xa4, 0x8c, 0x3b, 0x9a, 0xcf, 0x39, 0x80, 0xf5,
+	0x30, 0x0a, 0xbd, 0x17, 0xea, 0xb2, 0xf3, 0xb6, 0xdb, 0x61, 0x14, 0x1e, 0x7d, 0xb5, 0xba, 0x07,
+	0x50, 0x0a, 0x28, 0x09, 0x30, 0x7a, 0x24, 0x54, 0x24, 0x8c, 0xf2, 0xcc, 0xe9, 0x62, 0xd9, 0xa0,
+	0x75, 0x05, 0x3a, 0xbb, 0x70, 0xdb, 0x9a, 0x00, 0x19, 0x70, 0x02, 0x2f, 0x1a, 0x08, 0x8f, 0x85,
+	0xde, 0x17, 0x03, 0x3a, 0xa0, 0x99, 0x23, 0xe6, 0x2b, 0x23, 0x56, 0x19, 0x82, 0x82, 0x67, 0x03,
+	0x51, 0x0b, 0x3f, 0x95, 0x6c, 0x32, 0x4f, 0xc2, 0xda, 0x0a, 0xc7, 0x0d, 0x90, 0xc6, 0x5b, 0x45,
+	0x73, 0x7f, 0x9c, 0x53, 0xc1, 0x6a, 0xeb, 0x60, 0x2b, 0x08, 0x76, 0x13, 0x9a, 0x66, 0x86, 0x97,
+	0x24, 0x94, 0xd2, 0x2d, 0xb0, 0xd8, 0xc3, 0x7a, 0x84, 0x9f, 0x59, 0xf7, 0x79, 0x16, 0x1f, 0x21,
+	0x55, 0x1a, 0xb7, 0x4e, 0x22, 0xc7, 0xf2, 0xc1, 0x11, 0x59, 0x86, 0x61, 0x2e, 0xa2, 0x84, 0x7a,
+	0x98, 0xfe, 0x27, 0x43, 0x75, 0x70, 0x9a, 0xb6, 0xdc, 0x6e, 0x09, 0xf1, 0xaa, 0x82, 0xe5, 0xf1,
+	0xc9, 0xfd, 0xe3, 0x9c, 0x0a, 0x7f, 0xe3, 0x7d, 0x4e, 0x6d, 0xd7, 0xca, 0x94, 0x72, 0x13, 0x99,
+	0xd2, 0x26, 0x5c, 0x8f, 0x07, 0x89, 0xdf, 0x25, 0x9c, 0x7a, 0x8a, 0xe4, 0x05, 0x54, 0x10, 0xd6,
+	0xcb, 0x94, 0xe9, 0xae, 0x1a, 0x9e, 0x3a, 0xb2, 0x6c, 0x23, 0x07, 0x6e, 0x8a, 0x84, 0x84, 0x5c,
+	0x8f, 0x27, 0x9d, 0x14, 0x4d, 0x74, 0xdf, 0x80, 0x55, 0xb5, 0x9d, 0xf6, 0xa8, 0xa8, 0x1d, 0xed,
+	0x47, 0xbe, 0x3a, 0x23, 0x94, 0x60, 0x8a, 0xc5, 0xca, 0xfb, 0xcf, 0xd5, 0xe5, 0x4f, 0xf7, 0xa7,
+	0x39, 0x58, 0xae, 0x8e, 0x38, 0x6a, 0x61, 0x3b, 0xd2, 0x45, 0xaf, 0xdc, 0x58, 0xd1, 0x6b, 0x1d,
+	0xe6, 0x7b, 0x44, 0x30, 0x31, 0x08, 0x54, 0xc8, 0xc9, 0x9b, 0x69, 0x36, 0x54, 0x39, 0xcd, 0xbd,
+	0x28, 0xec, 0x28, 0x96, 0x29, 0x8b, 0x65, 0x44, 0x96, 0x1d, 0xd7, 0x13, 0x9c, 0x99, 0x5b, 0x43,
+	0x94, 0x3e, 0x06, 0xed, 0x3b, 0x53, 0x28, 0x52, 0x24, 0x19, 0x0b, 0x7d, 0x26, 0x86, 0x68, 0xec,
+	0x69, 0x2c, 0x94, 0x14, 0x77, 0x07, 0x6e, 0x5e, 0x30, 0xdc, 0x74, 0x19, 0x5e, 0x87, 0x19, 0x16,
+	0xb6, 0x23, 0x13, 0x81, 0x4b, 0x95, 0xb1, 0x11, 0xd7, 0x15, 0xec, 0x7e, 0x07, 0x6e, 0x68, 0x27,
+	0x34, 0xe4, 0x82, 0xf6, 0xd1, 0x0f, 0x35, 0xd0, 0x4f, 0x39, 0xeb, 0xb0, 0xd0, 0xf1, 0xbd, 0x0b,
+	0xb2, 0xa6, 0xb9, 0x8e, 0xaf, 0x8a, 0xa2, 0xaf, 0xc2, 0x82, 0xf6, 0x77, 0x27, 0xa7, 0x99, 0x98,
+	0x3c, 0xaf, 0xc8, 0x9f, 0x9c, 0x8e, 0x22, 0xed, 0x1e, 0x15, 0x56, 0x13, 0xee, 0x4f, 0xd3, 0x48,
+	0x9b, 0x05, 0xd2, 0x01, 0x5c, 0xde, 0x3a, 0xe6, 0xf4, 0x44, 0xf0, 0xf1, 0xc6, 0x31, 0xc7, 0xe5,
+	0x9f, 0x9c, 0xca, 0xa0, 0xa6, 0x7c, 0x9d, 0xf7, 0x79, 0xd4, 0xe2, 0x99, 0x5d, 0x00, 0x0a, 0xf8,
+	0x38, 0x6a, 0x61, 0x50, 0x1b, 0x32, 0xda, 0x0b, 0x58, 0xd8, 0x51, 0x8c, 0xb6, 0x9b, 0x5b, 0x32,
+	0x90, 0x61, 0x1d, 0x70, 0x9a, 0x98, 0xfa, 0x32, 0xcf, 0x38, 0xb4, 0x25, 0x09, 0xe9, 0xda, 0x32,
+	0x77, 0xde, 0x87, 0xab, 0x78, 0xa0, 0xe0, 0x34, 0x39, 0xb5, 0x25, 0x6c, 0xb7, 0xe5, 0x48, 0x8e,
+	0x06, 0x32, 0xa4, 0x72, 0xeb, 0x30, 0xcf, 0x23, 0x5f, 0xa6, 0x1e, 0x59, 0x1f, 0x95, 0x52, 0x71,
+	0xdb, 0xea, 0xdf, 0x9e, 0x88, 0x3c, 0x99, 0xfc, 0x92, 0x20, 0xe3, 0x91, 0x4a, 0x06, 0x6f, 0x46,
+	0xcf, 0x11, 0x95, 0x1e, 0x30, 0x95, 0x91, 0x04, 0x16, 0x76, 0x32, 0x2e, 0x69, 0xd9, 0xa0, 0xfb,
+	0x0a, 0x74, 0xbe, 0x0e, 0xcb, 0x32, 0x26, 0xd3, 0x16, 0xf1, 0x4f, 0xb4, 0xcf, 0x03, 0x8b, 0xbf,
+	0x98, 0x82, 0xca, 0xd1, 0xbd, 0x09, 0x05, 0xed, 0x9c, 0x3c, 0x75, 0x80, 0x59, 0xb4, 0x27, 0x46,
+	0x43, 0xfb, 0x78, 0x52, 0xb8, 0x07, 0x8b, 0xbd, 0xa8, 0x13, 0x19, 0x4f, 0xba, 0x64, 0xaf, 0x0a,
+	0x02, 0x4a, 0xe3, 0x6b, 0xa0, 0xbe, 0xd4, 0x92, 0x14, 0x6c, 0x0f, 0x86, 0x74, 0xb9, 0x1e, 0xee,
+	0xf7, 0x74, 0x19, 0x75, 0xeb, 0xa0, 0x41, 0xc3, 0x60, 0xa7, 0xaf, 0xfd, 0xc4, 0x0b, 0x9d, 0xe7,
+	0x5b, 0x50, 0xa4, 0x92, 0x11, 0x8b, 0xd9, 0x13, 0x05, 0x89, 0x25, 0xc4, 0x0e, 0x78, 0x07, 0x6b,
+	0x12, 0x6f, 0x80, 0xfa, 0xf6, 0xda, 0x51, 0xd2, 0x27, 0x22, 0x7b, 0x3d, 0x80, 0xc8, 0x2e, 0x02,
+	0xce, 0xef, 0xc0, 0x6a, 0x4c, 0x13, 0x1e, 0x85, 0x04, 0x93, 0x7e, 0x4f, 0x44, 0x27, 0x34, 0x34,
+	0xc7, 0xb8, 0xb7, 0x2b, 0x63, 0x7d, 0xac, 0x1c, 0x29, 0x5e, 0x79, 0x18, 0xa8, 0xd3, 0xb8, 0x47,
+	0x7c, 0x0c, 0x58, 0x4d, 0x29, 0x54, 0x5f, 0x89, 0x47, 0x20, 0x52, 0x38, 0xee, 0x33, 0x75, 0x4d,
+	0xd1, 0xf1, 0x33, 0x06, 0x34, 0xaf, 0xc8, 0x7b, 0xbe, 0xf3, 0x0d, 0x98, 0xd5, 0x6d, 0xce, 0x61,
+	0x9b, 0xaf, 0x4e, 0xb4, 0x39, 0xd1, 0x90, 0x16, 0x58, 0xfb, 0x0e, 0x94, 0xc6, 0x31, 0x39, 0xfb,
+	0x88, 0x4e, 0xd6, 0x1f, 0x17, 0x90, 0x6e, 0xca, 0x89, 0x8a, 0x69, 0xb2, 0x9c, 0xa5, 0xa4, 0xd5,
+	0x89, 0xb1, 0x05, 0x37, 0x5f, 0x30, 0xde, 0x4b, 0xd7, 0x2b, 0xdb, 0x95, 0xfc, 0x85, 0x5d, 0x71,
+	0xdf, 0x87, 0x1b, 0x63, 0xe3, 0xfd, 0xaa, 0x80, 0x54, 0xb0, 0x03, 0x92, 0xfb, 0x97, 0x39, 0x55,
+	0xab, 0xc0, 0xd3, 0x1c, 0xca, 0x35, 0x69, 0x3f, 0xee, 0x49, 0xd7, 0xfb, 0xc2, 0x13, 0xe3, 0xff,
+	0xc5, 0x88, 0x5e, 0x03, 0x50, 0xbc, 0x3d, 0x12, 0x76, 0x54, 0xf9, 0x20, 0x4d, 0x34, 0x25, 0x7d,
+	0x9f, 0x84, 0x9d, 0x09, 0x4b, 0x9b, 0xb6, 0xd8, 0x6c, 0x4b, 0x73, 0xff, 0x20, 0xa7, 0x8a, 0x1d,
+	0x93, 0x3d, 0x7e, 0xa9, 0x11, 0xcb, 0x8d, 0x2d, 0xb4, 0x80, 0x47, 0xcf, 0x19, 0x17, 0x1c, 0xbb,
+	0x6e, 0x8e, 0x7c, 0x45, 0x03, 0xee, 0x20, 0x26, 0xdd, 0x91, 0xa1, 0x64, 0xea, 0xc5, 0x29, 0xd5,
+	0xfd, 0x97, 0x9c, 0x99, 0xfb, 0xbd, 0x84, 0x84, 0x62, 0x6f, 0x40, 0xb9, 0x38, 0x22, 0xf2, 0x0c,
+	0xf0, 0xe8, 0xf2, 0xb2, 0x4b, 0xb6, 0x06, 0x96, 0xbf, 0xb8, 0x06, 0xf6, 0x36, 0x2c, 0xc7, 0xa8,
+	0x50, 0xba, 0xbb, 0x8e, 0x6c, 0x24, 0x33, 0x8b, 0x05, 0x05, 0x36, 0x23, 0x6c, 0x5f, 0xba, 0xc7,
+	0x80, 0x0c, 0x91, 0x97, 0x9e, 0xc7, 0x4c, 0x65, 0x66, 0x99, 0xf9, 0x2c, 0x49, 0xbc, 0x19, 0xed,
+	0xa4, 0xa8, 0xcc, 0xd3, 0x08, 0x66, 0xfc, 0xe8, 0xd0, 0x0d, 0x9f, 0xa6, 0xb9, 0x5d, 0xb8, 0xfb,
+	0x15, 0x03, 0x7c, 0xb9, 0xac, 0x67, 0x03, 0x8a, 0xba, 0xff, 0xd8, 0x79, 0x9d, 0xab, 0xcf, 0x6c,
+	0xe6, 0x1e, 0x9a, 0xbe, 0xef, 0x29, 0xba, 0xdb, 0x85, 0x3b, 0xd5, 0xbd, 0xaa, 0x0a, 0x87, 0x07,
+	0xbc, 0xe3, 0xed, 0x51, 0xa1, 0x8b, 0xb3, 0x2a, 0x09, 0xba, 0xb4, 0xd6, 0x38, 0x2a, 0x6b, 0xe6,
+	0x27, 0xca, 0x9a, 0xea, 0xf6, 0x2c, 0xf7, 0xfd, 0x1f, 0xdd, 0xfe, 0x72, 0xda, 0xfd, 0xd3, 0x02,
+	0xbc, 0xf1, 0xe2, 0xa6, 0xbc, 0x74, 0x70, 0x0f, 0xc1, 0xa1, 0x69, 0xb6, 0x16, 0x27, 0xd4, 0xc7,
+	0x4a, 0x64, 0x6a, 0x5a, 0x2b, 0x1a, 0xdc, 0x4e, 0x31, 0x69, 0xcd, 0xe6, 0xb2, 0x6d, 0x62, 0xd7,
+	0x2e, 0x6a, 0x04, 0x5d, 0xc8, 0x1b, 0xb0, 0x64, 0xfb, 0xcd, 0x8c, 0x89, 0x2d, 0x5a, 0x8e, 0xd0,
+	0x79, 0x08, 0x2b, 0x8c, 0x7b, 0x71, 0x12, 0xb5, 0x59, 0x8f, 0x9a, 0xd4, 0xd7, 0xae, 0xf9, 0x2e,
+	0x33, 0x7e, 0xa4, 0x50, 0x9d, 0x01, 0x3f, 0x86, 0x55, 0xc6, 0x3d, 0x16, 0x9e, 0xd2, 0x50, 0x44,
+	0xc9, 0xd0, 0xc8, 0xcc, 0x58, 0x32, 0x2b, 0x8c, 0xd7, 0x0c, 0xae, 0xa5, 0x36, 0xa0, 0xc0, 0xb8,
+	0x77, 0x4a, 0x7c, 0xaf, 0x45, 0xc2, 0x90, 0xaa, 0x5b, 0x08, 0xc3, 0xbf, 0xc8, 0xf8, 0x31, 0xf1,
+	0x9f, 0x20, 0xa0, 0x39, 0xfd, 0x61, 0x8b, 0x26, 0x9e, 0x4f, 0xda, 0xea, 0x4c, 0x60, 0x71, 0x56,
+	0x25, 0x52, 0x25, 0x6d, 0xd3, 0x77, 0xee, 0x77, 0xa3, 0xa8, 0xe7, 0xe9, 0xd1, 0x63, 0xf4, 0xb5,
+	0xfa, 0xde, 0x40, 0x54, 0xaf, 0x80, 0xdc, 0x16, 0x8c, 0x7b, 0x78, 0xa6, 0xa5, 0x01, 0x06, 0x5e,
+	0xc3, 0xba, 0xc0, 0xf8, 0xbe, 0x22, 0xcb, 0x98, 0xcb, 0xf0, 0x74, 0xc6, 0xfd, 0x84, 0xb5, 0x68,
+	0x80, 0x31, 0xd7, 0xf0, 0x2d, 0x31, 0x79, 0x2c, 0xd3, 0x88, 0xb4, 0x1a, 0xbd, 0x9d, 0x32, 0xf1,
+	0xd6, 0x10, 0x9d, 0x0f, 0xe0, 0x1a, 0xe3, 0x5e, 0x3b, 0xa1, 0xd4, 0x13, 0x09, 0x23, 0xa3, 0x5e,
+	0x16, 0x2c, 0x95, 0x0e, 0xe3, 0x32, 0xe1, 0x6f, 0x4a, 0x06, 0xd3, 0xd1, 0x0f, 0xe1, 0x9a, 0x25,
+	0x65, 0xed, 0xb7, 0xa2, 0x7d, 0x54, 0x6c, 0x1b, 0x31, 0x6b, 0xcb, 0xbd, 0x0d, 0xcb, 0x72, 0x88,
+	0xd1, 0x99, 0x77, 0xca, 0xa2, 0x1e, 0x0d, 0x7d, 0x8a, 0x77, 0xce, 0xf3, 0xe9, 0xcd, 0x15, 0xdf,
+	0x8f, 0xce, 0x8e, 0x35, 0xe4, 0x7c, 0x03, 0xae, 0x33, 0x6e, 0x7a, 0x85, 0x29, 0x06, 0x0d, 0xbc,
+	0x20, 0x3a, 0x0b, 0xcb, 0x25, 0x4b, 0x68, 0x95, 0x71, 0xdd, 0xb1, 0x7d, 0xe4, 0xd8, 0x8e, 0xce,
+	0x42, 0x6d, 0x07, 0x7e, 0xd4, 0xef, 0x0f, 0x42, 0x26, 0x86, 0x66, 0x5d, 0x57, 0xb2, 0x76, 0x50,
+	0x35, 0xb8, 0x5e, 0x5d, 0xd5, 0x3d, 0x91, 0x90, 0x80, 0x1a, 0x09, 0x27, 0xdb, 0xbd, 0xa6, 0xc4,
+	0x34, 0xf7, 0xfb, 0x70, 0x35, 0x65, 0xb5, 0x67, 0x61, 0xd5, 0x4e, 0xf6, 0x84, 0x16, 0xb0, 0x26,
+	0xc1, 0x05, 0x73, 0xff, 0xcc, 0x82, 0xf2, 0xd5, 0xcc, 0xbd, 0x88, 0x21, 0xcb, 0xfe, 0xf3, 0x01,
+	0x8f, 0x69, 0x88, 0x2f, 0x1a, 0x68, 0x18, 0xa8, 0x02, 0xe8, 0x35, 0x8b, 0x7b, 0x65, 0xc4, 0xb0,
+	0x13, 0x06, 0xf2, 0x10, 0x8a, 0x57, 0x23, 0x83, 0x24, 0xa1, 0xa1, 0x3f, 0x2c, 0x5f, 0xb7, 0xfd,
+	0xb6, 0xa1, 0xaa, 0xfb, 0x32, 0xe9, 0x9b, 0x7b, 0xf4, 0x94, 0xf6, 0xca, 0x37, 0xb2, 0xf7, 0x65,
+	0x94, 0xf4, 0xf7, 0x25, 0x5d, 0xee, 0xd0, 0x76, 0xc2, 0x64, 0xb3, 0xca, 0x22, 0xca, 0x76, 0x0a,
+	0xa4, 0x90, 0xaa, 0x31, 0x05, 0xb3, 0x3e, 0x78, 0x59, 0x21, 0x7b, 0x8b, 0x3d, 0x7d, 0xc5, 0x36,
+	0x05, 0xcd, 0x52, 0xd5, 0x1c, 0xd8, 0xd7, 0x0f, 0xd1, 0xfa, 0xb0, 0xcd, 0xce, 0x80, 0x24, 0x81,
+	0x47, 0x43, 0xd2, 0xea, 0xd1, 0xa0, 0x7c, 0x33, 0xbb, 0xb6, 0x8d, 0x94, 0x63, 0x47, 0x31, 0x18,
+	0xaf, 0xd0, 0x8d, 0x42, 0xea, 0x9d, 0xd2, 0x04, 0x1f, 0x19, 0x94, 0x6f, 0x8d, 0x79, 0x05, 0x89,
+	0x1e, 0x6b, 0xd0, 0xf9, 0x08, 0xd6, 0xe4, 0xba, 0x9e, 0x45, 0x5e, 0x9b, 0xf8, 0x22, 0x4a, 0x3c,
+	0x32, 0x10, 0xdd, 0xb4, 0xc1, 0xdb, 0x96, 0xe8, 0x75, 0xc6, 0x9b, 0x67, 0xd1, 0x2e, 0x72, 0x6d,
+	0x0d, 0x44, 0xd7, 0xb4, 0xf9, 0x4d, 0xb8, 0x61, 0x89, 0x6b, 0x49, 0x35, 0xd2, 0x3b, 0xd6, 0x48,
+	0xaf, 0x0a, 0x23, 0xac, 0x05, 0x71, 0xa8, 0xdf, 0x82, 0x1b, 0x76, 0x6f, 0x7d, 0x6b, 0x9a, 0xee,
+	0x5a, 0xc2, 0xd7, 0xe2, 0x51, 0xa7, 0xfd, 0xd1, 0x44, 0xdd, 0x85, 0x79, 0x25, 0xcd, 0x82, 0xf2,
+	0xab, 0x76, 0xad, 0x0f, 0xa9, 0x35, 0xb4, 0xc3, 0x74, 0x3e, 0x58, 0x40, 0x43, 0xc1, 0xda, 0x43,
+	0x99, 0xea, 0xbb, 0xd9, 0x6d, 0x7c, 0xa4, 0xd8, 0x53, 0x5c, 0xc6, 0xcc, 0x44, 0x68, 0x09, 0x31,
+	0xf4, 0x7a, 0x2c, 0x3c, 0xa1, 0x41, 0xf9, 0x35, 0xfb, 0x48, 0x91, 0x88, 0x9a, 0x86, 0xf7, 0x11,
+	0x95, 0xfe, 0x2f, 0x11, 0x5e, 0x8b, 0x25, 0xa2, 0xeb, 0x05, 0x32, 0x3d, 0xf8, 0x9a, 0x6d, 0x19,
+	0x89, 0x78, 0x22, 0x91, 0x6d, 0x99, 0x49, 0x55, 0xa0, 0x24, 0xce, 0xc3, 0x6c, 0x95, 0xe1, 0x9e,
+	0x65, 0x93, 0x45, 0x71, 0x1e, 0x5a, 0x35, 0x86, 0x4c, 0x9c, 0x7a, 0x17, 0xae, 0xa5, 0xd9, 0x8e,
+	0x95, 0x45, 0x72, 0x67, 0x4d, 0xa7, 0x16, 0x2c, 0xe0, 0xfa, 0x8e, 0x32, 0xfd, 0x76, 0xbf, 0x9f,
+	0xb7, 0x72, 0x24, 0x5b, 0x6a, 0x14, 0xd3, 0xfe, 0x3f, 0xac, 0xf0, 0x81, 0xef, 0x53, 0x1a, 0x50,
+	0x79, 0x64, 0x89, 0x4e, 0x06, 0xb1, 0x39, 0x2b, 0xdf, 0xaf, 0xbc, 0x58, 0x36, 0x93, 0xbd, 0x97,
+	0x52, 0x2d, 0xfb, 0x4a, 0x89, 0xf3, 0x18, 0xae, 0xb7, 0x09, 0xeb, 0xa5, 0x6a, 0xbd, 0xb4, 0x9b,
+	0x79, 0xec, 0xe6, 0x55, 0x85, 0x2a, 0xf6, 0x86, 0xc6, 0xd6, 0x8e, 0x61, 0xd1, 0x52, 0x7b, 0x69,
+	0x98, 0x1f, 0x8f, 0x9b, 0xf9, 0xaf, 0x88, 0x9b, 0xee, 0x89, 0x99, 0xbf, 0x6a, 0x97, 0xfa, 0x27,
+	0xbb, 0xb8, 0x5f, 0x79, 0x97, 0xc5, 0x52, 0x43, 0x7a, 0x62, 0xa3, 0x6d, 0x91, 0x69, 0x66, 0xd1,
+	0x1c, 0xd8, 0x68, 0x5b, 0xd8, 0x47, 0xbb, 0x84, 0x75, 0xba, 0x22, 0x73, 0x3f, 0x66, 0x74, 0xd4,
+	0x25, 0xe2, 0x7e, 0x61, 0xa6, 0x7d, 0xac, 0x31, 0xcf, 0xae, 0x6c, 0xe2, 0x84, 0x71, 0x9e, 0xb9,
+	0x68, 0x30, 0x44, 0x79, 0x4e, 0xc5, 0x3b, 0x07, 0xaf, 0x9d, 0x0a, 0x67, 0xd2, 0xd3, 0x65, 0x44,
+	0x47, 0x9a, 0xdd, 0xbf, 0xc8, 0xc3, 0x4d, 0xd5, 0xe6, 0x01, 0xef, 0x1c, 0x10, 0x2e, 0xe4, 0x51,
+	0x5a, 0x6c, 0xb3, 0x84, 0xca, 0xad, 0x37, 0x94, 0xb6, 0xd7, 0x47, 0xea, 0xe8, 0xad, 0x51, 0x26,
+	0x9f, 0x2f, 0x2a, 0xd4, 0xbc, 0x33, 0x72, 0x1e, 0xc3, 0x54, 0xc0, 0x12, 0xfd, 0x34, 0xc0, 0xad,
+	0xbc, 0x40, 0x75, 0xa5, 0x31, 0x68, 0xed, 0x55, 0xeb, 0x92, 0x7d, 0xed, 0xcf, 0x72, 0x30, 0x83,
+	0x9f, 0xf2, 0xa8, 0x76, 0x71, 0x43, 0xf3, 0x81, 0x69, 0xc2, 0xdc, 0x6f, 0xe4, 0x27, 0xee, 0x37,
+	0xae, 0xc3, 0x54, 0x2b, 0x3a, 0xcf, 0x3e, 0xd9, 0x69, 0x45, 0xe7, 0x72, 0xad, 0xcc, 0x95, 0x52,
+	0x8f, 0x85, 0xd9, 0x12, 0x9d, 0xb9, 0x58, 0xda, 0x67, 0x21, 0x95, 0xad, 0x77, 0x7c, 0xaf, 0xc5,
+	0x42, 0x92, 0x0c, 0x33, 0xe5, 0xa4, 0xf9, 0x8e, 0xff, 0x04, 0xa9, 0x6e, 0x15, 0xbe, 0xf6, 0x82,
+	0x41, 0x79, 0x2f, 0x95, 0xd1, 0xba, 0x07, 0xb0, 0x91, 0x2a, 0x51, 0xcf, 0x3e, 0x3e, 0x8e, 0x5a,
+	0xfa, 0x49, 0xc7, 0x6e, 0x94, 0x9c, 0x91, 0x24, 0xb0, 0xee, 0xc3, 0x2e, 0x9b, 0x11, 0x77, 0x0f,
+	0xee, 0x8d, 0xe7, 0xa2, 0x47, 0xba, 0x04, 0xd8, 0x4c, 0x06, 0x5c, 0x78, 0xe6, 0x6d, 0xcc, 0x65,
+	0x37, 0xed, 0x3f, 0xcc, 0xc3, 0xeb, 0x97, 0x69, 0xd2, 0xdd, 0xda, 0x82, 0xb5, 0x2e, 0x91, 0x19,
+	0x25, 0x8b, 0x12, 0x2f, 0x2d, 0x4a, 0x76, 0x19, 0x97, 0xd3, 0x90, 0x31, 0xce, 0x1b, 0x5d, 0xc2,
+	0x8f, 0x24, 0x9b, 0xd1, 0xf4, 0x54, 0x31, 0x39, 0xbb, 0x70, 0x5b, 0xaa, 0x08, 0x23, 0x2f, 0xa1,
+	0x3e, 0x0d, 0x85, 0x27, 0x93, 0xf9, 0xb3, 0x28, 0x09, 0xbc, 0x84, 0x72, 0x3a, 0x76, 0xb0, 0x7a,
+	0xa5, 0x4b, 0xf8, 0x61, 0x54, 0x47, 0xc6, 0x23, 0xcd, 0x57, 0x47, 0x36, 0x9d, 0xdc, 0x9c, 0x91,
+	0x5e, 0x8f, 0x0a, 0xcf, 0x27, 0xbc, 0xeb, 0x09, 0xd9, 0x57, 0xaa, 0x0a, 0x9d, 0x56, 0x00, 0xfc,
+	0x0c, 0x59, 0xaa, 0x84, 0x77, 0x9b, 0x8a, 0x01, 0x5d, 0x2b, 0xeb, 0x53, 0x8f, 0xf4, 0x7a, 0xa9,
+	0x90, 0x5d, 0xbe, 0x2a, 0x4a, 0x74, 0xab, 0xd7, 0xd3, 0xfc, 0xee, 0xbf, 0xe7, 0xe0, 0xb6, 0x5a,
+	0xb9, 0xa7, 0x3a, 0x53, 0x3a, 0x26, 0x7e, 0x43, 0xbd, 0x8e, 0xe9, 0x92, 0xb0, 0xf3, 0x12, 0x37,
+	0xe5, 0xa3, 0x73, 0x71, 0x7e, 0xf2, 0x5c, 0xfc, 0x18, 0x56, 0x13, 0xec, 0xd0, 0x29, 0xf1, 0x65,
+	0x2e, 0xc4, 0x05, 0x49, 0x44, 0xb6, 0xf4, 0xb6, 0x82, 0x0c, 0xc7, 0x88, 0x37, 0x10, 0xd6, 0xa9,
+	0xb4, 0x4a, 0xb3, 0xbc, 0x30, 0x3a, 0xcb, 0x24, 0xf6, 0x8b, 0x8c, 0xab, 0x2c, 0xeb, 0x30, 0x3a,
+	0x93, 0xe3, 0x1d, 0x71, 0xb6, 0x07, 0x62, 0x90, 0xd0, 0x4c, 0x46, 0x5f, 0x34, 0xcc, 0xbb, 0x88,
+	0xb9, 0xdf, 0x36, 0xde, 0x61, 0x0f, 0x5f, 0xa2, 0x89, 0x90, 0x26, 0x26, 0x43, 0x64, 0xe1, 0xc9,
+	0xa5, 0xf6, 0xf4, 0x5d, 0xb3, 0x59, 0x2e, 0x14, 0x1f, 0x19, 0x53, 0x19, 0xa6, 0xe3, 0xb3, 0xb1,
+	0x4a, 0x01, 0x52, 0x64, 0x0b, 0x21, 0x3d, 0x8f, 0xc2, 0xb1, 0xe9, 0x32, 0x44, 0xf7, 0x77, 0xa7,
+	0xd4, 0x8b, 0x92, 0xbd, 0x6a, 0x5d, 0xbd, 0x70, 0xc2, 0x72, 0xf4, 0xcd, 0xec, 0x9e, 0x99, 0xda,
+	0x28, 0x58, 0xfe, 0xe3, 0x23, 0x98, 0xd5, 0xef, 0x03, 0xf3, 0xf8, 0x0a, 0x73, 0xbd, 0x32, 0xa1,
+	0xa0, 0xa2, 0x7f, 0xab, 0xc7, 0x82, 0x9b, 0xb3, 0xf5, 0xad, 0xc3, 0xed, 0x67, 0x07, 0x75, 0x2d,
+	0xe7, 0xec, 0xc0, 0x7c, 0x9b, 0xf4, 0x7a, 0x2d, 0xe2, 0x9f, 0xe0, 0xd2, 0xbc, 0x8c, 0x8e, 0xb9,
+	0xed, 0x5a, 0xa3, 0xba, 0x55, 0xdf, 0xae, 0xa7, 0xa2, 0xce, 0x7d, 0x28, 0x9a, 0x17, 0xbd, 0x5e,
+	0x9b, 0xd1, 0x5e, 0xd6, 0xf4, 0x0a, 0x06, 0xdb, 0x95, 0x90, 0xf4, 0x61, 0x67, 0xb4, 0x45, 0x62,
+	0xa6, 0x9e, 0x00, 0x66, 0xbc, 0xd3, 0xa2, 0x42, 0xf0, 0x2d, 0x9d, 0x1b, 0x43, 0x21, 0xd3, 0xb2,
+	0x03, 0xa0, 0xfb, 0x5f, 0xba, 0xe2, 0x2c, 0x82, 0xe9, 0x47, 0x29, 0xe7, 0x38, 0x50, 0xac, 0xee,
+	0xd7, 0x76, 0x0e, 0x9b, 0x5e, 0xa3, 0xb9, 0xb3, 0x75, 0x50, 0xdb, 0x2e, 0xe5, 0x9d, 0x57, 0xe0,
+	0xda, 0x51, 0xfd, 0x59, 0xf3, 0xd9, 0x93, 0xe7, 0xbb, 0xde, 0x6e, 0x6d, 0x67, 0x7f, 0xdb, 0x7b,
+	0x5e, 0x3b, 0x6c, 0xbe, 0xff, 0xb8, 0x34, 0xe5, 0xdc, 0x80, 0xd5, 0xcf, 0x76, 0x9e, 0x6c, 0x1d,
+	0xd5, 0xbc, 0xa3, 0xad, 0xfa, 0xd6, 0x81, 0x01, 0xa6, 0xdd, 0xff, 0xc8, 0xa9, 0x03, 0x7e, 0xd6,
+	0x27, 0xea, 0x57, 0x79, 0xaa, 0x2b, 0xce, 0x47, 0x30, 0x47, 0x43, 0x75, 0x73, 0xa4, 0xb2, 0x84,
+	0xd7, 0x2b, 0x97, 0x88, 0x54, 0x76, 0x64, 0x42, 0x53, 0x37, 0x62, 0x6b, 0x3f, 0xc8, 0xc1, 0x0c,
+	0x92, 0x2e, 0x78, 0xb3, 0x97, 0x7b, 0xe9, 0x37, 0x7b, 0xf9, 0xaf, 0x78, 0xb3, 0xf7, 0x36, 0xcc,
+	0xe9, 0x27, 0x72, 0xb8, 0xa2, 0x8b, 0x8f, 0x9c, 0xc9, 0x15, 0xad, 0x1b, 0x16, 0xf7, 0x6f, 0x72,
+	0xe0, 0x4e, 0x76, 0xbf, 0x8a, 0xaf, 0xa3, 0x0f, 0x78, 0xc7, 0x0c, 0xba, 0x3a, 0x3e, 0xe8, 0x37,
+	0x2b, 0x97, 0x4b, 0x8d, 0x8f, 0xfb, 0xd8, 0x0c, 0xfb, 0x2e, 0xcc, 0xa7, 0xd5, 0xb2, 0x4c, 0x41,
+	0xbf, 0xaf, 0x0b, 0x65, 0xd6, 0x18, 0xf2, 0x97, 0x8f, 0x61, 0xcf, 0x8a, 0x41, 0x17, 0xaf, 0xc0,
+	0x4b, 0x06, 0xb3, 0x8f, 0xe1, 0xfe, 0xe5, 0xa3, 0x7a, 0x49, 0x5d, 0x7f, 0x9f, 0x87, 0xd5, 0x54,
+	0x59, 0x83, 0x8a, 0x67, 0xb1, 0xba, 0x47, 0x7e, 0x0f, 0xe6, 0xa2, 0xd8, 0x3c, 0x17, 0x98, 0xda,
+	0x28, 0xea, 0xa7, 0xaf, 0x63, 0x6c, 0x15, 0xf5, 0xb7, 0x6e, 0x78, 0x9d, 0x83, 0xf4, 0x45, 0xbb,
+	0x9c, 0xb9, 0x44, 0x3a, 0x68, 0xf3, 0x6c, 0xf1, 0xd5, 0x0b, 0x15, 0xe8, 0x47, 0xdc, 0x75, 0xc9,
+	0x69, 0x9e, 0xbb, 0xcb, 0x41, 0xa0, 0xe4, 0xda, 0x47, 0xb0, 0x64, 0x33, 0xc8, 0x7c, 0xa3, 0x17,
+	0x9d, 0x95, 0x73, 0xeb, 0xf9, 0x74, 0x31, 0x24, 0x41, 0xba, 0xb3, 0x2e, 0xeb, 0x74, 0xcb, 0x79,
+	0x0b, 0x40, 0x8a, 0x1b, 0xc2, 0xac, 0x6a, 0xca, 0x29, 0xc3, 0xd5, 0xc3, 0x67, 0xcd, 0xda, 0xee,
+	0x6f, 0x79, 0xcf, 0x1b, 0x3b, 0x75, 0xaf, 0xb1, 0xd3, 0x68, 0xd4, 0x9e, 0x1d, 0x36, 0x4a, 0x57,
+	0x9c, 0x35, 0xb8, 0xae, 0x91, 0xc6, 0x4e, 0xfd, 0xd8, 0xc6, 0x72, 0x72, 0x0f, 0x6a, 0x6c, 0xab,
+	0xfa, 0xb4, 0xb6, 0x73, 0xbc, 0x73, 0xb0, 0x73, 0xd8, 0x6c, 0x94, 0xf2, 0xce, 0x35, 0x58, 0xd1,
+	0xc0, 0xf1, 0x56, 0xd5, 0xdb, 0xaa, 0x36, 0x6b, 0xcf, 0x0e, 0x4b, 0x53, 0xee, 0xbf, 0x4d, 0x9b,
+	0xf7, 0x3c, 0x4f, 0x9f, 0xc7, 0xf2, 0x94, 0xa1, 0xef, 0x49, 0x7e, 0xc3, 0x30, 0x75, 0x0b, 0x66,
+	0xa3, 0x10, 0x53, 0x29, 0x3b, 0xc2, 0x6a, 0x9a, 0x3c, 0xfb, 0x9b, 0x5b, 0x1b, 0xd3, 0xc4, 0xb4,
+	0xfd, 0x5f, 0x07, 0x0a, 0x34, 0xff, 0x75, 0x80, 0x8f, 0x33, 0x91, 0x9b, 0x04, 0x41, 0x92, 0xb9,
+	0x11, 0x02, 0x05, 0x6c, 0x05, 0x41, 0x62, 0xb1, 0xc5, 0x51, 0x22, 0x32, 0x55, 0x7c, 0xcd, 0x76,
+	0x14, 0x25, 0xf8, 0x20, 0x24, 0xe2, 0x6a, 0x8f, 0xd8, 0xb7, 0x3f, 0xb3, 0x11, 0xc7, 0x2d, 0x72,
+	0x0f, 0x16, 0xb5, 0x41, 0x60, 0x63, 0xf6, 0xa5, 0x0f, 0x28, 0x00, 0x1b, 0xab, 0xc2, 0x12, 0x3d,
+	0x17, 0x09, 0x51, 0x6e, 0x99, 0x97, 0x17, 0xac, 0x97, 0xae, 0xe3, 0x53, 0x59, 0xd9, 0x91, 0x9c,
+	0xe8, 0xa4, 0xeb, 0x8b, 0x34, 0xfd, 0xcd, 0x33, 0x2f, 0x0a, 0xc1, 0x9e, 0x62, 0xfd, 0xa2, 0x50,
+	0x06, 0x63, 0xbf, 0x9f, 0xfe, 0xaf, 0x05, 0x1f, 0x72, 0x16, 0x64, 0xee, 0x7d, 0x8a, 0x7e, 0x5f,
+	0xb7, 0xd1, 0x90, 0x98, 0x3c, 0xe7, 0x5b, 0xfc, 0xfa, 0x7c, 0xca, 0x68, 0x92, 0xa9, 0x49, 0xad,
+	0xa6, 0x42, 0xb5, 0x94, 0x01, 0xe3, 0x21, 0x8d, 0x23, 0x79, 0x44, 0xe5, 0xe5, 0x82, 0x8e, 0x87,
+	0x92, 0x50, 0x0b, 0xf8, 0xda, 0x13, 0x80, 0xd1, 0x10, 0x7e, 0xcd, 0x77, 0xb7, 0x7f, 0x9b, 0x57,
+	0x91, 0x1e, 0x9f, 0xb5, 0xea, 0x23, 0xf7, 0xb3, 0x76, 0x63, 0xc0, 0x63, 0xe6, 0xb3, 0x68, 0xa0,
+	0x1e, 0x46, 0x30, 0x31, 0xfc, 0x4d, 0xea, 0xaf, 0xce, 0xe7, 0xe0, 0xf4, 0x07, 0x3d, 0xc1, 0xe2,
+	0x1e, 0xf5, 0x58, 0xc8, 0x05, 0x09, 0x7d, 0xca, 0xb5, 0xbb, 0xfe, 0x66, 0xe5, 0x65, 0x9a, 0xaf,
+	0x1c, 0x68, 0xf9, 0x3d, 0xd2, 0xa7, 0x35, 0xa3, 0xa2, 0xbe, 0x62, 0xd4, 0xa6, 0xa4, 0xb5, 0x04,
+	0xae, 0x5d, 0xc8, 0x8b, 0x6f, 0xef, 0xe4, 0xbe, 0xd0, 0x04, 0x5d, 0xd5, 0xc9, 0xfc, 0xdb, 0x85,
+	0xdc, 0x23, 0x1a, 0x56, 0xa5, 0x9d, 0x7b, 0x50, 0x8c, 0x44, 0xd7, 0xec, 0x87, 0xd1, 0x51, 0xb6,
+	0x80, 0xd4, 0x46, 0x7a, 0xec, 0x9e, 0x57, 0x97, 0x29, 0xdb, 0x47, 0x3a, 0x57, 0x3a, 0x60, 0x7e,
+	0x12, 0x35, 0xcf, 0xd5, 0x3b, 0x1a, 0x35, 0x2d, 0xb9, 0xc9, 0x69, 0xb9, 0x0d, 0x73, 0x1d, 0x7f,
+	0x32, 0xba, 0xcd, 0x76, 0x7c, 0x8c, 0x6c, 0xdf, 0x86, 0xb9, 0x58, 0xa9, 0xd3, 0x53, 0xf5, 0x5a,
+	0xe5, 0xe2, 0x46, 0x2a, 0x9a, 0xa0, 0xc2, 0x84, 0x96, 0x71, 0x3e, 0x81, 0x25, 0x7c, 0x21, 0x40,
+	0xf4, 0x43, 0x1f, 0xf5, 0x46, 0xf3, 0x8d, 0x4b, 0x74, 0x18, 0x42, 0x3d, 0x23, 0xbc, 0xf6, 0x9f,
+	0xd3, 0xb0, 0x3c, 0xc6, 0x81, 0x8f, 0x31, 0x42, 0x26, 0x54, 0x11, 0x27, 0x73, 0xbe, 0x91, 0x64,
+	0xac, 0xdb, 0x54, 0xa0, 0xd4, 0x23, 0x5c, 0x78, 0x03, 0xdc, 0x77, 0x8a, 0xd3, 0xb6, 0x8f, 0xa2,
+	0x44, 0xd5, 0xa6, 0x44, 0xfe, 0x9b, 0x30, 0x2b, 0xce, 0x43, 0xf3, 0x92, 0x37, 0x7d, 0x76, 0x24,
+	0xce, 0x43, 0x75, 0x65, 0x62, 0xfd, 0x23, 0xcb, 0xf4, 0x05, 0x45, 0x43, 0x75, 0x33, 0x2f, 0x5d,
+	0x19, 0x3e, 0x80, 0xca, 0xb8, 0xa4, 0x79, 0x49, 0xae, 0x09, 0xda, 0x97, 0xd3, 0x2e, 0x51, 0x4f,
+	0x3f, 0x81, 0x4e, 0x9f, 0x9e, 0x49, 0xa2, 0xd2, 0x10, 0xd0, 0xb6, 0x4e, 0x41, 0x33, 0x17, 0xd1,
+	0x01, 0x6d, 0xab, 0x44, 0x74, 0x0d, 0x66, 0xe2, 0x84, 0xf9, 0x34, 0xf3, 0x0a, 0x4c, 0x91, 0x64,
+	0x68, 0x11, 0xe4, 0x3c, 0xf3, 0xee, 0x4b, 0x12, 0xa4, 0x5a, 0x64, 0xf0, 0x06, 0x3c, 0xc8, 0xbc,
+	0xf6, 0x9a, 0x47, 0xf2, 0x73, 0x8e, 0xf6, 0x20, 0xc8, 0x39, 0x32, 0xd8, 0x4f, 0xbc, 0x66, 0x05,
+	0x39, 0x97, 0xf0, 0x9b, 0x50, 0x48, 0x8f, 0x6b, 0xe8, 0x27, 0x6d, 0xef, 0xb1, 0x64, 0x20, 0xf4,
+	0x96, 0x6f, 0x41, 0x51, 0x79, 0x70, 0x39, 0x9b, 0xc8, 0x5b, 0x98, 0xb8, 0x96, 0x6e, 0x9e, 0x87,
+	0xe6, 0xaa, 0x37, 0x53, 0xa0, 0x2a, 0x66, 0xcf, 0xd8, 0x69, 0x75, 0x4a, 0xba, 0xe0, 0x84, 0x76,
+	0xa4, 0x07, 0x43, 0xbe, 0x65, 0x3b, 0x21, 0x53, 0x00, 0xb2, 0xad, 0xc3, 0xfc, 0x17, 0x03, 0x82,
+	0x05, 0x33, 0xac, 0x51, 0x9b, 0x4b, 0xa5, 0x94, 0xea, 0xbc, 0x0e, 0x4b, 0x09, 0x6d, 0x7b, 0x68,
+	0x60, 0x72, 0x15, 0x56, 0xec, 0x47, 0x77, 0x09, 0x6d, 0x37, 0x25, 0x50, 0x0b, 0xd6, 0x7e, 0x9c,
+	0x83, 0x45, 0xcb, 0xb4, 0xd5, 0x9d, 0x19, 0x7e, 0x5e, 0xf0, 0x6e, 0x5c, 0xb1, 0xa9, 0x02, 0x91,
+	0x66, 0xba, 0xa0, 0x40, 0xa4, 0x10, 0xdc, 0x5e, 0x6f, 0x42, 0xc1, 0x94, 0x84, 0xd5, 0x80, 0xec,
+	0xea, 0xc3, 0x92, 0x81, 0x70, 0x48, 0x36, 0x2b, 0x2a, 0x9d, 0xbe, 0x88, 0x15, 0xcb, 0x4e, 0x7f,
+	0x34, 0xa5, 0x4a, 0x41, 0x93, 0x3b, 0xec, 0xe5, 0x6e, 0x29, 0x8f, 0x01, 0x28, 0xbe, 0x92, 0xc2,
+	0x2e, 0xa9, 0x73, 0xce, 0x5b, 0x95, 0x17, 0x6b, 0xac, 0xec, 0xec, 0x48, 0x09, 0x55, 0x42, 0x3c,
+	0xf1, 0x0e, 0x78, 0xe7, 0x98, 0xf4, 0x58, 0x50, 0xb7, 0x34, 0xb9, 0xff, 0x95, 0x03, 0x18, 0xb1,
+	0x39, 0x45, 0xb0, 0x18, 0x4b, 0x57, 0x64, 0x16, 0x82, 0xdf, 0xb5, 0xf0, 0x54, 0x52, 0xb6, 0xe2,
+	0xb8, 0x26, 0x0f, 0x1a, 0x37, 0xe1, 0x86, 0x4d, 0xb6, 0x16, 0xa3, 0x94, 0x97, 0x29, 0x0d, 0x82,
+	0x87, 0x51, 0xd3, 0x72, 0x15, 0xa5, 0x29, 0x67, 0x15, 0x96, 0x11, 0x68, 0x7c, 0xba, 0xbf, 0x4b,
+	0x58, 0x6f, 0x90, 0xd0, 0xd2, 0xb4, 0x73, 0x17, 0x6e, 0x22, 0xd1, 0xd2, 0xb1, 0xcd, 0xb8, 0x9f,
+	0xd0, 0x98, 0x84, 0xfe, 0xb0, 0x34, 0xe3, 0xac, 0xc3, 0x2d, 0x64, 0xb0, 0x94, 0xd5, 0x42, 0x4e,
+	0x13, 0xb1, 0x8b, 0x65, 0xc3, 0xd2, 0x5c, 0xda, 0xe0, 0x56, 0x2f, 0xa1, 0x24, 0x18, 0xd6, 0x07,
+	0x61, 0xc8, 0xc2, 0x4e, 0x69, 0x3e, 0xd5, 0xad, 0xbb, 0x69, 0x69, 0xd8, 0x26, 0x82, 0x94, 0x16,
+	0xde, 0xfa, 0x49, 0x0e, 0x4a, 0xe3, 0xff, 0x9f, 0x27, 0x1b, 0x7c, 0xd1, 0xff, 0xec, 0x95, 0xae,
+	0x48, 0xbd, 0x13, 0x1c, 0xbb, 0x49, 0xd4, 0x57, 0x65, 0x96, 0x52, 0xee, 0x42, 0x15, 0xc8, 0x80,
+	0x29, 0x92, 0x3c, 0x96, 0xdd, 0x84, 0x1b, 0x17, 0x72, 0xec, 0x55, 0x4b, 0x53, 0x17, 0x8a, 0xd7,
+	0x69, 0xdc, 0x1b, 0xea, 0x06, 0xa6, 0x37, 0xab, 0xb0, 0x70, 0x42, 0x87, 0x2a, 0x9b, 0x71, 0x6e,
+	0x57, 0xd4, 0xbf, 0x93, 0x56, 0xcc, 0x01, 0xb3, 0x82, 0x91, 0x5f, 0xa7, 0xc0, 0xe5, 0x5f, 0xfc,
+	0x03, 0xe6, 0x74, 0x9b, 0x33, 0x6d, 0xd2, 0xe3, 0xb4, 0x3e, 0x7f, 0x42, 0x87, 0x88, 0x6f, 0x36,
+	0xc0, 0xe9, 0xf3, 0x4e, 0x1c, 0x45, 0x3d, 0x8f, 0x47, 0x6d, 0xa1, 0xae, 0xd7, 0x9c, 0xbb, 0x13,
+	0xda, 0x74, 0x8a, 0x9c, 0xd5, 0x37, 0xb3, 0x99, 0x7f, 0xf7, 0x51, 0xbd, 0xa4, 0x15, 0x34, 0xa2,
+	0xb6, 0xc0, 0x6b, 0xb8, 0xcd, 0xe6, 0x48, 0x69, 0x97, 0x24, 0xc1, 0xcb, 0x2a, 0xfd, 0x57, 0xad,
+	0x74, 0xea, 0xdd, 0x0f, 0x1f, 0xa7, 0x5a, 0x9f, 0x92, 0x24, 0x40, 0xad, 0x4f, 0xdc, 0x9f, 0xfd,
+	0xf2, 0x4e, 0xee, 0xe7, 0xbf, 0xbc, 0x93, 0xfb, 0xc5, 0x2f, 0xef, 0xe4, 0xfe, 0xf0, 0x57, 0x77,
+	0xae, 0xfc, 0xfc, 0x57, 0x77, 0xae, 0xfc, 0xd3, 0xaf, 0xee, 0x5c, 0x79, 0x9a, 0xfb, 0xed, 0xa9,
+	0x3e, 0xef, 0x7c, 0x99, 0xbb, 0xf2, 0xbf, 0x01, 0x00, 0x00, 0xff, 0xff, 0xec, 0x98, 0x52, 0x62,
+	0x6a, 0x3b, 0x00, 0x00,
+}
+
 func (m *CMsgProtoBufHeader) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -3102,7 +5964,8 @@ func (m *CMsgProtoBufHeader) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.ClientSteamId))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.ClientSteamId))
+	i += 8
 	dAtA[i] = 0x10
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.ClientSessionId))
@@ -3112,12 +5975,14 @@ func (m *CMsgProtoBufHeader) MarshalTo(dAtA []byte) (int, error) {
 	if m.JobIdSource != nil {
 		dAtA[i] = 0x51
 		i++
-		i = encodeFixed64Steammessages(dAtA, i, uint64(*m.JobIdSource))
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(*m.JobIdSource))
+		i += 8
 	}
 	if m.JobIdTarget != nil {
 		dAtA[i] = 0x59
 		i++
-		i = encodeFixed64Steammessages(dAtA, i, uint64(*m.JobIdTarget))
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(*m.JobIdTarget))
+		i += 8
 	}
 	dAtA[i] = 0x62
 	i++
@@ -3132,6 +5997,9 @@ func (m *CMsgProtoBufHeader) MarshalTo(dAtA []byte) (int, error) {
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.ErrorMessage)))
 	i += copy(dAtA[i:], m.ErrorMessage)
+	dAtA[i] = 0x78
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Ip))
 	if m.GcMsgSrc != nil {
 		dAtA[i] = 0xc0
 		i++
@@ -3349,9 +6217,9 @@ func (m *CMsgWebAPIRequest) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x2a
 		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(m.ApiKey.Size()))
-		n1, err := m.ApiKey.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n1, err1 := m.ApiKey.MarshalTo(dAtA[i:])
+		if err1 != nil {
+			return 0, err1
 		}
 		i += n1
 	}
@@ -3359,9 +6227,9 @@ func (m *CMsgWebAPIRequest) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x32
 		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(m.Request.Size()))
-		n2, err := m.Request.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n2, err2 := m.Request.MarshalTo(dAtA[i:])
+		if err2 != nil {
+			return 0, err2
 		}
 		i += n2
 	}
@@ -3480,22 +6348,8 @@ func (m *CMsgAMFindAccountsResponse) MarshalTo(dAtA []byte) (int, error) {
 		for _, num := range m.SteamId {
 			dAtA[i] = 0x9
 			i++
-			dAtA[i] = uint8(num)
-			i++
-			dAtA[i] = uint8(num >> 8)
-			i++
-			dAtA[i] = uint8(num >> 16)
-			i++
-			dAtA[i] = uint8(num >> 24)
-			i++
-			dAtA[i] = uint8(num >> 32)
-			i++
-			dAtA[i] = uint8(num >> 40)
-			i++
-			dAtA[i] = uint8(num >> 48)
-			i++
-			dAtA[i] = uint8(num >> 56)
-			i++
+			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(num))
+			i += 8
 		}
 	}
 	return i, nil
@@ -3563,7 +6417,8 @@ func (m *CMsgAMGetLicenses) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.Steamid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i += 8
 	return i, nil
 }
 
@@ -3644,10 +6499,12 @@ func (m *CMsgAMGetUserGameStats) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.SteamId))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
+	i += 8
 	dAtA[i] = 0x11
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.GameId))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.GameId))
+	i += 8
 	if len(m.Stats) > 0 {
 		for _, num := range m.Stats {
 			dAtA[i] = 0x18
@@ -3675,10 +6532,12 @@ func (m *CMsgAMGetUserGameStatsResponse) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.SteamId))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
+	i += 8
 	dAtA[i] = 0x11
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.GameId))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.GameId))
+	i += 8
 	if m.Eresult != nil {
 		dAtA[i] = 0x18
 		i++
@@ -3758,7 +6617,8 @@ func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) MarshalTo(dAtA []byt
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.AchievementBitId))
 	dAtA[i] = 0x1d
 	i++
-	i = encodeFixed32Steammessages(dAtA, i, uint32(m.UnlockTime))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.UnlockTime))
+	i += 4
 	return i, nil
 }
 
@@ -4167,7 +7027,8 @@ func (m *CMsgAMAddFreeLicense) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.Steamid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i += 8
 	dAtA[i] = 0x10
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.IpPublic))
@@ -4206,7 +7067,8 @@ func (m *CMsgAMAddFreeLicenseResponse) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.PurchaseResultDetail))
 	dAtA[i] = 0x19
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.Transid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Transid))
+	i += 8
 	return i, nil
 }
 
@@ -4229,14 +7091,8 @@ func (m *CGCMsgGetIPLocation) MarshalTo(dAtA []byte) (int, error) {
 		for _, num := range m.Ips {
 			dAtA[i] = 0xd
 			i++
-			dAtA[i] = uint8(num)
-			i++
-			dAtA[i] = uint8(num >> 8)
-			i++
-			dAtA[i] = uint8(num >> 16)
-			i++
-			dAtA[i] = uint8(num >> 24)
-			i++
+			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(num))
+			i += 4
 		}
 	}
 	return i, nil
@@ -4262,10 +7118,12 @@ func (m *CIPLocationInfo) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.Ip))
 	dAtA[i] = 0x15
 	i++
-	i = encodeFixed32Steammessages(dAtA, i, uint32(math.Float32bits(float32(m.Latitude))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Latitude))))
+	i += 4
 	dAtA[i] = 0x1d
 	i++
-	i = encodeFixed32Steammessages(dAtA, i, uint32(math.Float32bits(float32(m.Longitude))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Longitude))))
+	i += 4
 	dAtA[i] = 0x22
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Country)))
@@ -4433,7 +7291,8 @@ func (m *CMsgAMSendEmail) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.Steamid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i += 8
 	dAtA[i] = 0x10
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.EmailMsgType))
@@ -4513,7 +7372,8 @@ func (m *CMsgAMSendEmail_PersonaNameReplacementToken) MarshalTo(dAtA []byte) (in
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.Steamid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i += 8
 	dAtA[i] = 0x12
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.TokenName)))
@@ -4626,7 +7486,8 @@ func (m *CMsgAMGrantGuestPasses2) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.SteamId))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
+	i += 8
 	dAtA[i] = 0x10
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.PackageId))
@@ -4687,7 +7548,8 @@ func (m *CGCSystemMsg_GetAccountDetails) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.Steamid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i += 8
 	dAtA[i] = 0x10
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.Appid))
@@ -4921,6 +7783,22 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) MarshalTo(dAtA []byte) (int, e
 		dAtA[i] = 0
 	}
 	i++
+	dAtA[i] = 0x98
+	i++
+	dAtA[i] = 0x2
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.RtIdentityLinked))
+	dAtA[i] = 0xa0
+	i++
+	dAtA[i] = 0x2
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.RtBirthDate))
+	dAtA[i] = 0xaa
+	i++
+	dAtA[i] = 0x2
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.TxnCountryCode)))
+	i += copy(dAtA[i:], m.TxnCountryCode)
 	return i, nil
 }
 
@@ -4943,22 +7821,8 @@ func (m *CMsgGCGetPersonaNames) MarshalTo(dAtA []byte) (int, error) {
 		for _, num := range m.Steamids {
 			dAtA[i] = 0x9
 			i++
-			dAtA[i] = uint8(num)
-			i++
-			dAtA[i] = uint8(num >> 8)
-			i++
-			dAtA[i] = uint8(num >> 16)
-			i++
-			dAtA[i] = uint8(num >> 24)
-			i++
-			dAtA[i] = uint8(num >> 32)
-			i++
-			dAtA[i] = uint8(num >> 40)
-			i++
-			dAtA[i] = uint8(num >> 48)
-			i++
-			dAtA[i] = uint8(num >> 56)
-			i++
+			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(num))
+			i += 8
 		}
 	}
 	return i, nil
@@ -4995,22 +7859,8 @@ func (m *CMsgGCGetPersonaNames_Response) MarshalTo(dAtA []byte) (int, error) {
 		for _, num := range m.FailedLookupSteamids {
 			dAtA[i] = 0x11
 			i++
-			dAtA[i] = uint8(num)
-			i++
-			dAtA[i] = uint8(num >> 8)
-			i++
-			dAtA[i] = uint8(num >> 16)
-			i++
-			dAtA[i] = uint8(num >> 24)
-			i++
-			dAtA[i] = uint8(num >> 32)
-			i++
-			dAtA[i] = uint8(num >> 40)
-			i++
-			dAtA[i] = uint8(num >> 48)
-			i++
-			dAtA[i] = uint8(num >> 56)
-			i++
+			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(num))
+			i += 8
 		}
 	}
 	return i, nil
@@ -5033,7 +7883,8 @@ func (m *CMsgGCGetPersonaNames_Response_PersonaName) MarshalTo(dAtA []byte) (int
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.Steamid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i += 8
 	dAtA[i] = 0x12
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.PersonaName)))
@@ -5058,10 +7909,12 @@ func (m *CMsgGCCheckFriendship) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.SteamidLeft))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamidLeft))
+	i += 8
 	dAtA[i] = 0x11
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.SteamidRight))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamidRight))
+	i += 8
 	return i, nil
 }
 
@@ -5230,7 +8083,8 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Request) MarshalTo(dAtA []byte) (int, err
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.Steamid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i += 8
 	return i, nil
 }
 
@@ -5296,7 +8150,8 @@ func (m *CMsgGCHAccountVacStatusChange) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.SteamId))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
+	i += 8
 	dAtA[i] = 0x10
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppId))
@@ -5339,7 +8194,8 @@ func (m *CMsgGCGetPartnerAccountLink) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.Steamid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i += 8
 	return i, nil
 }
 
@@ -5466,9 +8322,9 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) MarshalTo(dAtA []byte) (int, err
 		dAtA[i] = 0x1a
 		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(m.Routing.Size()))
-		n3, err := m.Routing.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n3, err3 := m.Routing.MarshalTo(dAtA[i:])
+		if err3 != nil {
+			return 0, err3
 		}
 		i += n3
 	}
@@ -5527,9 +8383,9 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) MarshalTo(dAtA []byte) (int, 
 		dAtA[i] = 0x12
 		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(m.Routing.Size()))
-		n4, err := m.Routing.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n4, err4 := m.Routing.MarshalTo(dAtA[i:])
+		if err4 != nil {
+			return 0, err4
 		}
 		i += n4
 	}
@@ -5660,7 +8516,8 @@ func (m *CMsgGCHUpdateSession) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.SteamId))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
+	i += 8
 	dAtA[i] = 0x10
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppId))
@@ -5674,7 +8531,8 @@ func (m *CMsgGCHUpdateSession) MarshalTo(dAtA []byte) (int, error) {
 	i++
 	dAtA[i] = 0x21
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.ServerSteamId))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.ServerSteamId))
+	i += 8
 	dAtA[i] = 0x28
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.ServerAddr))
@@ -5697,6 +8555,23 @@ func (m *CMsgGCHUpdateSession) MarshalTo(dAtA []byte) (int, error) {
 				return 0, err
 			}
 			i += n
+		}
+	}
+	dAtA[i] = 0x51
+	i++
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.OwnerId))
+	i += 8
+	dAtA[i] = 0x58
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmSessionSysid))
+	dAtA[i] = 0x60
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmSessionIdentifier))
+	if len(m.DepotIds) > 0 {
+		for _, num := range m.DepotIds {
+			dAtA[i] = 0x68
+			i++
+			i = encodeVarintSteammessages(dAtA, i, uint64(num))
 		}
 	}
 	return i, nil
@@ -5745,7 +8620,8 @@ func (m *CMsgNotificationOfSuspiciousActivity) MarshalTo(dAtA []byte) (int, erro
 	_ = l
 	dAtA[i] = 0x9
 	i++
-	i = encodeFixed64Steammessages(dAtA, i, uint64(m.Steamid))
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i += 8
 	dAtA[i] = 0x10
 	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.Appid))
@@ -5753,9 +8629,9 @@ func (m *CMsgNotificationOfSuspiciousActivity) MarshalTo(dAtA []byte) (int, erro
 		dAtA[i] = 0x1a
 		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(m.MultipleInstances.Size()))
-		n5, err := m.MultipleInstances.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n5, err5 := m.MultipleInstances.MarshalTo(dAtA[i:])
+		if err5 != nil {
+			return 0, err5
 		}
 		i += n5
 	}
@@ -5784,45 +8660,196 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) MarshalTo(d
 		for _, num := range m.OtherSteamids {
 			dAtA[i] = 0x11
 			i++
-			dAtA[i] = uint8(num)
-			i++
-			dAtA[i] = uint8(num >> 8)
-			i++
-			dAtA[i] = uint8(num >> 16)
-			i++
-			dAtA[i] = uint8(num >> 24)
-			i++
-			dAtA[i] = uint8(num >> 32)
-			i++
-			dAtA[i] = uint8(num >> 40)
-			i++
-			dAtA[i] = uint8(num >> 48)
-			i++
-			dAtA[i] = uint8(num >> 56)
-			i++
+			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(num))
+			i += 8
 		}
 	}
 	return i, nil
 }
 
-func encodeFixed64Steammessages(dAtA []byte, offset int, v uint64) int {
-	dAtA[offset] = uint8(v)
-	dAtA[offset+1] = uint8(v >> 8)
-	dAtA[offset+2] = uint8(v >> 16)
-	dAtA[offset+3] = uint8(v >> 24)
-	dAtA[offset+4] = uint8(v >> 32)
-	dAtA[offset+5] = uint8(v >> 40)
-	dAtA[offset+6] = uint8(v >> 48)
-	dAtA[offset+7] = uint8(v >> 56)
-	return offset + 8
+func (m *CMsgDPPartnerMicroTxns) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
 }
-func encodeFixed32Steammessages(dAtA []byte, offset int, v uint32) int {
-	dAtA[offset] = uint8(v)
-	dAtA[offset+1] = uint8(v >> 8)
-	dAtA[offset+2] = uint8(v >> 16)
-	dAtA[offset+3] = uint8(v >> 24)
-	return offset + 4
+
+func (m *CMsgDPPartnerMicroTxns) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Appid))
+	dAtA[i] = 0x12
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.GcName)))
+	i += copy(dAtA[i:], m.GcName)
+	if m.Partner != nil {
+		dAtA[i] = 0x1a
+		i++
+		i = encodeVarintSteammessages(dAtA, i, uint64(m.Partner.Size()))
+		n6, err6 := m.Partner.MarshalTo(dAtA[i:])
+		if err6 != nil {
+			return 0, err6
+		}
+		i += n6
+	}
+	if len(m.Transactions) > 0 {
+		for _, msg := range m.Transactions {
+			dAtA[i] = 0x22
+			i++
+			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	return i, nil
 }
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.InitTime))
+	dAtA[i] = 0x10
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.LastUpdateTime))
+	dAtA[i] = 0x18
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.TxnId))
+	dAtA[i] = 0x20
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AccountId))
+	dAtA[i] = 0x28
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.LineItem))
+	dAtA[i] = 0x30
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.ItemId))
+	dAtA[i] = 0x38
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.DefIndex))
+	dAtA[i] = 0x40
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Price))
+	dAtA[i] = 0x48
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Tax))
+	dAtA[i] = 0x50
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PriceUsd))
+	dAtA[i] = 0x58
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.TaxUsd))
+	dAtA[i] = 0x60
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PurchaseType))
+	dAtA[i] = 0x68
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.SteamTxnType))
+	dAtA[i] = 0x72
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CountryCode)))
+	i += copy(dAtA[i:], m.CountryCode)
+	dAtA[i] = 0x7a
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.RegionCode)))
+	i += copy(dAtA[i:], m.RegionCode)
+	dAtA[i] = 0x80
+	i++
+	dAtA[i] = 0x1
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Quantity))
+	dAtA[i] = 0x88
+	i++
+	dAtA[i] = 0x1
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.RefTransId))
+	return i, nil
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PartnerId))
+	dAtA[i] = 0x12
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.PartnerName)))
+	i += copy(dAtA[i:], m.PartnerName)
+	dAtA[i] = 0x1a
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CurrencyCode)))
+	i += copy(dAtA[i:], m.CurrencyCode)
+	dAtA[i] = 0x22
+	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CurrencyName)))
+	i += copy(dAtA[i:], m.CurrencyName)
+	return i, nil
+}
+
+func (m *CMsgDPPartnerMicroTxnsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CMsgDPPartnerMicroTxnsResponse) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Eresult != nil {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+	}
+	if m.Eerrorcode != nil {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eerrorcode))
+	}
+	return i, nil
+}
+
 func encodeVarintSteammessages(dAtA []byte, offset int, v uint64) int {
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
@@ -5833,6 +8860,9 @@ func encodeVarintSteammessages(dAtA []byte, offset int, v uint64) int {
 	return offset + 1
 }
 func (m *CMsgProtoBufHeader) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -5851,6 +8881,7 @@ func (m *CMsgProtoBufHeader) Size() (n int) {
 	}
 	l = len(m.ErrorMessage)
 	n += 1 + l + sovSteammessages(uint64(l))
+	n += 1 + sovSteammessages(uint64(m.Ip))
 	if m.GcMsgSrc != nil {
 		n += 2 + sovSteammessages(uint64(*m.GcMsgSrc))
 	}
@@ -5859,6 +8890,9 @@ func (m *CMsgProtoBufHeader) Size() (n int) {
 }
 
 func (m *CMsgWebAPIKey) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Status != nil {
@@ -5877,6 +8911,9 @@ func (m *CMsgWebAPIKey) Size() (n int) {
 }
 
 func (m *CMsgHttpRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.RequestMethod))
@@ -5911,6 +8948,9 @@ func (m *CMsgHttpRequest) Size() (n int) {
 }
 
 func (m *CMsgHttpRequest_RequestHeader) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Name)
@@ -5921,6 +8961,9 @@ func (m *CMsgHttpRequest_RequestHeader) Size() (n int) {
 }
 
 func (m *CMsgHttpRequest_QueryParam) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Name)
@@ -5933,6 +8976,9 @@ func (m *CMsgHttpRequest_QueryParam) Size() (n int) {
 }
 
 func (m *CMsgWebAPIRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.UNUSEDJobName)
@@ -5955,6 +9001,9 @@ func (m *CMsgWebAPIRequest) Size() (n int) {
 }
 
 func (m *CMsgHttpResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.StatusCode))
@@ -5972,6 +9021,9 @@ func (m *CMsgHttpResponse) Size() (n int) {
 }
 
 func (m *CMsgHttpResponse_ResponseHeader) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Name)
@@ -5982,6 +9034,9 @@ func (m *CMsgHttpResponse_ResponseHeader) Size() (n int) {
 }
 
 func (m *CMsgAMFindAccounts) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.SearchType))
@@ -5991,6 +9046,9 @@ func (m *CMsgAMFindAccounts) Size() (n int) {
 }
 
 func (m *CMsgAMFindAccountsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.SteamId) > 0 {
@@ -6000,6 +9058,9 @@ func (m *CMsgAMFindAccountsResponse) Size() (n int) {
 }
 
 func (m *CMsgNotifyWatchdog) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.Source))
@@ -6014,6 +9075,9 @@ func (m *CMsgNotifyWatchdog) Size() (n int) {
 }
 
 func (m *CMsgAMGetLicenses) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6021,6 +9085,9 @@ func (m *CMsgAMGetLicenses) Size() (n int) {
 }
 
 func (m *CMsgPackageLicense) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.PackageId))
@@ -6030,6 +9097,9 @@ func (m *CMsgPackageLicense) Size() (n int) {
 }
 
 func (m *CMsgAMGetLicensesResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.License) > 0 {
@@ -6043,6 +9113,9 @@ func (m *CMsgAMGetLicensesResponse) Size() (n int) {
 }
 
 func (m *CMsgAMGetUserGameStats) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6056,6 +9129,9 @@ func (m *CMsgAMGetUserGameStats) Size() (n int) {
 }
 
 func (m *CMsgAMGetUserGameStatsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6079,6 +9155,9 @@ func (m *CMsgAMGetUserGameStatsResponse) Size() (n int) {
 }
 
 func (m *CMsgAMGetUserGameStatsResponse_Stats) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.StatId))
@@ -6087,6 +9166,9 @@ func (m *CMsgAMGetUserGameStatsResponse_Stats) Size() (n int) {
 }
 
 func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.AchievementId))
@@ -6096,6 +9178,9 @@ func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) Size() (n int) {
 }
 
 func (m *CMsgGCGetCommandList) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.AppId))
@@ -6105,6 +9190,9 @@ func (m *CMsgGCGetCommandList) Size() (n int) {
 }
 
 func (m *CMsgGCGetCommandListResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.CommandName) > 0 {
@@ -6117,6 +9205,9 @@ func (m *CMsgGCGetCommandListResponse) Size() (n int) {
 }
 
 func (m *CGCMsgMemCachedGet) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Keys) > 0 {
@@ -6129,6 +9220,9 @@ func (m *CGCMsgMemCachedGet) Size() (n int) {
 }
 
 func (m *CGCMsgMemCachedGetResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Values) > 0 {
@@ -6141,6 +9235,9 @@ func (m *CGCMsgMemCachedGetResponse) Size() (n int) {
 }
 
 func (m *CGCMsgMemCachedGetResponse_ValueTag) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -6152,6 +9249,9 @@ func (m *CGCMsgMemCachedGetResponse_ValueTag) Size() (n int) {
 }
 
 func (m *CGCMsgMemCachedSet) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Keys) > 0 {
@@ -6164,6 +9264,9 @@ func (m *CGCMsgMemCachedSet) Size() (n int) {
 }
 
 func (m *CGCMsgMemCachedSet_KeyPair) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Name)
@@ -6176,6 +9279,9 @@ func (m *CGCMsgMemCachedSet_KeyPair) Size() (n int) {
 }
 
 func (m *CGCMsgMemCachedDelete) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Keys) > 0 {
@@ -6188,12 +9294,18 @@ func (m *CGCMsgMemCachedDelete) Size() (n int) {
 }
 
 func (m *CGCMsgMemCachedStats) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	return n
 }
 
 func (m *CGCMsgMemCachedStatsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.CurrConnections))
@@ -6214,6 +9326,9 @@ func (m *CGCMsgMemCachedStatsResponse) Size() (n int) {
 }
 
 func (m *CGCMsgSQLStats) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.SchemaCatalog))
@@ -6221,6 +9336,9 @@ func (m *CGCMsgSQLStats) Size() (n int) {
 }
 
 func (m *CGCMsgSQLStatsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.Threads))
@@ -6236,6 +9354,9 @@ func (m *CGCMsgSQLStatsResponse) Size() (n int) {
 }
 
 func (m *CMsgAMAddFreeLicense) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6247,6 +9368,9 @@ func (m *CMsgAMAddFreeLicense) Size() (n int) {
 }
 
 func (m *CMsgAMAddFreeLicenseResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Eresult != nil {
@@ -6258,6 +9382,9 @@ func (m *CMsgAMAddFreeLicenseResponse) Size() (n int) {
 }
 
 func (m *CGCMsgGetIPLocation) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Ips) > 0 {
@@ -6267,6 +9394,9 @@ func (m *CGCMsgGetIPLocation) Size() (n int) {
 }
 
 func (m *CIPLocationInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.Ip))
@@ -6282,6 +9412,9 @@ func (m *CIPLocationInfo) Size() (n int) {
 }
 
 func (m *CGCMsgGetIPLocationResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Infos) > 0 {
@@ -6294,6 +9427,9 @@ func (m *CGCMsgGetIPLocationResponse) Size() (n int) {
 }
 
 func (m *CGCMsgSystemStatsSchema) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.GcAppId))
@@ -6305,12 +9441,18 @@ func (m *CGCMsgSystemStatsSchema) Size() (n int) {
 }
 
 func (m *CGCMsgGetSystemStats) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	return n
 }
 
 func (m *CGCMsgGetSystemStatsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.GcAppId))
@@ -6333,6 +9475,9 @@ func (m *CGCMsgGetSystemStatsResponse) Size() (n int) {
 }
 
 func (m *CMsgAMSendEmail) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6355,6 +9500,9 @@ func (m *CMsgAMSendEmail) Size() (n int) {
 }
 
 func (m *CMsgAMSendEmail_ReplacementToken) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.TokenName)
@@ -6365,6 +9513,9 @@ func (m *CMsgAMSendEmail_ReplacementToken) Size() (n int) {
 }
 
 func (m *CMsgAMSendEmail_PersonaNameReplacementToken) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6374,6 +9525,9 @@ func (m *CMsgAMSendEmail_PersonaNameReplacementToken) Size() (n int) {
 }
 
 func (m *CMsgAMSendEmailResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Eresult != nil {
@@ -6383,6 +9537,9 @@ func (m *CMsgAMSendEmailResponse) Size() (n int) {
 }
 
 func (m *CMsgGCGetEmailTemplate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.AppId))
@@ -6393,6 +9550,9 @@ func (m *CMsgGCGetEmailTemplate) Size() (n int) {
 }
 
 func (m *CMsgGCGetEmailTemplateResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Eresult != nil {
@@ -6405,6 +9565,9 @@ func (m *CMsgGCGetEmailTemplateResponse) Size() (n int) {
 }
 
 func (m *CMsgAMGrantGuestPasses2) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6416,6 +9579,9 @@ func (m *CMsgAMGrantGuestPasses2) Size() (n int) {
 }
 
 func (m *CMsgAMGrantGuestPasses2Response) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Eresult != nil {
@@ -6428,6 +9594,9 @@ func (m *CMsgAMGrantGuestPasses2Response) Size() (n int) {
 }
 
 func (m *CGCSystemMsg_GetAccountDetails) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6436,6 +9605,9 @@ func (m *CGCSystemMsg_GetAccountDetails) Size() (n int) {
 }
 
 func (m *CGCSystemMsg_GetAccountDetails_Response) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.EresultDeprecated != nil {
@@ -6474,10 +9646,17 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Size() (n int) {
 	n += 2 + sovSteammessages(uint64(m.PhoneVerificationTime))
 	n += 2 + sovSteammessages(uint64(m.PhoneId))
 	n += 3
+	n += 2 + sovSteammessages(uint64(m.RtIdentityLinked))
+	n += 2 + sovSteammessages(uint64(m.RtBirthDate))
+	l = len(m.TxnCountryCode)
+	n += 2 + l + sovSteammessages(uint64(l))
 	return n
 }
 
 func (m *CMsgGCGetPersonaNames) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Steamids) > 0 {
@@ -6487,6 +9666,9 @@ func (m *CMsgGCGetPersonaNames) Size() (n int) {
 }
 
 func (m *CMsgGCGetPersonaNames_Response) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.SucceededLookups) > 0 {
@@ -6502,6 +9684,9 @@ func (m *CMsgGCGetPersonaNames_Response) Size() (n int) {
 }
 
 func (m *CMsgGCGetPersonaNames_Response_PersonaName) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6511,6 +9696,9 @@ func (m *CMsgGCGetPersonaNames_Response_PersonaName) Size() (n int) {
 }
 
 func (m *CMsgGCCheckFriendship) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6519,6 +9707,9 @@ func (m *CMsgGCCheckFriendship) Size() (n int) {
 }
 
 func (m *CMsgGCCheckFriendship_Response) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -6527,6 +9718,9 @@ func (m *CMsgGCCheckFriendship_Response) Size() (n int) {
 }
 
 func (m *CMsgGCMsgMasterSetDirectory) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.MasterDirIndex))
@@ -6540,6 +9734,9 @@ func (m *CMsgGCMsgMasterSetDirectory) Size() (n int) {
 }
 
 func (m *CMsgGCMsgMasterSetDirectory_SubGC) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.DirIndex))
@@ -6555,6 +9752,9 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Size() (n int) {
 }
 
 func (m *CMsgGCMsgMasterSetDirectory_Response) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Eresult != nil {
@@ -6564,6 +9764,9 @@ func (m *CMsgGCMsgMasterSetDirectory_Response) Size() (n int) {
 }
 
 func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.DirIndex))
@@ -6571,6 +9774,9 @@ func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) Size() (n int) {
 }
 
 func (m *CGCSystemMsg_GetPurchaseTrust_Request) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6578,6 +9784,9 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Request) Size() (n int) {
 }
 
 func (m *CGCSystemMsg_GetPurchaseTrust_Response) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -6588,6 +9797,9 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Response) Size() (n int) {
 }
 
 func (m *CMsgGCHAccountVacStatusChange) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6599,6 +9811,9 @@ func (m *CMsgGCHAccountVacStatusChange) Size() (n int) {
 }
 
 func (m *CMsgGCGetPartnerAccountLink) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6606,6 +9821,9 @@ func (m *CMsgGCGetPartnerAccountLink) Size() (n int) {
 }
 
 func (m *CMsgGCGetPartnerAccountLink_Response) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.Pwid))
@@ -6614,6 +9832,9 @@ func (m *CMsgGCGetPartnerAccountLink_Response) Size() (n int) {
 }
 
 func (m *CMsgGCRoutingInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.DirIndex) > 0 {
@@ -6634,6 +9855,9 @@ func (m *CMsgGCRoutingInfo) Size() (n int) {
 }
 
 func (m *CMsgGCMsgMasterSetWebAPIRouting) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Entries) > 0 {
@@ -6646,6 +9870,9 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting) Size() (n int) {
 }
 
 func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.InterfaceName)
@@ -6660,6 +9887,9 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Size() (n int) {
 }
 
 func (m *CMsgGCMsgMasterSetClientMsgRouting) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Entries) > 0 {
@@ -6672,6 +9902,9 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting) Size() (n int) {
 }
 
 func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.MsgType))
@@ -6683,6 +9916,9 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) Size() (n int) {
 }
 
 func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Eresult != nil {
@@ -6692,6 +9928,9 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) Size() (n int) {
 }
 
 func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Eresult != nil {
@@ -6701,6 +9940,9 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) Size() (n int) {
 }
 
 func (m *CMsgGCMsgSetOptions) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Options) > 0 {
@@ -6718,6 +9960,9 @@ func (m *CMsgGCMsgSetOptions) Size() (n int) {
 }
 
 func (m *CMsgGCMsgSetOptions_MessageRange) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.Low))
@@ -6726,6 +9971,9 @@ func (m *CMsgGCMsgSetOptions_MessageRange) Size() (n int) {
 }
 
 func (m *CMsgGCHUpdateSession) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6742,10 +9990,21 @@ func (m *CMsgGCHUpdateSession) Size() (n int) {
 			n += 1 + l + sovSteammessages(uint64(l))
 		}
 	}
+	n += 9
+	n += 1 + sovSteammessages(uint64(m.CmSessionSysid))
+	n += 1 + sovSteammessages(uint64(m.CmSessionIdentifier))
+	if len(m.DepotIds) > 0 {
+		for _, e := range m.DepotIds {
+			n += 1 + sovSteammessages(uint64(e))
+		}
+	}
 	return n
 }
 
 func (m *CMsgGCHUpdateSession_ExtraField) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Name)
@@ -6756,6 +10015,9 @@ func (m *CMsgGCHUpdateSession_ExtraField) Size() (n int) {
 }
 
 func (m *CMsgNotificationOfSuspiciousActivity) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 9
@@ -6768,6 +10030,9 @@ func (m *CMsgNotificationOfSuspiciousActivity) Size() (n int) {
 }
 
 func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovSteammessages(uint64(m.AppInstanceCount))
@@ -6777,15 +10042,89 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) Size() (n i
 	return n
 }
 
-func sovSteammessages(x uint64) (n int) {
-	for {
-		n++
-		x >>= 7
-		if x == 0 {
-			break
+func (m *CMsgDPPartnerMicroTxns) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	n += 1 + sovSteammessages(uint64(m.Appid))
+	l = len(m.GcName)
+	n += 1 + l + sovSteammessages(uint64(l))
+	if m.Partner != nil {
+		l = m.Partner.Size()
+		n += 1 + l + sovSteammessages(uint64(l))
+	}
+	if len(m.Transactions) > 0 {
+		for _, e := range m.Transactions {
+			l = e.Size()
+			n += 1 + l + sovSteammessages(uint64(l))
 		}
 	}
 	return n
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	n += 1 + sovSteammessages(uint64(m.InitTime))
+	n += 1 + sovSteammessages(uint64(m.LastUpdateTime))
+	n += 1 + sovSteammessages(uint64(m.TxnId))
+	n += 1 + sovSteammessages(uint64(m.AccountId))
+	n += 1 + sovSteammessages(uint64(m.LineItem))
+	n += 1 + sovSteammessages(uint64(m.ItemId))
+	n += 1 + sovSteammessages(uint64(m.DefIndex))
+	n += 1 + sovSteammessages(uint64(m.Price))
+	n += 1 + sovSteammessages(uint64(m.Tax))
+	n += 1 + sovSteammessages(uint64(m.PriceUsd))
+	n += 1 + sovSteammessages(uint64(m.TaxUsd))
+	n += 1 + sovSteammessages(uint64(m.PurchaseType))
+	n += 1 + sovSteammessages(uint64(m.SteamTxnType))
+	l = len(m.CountryCode)
+	n += 1 + l + sovSteammessages(uint64(l))
+	l = len(m.RegionCode)
+	n += 1 + l + sovSteammessages(uint64(l))
+	n += 2 + sovSteammessages(uint64(m.Quantity))
+	n += 2 + sovSteammessages(uint64(m.RefTransId))
+	return n
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	n += 1 + sovSteammessages(uint64(m.PartnerId))
+	l = len(m.PartnerName)
+	n += 1 + l + sovSteammessages(uint64(l))
+	l = len(m.CurrencyCode)
+	n += 1 + l + sovSteammessages(uint64(l))
+	l = len(m.CurrencyName)
+	n += 1 + l + sovSteammessages(uint64(l))
+	return n
+}
+
+func (m *CMsgDPPartnerMicroTxnsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Eresult != nil {
+		n += 1 + sovSteammessages(uint64(*m.Eresult))
+	}
+	if m.Eerrorcode != nil {
+		n += 1 + sovSteammessages(uint64(*m.Eerrorcode))
+	}
+	return n
+}
+
+func sovSteammessages(x uint64) (n int) {
+	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozSteammessages(x uint64) (n int) {
 	return sovSteammessages(uint64((x << 1) ^ uint64((int64(x) >> 63))))
@@ -6805,7 +10144,7 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6827,15 +10166,8 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.ClientSteamId = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.ClientSteamId = uint64(dAtA[iNdEx-8])
-			m.ClientSteamId |= uint64(dAtA[iNdEx-7]) << 8
-			m.ClientSteamId |= uint64(dAtA[iNdEx-6]) << 16
-			m.ClientSteamId |= uint64(dAtA[iNdEx-5]) << 24
-			m.ClientSteamId |= uint64(dAtA[iNdEx-4]) << 32
-			m.ClientSteamId |= uint64(dAtA[iNdEx-3]) << 40
-			m.ClientSteamId |= uint64(dAtA[iNdEx-2]) << 48
-			m.ClientSteamId |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ClientSessionId", wireType)
@@ -6850,7 +10182,7 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ClientSessionId |= (int32(b) & 0x7F) << shift
+				m.ClientSessionId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6869,7 +10201,7 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SourceAppId |= (uint32(b) & 0x7F) << shift
+				m.SourceAppId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6882,15 +10214,8 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			v = uint64(dAtA[iNdEx-8])
-			v |= uint64(dAtA[iNdEx-7]) << 8
-			v |= uint64(dAtA[iNdEx-6]) << 16
-			v |= uint64(dAtA[iNdEx-5]) << 24
-			v |= uint64(dAtA[iNdEx-4]) << 32
-			v |= uint64(dAtA[iNdEx-3]) << 40
-			v |= uint64(dAtA[iNdEx-2]) << 48
-			v |= uint64(dAtA[iNdEx-1]) << 56
 			m.JobIdSource = &v
 		case 11:
 			if wireType != 1 {
@@ -6900,15 +10225,8 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			v = uint64(dAtA[iNdEx-8])
-			v |= uint64(dAtA[iNdEx-7]) << 8
-			v |= uint64(dAtA[iNdEx-6]) << 16
-			v |= uint64(dAtA[iNdEx-5]) << 24
-			v |= uint64(dAtA[iNdEx-4]) << 32
-			v |= uint64(dAtA[iNdEx-3]) << 40
-			v |= uint64(dAtA[iNdEx-2]) << 48
-			v |= uint64(dAtA[iNdEx-1]) << 56
 			m.JobIdTarget = &v
 		case 12:
 			if wireType != 2 {
@@ -6924,7 +10242,7 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6934,6 +10252,9 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6953,7 +10274,7 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6973,7 +10294,7 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6983,11 +10304,33 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
 			m.ErrorMessage = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 15:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ip", wireType)
+			}
+			m.Ip = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Ip |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		case 200:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field GcMsgSrc", wireType)
@@ -7002,7 +10345,7 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (GCProtoBufMsgSrc(b) & 0x7F) << shift
+				v |= GCProtoBufMsgSrc(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7022,7 +10365,7 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.GcDirIndexSource |= (uint32(b) & 0x7F) << shift
+				m.GcDirIndexSource |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7034,6 +10377,9 @@ func (m *CMsgProtoBufHeader) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7063,7 +10409,7 @@ func (m *CMsgWebAPIKey) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7091,7 +10437,7 @@ func (m *CMsgWebAPIKey) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (uint32(b) & 0x7F) << shift
+				v |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7111,7 +10457,7 @@ func (m *CMsgWebAPIKey) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (uint32(b) & 0x7F) << shift
+				v |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7131,7 +10477,7 @@ func (m *CMsgWebAPIKey) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (uint32(b) & 0x7F) << shift
+				v |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7151,7 +10497,7 @@ func (m *CMsgWebAPIKey) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.KeyId |= (uint32(b) & 0x7F) << shift
+				m.KeyId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7170,7 +10516,7 @@ func (m *CMsgWebAPIKey) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7180,6 +10526,9 @@ func (m *CMsgWebAPIKey) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7192,6 +10541,9 @@ func (m *CMsgWebAPIKey) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7221,7 +10573,7 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7249,7 +10601,7 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.RequestMethod |= (uint32(b) & 0x7F) << shift
+				m.RequestMethod |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7268,7 +10620,7 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7278,6 +10630,9 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7297,7 +10652,7 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7307,6 +10662,9 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7326,7 +10684,7 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7335,6 +10693,9 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7357,7 +10718,7 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7366,6 +10727,9 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7388,7 +10752,7 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7397,6 +10761,9 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7419,7 +10786,7 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7428,6 +10795,9 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7450,7 +10820,7 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AbsoluteTimeout |= (uint32(b) & 0x7F) << shift
+				m.AbsoluteTimeout |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7462,6 +10832,9 @@ func (m *CMsgHttpRequest) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7491,7 +10864,7 @@ func (m *CMsgHttpRequest_RequestHeader) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7519,7 +10892,7 @@ func (m *CMsgHttpRequest_RequestHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7529,6 +10902,9 @@ func (m *CMsgHttpRequest_RequestHeader) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7548,7 +10924,7 @@ func (m *CMsgHttpRequest_RequestHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7558,6 +10934,9 @@ func (m *CMsgHttpRequest_RequestHeader) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7570,6 +10949,9 @@ func (m *CMsgHttpRequest_RequestHeader) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7599,7 +10981,7 @@ func (m *CMsgHttpRequest_QueryParam) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7627,7 +11009,7 @@ func (m *CMsgHttpRequest_QueryParam) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7637,6 +11019,9 @@ func (m *CMsgHttpRequest_QueryParam) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7656,7 +11041,7 @@ func (m *CMsgHttpRequest_QueryParam) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7665,6 +11050,9 @@ func (m *CMsgHttpRequest_QueryParam) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7680,6 +11068,9 @@ func (m *CMsgHttpRequest_QueryParam) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7709,7 +11100,7 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7737,7 +11128,7 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7747,6 +11138,9 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7766,7 +11160,7 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7776,6 +11170,9 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7795,7 +11192,7 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7805,6 +11202,9 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7824,7 +11224,7 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Version |= (uint32(b) & 0x7F) << shift
+				m.Version |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7843,7 +11243,7 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7852,6 +11252,9 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7876,7 +11279,7 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7885,6 +11288,9 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7909,7 +11315,7 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.RoutingAppId |= (uint32(b) & 0x7F) << shift
+				m.RoutingAppId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7921,6 +11327,9 @@ func (m *CMsgWebAPIRequest) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7950,7 +11359,7 @@ func (m *CMsgHttpResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7978,7 +11387,7 @@ func (m *CMsgHttpResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.StatusCode |= (uint32(b) & 0x7F) << shift
+				m.StatusCode |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7997,7 +11406,7 @@ func (m *CMsgHttpResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8006,6 +11415,9 @@ func (m *CMsgHttpResponse) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8028,7 +11440,7 @@ func (m *CMsgHttpResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8037,6 +11449,9 @@ func (m *CMsgHttpResponse) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8052,6 +11467,9 @@ func (m *CMsgHttpResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8081,7 +11499,7 @@ func (m *CMsgHttpResponse_ResponseHeader) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8109,7 +11527,7 @@ func (m *CMsgHttpResponse_ResponseHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8119,6 +11537,9 @@ func (m *CMsgHttpResponse_ResponseHeader) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8138,7 +11559,7 @@ func (m *CMsgHttpResponse_ResponseHeader) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8148,6 +11569,9 @@ func (m *CMsgHttpResponse_ResponseHeader) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8160,6 +11584,9 @@ func (m *CMsgHttpResponse_ResponseHeader) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8189,7 +11616,7 @@ func (m *CMsgAMFindAccounts) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8217,7 +11644,7 @@ func (m *CMsgAMFindAccounts) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SearchType |= (uint32(b) & 0x7F) << shift
+				m.SearchType |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8236,7 +11663,7 @@ func (m *CMsgAMFindAccounts) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8246,6 +11673,9 @@ func (m *CMsgAMFindAccounts) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8258,6 +11688,9 @@ func (m *CMsgAMFindAccounts) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8287,7 +11720,7 @@ func (m *CMsgAMFindAccountsResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8307,15 +11740,8 @@ func (m *CMsgAMFindAccountsResponse) Unmarshal(dAtA []byte) error {
 				if (iNdEx + 8) > l {
 					return io.ErrUnexpectedEOF
 				}
+				v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 				iNdEx += 8
-				v = uint64(dAtA[iNdEx-8])
-				v |= uint64(dAtA[iNdEx-7]) << 8
-				v |= uint64(dAtA[iNdEx-6]) << 16
-				v |= uint64(dAtA[iNdEx-5]) << 24
-				v |= uint64(dAtA[iNdEx-4]) << 32
-				v |= uint64(dAtA[iNdEx-3]) << 40
-				v |= uint64(dAtA[iNdEx-2]) << 48
-				v |= uint64(dAtA[iNdEx-1]) << 56
 				m.SteamId = append(m.SteamId, v)
 			} else if wireType == 2 {
 				var packedLen int
@@ -8328,7 +11754,7 @@ func (m *CMsgAMFindAccountsResponse) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					packedLen |= (int(b) & 0x7F) << shift
+					packedLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -8337,23 +11763,24 @@ func (m *CMsgAMFindAccountsResponse) Unmarshal(dAtA []byte) error {
 					return ErrInvalidLengthSteammessages
 				}
 				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthSteammessages
+				}
 				if postIndex > l {
 					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				elementCount = packedLen / 8
+				if elementCount != 0 && len(m.SteamId) == 0 {
+					m.SteamId = make([]uint64, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v uint64
 					if (iNdEx + 8) > l {
 						return io.ErrUnexpectedEOF
 					}
+					v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 					iNdEx += 8
-					v = uint64(dAtA[iNdEx-8])
-					v |= uint64(dAtA[iNdEx-7]) << 8
-					v |= uint64(dAtA[iNdEx-6]) << 16
-					v |= uint64(dAtA[iNdEx-5]) << 24
-					v |= uint64(dAtA[iNdEx-4]) << 32
-					v |= uint64(dAtA[iNdEx-3]) << 40
-					v |= uint64(dAtA[iNdEx-2]) << 48
-					v |= uint64(dAtA[iNdEx-1]) << 56
 					m.SteamId = append(m.SteamId, v)
 				}
 			} else {
@@ -8366,6 +11793,9 @@ func (m *CMsgAMFindAccountsResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8395,7 +11825,7 @@ func (m *CMsgNotifyWatchdog) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8423,7 +11853,7 @@ func (m *CMsgNotifyWatchdog) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Source |= (uint32(b) & 0x7F) << shift
+				m.Source |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8442,7 +11872,7 @@ func (m *CMsgNotifyWatchdog) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AlertType |= (uint32(b) & 0x7F) << shift
+				m.AlertType |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8461,7 +11891,7 @@ func (m *CMsgNotifyWatchdog) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AlertDestination |= (uint32(b) & 0x7F) << shift
+				m.AlertDestination |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8480,7 +11910,7 @@ func (m *CMsgNotifyWatchdog) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8500,7 +11930,7 @@ func (m *CMsgNotifyWatchdog) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Time |= (uint32(b) & 0x7F) << shift
+				m.Time |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8519,7 +11949,7 @@ func (m *CMsgNotifyWatchdog) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Appid |= (uint32(b) & 0x7F) << shift
+				m.Appid |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8538,7 +11968,7 @@ func (m *CMsgNotifyWatchdog) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8548,6 +11978,9 @@ func (m *CMsgNotifyWatchdog) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8560,6 +11993,9 @@ func (m *CMsgNotifyWatchdog) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8589,7 +12025,7 @@ func (m *CMsgAMGetLicenses) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8611,15 +12047,8 @@ func (m *CMsgAMGetLicenses) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Steamid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Steamid = uint64(dAtA[iNdEx-8])
-			m.Steamid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Steamid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Steamid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Steamid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Steamid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Steamid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Steamid |= uint64(dAtA[iNdEx-1]) << 56
 		default:
 			iNdEx = preIndex
 			skippy, err := skipSteammessages(dAtA[iNdEx:])
@@ -8627,6 +12056,9 @@ func (m *CMsgAMGetLicenses) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8656,7 +12088,7 @@ func (m *CMsgPackageLicense) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8684,7 +12116,7 @@ func (m *CMsgPackageLicense) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PackageId |= (uint32(b) & 0x7F) << shift
+				m.PackageId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8703,7 +12135,7 @@ func (m *CMsgPackageLicense) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.TimeCreated |= (uint32(b) & 0x7F) << shift
+				m.TimeCreated |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8722,7 +12154,7 @@ func (m *CMsgPackageLicense) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.OwnerId |= (uint32(b) & 0x7F) << shift
+				m.OwnerId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8734,6 +12166,9 @@ func (m *CMsgPackageLicense) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8763,7 +12198,7 @@ func (m *CMsgAMGetLicensesResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8791,7 +12226,7 @@ func (m *CMsgAMGetLicensesResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8800,6 +12235,9 @@ func (m *CMsgAMGetLicensesResponse) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8822,7 +12260,7 @@ func (m *CMsgAMGetLicensesResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Result |= (uint32(b) & 0x7F) << shift
+				m.Result |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8834,6 +12272,9 @@ func (m *CMsgAMGetLicensesResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8863,7 +12304,7 @@ func (m *CMsgAMGetUserGameStats) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8885,15 +12326,8 @@ func (m *CMsgAMGetUserGameStats) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.SteamId = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.SteamId = uint64(dAtA[iNdEx-8])
-			m.SteamId |= uint64(dAtA[iNdEx-7]) << 8
-			m.SteamId |= uint64(dAtA[iNdEx-6]) << 16
-			m.SteamId |= uint64(dAtA[iNdEx-5]) << 24
-			m.SteamId |= uint64(dAtA[iNdEx-4]) << 32
-			m.SteamId |= uint64(dAtA[iNdEx-3]) << 40
-			m.SteamId |= uint64(dAtA[iNdEx-2]) << 48
-			m.SteamId |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 1 {
 				return fmt.Errorf("proto: wrong wireType = %d for field GameId", wireType)
@@ -8902,15 +12336,8 @@ func (m *CMsgAMGetUserGameStats) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.GameId = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.GameId = uint64(dAtA[iNdEx-8])
-			m.GameId |= uint64(dAtA[iNdEx-7]) << 8
-			m.GameId |= uint64(dAtA[iNdEx-6]) << 16
-			m.GameId |= uint64(dAtA[iNdEx-5]) << 24
-			m.GameId |= uint64(dAtA[iNdEx-4]) << 32
-			m.GameId |= uint64(dAtA[iNdEx-3]) << 40
-			m.GameId |= uint64(dAtA[iNdEx-2]) << 48
-			m.GameId |= uint64(dAtA[iNdEx-1]) << 56
 		case 3:
 			if wireType == 0 {
 				var v uint32
@@ -8923,7 +12350,7 @@ func (m *CMsgAMGetUserGameStats) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (uint32(b) & 0x7F) << shift
+					v |= uint32(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -8940,7 +12367,7 @@ func (m *CMsgAMGetUserGameStats) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					packedLen |= (int(b) & 0x7F) << shift
+					packedLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -8949,8 +12376,22 @@ func (m *CMsgAMGetUserGameStats) Unmarshal(dAtA []byte) error {
 					return ErrInvalidLengthSteammessages
 				}
 				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthSteammessages
+				}
 				if postIndex > l {
 					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.Stats) == 0 {
+					m.Stats = make([]uint32, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v uint32
@@ -8963,7 +12404,7 @@ func (m *CMsgAMGetUserGameStats) Unmarshal(dAtA []byte) error {
 						}
 						b := dAtA[iNdEx]
 						iNdEx++
-						v |= (uint32(b) & 0x7F) << shift
+						v |= uint32(b&0x7F) << shift
 						if b < 0x80 {
 							break
 						}
@@ -8980,6 +12421,9 @@ func (m *CMsgAMGetUserGameStats) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9009,7 +12453,7 @@ func (m *CMsgAMGetUserGameStatsResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9031,15 +12475,8 @@ func (m *CMsgAMGetUserGameStatsResponse) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.SteamId = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.SteamId = uint64(dAtA[iNdEx-8])
-			m.SteamId |= uint64(dAtA[iNdEx-7]) << 8
-			m.SteamId |= uint64(dAtA[iNdEx-6]) << 16
-			m.SteamId |= uint64(dAtA[iNdEx-5]) << 24
-			m.SteamId |= uint64(dAtA[iNdEx-4]) << 32
-			m.SteamId |= uint64(dAtA[iNdEx-3]) << 40
-			m.SteamId |= uint64(dAtA[iNdEx-2]) << 48
-			m.SteamId |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 1 {
 				return fmt.Errorf("proto: wrong wireType = %d for field GameId", wireType)
@@ -9048,15 +12485,8 @@ func (m *CMsgAMGetUserGameStatsResponse) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.GameId = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.GameId = uint64(dAtA[iNdEx-8])
-			m.GameId |= uint64(dAtA[iNdEx-7]) << 8
-			m.GameId |= uint64(dAtA[iNdEx-6]) << 16
-			m.GameId |= uint64(dAtA[iNdEx-5]) << 24
-			m.GameId |= uint64(dAtA[iNdEx-4]) << 32
-			m.GameId |= uint64(dAtA[iNdEx-3]) << 40
-			m.GameId |= uint64(dAtA[iNdEx-2]) << 48
-			m.GameId |= uint64(dAtA[iNdEx-1]) << 56
 		case 3:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Eresult", wireType)
@@ -9071,7 +12501,7 @@ func (m *CMsgAMGetUserGameStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9091,7 +12521,7 @@ func (m *CMsgAMGetUserGameStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9100,6 +12530,9 @@ func (m *CMsgAMGetUserGameStatsResponse) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9122,7 +12555,7 @@ func (m *CMsgAMGetUserGameStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9131,6 +12564,9 @@ func (m *CMsgAMGetUserGameStatsResponse) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9146,6 +12582,9 @@ func (m *CMsgAMGetUserGameStatsResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9175,7 +12614,7 @@ func (m *CMsgAMGetUserGameStatsResponse_Stats) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9203,7 +12642,7 @@ func (m *CMsgAMGetUserGameStatsResponse_Stats) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.StatId |= (uint32(b) & 0x7F) << shift
+				m.StatId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9222,7 +12661,7 @@ func (m *CMsgAMGetUserGameStatsResponse_Stats) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.StatValue |= (uint32(b) & 0x7F) << shift
+				m.StatValue |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9234,6 +12673,9 @@ func (m *CMsgAMGetUserGameStatsResponse_Stats) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9263,7 +12705,7 @@ func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) Unmarshal(dAtA []byt
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9291,7 +12733,7 @@ func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) Unmarshal(dAtA []byt
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AchievementId |= (uint32(b) & 0x7F) << shift
+				m.AchievementId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9310,7 +12752,7 @@ func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) Unmarshal(dAtA []byt
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AchievementBitId |= (uint32(b) & 0x7F) << shift
+				m.AchievementBitId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9323,11 +12765,8 @@ func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) Unmarshal(dAtA []byt
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.UnlockTime = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			m.UnlockTime = uint32(dAtA[iNdEx-4])
-			m.UnlockTime |= uint32(dAtA[iNdEx-3]) << 8
-			m.UnlockTime |= uint32(dAtA[iNdEx-2]) << 16
-			m.UnlockTime |= uint32(dAtA[iNdEx-1]) << 24
 		default:
 			iNdEx = preIndex
 			skippy, err := skipSteammessages(dAtA[iNdEx:])
@@ -9335,6 +12774,9 @@ func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) Unmarshal(dAtA []byt
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9364,7 +12806,7 @@ func (m *CMsgGCGetCommandList) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9392,7 +12834,7 @@ func (m *CMsgGCGetCommandList) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AppId |= (uint32(b) & 0x7F) << shift
+				m.AppId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9411,7 +12853,7 @@ func (m *CMsgGCGetCommandList) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9421,6 +12863,9 @@ func (m *CMsgGCGetCommandList) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9433,6 +12878,9 @@ func (m *CMsgGCGetCommandList) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9462,7 +12910,7 @@ func (m *CMsgGCGetCommandListResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9490,7 +12938,7 @@ func (m *CMsgGCGetCommandListResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9500,6 +12948,9 @@ func (m *CMsgGCGetCommandListResponse) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9512,6 +12963,9 @@ func (m *CMsgGCGetCommandListResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9541,7 +12995,7 @@ func (m *CGCMsgMemCachedGet) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9569,7 +13023,7 @@ func (m *CGCMsgMemCachedGet) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9579,6 +13033,9 @@ func (m *CGCMsgMemCachedGet) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9591,6 +13048,9 @@ func (m *CGCMsgMemCachedGet) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9620,7 +13080,7 @@ func (m *CGCMsgMemCachedGetResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9648,7 +13108,7 @@ func (m *CGCMsgMemCachedGetResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9657,6 +13117,9 @@ func (m *CGCMsgMemCachedGetResponse) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9672,6 +13135,9 @@ func (m *CGCMsgMemCachedGetResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9701,7 +13167,7 @@ func (m *CGCMsgMemCachedGetResponse_ValueTag) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9729,7 +13195,7 @@ func (m *CGCMsgMemCachedGetResponse_ValueTag) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9749,7 +13215,7 @@ func (m *CGCMsgMemCachedGetResponse_ValueTag) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9758,6 +13224,9 @@ func (m *CGCMsgMemCachedGetResponse_ValueTag) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9773,6 +13242,9 @@ func (m *CGCMsgMemCachedGetResponse_ValueTag) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9802,7 +13274,7 @@ func (m *CGCMsgMemCachedSet) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9830,7 +13302,7 @@ func (m *CGCMsgMemCachedSet) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9839,6 +13311,9 @@ func (m *CGCMsgMemCachedSet) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9854,6 +13329,9 @@ func (m *CGCMsgMemCachedSet) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9883,7 +13361,7 @@ func (m *CGCMsgMemCachedSet_KeyPair) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9911,7 +13389,7 @@ func (m *CGCMsgMemCachedSet_KeyPair) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9921,6 +13399,9 @@ func (m *CGCMsgMemCachedSet_KeyPair) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9940,7 +13421,7 @@ func (m *CGCMsgMemCachedSet_KeyPair) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9949,6 +13430,9 @@ func (m *CGCMsgMemCachedSet_KeyPair) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9964,6 +13448,9 @@ func (m *CGCMsgMemCachedSet_KeyPair) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9993,7 +13480,7 @@ func (m *CGCMsgMemCachedDelete) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10021,7 +13508,7 @@ func (m *CGCMsgMemCachedDelete) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10031,6 +13518,9 @@ func (m *CGCMsgMemCachedDelete) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10043,6 +13533,9 @@ func (m *CGCMsgMemCachedDelete) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10072,7 +13565,7 @@ func (m *CGCMsgMemCachedStats) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10093,6 +13586,9 @@ func (m *CGCMsgMemCachedStats) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10122,7 +13618,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10150,7 +13646,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.CurrConnections |= (uint64(b) & 0x7F) << shift
+				m.CurrConnections |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10169,7 +13665,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.CmdGet |= (uint64(b) & 0x7F) << shift
+				m.CmdGet |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10188,7 +13684,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.CmdSet |= (uint64(b) & 0x7F) << shift
+				m.CmdSet |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10207,7 +13703,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.CmdFlush |= (uint64(b) & 0x7F) << shift
+				m.CmdFlush |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10226,7 +13722,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.GetHits |= (uint64(b) & 0x7F) << shift
+				m.GetHits |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10245,7 +13741,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.GetMisses |= (uint64(b) & 0x7F) << shift
+				m.GetMisses |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10264,7 +13760,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DeleteHits |= (uint64(b) & 0x7F) << shift
+				m.DeleteHits |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10283,7 +13779,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DeleteMisses |= (uint64(b) & 0x7F) << shift
+				m.DeleteMisses |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10302,7 +13798,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BytesRead |= (uint64(b) & 0x7F) << shift
+				m.BytesRead |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10321,7 +13817,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BytesWritten |= (uint64(b) & 0x7F) << shift
+				m.BytesWritten |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10340,7 +13836,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.LimitMaxbytes |= (uint64(b) & 0x7F) << shift
+				m.LimitMaxbytes |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10359,7 +13855,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.CurrItems |= (uint64(b) & 0x7F) << shift
+				m.CurrItems |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10378,7 +13874,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Evictions |= (uint64(b) & 0x7F) << shift
+				m.Evictions |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10397,7 +13893,7 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Bytes |= (uint64(b) & 0x7F) << shift
+				m.Bytes |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10409,6 +13905,9 @@ func (m *CGCMsgMemCachedStatsResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10438,7 +13937,7 @@ func (m *CGCMsgSQLStats) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10466,7 +13965,7 @@ func (m *CGCMsgSQLStats) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SchemaCatalog |= (uint32(b) & 0x7F) << shift
+				m.SchemaCatalog |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10478,6 +13977,9 @@ func (m *CGCMsgSQLStats) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10507,7 +14009,7 @@ func (m *CGCMsgSQLStatsResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10535,7 +14037,7 @@ func (m *CGCMsgSQLStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Threads |= (uint32(b) & 0x7F) << shift
+				m.Threads |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10554,7 +14056,7 @@ func (m *CGCMsgSQLStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ThreadsConnected |= (uint32(b) & 0x7F) << shift
+				m.ThreadsConnected |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10573,7 +14075,7 @@ func (m *CGCMsgSQLStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ThreadsActive |= (uint32(b) & 0x7F) << shift
+				m.ThreadsActive |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10592,7 +14094,7 @@ func (m *CGCMsgSQLStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.OperationsSubmitted |= (uint32(b) & 0x7F) << shift
+				m.OperationsSubmitted |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10611,7 +14113,7 @@ func (m *CGCMsgSQLStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PreparedStatementsExecuted |= (uint32(b) & 0x7F) << shift
+				m.PreparedStatementsExecuted |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10630,7 +14132,7 @@ func (m *CGCMsgSQLStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NonPreparedStatementsExecuted |= (uint32(b) & 0x7F) << shift
+				m.NonPreparedStatementsExecuted |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10649,7 +14151,7 @@ func (m *CGCMsgSQLStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DeadlockRetries |= (uint32(b) & 0x7F) << shift
+				m.DeadlockRetries |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10668,7 +14170,7 @@ func (m *CGCMsgSQLStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.OperationsTimedOutInQueue |= (uint32(b) & 0x7F) << shift
+				m.OperationsTimedOutInQueue |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10687,7 +14189,7 @@ func (m *CGCMsgSQLStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Errors |= (uint32(b) & 0x7F) << shift
+				m.Errors |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10699,6 +14201,9 @@ func (m *CGCMsgSQLStatsResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10728,7 +14233,7 @@ func (m *CMsgAMAddFreeLicense) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10750,15 +14255,8 @@ func (m *CMsgAMAddFreeLicense) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Steamid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Steamid = uint64(dAtA[iNdEx-8])
-			m.Steamid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Steamid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Steamid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Steamid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Steamid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Steamid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Steamid |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field IpPublic", wireType)
@@ -10773,7 +14271,7 @@ func (m *CMsgAMAddFreeLicense) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.IpPublic |= (uint32(b) & 0x7F) << shift
+				m.IpPublic |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10792,7 +14290,7 @@ func (m *CMsgAMAddFreeLicense) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Packageid |= (uint32(b) & 0x7F) << shift
+				m.Packageid |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10811,7 +14309,7 @@ func (m *CMsgAMAddFreeLicense) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10821,6 +14319,9 @@ func (m *CMsgAMAddFreeLicense) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10833,6 +14334,9 @@ func (m *CMsgAMAddFreeLicense) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10862,7 +14366,7 @@ func (m *CMsgAMAddFreeLicenseResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10890,7 +14394,7 @@ func (m *CMsgAMAddFreeLicenseResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10910,7 +14414,7 @@ func (m *CMsgAMAddFreeLicenseResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PurchaseResultDetail |= (int32(b) & 0x7F) << shift
+				m.PurchaseResultDetail |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10923,15 +14427,8 @@ func (m *CMsgAMAddFreeLicenseResponse) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Transid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Transid = uint64(dAtA[iNdEx-8])
-			m.Transid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Transid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Transid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Transid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Transid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Transid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Transid |= uint64(dAtA[iNdEx-1]) << 56
 		default:
 			iNdEx = preIndex
 			skippy, err := skipSteammessages(dAtA[iNdEx:])
@@ -10939,6 +14436,9 @@ func (m *CMsgAMAddFreeLicenseResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10968,7 +14468,7 @@ func (m *CGCMsgGetIPLocation) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10988,11 +14488,8 @@ func (m *CGCMsgGetIPLocation) Unmarshal(dAtA []byte) error {
 				if (iNdEx + 4) > l {
 					return io.ErrUnexpectedEOF
 				}
+				v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 				iNdEx += 4
-				v = uint32(dAtA[iNdEx-4])
-				v |= uint32(dAtA[iNdEx-3]) << 8
-				v |= uint32(dAtA[iNdEx-2]) << 16
-				v |= uint32(dAtA[iNdEx-1]) << 24
 				m.Ips = append(m.Ips, v)
 			} else if wireType == 2 {
 				var packedLen int
@@ -11005,7 +14502,7 @@ func (m *CGCMsgGetIPLocation) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					packedLen |= (int(b) & 0x7F) << shift
+					packedLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -11014,19 +14511,24 @@ func (m *CGCMsgGetIPLocation) Unmarshal(dAtA []byte) error {
 					return ErrInvalidLengthSteammessages
 				}
 				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthSteammessages
+				}
 				if postIndex > l {
 					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				elementCount = packedLen / 4
+				if elementCount != 0 && len(m.Ips) == 0 {
+					m.Ips = make([]uint32, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v uint32
 					if (iNdEx + 4) > l {
 						return io.ErrUnexpectedEOF
 					}
+					v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 					iNdEx += 4
-					v = uint32(dAtA[iNdEx-4])
-					v |= uint32(dAtA[iNdEx-3]) << 8
-					v |= uint32(dAtA[iNdEx-2]) << 16
-					v |= uint32(dAtA[iNdEx-1]) << 24
 					m.Ips = append(m.Ips, v)
 				}
 			} else {
@@ -11039,6 +14541,9 @@ func (m *CGCMsgGetIPLocation) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11068,7 +14573,7 @@ func (m *CIPLocationInfo) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11096,7 +14601,7 @@ func (m *CIPLocationInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Ip |= (uint32(b) & 0x7F) << shift
+				m.Ip |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11109,11 +14614,8 @@ func (m *CIPLocationInfo) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Latitude = float32(math.Float32frombits(v))
 		case 3:
 			if wireType != 5 {
@@ -11123,11 +14625,8 @@ func (m *CIPLocationInfo) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Longitude = float32(math.Float32frombits(v))
 		case 4:
 			if wireType != 2 {
@@ -11143,7 +14642,7 @@ func (m *CIPLocationInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11153,6 +14652,9 @@ func (m *CIPLocationInfo) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11172,7 +14674,7 @@ func (m *CIPLocationInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11182,6 +14684,9 @@ func (m *CIPLocationInfo) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11201,7 +14706,7 @@ func (m *CIPLocationInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11211,6 +14716,9 @@ func (m *CIPLocationInfo) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11223,6 +14731,9 @@ func (m *CIPLocationInfo) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11252,7 +14763,7 @@ func (m *CGCMsgGetIPLocationResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11280,7 +14791,7 @@ func (m *CGCMsgGetIPLocationResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11289,6 +14800,9 @@ func (m *CGCMsgGetIPLocationResponse) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11304,6 +14818,9 @@ func (m *CGCMsgGetIPLocationResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11333,7 +14850,7 @@ func (m *CGCMsgSystemStatsSchema) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11361,7 +14878,7 @@ func (m *CGCMsgSystemStatsSchema) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.GcAppId |= (uint32(b) & 0x7F) << shift
+				m.GcAppId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11380,7 +14897,7 @@ func (m *CGCMsgSystemStatsSchema) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11389,6 +14906,9 @@ func (m *CGCMsgSystemStatsSchema) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11404,6 +14924,9 @@ func (m *CGCMsgSystemStatsSchema) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11433,7 +14956,7 @@ func (m *CGCMsgGetSystemStats) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11454,6 +14977,9 @@ func (m *CGCMsgGetSystemStats) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11483,7 +15009,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11511,7 +15037,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.GcAppId |= (uint32(b) & 0x7F) << shift
+				m.GcAppId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11530,7 +15056,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= (int(b) & 0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11539,6 +15065,9 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11561,7 +15090,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ActiveJobs |= (uint32(b) & 0x7F) << shift
+				m.ActiveJobs |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11580,7 +15109,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.YieldingJobs |= (uint32(b) & 0x7F) << shift
+				m.YieldingJobs |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11599,7 +15128,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.UserSessions |= (uint32(b) & 0x7F) << shift
+				m.UserSessions |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11618,7 +15147,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.GameServerSessions |= (uint32(b) & 0x7F) << shift
+				m.GameServerSessions |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11637,7 +15166,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Socaches |= (uint32(b) & 0x7F) << shift
+				m.Socaches |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11656,7 +15185,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SocachesToUnload |= (uint32(b) & 0x7F) << shift
+				m.SocachesToUnload |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11675,7 +15204,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SocachesLoading |= (uint32(b) & 0x7F) << shift
+				m.SocachesLoading |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11694,7 +15223,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.WritebackQueue |= (uint32(b) & 0x7F) << shift
+				m.WritebackQueue |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11713,7 +15242,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SteamidLocks |= (uint32(b) & 0x7F) << shift
+				m.SteamidLocks |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11732,7 +15261,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.LogonQueue |= (uint32(b) & 0x7F) << shift
+				m.LogonQueue |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11751,7 +15280,7 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.LogonJobs |= (uint32(b) & 0x7F) << shift
+				m.LogonJobs |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11763,6 +15292,9 @@ func (m *CGCMsgGetSystemStatsResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11792,7 +15324,7 @@ func (m *CMsgAMSendEmail) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11814,15 +15346,8 @@ func (m *CMsgAMSendEmail) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Steamid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Steamid = uint64(dAtA[iNdEx-8])
-			m.Steamid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Steamid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Steamid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Steamid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Steamid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Steamid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Steamid |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EmailMsgType", wireType)
@@ -11837,7 +15362,7 @@ func (m *CMsgAMSendEmail) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EmailMsgType |= (uint32(b) & 0x7F) << shift
+				m.EmailMsgType |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11856,7 +15381,7 @@ func (m *CMsgAMSendEmail) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EmailFormat |= (uint32(b) & 0x7F) << shift
+				m.EmailFormat |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11875,7 +15400,7 @@ func (m *CMsgAMSendEmail) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11884,6 +15409,9 @@ func (m *CMsgAMSendEmail) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11906,7 +15434,7 @@ func (m *CMsgAMSendEmail) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SourceGc |= (uint32(b) & 0x7F) << shift
+				m.SourceGc |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11925,7 +15453,7 @@ func (m *CMsgAMSendEmail) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11934,6 +15462,9 @@ func (m *CMsgAMSendEmail) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11949,6 +15480,9 @@ func (m *CMsgAMSendEmail) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11978,7 +15512,7 @@ func (m *CMsgAMSendEmail_ReplacementToken) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12006,7 +15540,7 @@ func (m *CMsgAMSendEmail_ReplacementToken) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12016,6 +15550,9 @@ func (m *CMsgAMSendEmail_ReplacementToken) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12035,7 +15572,7 @@ func (m *CMsgAMSendEmail_ReplacementToken) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12045,6 +15582,9 @@ func (m *CMsgAMSendEmail_ReplacementToken) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12057,6 +15597,9 @@ func (m *CMsgAMSendEmail_ReplacementToken) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12086,7 +15629,7 @@ func (m *CMsgAMSendEmail_PersonaNameReplacementToken) Unmarshal(dAtA []byte) err
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12108,15 +15651,8 @@ func (m *CMsgAMSendEmail_PersonaNameReplacementToken) Unmarshal(dAtA []byte) err
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Steamid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Steamid = uint64(dAtA[iNdEx-8])
-			m.Steamid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Steamid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Steamid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Steamid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Steamid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Steamid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Steamid |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field TokenName", wireType)
@@ -12131,7 +15667,7 @@ func (m *CMsgAMSendEmail_PersonaNameReplacementToken) Unmarshal(dAtA []byte) err
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12141,6 +15677,9 @@ func (m *CMsgAMSendEmail_PersonaNameReplacementToken) Unmarshal(dAtA []byte) err
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12153,6 +15692,9 @@ func (m *CMsgAMSendEmail_PersonaNameReplacementToken) Unmarshal(dAtA []byte) err
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12182,7 +15724,7 @@ func (m *CMsgAMSendEmailResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12210,7 +15752,7 @@ func (m *CMsgAMSendEmailResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (uint32(b) & 0x7F) << shift
+				v |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12223,6 +15765,9 @@ func (m *CMsgAMSendEmailResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12252,7 +15797,7 @@ func (m *CMsgGCGetEmailTemplate) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12280,7 +15825,7 @@ func (m *CMsgGCGetEmailTemplate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AppId |= (uint32(b) & 0x7F) << shift
+				m.AppId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12299,7 +15844,7 @@ func (m *CMsgGCGetEmailTemplate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EmailMsgType |= (uint32(b) & 0x7F) << shift
+				m.EmailMsgType |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12318,7 +15863,7 @@ func (m *CMsgGCGetEmailTemplate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EmailLang |= (int32(b) & 0x7F) << shift
+				m.EmailLang |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12337,7 +15882,7 @@ func (m *CMsgGCGetEmailTemplate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EmailFormat |= (int32(b) & 0x7F) << shift
+				m.EmailFormat |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12349,6 +15894,9 @@ func (m *CMsgGCGetEmailTemplate) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12378,7 +15926,7 @@ func (m *CMsgGCGetEmailTemplateResponse) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12406,7 +15954,7 @@ func (m *CMsgGCGetEmailTemplateResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (uint32(b) & 0x7F) << shift
+				v |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12426,7 +15974,7 @@ func (m *CMsgGCGetEmailTemplateResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12446,7 +15994,7 @@ func (m *CMsgGCGetEmailTemplateResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12456,6 +16004,9 @@ func (m *CMsgGCGetEmailTemplateResponse) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12468,6 +16019,9 @@ func (m *CMsgGCGetEmailTemplateResponse) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12497,7 +16051,7 @@ func (m *CMsgAMGrantGuestPasses2) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12519,15 +16073,8 @@ func (m *CMsgAMGrantGuestPasses2) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.SteamId = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.SteamId = uint64(dAtA[iNdEx-8])
-			m.SteamId |= uint64(dAtA[iNdEx-7]) << 8
-			m.SteamId |= uint64(dAtA[iNdEx-6]) << 16
-			m.SteamId |= uint64(dAtA[iNdEx-5]) << 24
-			m.SteamId |= uint64(dAtA[iNdEx-4]) << 32
-			m.SteamId |= uint64(dAtA[iNdEx-3]) << 40
-			m.SteamId |= uint64(dAtA[iNdEx-2]) << 48
-			m.SteamId |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field PackageId", wireType)
@@ -12542,7 +16089,7 @@ func (m *CMsgAMGrantGuestPasses2) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PackageId |= (uint32(b) & 0x7F) << shift
+				m.PackageId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12561,7 +16108,7 @@ func (m *CMsgAMGrantGuestPasses2) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PassesToGrant |= (int32(b) & 0x7F) << shift
+				m.PassesToGrant |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12580,7 +16127,7 @@ func (m *CMsgAMGrantGuestPasses2) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DaysToExpiration |= (int32(b) & 0x7F) << shift
+				m.DaysToExpiration |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12599,7 +16146,7 @@ func (m *CMsgAMGrantGuestPasses2) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Action |= (int32(b) & 0x7F) << shift
+				m.Action |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12611,6 +16158,9 @@ func (m *CMsgAMGrantGuestPasses2) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12640,7 +16190,7 @@ func (m *CMsgAMGrantGuestPasses2Response) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12668,7 +16218,7 @@ func (m *CMsgAMGrantGuestPasses2Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12688,7 +16238,7 @@ func (m *CMsgAMGrantGuestPasses2Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12701,6 +16251,9 @@ func (m *CMsgAMGrantGuestPasses2Response) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12730,7 +16283,7 @@ func (m *CGCSystemMsg_GetAccountDetails) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12752,15 +16305,8 @@ func (m *CGCSystemMsg_GetAccountDetails) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Steamid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Steamid = uint64(dAtA[iNdEx-8])
-			m.Steamid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Steamid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Steamid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Steamid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Steamid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Steamid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Steamid |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Appid", wireType)
@@ -12775,7 +16321,7 @@ func (m *CGCSystemMsg_GetAccountDetails) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Appid |= (uint32(b) & 0x7F) << shift
+				m.Appid |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12787,6 +16333,9 @@ func (m *CGCSystemMsg_GetAccountDetails) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12816,7 +16365,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12844,7 +16393,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (uint32(b) & 0x7F) << shift
+				v |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12864,7 +16413,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12874,6 +16423,9 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12893,7 +16445,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12903,6 +16455,9 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -12922,7 +16477,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12942,7 +16497,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12962,7 +16517,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12982,7 +16537,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13002,7 +16557,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13022,7 +16577,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13042,7 +16597,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13062,7 +16617,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Package |= (uint32(b) & 0x7F) << shift
+				m.Package |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13081,7 +16636,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13101,7 +16656,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.FreeTrialExpiration |= (uint32(b) & 0x7F) << shift
+				m.FreeTrialExpiration |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13120,7 +16675,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13140,7 +16695,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13160,7 +16715,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13180,7 +16735,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13200,7 +16755,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.TradeBanExpiration |= (uint32(b) & 0x7F) << shift
+				m.TradeBanExpiration |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13219,7 +16774,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Accountid |= (uint32(b) & 0x7F) << shift
+				m.Accountid |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13238,7 +16793,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SuspensionEndTime |= (uint32(b) & 0x7F) << shift
+				m.SuspensionEndTime |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13257,7 +16812,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13267,6 +16822,9 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -13286,7 +16844,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SteamLevel |= (uint32(b) & 0x7F) << shift
+				m.SteamLevel |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13305,7 +16863,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.FriendCount |= (uint32(b) & 0x7F) << shift
+				m.FriendCount |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13324,7 +16882,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AccountCreationTime |= (uint32(b) & 0x7F) << shift
+				m.AccountCreationTime |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13343,7 +16901,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13363,7 +16921,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13383,7 +16941,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13403,7 +16961,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.TwoFactorEnabledTime |= (uint32(b) & 0x7F) << shift
+				m.TwoFactorEnabledTime |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13422,7 +16980,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PhoneVerificationTime |= (uint32(b) & 0x7F) << shift
+				m.PhoneVerificationTime |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13441,7 +16999,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PhoneId |= (uint64(b) & 0x7F) << shift
+				m.PhoneId |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13460,12 +17018,82 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 			m.IsPhoneIdentifying = bool(v != 0)
+		case 35:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RtIdentityLinked", wireType)
+			}
+			m.RtIdentityLinked = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.RtIdentityLinked |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 36:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RtBirthDate", wireType)
+			}
+			m.RtBirthDate = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.RtBirthDate |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 37:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TxnCountryCode", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TxnCountryCode = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipSteammessages(dAtA[iNdEx:])
@@ -13473,6 +17101,9 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13502,7 +17133,7 @@ func (m *CMsgGCGetPersonaNames) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -13522,15 +17153,8 @@ func (m *CMsgGCGetPersonaNames) Unmarshal(dAtA []byte) error {
 				if (iNdEx + 8) > l {
 					return io.ErrUnexpectedEOF
 				}
+				v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 				iNdEx += 8
-				v = uint64(dAtA[iNdEx-8])
-				v |= uint64(dAtA[iNdEx-7]) << 8
-				v |= uint64(dAtA[iNdEx-6]) << 16
-				v |= uint64(dAtA[iNdEx-5]) << 24
-				v |= uint64(dAtA[iNdEx-4]) << 32
-				v |= uint64(dAtA[iNdEx-3]) << 40
-				v |= uint64(dAtA[iNdEx-2]) << 48
-				v |= uint64(dAtA[iNdEx-1]) << 56
 				m.Steamids = append(m.Steamids, v)
 			} else if wireType == 2 {
 				var packedLen int
@@ -13543,7 +17167,7 @@ func (m *CMsgGCGetPersonaNames) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					packedLen |= (int(b) & 0x7F) << shift
+					packedLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -13552,23 +17176,24 @@ func (m *CMsgGCGetPersonaNames) Unmarshal(dAtA []byte) error {
 					return ErrInvalidLengthSteammessages
 				}
 				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthSteammessages
+				}
 				if postIndex > l {
 					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				elementCount = packedLen / 8
+				if elementCount != 0 && len(m.Steamids) == 0 {
+					m.Steamids = make([]uint64, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v uint64
 					if (iNdEx + 8) > l {
 						return io.ErrUnexpectedEOF
 					}
+					v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 					iNdEx += 8
-					v = uint64(dAtA[iNdEx-8])
-					v |= uint64(dAtA[iNdEx-7]) << 8
-					v |= uint64(dAtA[iNdEx-6]) << 16
-					v |= uint64(dAtA[iNdEx-5]) << 24
-					v |= uint64(dAtA[iNdEx-4]) << 32
-					v |= uint64(dAtA[iNdEx-3]) << 40
-					v |= uint64(dAtA[iNdEx-2]) << 48
-					v |= uint64(dAtA[iNdEx-1]) << 56
 					m.Steamids = append(m.Steamids, v)
 				}
 			} else {
@@ -13581,6 +17206,9 @@ func (m *CMsgGCGetPersonaNames) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13610,7 +17238,7 @@ func (m *CMsgGCGetPersonaNames_Response) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -13638,7 +17266,7 @@ func (m *CMsgGCGetPersonaNames_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13647,6 +17275,9 @@ func (m *CMsgGCGetPersonaNames_Response) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -13661,15 +17292,8 @@ func (m *CMsgGCGetPersonaNames_Response) Unmarshal(dAtA []byte) error {
 				if (iNdEx + 8) > l {
 					return io.ErrUnexpectedEOF
 				}
+				v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 				iNdEx += 8
-				v = uint64(dAtA[iNdEx-8])
-				v |= uint64(dAtA[iNdEx-7]) << 8
-				v |= uint64(dAtA[iNdEx-6]) << 16
-				v |= uint64(dAtA[iNdEx-5]) << 24
-				v |= uint64(dAtA[iNdEx-4]) << 32
-				v |= uint64(dAtA[iNdEx-3]) << 40
-				v |= uint64(dAtA[iNdEx-2]) << 48
-				v |= uint64(dAtA[iNdEx-1]) << 56
 				m.FailedLookupSteamids = append(m.FailedLookupSteamids, v)
 			} else if wireType == 2 {
 				var packedLen int
@@ -13682,7 +17306,7 @@ func (m *CMsgGCGetPersonaNames_Response) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					packedLen |= (int(b) & 0x7F) << shift
+					packedLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -13691,23 +17315,24 @@ func (m *CMsgGCGetPersonaNames_Response) Unmarshal(dAtA []byte) error {
 					return ErrInvalidLengthSteammessages
 				}
 				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthSteammessages
+				}
 				if postIndex > l {
 					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				elementCount = packedLen / 8
+				if elementCount != 0 && len(m.FailedLookupSteamids) == 0 {
+					m.FailedLookupSteamids = make([]uint64, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v uint64
 					if (iNdEx + 8) > l {
 						return io.ErrUnexpectedEOF
 					}
+					v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 					iNdEx += 8
-					v = uint64(dAtA[iNdEx-8])
-					v |= uint64(dAtA[iNdEx-7]) << 8
-					v |= uint64(dAtA[iNdEx-6]) << 16
-					v |= uint64(dAtA[iNdEx-5]) << 24
-					v |= uint64(dAtA[iNdEx-4]) << 32
-					v |= uint64(dAtA[iNdEx-3]) << 40
-					v |= uint64(dAtA[iNdEx-2]) << 48
-					v |= uint64(dAtA[iNdEx-1]) << 56
 					m.FailedLookupSteamids = append(m.FailedLookupSteamids, v)
 				}
 			} else {
@@ -13720,6 +17345,9 @@ func (m *CMsgGCGetPersonaNames_Response) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13749,7 +17377,7 @@ func (m *CMsgGCGetPersonaNames_Response_PersonaName) Unmarshal(dAtA []byte) erro
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -13771,15 +17399,8 @@ func (m *CMsgGCGetPersonaNames_Response_PersonaName) Unmarshal(dAtA []byte) erro
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Steamid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Steamid = uint64(dAtA[iNdEx-8])
-			m.Steamid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Steamid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Steamid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Steamid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Steamid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Steamid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Steamid |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field PersonaName", wireType)
@@ -13794,7 +17415,7 @@ func (m *CMsgGCGetPersonaNames_Response_PersonaName) Unmarshal(dAtA []byte) erro
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13804,6 +17425,9 @@ func (m *CMsgGCGetPersonaNames_Response_PersonaName) Unmarshal(dAtA []byte) erro
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -13816,6 +17440,9 @@ func (m *CMsgGCGetPersonaNames_Response_PersonaName) Unmarshal(dAtA []byte) erro
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13845,7 +17472,7 @@ func (m *CMsgGCCheckFriendship) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -13867,15 +17494,8 @@ func (m *CMsgGCCheckFriendship) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.SteamidLeft = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.SteamidLeft = uint64(dAtA[iNdEx-8])
-			m.SteamidLeft |= uint64(dAtA[iNdEx-7]) << 8
-			m.SteamidLeft |= uint64(dAtA[iNdEx-6]) << 16
-			m.SteamidLeft |= uint64(dAtA[iNdEx-5]) << 24
-			m.SteamidLeft |= uint64(dAtA[iNdEx-4]) << 32
-			m.SteamidLeft |= uint64(dAtA[iNdEx-3]) << 40
-			m.SteamidLeft |= uint64(dAtA[iNdEx-2]) << 48
-			m.SteamidLeft |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 1 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SteamidRight", wireType)
@@ -13884,15 +17504,8 @@ func (m *CMsgGCCheckFriendship) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.SteamidRight = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.SteamidRight = uint64(dAtA[iNdEx-8])
-			m.SteamidRight |= uint64(dAtA[iNdEx-7]) << 8
-			m.SteamidRight |= uint64(dAtA[iNdEx-6]) << 16
-			m.SteamidRight |= uint64(dAtA[iNdEx-5]) << 24
-			m.SteamidRight |= uint64(dAtA[iNdEx-4]) << 32
-			m.SteamidRight |= uint64(dAtA[iNdEx-3]) << 40
-			m.SteamidRight |= uint64(dAtA[iNdEx-2]) << 48
-			m.SteamidRight |= uint64(dAtA[iNdEx-1]) << 56
 		default:
 			iNdEx = preIndex
 			skippy, err := skipSteammessages(dAtA[iNdEx:])
@@ -13900,6 +17513,9 @@ func (m *CMsgGCCheckFriendship) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13929,7 +17545,7 @@ func (m *CMsgGCCheckFriendship_Response) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -13957,7 +17573,7 @@ func (m *CMsgGCCheckFriendship_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13977,7 +17593,7 @@ func (m *CMsgGCCheckFriendship_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -13990,6 +17606,9 @@ func (m *CMsgGCCheckFriendship_Response) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14019,7 +17638,7 @@ func (m *CMsgGCMsgMasterSetDirectory) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -14047,7 +17666,7 @@ func (m *CMsgGCMsgMasterSetDirectory) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MasterDirIndex |= (uint32(b) & 0x7F) << shift
+				m.MasterDirIndex |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14066,7 +17685,7 @@ func (m *CMsgGCMsgMasterSetDirectory) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14075,6 +17694,9 @@ func (m *CMsgGCMsgMasterSetDirectory) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -14090,6 +17712,9 @@ func (m *CMsgGCMsgMasterSetDirectory) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14119,7 +17744,7 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -14147,7 +17772,7 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DirIndex |= (uint32(b) & 0x7F) << shift
+				m.DirIndex |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14166,7 +17791,7 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14176,6 +17801,9 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -14195,7 +17823,7 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14205,6 +17833,9 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -14224,7 +17855,7 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14234,6 +17865,9 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -14253,7 +17887,7 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14263,6 +17897,9 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -14275,6 +17912,9 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14304,7 +17944,7 @@ func (m *CMsgGCMsgMasterSetDirectory_Response) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -14332,7 +17972,7 @@ func (m *CMsgGCMsgMasterSetDirectory_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14345,6 +17985,9 @@ func (m *CMsgGCMsgMasterSetDirectory_Response) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14374,7 +18017,7 @@ func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) Unmarshal(dAtA []byte) error 
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -14402,7 +18045,7 @@ func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) Unmarshal(dAtA []byte) error 
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DirIndex |= (uint32(b) & 0x7F) << shift
+				m.DirIndex |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14414,6 +18057,9 @@ func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) Unmarshal(dAtA []byte) error 
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14443,7 +18089,7 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Request) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -14465,15 +18111,8 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Request) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Steamid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Steamid = uint64(dAtA[iNdEx-8])
-			m.Steamid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Steamid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Steamid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Steamid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Steamid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Steamid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Steamid |= uint64(dAtA[iNdEx-1]) << 56
 		default:
 			iNdEx = preIndex
 			skippy, err := skipSteammessages(dAtA[iNdEx:])
@@ -14481,6 +18120,9 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Request) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14510,7 +18152,7 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Response) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -14538,7 +18180,7 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14558,7 +18200,7 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14578,7 +18220,7 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14598,7 +18240,7 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.TimeAllTrusted |= (uint32(b) & 0x7F) << shift
+				m.TimeAllTrusted |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14610,6 +18252,9 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Response) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14639,7 +18284,7 @@ func (m *CMsgGCHAccountVacStatusChange) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -14661,15 +18306,8 @@ func (m *CMsgGCHAccountVacStatusChange) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.SteamId = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.SteamId = uint64(dAtA[iNdEx-8])
-			m.SteamId |= uint64(dAtA[iNdEx-7]) << 8
-			m.SteamId |= uint64(dAtA[iNdEx-6]) << 16
-			m.SteamId |= uint64(dAtA[iNdEx-5]) << 24
-			m.SteamId |= uint64(dAtA[iNdEx-4]) << 32
-			m.SteamId |= uint64(dAtA[iNdEx-3]) << 40
-			m.SteamId |= uint64(dAtA[iNdEx-2]) << 48
-			m.SteamId |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AppId", wireType)
@@ -14684,7 +18322,7 @@ func (m *CMsgGCHAccountVacStatusChange) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AppId |= (uint32(b) & 0x7F) << shift
+				m.AppId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14703,7 +18341,7 @@ func (m *CMsgGCHAccountVacStatusChange) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.RtimeVacbanStarts |= (uint32(b) & 0x7F) << shift
+				m.RtimeVacbanStarts |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14722,7 +18360,7 @@ func (m *CMsgGCHAccountVacStatusChange) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14742,7 +18380,7 @@ func (m *CMsgGCHAccountVacStatusChange) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14755,6 +18393,9 @@ func (m *CMsgGCHAccountVacStatusChange) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14784,7 +18425,7 @@ func (m *CMsgGCGetPartnerAccountLink) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -14806,15 +18447,8 @@ func (m *CMsgGCGetPartnerAccountLink) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Steamid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Steamid = uint64(dAtA[iNdEx-8])
-			m.Steamid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Steamid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Steamid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Steamid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Steamid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Steamid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Steamid |= uint64(dAtA[iNdEx-1]) << 56
 		default:
 			iNdEx = preIndex
 			skippy, err := skipSteammessages(dAtA[iNdEx:])
@@ -14822,6 +18456,9 @@ func (m *CMsgGCGetPartnerAccountLink) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14851,7 +18488,7 @@ func (m *CMsgGCGetPartnerAccountLink_Response) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -14879,7 +18516,7 @@ func (m *CMsgGCGetPartnerAccountLink_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Pwid |= (uint32(b) & 0x7F) << shift
+				m.Pwid |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14898,7 +18535,7 @@ func (m *CMsgGCGetPartnerAccountLink_Response) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Nexonid |= (uint32(b) & 0x7F) << shift
+				m.Nexonid |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -14910,6 +18547,9 @@ func (m *CMsgGCGetPartnerAccountLink_Response) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14939,7 +18579,7 @@ func (m *CMsgGCRoutingInfo) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -14965,7 +18605,7 @@ func (m *CMsgGCRoutingInfo) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (uint32(b) & 0x7F) << shift
+					v |= uint32(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -14982,7 +18622,7 @@ func (m *CMsgGCRoutingInfo) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					packedLen |= (int(b) & 0x7F) << shift
+					packedLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -14991,8 +18631,22 @@ func (m *CMsgGCRoutingInfo) Unmarshal(dAtA []byte) error {
 					return ErrInvalidLengthSteammessages
 				}
 				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthSteammessages
+				}
 				if postIndex > l {
 					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.DirIndex) == 0 {
+					m.DirIndex = make([]uint32, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v uint32
@@ -15005,7 +18659,7 @@ func (m *CMsgGCRoutingInfo) Unmarshal(dAtA []byte) error {
 						}
 						b := dAtA[iNdEx]
 						iNdEx++
-						v |= (uint32(b) & 0x7F) << shift
+						v |= uint32(b&0x7F) << shift
 						if b < 0x80 {
 							break
 						}
@@ -15029,7 +18683,7 @@ func (m *CMsgGCRoutingInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (CMsgGCRoutingInfo_RoutingMethod(b) & 0x7F) << shift
+				v |= CMsgGCRoutingInfo_RoutingMethod(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15049,7 +18703,7 @@ func (m *CMsgGCRoutingInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (CMsgGCRoutingInfo_RoutingMethod(b) & 0x7F) << shift
+				v |= CMsgGCRoutingInfo_RoutingMethod(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15069,7 +18723,7 @@ func (m *CMsgGCRoutingInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ProtobufField |= (uint32(b) & 0x7F) << shift
+				m.ProtobufField |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15088,7 +18742,7 @@ func (m *CMsgGCRoutingInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15098,6 +18752,9 @@ func (m *CMsgGCRoutingInfo) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -15110,6 +18767,9 @@ func (m *CMsgGCRoutingInfo) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15139,7 +18799,7 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -15167,7 +18827,7 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15176,6 +18836,9 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -15191,6 +18854,9 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15220,7 +18886,7 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -15248,7 +18914,7 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15258,6 +18924,9 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -15277,7 +18946,7 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15287,6 +18956,9 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -15306,7 +18978,7 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15315,6 +18987,9 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -15332,6 +19007,9 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15361,7 +19039,7 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -15389,7 +19067,7 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15398,6 +19076,9 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -15413,6 +19094,9 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15442,7 +19126,7 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) Unmarshal(dAtA []byte) error 
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -15470,7 +19154,7 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) Unmarshal(dAtA []byte) error 
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MsgType |= (uint32(b) & 0x7F) << shift
+				m.MsgType |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15489,7 +19173,7 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) Unmarshal(dAtA []byte) error 
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15498,6 +19182,9 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) Unmarshal(dAtA []byte) error 
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -15515,6 +19202,9 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) Unmarshal(dAtA []byte) error 
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15544,7 +19234,7 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) Unmarshal(dAtA []byte) error 
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -15572,7 +19262,7 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) Unmarshal(dAtA []byte) error 
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15585,6 +19275,9 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) Unmarshal(dAtA []byte) error 
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15614,7 +19307,7 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) Unmarshal(dAtA []byte) err
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -15642,7 +19335,7 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) Unmarshal(dAtA []byte) err
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int32(b) & 0x7F) << shift
+				v |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15655,6 +19348,9 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) Unmarshal(dAtA []byte) err
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15684,7 +19380,7 @@ func (m *CMsgGCMsgSetOptions) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -15710,7 +19406,7 @@ func (m *CMsgGCMsgSetOptions) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					v |= (CMsgGCMsgSetOptions_Option(b) & 0x7F) << shift
+					v |= CMsgGCMsgSetOptions_Option(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -15727,7 +19423,7 @@ func (m *CMsgGCMsgSetOptions) Unmarshal(dAtA []byte) error {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					packedLen |= (int(b) & 0x7F) << shift
+					packedLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -15736,8 +19432,15 @@ func (m *CMsgGCMsgSetOptions) Unmarshal(dAtA []byte) error {
 					return ErrInvalidLengthSteammessages
 				}
 				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthSteammessages
+				}
 				if postIndex > l {
 					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				if elementCount != 0 && len(m.Options) == 0 {
+					m.Options = make([]CMsgGCMsgSetOptions_Option, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v CMsgGCMsgSetOptions_Option
@@ -15750,7 +19453,7 @@ func (m *CMsgGCMsgSetOptions) Unmarshal(dAtA []byte) error {
 						}
 						b := dAtA[iNdEx]
 						iNdEx++
-						v |= (CMsgGCMsgSetOptions_Option(b) & 0x7F) << shift
+						v |= CMsgGCMsgSetOptions_Option(b&0x7F) << shift
 						if b < 0x80 {
 							break
 						}
@@ -15774,7 +19477,7 @@ func (m *CMsgGCMsgSetOptions) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15783,6 +19486,9 @@ func (m *CMsgGCMsgSetOptions) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -15798,6 +19504,9 @@ func (m *CMsgGCMsgSetOptions) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15828,7 +19537,7 @@ func (m *CMsgGCMsgSetOptions_MessageRange) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -15856,7 +19565,7 @@ func (m *CMsgGCMsgSetOptions_MessageRange) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Low |= (uint32(b) & 0x7F) << shift
+				m.Low |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15876,7 +19585,7 @@ func (m *CMsgGCMsgSetOptions_MessageRange) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.High |= (uint32(b) & 0x7F) << shift
+				m.High |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15889,6 +19598,9 @@ func (m *CMsgGCMsgSetOptions_MessageRange) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15924,7 +19636,7 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -15946,15 +19658,8 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.SteamId = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.SteamId = uint64(dAtA[iNdEx-8])
-			m.SteamId |= uint64(dAtA[iNdEx-7]) << 8
-			m.SteamId |= uint64(dAtA[iNdEx-6]) << 16
-			m.SteamId |= uint64(dAtA[iNdEx-5]) << 24
-			m.SteamId |= uint64(dAtA[iNdEx-4]) << 32
-			m.SteamId |= uint64(dAtA[iNdEx-3]) << 40
-			m.SteamId |= uint64(dAtA[iNdEx-2]) << 48
-			m.SteamId |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AppId", wireType)
@@ -15969,7 +19674,7 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AppId |= (uint32(b) & 0x7F) << shift
+				m.AppId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -15988,7 +19693,7 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -16002,15 +19707,8 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.ServerSteamId = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.ServerSteamId = uint64(dAtA[iNdEx-8])
-			m.ServerSteamId |= uint64(dAtA[iNdEx-7]) << 8
-			m.ServerSteamId |= uint64(dAtA[iNdEx-6]) << 16
-			m.ServerSteamId |= uint64(dAtA[iNdEx-5]) << 24
-			m.ServerSteamId |= uint64(dAtA[iNdEx-4]) << 32
-			m.ServerSteamId |= uint64(dAtA[iNdEx-3]) << 40
-			m.ServerSteamId |= uint64(dAtA[iNdEx-2]) << 48
-			m.ServerSteamId |= uint64(dAtA[iNdEx-1]) << 56
 		case 5:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ServerAddr", wireType)
@@ -16025,7 +19723,7 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ServerAddr |= (uint32(b) & 0x7F) << shift
+				m.ServerAddr |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -16044,7 +19742,7 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ServerPort |= (uint32(b) & 0x7F) << shift
+				m.ServerPort |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -16063,7 +19761,7 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.OsType |= (uint32(b) & 0x7F) << shift
+				m.OsType |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -16082,7 +19780,7 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ClientAddr |= (uint32(b) & 0x7F) << shift
+				m.ClientAddr |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -16101,7 +19799,7 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -16110,6 +19808,9 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -16118,6 +19819,130 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 10:
+			if wireType != 1 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OwnerId", wireType)
+			}
+			m.OwnerId = 0
+			if (iNdEx + 8) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OwnerId = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+			iNdEx += 8
+		case 11:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CmSessionSysid", wireType)
+			}
+			m.CmSessionSysid = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.CmSessionSysid |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 12:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CmSessionIdentifier", wireType)
+			}
+			m.CmSessionIdentifier = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.CmSessionIdentifier |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 13:
+			if wireType == 0 {
+				var v uint32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowSteammessages
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= uint32(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.DepotIds = append(m.DepotIds, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowSteammessages
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthSteammessages
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthSteammessages
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.DepotIds) == 0 {
+					m.DepotIds = make([]uint32, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v uint32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowSteammessages
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= uint32(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.DepotIds = append(m.DepotIds, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field DepotIds", wireType)
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipSteammessages(dAtA[iNdEx:])
@@ -16125,6 +19950,9 @@ func (m *CMsgGCHUpdateSession) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -16154,7 +19982,7 @@ func (m *CMsgGCHUpdateSession_ExtraField) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -16182,7 +20010,7 @@ func (m *CMsgGCHUpdateSession_ExtraField) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -16192,6 +20020,9 @@ func (m *CMsgGCHUpdateSession_ExtraField) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -16211,7 +20042,7 @@ func (m *CMsgGCHUpdateSession_ExtraField) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -16221,6 +20052,9 @@ func (m *CMsgGCHUpdateSession_ExtraField) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -16233,6 +20067,9 @@ func (m *CMsgGCHUpdateSession_ExtraField) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -16262,7 +20099,7 @@ func (m *CMsgNotificationOfSuspiciousActivity) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -16284,15 +20121,8 @@ func (m *CMsgNotificationOfSuspiciousActivity) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 8) > l {
 				return io.ErrUnexpectedEOF
 			}
+			m.Steamid = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
-			m.Steamid = uint64(dAtA[iNdEx-8])
-			m.Steamid |= uint64(dAtA[iNdEx-7]) << 8
-			m.Steamid |= uint64(dAtA[iNdEx-6]) << 16
-			m.Steamid |= uint64(dAtA[iNdEx-5]) << 24
-			m.Steamid |= uint64(dAtA[iNdEx-4]) << 32
-			m.Steamid |= uint64(dAtA[iNdEx-3]) << 40
-			m.Steamid |= uint64(dAtA[iNdEx-2]) << 48
-			m.Steamid |= uint64(dAtA[iNdEx-1]) << 56
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Appid", wireType)
@@ -16307,7 +20137,7 @@ func (m *CMsgNotificationOfSuspiciousActivity) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Appid |= (uint32(b) & 0x7F) << shift
+				m.Appid |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -16326,7 +20156,7 @@ func (m *CMsgNotificationOfSuspiciousActivity) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -16335,6 +20165,9 @@ func (m *CMsgNotificationOfSuspiciousActivity) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthSteammessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -16352,6 +20185,9 @@ func (m *CMsgNotificationOfSuspiciousActivity) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -16381,7 +20217,7 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) Unmarshal(d
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -16409,7 +20245,7 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) Unmarshal(d
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AppInstanceCount |= (uint32(b) & 0x7F) << shift
+				m.AppInstanceCount |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -16420,15 +20256,8 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) Unmarshal(d
 				if (iNdEx + 8) > l {
 					return io.ErrUnexpectedEOF
 				}
+				v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 				iNdEx += 8
-				v = uint64(dAtA[iNdEx-8])
-				v |= uint64(dAtA[iNdEx-7]) << 8
-				v |= uint64(dAtA[iNdEx-6]) << 16
-				v |= uint64(dAtA[iNdEx-5]) << 24
-				v |= uint64(dAtA[iNdEx-4]) << 32
-				v |= uint64(dAtA[iNdEx-3]) << 40
-				v |= uint64(dAtA[iNdEx-2]) << 48
-				v |= uint64(dAtA[iNdEx-1]) << 56
 				m.OtherSteamids = append(m.OtherSteamids, v)
 			} else if wireType == 2 {
 				var packedLen int
@@ -16441,7 +20270,7 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) Unmarshal(d
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					packedLen |= (int(b) & 0x7F) << shift
+					packedLen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
@@ -16450,23 +20279,24 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) Unmarshal(d
 					return ErrInvalidLengthSteammessages
 				}
 				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthSteammessages
+				}
 				if postIndex > l {
 					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				elementCount = packedLen / 8
+				if elementCount != 0 && len(m.OtherSteamids) == 0 {
+					m.OtherSteamids = make([]uint64, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v uint64
 					if (iNdEx + 8) > l {
 						return io.ErrUnexpectedEOF
 					}
+					v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 					iNdEx += 8
-					v = uint64(dAtA[iNdEx-8])
-					v |= uint64(dAtA[iNdEx-7]) << 8
-					v |= uint64(dAtA[iNdEx-6]) << 16
-					v |= uint64(dAtA[iNdEx-5]) << 24
-					v |= uint64(dAtA[iNdEx-4]) << 32
-					v |= uint64(dAtA[iNdEx-3]) << 40
-					v |= uint64(dAtA[iNdEx-2]) << 48
-					v |= uint64(dAtA[iNdEx-1]) << 56
 					m.OtherSteamids = append(m.OtherSteamids, v)
 				}
 			} else {
@@ -16479,6 +20309,846 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) Unmarshal(d
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CMsgDPPartnerMicroTxns) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowSteammessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CMsgDPPartnerMicroTxns: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CMsgDPPartnerMicroTxns: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Appid", wireType)
+			}
+			m.Appid = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Appid |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GcName", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GcName = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Partner", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Partner == nil {
+				m.Partner = &CMsgDPPartnerMicroTxns_PartnerInfo{}
+			}
+			if err := m.Partner.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Transactions", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Transactions = append(m.Transactions, &CMsgDPPartnerMicroTxns_PartnerMicroTxn{})
+			if err := m.Transactions[len(m.Transactions)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipSteammessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowSteammessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PartnerMicroTxn: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PartnerMicroTxn: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InitTime", wireType)
+			}
+			m.InitTime = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.InitTime |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LastUpdateTime", wireType)
+			}
+			m.LastUpdateTime = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.LastUpdateTime |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TxnId", wireType)
+			}
+			m.TxnId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TxnId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AccountId", wireType)
+			}
+			m.AccountId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.AccountId |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LineItem", wireType)
+			}
+			m.LineItem = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.LineItem |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ItemId", wireType)
+			}
+			m.ItemId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ItemId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DefIndex", wireType)
+			}
+			m.DefIndex = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.DefIndex |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Price", wireType)
+			}
+			m.Price = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Price |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 9:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Tax", wireType)
+			}
+			m.Tax = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Tax |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 10:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PriceUsd", wireType)
+			}
+			m.PriceUsd = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.PriceUsd |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 11:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TaxUsd", wireType)
+			}
+			m.TaxUsd = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TaxUsd |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 12:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PurchaseType", wireType)
+			}
+			m.PurchaseType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.PurchaseType |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 13:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SteamTxnType", wireType)
+			}
+			m.SteamTxnType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.SteamTxnType |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 14:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CountryCode", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CountryCode = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 15:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RegionCode", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RegionCode = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 16:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Quantity", wireType)
+			}
+			m.Quantity = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Quantity |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 17:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RefTransId", wireType)
+			}
+			m.RefTransId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.RefTransId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipSteammessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowSteammessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PartnerInfo: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PartnerInfo: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PartnerId", wireType)
+			}
+			m.PartnerId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.PartnerId |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PartnerName", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PartnerName = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CurrencyCode", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CurrencyCode = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CurrencyName", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CurrencyName = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipSteammessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CMsgDPPartnerMicroTxnsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowSteammessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CMsgDPPartnerMicroTxnsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CMsgDPPartnerMicroTxnsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Eresult", wireType)
+			}
+			var v uint32
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Eresult = &v
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Eerrorcode", wireType)
+			}
+			var v CMsgDPPartnerMicroTxnsResponse_EErrorCode
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowSteammessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= CMsgDPPartnerMicroTxnsResponse_EErrorCode(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Eerrorcode = &v
+		default:
+			iNdEx = preIndex
+			skippy, err := skipSteammessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthSteammessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthSteammessages
 			}
 			if (iNdEx + skippy) > l {
@@ -16547,8 +21217,11 @@ func skipSteammessages(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			iNdEx += length
 			if length < 0 {
+				return 0, ErrInvalidLengthSteammessages
+			}
+			iNdEx += length
+			if iNdEx < 0 {
 				return 0, ErrInvalidLengthSteammessages
 			}
 			return iNdEx, nil
@@ -16579,6 +21252,9 @@ func skipSteammessages(dAtA []byte) (n int, err error) {
 					return 0, err
 				}
 				iNdEx = start + next
+				if iNdEx < 0 {
+					return 0, ErrInvalidLengthSteammessages
+				}
 			}
 			return iNdEx, nil
 		case 4:
@@ -16597,324 +21273,3 @@ var (
 	ErrInvalidLengthSteammessages = fmt.Errorf("proto: negative length found during unmarshaling")
 	ErrIntOverflowSteammessages   = fmt.Errorf("proto: integer overflow")
 )
-
-func init() { proto.RegisterFile("steammessages.proto", fileDescriptorSteammessages) }
-
-var fileDescriptorSteammessages = []byte{
-	// 5027 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x5b, 0xcd, 0x6f, 0x1b, 0x49,
-	0x76, 0x37, 0x49, 0x7d, 0x3e, 0x8a, 0x12, 0xd5, 0x92, 0x6d, 0x5a, 0xfe, 0x92, 0x7b, 0xd6, 0x6b,
-	0xcd, 0xd8, 0x4b, 0x7b, 0x3c, 0xfe, 0x5a, 0xed, 0x2e, 0x32, 0x34, 0xf5, 0x61, 0xce, 0x88, 0xb2,
-	0x86, 0x94, 0x3d, 0x49, 0x10, 0x6c, 0x6f, 0xb1, 0xbb, 0x48, 0xd6, 0x88, 0xec, 0xee, 0xa9, 0x2a,
-	0x4a, 0xe6, 0x6d, 0x92, 0x00, 0x8b, 0xd9, 0x4b, 0x90, 0xdb, 0x02, 0x41, 0xb0, 0xc7, 0x41, 0x90,
-	0x43, 0x82, 0x5c, 0xf6, 0x10, 0x20, 0x87, 0x64, 0x2f, 0x93, 0x43, 0x80, 0x1c, 0x02, 0xe4, 0x96,
-	0x6c, 0x26, 0xe7, 0x20, 0xff, 0x40, 0x80, 0x04, 0xf5, 0xd5, 0xac, 0x26, 0x65, 0xcb, 0x99, 0x39,
-	0xa9, 0xf9, 0x7e, 0xef, 0xbd, 0x7a, 0x55, 0xf5, 0xea, 0xbd, 0x57, 0x1f, 0x82, 0x15, 0xc6, 0x31,
-	0xea, 0xf7, 0x31, 0x63, 0xa8, 0x83, 0x59, 0x39, 0xa6, 0x11, 0x8f, 0xd6, 0xd6, 0x3b, 0x51, 0xd4,
-	0xe9, 0xe1, 0xbb, 0xf2, 0x57, 0x6b, 0xd0, 0xbe, 0x1b, 0x60, 0xe6, 0x53, 0x12, 0xf3, 0x88, 0x2a,
-	0x0e, 0xf7, 0xcf, 0xa6, 0xc0, 0xa9, 0xd6, 0x59, 0xe7, 0x40, 0xfc, 0x7a, 0x3a, 0x68, 0x3f, 0xc3,
-	0x28, 0xc0, 0xd4, 0xb9, 0x03, 0x4b, 0x7e, 0x8f, 0xe0, 0x90, 0x7b, 0x52, 0xad, 0x47, 0x82, 0x52,
-	0x66, 0x3d, 0xb3, 0x31, 0xf3, 0x74, 0xea, 0xeb, 0x7f, 0xbb, 0x7e, 0xae, 0x51, 0x50, 0x60, 0x53,
-	0x60, 0xb5, 0xc0, 0xb9, 0x07, 0xcb, 0x86, 0x1b, 0x33, 0x46, 0xa2, 0x50, 0xf0, 0x67, 0xd7, 0x33,
-	0x1b, 0xd3, 0x9a, 0x5f, 0x2b, 0x6b, 0x2a, 0xb4, 0x16, 0x38, 0x1b, 0x50, 0x60, 0xd1, 0x80, 0xfa,
-	0xd8, 0x43, 0x71, 0x2c, 0xb8, 0x73, 0xeb, 0x99, 0x8d, 0x82, 0xe6, 0xce, 0x2b, 0xa8, 0x12, 0xc7,
-	0xb5, 0xc0, 0x79, 0x02, 0x85, 0xcf, 0xa2, 0x96, 0x47, 0x02, 0x4f, 0x51, 0x4b, 0x20, 0xec, 0xd8,
-	0x5c, 0x7d, 0xff, 0xc9, 0x83, 0x07, 0x8f, 0x1e, 0x3f, 0x78, 0x70, 0xef, 0xf1, 0x07, 0x8f, 0xef,
-	0xfd, 0xf0, 0xe1, 0xc3, 0xf7, 0x1f, 0xbd, 0xff, 0xb0, 0x91, 0xff, 0x2c, 0x6a, 0xd5, 0x82, 0xa6,
-	0x64, 0xb4, 0x24, 0x39, 0xa2, 0x1d, 0xcc, 0x4b, 0xf9, 0x33, 0x25, 0x0f, 0x25, 0xa3, 0xe8, 0xbd,
-	0x12, 0xf1, 0x84, 0x82, 0x10, 0xf5, 0x71, 0x69, 0x61, 0x3d, 0xb3, 0x31, 0x6f, 0x7a, 0xaf, 0xc0,
-	0x8f, 0xa2, 0xd6, 0x3e, 0xea, 0x63, 0xe7, 0x32, 0xcc, 0x62, 0x8a, 0xd9, 0xa0, 0xc7, 0x4b, 0x05,
-	0xd1, 0xe7, 0xcd, 0xcc, 0xfd, 0x86, 0xa1, 0x38, 0xef, 0x42, 0x01, 0x53, 0x1a, 0x51, 0x4f, 0xcf,
-	0x4c, 0x69, 0xd1, 0x52, 0xb4, 0x20, 0xa1, 0xba, 0x42, 0x9c, 0x7d, 0x80, 0x8e, 0xef, 0xf5, 0x59,
-	0xc7, 0x63, 0xd4, 0x2f, 0x7d, 0x2d, 0xc6, 0x7b, 0xf1, 0xfe, 0x72, 0x79, 0xb7, 0x6a, 0xe6, 0xa6,
-	0xce, 0x3a, 0x4d, 0xea, 0x6f, 0x5e, 0x19, 0xa7, 0x78, 0x2f, 0x42, 0x16, 0x63, 0x9f, 0xb4, 0x09,
-	0x0e, 0x1a, 0x73, 0x1d, 0x5f, 0x51, 0x9d, 0x07, 0xb0, 0xd2, 0xf1, 0xbd, 0x80, 0x50, 0x8f, 0x84,
-	0x01, 0x7e, 0x65, 0xc6, 0xef, 0x1f, 0x33, 0xd6, 0x50, 0x17, 0x3b, 0xfe, 0x16, 0xa1, 0x35, 0x81,
-	0xab, 0x51, 0xdb, 0x84, 0x2f, 0xbe, 0xba, 0xfa, 0x45, 0xf6, 0xcb, 0xaf, 0xae, 0x7e, 0x31, 0xe7,
-	0xfe, 0x6d, 0x06, 0x0a, 0xc2, 0x39, 0x3e, 0xc5, 0xad, 0xca, 0x41, 0xed, 0x63, 0x3c, 0x74, 0x2e,
-	0xc3, 0x0c, 0xe3, 0x88, 0x0f, 0x98, 0x74, 0x87, 0xc2, 0x66, 0xee, 0xfe, 0xc3, 0x87, 0x0d, 0x4d,
-	0x72, 0xd6, 0x01, 0x90, 0xef, 0x47, 0x83, 0x90, 0x9b, 0xf9, 0x2f, 0x6c, 0x66, 0xee, 0x35, 0xe6,
-	0x35, 0xb1, 0x16, 0x38, 0x77, 0xc1, 0x89, 0x07, 0xad, 0x1e, 0x61, 0x5d, 0x4c, 0xbd, 0x0e, 0x8d,
-	0x06, 0xa3, 0xb9, 0x17, 0x9c, 0xc5, 0x04, 0xdc, 0x15, 0x58, 0x2d, 0x10, 0xed, 0x1d, 0xe1, 0xa1,
-	0x60, 0x9a, 0xb2, 0xac, 0x9e, 0x3e, 0xc2, 0xc3, 0x5a, 0xe0, 0x5c, 0x81, 0x99, 0x20, 0xea, 0x23,
-	0x12, 0x96, 0xa6, 0xad, 0x41, 0xd5, 0x34, 0xf7, 0x8f, 0xa6, 0x60, 0x49, 0x18, 0xff, 0x8c, 0xf3,
-	0xb8, 0x81, 0x3f, 0x1f, 0x60, 0xc6, 0x9d, 0xdb, 0xb0, 0x48, 0xd5, 0xa7, 0xd7, 0xc7, 0xbc, 0x1b,
-	0x29, 0xaf, 0x36, 0x6a, 0x0b, 0x1a, 0xab, 0x4b, 0xc8, 0x59, 0x87, 0xb9, 0x6e, 0xc4, 0xb8, 0x9c,
-	0xfe, 0xac, 0xd5, 0x40, 0x42, 0x75, 0x2e, 0x40, 0x6e, 0x40, 0x7b, 0xd2, 0x7e, 0x03, 0x0a, 0x82,
-	0xf3, 0x04, 0x66, 0xbb, 0x72, 0x1d, 0xb1, 0xd2, 0xd4, 0x7a, 0x6e, 0x23, 0x7f, 0xff, 0x5a, 0x79,
-	0xcc, 0x92, 0xb2, 0xfe, 0xab, 0x96, 0x5b, 0xc3, 0xb0, 0x3b, 0x9b, 0x00, 0xc2, 0xed, 0x62, 0x44,
-	0x51, 0x9f, 0x95, 0xa6, 0xa5, 0xf0, 0xe5, 0x09, 0xe1, 0x4f, 0x06, 0x98, 0x0e, 0x0f, 0x04, 0x4f,
-	0x63, 0xbe, 0x83, 0xb9, 0xfc, 0x62, 0xce, 0x8f, 0x21, 0x1f, 0x47, 0x2c, 0x11, 0x9e, 0x39, 0x5b,
-	0x18, 0x04, 0xbf, 0x96, 0x2e, 0xc1, 0x54, 0x2b, 0x0a, 0x86, 0xa5, 0xd9, 0xf5, 0xcc, 0xc6, 0x82,
-	0xee, 0x8c, 0xa4, 0x38, 0x77, 0xa1, 0x88, 0x5a, 0x2c, 0xea, 0x0d, 0x38, 0xf6, 0x38, 0xe9, 0xe3,
-	0x68, 0xc0, 0x4b, 0x73, 0xd6, 0xb0, 0x2d, 0x19, 0xf4, 0x50, 0x81, 0x6b, 0xdb, 0x50, 0x48, 0x75,
-	0x4f, 0xe8, 0x96, 0xa3, 0x98, 0xb1, 0x06, 0x4a, 0x52, 0x9c, 0x35, 0x98, 0x3e, 0x46, 0xbd, 0x41,
-	0x7a, 0x80, 0x15, 0x69, 0xed, 0x29, 0xc0, 0xc8, 0xd6, 0xb7, 0xd5, 0xb1, 0x90, 0xd2, 0xe1, 0xfe,
-	0x3a, 0x0b, 0xcb, 0x23, 0x0f, 0x36, 0x6e, 0x70, 0x07, 0x96, 0x5e, 0xec, 0xbf, 0x68, 0x6e, 0x6f,
-	0x8d, 0xd6, 0xb7, 0xad, 0xb6, 0xa0, 0x40, 0xb3, 0xbe, 0x6f, 0xc3, 0x22, 0x09, 0x39, 0xa6, 0x6d,
-	0xe4, 0x63, 0x6f, 0xc2, 0x1b, 0x0a, 0x09, 0x26, 0x99, 0x6f, 0x42, 0x5e, 0x79, 0x96, 0xe2, 0xb4,
-	0x5d, 0x03, 0x14, 0x20, 0xd9, 0xae, 0xc1, 0xec, 0x31, 0xa6, 0x22, 0x18, 0xa6, 0x1c, 0xdb, 0x10,
-	0x9d, 0x5b, 0x30, 0x8b, 0x62, 0xe2, 0x1d, 0xe1, 0xa1, 0xf4, 0xed, 0xfc, 0xfd, 0xc5, 0x72, 0x6a,
-	0x21, 0x36, 0x66, 0x50, 0x4c, 0xc4, 0x82, 0x7c, 0x0f, 0x66, 0xb5, 0xd7, 0x96, 0x66, 0x24, 0x63,
-	0x71, 0x7c, 0xc2, 0x1b, 0x86, 0xc1, 0x79, 0x0f, 0x16, 0x69, 0x34, 0xe0, 0x24, 0xec, 0x98, 0xa8,
-	0x3b, 0x6b, 0xb5, 0xbd, 0xa0, 0x31, 0x19, 0x76, 0xdd, 0x7f, 0xcd, 0x40, 0x71, 0xa4, 0x88, 0xc5,
-	0x51, 0xc8, 0x64, 0xe7, 0xd4, 0x52, 0xf7, 0xfc, 0x28, 0xc0, 0xa9, 0xb5, 0x03, 0x0a, 0xa8, 0x46,
-	0x01, 0x76, 0x36, 0x47, 0xee, 0x9f, 0x95, 0x4e, 0xb8, 0x5e, 0x1e, 0x57, 0x55, 0x36, 0x1f, 0xe3,
-	0x0b, 0xc0, 0xb8, 0x61, 0x6e, 0xdc, 0x0d, 0xd7, 0x76, 0x60, 0x31, 0x2d, 0xf4, 0xed, 0xdc, 0xca,
-	0x6d, 0xab, 0x84, 0x57, 0xa9, 0xef, 0x90, 0x30, 0xa8, 0xa8, 0xd0, 0xc4, 0x64, 0xd7, 0x30, 0xa2,
-	0x7e, 0xd7, 0xe3, 0xc3, 0x78, 0xbc, 0x6b, 0x12, 0x38, 0x1c, 0xc6, 0x58, 0x84, 0x73, 0xcd, 0xc6,
-	0x38, 0x25, 0x61, 0x27, 0xd5, 0xc0, 0x82, 0x82, 0x9a, 0x12, 0x71, 0x1f, 0xc3, 0xda, 0x64, 0x3b,
-	0xc9, 0x50, 0x5e, 0x82, 0x39, 0x2b, 0xb3, 0xe6, 0x36, 0x66, 0x1a, 0xb3, 0x4c, 0x65, 0x53, 0xf7,
-	0x7f, 0x32, 0xca, 0xc2, 0xfd, 0x88, 0x93, 0xf6, 0xf0, 0x53, 0xc4, 0xfd, 0x6e, 0x10, 0x75, 0x44,
-	0xb4, 0xd3, 0x11, 0xdc, 0x36, 0x4e, 0xd3, 0x9c, 0x77, 0x00, 0x50, 0x0f, 0x53, 0xae, 0xcc, 0xcf,
-	0x5a, 0x1c, 0xf3, 0x92, 0x2e, 0xad, 0x7f, 0x1f, 0x96, 0x15, 0x53, 0x80, 0x19, 0x27, 0x21, 0xe2,
-	0xc2, 0xff, 0xec, 0xcc, 0x5b, 0x94, 0xf0, 0xd6, 0x08, 0x15, 0x41, 0xd0, 0xa7, 0x84, 0x13, 0x1f,
-	0xf5, 0xa4, 0xa7, 0xce, 0x99, 0x20, 0x68, 0xa8, 0x62, 0x16, 0x44, 0x54, 0x90, 0x7e, 0x6a, 0xf4,
-	0x48, 0x8a, 0x98, 0x05, 0x14, 0xc7, 0x24, 0x90, 0x9e, 0x99, 0xc4, 0x6e, 0x49, 0x92, 0x52, 0xf8,
-	0x15, 0x97, 0x1e, 0x98, 0xcc, 0x9d, 0xa0, 0xb8, 0x1f, 0xa8, 0x15, 0x5b, 0xa9, 0xef, 0x62, 0xbe,
-	0x47, 0x7c, 0x1c, 0x32, 0xcc, 0xc4, 0x7a, 0x91, 0xc3, 0x33, 0x56, 0x87, 0x18, 0xa2, 0xfb, 0xc7,
-	0x7a, 0xcc, 0x0e, 0x90, 0x7f, 0x84, 0x3a, 0x58, 0xcb, 0x89, 0x51, 0x89, 0x15, 0xc5, 0x54, 0x30,
-	0xc9, 0xa8, 0x68, 0x7a, 0x2d, 0x70, 0x6e, 0xc1, 0x82, 0x30, 0xd7, 0xf3, 0x29, 0x46, 0x1c, 0x07,
-	0xa9, 0xc1, 0xcb, 0x0b, 0xa4, 0xaa, 0x00, 0xe7, 0x3a, 0xcc, 0x45, 0x27, 0x21, 0xa6, 0xe3, 0xf5,
-	0xca, 0xac, 0xa4, 0xd6, 0x02, 0xb7, 0x0b, 0x97, 0x26, 0x4c, 0x4f, 0x66, 0xfc, 0x07, 0x30, 0xdb,
-	0x53, 0x34, 0x39, 0xe1, 0xf9, 0xfb, 0x2b, 0xe5, 0x49, 0x8b, 0x1b, 0x86, 0x47, 0x4c, 0xb7, 0x2e,
-	0x2a, 0x6c, 0x7b, 0x34, 0xcd, 0x0d, 0xe1, 0x42, 0xd2, 0xd2, 0x0b, 0x86, 0xe9, 0x2e, 0xea, 0xe3,
-	0x26, 0x47, 0x9c, 0x09, 0x23, 0x4f, 0x2d, 0xd9, 0x8c, 0x7b, 0x39, 0x57, 0x61, 0xb6, 0x83, 0xfa,
-	0xd8, 0xa4, 0x68, 0x83, 0xcf, 0x08, 0x62, 0x2d, 0x70, 0x56, 0x61, 0x5a, 0x2c, 0x65, 0x56, 0xca,
-	0xad, 0xe7, 0x36, 0x0a, 0x0d, 0xf5, 0xc3, 0xfd, 0xc5, 0x14, 0x5c, 0x3b, 0xbd, 0xc1, 0xa4, 0x7f,
-	0xdf, 0xb5, 0x61, 0xab, 0x8c, 0xca, 0x4d, 0x94, 0x51, 0x3f, 0x32, 0x56, 0xa9, 0x7c, 0x7a, 0xb3,
-	0xfc, 0x66, 0x63, 0xca, 0xea, 0x97, 0x92, 0x71, 0x10, 0x38, 0xc8, 0xef, 0x12, 0x7c, 0x8c, 0xfb,
-	0xa2, 0x46, 0x6d, 0xf5, 0x22, 0xff, 0xc8, 0x24, 0xd7, 0xfb, 0x67, 0x69, 0xaa, 0x58, 0x92, 0x4f,
-	0xa5, 0x64, 0x63, 0xd9, 0xd2, 0xa6, 0x48, 0x6b, 0x1f, 0xc3, 0xb4, 0x1a, 0xfe, 0xab, 0xc2, 0x51,
-	0x11, 0x1f, 0x77, 0x37, 0x59, 0x22, 0xd5, 0x02, 0xe1, 0x90, 0x12, 0x1e, 0x45, 0xa7, 0xc4, 0x21,
-	0x05, 0xfd, 0xa5, 0x4c, 0x7c, 0x7f, 0x9e, 0x01, 0x67, 0xb2, 0x59, 0x91, 0x87, 0xec, 0x6e, 0x8c,
-	0xb5, 0x50, 0xb0, 0xb0, 0x5a, 0xe0, 0xdc, 0x1f, 0xeb, 0x33, 0x19, 0xd5, 0x64, 0xc9, 0x5a, 0xb7,
-	0x7a, 0x41, 0x84, 0xcc, 0x4d, 0xc8, 0x0f, 0x42, 0xd1, 0x96, 0x4c, 0xf3, 0x72, 0x16, 0x66, 0x4d,
-	0x0c, 0x54, 0x80, 0xc8, 0xf0, 0xee, 0xcf, 0x60, 0x55, 0x8c, 0xd9, 0x6e, 0x75, 0x17, 0xf3, 0x6a,
-	0xd4, 0xef, 0xa3, 0x30, 0xd8, 0x23, 0x8c, 0x8b, 0x5a, 0x4d, 0xa7, 0x95, 0xcc, 0xd8, 0x7a, 0xaf,
-	0x05, 0xc2, 0x78, 0x5f, 0xf1, 0x7a, 0x31, 0xc5, 0x6d, 0xf2, 0x2a, 0x9d, 0x44, 0x35, 0x76, 0x20,
-	0x21, 0xb7, 0x02, 0x57, 0x4e, 0x6b, 0x21, 0x71, 0xb5, 0x1b, 0xb0, 0x60, 0x94, 0xe9, 0x04, 0x90,
-	0xdb, 0x98, 0x6f, 0xe4, 0x35, 0x4d, 0x24, 0x58, 0x77, 0x03, 0x9c, 0xea, 0xae, 0x50, 0x52, 0xc7,
-	0xfd, 0x2a, 0xf2, 0xbb, 0x38, 0xd8, 0xc5, 0xdc, 0x71, 0x60, 0xea, 0x08, 0x0f, 0x99, 0x16, 0x90,
-	0xdf, 0xee, 0xaf, 0x32, 0xb0, 0x36, 0xc9, 0x9a, 0xb4, 0xf5, 0x63, 0x98, 0x91, 0x93, 0xc5, 0xf4,
-	0xaa, 0xfd, 0x5e, 0xf9, 0xf5, 0xcc, 0x65, 0x39, 0x7f, 0x87, 0xa8, 0xd3, 0xd0, 0x32, 0x6b, 0x4f,
-	0x61, 0xce, 0xd0, 0x44, 0x38, 0x6c, 0x47, 0x83, 0x50, 0x0d, 0x8f, 0x89, 0xa3, 0x8a, 0xf4, 0xc6,
-	0x1a, 0xe6, 0xe7, 0x99, 0x89, 0xbe, 0x34, 0x31, 0x77, 0xee, 0x5a, 0x7d, 0x91, 0x75, 0xde, 0x04,
-	0x4b, 0xf9, 0x63, 0x3c, 0x3c, 0x40, 0x84, 0xaa, 0x8e, 0xae, 0xfd, 0x0e, 0xcc, 0x6a, 0xc2, 0xb7,
-	0x2c, 0xa6, 0x6e, 0xc3, 0xf9, 0xb1, 0x46, 0xb6, 0x70, 0x0f, 0x73, 0x7c, 0xea, 0xb0, 0x5e, 0x80,
-	0xd5, 0x71, 0x8b, 0x64, 0x24, 0xf9, 0xcb, 0x29, 0xb8, 0x72, 0x1a, 0x90, 0x0c, 0xf8, 0x5d, 0x28,
-	0xfa, 0x03, 0x4a, 0x3d, 0x3f, 0x0a, 0x43, 0xec, 0x8b, 0x24, 0xa4, 0x36, 0x1b, 0x53, 0xc9, 0x5e,
-	0x72, 0x40, 0x69, 0x75, 0x04, 0x8a, 0x25, 0xe7, 0xf7, 0x03, 0x4f, 0xec, 0xf0, 0xb2, 0x16, 0xdf,
-	0x8c, 0xdf, 0x97, 0x73, 0xae, 0x61, 0x86, 0x55, 0x5c, 0xb1, 0x61, 0x31, 0x8c, 0x37, 0x60, 0x5e,
-	0xc0, 0xed, 0xde, 0x80, 0x75, 0x65, 0x86, 0x9b, 0x4a, 0x32, 0x5c, 0x3f, 0xd8, 0x11, 0x54, 0x11,
-	0xd9, 0x44, 0x51, 0xde, 0x25, 0x9c, 0xc9, 0x2c, 0x67, 0x38, 0x66, 0x3b, 0x98, 0x3f, 0x23, 0x9c,
-	0x89, 0x55, 0x2d, 0x18, 0xfa, 0x84, 0x31, 0xcc, 0x64, 0xb6, 0x33, 0x2c, 0xa2, 0x3c, 0xaf, 0x4b,
-	0xb2, 0x58, 0x5d, 0x81, 0x1c, 0x2e, 0xa5, 0x68, 0xd6, 0xe2, 0x02, 0x05, 0x48, 0x5d, 0xef, 0x42,
-	0x41, 0xb3, 0x69, 0x75, 0x73, 0x16, 0xe3, 0x82, 0x82, 0xb4, 0xc6, 0x77, 0x00, 0x5a, 0x43, 0x8e,
-	0x99, 0x47, 0x31, 0x0a, 0x4a, 0xf3, 0x76, 0xb3, 0x92, 0xde, 0xc0, 0x28, 0x10, 0xfa, 0x14, 0xd3,
-	0x09, 0x25, 0x9c, 0xe3, 0x50, 0xee, 0x9f, 0x13, 0x7d, 0x12, 0xfa, 0x54, 0x21, 0x62, 0x8d, 0xf6,
-	0x48, 0x9f, 0x70, 0xaf, 0x8f, 0x5e, 0x49, 0x40, 0xee, 0x98, 0x0d, 0x6f, 0x41, 0x62, 0x75, 0x0d,
-	0x89, 0xc6, 0xe5, 0x34, 0x11, 0x8e, 0xfb, 0x4c, 0x6e, 0x8f, 0x93, 0xc6, 0x05, 0xbd, 0x26, 0xc8,
-	0x8e, 0x0b, 0xf3, 0xf8, 0x98, 0xe8, 0x49, 0x2c, 0xd8, 0x3c, 0x09, 0x59, 0x78, 0x9c, 0x6a, 0x6c,
-	0xd1, 0xc2, 0x15, 0xc9, 0xfd, 0x09, 0x2c, 0x2a, 0x5f, 0x69, 0x7e, 0xb2, 0xa7, 0xe2, 0xeb, 0x6d,
-	0x58, 0x64, 0x7e, 0x17, 0xf7, 0x91, 0xe7, 0x23, 0x8e, 0x7a, 0x51, 0x27, 0x1d, 0x04, 0x15, 0x56,
-	0x55, 0x90, 0xfb, 0xbf, 0x39, 0xb8, 0x90, 0x96, 0x4f, 0xbc, 0xec, 0x1a, 0xcc, 0xf2, 0xae, 0x18,
-	0x37, 0x96, 0x52, 0x60, 0x88, 0xa2, 0x54, 0xd2, 0x9f, 0xc6, 0x11, 0xc7, 0x2a, 0x83, 0xa2, 0x86,
-	0xab, 0x06, 0x15, 0xa6, 0x19, 0x11, 0xe4, 0x73, 0x72, 0x8c, 0x53, 0x45, 0x42, 0x41, 0x63, 0x15,
-	0x09, 0x39, 0x8f, 0x61, 0x35, 0x8a, 0x31, 0x95, 0x45, 0x16, 0xf3, 0xd8, 0xa0, 0xd5, 0x17, 0x73,
-	0x90, 0xde, 0xe6, 0xae, 0x8c, 0x38, 0x9a, 0x86, 0xc1, 0xd9, 0x81, 0x2b, 0x31, 0xc5, 0x31, 0xa2,
-	0x38, 0xf0, 0x44, 0xca, 0x90, 0xf1, 0x9b, 0x79, 0xf8, 0x15, 0xf6, 0x07, 0x42, 0x81, 0x5d, 0x86,
-	0xad, 0x19, 0xce, 0x66, 0xc2, 0xb8, 0xad, 0xf9, 0x9c, 0x3a, 0xac, 0x87, 0x51, 0xe8, 0xbd, 0x51,
-	0x97, 0x5d, 0xb7, 0x5d, 0x0d, 0xa3, 0xf0, 0xe0, 0xf5, 0xea, 0xee, 0x42, 0x31, 0xc0, 0x28, 0x90,
-	0xd9, 0x83, 0x62, 0x4e, 0x09, 0x66, 0xa9, 0xdd, 0xc5, 0x92, 0x41, 0x1b, 0x0a, 0x74, 0x76, 0xe0,
-	0xaa, 0x35, 0x00, 0x22, 0xe1, 0x04, 0x5e, 0x34, 0xe0, 0x1e, 0x09, 0xbd, 0xcf, 0x07, 0x78, 0x80,
-	0x53, 0x5b, 0xcc, 0x4b, 0x23, 0x56, 0x91, 0x82, 0x82, 0xe7, 0x03, 0x5e, 0x0b, 0x3f, 0x11, 0x6c,
-	0xa2, 0x4e, 0x92, 0xa7, 0x28, 0x4c, 0x2e, 0x80, 0x24, 0xdf, 0x2a, 0x9a, 0xfb, 0x37, 0x19, 0x95,
-	0xac, 0x2a, 0xf5, 0x4a, 0x10, 0xec, 0x50, 0x9c, 0x54, 0x86, 0x67, 0x14, 0x94, 0x22, 0x2c, 0x90,
-	0xd8, 0x93, 0xe7, 0x11, 0x7e, 0x6a, 0xde, 0xe7, 0x48, 0x7c, 0x20, 0xa9, 0xc2, 0xb9, 0x75, 0x11,
-	0x39, 0x56, 0x0f, 0x8e, 0xc8, 0x22, 0x0d, 0x33, 0x1e, 0x51, 0xec, 0xc9, 0xf2, 0x9f, 0x0e, 0xd5,
-	0xc6, 0x69, 0xca, 0x0a, 0xbb, 0x45, 0x89, 0x57, 0x15, 0x2c, 0xb6, 0x4f, 0xee, 0x2f, 0x33, 0x2a,
-	0xfd, 0x8d, 0xdb, 0x9c, 0xf8, 0xae, 0x55, 0x29, 0x65, 0x26, 0x2a, 0xa5, 0x4d, 0xb8, 0x10, 0x0f,
-	0xa8, 0xdf, 0x45, 0x0c, 0x7b, 0x8a, 0xe4, 0x05, 0x98, 0x23, 0xd2, 0x4b, 0x1d, 0xc8, 0xad, 0x1a,
-	0x9e, 0x86, 0x64, 0xd9, 0x92, 0x1c, 0x72, 0x51, 0x50, 0x14, 0x32, 0xdd, 0x9f, 0x64, 0x50, 0x34,
-	0xd1, 0xbd, 0x05, 0x2b, 0x6a, 0x39, 0xed, 0x62, 0x5e, 0x3b, 0xd8, 0x8b, 0x7c, 0xb5, 0x47, 0x28,
-	0x42, 0x8e, 0xc4, 0x2a, 0xfa, 0xcf, 0x36, 0xc4, 0xa7, 0xfb, 0x9b, 0x0c, 0x2c, 0x55, 0x47, 0x1c,
-	0xb5, 0xb0, 0x1d, 0x39, 0xab, 0x90, 0x25, 0x71, 0x6a, 0xb1, 0x65, 0x49, 0x2c, 0xf6, 0x17, 0x3d,
-	0xc4, 0x09, 0x1f, 0x04, 0x2a, 0xe5, 0x64, 0xcd, 0x30, 0x1b, 0xaa, 0x18, 0xe6, 0x5e, 0x14, 0x76,
-	0x14, 0x4b, 0xce, 0x62, 0x19, 0x91, 0x85, 0xe1, 0x7a, 0x80, 0x53, 0x63, 0x6b, 0x88, 0x22, 0xc6,
-	0x48, 0xff, 0x4e, 0x1d, 0x14, 0x29, 0x92, 0xc8, 0x85, 0x3e, 0xe1, 0x43, 0xe9, 0xec, 0x49, 0x2e,
-	0x14, 0x14, 0x77, 0x1b, 0x2e, 0x9f, 0xd2, 0xdd, 0x64, 0x1a, 0xbe, 0x0f, 0xd3, 0x24, 0x6c, 0x47,
-	0x26, 0x03, 0x17, 0xcb, 0x63, 0x3d, 0x6e, 0x28, 0xd8, 0xfd, 0x29, 0x5c, 0xd4, 0x41, 0x68, 0xc8,
-	0x38, 0xee, 0xcb, 0x38, 0xd4, 0x94, 0x71, 0xca, 0x59, 0x87, 0xf9, 0x8e, 0xef, 0x9d, 0x52, 0x35,
-	0xcd, 0x76, 0x7c, 0x75, 0xfc, 0x79, 0x03, 0xe6, 0x75, 0xbc, 0x3b, 0x3a, 0x4e, 0xe5, 0xe4, 0x39,
-	0x45, 0xfe, 0xf8, 0x78, 0x94, 0x69, 0x77, 0x31, 0xb7, 0x9a, 0x70, 0x7f, 0x93, 0x64, 0xda, 0x34,
-	0x90, 0x74, 0xe0, 0xec, 0xd6, 0x65, 0x4d, 0x8f, 0x38, 0x1b, 0x6f, 0x5c, 0xd6, 0xb8, 0xec, 0xe3,
-	0x63, 0x91, 0xd4, 0x54, 0xac, 0xf3, 0x3e, 0x8b, 0x5a, 0x2c, 0xb5, 0x0a, 0x40, 0x01, 0x1f, 0x45,
-	0x2d, 0x99, 0xd4, 0x86, 0x04, 0xf7, 0x02, 0x12, 0x76, 0x14, 0xa3, 0x1d, 0xe6, 0x16, 0x0c, 0x64,
-	0x58, 0x07, 0x0c, 0x53, 0x73, 0x92, 0xcc, 0x52, 0x01, 0x6d, 0x41, 0x40, 0xfa, 0x14, 0x99, 0x39,
-	0x8f, 0x60, 0x55, 0x6e, 0x28, 0x18, 0xa6, 0xc7, 0xb6, 0x84, 0x1d, 0xb6, 0x1c, 0xc1, 0xd1, 0x94,
-	0x0c, 0x89, 0xdc, 0x3a, 0xcc, 0xb1, 0xc8, 0x17, 0xa5, 0x47, 0x3a, 0x46, 0x25, 0x54, 0xb9, 0x6c,
-	0xf5, 0xb7, 0xc7, 0x23, 0x4f, 0x14, 0xbf, 0x28, 0x48, 0x45, 0xa4, 0xa2, 0xc1, 0x0f, 0xa3, 0x17,
-	0x12, 0x15, 0x11, 0x30, 0x91, 0x11, 0x04, 0x12, 0x76, 0x52, 0x21, 0x69, 0xc9, 0xa0, 0x7b, 0x0a,
-	0x74, 0x7e, 0x00, 0x4b, 0x22, 0x27, 0xe3, 0x16, 0xf2, 0x8f, 0x74, 0xcc, 0x03, 0x8b, 0x7f, 0x31,
-	0x01, 0x55, 0xa0, 0x7b, 0x17, 0x0a, 0x3a, 0x38, 0x79, 0x6a, 0x03, 0x93, 0xb7, 0x07, 0x46, 0x43,
-	0x7b, 0x72, 0xa7, 0x70, 0x13, 0xf2, 0xbd, 0xa8, 0x13, 0x99, 0x48, 0xba, 0x60, 0xcf, 0x8a, 0x04,
-	0x94, 0xc6, 0x77, 0x40, 0xfd, 0x52, 0x53, 0x52, 0xb0, 0x23, 0x98, 0xa4, 0x8b, 0xf9, 0x70, 0x7f,
-	0xae, 0x8f, 0x51, 0x2b, 0xf5, 0x26, 0x0e, 0x83, 0xed, 0xbe, 0x8e, 0x13, 0x6f, 0x0c, 0x9e, 0xef,
-	0xc1, 0x22, 0x16, 0x8c, 0xf2, 0x30, 0x7b, 0xe2, 0x40, 0x62, 0x41, 0x62, 0x75, 0xd6, 0x91, 0x67,
-	0x12, 0xb7, 0x40, 0xfd, 0xf6, 0xda, 0x11, 0xed, 0x23, 0x9e, 0xbe, 0x08, 0x90, 0xc8, 0x8e, 0x04,
-	0x9c, 0x3f, 0x80, 0x95, 0x18, 0x53, 0x16, 0x85, 0x48, 0x16, 0xfd, 0x1e, 0x8f, 0x8e, 0x70, 0x68,
-	0xb6, 0x71, 0x77, 0xca, 0x63, 0x36, 0x96, 0x0f, 0x14, 0xaf, 0xd8, 0x0c, 0x34, 0x70, 0xdc, 0x43,
-	0xbe, 0x4c, 0x58, 0x87, 0x42, 0xa8, 0xb1, 0x1c, 0x8f, 0x40, 0x49, 0x61, 0x72, 0x9d, 0xa9, 0x0b,
-	0x89, 0x8e, 0x9f, 0x72, 0xa0, 0x39, 0x45, 0xde, 0xf5, 0x9d, 0x1f, 0xc2, 0x8c, 0x6e, 0x73, 0x56,
-	0xb6, 0x79, 0x63, 0xa2, 0xcd, 0x89, 0x86, 0xb4, 0xc0, 0xda, 0x4f, 0xa1, 0x38, 0x8e, 0x89, 0xd1,
-	0x97, 0xe8, 0xe4, 0xf9, 0xe3, 0xbc, 0xa4, 0x9b, 0xe3, 0x44, 0xc5, 0x34, 0x79, 0x9c, 0xa5, 0xa4,
-	0xd5, 0x8e, 0xb1, 0x05, 0x97, 0xdf, 0xd0, 0xdf, 0x33, 0xe7, 0x2b, 0x6d, 0x4a, 0xf6, 0x54, 0x53,
-	0xdc, 0x47, 0x70, 0x71, 0xac, 0xbf, 0xaf, 0x4b, 0x48, 0x05, 0x3b, 0x21, 0xb9, 0x7f, 0x9d, 0x51,
-	0x67, 0x15, 0x72, 0x37, 0x27, 0xe5, 0x0e, 0x71, 0x3f, 0xee, 0x89, 0xd0, 0xfb, 0xc6, 0x1d, 0xe3,
-	0xff, 0xc7, 0x89, 0xde, 0x01, 0x50, 0xbc, 0x3d, 0x14, 0x76, 0xd4, 0xf1, 0x41, 0x52, 0x68, 0x0a,
-	0xfa, 0x1e, 0x0a, 0x3b, 0x13, 0x9e, 0x36, 0x65, 0xb1, 0xd9, 0x9e, 0xe6, 0xfe, 0x49, 0x46, 0x1d,
-	0x76, 0x4c, 0x5a, 0xfc, 0x56, 0x3d, 0x16, 0x0b, 0x9b, 0x6b, 0x01, 0x0f, 0xbf, 0x22, 0x8c, 0x33,
-	0x69, 0xba, 0xd9, 0xf2, 0x2d, 0x1a, 0x70, 0x5b, 0x62, 0x22, 0x1c, 0x19, 0x4a, 0xea, 0xbc, 0x38,
-	0xa1, 0xba, 0xff, 0x9e, 0x31, 0x63, 0xbf, 0x4b, 0x51, 0xc8, 0x77, 0x07, 0x98, 0xf1, 0x03, 0x24,
-	0xf6, 0x00, 0xf7, 0xcf, 0x3e, 0x76, 0x49, 0x9f, 0x81, 0x65, 0x4f, 0x3f, 0x03, 0xbb, 0x03, 0x4b,
-	0xb1, 0x54, 0x28, 0xc2, 0x5d, 0x47, 0x34, 0x92, 0x1a, 0xc5, 0x82, 0x02, 0x0f, 0x23, 0xd9, 0xbe,
-	0x08, 0x8f, 0x01, 0x1a, 0x4a, 0x5e, 0xfc, 0x2a, 0x26, 0xaa, 0x32, 0x4b, 0x8d, 0x67, 0x51, 0xe0,
-	0x87, 0xd1, 0x76, 0x82, 0x8a, 0x3a, 0x0d, 0xc9, 0x8a, 0x5f, 0x06, 0x74, 0xc3, 0xa7, 0x69, 0x6e,
-	0x17, 0xae, 0xbf, 0xa6, 0x83, 0x6f, 0x57, 0xf5, 0x6c, 0xc0, 0xa2, 0xb6, 0x5f, 0x1a, 0xaf, 0x6b,
-	0xf5, 0xe9, 0xcd, 0xcc, 0x3d, 0x63, 0xfb, 0xae, 0xa2, 0xbb, 0x5d, 0xb8, 0x56, 0xdd, 0xad, 0xaa,
-	0x74, 0x58, 0x67, 0x1d, 0x6f, 0x17, 0x73, 0x7d, 0x38, 0xab, 0x8a, 0xa0, 0x33, 0xcf, 0x1a, 0x47,
-	0xc7, 0x9a, 0xd9, 0x89, 0x63, 0x4d, 0x75, 0x7b, 0x96, 0xf9, 0xf2, 0xab, 0xab, 0x5f, 0x4c, 0xb9,
-	0xbf, 0x5c, 0x80, 0x5b, 0x6f, 0x6e, 0xca, 0x4b, 0x3a, 0x77, 0x0f, 0x1c, 0x9c, 0x54, 0x6b, 0x31,
-	0xc5, 0xbe, 0x3c, 0x89, 0x4c, 0x5c, 0x6b, 0x59, 0x83, 0x5b, 0x09, 0x26, 0xbc, 0xd9, 0x5c, 0xb6,
-	0x4d, 0xac, 0xda, 0xbc, 0x46, 0x64, 0x08, 0xb9, 0x05, 0x0b, 0x76, 0xdc, 0x4c, 0xb9, 0x58, 0xde,
-	0x0a, 0x84, 0xce, 0x3d, 0x58, 0x26, 0xcc, 0x8b, 0x69, 0xd4, 0x26, 0x3d, 0x6c, 0x4a, 0x5f, 0xfb,
-	0xcc, 0x77, 0x89, 0xb0, 0x03, 0x85, 0xea, 0x0a, 0xf8, 0x01, 0xac, 0x10, 0xe6, 0x91, 0xf0, 0x18,
-	0x87, 0x3c, 0xa2, 0x43, 0x23, 0x33, 0x6d, 0xc9, 0x2c, 0x13, 0x56, 0x33, 0xb8, 0x96, 0xda, 0x80,
-	0x02, 0x61, 0xde, 0x31, 0xf2, 0xbd, 0x16, 0x0a, 0x43, 0xac, 0x6e, 0x21, 0x0c, 0x7f, 0x9e, 0xb0,
-	0x97, 0xc8, 0x7f, 0x2a, 0x01, 0xcd, 0xe9, 0x0f, 0x5b, 0x98, 0x7a, 0x3e, 0x6a, 0xab, 0x3d, 0x81,
-	0xc5, 0x59, 0x15, 0x48, 0x15, 0xb5, 0x8d, 0xed, 0xcc, 0xef, 0x46, 0x51, 0xcf, 0xd3, 0xbd, 0x97,
-	0xd9, 0xd7, 0xb2, 0xbd, 0x29, 0x51, 0x3d, 0x03, 0x62, 0x59, 0x10, 0xe6, 0xc9, 0x3d, 0x2d, 0x0e,
-	0x64, 0xe2, 0x35, 0xac, 0xf3, 0x84, 0xed, 0x29, 0xb2, 0xc8, 0xb9, 0x44, 0xee, 0xce, 0x98, 0x4f,
-	0x49, 0x0b, 0x07, 0x32, 0xe7, 0x1a, 0xbe, 0x05, 0x22, 0xb6, 0x65, 0x1a, 0x11, 0x5e, 0xa3, 0x97,
-	0x53, 0x2a, 0xdf, 0x1a, 0xa2, 0xf3, 0x18, 0xce, 0x13, 0xe6, 0xb5, 0x29, 0xc6, 0x1e, 0xa7, 0x04,
-	0x8d, 0xac, 0x2c, 0x58, 0x2a, 0x1d, 0xc2, 0x44, 0xc1, 0x7f, 0x28, 0x18, 0x8c, 0xa1, 0x4f, 0xe0,
-	0xbc, 0x25, 0x65, 0xad, 0xb7, 0x45, 0x7b, 0xab, 0xd8, 0x36, 0x62, 0xd6, 0x92, 0xbb, 0x03, 0x4b,
-	0xa2, 0x8b, 0xd1, 0x89, 0x77, 0x4c, 0xa2, 0x1e, 0x0e, 0x7d, 0x5c, 0x5a, 0xb2, 0x1a, 0x2b, 0x10,
-	0xb6, 0x17, 0x9d, 0xbc, 0xd4, 0x90, 0xf3, 0x43, 0xb8, 0x40, 0x98, 0xb1, 0x4a, 0x96, 0x18, 0x38,
-	0xf0, 0x82, 0xe8, 0x24, 0x2c, 0x15, 0x2d, 0xa1, 0x15, 0xc2, 0xb4, 0x61, 0x7b, 0x92, 0x63, 0x2b,
-	0x3a, 0x09, 0xb5, 0x1f, 0xf8, 0x51, 0xbf, 0x3f, 0x08, 0x09, 0x1f, 0x9a, 0x79, 0x5d, 0x4e, 0xfb,
-	0x41, 0xd5, 0xe0, 0x7a, 0x76, 0x95, 0x79, 0x9c, 0xa2, 0x00, 0x1b, 0x09, 0x27, 0x6d, 0xde, 0xa1,
-	0xc0, 0x34, 0xf7, 0x23, 0x58, 0x4d, 0x58, 0xed, 0x51, 0x58, 0xb1, 0x8b, 0x3d, 0xae, 0x05, 0xac,
-	0x41, 0x70, 0xc1, 0xdc, 0x3f, 0x93, 0xa0, 0xb4, 0x9a, 0xba, 0x17, 0x31, 0x64, 0x61, 0x3f, 0x1b,
-	0xb0, 0x18, 0x87, 0xf2, 0xed, 0x02, 0x0e, 0x03, 0x75, 0x00, 0x7a, 0xde, 0xe2, 0x5e, 0x1e, 0x31,
-	0x6c, 0x87, 0x81, 0xd8, 0x84, 0xca, 0xab, 0x91, 0x01, 0xa5, 0x38, 0xf4, 0x87, 0xa5, 0x0b, 0x76,
-	0xdc, 0x36, 0x54, 0x75, 0x5f, 0x26, 0x62, 0x73, 0x0f, 0x1f, 0xe3, 0x5e, 0xe9, 0x62, 0xfa, 0xbe,
-	0x0c, 0xa3, 0xfe, 0x9e, 0xa0, 0x8b, 0x15, 0xda, 0xa6, 0x44, 0x34, 0xab, 0x3c, 0xa2, 0x64, 0x97,
-	0x40, 0x0a, 0xa9, 0x1a, 0x57, 0x30, 0xf3, 0x23, 0x2f, 0x2b, 0x84, 0xb5, 0xd2, 0xd2, 0x4b, 0xb6,
-	0x2b, 0x68, 0x96, 0xaa, 0xe6, 0x90, 0xb6, 0x3e, 0x91, 0xde, 0x27, 0xdb, 0xec, 0x0c, 0x10, 0x0d,
-	0x3c, 0x1c, 0xa2, 0x56, 0x0f, 0x07, 0xa5, 0xcb, 0xe9, 0xb9, 0x6d, 0x26, 0x1c, 0xdb, 0x8a, 0xc1,
-	0x44, 0x85, 0x6e, 0x14, 0x62, 0xef, 0x18, 0x53, 0xf9, 0xc8, 0xa0, 0x74, 0x65, 0x2c, 0x2a, 0x08,
-	0xf4, 0xa5, 0x06, 0x9d, 0x0f, 0x61, 0x4d, 0xcc, 0xeb, 0x49, 0xe4, 0xb5, 0x91, 0xcf, 0x23, 0xea,
-	0xa1, 0x01, 0xef, 0x26, 0x0d, 0x5e, 0xb5, 0x44, 0x2f, 0x10, 0x76, 0x78, 0x12, 0xed, 0x48, 0xae,
-	0xca, 0x80, 0x77, 0x4d, 0x9b, 0x3f, 0x82, 0x8b, 0x96, 0xb8, 0x96, 0x54, 0x3d, 0xbd, 0x66, 0xf5,
-	0x74, 0x95, 0x1b, 0x61, 0x2d, 0x28, 0xbb, 0xfa, 0x63, 0xb8, 0x68, 0x5b, 0xeb, 0x5b, 0xc3, 0x74,
-	0xdd, 0x12, 0x3e, 0x1f, 0x8f, 0x8c, 0xf6, 0x47, 0x03, 0x75, 0x1d, 0xe6, 0x94, 0x34, 0x09, 0x4a,
-	0x37, 0xec, 0xb3, 0x3e, 0x49, 0xad, 0x49, 0x3f, 0x4c, 0xc6, 0x83, 0x04, 0x38, 0xe4, 0xa4, 0x3d,
-	0x14, 0xa5, 0xbe, 0x9b, 0x5e, 0xc6, 0x07, 0x8a, 0x3d, 0xc1, 0x53, 0x99, 0xe1, 0x03, 0x38, 0x9f,
-	0xd4, 0x17, 0x56, 0xdd, 0xc6, 0x9c, 0x35, 0x9d, 0xcc, 0x49, 0xc0, 0xf4, 0xad, 0x60, 0xf2, 0xdb,
-	0xfd, 0x32, 0x6b, 0x55, 0x25, 0xb6, 0xd4, 0x28, 0x8b, 0xfc, 0x2e, 0x2c, 0xb3, 0x81, 0xef, 0x63,
-	0x1c, 0x60, 0xb1, 0x49, 0x88, 0x8e, 0x06, 0xb1, 0xd9, 0x9d, 0xde, 0x2e, 0xbf, 0x59, 0x36, 0x55,
-	0x2f, 0x17, 0x13, 0x2d, 0x7b, 0x4a, 0x89, 0xf3, 0x00, 0x2e, 0xb4, 0x11, 0xe9, 0x25, 0x6a, 0xbd,
-	0xc4, 0xcc, 0xac, 0x34, 0x73, 0x55, 0xa1, 0x8a, 0xbd, 0xa9, 0xb1, 0xb5, 0x97, 0x90, 0xb7, 0xd4,
-	0x9e, 0x99, 0x58, 0xc7, 0x33, 0x55, 0xf6, 0x35, 0x99, 0xca, 0x3d, 0x32, 0xe3, 0x57, 0xed, 0x62,
-	0xff, 0x68, 0x47, 0xae, 0x10, 0xd6, 0x25, 0xb1, 0xd0, 0x90, 0xec, 0x91, 0x70, 0x9b, 0xa7, 0x9a,
-	0xc9, 0x9b, 0x2d, 0x12, 0x6e, 0x73, 0x7b, 0x33, 0x45, 0x49, 0xa7, 0xcb, 0x53, 0x37, 0x52, 0x46,
-	0x47, 0x43, 0x20, 0xee, 0xe7, 0x66, 0xd8, 0xc7, 0x1a, 0xf3, 0xec, 0xb3, 0x44, 0x39, 0x60, 0x8c,
-	0xa5, 0x8e, 0xf6, 0x0d, 0x51, 0xec, 0x0c, 0xe5, 0x29, 0xbf, 0xd7, 0x4e, 0x84, 0x53, 0x05, 0xe1,
-	0x92, 0x44, 0x47, 0x9a, 0xdd, 0xbf, 0xca, 0xc2, 0x65, 0xd5, 0x66, 0x9d, 0x75, 0xea, 0x88, 0x71,
-	0xb1, 0x79, 0xe5, 0x5b, 0x84, 0x62, 0xe1, 0xec, 0x43, 0xa7, 0x0c, 0xc5, 0xbe, 0xa4, 0x8e, 0x5e,
-	0xf7, 0xa4, 0x2a, 0xe8, 0x45, 0x85, 0x9a, 0x97, 0x3d, 0xce, 0x03, 0xc8, 0x05, 0x84, 0xea, 0xcb,
-	0x78, 0xb7, 0xfc, 0x06, 0xd5, 0xe5, 0xe6, 0xa0, 0xb5, 0x5b, 0x6d, 0x08, 0xf6, 0xb5, 0xbf, 0xc8,
-	0xc0, 0xb4, 0xfc, 0x29, 0x36, 0x47, 0xa7, 0x37, 0x34, 0x17, 0x98, 0x26, 0xcc, 0x8d, 0x42, 0x76,
-	0xe2, 0x46, 0xe1, 0x02, 0xe4, 0x5a, 0xd1, 0xab, 0xf4, 0x23, 0x99, 0x56, 0xf4, 0x4a, 0xcc, 0x95,
-	0xb9, 0xc4, 0xe9, 0x91, 0x30, 0x7d, 0x28, 0x66, 0xae, 0x72, 0xf6, 0x48, 0x88, 0x45, 0xeb, 0x1d,
-	0xdf, 0x6b, 0x91, 0x10, 0xd1, 0x61, 0xea, 0x00, 0x67, 0xae, 0xe3, 0x3f, 0x95, 0x54, 0xb7, 0x0a,
-	0xdf, 0x7b, 0x43, 0xa7, 0xbc, 0xb7, 0xaa, 0x21, 0xdd, 0x3a, 0x6c, 0x24, 0x4a, 0xd4, 0x43, 0x8b,
-	0x8f, 0xa2, 0x96, 0x7e, 0x44, 0xb1, 0x13, 0xd1, 0x13, 0x44, 0x03, 0xeb, 0x06, 0xea, 0xac, 0x11,
-	0x71, 0x77, 0xe1, 0xe6, 0x78, 0xf5, 0x77, 0xa0, 0x0f, 0xdd, 0x0e, 0xe9, 0x80, 0x71, 0xcf, 0xbc,
-	0x46, 0x39, 0xeb, 0x6e, 0xfb, 0x57, 0x59, 0xf8, 0xfe, 0x59, 0x9a, 0xb4, 0x59, 0x15, 0x58, 0xeb,
-	0x22, 0x51, 0xc3, 0x91, 0x88, 0x7a, 0xc9, 0x31, 0x60, 0x97, 0x30, 0x31, 0x0c, 0x29, 0xe7, 0xbc,
-	0xd8, 0x45, 0xec, 0x40, 0xb0, 0x19, 0x4d, 0xcf, 0x14, 0x93, 0xb3, 0x03, 0x57, 0x85, 0x8a, 0x30,
-	0xf2, 0x28, 0xf6, 0x71, 0xc8, 0x3d, 0x51, 0x3e, 0x9f, 0x44, 0x34, 0xf0, 0x28, 0x66, 0x78, 0x6c,
-	0x2b, 0x73, 0xa9, 0x8b, 0xd8, 0x7e, 0xd4, 0x90, 0x8c, 0x07, 0x9a, 0xaf, 0x21, 0xd9, 0x74, 0x39,
-	0x71, 0x82, 0x7a, 0x3d, 0xcc, 0x3d, 0x1f, 0xb1, 0xae, 0xc7, 0x85, 0xad, 0x58, 0x1d, 0x2d, 0x5a,
-	0x29, 0xe7, 0x53, 0xc9, 0x52, 0x45, 0xac, 0x7b, 0xa8, 0x18, 0x84, 0x7b, 0xcb, 0x0b, 0x79, 0xd4,
-	0xeb, 0x25, 0x42, 0xf6, 0x81, 0xd1, 0xa2, 0x40, 0x2b, 0xbd, 0x9e, 0xe6, 0x77, 0xff, 0x2b, 0x03,
-	0x57, 0xd5, 0xcc, 0x3d, 0xd3, 0xb5, 0xc9, 0x4b, 0xe4, 0x37, 0xd5, 0x7b, 0x94, 0x2e, 0x0a, 0x3b,
-	0x6f, 0x71, 0x37, 0x3d, 0xda, 0x89, 0x66, 0x27, 0x77, 0xa2, 0x0f, 0x60, 0x85, 0x4a, 0x83, 0x8e,
-	0x91, 0x2f, 0xaa, 0x0f, 0xc6, 0x11, 0xe5, 0xe9, 0xc3, 0xae, 0x65, 0xc9, 0xf0, 0x52, 0xe2, 0x4d,
-	0x09, 0xeb, 0xe2, 0x55, 0x15, 0x36, 0x5e, 0x18, 0x9d, 0xa4, 0x4a, 0xe9, 0x3c, 0x61, 0xaa, 0xae,
-	0xd9, 0x8f, 0x4e, 0x44, 0x7f, 0x47, 0x9c, 0xed, 0x01, 0x1f, 0x50, 0x9c, 0xaa, 0xa1, 0x17, 0x0d,
-	0xf3, 0x8e, 0xc4, 0xdc, 0x9f, 0x98, 0xe8, 0xb0, 0x2b, 0xdf, 0x7e, 0xf1, 0x10, 0x53, 0x53, 0x93,
-	0x91, 0xf0, 0xe8, 0x4c, 0x7f, 0xfa, 0x99, 0x59, 0x2c, 0xa7, 0x8a, 0x8f, 0x9c, 0xa9, 0x04, 0x53,
-	0xf1, 0xc9, 0xd8, 0xde, 0x5c, 0x52, 0x44, 0x0b, 0x21, 0x7e, 0x15, 0x85, 0x63, 0xc3, 0x65, 0x88,
-	0xee, 0x1f, 0xe6, 0xd4, 0x1b, 0x8e, 0xdd, 0x6a, 0x43, 0xbd, 0x29, 0x92, 0x07, 0xc0, 0x97, 0xd3,
-	0x6b, 0x26, 0xb7, 0x51, 0xb0, 0xe2, 0xc7, 0x87, 0x30, 0xa3, 0x5f, 0xe4, 0x65, 0xe5, 0xbb, 0xc7,
-	0xf5, 0xf2, 0x84, 0x82, 0xb2, 0xfe, 0x56, 0xcf, 0xf3, 0x36, 0x67, 0x1a, 0x95, 0xfd, 0xad, 0xe7,
-	0xf5, 0x86, 0x96, 0x73, 0xb6, 0x61, 0xae, 0x8d, 0x7a, 0xbd, 0x16, 0xf2, 0x8f, 0xe4, 0xd4, 0xbc,
-	0x8d, 0x8e, 0xd9, 0xad, 0x5a, 0xb3, 0x5a, 0x69, 0x6c, 0x35, 0x12, 0x51, 0xe7, 0x36, 0x2c, 0x9a,
-	0xd7, 0xb2, 0x5e, 0x9b, 0xe0, 0x5e, 0xda, 0xf5, 0x0a, 0x06, 0xdb, 0x11, 0x90, 0x88, 0x61, 0x27,
-	0xb8, 0x85, 0x62, 0xa2, 0x1e, 0xdd, 0xa5, 0xa2, 0x53, 0x5e, 0x21, 0xf2, 0xf5, 0x9a, 0x1b, 0x43,
-	0x21, 0xd5, 0xb2, 0x03, 0xa0, 0xed, 0x2f, 0x9e, 0x73, 0xf2, 0x60, 0xec, 0x28, 0x66, 0x1c, 0x07,
-	0x16, 0xab, 0x7b, 0xb5, 0xed, 0xfd, 0x43, 0xaf, 0x79, 0xb8, 0x5d, 0xa9, 0xd7, 0xb6, 0x8a, 0x59,
-	0xe7, 0x12, 0x9c, 0x3f, 0x68, 0x3c, 0x3f, 0x7c, 0xfe, 0xf4, 0xc5, 0x8e, 0xb7, 0x53, 0xdb, 0xde,
-	0xdb, 0xf2, 0x5e, 0xd4, 0xf6, 0x0f, 0x1f, 0x3d, 0x28, 0xe6, 0x9c, 0x8b, 0xb0, 0xf2, 0xe9, 0xf6,
-	0xd3, 0xca, 0x41, 0xcd, 0x3b, 0xa8, 0x34, 0x2a, 0x75, 0x03, 0x4c, 0xb9, 0xff, 0x9d, 0x51, 0x5b,
-	0xea, 0x74, 0x4c, 0xd4, 0xef, 0xe0, 0x94, 0x29, 0xce, 0x87, 0x30, 0x8b, 0x43, 0x75, 0x57, 0xa3,
-	0xaa, 0x84, 0xef, 0x97, 0xcf, 0x10, 0x29, 0x6f, 0x87, 0x9c, 0x0e, 0x1b, 0x46, 0x6c, 0xed, 0x17,
-	0x19, 0x98, 0x96, 0xa4, 0x53, 0x5e, 0xc9, 0x65, 0xde, 0xfa, 0x95, 0x5c, 0xf6, 0x35, 0xaf, 0xe4,
-	0xee, 0xc0, 0xac, 0x7e, 0x94, 0x26, 0x67, 0x34, 0x7f, 0xdf, 0x99, 0x9c, 0xd1, 0x86, 0x61, 0x71,
-	0xff, 0x3e, 0x03, 0xee, 0xa4, 0xf9, 0x55, 0xf9, 0xf2, 0xb8, 0xce, 0x3a, 0xa6, 0xd3, 0xd5, 0xf1,
-	0x4e, 0xbf, 0x5b, 0x3e, 0x5b, 0x6a, 0xbc, 0xdf, 0x2f, 0x4d, 0xb7, 0xaf, 0xc3, 0x5c, 0x72, 0x3e,
-	0x95, 0x3a, 0x42, 0xef, 0xeb, 0xa3, 0x29, 0xab, 0x0f, 0xd9, 0xb3, 0xfb, 0xb0, 0x6b, 0xe5, 0xa0,
-	0xd3, 0x67, 0xe0, 0x2d, 0x93, 0xd9, 0x47, 0x70, 0xfb, 0xec, 0x5e, 0xbd, 0xa5, 0xae, 0x7f, 0xca,
-	0xc2, 0x4a, 0xa2, 0xac, 0x89, 0xf9, 0xf3, 0x58, 0xdd, 0xdc, 0x3e, 0x84, 0xd9, 0x28, 0x36, 0x17,
-	0xf4, 0xb9, 0x8d, 0x45, 0xfd, 0xd8, 0x74, 0x8c, 0xad, 0xac, 0xfe, 0x36, 0x0c, 0xaf, 0x53, 0x4f,
-	0x5e, 0x8b, 0x8b, 0x91, 0xa3, 0x22, 0x40, 0x9b, 0x87, 0x82, 0x37, 0x4e, 0x55, 0xa0, 0x1f, 0x48,
-	0x37, 0x04, 0xa7, 0x79, 0x4a, 0x2e, 0x3a, 0x21, 0x25, 0xd7, 0x3e, 0x84, 0x05, 0x9b, 0x41, 0xd4,
-	0x1b, 0xbd, 0xe8, 0xa4, 0x94, 0x59, 0xcf, 0x26, 0x93, 0x21, 0x08, 0x22, 0x9c, 0x75, 0x49, 0xa7,
-	0x5b, 0xca, 0x5a, 0x80, 0xa4, 0xb8, 0x21, 0xcc, 0xa8, 0xa6, 0x9c, 0x12, 0xac, 0xee, 0x3f, 0x3f,
-	0xac, 0xed, 0xfc, 0x9e, 0xf7, 0xa2, 0xb9, 0xdd, 0xf0, 0x9a, 0xdb, 0xcd, 0x66, 0xed, 0xf9, 0x7e,
-	0xb3, 0x78, 0xce, 0x59, 0x83, 0x0b, 0x1a, 0x69, 0x6e, 0x37, 0x5e, 0xda, 0x58, 0x46, 0xac, 0x41,
-	0x8d, 0x55, 0xaa, 0xcf, 0x6a, 0xdb, 0x2f, 0xb7, 0xeb, 0xdb, 0xfb, 0x87, 0xcd, 0x62, 0xd6, 0x39,
-	0x0f, 0xcb, 0x1a, 0x78, 0x59, 0xa9, 0x7a, 0x95, 0xea, 0x61, 0xed, 0xf9, 0x7e, 0x31, 0xe7, 0xfe,
-	0x5d, 0xce, 0xbc, 0xa0, 0x79, 0xf6, 0x22, 0x0e, 0x10, 0xc7, 0xfa, 0x66, 0xe2, 0x3b, 0xa6, 0xa9,
-	0x2b, 0x30, 0x13, 0x85, 0xb2, 0x94, 0xb2, 0x33, 0xac, 0xa6, 0x89, 0xdd, 0xb6, 0xb9, 0x27, 0x31,
-	0x4d, 0x4c, 0xd9, 0x2f, 0xfa, 0x15, 0x68, 0x5e, 0xf4, 0xcb, 0xe7, 0x90, 0x92, 0x1b, 0x05, 0x01,
-	0x4d, 0xdd, 0xc1, 0x80, 0x02, 0x2a, 0x41, 0x40, 0x2d, 0xb6, 0x38, 0xa2, 0x3c, 0x75, 0x6e, 0xae,
-	0xd9, 0x0e, 0x22, 0x2a, 0x9f, 0x60, 0x44, 0x4c, 0xad, 0x11, 0xfb, 0xbe, 0x65, 0x26, 0x62, 0x72,
-	0x89, 0xdc, 0x84, 0xbc, 0x76, 0x08, 0xd9, 0x98, 0x7d, 0xcd, 0x02, 0x0a, 0x90, 0x8d, 0x55, 0x61,
-	0x01, 0xbf, 0xe2, 0x14, 0xa9, 0xb0, 0xcc, 0x4a, 0xf3, 0xd6, 0xdb, 0xd2, 0xf1, 0xa1, 0x2c, 0x6f,
-	0x0b, 0x4e, 0x19, 0xa4, 0x1b, 0x79, 0x9c, 0x7c, 0xb3, 0xb5, 0xa7, 0x00, 0x23, 0xe8, 0x5b, 0xbe,
-	0x20, 0xfd, 0x87, 0xac, 0xca, 0xa0, 0xf2, 0x81, 0xa6, 0xde, 0x3c, 0x3e, 0x6f, 0x37, 0x07, 0x2c,
-	0x26, 0x3e, 0x89, 0x06, 0xea, 0x8a, 0x9f, 0xf0, 0xe1, 0x77, 0x39, 0x49, 0x74, 0x3e, 0x03, 0xa7,
-	0x3f, 0xe8, 0x71, 0x12, 0xf7, 0xb0, 0x47, 0x42, 0xc6, 0x51, 0xe8, 0x63, 0xa6, 0xc3, 0xe0, 0x8f,
-	0xca, 0x6f, 0xd3, 0x7c, 0xb9, 0xae, 0xe5, 0x77, 0x51, 0x1f, 0xd7, 0x8c, 0x8a, 0xc6, 0xb2, 0x51,
-	0x9b, 0x90, 0xd6, 0x28, 0x9c, 0x3f, 0x95, 0x57, 0xbe, 0x22, 0x13, 0xfe, 0xa6, 0x09, 0xfa, 0x7c,
-	0x22, 0xf5, 0x0f, 0x04, 0xc2, 0xf7, 0x34, 0xac, 0x0e, 0x29, 0x6e, 0xc2, 0x62, 0xc4, 0xbb, 0xc6,
-	0xcf, 0x46, 0x5b, 0xc4, 0x82, 0xa4, 0x9a, 0xbd, 0xe1, 0x7b, 0xbf, 0xce, 0x40, 0x71, 0xfc, 0x1f,
-	0x19, 0x9c, 0x75, 0x78, 0xe3, 0x3f, 0x37, 0x14, 0xcf, 0x39, 0xd7, 0xe1, 0xf2, 0x04, 0xc7, 0x0e,
-	0x8d, 0xfa, 0xaa, 0x3a, 0x2e, 0x66, 0x4e, 0x55, 0x21, 0x19, 0xa4, 0x67, 0x8b, 0x6c, 0x7a, 0x19,
-	0x2e, 0x9e, 0xca, 0xb1, 0x5b, 0x2d, 0xe6, 0x4e, 0x15, 0x6f, 0xe0, 0xb8, 0x37, 0xd4, 0x0d, 0x4c,
-	0x6d, 0x56, 0x61, 0xfe, 0x08, 0x0f, 0x95, 0x13, 0x3a, 0x57, 0xcb, 0xea, 0x3f, 0x6c, 0xca, 0xa6,
-	0x2e, 0x28, 0x4b, 0xc7, 0xd2, 0x91, 0xab, 0xf4, 0xdb, 0x7f, 0x91, 0x4b, 0x71, 0x73, 0xba, 0x8d,
-	0x7a, 0x0c, 0x37, 0xe6, 0x8e, 0xf0, 0x50, 0xe2, 0x9b, 0x4d, 0x70, 0xfa, 0xac, 0x13, 0x47, 0x51,
-	0xcf, 0x63, 0x51, 0x9b, 0xab, 0x73, 0x48, 0xe7, 0xfa, 0x84, 0x36, 0x1d, 0xd9, 0xd2, 0xfa, 0xa6,
-	0x37, 0xb3, 0x1f, 0xdc, 0x6f, 0x14, 0xb5, 0x82, 0x66, 0xd4, 0xe6, 0xf2, 0xbc, 0x72, 0xf3, 0x70,
-	0xa4, 0xb4, 0x8b, 0x68, 0xf0, 0xb6, 0x4a, 0xff, 0x43, 0x2b, 0xcd, 0x7d, 0xf0, 0xe4, 0x41, 0xa2,
-	0xf5, 0x19, 0xa2, 0x81, 0xd4, 0xfa, 0x74, 0xed, 0xeb, 0x6f, 0xae, 0x65, 0xfe, 0xf9, 0x9b, 0x6b,
-	0x99, 0xdf, 0x7e, 0x73, 0x2d, 0xf3, 0xa7, 0xff, 0x79, 0xed, 0xdc, 0xb3, 0xcc, 0xef, 0xe7, 0xfa,
-	0xac, 0xf3, 0x45, 0xe6, 0xdc, 0xff, 0x05, 0x00, 0x00, 0xff, 0xff, 0xa4, 0x2f, 0xea, 0x83, 0x75,
-	0x34, 0x00, 0x00,
-}

@@ -3,16 +3,26 @@
 
 package msg
 
-import proto "github.com/gogo/protobuf/proto"
-import fmt "fmt"
-import math "math"
-
-import io "io"
+import (
+	encoding_binary "encoding/binary"
+	fmt "fmt"
+	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type ECstrike15UserMessages int32
 
@@ -80,6 +90,13 @@ const (
 	ECstrike15UserMessages_CS_UM_XpUpdate                     ECstrike15UserMessages = 65
 	ECstrike15UserMessages_CS_UM_QuestProgress                ECstrike15UserMessages = 66
 	ECstrike15UserMessages_CS_UM_ScoreLeaderboardData         ECstrike15UserMessages = 67
+	ECstrike15UserMessages_CS_UM_PlayerDecalDigitalSignature  ECstrike15UserMessages = 68
+	ECstrike15UserMessages_CS_UM_WeaponSound                  ECstrike15UserMessages = 69
+	ECstrike15UserMessages_CS_UM_UpdateScreenHealthBar        ECstrike15UserMessages = 70
+	ECstrike15UserMessages_CS_UM_EntityOutlineHighlight       ECstrike15UserMessages = 71
+	ECstrike15UserMessages_CS_UM_SSUI                         ECstrike15UserMessages = 72
+	ECstrike15UserMessages_CS_UM_SurvivalStats                ECstrike15UserMessages = 73
+	ECstrike15UserMessages_CS_UM_DisconnectToLobby2           ECstrike15UserMessages = 74
 )
 
 var ECstrike15UserMessages_name = map[int32]string{
@@ -146,7 +163,15 @@ var ECstrike15UserMessages_name = map[int32]string{
 	65: "CS_UM_XpUpdate",
 	66: "CS_UM_QuestProgress",
 	67: "CS_UM_ScoreLeaderboardData",
+	68: "CS_UM_PlayerDecalDigitalSignature",
+	69: "CS_UM_WeaponSound",
+	70: "CS_UM_UpdateScreenHealthBar",
+	71: "CS_UM_EntityOutlineHighlight",
+	72: "CS_UM_SSUI",
+	73: "CS_UM_SurvivalStats",
+	74: "CS_UM_DisconnectToLobby2",
 }
+
 var ECstrike15UserMessages_value = map[string]int32{
 	"CS_UM_VGUIMenu":                     1,
 	"CS_UM_Geiger":                       2,
@@ -211,6 +236,13 @@ var ECstrike15UserMessages_value = map[string]int32{
 	"CS_UM_XpUpdate":                     65,
 	"CS_UM_QuestProgress":                66,
 	"CS_UM_ScoreLeaderboardData":         67,
+	"CS_UM_PlayerDecalDigitalSignature":  68,
+	"CS_UM_WeaponSound":                  69,
+	"CS_UM_UpdateScreenHealthBar":        70,
+	"CS_UM_EntityOutlineHighlight":       71,
+	"CS_UM_SSUI":                         72,
+	"CS_UM_SurvivalStats":                73,
+	"CS_UM_DisconnectToLobby2":           74,
 }
 
 func (x ECstrike15UserMessages) Enum() *ECstrike15UserMessages {
@@ -218,9 +250,11 @@ func (x ECstrike15UserMessages) Enum() *ECstrike15UserMessages {
 	*p = x
 	return p
 }
+
 func (x ECstrike15UserMessages) String() string {
 	return proto.EnumName(ECstrike15UserMessages_name, int32(x))
 }
+
 func (x *ECstrike15UserMessages) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(ECstrike15UserMessages_value, data, "ECstrike15UserMessages")
 	if err != nil {
@@ -229,8 +263,49 @@ func (x *ECstrike15UserMessages) UnmarshalJSON(data []byte) error {
 	*x = ECstrike15UserMessages(value)
 	return nil
 }
+
 func (ECstrike15UserMessages) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{0}
+	return fileDescriptor_0083c6368998e800, []int{0}
+}
+
+type ECSUsrMsg_DisconnectToLobby_Action int32
+
+const (
+	ECSUsrMsg_DisconnectToLobby_Action_k_ECSUsrMsg_DisconnectToLobby_Action_Default ECSUsrMsg_DisconnectToLobby_Action = 0
+	ECSUsrMsg_DisconnectToLobby_Action_k_ECSUsrMsg_DisconnectToLobby_Action_GoQueue ECSUsrMsg_DisconnectToLobby_Action = 1
+)
+
+var ECSUsrMsg_DisconnectToLobby_Action_name = map[int32]string{
+	0: "k_ECSUsrMsg_DisconnectToLobby_Action_Default",
+	1: "k_ECSUsrMsg_DisconnectToLobby_Action_GoQueue",
+}
+
+var ECSUsrMsg_DisconnectToLobby_Action_value = map[string]int32{
+	"k_ECSUsrMsg_DisconnectToLobby_Action_Default": 0,
+	"k_ECSUsrMsg_DisconnectToLobby_Action_GoQueue": 1,
+}
+
+func (x ECSUsrMsg_DisconnectToLobby_Action) Enum() *ECSUsrMsg_DisconnectToLobby_Action {
+	p := new(ECSUsrMsg_DisconnectToLobby_Action)
+	*p = x
+	return p
+}
+
+func (x ECSUsrMsg_DisconnectToLobby_Action) String() string {
+	return proto.EnumName(ECSUsrMsg_DisconnectToLobby_Action_name, int32(x))
+}
+
+func (x *ECSUsrMsg_DisconnectToLobby_Action) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(ECSUsrMsg_DisconnectToLobby_Action_value, data, "ECSUsrMsg_DisconnectToLobby_Action")
+	if err != nil {
+		return err
+	}
+	*x = ECSUsrMsg_DisconnectToLobby_Action(value)
+	return nil
+}
+
+func (ECSUsrMsg_DisconnectToLobby_Action) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_0083c6368998e800, []int{1}
 }
 
 type CCSUsrMsg_VGUIMenu struct {
@@ -243,8 +318,34 @@ func (m *CCSUsrMsg_VGUIMenu) Reset()         { *m = CCSUsrMsg_VGUIMenu{} }
 func (m *CCSUsrMsg_VGUIMenu) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_VGUIMenu) ProtoMessage()    {}
 func (*CCSUsrMsg_VGUIMenu) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{0}
+	return fileDescriptor_0083c6368998e800, []int{0}
 }
+func (m *CCSUsrMsg_VGUIMenu) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_VGUIMenu) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_VGUIMenu.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_VGUIMenu) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_VGUIMenu.Merge(m, src)
+}
+func (m *CCSUsrMsg_VGUIMenu) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_VGUIMenu) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_VGUIMenu.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_VGUIMenu proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_VGUIMenu) GetName() string {
 	if m != nil {
@@ -276,8 +377,34 @@ func (m *CCSUsrMsg_VGUIMenu_Subkey) Reset()         { *m = CCSUsrMsg_VGUIMenu_Su
 func (m *CCSUsrMsg_VGUIMenu_Subkey) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_VGUIMenu_Subkey) ProtoMessage()    {}
 func (*CCSUsrMsg_VGUIMenu_Subkey) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{0, 0}
+	return fileDescriptor_0083c6368998e800, []int{0, 0}
 }
+func (m *CCSUsrMsg_VGUIMenu_Subkey) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_VGUIMenu_Subkey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_VGUIMenu_Subkey.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_VGUIMenu_Subkey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_VGUIMenu_Subkey.Merge(m, src)
+}
+func (m *CCSUsrMsg_VGUIMenu_Subkey) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_VGUIMenu_Subkey) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_VGUIMenu_Subkey.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_VGUIMenu_Subkey proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_VGUIMenu_Subkey) GetName() string {
 	if m != nil {
@@ -301,8 +428,34 @@ func (m *CCSUsrMsg_Geiger) Reset()         { *m = CCSUsrMsg_Geiger{} }
 func (m *CCSUsrMsg_Geiger) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_Geiger) ProtoMessage()    {}
 func (*CCSUsrMsg_Geiger) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{1}
+	return fileDescriptor_0083c6368998e800, []int{1}
 }
+func (m *CCSUsrMsg_Geiger) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_Geiger) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_Geiger.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_Geiger) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_Geiger.Merge(m, src)
+}
+func (m *CCSUsrMsg_Geiger) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_Geiger) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_Geiger.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_Geiger proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_Geiger) GetRange() int32 {
 	if m != nil {
@@ -319,8 +472,34 @@ func (m *CCSUsrMsg_Train) Reset()         { *m = CCSUsrMsg_Train{} }
 func (m *CCSUsrMsg_Train) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_Train) ProtoMessage()    {}
 func (*CCSUsrMsg_Train) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{2}
+	return fileDescriptor_0083c6368998e800, []int{2}
 }
+func (m *CCSUsrMsg_Train) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_Train) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_Train.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_Train) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_Train.Merge(m, src)
+}
+func (m *CCSUsrMsg_Train) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_Train) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_Train.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_Train proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_Train) GetTrain() int32 {
 	if m != nil {
@@ -337,8 +516,34 @@ func (m *CCSUsrMsg_HudText) Reset()         { *m = CCSUsrMsg_HudText{} }
 func (m *CCSUsrMsg_HudText) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_HudText) ProtoMessage()    {}
 func (*CCSUsrMsg_HudText) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{3}
+	return fileDescriptor_0083c6368998e800, []int{3}
 }
+func (m *CCSUsrMsg_HudText) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_HudText) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_HudText.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_HudText) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_HudText.Merge(m, src)
+}
+func (m *CCSUsrMsg_HudText) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_HudText) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_HudText.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_HudText proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_HudText) GetText() string {
 	if m != nil {
@@ -358,8 +563,34 @@ func (m *CCSUsrMsg_SayText) Reset()         { *m = CCSUsrMsg_SayText{} }
 func (m *CCSUsrMsg_SayText) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_SayText) ProtoMessage()    {}
 func (*CCSUsrMsg_SayText) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{4}
+	return fileDescriptor_0083c6368998e800, []int{4}
 }
+func (m *CCSUsrMsg_SayText) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_SayText) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_SayText.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_SayText) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_SayText.Merge(m, src)
+}
+func (m *CCSUsrMsg_SayText) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_SayText) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_SayText.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_SayText proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_SayText) GetEntIdx() int32 {
 	if m != nil {
@@ -401,8 +632,34 @@ func (m *CCSUsrMsg_SayText2) Reset()         { *m = CCSUsrMsg_SayText2{} }
 func (m *CCSUsrMsg_SayText2) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_SayText2) ProtoMessage()    {}
 func (*CCSUsrMsg_SayText2) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{5}
+	return fileDescriptor_0083c6368998e800, []int{5}
 }
+func (m *CCSUsrMsg_SayText2) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_SayText2) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_SayText2.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_SayText2) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_SayText2.Merge(m, src)
+}
+func (m *CCSUsrMsg_SayText2) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_SayText2) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_SayText2.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_SayText2 proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_SayText2) GetEntIdx() int32 {
 	if m != nil {
@@ -448,8 +705,34 @@ func (m *CCSUsrMsg_TextMsg) Reset()         { *m = CCSUsrMsg_TextMsg{} }
 func (m *CCSUsrMsg_TextMsg) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_TextMsg) ProtoMessage()    {}
 func (*CCSUsrMsg_TextMsg) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{6}
+	return fileDescriptor_0083c6368998e800, []int{6}
 }
+func (m *CCSUsrMsg_TextMsg) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_TextMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_TextMsg.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_TextMsg) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_TextMsg.Merge(m, src)
+}
+func (m *CCSUsrMsg_TextMsg) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_TextMsg) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_TextMsg.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_TextMsg proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_TextMsg) GetMsgDst() int32 {
 	if m != nil {
@@ -482,8 +765,34 @@ func (m *CCSUsrMsg_HudMsg) Reset()         { *m = CCSUsrMsg_HudMsg{} }
 func (m *CCSUsrMsg_HudMsg) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_HudMsg) ProtoMessage()    {}
 func (*CCSUsrMsg_HudMsg) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{7}
+	return fileDescriptor_0083c6368998e800, []int{7}
 }
+func (m *CCSUsrMsg_HudMsg) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_HudMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_HudMsg.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_HudMsg) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_HudMsg.Merge(m, src)
+}
+func (m *CCSUsrMsg_HudMsg) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_HudMsg) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_HudMsg.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_HudMsg proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_HudMsg) GetChannel() int32 {
 	if m != nil {
@@ -566,8 +875,34 @@ func (m *CCSUsrMsg_Shake) Reset()         { *m = CCSUsrMsg_Shake{} }
 func (m *CCSUsrMsg_Shake) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_Shake) ProtoMessage()    {}
 func (*CCSUsrMsg_Shake) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{8}
+	return fileDescriptor_0083c6368998e800, []int{8}
 }
+func (m *CCSUsrMsg_Shake) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_Shake) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_Shake.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_Shake) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_Shake.Merge(m, src)
+}
+func (m *CCSUsrMsg_Shake) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_Shake) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_Shake.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_Shake proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_Shake) GetCommand() int32 {
 	if m != nil {
@@ -608,8 +943,34 @@ func (m *CCSUsrMsg_Fade) Reset()         { *m = CCSUsrMsg_Fade{} }
 func (m *CCSUsrMsg_Fade) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_Fade) ProtoMessage()    {}
 func (*CCSUsrMsg_Fade) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{9}
+	return fileDescriptor_0083c6368998e800, []int{9}
 }
+func (m *CCSUsrMsg_Fade) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_Fade) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_Fade.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_Fade) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_Fade.Merge(m, src)
+}
+func (m *CCSUsrMsg_Fade) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_Fade) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_Fade.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_Fade proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_Fade) GetDuration() int32 {
 	if m != nil {
@@ -649,8 +1010,34 @@ func (m *CCSUsrMsg_Rumble) Reset()         { *m = CCSUsrMsg_Rumble{} }
 func (m *CCSUsrMsg_Rumble) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_Rumble) ProtoMessage()    {}
 func (*CCSUsrMsg_Rumble) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{10}
+	return fileDescriptor_0083c6368998e800, []int{10}
 }
+func (m *CCSUsrMsg_Rumble) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_Rumble) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_Rumble.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_Rumble) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_Rumble.Merge(m, src)
+}
+func (m *CCSUsrMsg_Rumble) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_Rumble) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_Rumble.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_Rumble proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_Rumble) GetIndex() int32 {
 	if m != nil {
@@ -683,8 +1070,34 @@ func (m *CCSUsrMsg_CloseCaption) Reset()         { *m = CCSUsrMsg_CloseCaption{}
 func (m *CCSUsrMsg_CloseCaption) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_CloseCaption) ProtoMessage()    {}
 func (*CCSUsrMsg_CloseCaption) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{11}
+	return fileDescriptor_0083c6368998e800, []int{11}
 }
+func (m *CCSUsrMsg_CloseCaption) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_CloseCaption) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_CloseCaption.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_CloseCaption) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_CloseCaption.Merge(m, src)
+}
+func (m *CCSUsrMsg_CloseCaption) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_CloseCaption) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_CloseCaption.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_CloseCaption proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_CloseCaption) GetHash() uint32 {
 	if m != nil {
@@ -717,8 +1130,34 @@ func (m *CCSUsrMsg_CloseCaptionDirect) Reset()         { *m = CCSUsrMsg_CloseCap
 func (m *CCSUsrMsg_CloseCaptionDirect) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_CloseCaptionDirect) ProtoMessage()    {}
 func (*CCSUsrMsg_CloseCaptionDirect) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{12}
+	return fileDescriptor_0083c6368998e800, []int{12}
 }
+func (m *CCSUsrMsg_CloseCaptionDirect) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_CloseCaptionDirect) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_CloseCaptionDirect.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_CloseCaptionDirect) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_CloseCaptionDirect.Merge(m, src)
+}
+func (m *CCSUsrMsg_CloseCaptionDirect) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_CloseCaptionDirect) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_CloseCaptionDirect.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_CloseCaptionDirect proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_CloseCaptionDirect) GetHash() uint32 {
 	if m != nil {
@@ -749,8 +1188,34 @@ func (m *CCSUsrMsg_SendAudio) Reset()         { *m = CCSUsrMsg_SendAudio{} }
 func (m *CCSUsrMsg_SendAudio) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_SendAudio) ProtoMessage()    {}
 func (*CCSUsrMsg_SendAudio) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{13}
+	return fileDescriptor_0083c6368998e800, []int{13}
 }
+func (m *CCSUsrMsg_SendAudio) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_SendAudio) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_SendAudio.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_SendAudio) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_SendAudio.Merge(m, src)
+}
+func (m *CCSUsrMsg_SendAudio) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_SendAudio) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_SendAudio.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_SendAudio proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_SendAudio) GetRadioSound() string {
 	if m != nil {
@@ -770,8 +1235,34 @@ func (m *CCSUsrMsg_RawAudio) Reset()         { *m = CCSUsrMsg_RawAudio{} }
 func (m *CCSUsrMsg_RawAudio) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_RawAudio) ProtoMessage()    {}
 func (*CCSUsrMsg_RawAudio) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{14}
+	return fileDescriptor_0083c6368998e800, []int{14}
 }
+func (m *CCSUsrMsg_RawAudio) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_RawAudio) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_RawAudio.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_RawAudio) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_RawAudio.Merge(m, src)
+}
+func (m *CCSUsrMsg_RawAudio) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_RawAudio) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_RawAudio.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_RawAudio proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_RawAudio) GetPitch() int32 {
 	if m != nil {
@@ -810,8 +1301,34 @@ func (m *CCSUsrMsg_VoiceMask) Reset()         { *m = CCSUsrMsg_VoiceMask{} }
 func (m *CCSUsrMsg_VoiceMask) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_VoiceMask) ProtoMessage()    {}
 func (*CCSUsrMsg_VoiceMask) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{15}
+	return fileDescriptor_0083c6368998e800, []int{15}
 }
+func (m *CCSUsrMsg_VoiceMask) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_VoiceMask) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_VoiceMask.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_VoiceMask) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_VoiceMask.Merge(m, src)
+}
+func (m *CCSUsrMsg_VoiceMask) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_VoiceMask) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_VoiceMask.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_VoiceMask proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_VoiceMask) GetPlayerMasks() []*CCSUsrMsg_VoiceMask_PlayerMask {
 	if m != nil {
@@ -836,8 +1353,34 @@ func (m *CCSUsrMsg_VoiceMask_PlayerMask) Reset()         { *m = CCSUsrMsg_VoiceM
 func (m *CCSUsrMsg_VoiceMask_PlayerMask) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_VoiceMask_PlayerMask) ProtoMessage()    {}
 func (*CCSUsrMsg_VoiceMask_PlayerMask) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{15, 0}
+	return fileDescriptor_0083c6368998e800, []int{15, 0}
 }
+func (m *CCSUsrMsg_VoiceMask_PlayerMask) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_VoiceMask_PlayerMask) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_VoiceMask_PlayerMask.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_VoiceMask_PlayerMask) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_VoiceMask_PlayerMask.Merge(m, src)
+}
+func (m *CCSUsrMsg_VoiceMask_PlayerMask) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_VoiceMask_PlayerMask) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_VoiceMask_PlayerMask.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_VoiceMask_PlayerMask proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_VoiceMask_PlayerMask) GetGameRulesMask() int32 {
 	if m != nil {
@@ -863,8 +1406,34 @@ func (m *CCSUsrMsg_Damage) Reset()         { *m = CCSUsrMsg_Damage{} }
 func (m *CCSUsrMsg_Damage) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_Damage) ProtoMessage()    {}
 func (*CCSUsrMsg_Damage) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{16}
+	return fileDescriptor_0083c6368998e800, []int{16}
 }
+func (m *CCSUsrMsg_Damage) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_Damage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_Damage.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_Damage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_Damage.Merge(m, src)
+}
+func (m *CCSUsrMsg_Damage) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_Damage) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_Damage.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_Damage proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_Damage) GetAmount() int32 {
 	if m != nil {
@@ -898,8 +1467,34 @@ func (m *CCSUsrMsg_RadioText) Reset()         { *m = CCSUsrMsg_RadioText{} }
 func (m *CCSUsrMsg_RadioText) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_RadioText) ProtoMessage()    {}
 func (*CCSUsrMsg_RadioText) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{17}
+	return fileDescriptor_0083c6368998e800, []int{17}
 }
+func (m *CCSUsrMsg_RadioText) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_RadioText) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_RadioText.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_RadioText) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_RadioText.Merge(m, src)
+}
+func (m *CCSUsrMsg_RadioText) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_RadioText) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_RadioText.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_RadioText proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_RadioText) GetMsgDst() int32 {
 	if m != nil {
@@ -937,8 +1532,34 @@ func (m *CCSUsrMsg_HintText) Reset()         { *m = CCSUsrMsg_HintText{} }
 func (m *CCSUsrMsg_HintText) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_HintText) ProtoMessage()    {}
 func (*CCSUsrMsg_HintText) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{18}
+	return fileDescriptor_0083c6368998e800, []int{18}
 }
+func (m *CCSUsrMsg_HintText) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_HintText) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_HintText.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_HintText) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_HintText.Merge(m, src)
+}
+func (m *CCSUsrMsg_HintText) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_HintText) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_HintText.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_HintText proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_HintText) GetText() string {
 	if m != nil {
@@ -955,8 +1576,34 @@ func (m *CCSUsrMsg_KeyHintText) Reset()         { *m = CCSUsrMsg_KeyHintText{} }
 func (m *CCSUsrMsg_KeyHintText) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_KeyHintText) ProtoMessage()    {}
 func (*CCSUsrMsg_KeyHintText) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{19}
+	return fileDescriptor_0083c6368998e800, []int{19}
 }
+func (m *CCSUsrMsg_KeyHintText) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_KeyHintText) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_KeyHintText.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_KeyHintText) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_KeyHintText.Merge(m, src)
+}
+func (m *CCSUsrMsg_KeyHintText) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_KeyHintText) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_KeyHintText.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_KeyHintText proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_KeyHintText) GetHints() []string {
 	if m != nil {
@@ -974,8 +1621,34 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) Reset()         { *m = CCSUsrMsg_
 func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ProcessSpottedEntityUpdate) ProtoMessage()    {}
 func (*CCSUsrMsg_ProcessSpottedEntityUpdate) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{20}
+	return fileDescriptor_0083c6368998e800, []int{20}
 }
+func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ProcessSpottedEntityUpdate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ProcessSpottedEntityUpdate.Merge(m, src)
+}
+func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ProcessSpottedEntityUpdate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ProcessSpottedEntityUpdate proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) GetNewUpdate() bool {
 	if m != nil {
@@ -1011,8 +1684,34 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) String() stri
 }
 func (*CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) ProtoMessage() {}
 func (*CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{20, 0}
+	return fileDescriptor_0083c6368998e800, []int{20, 0}
 }
+func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate.Merge(m, src)
+}
+func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) GetEntityIdx() int32 {
 	if m != nil {
@@ -1085,8 +1784,34 @@ func (m *CCSUsrMsg_SendPlayerItemDrops) Reset()         { *m = CCSUsrMsg_SendPla
 func (m *CCSUsrMsg_SendPlayerItemDrops) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_SendPlayerItemDrops) ProtoMessage()    {}
 func (*CCSUsrMsg_SendPlayerItemDrops) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{21}
+	return fileDescriptor_0083c6368998e800, []int{21}
 }
+func (m *CCSUsrMsg_SendPlayerItemDrops) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_SendPlayerItemDrops) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_SendPlayerItemDrops.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_SendPlayerItemDrops) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_SendPlayerItemDrops.Merge(m, src)
+}
+func (m *CCSUsrMsg_SendPlayerItemDrops) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_SendPlayerItemDrops) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_SendPlayerItemDrops.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_SendPlayerItemDrops proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_SendPlayerItemDrops) GetEntityUpdates() []*CEconItemPreviewDataBlock {
 	if m != nil {
@@ -1104,8 +1829,34 @@ func (m *CCSUsrMsg_SendPlayerItemFound) Reset()         { *m = CCSUsrMsg_SendPla
 func (m *CCSUsrMsg_SendPlayerItemFound) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_SendPlayerItemFound) ProtoMessage()    {}
 func (*CCSUsrMsg_SendPlayerItemFound) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{22}
+	return fileDescriptor_0083c6368998e800, []int{22}
 }
+func (m *CCSUsrMsg_SendPlayerItemFound) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_SendPlayerItemFound) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_SendPlayerItemFound.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_SendPlayerItemFound) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_SendPlayerItemFound.Merge(m, src)
+}
+func (m *CCSUsrMsg_SendPlayerItemFound) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_SendPlayerItemFound) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_SendPlayerItemFound.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_SendPlayerItemFound proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_SendPlayerItemFound) GetIteminfo() *CEconItemPreviewDataBlock {
 	if m != nil {
@@ -1133,8 +1884,34 @@ func (m *CCSUsrMsg_ReloadEffect) Reset()         { *m = CCSUsrMsg_ReloadEffect{}
 func (m *CCSUsrMsg_ReloadEffect) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ReloadEffect) ProtoMessage()    {}
 func (*CCSUsrMsg_ReloadEffect) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{23}
+	return fileDescriptor_0083c6368998e800, []int{23}
 }
+func (m *CCSUsrMsg_ReloadEffect) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ReloadEffect) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ReloadEffect.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ReloadEffect) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ReloadEffect.Merge(m, src)
+}
+func (m *CCSUsrMsg_ReloadEffect) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ReloadEffect) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ReloadEffect.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ReloadEffect proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ReloadEffect) GetEntidx() int32 {
 	if m != nil {
@@ -1171,6 +1948,202 @@ func (m *CCSUsrMsg_ReloadEffect) GetOriginZ() float32 {
 	return 0
 }
 
+type CCSUsrMsg_WeaponSound struct {
+	Entidx    int32   `protobuf:"varint,1,opt,name=entidx" json:"entidx"`
+	OriginX   float32 `protobuf:"fixed32,2,opt,name=origin_x,json=originX" json:"origin_x"`
+	OriginY   float32 `protobuf:"fixed32,3,opt,name=origin_y,json=originY" json:"origin_y"`
+	OriginZ   float32 `protobuf:"fixed32,4,opt,name=origin_z,json=originZ" json:"origin_z"`
+	Sound     string  `protobuf:"bytes,5,opt,name=sound" json:"sound"`
+	Timestamp float32 `protobuf:"fixed32,6,opt,name=timestamp" json:"timestamp"`
+}
+
+func (m *CCSUsrMsg_WeaponSound) Reset()         { *m = CCSUsrMsg_WeaponSound{} }
+func (m *CCSUsrMsg_WeaponSound) String() string { return proto.CompactTextString(m) }
+func (*CCSUsrMsg_WeaponSound) ProtoMessage()    {}
+func (*CCSUsrMsg_WeaponSound) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0083c6368998e800, []int{24}
+}
+func (m *CCSUsrMsg_WeaponSound) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_WeaponSound) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_WeaponSound.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_WeaponSound) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_WeaponSound.Merge(m, src)
+}
+func (m *CCSUsrMsg_WeaponSound) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_WeaponSound) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_WeaponSound.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_WeaponSound proto.InternalMessageInfo
+
+func (m *CCSUsrMsg_WeaponSound) GetEntidx() int32 {
+	if m != nil {
+		return m.Entidx
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_WeaponSound) GetOriginX() float32 {
+	if m != nil {
+		return m.OriginX
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_WeaponSound) GetOriginY() float32 {
+	if m != nil {
+		return m.OriginY
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_WeaponSound) GetOriginZ() float32 {
+	if m != nil {
+		return m.OriginZ
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_WeaponSound) GetSound() string {
+	if m != nil {
+		return m.Sound
+	}
+	return ""
+}
+
+func (m *CCSUsrMsg_WeaponSound) GetTimestamp() float32 {
+	if m != nil {
+		return m.Timestamp
+	}
+	return 0
+}
+
+type CCSUsrMsg_UpdateScreenHealthBar struct {
+	Entidx         int32   `protobuf:"varint,1,opt,name=entidx" json:"entidx"`
+	HealthratioOld float32 `protobuf:"fixed32,2,opt,name=healthratio_old,json=healthratioOld" json:"healthratio_old"`
+	HealthratioNew float32 `protobuf:"fixed32,3,opt,name=healthratio_new,json=healthratioNew" json:"healthratio_new"`
+	Style          int32   `protobuf:"varint,4,opt,name=style" json:"style"`
+}
+
+func (m *CCSUsrMsg_UpdateScreenHealthBar) Reset()         { *m = CCSUsrMsg_UpdateScreenHealthBar{} }
+func (m *CCSUsrMsg_UpdateScreenHealthBar) String() string { return proto.CompactTextString(m) }
+func (*CCSUsrMsg_UpdateScreenHealthBar) ProtoMessage()    {}
+func (*CCSUsrMsg_UpdateScreenHealthBar) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0083c6368998e800, []int{25}
+}
+func (m *CCSUsrMsg_UpdateScreenHealthBar) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_UpdateScreenHealthBar) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_UpdateScreenHealthBar.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_UpdateScreenHealthBar) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_UpdateScreenHealthBar.Merge(m, src)
+}
+func (m *CCSUsrMsg_UpdateScreenHealthBar) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_UpdateScreenHealthBar) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_UpdateScreenHealthBar.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_UpdateScreenHealthBar proto.InternalMessageInfo
+
+func (m *CCSUsrMsg_UpdateScreenHealthBar) GetEntidx() int32 {
+	if m != nil {
+		return m.Entidx
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_UpdateScreenHealthBar) GetHealthratioOld() float32 {
+	if m != nil {
+		return m.HealthratioOld
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_UpdateScreenHealthBar) GetHealthratioNew() float32 {
+	if m != nil {
+		return m.HealthratioNew
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_UpdateScreenHealthBar) GetStyle() int32 {
+	if m != nil {
+		return m.Style
+	}
+	return 0
+}
+
+type CCSUsrMsg_EntityOutlineHighlight struct {
+	Entidx int32 `protobuf:"varint,1,opt,name=entidx" json:"entidx"`
+}
+
+func (m *CCSUsrMsg_EntityOutlineHighlight) Reset()         { *m = CCSUsrMsg_EntityOutlineHighlight{} }
+func (m *CCSUsrMsg_EntityOutlineHighlight) String() string { return proto.CompactTextString(m) }
+func (*CCSUsrMsg_EntityOutlineHighlight) ProtoMessage()    {}
+func (*CCSUsrMsg_EntityOutlineHighlight) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0083c6368998e800, []int{26}
+}
+func (m *CCSUsrMsg_EntityOutlineHighlight) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_EntityOutlineHighlight) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_EntityOutlineHighlight.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_EntityOutlineHighlight) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_EntityOutlineHighlight.Merge(m, src)
+}
+func (m *CCSUsrMsg_EntityOutlineHighlight) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_EntityOutlineHighlight) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_EntityOutlineHighlight.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_EntityOutlineHighlight proto.InternalMessageInfo
+
+func (m *CCSUsrMsg_EntityOutlineHighlight) GetEntidx() int32 {
+	if m != nil {
+		return m.Entidx
+	}
+	return 0
+}
+
 type CCSUsrMsg_AdjustMoney struct {
 	Amount int32 `protobuf:"varint,1,opt,name=amount" json:"amount"`
 }
@@ -1179,8 +2152,34 @@ func (m *CCSUsrMsg_AdjustMoney) Reset()         { *m = CCSUsrMsg_AdjustMoney{} }
 func (m *CCSUsrMsg_AdjustMoney) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_AdjustMoney) ProtoMessage()    {}
 func (*CCSUsrMsg_AdjustMoney) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{24}
+	return fileDescriptor_0083c6368998e800, []int{27}
 }
+func (m *CCSUsrMsg_AdjustMoney) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_AdjustMoney) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_AdjustMoney.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_AdjustMoney) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_AdjustMoney.Merge(m, src)
+}
+func (m *CCSUsrMsg_AdjustMoney) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_AdjustMoney) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_AdjustMoney.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_AdjustMoney proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_AdjustMoney) GetAmount() int32 {
 	if m != nil {
@@ -1200,8 +2199,34 @@ func (m *CCSUsrMsg_ReportHit) Reset()         { *m = CCSUsrMsg_ReportHit{} }
 func (m *CCSUsrMsg_ReportHit) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ReportHit) ProtoMessage()    {}
 func (*CCSUsrMsg_ReportHit) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{25}
+	return fileDescriptor_0083c6368998e800, []int{28}
 }
+func (m *CCSUsrMsg_ReportHit) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ReportHit) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ReportHit.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ReportHit) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ReportHit.Merge(m, src)
+}
+func (m *CCSUsrMsg_ReportHit) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ReportHit) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ReportHit.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ReportHit proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ReportHit) GetPosX() float32 {
 	if m != nil {
@@ -1241,8 +2266,34 @@ func (m *CCSUsrMsg_KillCam) Reset()         { *m = CCSUsrMsg_KillCam{} }
 func (m *CCSUsrMsg_KillCam) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_KillCam) ProtoMessage()    {}
 func (*CCSUsrMsg_KillCam) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{26}
+	return fileDescriptor_0083c6368998e800, []int{29}
 }
+func (m *CCSUsrMsg_KillCam) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_KillCam) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_KillCam.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_KillCam) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_KillCam.Merge(m, src)
+}
+func (m *CCSUsrMsg_KillCam) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_KillCam) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_KillCam.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_KillCam proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_KillCam) GetObsMode() int32 {
 	if m != nil {
@@ -1276,8 +2327,34 @@ func (m *CCSUsrMsg_DesiredTimescale) Reset()         { *m = CCSUsrMsg_DesiredTim
 func (m *CCSUsrMsg_DesiredTimescale) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_DesiredTimescale) ProtoMessage()    {}
 func (*CCSUsrMsg_DesiredTimescale) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{27}
+	return fileDescriptor_0083c6368998e800, []int{30}
 }
+func (m *CCSUsrMsg_DesiredTimescale) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_DesiredTimescale) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_DesiredTimescale.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_DesiredTimescale) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_DesiredTimescale.Merge(m, src)
+}
+func (m *CCSUsrMsg_DesiredTimescale) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_DesiredTimescale) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_DesiredTimescale.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_DesiredTimescale proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_DesiredTimescale) GetDesiredTimescale() float32 {
 	if m != nil {
@@ -1315,8 +2392,34 @@ func (m *CCSUsrMsg_CurrentTimescale) Reset()         { *m = CCSUsrMsg_CurrentTim
 func (m *CCSUsrMsg_CurrentTimescale) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_CurrentTimescale) ProtoMessage()    {}
 func (*CCSUsrMsg_CurrentTimescale) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{28}
+	return fileDescriptor_0083c6368998e800, []int{31}
 }
+func (m *CCSUsrMsg_CurrentTimescale) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_CurrentTimescale) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_CurrentTimescale.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_CurrentTimescale) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_CurrentTimescale.Merge(m, src)
+}
+func (m *CCSUsrMsg_CurrentTimescale) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_CurrentTimescale) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_CurrentTimescale.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_CurrentTimescale proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_CurrentTimescale) GetCurTimescale() float32 {
 	if m != nil {
@@ -1335,8 +2438,34 @@ func (m *CCSUsrMsg_AchievementEvent) Reset()         { *m = CCSUsrMsg_Achievemen
 func (m *CCSUsrMsg_AchievementEvent) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_AchievementEvent) ProtoMessage()    {}
 func (*CCSUsrMsg_AchievementEvent) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{29}
+	return fileDescriptor_0083c6368998e800, []int{32}
 }
+func (m *CCSUsrMsg_AchievementEvent) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_AchievementEvent) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_AchievementEvent.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_AchievementEvent) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_AchievementEvent.Merge(m, src)
+}
+func (m *CCSUsrMsg_AchievementEvent) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_AchievementEvent) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_AchievementEvent.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_AchievementEvent proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_AchievementEvent) GetAchievement() int32 {
 	if m != nil {
@@ -1370,8 +2499,34 @@ func (m *CCSUsrMsg_MatchEndConditions) Reset()         { *m = CCSUsrMsg_MatchEnd
 func (m *CCSUsrMsg_MatchEndConditions) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_MatchEndConditions) ProtoMessage()    {}
 func (*CCSUsrMsg_MatchEndConditions) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{30}
+	return fileDescriptor_0083c6368998e800, []int{33}
 }
+func (m *CCSUsrMsg_MatchEndConditions) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_MatchEndConditions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_MatchEndConditions.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_MatchEndConditions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_MatchEndConditions.Merge(m, src)
+}
+func (m *CCSUsrMsg_MatchEndConditions) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_MatchEndConditions) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_MatchEndConditions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_MatchEndConditions proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_MatchEndConditions) GetFraglimit() int32 {
 	if m != nil {
@@ -1412,8 +2567,34 @@ func (m *CCSUsrMsg_PlayerStatsUpdate) Reset()         { *m = CCSUsrMsg_PlayerSta
 func (m *CCSUsrMsg_PlayerStatsUpdate) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_PlayerStatsUpdate) ProtoMessage()    {}
 func (*CCSUsrMsg_PlayerStatsUpdate) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{31}
+	return fileDescriptor_0083c6368998e800, []int{34}
 }
+func (m *CCSUsrMsg_PlayerStatsUpdate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_PlayerStatsUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_PlayerStatsUpdate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_PlayerStatsUpdate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_PlayerStatsUpdate.Merge(m, src)
+}
+func (m *CCSUsrMsg_PlayerStatsUpdate) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_PlayerStatsUpdate) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_PlayerStatsUpdate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_PlayerStatsUpdate proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_PlayerStatsUpdate) GetVersion() int32 {
 	if m != nil {
@@ -1452,8 +2633,34 @@ func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) Reset()         { *m = CCSUsrMsg_Play
 func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_PlayerStatsUpdate_Stat) ProtoMessage()    {}
 func (*CCSUsrMsg_PlayerStatsUpdate_Stat) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{31, 0}
+	return fileDescriptor_0083c6368998e800, []int{34, 0}
 }
+func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_PlayerStatsUpdate_Stat.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_PlayerStatsUpdate_Stat.Merge(m, src)
+}
+func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_PlayerStatsUpdate_Stat.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_PlayerStatsUpdate_Stat proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) GetIdx() int32 {
 	if m != nil {
@@ -1478,8 +2685,34 @@ func (m *CCSUsrMsg_DisplayInventory) Reset()         { *m = CCSUsrMsg_DisplayInv
 func (m *CCSUsrMsg_DisplayInventory) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_DisplayInventory) ProtoMessage()    {}
 func (*CCSUsrMsg_DisplayInventory) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{32}
+	return fileDescriptor_0083c6368998e800, []int{35}
 }
+func (m *CCSUsrMsg_DisplayInventory) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_DisplayInventory) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_DisplayInventory.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_DisplayInventory) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_DisplayInventory.Merge(m, src)
+}
+func (m *CCSUsrMsg_DisplayInventory) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_DisplayInventory) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_DisplayInventory.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_DisplayInventory proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_DisplayInventory) GetDisplay() bool {
 	if m != nil {
@@ -1506,8 +2739,34 @@ func (m *CCSUsrMsg_QuestProgress) Reset()         { *m = CCSUsrMsg_QuestProgress
 func (m *CCSUsrMsg_QuestProgress) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_QuestProgress) ProtoMessage()    {}
 func (*CCSUsrMsg_QuestProgress) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{33}
+	return fileDescriptor_0083c6368998e800, []int{36}
 }
+func (m *CCSUsrMsg_QuestProgress) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_QuestProgress) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_QuestProgress.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_QuestProgress) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_QuestProgress.Merge(m, src)
+}
+func (m *CCSUsrMsg_QuestProgress) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_QuestProgress) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_QuestProgress.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_QuestProgress proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_QuestProgress) GetQuestId() uint32 {
 	if m != nil {
@@ -1545,10 +2804,80 @@ func (m *CCSUsrMsg_ScoreLeaderboardData) Reset()         { *m = CCSUsrMsg_ScoreL
 func (m *CCSUsrMsg_ScoreLeaderboardData) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ScoreLeaderboardData) ProtoMessage()    {}
 func (*CCSUsrMsg_ScoreLeaderboardData) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{34}
+	return fileDescriptor_0083c6368998e800, []int{37}
+}
+func (m *CCSUsrMsg_ScoreLeaderboardData) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ScoreLeaderboardData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ScoreLeaderboardData.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ScoreLeaderboardData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ScoreLeaderboardData.Merge(m, src)
+}
+func (m *CCSUsrMsg_ScoreLeaderboardData) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ScoreLeaderboardData) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ScoreLeaderboardData.DiscardUnknown(m)
 }
 
+var xxx_messageInfo_CCSUsrMsg_ScoreLeaderboardData proto.InternalMessageInfo
+
 func (m *CCSUsrMsg_ScoreLeaderboardData) GetData() *ScoreLeaderboardData {
+	if m != nil {
+		return m.Data
+	}
+	return nil
+}
+
+type CCSUsrMsg_PlayerDecalDigitalSignature struct {
+	Data *PlayerDecalDigitalSignature `protobuf:"bytes,1,opt,name=data" json:"data,omitempty"`
+}
+
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) Reset()         { *m = CCSUsrMsg_PlayerDecalDigitalSignature{} }
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) String() string { return proto.CompactTextString(m) }
+func (*CCSUsrMsg_PlayerDecalDigitalSignature) ProtoMessage()    {}
+func (*CCSUsrMsg_PlayerDecalDigitalSignature) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0083c6368998e800, []int{38}
+}
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_PlayerDecalDigitalSignature.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_PlayerDecalDigitalSignature.Merge(m, src)
+}
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_PlayerDecalDigitalSignature.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_PlayerDecalDigitalSignature proto.InternalMessageInfo
+
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) GetData() *PlayerDecalDigitalSignature {
 	if m != nil {
 		return m.Data
 	}
@@ -1564,8 +2893,34 @@ func (m *CCSUsrMsg_XRankGet) Reset()         { *m = CCSUsrMsg_XRankGet{} }
 func (m *CCSUsrMsg_XRankGet) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_XRankGet) ProtoMessage()    {}
 func (*CCSUsrMsg_XRankGet) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{35}
+	return fileDescriptor_0083c6368998e800, []int{39}
 }
+func (m *CCSUsrMsg_XRankGet) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_XRankGet) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_XRankGet.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_XRankGet) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_XRankGet.Merge(m, src)
+}
+func (m *CCSUsrMsg_XRankGet) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_XRankGet) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_XRankGet.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_XRankGet proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_XRankGet) GetModeIdx() int32 {
 	if m != nil {
@@ -1591,8 +2946,34 @@ func (m *CCSUsrMsg_XRankUpd) Reset()         { *m = CCSUsrMsg_XRankUpd{} }
 func (m *CCSUsrMsg_XRankUpd) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_XRankUpd) ProtoMessage()    {}
 func (*CCSUsrMsg_XRankUpd) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{36}
+	return fileDescriptor_0083c6368998e800, []int{40}
 }
+func (m *CCSUsrMsg_XRankUpd) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_XRankUpd) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_XRankUpd.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_XRankUpd) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_XRankUpd.Merge(m, src)
+}
+func (m *CCSUsrMsg_XRankUpd) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_XRankUpd) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_XRankUpd.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_XRankUpd proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_XRankUpd) GetModeIdx() int32 {
 	if m != nil {
@@ -1624,8 +3005,34 @@ func (m *CCSUsrMsg_CallVoteFailed) Reset()         { *m = CCSUsrMsg_CallVoteFail
 func (m *CCSUsrMsg_CallVoteFailed) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_CallVoteFailed) ProtoMessage()    {}
 func (*CCSUsrMsg_CallVoteFailed) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{37}
+	return fileDescriptor_0083c6368998e800, []int{41}
 }
+func (m *CCSUsrMsg_CallVoteFailed) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_CallVoteFailed) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_CallVoteFailed.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_CallVoteFailed) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_CallVoteFailed.Merge(m, src)
+}
+func (m *CCSUsrMsg_CallVoteFailed) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_CallVoteFailed) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_CallVoteFailed.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_CallVoteFailed proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_CallVoteFailed) GetReason() int32 {
 	if m != nil {
@@ -1649,14 +3056,41 @@ type CCSUsrMsg_VoteStart struct {
 	DetailsStr   string `protobuf:"bytes,5,opt,name=details_str,json=detailsStr" json:"details_str"`
 	OtherTeamStr string `protobuf:"bytes,6,opt,name=other_team_str,json=otherTeamStr" json:"other_team_str"`
 	IsYesNoVote  bool   `protobuf:"varint,7,opt,name=is_yes_no_vote,json=isYesNoVote" json:"is_yes_no_vote"`
+	EntidxTarget int32  `protobuf:"varint,8,opt,name=entidx_target,json=entidxTarget" json:"entidx_target"`
 }
 
 func (m *CCSUsrMsg_VoteStart) Reset()         { *m = CCSUsrMsg_VoteStart{} }
 func (m *CCSUsrMsg_VoteStart) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_VoteStart) ProtoMessage()    {}
 func (*CCSUsrMsg_VoteStart) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{38}
+	return fileDescriptor_0083c6368998e800, []int{42}
 }
+func (m *CCSUsrMsg_VoteStart) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_VoteStart) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_VoteStart.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_VoteStart) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_VoteStart.Merge(m, src)
+}
+func (m *CCSUsrMsg_VoteStart) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_VoteStart) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_VoteStart.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_VoteStart proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_VoteStart) GetTeam() int32 {
 	if m != nil {
@@ -1707,6 +3141,13 @@ func (m *CCSUsrMsg_VoteStart) GetIsYesNoVote() bool {
 	return false
 }
 
+func (m *CCSUsrMsg_VoteStart) GetEntidxTarget() int32 {
+	if m != nil {
+		return m.EntidxTarget
+	}
+	return 0
+}
+
 type CCSUsrMsg_VotePass struct {
 	Team       int32  `protobuf:"varint,1,opt,name=team" json:"team"`
 	VoteType   int32  `protobuf:"varint,2,opt,name=vote_type,json=voteType" json:"vote_type"`
@@ -1718,8 +3159,34 @@ func (m *CCSUsrMsg_VotePass) Reset()         { *m = CCSUsrMsg_VotePass{} }
 func (m *CCSUsrMsg_VotePass) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_VotePass) ProtoMessage()    {}
 func (*CCSUsrMsg_VotePass) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{39}
+	return fileDescriptor_0083c6368998e800, []int{43}
 }
+func (m *CCSUsrMsg_VotePass) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_VotePass) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_VotePass.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_VotePass) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_VotePass.Merge(m, src)
+}
+func (m *CCSUsrMsg_VotePass) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_VotePass) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_VotePass.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_VotePass proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_VotePass) GetTeam() int32 {
 	if m != nil {
@@ -1758,8 +3225,34 @@ func (m *CCSUsrMsg_VoteFailed) Reset()         { *m = CCSUsrMsg_VoteFailed{} }
 func (m *CCSUsrMsg_VoteFailed) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_VoteFailed) ProtoMessage()    {}
 func (*CCSUsrMsg_VoteFailed) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{40}
+	return fileDescriptor_0083c6368998e800, []int{44}
 }
+func (m *CCSUsrMsg_VoteFailed) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_VoteFailed) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_VoteFailed.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_VoteFailed) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_VoteFailed.Merge(m, src)
+}
+func (m *CCSUsrMsg_VoteFailed) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_VoteFailed) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_VoteFailed.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_VoteFailed proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_VoteFailed) GetTeam() int32 {
 	if m != nil {
@@ -1783,8 +3276,34 @@ func (m *CCSUsrMsg_VoteSetup) Reset()         { *m = CCSUsrMsg_VoteSetup{} }
 func (m *CCSUsrMsg_VoteSetup) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_VoteSetup) ProtoMessage()    {}
 func (*CCSUsrMsg_VoteSetup) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{41}
+	return fileDescriptor_0083c6368998e800, []int{45}
 }
+func (m *CCSUsrMsg_VoteSetup) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_VoteSetup) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_VoteSetup.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_VoteSetup) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_VoteSetup.Merge(m, src)
+}
+func (m *CCSUsrMsg_VoteSetup) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_VoteSetup) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_VoteSetup.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_VoteSetup proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_VoteSetup) GetPotentialIssues() []string {
 	if m != nil {
@@ -1806,8 +3325,34 @@ func (m *CCSUsrMsg_SendLastKillerDamageToClient) Reset() {
 func (m *CCSUsrMsg_SendLastKillerDamageToClient) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_SendLastKillerDamageToClient) ProtoMessage()    {}
 func (*CCSUsrMsg_SendLastKillerDamageToClient) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{42}
+	return fileDescriptor_0083c6368998e800, []int{46}
 }
+func (m *CCSUsrMsg_SendLastKillerDamageToClient) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_SendLastKillerDamageToClient) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_SendLastKillerDamageToClient.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_SendLastKillerDamageToClient) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_SendLastKillerDamageToClient.Merge(m, src)
+}
+func (m *CCSUsrMsg_SendLastKillerDamageToClient) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_SendLastKillerDamageToClient) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_SendLastKillerDamageToClient.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_SendLastKillerDamageToClient proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_SendLastKillerDamageToClient) GetNumHitsGiven() int32 {
 	if m != nil {
@@ -1845,8 +3390,34 @@ func (m *CCSUsrMsg_ServerRankUpdate) Reset()         { *m = CCSUsrMsg_ServerRank
 func (m *CCSUsrMsg_ServerRankUpdate) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ServerRankUpdate) ProtoMessage()    {}
 func (*CCSUsrMsg_ServerRankUpdate) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{43}
+	return fileDescriptor_0083c6368998e800, []int{47}
 }
+func (m *CCSUsrMsg_ServerRankUpdate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ServerRankUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ServerRankUpdate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ServerRankUpdate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ServerRankUpdate.Merge(m, src)
+}
+func (m *CCSUsrMsg_ServerRankUpdate) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ServerRankUpdate) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ServerRankUpdate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ServerRankUpdate proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ServerRankUpdate) GetRankUpdate() []*CCSUsrMsg_ServerRankUpdate_RankUpdate {
 	if m != nil {
@@ -1861,14 +3432,41 @@ type CCSUsrMsg_ServerRankUpdate_RankUpdate struct {
 	RankNew    int32   `protobuf:"varint,3,opt,name=rank_new,json=rankNew" json:"rank_new"`
 	NumWins    int32   `protobuf:"varint,4,opt,name=num_wins,json=numWins" json:"num_wins"`
 	RankChange float32 `protobuf:"fixed32,5,opt,name=rank_change,json=rankChange" json:"rank_change"`
+	RankTypeId int32   `protobuf:"varint,6,opt,name=rank_type_id,json=rankTypeId" json:"rank_type_id"`
 }
 
 func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) Reset()         { *m = CCSUsrMsg_ServerRankUpdate_RankUpdate{} }
 func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ServerRankUpdate_RankUpdate) ProtoMessage()    {}
 func (*CCSUsrMsg_ServerRankUpdate_RankUpdate) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{43, 0}
+	return fileDescriptor_0083c6368998e800, []int{47, 0}
 }
+func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ServerRankUpdate_RankUpdate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ServerRankUpdate_RankUpdate.Merge(m, src)
+}
+func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ServerRankUpdate_RankUpdate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ServerRankUpdate_RankUpdate proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) GetAccountId() int32 {
 	if m != nil {
@@ -1905,6 +3503,13 @@ func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) GetRankChange() float32 {
 	return 0
 }
 
+func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) GetRankTypeId() int32 {
+	if m != nil {
+		return m.RankTypeId
+	}
+	return 0
+}
+
 type CCSUsrMsg_XpUpdate struct {
 	Data *CMsgGCCstrike15V2_GC2ServerNotifyXPRewarded `protobuf:"bytes,1,opt,name=data" json:"data,omitempty"`
 }
@@ -1913,8 +3518,34 @@ func (m *CCSUsrMsg_XpUpdate) Reset()         { *m = CCSUsrMsg_XpUpdate{} }
 func (m *CCSUsrMsg_XpUpdate) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_XpUpdate) ProtoMessage()    {}
 func (*CCSUsrMsg_XpUpdate) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{44}
+	return fileDescriptor_0083c6368998e800, []int{48}
 }
+func (m *CCSUsrMsg_XpUpdate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_XpUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_XpUpdate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_XpUpdate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_XpUpdate.Merge(m, src)
+}
+func (m *CCSUsrMsg_XpUpdate) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_XpUpdate) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_XpUpdate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_XpUpdate proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_XpUpdate) GetData() *CMsgGCCstrike15V2_GC2ServerNotifyXPRewarded {
 	if m != nil {
@@ -1931,8 +3562,34 @@ func (m *CCSUsrMsg_ItemPickup) Reset()         { *m = CCSUsrMsg_ItemPickup{} }
 func (m *CCSUsrMsg_ItemPickup) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ItemPickup) ProtoMessage()    {}
 func (*CCSUsrMsg_ItemPickup) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{45}
+	return fileDescriptor_0083c6368998e800, []int{49}
 }
+func (m *CCSUsrMsg_ItemPickup) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ItemPickup) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ItemPickup.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ItemPickup) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ItemPickup.Merge(m, src)
+}
+func (m *CCSUsrMsg_ItemPickup) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ItemPickup) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ItemPickup.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ItemPickup proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ItemPickup) GetItem() string {
 	if m != nil {
@@ -1951,8 +3608,34 @@ func (m *CCSUsrMsg_ShowMenu) Reset()         { *m = CCSUsrMsg_ShowMenu{} }
 func (m *CCSUsrMsg_ShowMenu) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ShowMenu) ProtoMessage()    {}
 func (*CCSUsrMsg_ShowMenu) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{46}
+	return fileDescriptor_0083c6368998e800, []int{50}
 }
+func (m *CCSUsrMsg_ShowMenu) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ShowMenu) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ShowMenu.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ShowMenu) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ShowMenu.Merge(m, src)
+}
+func (m *CCSUsrMsg_ShowMenu) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ShowMenu) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ShowMenu.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ShowMenu proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ShowMenu) GetBitsValidSlots() int32 {
 	if m != nil {
@@ -1983,8 +3666,34 @@ func (m *CCSUsrMsg_BarTime) Reset()         { *m = CCSUsrMsg_BarTime{} }
 func (m *CCSUsrMsg_BarTime) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_BarTime) ProtoMessage()    {}
 func (*CCSUsrMsg_BarTime) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{47}
+	return fileDescriptor_0083c6368998e800, []int{51}
 }
+func (m *CCSUsrMsg_BarTime) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_BarTime) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_BarTime.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_BarTime) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_BarTime.Merge(m, src)
+}
+func (m *CCSUsrMsg_BarTime) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_BarTime) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_BarTime.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_BarTime proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_BarTime) GetTime() string {
 	if m != nil {
@@ -2001,8 +3710,34 @@ func (m *CCSUsrMsg_AmmoDenied) Reset()         { *m = CCSUsrMsg_AmmoDenied{} }
 func (m *CCSUsrMsg_AmmoDenied) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_AmmoDenied) ProtoMessage()    {}
 func (*CCSUsrMsg_AmmoDenied) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{48}
+	return fileDescriptor_0083c6368998e800, []int{52}
 }
+func (m *CCSUsrMsg_AmmoDenied) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_AmmoDenied) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_AmmoDenied.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_AmmoDenied) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_AmmoDenied.Merge(m, src)
+}
+func (m *CCSUsrMsg_AmmoDenied) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_AmmoDenied) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_AmmoDenied.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_AmmoDenied proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_AmmoDenied) GetAmmoIdx() int32 {
 	if m != nil {
@@ -2019,8 +3754,34 @@ func (m *CCSUsrMsg_MarkAchievement) Reset()         { *m = CCSUsrMsg_MarkAchieve
 func (m *CCSUsrMsg_MarkAchievement) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_MarkAchievement) ProtoMessage()    {}
 func (*CCSUsrMsg_MarkAchievement) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{49}
+	return fileDescriptor_0083c6368998e800, []int{53}
 }
+func (m *CCSUsrMsg_MarkAchievement) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_MarkAchievement) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_MarkAchievement.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_MarkAchievement) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_MarkAchievement.Merge(m, src)
+}
+func (m *CCSUsrMsg_MarkAchievement) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_MarkAchievement) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_MarkAchievement.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_MarkAchievement proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_MarkAchievement) GetAchievement() string {
 	if m != nil {
@@ -2037,8 +3798,34 @@ func (m *CCSUsrMsg_MatchStatsUpdate) Reset()         { *m = CCSUsrMsg_MatchStats
 func (m *CCSUsrMsg_MatchStatsUpdate) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_MatchStatsUpdate) ProtoMessage()    {}
 func (*CCSUsrMsg_MatchStatsUpdate) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{50}
+	return fileDescriptor_0083c6368998e800, []int{54}
 }
+func (m *CCSUsrMsg_MatchStatsUpdate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_MatchStatsUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_MatchStatsUpdate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_MatchStatsUpdate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_MatchStatsUpdate.Merge(m, src)
+}
+func (m *CCSUsrMsg_MatchStatsUpdate) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_MatchStatsUpdate) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_MatchStatsUpdate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_MatchStatsUpdate proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_MatchStatsUpdate) GetUpdate() string {
 	if m != nil {
@@ -2056,8 +3843,34 @@ func (m *CCSUsrMsg_ItemDrop) Reset()         { *m = CCSUsrMsg_ItemDrop{} }
 func (m *CCSUsrMsg_ItemDrop) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ItemDrop) ProtoMessage()    {}
 func (*CCSUsrMsg_ItemDrop) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{51}
+	return fileDescriptor_0083c6368998e800, []int{55}
 }
+func (m *CCSUsrMsg_ItemDrop) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ItemDrop) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ItemDrop.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ItemDrop) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ItemDrop.Merge(m, src)
+}
+func (m *CCSUsrMsg_ItemDrop) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ItemDrop) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ItemDrop.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ItemDrop proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ItemDrop) GetItemid() int64 {
 	if m != nil {
@@ -2081,8 +3894,34 @@ func (m *CCSUsrMsg_GlowPropTurnOff) Reset()         { *m = CCSUsrMsg_GlowPropTur
 func (m *CCSUsrMsg_GlowPropTurnOff) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_GlowPropTurnOff) ProtoMessage()    {}
 func (*CCSUsrMsg_GlowPropTurnOff) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{52}
+	return fileDescriptor_0083c6368998e800, []int{56}
 }
+func (m *CCSUsrMsg_GlowPropTurnOff) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_GlowPropTurnOff) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_GlowPropTurnOff.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_GlowPropTurnOff) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_GlowPropTurnOff.Merge(m, src)
+}
+func (m *CCSUsrMsg_GlowPropTurnOff) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_GlowPropTurnOff) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_GlowPropTurnOff.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_GlowPropTurnOff proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_GlowPropTurnOff) GetEntidx() int32 {
 	if m != nil {
@@ -2102,8 +3941,34 @@ func (m *CCSUsrMsg_RoundBackupFilenames) Reset()         { *m = CCSUsrMsg_RoundB
 func (m *CCSUsrMsg_RoundBackupFilenames) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_RoundBackupFilenames) ProtoMessage()    {}
 func (*CCSUsrMsg_RoundBackupFilenames) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{53}
+	return fileDescriptor_0083c6368998e800, []int{57}
 }
+func (m *CCSUsrMsg_RoundBackupFilenames) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_RoundBackupFilenames) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_RoundBackupFilenames.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_RoundBackupFilenames) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_RoundBackupFilenames.Merge(m, src)
+}
+func (m *CCSUsrMsg_RoundBackupFilenames) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_RoundBackupFilenames) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_RoundBackupFilenames.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_RoundBackupFilenames proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_RoundBackupFilenames) GetCount() int32 {
 	if m != nil {
@@ -2133,6 +3998,346 @@ func (m *CCSUsrMsg_RoundBackupFilenames) GetNicename() string {
 	return ""
 }
 
+type CCSUsrMsg_SSUI struct {
+	Show      bool    `protobuf:"varint,1,opt,name=show" json:"show"`
+	StartTime float32 `protobuf:"fixed32,2,opt,name=start_time,json=startTime" json:"start_time"`
+	EndTime   float32 `protobuf:"fixed32,3,opt,name=end_time,json=endTime" json:"end_time"`
+}
+
+func (m *CCSUsrMsg_SSUI) Reset()         { *m = CCSUsrMsg_SSUI{} }
+func (m *CCSUsrMsg_SSUI) String() string { return proto.CompactTextString(m) }
+func (*CCSUsrMsg_SSUI) ProtoMessage()    {}
+func (*CCSUsrMsg_SSUI) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0083c6368998e800, []int{58}
+}
+func (m *CCSUsrMsg_SSUI) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_SSUI) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_SSUI.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_SSUI) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_SSUI.Merge(m, src)
+}
+func (m *CCSUsrMsg_SSUI) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_SSUI) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_SSUI.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_SSUI proto.InternalMessageInfo
+
+func (m *CCSUsrMsg_SSUI) GetShow() bool {
+	if m != nil {
+		return m.Show
+	}
+	return false
+}
+
+func (m *CCSUsrMsg_SSUI) GetStartTime() float32 {
+	if m != nil {
+		return m.StartTime
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_SSUI) GetEndTime() float32 {
+	if m != nil {
+		return m.EndTime
+	}
+	return 0
+}
+
+type CCSUsrMsg_SurvivalStats struct {
+	Xuid       uint64                               `protobuf:"varint,1,opt,name=xuid" json:"xuid"`
+	Facts      []*CCSUsrMsg_SurvivalStats_Fact      `protobuf:"bytes,2,rep,name=facts" json:"facts,omitempty"`
+	Users      []*CCSUsrMsg_SurvivalStats_Placement `protobuf:"bytes,3,rep,name=users" json:"users,omitempty"`
+	Damages    []*CCSUsrMsg_SurvivalStats_Damage    `protobuf:"bytes,5,rep,name=damages" json:"damages,omitempty"`
+	Ticknumber int32                                `protobuf:"varint,4,opt,name=ticknumber" json:"ticknumber"`
+}
+
+func (m *CCSUsrMsg_SurvivalStats) Reset()         { *m = CCSUsrMsg_SurvivalStats{} }
+func (m *CCSUsrMsg_SurvivalStats) String() string { return proto.CompactTextString(m) }
+func (*CCSUsrMsg_SurvivalStats) ProtoMessage()    {}
+func (*CCSUsrMsg_SurvivalStats) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0083c6368998e800, []int{59}
+}
+func (m *CCSUsrMsg_SurvivalStats) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_SurvivalStats) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_SurvivalStats.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_SurvivalStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_SurvivalStats.Merge(m, src)
+}
+func (m *CCSUsrMsg_SurvivalStats) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_SurvivalStats) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_SurvivalStats.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_SurvivalStats proto.InternalMessageInfo
+
+func (m *CCSUsrMsg_SurvivalStats) GetXuid() uint64 {
+	if m != nil {
+		return m.Xuid
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_SurvivalStats) GetFacts() []*CCSUsrMsg_SurvivalStats_Fact {
+	if m != nil {
+		return m.Facts
+	}
+	return nil
+}
+
+func (m *CCSUsrMsg_SurvivalStats) GetUsers() []*CCSUsrMsg_SurvivalStats_Placement {
+	if m != nil {
+		return m.Users
+	}
+	return nil
+}
+
+func (m *CCSUsrMsg_SurvivalStats) GetDamages() []*CCSUsrMsg_SurvivalStats_Damage {
+	if m != nil {
+		return m.Damages
+	}
+	return nil
+}
+
+func (m *CCSUsrMsg_SurvivalStats) GetTicknumber() int32 {
+	if m != nil {
+		return m.Ticknumber
+	}
+	return 0
+}
+
+type CCSUsrMsg_SurvivalStats_Fact struct {
+	Type            int32   `protobuf:"varint,1,opt,name=type" json:"type"`
+	Display         int32   `protobuf:"varint,2,opt,name=display" json:"display"`
+	Value           int32   `protobuf:"varint,3,opt,name=value" json:"value"`
+	Interestingness float32 `protobuf:"fixed32,4,opt,name=interestingness" json:"interestingness"`
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Fact) Reset()         { *m = CCSUsrMsg_SurvivalStats_Fact{} }
+func (m *CCSUsrMsg_SurvivalStats_Fact) String() string { return proto.CompactTextString(m) }
+func (*CCSUsrMsg_SurvivalStats_Fact) ProtoMessage()    {}
+func (*CCSUsrMsg_SurvivalStats_Fact) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0083c6368998e800, []int{59, 0}
+}
+func (m *CCSUsrMsg_SurvivalStats_Fact) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_SurvivalStats_Fact) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_SurvivalStats_Fact.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_SurvivalStats_Fact) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_SurvivalStats_Fact.Merge(m, src)
+}
+func (m *CCSUsrMsg_SurvivalStats_Fact) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_SurvivalStats_Fact) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_SurvivalStats_Fact.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_SurvivalStats_Fact proto.InternalMessageInfo
+
+func (m *CCSUsrMsg_SurvivalStats_Fact) GetType() int32 {
+	if m != nil {
+		return m.Type
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Fact) GetDisplay() int32 {
+	if m != nil {
+		return m.Display
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Fact) GetValue() int32 {
+	if m != nil {
+		return m.Value
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Fact) GetInterestingness() float32 {
+	if m != nil {
+		return m.Interestingness
+	}
+	return 0
+}
+
+type CCSUsrMsg_SurvivalStats_Placement struct {
+	Xuid       uint64 `protobuf:"varint,1,opt,name=xuid" json:"xuid"`
+	Teamnumber int32  `protobuf:"varint,2,opt,name=teamnumber" json:"teamnumber"`
+	Placement  int32  `protobuf:"varint,3,opt,name=placement" json:"placement"`
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Placement) Reset()         { *m = CCSUsrMsg_SurvivalStats_Placement{} }
+func (m *CCSUsrMsg_SurvivalStats_Placement) String() string { return proto.CompactTextString(m) }
+func (*CCSUsrMsg_SurvivalStats_Placement) ProtoMessage()    {}
+func (*CCSUsrMsg_SurvivalStats_Placement) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0083c6368998e800, []int{59, 1}
+}
+func (m *CCSUsrMsg_SurvivalStats_Placement) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_SurvivalStats_Placement) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_SurvivalStats_Placement.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_SurvivalStats_Placement) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_SurvivalStats_Placement.Merge(m, src)
+}
+func (m *CCSUsrMsg_SurvivalStats_Placement) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_SurvivalStats_Placement) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_SurvivalStats_Placement.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_SurvivalStats_Placement proto.InternalMessageInfo
+
+func (m *CCSUsrMsg_SurvivalStats_Placement) GetXuid() uint64 {
+	if m != nil {
+		return m.Xuid
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Placement) GetTeamnumber() int32 {
+	if m != nil {
+		return m.Teamnumber
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Placement) GetPlacement() int32 {
+	if m != nil {
+		return m.Placement
+	}
+	return 0
+}
+
+type CCSUsrMsg_SurvivalStats_Damage struct {
+	Xuid     uint64 `protobuf:"varint,1,opt,name=xuid" json:"xuid"`
+	To       int32  `protobuf:"varint,2,opt,name=to" json:"to"`
+	ToHits   int32  `protobuf:"varint,3,opt,name=to_hits,json=toHits" json:"to_hits"`
+	From     int32  `protobuf:"varint,4,opt,name=from" json:"from"`
+	FromHits int32  `protobuf:"varint,5,opt,name=from_hits,json=fromHits" json:"from_hits"`
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Damage) Reset()         { *m = CCSUsrMsg_SurvivalStats_Damage{} }
+func (m *CCSUsrMsg_SurvivalStats_Damage) String() string { return proto.CompactTextString(m) }
+func (*CCSUsrMsg_SurvivalStats_Damage) ProtoMessage()    {}
+func (*CCSUsrMsg_SurvivalStats_Damage) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0083c6368998e800, []int{59, 2}
+}
+func (m *CCSUsrMsg_SurvivalStats_Damage) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_SurvivalStats_Damage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_SurvivalStats_Damage.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_SurvivalStats_Damage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_SurvivalStats_Damage.Merge(m, src)
+}
+func (m *CCSUsrMsg_SurvivalStats_Damage) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_SurvivalStats_Damage) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_SurvivalStats_Damage.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_SurvivalStats_Damage proto.InternalMessageInfo
+
+func (m *CCSUsrMsg_SurvivalStats_Damage) GetXuid() uint64 {
+	if m != nil {
+		return m.Xuid
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Damage) GetTo() int32 {
+	if m != nil {
+		return m.To
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Damage) GetToHits() int32 {
+	if m != nil {
+		return m.ToHits
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Damage) GetFrom() int32 {
+	if m != nil {
+		return m.From
+	}
+	return 0
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Damage) GetFromHits() int32 {
+	if m != nil {
+		return m.FromHits
+	}
+	return 0
+}
+
 type CCSUsrMsg_ResetHud struct {
 	Reset_ bool `protobuf:"varint,1,opt,name=reset" json:"reset"`
 }
@@ -2141,8 +4346,34 @@ func (m *CCSUsrMsg_ResetHud) Reset()         { *m = CCSUsrMsg_ResetHud{} }
 func (m *CCSUsrMsg_ResetHud) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ResetHud) ProtoMessage()    {}
 func (*CCSUsrMsg_ResetHud) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{54}
+	return fileDescriptor_0083c6368998e800, []int{60}
 }
+func (m *CCSUsrMsg_ResetHud) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ResetHud) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ResetHud.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ResetHud) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ResetHud.Merge(m, src)
+}
+func (m *CCSUsrMsg_ResetHud) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ResetHud) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ResetHud.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ResetHud proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ResetHud) GetReset_() bool {
 	if m != nil {
@@ -2159,8 +4390,34 @@ func (m *CCSUsrMsg_GameTitle) Reset()         { *m = CCSUsrMsg_GameTitle{} }
 func (m *CCSUsrMsg_GameTitle) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_GameTitle) ProtoMessage()    {}
 func (*CCSUsrMsg_GameTitle) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{55}
+	return fileDescriptor_0083c6368998e800, []int{61}
 }
+func (m *CCSUsrMsg_GameTitle) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_GameTitle) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_GameTitle.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_GameTitle) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_GameTitle.Merge(m, src)
+}
+func (m *CCSUsrMsg_GameTitle) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_GameTitle) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_GameTitle.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_GameTitle proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_GameTitle) GetDummy() int32 {
 	if m != nil {
@@ -2177,8 +4434,34 @@ func (m *CCSUsrMsg_RequestState) Reset()         { *m = CCSUsrMsg_RequestState{}
 func (m *CCSUsrMsg_RequestState) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_RequestState) ProtoMessage()    {}
 func (*CCSUsrMsg_RequestState) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{56}
+	return fileDescriptor_0083c6368998e800, []int{62}
 }
+func (m *CCSUsrMsg_RequestState) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_RequestState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_RequestState.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_RequestState) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_RequestState.Merge(m, src)
+}
+func (m *CCSUsrMsg_RequestState) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_RequestState) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_RequestState.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_RequestState proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_RequestState) GetDummy() int32 {
 	if m != nil {
@@ -2195,8 +4478,34 @@ func (m *CCSUsrMsg_StopSpectatorMode) Reset()         { *m = CCSUsrMsg_StopSpect
 func (m *CCSUsrMsg_StopSpectatorMode) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_StopSpectatorMode) ProtoMessage()    {}
 func (*CCSUsrMsg_StopSpectatorMode) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{57}
+	return fileDescriptor_0083c6368998e800, []int{63}
 }
+func (m *CCSUsrMsg_StopSpectatorMode) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_StopSpectatorMode) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_StopSpectatorMode.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_StopSpectatorMode) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_StopSpectatorMode.Merge(m, src)
+}
+func (m *CCSUsrMsg_StopSpectatorMode) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_StopSpectatorMode) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_StopSpectatorMode.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_StopSpectatorMode proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_StopSpectatorMode) GetDummy() int32 {
 	if m != nil {
@@ -2213,8 +4522,34 @@ func (m *CCSUsrMsg_DisconnectToLobby) Reset()         { *m = CCSUsrMsg_Disconnec
 func (m *CCSUsrMsg_DisconnectToLobby) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_DisconnectToLobby) ProtoMessage()    {}
 func (*CCSUsrMsg_DisconnectToLobby) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{58}
+	return fileDescriptor_0083c6368998e800, []int{64}
 }
+func (m *CCSUsrMsg_DisconnectToLobby) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_DisconnectToLobby) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_DisconnectToLobby.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_DisconnectToLobby) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_DisconnectToLobby.Merge(m, src)
+}
+func (m *CCSUsrMsg_DisconnectToLobby) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_DisconnectToLobby) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_DisconnectToLobby.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_DisconnectToLobby proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_DisconnectToLobby) GetDummy() int32 {
 	if m != nil {
@@ -2231,8 +4566,34 @@ func (m *CCSUsrMsg_WarmupHasEnded) Reset()         { *m = CCSUsrMsg_WarmupHasEnd
 func (m *CCSUsrMsg_WarmupHasEnded) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_WarmupHasEnded) ProtoMessage()    {}
 func (*CCSUsrMsg_WarmupHasEnded) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{59}
+	return fileDescriptor_0083c6368998e800, []int{65}
 }
+func (m *CCSUsrMsg_WarmupHasEnded) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_WarmupHasEnded) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_WarmupHasEnded.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_WarmupHasEnded) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_WarmupHasEnded.Merge(m, src)
+}
+func (m *CCSUsrMsg_WarmupHasEnded) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_WarmupHasEnded) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_WarmupHasEnded.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_WarmupHasEnded proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_WarmupHasEnded) GetDummy() int32 {
 	if m != nil {
@@ -2249,8 +4610,34 @@ func (m *CCSUsrMsg_ClientInfo) Reset()         { *m = CCSUsrMsg_ClientInfo{} }
 func (m *CCSUsrMsg_ClientInfo) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ClientInfo) ProtoMessage()    {}
 func (*CCSUsrMsg_ClientInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{60}
+	return fileDescriptor_0083c6368998e800, []int{66}
 }
+func (m *CCSUsrMsg_ClientInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ClientInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ClientInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ClientInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ClientInfo.Merge(m, src)
+}
+func (m *CCSUsrMsg_ClientInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ClientInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ClientInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ClientInfo proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ClientInfo) GetDummy() int32 {
 	if m != nil {
@@ -2267,8 +4654,34 @@ func (m *CCSUsrMsg_ServerRankRevealAll) Reset()         { *m = CCSUsrMsg_ServerR
 func (m *CCSUsrMsg_ServerRankRevealAll) String() string { return proto.CompactTextString(m) }
 func (*CCSUsrMsg_ServerRankRevealAll) ProtoMessage()    {}
 func (*CCSUsrMsg_ServerRankRevealAll) Descriptor() ([]byte, []int) {
-	return fileDescriptorCstrike15Usermessages, []int{61}
+	return fileDescriptor_0083c6368998e800, []int{67}
 }
+func (m *CCSUsrMsg_ServerRankRevealAll) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CCSUsrMsg_ServerRankRevealAll) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CCSUsrMsg_ServerRankRevealAll.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CCSUsrMsg_ServerRankRevealAll) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CCSUsrMsg_ServerRankRevealAll.Merge(m, src)
+}
+func (m *CCSUsrMsg_ServerRankRevealAll) XXX_Size() int {
+	return m.Size()
+}
+func (m *CCSUsrMsg_ServerRankRevealAll) XXX_DiscardUnknown() {
+	xxx_messageInfo_CCSUsrMsg_ServerRankRevealAll.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CCSUsrMsg_ServerRankRevealAll proto.InternalMessageInfo
 
 func (m *CCSUsrMsg_ServerRankRevealAll) GetSecondsTillShutdown() int32 {
 	if m != nil {
@@ -2278,6 +4691,8 @@ func (m *CCSUsrMsg_ServerRankRevealAll) GetSecondsTillShutdown() int32 {
 }
 
 func init() {
+	proto.RegisterEnum("ECstrike15UserMessages", ECstrike15UserMessages_name, ECstrike15UserMessages_value)
+	proto.RegisterEnum("ECSUsrMsg_DisconnectToLobby_Action", ECSUsrMsg_DisconnectToLobby_Action_name, ECSUsrMsg_DisconnectToLobby_Action_value)
 	proto.RegisterType((*CCSUsrMsg_VGUIMenu)(nil), "CCSUsrMsg_VGUIMenu")
 	proto.RegisterType((*CCSUsrMsg_VGUIMenu_Subkey)(nil), "CCSUsrMsg_VGUIMenu.Subkey")
 	proto.RegisterType((*CCSUsrMsg_Geiger)(nil), "CCSUsrMsg_Geiger")
@@ -2305,6 +4720,9 @@ func init() {
 	proto.RegisterType((*CCSUsrMsg_SendPlayerItemDrops)(nil), "CCSUsrMsg_SendPlayerItemDrops")
 	proto.RegisterType((*CCSUsrMsg_SendPlayerItemFound)(nil), "CCSUsrMsg_SendPlayerItemFound")
 	proto.RegisterType((*CCSUsrMsg_ReloadEffect)(nil), "CCSUsrMsg_ReloadEffect")
+	proto.RegisterType((*CCSUsrMsg_WeaponSound)(nil), "CCSUsrMsg_WeaponSound")
+	proto.RegisterType((*CCSUsrMsg_UpdateScreenHealthBar)(nil), "CCSUsrMsg_UpdateScreenHealthBar")
+	proto.RegisterType((*CCSUsrMsg_EntityOutlineHighlight)(nil), "CCSUsrMsg_EntityOutlineHighlight")
 	proto.RegisterType((*CCSUsrMsg_AdjustMoney)(nil), "CCSUsrMsg_AdjustMoney")
 	proto.RegisterType((*CCSUsrMsg_ReportHit)(nil), "CCSUsrMsg_ReportHit")
 	proto.RegisterType((*CCSUsrMsg_KillCam)(nil), "CCSUsrMsg_KillCam")
@@ -2317,6 +4735,7 @@ func init() {
 	proto.RegisterType((*CCSUsrMsg_DisplayInventory)(nil), "CCSUsrMsg_DisplayInventory")
 	proto.RegisterType((*CCSUsrMsg_QuestProgress)(nil), "CCSUsrMsg_QuestProgress")
 	proto.RegisterType((*CCSUsrMsg_ScoreLeaderboardData)(nil), "CCSUsrMsg_ScoreLeaderboardData")
+	proto.RegisterType((*CCSUsrMsg_PlayerDecalDigitalSignature)(nil), "CCSUsrMsg_PlayerDecalDigitalSignature")
 	proto.RegisterType((*CCSUsrMsg_XRankGet)(nil), "CCSUsrMsg_XRankGet")
 	proto.RegisterType((*CCSUsrMsg_XRankUpd)(nil), "CCSUsrMsg_XRankUpd")
 	proto.RegisterType((*CCSUsrMsg_CallVoteFailed)(nil), "CCSUsrMsg_CallVoteFailed")
@@ -2337,6 +4756,11 @@ func init() {
 	proto.RegisterType((*CCSUsrMsg_ItemDrop)(nil), "CCSUsrMsg_ItemDrop")
 	proto.RegisterType((*CCSUsrMsg_GlowPropTurnOff)(nil), "CCSUsrMsg_GlowPropTurnOff")
 	proto.RegisterType((*CCSUsrMsg_RoundBackupFilenames)(nil), "CCSUsrMsg_RoundBackupFilenames")
+	proto.RegisterType((*CCSUsrMsg_SSUI)(nil), "CCSUsrMsg_SSUI")
+	proto.RegisterType((*CCSUsrMsg_SurvivalStats)(nil), "CCSUsrMsg_SurvivalStats")
+	proto.RegisterType((*CCSUsrMsg_SurvivalStats_Fact)(nil), "CCSUsrMsg_SurvivalStats.Fact")
+	proto.RegisterType((*CCSUsrMsg_SurvivalStats_Placement)(nil), "CCSUsrMsg_SurvivalStats.Placement")
+	proto.RegisterType((*CCSUsrMsg_SurvivalStats_Damage)(nil), "CCSUsrMsg_SurvivalStats.Damage")
 	proto.RegisterType((*CCSUsrMsg_ResetHud)(nil), "CCSUsrMsg_ResetHud")
 	proto.RegisterType((*CCSUsrMsg_GameTitle)(nil), "CCSUsrMsg_GameTitle")
 	proto.RegisterType((*CCSUsrMsg_RequestState)(nil), "CCSUsrMsg_RequestState")
@@ -2345,8 +4769,263 @@ func init() {
 	proto.RegisterType((*CCSUsrMsg_WarmupHasEnded)(nil), "CCSUsrMsg_WarmupHasEnded")
 	proto.RegisterType((*CCSUsrMsg_ClientInfo)(nil), "CCSUsrMsg_ClientInfo")
 	proto.RegisterType((*CCSUsrMsg_ServerRankRevealAll)(nil), "CCSUsrMsg_ServerRankRevealAll")
-	proto.RegisterEnum("ECstrike15UserMessages", ECstrike15UserMessages_name, ECstrike15UserMessages_value)
 }
+
+func init() { proto.RegisterFile("cstrike15_usermessages.proto", fileDescriptor_0083c6368998e800) }
+
+var fileDescriptor_0083c6368998e800 = []byte{
+	// 3984 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x5a, 0xcb, 0x73, 0x1c, 0xb9,
+	0x79, 0xd7, 0x0c, 0xdf, 0xe0, 0x0b, 0x6a, 0x3d, 0x96, 0x1a, 0x49, 0x24, 0xd5, 0xbb, 0x2b, 0x4b,
+	0x8a, 0x35, 0x2b, 0xd1, 0xda, 0xf5, 0x6a, 0xed, 0x24, 0xcb, 0x97, 0x48, 0x7a, 0x97, 0x5a, 0x7a,
+	0x86, 0x92, 0x56, 0x72, 0xa5, 0x3a, 0x60, 0x37, 0x66, 0x06, 0x61, 0x77, 0x63, 0x0c, 0xa0, 0x49,
+	0x8e, 0x7d, 0x48, 0x72, 0x73, 0xc5, 0xa9, 0x54, 0x0e, 0xbe, 0x24, 0xe5, 0x5c, 0x73, 0xcc, 0x3d,
+	0xeb, 0x7f, 0xc0, 0x55, 0xb9, 0xb8, 0x72, 0xda, 0xaa, 0x54, 0x52, 0xa9, 0xdd, 0x53, 0x52, 0xf9,
+	0x23, 0x52, 0x1f, 0xd0, 0x3d, 0x0d, 0xcc, 0xf0, 0xa1, 0x4a, 0xa5, 0x7c, 0x9b, 0xf9, 0x7d, 0x3f,
+	0x00, 0x1f, 0x80, 0x0f, 0xf8, 0x1e, 0x68, 0x74, 0x2b, 0x94, 0x4a, 0xb0, 0x43, 0xfa, 0xf8, 0xc3,
+	0x20, 0x93, 0x54, 0x24, 0x54, 0x4a, 0xd2, 0xa6, 0xb2, 0xde, 0x15, 0x5c, 0xf1, 0xda, 0x72, 0x9b,
+	0xf3, 0x76, 0x4c, 0x3f, 0xd0, 0xff, 0x0e, 0xb2, 0xd6, 0x07, 0x11, 0x95, 0xa1, 0x60, 0x5d, 0xc5,
+	0x45, 0xce, 0xb8, 0x9c, 0x52, 0x35, 0xd0, 0xa8, 0x56, 0x76, 0xd9, 0x0e, 0x5d, 0x99, 0xff, 0x55,
+	0x05, 0x79, 0xeb, 0xeb, 0xcd, 0x17, 0x52, 0xec, 0xca, 0x76, 0xf0, 0x72, 0xeb, 0xc5, 0xce, 0x2e,
+	0x4d, 0x33, 0x6f, 0x01, 0x8d, 0xa6, 0x24, 0xa1, 0x0b, 0x95, 0xe5, 0xca, 0xbd, 0xa9, 0xb5, 0xd1,
+	0xdf, 0xfe, 0xc7, 0xd2, 0xa5, 0x86, 0x46, 0x40, 0x22, 0x3b, 0xfc, 0x78, 0xa1, 0xba, 0x5c, 0xb9,
+	0x37, 0x59, 0x48, 0x00, 0xf1, 0x9e, 0xa0, 0x09, 0x99, 0x1d, 0x1c, 0xd2, 0x9e, 0x5c, 0x18, 0x59,
+	0x1e, 0xb9, 0x37, 0xbd, 0x52, 0xab, 0x0f, 0xf7, 0x5c, 0x6f, 0x6a, 0x4a, 0xa3, 0xa0, 0xd6, 0x3e,
+	0x41, 0xe3, 0x06, 0x3a, 0x67, 0xcc, 0xeb, 0x68, 0x44, 0x2a, 0xa1, 0x87, 0x2c, 0x04, 0x00, 0xf8,
+	0x75, 0x84, 0xcb, 0x11, 0xb6, 0x28, 0x6b, 0x53, 0xe1, 0xd5, 0xd0, 0x98, 0x20, 0x69, 0xdb, 0x74,
+	0x33, 0x96, 0xb3, 0x0d, 0xe4, 0x3f, 0x44, 0xf3, 0x25, 0x7f, 0x5f, 0x10, 0x96, 0x02, 0x5d, 0xc1,
+	0x0f, 0x97, 0xae, 0x21, 0xff, 0x21, 0xba, 0x5c, 0xd2, 0xb7, 0xb3, 0x68, 0x9f, 0x9e, 0x28, 0xd0,
+	0x52, 0xd1, 0x13, 0xe5, 0x6a, 0x09, 0x88, 0xff, 0x37, 0x15, 0x9b, 0xdf, 0x24, 0x3d, 0xcd, 0xbf,
+	0x8d, 0x26, 0x68, 0xaa, 0x02, 0x16, 0x9d, 0x38, 0x43, 0x8c, 0xd3, 0x54, 0xed, 0x44, 0x27, 0xfd,
+	0xee, 0xaa, 0x83, 0xdd, 0x81, 0x24, 0xec, 0x10, 0xb5, 0x30, 0x62, 0x2f, 0x34, 0x20, 0xde, 0x5d,
+	0x34, 0x0d, 0x0c, 0x12, 0xc7, 0x9a, 0x30, 0x6a, 0x11, 0x6c, 0x81, 0xff, 0x4f, 0xce, 0xde, 0xe6,
+	0x0a, 0xad, 0xbc, 0x85, 0x46, 0xba, 0xdb, 0xea, 0xd0, 0xb8, 0x4b, 0x68, 0x32, 0x91, 0xed, 0x40,
+	0x6f, 0xd2, 0x88, 0xa5, 0xef, 0x44, 0x22, 0xdb, 0xcf, 0xcd, 0x3e, 0x8d, 0x77, 0x89, 0x20, 0x89,
+	0x5c, 0x18, 0x5d, 0x1e, 0xb9, 0x37, 0xd5, 0xc8, 0xff, 0x0d, 0x2a, 0x3c, 0x76, 0x96, 0xc2, 0x3f,
+	0xb2, 0x17, 0x10, 0x94, 0xdd, 0x95, 0x6d, 0x50, 0x17, 0x46, 0x8d, 0xa4, 0x72, 0xd5, 0x4d, 0x64,
+	0x7b, 0x43, 0x2a, 0x6b, 0xcc, 0x11, 0x7b, 0x4c, 0xff, 0xdf, 0xab, 0xb6, 0x71, 0x6c, 0x67, 0x11,
+	0xf4, 0xb5, 0x88, 0x26, 0xc2, 0x0e, 0x49, 0x53, 0x1a, 0x3b, 0x7d, 0x15, 0xa0, 0xb7, 0x84, 0x46,
+	0xba, 0x5c, 0xea, 0xa9, 0x4f, 0xaf, 0xcc, 0xd6, 0xd7, 0x77, 0x65, 0xfb, 0x25, 0x0d, 0x15, 0x17,
+	0x2b, 0x1b, 0x0d, 0x90, 0x78, 0xb7, 0xd1, 0x68, 0x18, 0x8b, 0xc7, 0x7a, 0xfa, 0xd3, 0x2b, 0x53,
+	0x9a, 0xd1, 0xd8, 0x5a, 0x5b, 0x6d, 0x68, 0x38, 0x17, 0xaf, 0xe8, 0x2d, 0x19, 0x12, 0xaf, 0x78,
+	0xb7, 0xd0, 0x38, 0x6d, 0xb5, 0x68, 0x68, 0x96, 0xa0, 0x5c, 0x78, 0x8d, 0x79, 0x77, 0xd1, 0x4c,
+	0x8b, 0x44, 0x34, 0x60, 0x69, 0xa0, 0x58, 0x42, 0x17, 0xc6, 0x97, 0x2b, 0xf7, 0xaa, 0x39, 0x07,
+	0x81, 0x64, 0x27, 0xdd, 0x67, 0x09, 0xf5, 0xee, 0xa1, 0x59, 0xcd, 0xe3, 0x99, 0x32, 0xc4, 0x09,
+	0x8b, 0x38, 0x0d, 0xa2, 0x2f, 0x32, 0xa5, 0x99, 0x77, 0xd0, 0x54, 0x87, 0xc7, 0x91, 0x61, 0x4d,
+	0x59, 0xac, 0x49, 0x80, 0x35, 0xe5, 0x36, 0x9a, 0x68, 0x9d, 0x18, 0x02, 0xb2, 0x08, 0xe3, 0xad,
+	0x13, 0x2d, 0x2e, 0xcc, 0x73, 0x7a, 0xc8, 0xda, 0xff, 0xb1, 0x62, 0x1f, 0xa6, 0x66, 0x87, 0x1c,
+	0x52, 0xbd, 0xbc, 0x3c, 0x49, 0x48, 0x1a, 0x0d, 0x2c, 0xaf, 0x01, 0xbd, 0x87, 0x68, 0x3e, 0xe6,
+	0x21, 0x89, 0x03, 0x92, 0x74, 0x63, 0xa6, 0xb2, 0x88, 0xea, 0xa5, 0x2e, 0x06, 0x9d, 0xd3, 0xc2,
+	0xd5, 0x42, 0xe6, 0xf9, 0x68, 0xaa, 0x25, 0xe8, 0x4f, 0x33, 0x9a, 0x86, 0x3d, 0xbd, 0xe2, 0x05,
+	0xb1, 0x84, 0xbd, 0x65, 0x34, 0x19, 0x65, 0x82, 0x28, 0xc6, 0x53, 0xbd, 0xea, 0xfd, 0x19, 0x16,
+	0x28, 0x1c, 0xcb, 0xb9, 0x52, 0xd1, 0x67, 0x24, 0xa2, 0x4e, 0x23, 0x5b, 0xd1, 0x3e, 0xea, 0xae,
+	0x5c, 0xd5, 0xa6, 0xf4, 0x57, 0xae, 0x86, 0xc6, 0x5a, 0x31, 0x69, 0x4b, 0xad, 0x59, 0xff, 0xe6,
+	0xd0, 0x90, 0x77, 0x13, 0x8d, 0x84, 0xb1, 0x18, 0x36, 0x03, 0x40, 0xfd, 0xc8, 0x36, 0xcc, 0x46,
+	0x96, 0x1c, 0xc4, 0xba, 0x33, 0x96, 0x46, 0xd4, 0x3d, 0x91, 0x06, 0x82, 0x3d, 0x88, 0x88, 0x22,
+	0x8e, 0x1a, 0x1a, 0x39, 0x4f, 0x05, 0xff, 0xe7, 0xe8, 0x7a, 0x39, 0xca, 0x7a, 0xcc, 0x25, 0x5d,
+	0x27, 0x5d, 0x3d, 0xb7, 0x05, 0x34, 0xda, 0x21, 0xb2, 0xa3, 0x87, 0x9a, 0x2d, 0xfa, 0x03, 0xc4,
+	0x59, 0x97, 0xea, 0xa9, 0xeb, 0xf2, 0x3e, 0x9a, 0x6e, 0x09, 0x9e, 0x04, 0xdd, 0x98, 0xf4, 0xa8,
+	0x70, 0xee, 0x26, 0x04, 0x82, 0x3d, 0x8d, 0xfb, 0x7f, 0x59, 0x41, 0xb7, 0x4e, 0x1f, 0x7d, 0x83,
+	0x09, 0xb0, 0xf5, 0xdf, 0x83, 0x0e, 0x3f, 0x44, 0x57, 0x2c, 0xfb, 0xa4, 0x69, 0xb4, 0x9a, 0x45,
+	0x8c, 0x43, 0x6b, 0x41, 0x22, 0xc6, 0x03, 0xc9, 0xb3, 0xdc, 0x4e, 0x0b, 0xc3, 0x46, 0x5a, 0xd0,
+	0x04, 0xdc, 0xff, 0x07, 0xe7, 0xee, 0x6c, 0x90, 0x63, 0xd3, 0xba, 0x86, 0xc6, 0xba, 0x4c, 0x85,
+	0x1d, 0x77, 0x9f, 0x34, 0xa4, 0x4f, 0x77, 0xaa, 0xe0, 0x5a, 0xad, 0x0e, 0x5c, 0xab, 0x2c, 0x3a,
+	0x71, 0xe6, 0x35, 0x72, 0x9a, 0xa1, 0x7a, 0x7f, 0x80, 0xe6, 0x8e, 0x38, 0x0b, 0x69, 0xd0, 0x62,
+	0x31, 0xd5, 0x97, 0xec, 0xa8, 0xa5, 0xdc, 0xac, 0x96, 0x3d, 0xcb, 0x45, 0xfe, 0x7f, 0x57, 0xec,
+	0xe9, 0xbd, 0x04, 0xd9, 0x2e, 0x91, 0x87, 0xde, 0x1a, 0x9a, 0x31, 0xeb, 0x12, 0x24, 0x44, 0x1e,
+	0xca, 0x85, 0x8a, 0xf6, 0xc4, 0x4b, 0xf5, 0x53, 0xb8, 0x75, 0xb3, 0x50, 0xf0, 0xb3, 0x31, 0xdd,
+	0xed, 0xff, 0x96, 0xde, 0x23, 0x74, 0xb9, 0xe8, 0x83, 0x47, 0x01, 0x4d, 0xc9, 0x41, 0x4c, 0x1d,
+	0x77, 0x30, 0x9f, 0xb3, 0x79, 0xb4, 0xa9, 0x85, 0xb5, 0x3f, 0x41, 0xa8, 0xec, 0xcc, 0xfb, 0x2e,
+	0x9a, 0x6f, 0x93, 0x84, 0x06, 0x22, 0x8b, 0xa9, 0xd4, 0x7a, 0x38, 0xcb, 0x35, 0x0b, 0xc2, 0x06,
+	0xc8, 0x34, 0xfb, 0x0e, 0x9a, 0x3a, 0x20, 0x69, 0xae, 0xae, 0xb3, 0xe3, 0x07, 0x24, 0xd5, 0x0a,
+	0xf9, 0xbf, 0xae, 0xd8, 0x47, 0x66, 0x83, 0x24, 0xa4, 0x4d, 0x61, 0xb9, 0x49, 0xc2, 0xb3, 0x74,
+	0xc0, 0x2d, 0x18, 0xcc, 0xfb, 0x01, 0xba, 0xc2, 0xd2, 0x56, 0xcc, 0xe0, 0xf2, 0x0e, 0x8e, 0xb9,
+	0x88, 0xa3, 0xa0, 0xbc, 0xd9, 0xa7, 0xad, 0x9b, 0xbd, 0x71, 0xb9, 0xcf, 0x7b, 0x05, 0xb4, 0x3d,
+	0x2e, 0xe1, 0x9e, 0x3a, 0x62, 0xa1, 0x62, 0x49, 0x00, 0x9b, 0xa7, 0xcf, 0xa5, 0x7d, 0xc2, 0xe6,
+	0x8c, 0x70, 0x33, 0x97, 0xf9, 0xbf, 0x74, 0xf6, 0xa2, 0x01, 0x46, 0x54, 0xb8, 0xfe, 0xf3, 0x3c,
+	0xd7, 0x2d, 0x34, 0x1e, 0xc6, 0x8c, 0xa6, 0xca, 0xb5, 0x17, 0x83, 0xfd, 0x9f, 0x9d, 0xad, 0x5f,
+	0xb7, 0x0d, 0x77, 0x9b, 0xa5, 0xea, 0x82, 0xb0, 0xe5, 0x21, 0xba, 0x56, 0xf2, 0x3f, 0xa3, 0xbd,
+	0x7e, 0x93, 0xab, 0x68, 0xac, 0xc3, 0x52, 0x65, 0x6c, 0x68, 0xaa, 0x61, 0xfe, 0xf8, 0xbf, 0x1c,
+	0x45, 0xef, 0x95, 0xfc, 0x3d, 0xc1, 0x43, 0x2a, 0x65, 0xb3, 0xcb, 0x95, 0xa2, 0x11, 0xac, 0x88,
+	0xea, 0xbd, 0xe8, 0x46, 0x44, 0x51, 0xef, 0x5d, 0x84, 0x52, 0x7a, 0x1c, 0x64, 0xfa, 0x9f, 0x1e,
+	0xb7, 0x30, 0x9f, 0xa9, 0x94, 0x1e, 0xe7, 0xa4, 0x3f, 0x45, 0x73, 0x54, 0x37, 0xca, 0x79, 0xb0,
+	0x43, 0x60, 0xb0, 0x4f, 0xeb, 0x6f, 0x33, 0x46, 0xfd, 0x14, 0xac, 0x31, 0x4b, 0xad, 0x7f, 0xb2,
+	0xf6, 0x6f, 0x55, 0x74, 0xe5, 0x0c, 0xf5, 0xf2, 0x91, 0x07, 0x03, 0xa1, 0x29, 0x83, 0x43, 0x2c,
+	0xb4, 0x84, 0x26, 0xc3, 0x98, 0x48, 0x19, 0xb0, 0xc8, 0xd9, 0xa4, 0x09, 0x8d, 0xee, 0x44, 0x40,
+	0xe0, 0x82, 0xb5, 0x59, 0x1a, 0xb8, 0x26, 0x32, 0x61, 0xd0, 0x2f, 0x2d, 0x42, 0x4f, 0x1f, 0xe7,
+	0x01, 0xc2, 0x6b, 0x8b, 0xf0, 0x33, 0x27, 0x2a, 0xc8, 0x09, 0x6f, 0xc0, 0x8a, 0x48, 0xda, 0x8e,
+	0x69, 0xd0, 0xd3, 0x11, 0x41, 0x69, 0xe8, 0x00, 0xbe, 0x06, 0x9f, 0x1b, 0xd1, 0x16, 0xa4, 0x0a,
+	0x3a, 0x0e, 0x28, 0xd6, 0xb8, 0x00, 0xbd, 0x15, 0xe4, 0xe5, 0x87, 0xb9, 0x43, 0x64, 0x50, 0x50,
+	0x27, 0x2d, 0x2a, 0x36, 0xf2, 0x6d, 0x22, 0x37, 0xf2, 0x36, 0xf7, 0xd0, 0xac, 0xd5, 0x26, 0x7c,
+	0xa2, 0x63, 0x87, 0x7e, 0xc4, 0xd6, 0xa7, 0xaf, 0x3f, 0xf1, 0x0f, 0xd0, 0x6d, 0xf7, 0x92, 0x35,
+	0xd7, 0xc0, 0x8e, 0xa2, 0xc9, 0x86, 0xe0, 0x5d, 0xe9, 0xad, 0x0e, 0x6d, 0x70, 0xa5, 0xc8, 0x0d,
+	0x36, 0x43, 0x9e, 0x02, 0x71, 0x4f, 0xd0, 0x23, 0x46, 0x8f, 0x37, 0x88, 0x22, 0x6b, 0x31, 0x0f,
+	0x0f, 0x07, 0x76, 0xd0, 0xef, 0x9d, 0x3d, 0xc6, 0x33, 0xb8, 0xab, 0xbd, 0x8f, 0xd0, 0x24, 0x53,
+	0x34, 0x61, 0x69, 0x8b, 0xeb, 0x8d, 0x3c, 0xbf, 0xf7, 0x3e, 0x17, 0xae, 0xe4, 0xfe, 0xf9, 0x76,
+	0x2e, 0x9e, 0x02, 0xf5, 0xff, 0xb9, 0x62, 0x7b, 0xd1, 0x06, 0x8d, 0x39, 0x89, 0x36, 0x4d, 0xb4,
+	0x56, 0xde, 0xf6, 0x95, 0x53, 0x6e, 0xfb, 0x45, 0x34, 0x41, 0x42, 0x45, 0x52, 0x96, 0xb8, 0x76,
+	0x93, 0x83, 0x43, 0x76, 0x53, 0xbd, 0xc8, 0x6e, 0xaa, 0x17, 0xd9, 0xcd, 0x00, 0xe1, 0x8d, 0xff,
+	0x75, 0xc5, 0x3e, 0xd8, 0xaf, 0x28, 0xe9, 0xf2, 0x54, 0xfb, 0xb6, 0x0b, 0x54, 0xb7, 0x55, 0xab,
+	0x5e, 0xa4, 0xda, 0xc8, 0x45, 0xaa, 0x9d, 0xa2, 0xfb, 0x1b, 0xf0, 0xa2, 0xc6, 0xfb, 0x8e, 0x59,
+	0xb7, 0x91, 0x81, 0x20, 0xe8, 0x83, 0xa0, 0x4b, 0x2a, 0x92, 0x74, 0x9d, 0x10, 0xb8, 0x84, 0x61,
+	0x5b, 0x96, 0xca, 0xa9, 0x19, 0x3b, 0x69, 0x86, 0x82, 0xd2, 0x74, 0x9b, 0x92, 0x58, 0x75, 0xd6,
+	0x88, 0xb8, 0x60, 0x92, 0x0f, 0xd1, 0x7c, 0x47, 0x53, 0xb5, 0xef, 0x0d, 0x78, 0x1c, 0xb9, 0x91,
+	0xa8, 0x25, 0xfc, 0x22, 0x8e, 0x06, 0xe9, 0x29, 0x3d, 0x76, 0x66, 0x6e, 0xd3, 0x9f, 0xd3, 0x63,
+	0x3d, 0x3f, 0xd5, 0x8b, 0xa9, 0x73, 0xe2, 0x0d, 0xe4, 0x7f, 0x8a, 0x96, 0x4b, 0xd5, 0xcd, 0x8d,
+	0xf4, 0x45, 0xa6, 0x62, 0x96, 0xd2, 0x6d, 0xd6, 0xee, 0xc4, 0xac, 0xdd, 0xb9, 0xc0, 0xb6, 0xfc,
+	0x0f, 0xed, 0x7d, 0x5d, 0x8d, 0xfe, 0x2c, 0x93, 0x6a, 0x97, 0xa7, 0xb4, 0x77, 0xbe, 0x47, 0xf4,
+	0xff, 0xca, 0xf5, 0x52, 0xb4, 0xcb, 0x85, 0xda, 0x66, 0xca, 0xbb, 0x81, 0xc6, 0xba, 0x5c, 0x06,
+	0x66, 0xac, 0x62, 0x46, 0xa3, 0x5d, 0x2e, 0xbf, 0x2c, 0x44, 0x3d, 0x67, 0x6d, 0x40, 0xf4, 0xda,
+	0xdd, 0xa6, 0xd1, 0x53, 0xb7, 0xa9, 0x68, 0xfe, 0x33, 0x67, 0xad, 0xa0, 0xf9, 0x1b, 0xff, 0x17,
+	0x4e, 0xae, 0xfc, 0x19, 0x8b, 0xe3, 0x75, 0x62, 0x4e, 0xc5, 0x81, 0x84, 0xa8, 0xc3, 0x4d, 0xdf,
+	0x27, 0xf8, 0x81, 0xdc, 0xe5, 0x11, 0xf5, 0xbe, 0x83, 0x66, 0x5a, 0x4c, 0x48, 0x15, 0x28, 0x22,
+	0xda, 0xd4, 0x75, 0x9c, 0xd3, 0x5a, 0xb2, 0xaf, 0x05, 0xde, 0x7d, 0x34, 0x2b, 0x69, 0xc8, 0xd3,
+	0xa8, 0x60, 0xda, 0x97, 0xf3, 0x8c, 0x11, 0x19, 0xaa, 0xff, 0x3f, 0x15, 0x54, 0xb3, 0x82, 0x0b,
+	0x2a, 0x99, 0xa0, 0x3a, 0xc2, 0x97, 0x21, 0x89, 0xa9, 0xf7, 0x18, 0x5d, 0x8e, 0x0c, 0xa6, 0x93,
+	0x01, 0x0d, 0x3a, 0x4b, 0x85, 0xa3, 0xc1, 0x26, 0x1f, 0xa3, 0x6b, 0x45, 0x50, 0x17, 0x08, 0xb0,
+	0x0c, 0x96, 0xd0, 0x40, 0xd2, 0xd0, 0x59, 0xc6, 0x2b, 0x05, 0xa5, 0x91, 0x33, 0x9a, 0x34, 0x84,
+	0xc1, 0x58, 0xaa, 0xa8, 0xe8, 0xf2, 0x98, 0x40, 0xe0, 0xa2, 0x7a, 0x5d, 0xea, 0xa8, 0x8e, 0x6d,
+	0xf1, 0x7e, 0xaf, 0x4b, 0xbd, 0x3a, 0xc2, 0x52, 0x11, 0xa1, 0x82, 0x83, 0x98, 0xa6, 0x79, 0xc2,
+	0x62, 0xef, 0xc7, 0x9c, 0x96, 0xae, 0x81, 0x10, 0x34, 0xf4, 0xb7, 0xec, 0xd9, 0xae, 0x67, 0x42,
+	0xd0, 0x54, 0x95, 0xaa, 0xdf, 0x47, 0xb3, 0x61, 0x26, 0xce, 0x98, 0xe9, 0x4c, 0x98, 0x89, 0x3e,
+	0xd5, 0xff, 0x73, 0xbb, 0xa3, 0xd5, 0xb0, 0xc3, 0xe8, 0x11, 0x4d, 0x68, 0xaa, 0x36, 0x8f, 0x20,
+	0x7c, 0xb9, 0x8b, 0xa6, 0x49, 0x89, 0x39, 0xbb, 0x69, 0x0b, 0xe0, 0xa8, 0x84, 0xda, 0x64, 0xed,
+	0xad, 0x34, 0x10, 0x78, 0x3e, 0x70, 0x47, 0xe0, 0x7c, 0xed, 0x35, 0x18, 0x07, 0x70, 0x27, 0xf2,
+	0x7f, 0xe3, 0x24, 0x19, 0xbb, 0x44, 0x85, 0x9d, 0xcd, 0x34, 0x5a, 0xe7, 0x69, 0xc4, 0x60, 0x5d,
+	0xa5, 0xc9, 0x1f, 0x49, 0x3b, 0x66, 0x09, 0x73, 0x35, 0x28, 0x61, 0xb0, 0xa8, 0xa4, 0x1b, 0x24,
+	0xe4, 0x44, 0xc0, 0xed, 0xe3, 0x06, 0xa0, 0xd3, 0x49, 0x77, 0xb7, 0x10, 0x40, 0xde, 0x90, 0x74,
+	0x83, 0x63, 0x96, 0x9a, 0xee, 0x6c, 0x85, 0x50, 0xd2, 0x7d, 0x95, 0xe3, 0x79, 0x7f, 0xb0, 0x7e,
+	0x86, 0x37, 0xea, 0xf6, 0xb7, 0x5f, 0x08, 0xfc, 0xff, 0xaa, 0xa0, 0x9b, 0x56, 0x8c, 0xa3, 0x5d,
+	0x5a, 0x53, 0x11, 0x25, 0xf3, 0xf8, 0x64, 0x11, 0x4d, 0x1c, 0x51, 0x21, 0x07, 0x53, 0xd4, 0x02,
+	0xf4, 0xbe, 0x0f, 0x77, 0x0c, 0x51, 0x26, 0xfa, 0x9b, 0x5e, 0xb9, 0x53, 0x3f, 0xa7, 0xb3, 0x3a,
+	0xfc, 0x6e, 0x18, 0xbe, 0xbd, 0xaa, 0x63, 0xc3, 0xab, 0xea, 0x5d, 0x47, 0x23, 0xa1, 0x08, 0x9d,
+	0x50, 0x03, 0x80, 0xda, 0x27, 0x68, 0x14, 0x7a, 0x01, 0xf9, 0xe0, 0xc5, 0x04, 0x00, 0x6c, 0x64,
+	0x44, 0xe3, 0x81, 0x34, 0xd5, 0x40, 0xfe, 0x4f, 0x9c, 0x13, 0xc6, 0x24, 0x44, 0x10, 0x3b, 0x29,
+	0xd8, 0x09, 0x17, 0x3d, 0x1d, 0xc1, 0x18, 0xcc, 0x89, 0x12, 0x0b, 0xd0, 0x56, 0xb8, 0x7a, 0x8a,
+	0x19, 0x7c, 0x55, 0x41, 0xef, 0x94, 0xbd, 0xff, 0x38, 0xa3, 0x52, 0xed, 0x09, 0xde, 0x16, 0x54,
+	0x4a, 0xb8, 0x50, 0x7e, 0x0a, 0x00, 0xb4, 0xb5, 0x53, 0xcd, 0x09, 0x8d, 0xee, 0x44, 0x60, 0xef,
+	0x29, 0x17, 0x09, 0x89, 0x83, 0x2e, 0xd7, 0xb1, 0x6e, 0xd5, 0x62, 0xcd, 0x18, 0xd1, 0x9e, 0x96,
+	0xc0, 0xce, 0x1e, 0xf0, 0x34, 0x93, 0x05, 0x73, 0xc4, 0x62, 0x4e, 0x6b, 0x49, 0x4e, 0x7c, 0x80,
+	0xe6, 0x98, 0x0c, 0x28, 0x4c, 0x2f, 0xd0, 0xe3, 0x38, 0x15, 0xba, 0x19, 0x26, 0xf5, 0x09, 0xd1,
+	0x8a, 0xfa, 0x9f, 0xa1, 0x45, 0x2b, 0xb6, 0x09, 0xb9, 0xa0, 0x9f, 0x53, 0x12, 0x51, 0x71, 0xc0,
+	0x89, 0x88, 0x20, 0x66, 0xf1, 0xee, 0xe7, 0xd9, 0xbf, 0x09, 0x6c, 0xae, 0xd5, 0x4f, 0x23, 0x99,
+	0x72, 0x80, 0xff, 0x1a, 0xbd, 0x3f, 0x68, 0x04, 0x1b, 0x34, 0x24, 0xf1, 0x06, 0x6b, 0x33, 0x45,
+	0xe2, 0x26, 0x6b, 0xa7, 0x44, 0x65, 0x82, 0x7a, 0x8f, 0x9c, 0x3e, 0x6f, 0xd5, 0xcf, 0xe1, 0xe6,
+	0x5d, 0xff, 0xc4, 0x4e, 0x2a, 0xbe, 0x6c, 0x90, 0xf4, 0x70, 0x8b, 0x9a, 0x1c, 0x85, 0x47, 0x74,
+	0x28, 0x82, 0x9e, 0x00, 0x14, 0xe2, 0xe7, 0xf7, 0x10, 0x0a, 0x79, 0xaa, 0x04, 0x8f, 0x63, 0x2a,
+	0x9c, 0xdd, 0xb3, 0x70, 0xff, 0xe7, 0x43, 0x9d, 0xbf, 0xe8, 0x46, 0xff, 0x4f, 0x9d, 0x83, 0x75,
+	0x09, 0x92, 0x1e, 0xb2, 0xb4, 0xed, 0x06, 0xe8, 0x39, 0xe8, 0x37, 0xd0, 0x82, 0x75, 0x1f, 0x92,
+	0x38, 0x7e, 0xc9, 0x15, 0x7d, 0x46, 0x58, 0x4c, 0x75, 0xa0, 0x24, 0x28, 0x91, 0x03, 0x47, 0x30,
+	0xc7, 0x74, 0x4a, 0x35, 0x58, 0x1e, 0xd2, 0x88, 0xff, 0x9b, 0xaa, 0x9b, 0x9c, 0x2b, 0xda, 0x84,
+	0x4b, 0xd8, 0x24, 0x61, 0x24, 0x71, 0x7a, 0xd3, 0x88, 0x5d, 0x93, 0xad, 0x9e, 0x52, 0x93, 0xbd,
+	0x83, 0xa6, 0x8e, 0xb8, 0xa2, 0xc3, 0xfe, 0x60, 0x12, 0x60, 0xed, 0x07, 0x96, 0xd0, 0x24, 0x1c,
+	0x98, 0x40, 0x2a, 0xe1, 0xd4, 0x0d, 0xf4, 0x31, 0x6a, 0x2a, 0x01, 0x17, 0x58, 0x44, 0x15, 0x61,
+	0xb1, 0xd4, 0x1c, 0x3b, 0xf4, 0x42, 0xb9, 0x00, 0x68, 0x0f, 0xd0, 0x1c, 0x57, 0x1d, 0x2a, 0x02,
+	0xd0, 0x4b, 0x33, 0xc7, 0x2d, 0xe6, 0x8c, 0x96, 0xed, 0x53, 0x92, 0x00, 0xf7, 0xbe, 0xb6, 0xf4,
+	0x1e, 0x95, 0x41, 0xca, 0x03, 0xd0, 0xc4, 0x49, 0x41, 0xa6, 0x99, 0x7c, 0x4d, 0xe5, 0x73, 0x0e,
+	0xf3, 0x87, 0x83, 0x66, 0xc2, 0x97, 0xc2, 0x21, 0x4f, 0xda, 0x0e, 0xd9, 0x88, 0x72, 0x87, 0xfc,
+	0x77, 0xee, 0x93, 0x04, 0x57, 0x74, 0x8f, 0x48, 0x79, 0xce, 0xe2, 0x39, 0xab, 0x53, 0xbd, 0x70,
+	0x75, 0x46, 0xde, 0x62, 0x75, 0x46, 0x4f, 0x5f, 0x1d, 0xff, 0x39, 0xba, 0xea, 0xaa, 0x96, 0x5b,
+	0xca, 0xd9, 0xca, 0x95, 0x36, 0x54, 0x1d, 0xb6, 0x21, 0xff, 0xd3, 0x21, 0x43, 0xa1, 0x2a, 0xeb,
+	0x7a, 0xf7, 0x11, 0xee, 0x72, 0x05, 0xab, 0x42, 0xe2, 0x80, 0x49, 0x99, 0xd1, 0x22, 0x0b, 0x9f,
+	0xef, 0xe3, 0x3b, 0x1a, 0xf6, 0xff, 0xb5, 0x82, 0xee, 0xba, 0xe9, 0xd1, 0xe7, 0x44, 0x2a, 0x88,
+	0xa8, 0xa8, 0x30, 0x95, 0x92, 0x7d, 0xbe, 0x6e, 0x4a, 0x0a, 0x0f, 0xd0, 0x5c, 0x9a, 0x25, 0x41,
+	0x87, 0x29, 0x19, 0xb4, 0xd9, 0x11, 0x75, 0xcd, 0x7a, 0x26, 0xcd, 0x92, 0x6d, 0xa6, 0xe4, 0x16,
+	0x48, 0xe0, 0xb6, 0x8b, 0x74, 0xeb, 0x9c, 0xe9, 0xf8, 0x45, 0x23, 0x31, 0x44, 0xbb, 0x53, 0x45,
+	0x0e, 0x69, 0xea, 0x86, 0x5a, 0x79, 0xa7, 0xfb, 0x20, 0xb1, 0x3a, 0x35, 0xcc, 0xd1, 0xe1, 0x4e,
+	0x35, 0xd1, 0xff, 0x97, 0xaa, 0xed, 0x31, 0x9a, 0x54, 0x1c, 0x51, 0x91, 0xdf, 0x0b, 0xe0, 0x1b,
+	0xb7, 0xd0, 0x34, 0x1c, 0xdf, 0xb2, 0xb6, 0x00, 0x1e, 0xf0, 0x6e, 0xfd, 0xec, 0x16, 0xf5, 0xf2,
+	0x67, 0x03, 0x89, 0xfe, 0xef, 0xda, 0xb7, 0x15, 0x84, 0xac, 0x7e, 0xdf, 0x45, 0x88, 0x84, 0x3a,
+	0xf6, 0x28, 0x1c, 0x46, 0x3f, 0x62, 0xc8, 0x71, 0x93, 0xf2, 0xeb, 0xc1, 0x8b, 0x9c, 0xc1, 0xb9,
+	0x51, 0x20, 0x59, 0x28, 0x08, 0x45, 0x96, 0xe0, 0x10, 0x20, 0x3d, 0x58, 0x42, 0x93, 0xb0, 0x64,
+	0xc7, 0x2c, 0x95, 0x6e, 0x4d, 0x20, 0xcd, 0x92, 0x57, 0x2c, 0x95, 0xa6, 0x46, 0x99, 0x1e, 0x06,
+	0x61, 0x47, 0xbf, 0x64, 0xd9, 0xe9, 0x9d, 0xd6, 0x7e, 0x5d, 0xe3, 0xde, 0x5d, 0x34, 0xa3, 0x69,
+	0x60, 0xf7, 0xa0, 0xb0, 0xed, 0xb3, 0x35, 0x0f, 0x4c, 0x7f, 0x27, 0xf2, 0x5f, 0x39, 0xf7, 0x6b,
+	0x37, 0x9f, 0xec, 0xaa, 0xe3, 0x04, 0x1e, 0xea, 0x92, 0xd8, 0xd6, 0xfa, 0x7a, 0xff, 0xa9, 0xf0,
+	0x68, 0x25, 0xd8, 0x5a, 0x5f, 0x31, 0x2b, 0xf9, 0x9c, 0x2b, 0xd6, 0xea, 0x7d, 0xb9, 0xd7, 0xa0,
+	0xc7, 0x44, 0x44, 0x34, 0xca, 0xbd, 0xc2, 0x23, 0xfb, 0x34, 0xe8, 0x64, 0x9b, 0x85, 0x87, 0x59,
+	0x17, 0x4e, 0x03, 0x24, 0xd9, 0x6e, 0xb1, 0x09, 0x10, 0xff, 0x57, 0xee, 0x93, 0x54, 0x87, 0x1f,
+	0xeb, 0xe7, 0xc6, 0x3a, 0xc2, 0x07, 0x60, 0x40, 0x47, 0x24, 0x66, 0x51, 0x20, 0x63, 0xae, 0xab,
+	0x4e, 0x56, 0xc5, 0x0d, 0xa4, 0x2f, 0x41, 0xd8, 0x04, 0x99, 0x36, 0x24, 0x13, 0x1d, 0x0c, 0x57,
+	0xe8, 0xa7, 0x73, 0x89, 0x2e, 0xd2, 0x43, 0xd4, 0x46, 0xd3, 0x0c, 0xce, 0x74, 0xe1, 0x01, 0xfa,
+	0xc7, 0x1a, 0x04, 0x4d, 0x8d, 0xbb, 0x2f, 0x7d, 0x6b, 0x44, 0xf4, 0xdf, 0x3e, 0xd8, 0xe0, 0x7b,
+	0xa4, 0xbe, 0xdf, 0x3f, 0xb2, 0xe7, 0xbd, 0x9a, 0x24, 0x7c, 0x83, 0xa6, 0x8c, 0x46, 0x3a, 0xeb,
+	0x4f, 0x12, 0xbe, 0x33, 0xe8, 0xb1, 0x72, 0xd0, 0x5f, 0x47, 0x37, 0xec, 0x80, 0x55, 0x1c, 0x5a,
+	0x61, 0xf3, 0x69, 0x11, 0xf3, 0xd4, 0x29, 0x11, 0xb3, 0xff, 0x89, 0x7d, 0x34, 0x74, 0xd4, 0x6b,
+	0x87, 0x8d, 0xb7, 0xd0, 0xb8, 0x55, 0x71, 0x9b, 0xea, 0xc7, 0x4a, 0x1a, 0xf3, 0x9f, 0xdb, 0xab,
+	0x5f, 0x14, 0x69, 0xa0, 0x8d, 0xae, 0x89, 0x18, 0x93, 0x1f, 0x29, 0xda, 0x18, 0xcc, 0x04, 0x76,
+	0x44, 0x75, 0x9c, 0x0a, 0xb0, 0x81, 0xfc, 0xa7, 0xf6, 0x84, 0xb6, 0x62, 0x7e, 0xbc, 0x27, 0x78,
+	0x77, 0x3f, 0x13, 0xe9, 0x17, 0xad, 0xd6, 0x05, 0x59, 0xec, 0xaf, 0x2b, 0x76, 0xe8, 0xd3, 0x80,
+	0x20, 0x7b, 0x8d, 0x80, 0xf5, 0x14, 0x25, 0x6e, 0x59, 0xe6, 0x06, 0x95, 0xe1, 0xdc, 0xa0, 0xff,
+	0x60, 0x52, 0x1d, 0x7e, 0x30, 0x59, 0x46, 0x93, 0xfd, 0x12, 0xba, 0xbd, 0xe3, 0x7d, 0x14, 0x18,
+	0x29, 0x0b, 0x87, 0x8b, 0xec, 0x7d, 0xd4, 0xef, 0xda, 0x8f, 0x46, 0xcd, 0xe6, 0x8b, 0x9d, 0xfe,
+	0xc3, 0x77, 0x65, 0xe8, 0xe1, 0xfb, 0x5d, 0x84, 0x4c, 0x0a, 0xd6, 0xb7, 0xc5, 0x7e, 0x32, 0xac,
+	0x71, 0x6d, 0x4d, 0x4b, 0x68, 0xb2, 0x9f, 0x9f, 0x39, 0x55, 0x93, 0x22, 0x31, 0xfb, 0xfb, 0x31,
+	0x3b, 0x8e, 0x6d, 0x66, 0xe2, 0x88, 0x1d, 0x91, 0x58, 0xef, 0x2d, 0x8c, 0x7d, 0x92, 0xe5, 0xfb,
+	0x33, 0x5a, 0x8c, 0x0d, 0x88, 0xf7, 0x3d, 0x34, 0xd6, 0x22, 0xa1, 0x2a, 0xea, 0xa6, 0xb7, 0xeb,
+	0x67, 0x74, 0x51, 0x7f, 0x46, 0x42, 0xd5, 0x30, 0x5c, 0xef, 0x63, 0x34, 0x06, 0xc1, 0x73, 0xf1,
+	0x4e, 0xef, 0x9f, 0xd9, 0x68, 0x2f, 0x26, 0xa1, 0xb6, 0xba, 0x86, 0x69, 0xe0, 0x3d, 0x45, 0x13,
+	0xe6, 0x9e, 0x96, 0x0b, 0x63, 0x43, 0x2f, 0x0b, 0x6e, 0x5b, 0xe3, 0x7c, 0x1a, 0x05, 0x1f, 0xc2,
+	0x35, 0xc5, 0xc2, 0xc3, 0x34, 0x4b, 0x0e, 0xa8, 0x70, 0xee, 0x3d, 0x0b, 0xaf, 0xfd, 0x75, 0x05,
+	0x8d, 0x82, 0xaa, 0xfa, 0xf4, 0x81, 0x3f, 0x77, 0x3d, 0x2a, 0xf8, 0x72, 0x2b, 0x5f, 0x70, 0xee,
+	0xdf, 0x22, 0x5f, 0xa8, 0xa1, 0xb1, 0x23, 0x12, 0x67, 0x6e, 0xa0, 0x64, 0x20, 0xaf, 0x8e, 0xe6,
+	0x75, 0x06, 0x4d, 0xa5, 0x62, 0x69, 0x3b, 0xa5, 0x52, 0x3a, 0xc9, 0xf2, 0xa0, 0xb0, 0xc6, 0xd1,
+	0x54, 0x7f, 0x0d, 0xce, 0xd9, 0x05, 0x98, 0x1b, 0x25, 0x49, 0x3e, 0x37, 0x27, 0x14, 0x2d, 0x71,
+	0xc8, 0x47, 0xbb, 0x45, 0x67, 0x8e, 0x72, 0x25, 0x5c, 0xfb, 0x55, 0x05, 0x8d, 0xe7, 0x0f, 0x1c,
+	0x67, 0x0f, 0x77, 0x15, 0x55, 0x15, 0x77, 0x86, 0xa9, 0x2a, 0x0e, 0x31, 0xa4, 0xe2, 0xda, 0x11,
+	0xbb, 0xe9, 0xb2, 0xe2, 0xe0, 0x81, 0xa1, 0xbb, 0x96, 0xe0, 0x89, 0xb3, 0xf2, 0x1a, 0x81, 0xf8,
+	0x49, 0x3f, 0xa8, 0xe9, 0xa6, 0x76, 0x4e, 0x38, 0x09, 0x30, 0x34, 0xf6, 0x1f, 0x39, 0xaf, 0x61,
+	0x54, 0x52, 0xb5, 0x9d, 0xe9, 0xab, 0x41, 0xc0, 0x6f, 0xe7, 0x4c, 0x18, 0xc8, 0x7f, 0x6c, 0x47,
+	0x36, 0x5b, 0x24, 0xa1, 0xfb, 0x4c, 0x99, 0x87, 0xce, 0x28, 0x4b, 0x92, 0x9e, 0x7b, 0xa6, 0x35,
+	0xe4, 0x3f, 0x71, 0x8b, 0xad, 0x3a, 0x77, 0x02, 0x5b, 0x3a, 0xbf, 0xd5, 0x53, 0x3b, 0x8f, 0x6e,
+	0x2a, 0xde, 0x6d, 0x76, 0x69, 0xa8, 0x88, 0xe2, 0x42, 0x97, 0x8c, 0xde, 0xba, 0xe9, 0x06, 0x93,
+	0x21, 0x4f, 0x53, 0x1a, 0xaa, 0x7d, 0xfe, 0x39, 0x3f, 0x38, 0xe8, 0x9d, 0xdb, 0xf4, 0x23, 0x3b,
+	0x6d, 0x78, 0x45, 0x44, 0x92, 0x75, 0xb7, 0x89, 0xdc, 0x4c, 0x23, 0x1a, 0x9d, 0xdb, 0x6e, 0xc5,
+	0x76, 0x1d, 0x26, 0x2e, 0xdb, 0x49, 0x5b, 0xfc, 0xdc, 0x36, 0xaf, 0xdd, 0x02, 0x78, 0x11, 0xda,
+	0x34, 0xe8, 0x11, 0x25, 0xf1, 0x6a, 0x1c, 0x7b, 0x1f, 0xa3, 0x6b, 0xa6, 0xa4, 0x25, 0x03, 0xc5,
+	0xe2, 0x38, 0x90, 0x9d, 0x4c, 0x45, 0xfc, 0xd8, 0x8d, 0xef, 0xae, 0xe4, 0x94, 0x7d, 0x16, 0xc7,
+	0xcd, 0x9c, 0xf0, 0xe0, 0xab, 0x59, 0x74, 0x7d, 0xb3, 0xef, 0xf3, 0x5f, 0x48, 0x2a, 0x76, 0xf3,
+	0xef, 0x83, 0x3c, 0x0f, 0xcd, 0xad, 0x37, 0x83, 0x17, 0xbb, 0xfd, 0x4f, 0x77, 0x70, 0xc5, 0xc3,
+	0x68, 0xc6, 0x60, 0xe6, 0x63, 0x1b, 0x5c, 0xf5, 0xe6, 0xd1, 0xb4, 0x41, 0xf4, 0xe7, 0x34, 0x78,
+	0xc4, 0xbb, 0x8c, 0x66, 0x0d, 0x90, 0x7f, 0x30, 0x83, 0x47, 0x4b, 0x28, 0xff, 0x04, 0x05, 0x8f,
+	0x95, 0x9d, 0x17, 0x5f, 0xa5, 0xe0, 0xf1, 0x92, 0x96, 0x7f, 0xf9, 0x81, 0x27, 0xca, 0xf1, 0xcc,
+	0xf7, 0x1b, 0x78, 0xb2, 0x6c, 0x58, 0x18, 0x21, 0x9e, 0xf2, 0xae, 0xa0, 0xf9, 0x5c, 0xab, 0xc2,
+	0xcc, 0x30, 0x2a, 0x15, 0xd3, 0x9f, 0x26, 0xe0, 0x19, 0x6f, 0x0e, 0x21, 0x03, 0x3c, 0x23, 0x11,
+	0xc5, 0xb3, 0x65, 0xdf, 0xe6, 0x09, 0x1e, 0xcf, 0x79, 0xd7, 0x91, 0x67, 0x10, 0xfb, 0xc1, 0x1a,
+	0xcf, 0x7b, 0xb7, 0xd0, 0xc2, 0x30, 0x6e, 0x1e, 0xb2, 0x31, 0x2e, 0x47, 0xef, 0xbf, 0x31, 0xe3,
+	0xcb, 0x96, 0x9a, 0xf9, 0xcb, 0x31, 0xf6, 0x4a, 0x62, 0xff, 0x05, 0x16, 0x5f, 0x29, 0xc7, 0xb4,
+	0xed, 0x1d, 0x5f, 0x2d, 0xb5, 0x33, 0x97, 0x01, 0xbe, 0x56, 0x36, 0xef, 0x3f, 0x30, 0xe2, 0xeb,
+	0xe5, 0x38, 0xc5, 0xab, 0x1d, 0x7e, 0xc7, 0xbb, 0x86, 0x2e, 0x1b, 0xcc, 0x7a, 0xcc, 0xc3, 0x0b,
+	0xde, 0x7b, 0x68, 0xd9, 0xc0, 0x67, 0xbf, 0xa7, 0xe1, 0x1b, 0xb6, 0x3e, 0xe5, 0x63, 0x07, 0xae,
+	0x95, 0x9d, 0x5a, 0x05, 0x67, 0x7c, 0xd3, 0xbb, 0x81, 0xae, 0x19, 0xd8, 0x74, 0x00, 0x89, 0xa1,
+	0x11, 0xdd, 0xf2, 0x6e, 0xa2, 0x77, 0xf2, 0x75, 0x19, 0x3c, 0x93, 0xf8, 0x76, 0xb9, 0xd7, 0x79,
+	0xe9, 0x17, 0x2f, 0x7a, 0x35, 0x74, 0x3d, 0x9f, 0xf1, 0x40, 0x3d, 0x15, 0x2f, 0x95, 0xb2, 0xc1,
+	0x82, 0x25, 0x5e, 0x2e, 0x65, 0x83, 0x35, 0x48, 0x7c, 0xa7, 0xdc, 0xb9, 0xe1, 0xea, 0x20, 0xf6,
+	0x4b, 0x0d, 0x87, 0x8e, 0x3e, 0x7e, 0xb7, 0x14, 0x0e, 0x55, 0xd3, 0xf0, 0x7b, 0x96, 0xae, 0x03,
+	0xc5, 0x2c, 0xfc, 0xbe, 0xb7, 0x80, 0xae, 0x1a, 0x99, 0x7b, 0x2b, 0xe0, 0xbb, 0xde, 0x55, 0x84,
+	0x0b, 0x3b, 0x2a, 0xce, 0x3d, 0xfe, 0x4e, 0xb9, 0x85, 0x45, 0x59, 0x05, 0xdf, 0x1b, 0xc0, 0x5e,
+	0x74, 0x23, 0x7c, 0xbf, 0xec, 0xd7, 0x2d, 0x52, 0xe0, 0x87, 0xb6, 0x61, 0xe5, 0x95, 0x06, 0x5c,
+	0xb7, 0x8e, 0x6f, 0x9e, 0x40, 0xe3, 0x0f, 0x4a, 0x05, 0xac, 0xe6, 0x8f, 0x06, 0x9a, 0x43, 0xfe,
+	0x89, 0x1f, 0x7b, 0xb7, 0xd1, 0x8d, 0xc2, 0xaa, 0x87, 0xee, 0x1b, 0xbc, 0xe2, 0xdd, 0x45, 0x7e,
+	0x69, 0xf4, 0x67, 0x25, 0x9c, 0xf8, 0x7b, 0xe5, 0x42, 0x0d, 0x66, 0x64, 0xf8, 0x49, 0xa9, 0x4d,
+	0x99, 0x39, 0xe0, 0x0f, 0xad, 0x9b, 0x21, 0x4f, 0x0e, 0xf0, 0x47, 0xa5, 0xb5, 0xe4, 0xa1, 0x39,
+	0xfe, 0x7e, 0xd9, 0xb8, 0x0c, 0xbf, 0xf1, 0xc7, 0xa5, 0x39, 0x0e, 0x04, 0xd7, 0xf8, 0x69, 0xa9,
+	0xc9, 0x60, 0xc8, 0x8c, 0x3f, 0x29, 0xc7, 0x2c, 0x42, 0x62, 0xfc, 0x83, 0xb2, 0xab, 0x81, 0xb0,
+	0x16, 0xff, 0xd0, 0x5e, 0x9b, 0xa1, 0x07, 0x4f, 0xfc, 0x87, 0xde, 0x22, 0xaa, 0xe5, 0x47, 0xe8,
+	0x94, 0xa0, 0x16, 0xff, 0xd1, 0x59, 0xcd, 0xf5, 0x5b, 0x26, 0xfe, 0x63, 0xeb, 0x9c, 0x17, 0x4f,
+	0x34, 0xf8, 0x53, 0xcb, 0x20, 0xf2, 0xf4, 0x0d, 0xaf, 0x7a, 0xef, 0xa0, 0x2b, 0x06, 0x73, 0x6a,
+	0x9e, 0x78, 0xad, 0x54, 0xe0, 0xb4, 0x5a, 0x21, 0x5e, 0xf7, 0xde, 0x47, 0x77, 0x6c, 0xd3, 0x3e,
+	0xb5, 0xee, 0x87, 0x37, 0xca, 0x23, 0x6f, 0xbd, 0x1d, 0xe2, 0x4d, 0x6f, 0x09, 0xdd, 0xb4, 0x8f,
+	0xfc, 0xc0, 0xbb, 0x1b, 0x7e, 0xe6, 0x2d, 0xa3, 0x5b, 0x86, 0x70, 0xfa, 0xeb, 0x16, 0xde, 0x2a,
+	0xaf, 0x62, 0x08, 0xac, 0xf1, 0x76, 0x39, 0x13, 0x27, 0x82, 0xc4, 0x3b, 0xe5, 0xf9, 0x1d, 0x3a,
+	0xa1, 0x2b, 0xf8, 0x47, 0x0f, 0x7e, 0x51, 0x41, 0xfe, 0xe6, 0xd9, 0xfe, 0x3b, 0x58, 0x0d, 0xf5,
+	0x77, 0x35, 0x8f, 0xd0, 0x77, 0x0f, 0x83, 0x8b, 0x79, 0xc1, 0x06, 0x6d, 0x91, 0x2c, 0x56, 0xf8,
+	0xd2, 0x5b, 0xb7, 0xd8, 0xe2, 0x3f, 0xce, 0x68, 0x46, 0x71, 0x65, 0xcd, 0xff, 0xed, 0x37, 0x8b,
+	0x95, 0xdf, 0x7d, 0xb3, 0x58, 0xf9, 0xcf, 0x6f, 0x16, 0x2b, 0x7f, 0xfb, 0xed, 0xe2, 0xa5, 0xdf,
+	0x7d, 0xbb, 0x78, 0xe9, 0xeb, 0x6f, 0x17, 0x2f, 0x6d, 0x57, 0xde, 0x8c, 0x24, 0xb2, 0xfd, 0x17,
+	0x95, 0x4b, 0xff, 0x1b, 0x00, 0x00, 0xff, 0xff, 0x54, 0x20, 0xc5, 0xb4, 0xda, 0x2b, 0x00, 0x00,
+}
+
 func (m *CCSUsrMsg_VGUIMenu) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -2634,9 +5313,9 @@ func (m *CCSUsrMsg_HudMsg) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x12
 		i++
 		i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Pos.Size()))
-		n1, err := m.Pos.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n1, err1 := m.Pos.MarshalTo(dAtA[i:])
+		if err1 != nil {
+			return 0, err1
 		}
 		i += n1
 	}
@@ -2644,9 +5323,9 @@ func (m *CCSUsrMsg_HudMsg) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x1a
 		i++
 		i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Clr1.Size()))
-		n2, err := m.Clr1.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n2, err2 := m.Clr1.MarshalTo(dAtA[i:])
+		if err2 != nil {
+			return 0, err2
 		}
 		i += n2
 	}
@@ -2654,9 +5333,9 @@ func (m *CCSUsrMsg_HudMsg) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x22
 		i++
 		i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Clr2.Size()))
-		n3, err := m.Clr2.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n3, err3 := m.Clr2.MarshalTo(dAtA[i:])
+		if err3 != nil {
+			return 0, err3
 		}
 		i += n3
 	}
@@ -2665,16 +5344,20 @@ func (m *CCSUsrMsg_HudMsg) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Effect))
 	dAtA[i] = 0x35
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.FadeInTime))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.FadeInTime))))
+	i += 4
 	dAtA[i] = 0x3d
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.FadeOutTime))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.FadeOutTime))))
+	i += 4
 	dAtA[i] = 0x4d
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.HoldTime))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.HoldTime))))
+	i += 4
 	dAtA[i] = 0x55
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.FxTime))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.FxTime))))
+	i += 4
 	dAtA[i] = 0x5a
 	i++
 	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(len(m.Text)))
@@ -2702,13 +5385,16 @@ func (m *CCSUsrMsg_Shake) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Command))
 	dAtA[i] = 0x15
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.LocalAmplitude))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.LocalAmplitude))))
+	i += 4
 	dAtA[i] = 0x1d
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.Frequency))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Frequency))))
+	i += 4
 	dAtA[i] = 0x25
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.Duration))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Duration))))
+	i += 4
 	return i, nil
 }
 
@@ -2740,9 +5426,9 @@ func (m *CCSUsrMsg_Fade) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x22
 		i++
 		i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Clr.Size()))
-		n4, err := m.Clr.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n4, err4 := m.Clr.MarshalTo(dAtA[i:])
+		if err4 != nil {
+			return 0, err4
 		}
 		i += n4
 	}
@@ -2885,7 +5571,8 @@ func (m *CCSUsrMsg_RawAudio) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Entidx))
 	dAtA[i] = 0x1d
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.Duration))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Duration))))
+	i += 4
 	dAtA[i] = 0x22
 	i++
 	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(len(m.VoiceFilename)))
@@ -2977,9 +5664,9 @@ func (m *CCSUsrMsg_Damage) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x12
 		i++
 		i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.InflictorWorldPos.Size()))
-		n5, err := m.InflictorWorldPos.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n5, err5 := m.InflictorWorldPos.MarshalTo(dAtA[i:])
+		if err5 != nil {
+			return 0, err5
 		}
 		i += n5
 	}
@@ -3234,9 +5921,9 @@ func (m *CCSUsrMsg_SendPlayerItemFound) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Iteminfo.Size()))
-		n6, err := m.Iteminfo.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n6, err6 := m.Iteminfo.MarshalTo(dAtA[i:])
+		if err6 != nil {
+			return 0, err6
 		}
 		i += n6
 	}
@@ -3269,13 +5956,110 @@ func (m *CCSUsrMsg_ReloadEffect) MarshalTo(dAtA []byte) (int, error) {
 	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Actanim))
 	dAtA[i] = 0x1d
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.OriginX))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.OriginX))))
+	i += 4
 	dAtA[i] = 0x25
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.OriginY))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.OriginY))))
+	i += 4
 	dAtA[i] = 0x2d
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.OriginZ))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.OriginZ))))
+	i += 4
+	return i, nil
+}
+
+func (m *CCSUsrMsg_WeaponSound) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CCSUsrMsg_WeaponSound) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Entidx))
+	dAtA[i] = 0x15
+	i++
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.OriginX))))
+	i += 4
+	dAtA[i] = 0x1d
+	i++
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.OriginY))))
+	i += 4
+	dAtA[i] = 0x25
+	i++
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.OriginZ))))
+	i += 4
+	dAtA[i] = 0x2a
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(len(m.Sound)))
+	i += copy(dAtA[i:], m.Sound)
+	dAtA[i] = 0x35
+	i++
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Timestamp))))
+	i += 4
+	return i, nil
+}
+
+func (m *CCSUsrMsg_UpdateScreenHealthBar) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CCSUsrMsg_UpdateScreenHealthBar) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Entidx))
+	dAtA[i] = 0x15
+	i++
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.HealthratioOld))))
+	i += 4
+	dAtA[i] = 0x1d
+	i++
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.HealthratioNew))))
+	i += 4
+	dAtA[i] = 0x20
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Style))
+	return i, nil
+}
+
+func (m *CCSUsrMsg_EntityOutlineHighlight) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CCSUsrMsg_EntityOutlineHighlight) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Entidx))
 	return i, nil
 }
 
@@ -3317,16 +6101,20 @@ func (m *CCSUsrMsg_ReportHit) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0xd
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.PosX))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.PosX))))
+	i += 4
 	dAtA[i] = 0x15
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.PosY))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.PosY))))
+	i += 4
 	dAtA[i] = 0x1d
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.PosZ))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.PosZ))))
+	i += 4
 	dAtA[i] = 0x25
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.Timestamp))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Timestamp))))
+	i += 4
 	return i, nil
 }
 
@@ -3374,16 +6162,19 @@ func (m *CCSUsrMsg_DesiredTimescale) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0xd
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.DesiredTimescale))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.DesiredTimescale))))
+	i += 4
 	dAtA[i] = 0x15
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.DurationRealtimeSec))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.DurationRealtimeSec))))
+	i += 4
 	dAtA[i] = 0x18
 	i++
 	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.InterpolatorType))
 	dAtA[i] = 0x25
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.StartBlendTime))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.StartBlendTime))))
+	i += 4
 	return i, nil
 }
 
@@ -3404,7 +6195,8 @@ func (m *CCSUsrMsg_CurrentTimescale) MarshalTo(dAtA []byte) (int, error) {
 	_ = l
 	dAtA[i] = 0xd
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.CurTimescale))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.CurTimescale))))
+	i += 4
 	return i, nil
 }
 
@@ -3611,11 +6403,39 @@ func (m *CCSUsrMsg_ScoreLeaderboardData) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Data.Size()))
-		n7, err := m.Data.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n7, err7 := m.Data.MarshalTo(dAtA[i:])
+		if err7 != nil {
+			return 0, err7
 		}
 		i += n7
+	}
+	return i, nil
+}
+
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Data != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Data.Size()))
+		n8, err8 := m.Data.MarshalTo(dAtA[i:])
+		if err8 != nil {
+			return 0, err8
+		}
+		i += n8
 	}
 	return i, nil
 }
@@ -3739,6 +6559,9 @@ func (m *CCSUsrMsg_VoteStart) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0
 	}
 	i++
+	dAtA[i] = 0x40
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.EntidxTarget))
 	return i, nil
 }
 
@@ -3920,7 +6743,11 @@ func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) MarshalTo(dAtA []byte) (int, err
 	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.NumWins))
 	dAtA[i] = 0x2d
 	i++
-	i = encodeFixed32Cstrike15Usermessages(dAtA, i, uint32(math.Float32bits(float32(m.RankChange))))
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.RankChange))))
+	i += 4
+	dAtA[i] = 0x30
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.RankTypeId))
 	return i, nil
 }
 
@@ -3943,11 +6770,11 @@ func (m *CCSUsrMsg_XpUpdate) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0xa
 		i++
 		i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Data.Size()))
-		n8, err := m.Data.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		n9, err9 := m.Data.MarshalTo(dAtA[i:])
+		if err9 != nil {
+			return 0, err9
 		}
-		i += n8
+		i += n9
 	}
 	return i, nil
 }
@@ -4171,6 +6998,191 @@ func (m *CCSUsrMsg_RoundBackupFilenames) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
+func (m *CCSUsrMsg_SSUI) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CCSUsrMsg_SSUI) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	if m.Show {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i++
+	dAtA[i] = 0x15
+	i++
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.StartTime))))
+	i += 4
+	dAtA[i] = 0x1d
+	i++
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.EndTime))))
+	i += 4
+	return i, nil
+}
+
+func (m *CCSUsrMsg_SurvivalStats) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CCSUsrMsg_SurvivalStats) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Xuid))
+	if len(m.Facts) > 0 {
+		for _, msg := range m.Facts {
+			dAtA[i] = 0x12
+			i++
+			i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	if len(m.Users) > 0 {
+		for _, msg := range m.Users {
+			dAtA[i] = 0x1a
+			i++
+			i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	dAtA[i] = 0x20
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Ticknumber))
+	if len(m.Damages) > 0 {
+		for _, msg := range m.Damages {
+			dAtA[i] = 0x2a
+			i++
+			i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	return i, nil
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Fact) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Fact) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Type))
+	dAtA[i] = 0x10
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Display))
+	dAtA[i] = 0x18
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Value))
+	dAtA[i] = 0x25
+	i++
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Interestingness))))
+	i += 4
+	return i, nil
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Placement) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Placement) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Xuid))
+	dAtA[i] = 0x10
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Teamnumber))
+	dAtA[i] = 0x18
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Placement))
+	return i, nil
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Damage) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Damage) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0x8
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.Xuid))
+	dAtA[i] = 0x10
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.To))
+	dAtA[i] = 0x18
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.ToHits))
+	dAtA[i] = 0x20
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.From))
+	dAtA[i] = 0x28
+	i++
+	i = encodeVarintCstrike15Usermessages(dAtA, i, uint64(m.FromHits))
+	return i, nil
+}
+
 func (m *CCSUsrMsg_ResetHud) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -4344,24 +7356,6 @@ func (m *CCSUsrMsg_ServerRankRevealAll) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
-func encodeFixed64Cstrike15Usermessages(dAtA []byte, offset int, v uint64) int {
-	dAtA[offset] = uint8(v)
-	dAtA[offset+1] = uint8(v >> 8)
-	dAtA[offset+2] = uint8(v >> 16)
-	dAtA[offset+3] = uint8(v >> 24)
-	dAtA[offset+4] = uint8(v >> 32)
-	dAtA[offset+5] = uint8(v >> 40)
-	dAtA[offset+6] = uint8(v >> 48)
-	dAtA[offset+7] = uint8(v >> 56)
-	return offset + 8
-}
-func encodeFixed32Cstrike15Usermessages(dAtA []byte, offset int, v uint32) int {
-	dAtA[offset] = uint8(v)
-	dAtA[offset+1] = uint8(v >> 8)
-	dAtA[offset+2] = uint8(v >> 16)
-	dAtA[offset+3] = uint8(v >> 24)
-	return offset + 4
-}
 func encodeVarintCstrike15Usermessages(dAtA []byte, offset int, v uint64) int {
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
@@ -4372,6 +7366,9 @@ func encodeVarintCstrike15Usermessages(dAtA []byte, offset int, v uint64) int {
 	return offset + 1
 }
 func (m *CCSUsrMsg_VGUIMenu) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Name)
@@ -4387,6 +7384,9 @@ func (m *CCSUsrMsg_VGUIMenu) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_VGUIMenu_Subkey) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Name)
@@ -4397,6 +7397,9 @@ func (m *CCSUsrMsg_VGUIMenu_Subkey) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_Geiger) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Range))
@@ -4404,6 +7407,9 @@ func (m *CCSUsrMsg_Geiger) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_Train) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Train))
@@ -4411,6 +7417,9 @@ func (m *CCSUsrMsg_Train) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_HudText) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Text)
@@ -4419,6 +7428,9 @@ func (m *CCSUsrMsg_HudText) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_SayText) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.EntIdx))
@@ -4430,6 +7442,9 @@ func (m *CCSUsrMsg_SayText) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_SayText2) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.EntIdx))
@@ -4447,6 +7462,9 @@ func (m *CCSUsrMsg_SayText2) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_TextMsg) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.MsgDst))
@@ -4460,6 +7478,9 @@ func (m *CCSUsrMsg_TextMsg) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_HudMsg) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Channel))
@@ -4486,6 +7507,9 @@ func (m *CCSUsrMsg_HudMsg) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_Shake) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Command))
@@ -4496,6 +7520,9 @@ func (m *CCSUsrMsg_Shake) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_Fade) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Duration))
@@ -4509,6 +7536,9 @@ func (m *CCSUsrMsg_Fade) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_Rumble) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Index))
@@ -4518,6 +7548,9 @@ func (m *CCSUsrMsg_Rumble) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_CloseCaption) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Hash))
@@ -4527,6 +7560,9 @@ func (m *CCSUsrMsg_CloseCaption) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_CloseCaptionDirect) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Hash))
@@ -4536,6 +7572,9 @@ func (m *CCSUsrMsg_CloseCaptionDirect) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_SendAudio) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.RadioSound)
@@ -4544,6 +7583,9 @@ func (m *CCSUsrMsg_SendAudio) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_RawAudio) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Pitch))
@@ -4555,6 +7597,9 @@ func (m *CCSUsrMsg_RawAudio) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_VoiceMask) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.PlayerMasks) > 0 {
@@ -4568,6 +7613,9 @@ func (m *CCSUsrMsg_VoiceMask) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_VoiceMask_PlayerMask) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.GameRulesMask))
@@ -4576,6 +7624,9 @@ func (m *CCSUsrMsg_VoiceMask_PlayerMask) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_Damage) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Amount))
@@ -4588,6 +7639,9 @@ func (m *CCSUsrMsg_Damage) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_RadioText) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.MsgDst))
@@ -4604,6 +7658,9 @@ func (m *CCSUsrMsg_RadioText) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_HintText) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Text)
@@ -4612,6 +7669,9 @@ func (m *CCSUsrMsg_HintText) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_KeyHintText) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.Hints) > 0 {
@@ -4624,6 +7684,9 @@ func (m *CCSUsrMsg_KeyHintText) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -4637,6 +7700,9 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.EntityIdx))
@@ -4652,6 +7718,9 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Size() (n int
 }
 
 func (m *CCSUsrMsg_SendPlayerItemDrops) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.EntityUpdates) > 0 {
@@ -4664,6 +7733,9 @@ func (m *CCSUsrMsg_SendPlayerItemDrops) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_SendPlayerItemFound) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Iteminfo != nil {
@@ -4675,6 +7747,9 @@ func (m *CCSUsrMsg_SendPlayerItemFound) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ReloadEffect) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Entidx))
@@ -4685,7 +7760,49 @@ func (m *CCSUsrMsg_ReloadEffect) Size() (n int) {
 	return n
 }
 
+func (m *CCSUsrMsg_WeaponSound) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	n += 1 + sovCstrike15Usermessages(uint64(m.Entidx))
+	n += 5
+	n += 5
+	n += 5
+	l = len(m.Sound)
+	n += 1 + l + sovCstrike15Usermessages(uint64(l))
+	n += 5
+	return n
+}
+
+func (m *CCSUsrMsg_UpdateScreenHealthBar) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	n += 1 + sovCstrike15Usermessages(uint64(m.Entidx))
+	n += 5
+	n += 5
+	n += 1 + sovCstrike15Usermessages(uint64(m.Style))
+	return n
+}
+
+func (m *CCSUsrMsg_EntityOutlineHighlight) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	n += 1 + sovCstrike15Usermessages(uint64(m.Entidx))
+	return n
+}
+
 func (m *CCSUsrMsg_AdjustMoney) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Amount))
@@ -4693,6 +7810,9 @@ func (m *CCSUsrMsg_AdjustMoney) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ReportHit) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 5
@@ -4703,6 +7823,9 @@ func (m *CCSUsrMsg_ReportHit) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_KillCam) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.ObsMode))
@@ -4712,6 +7835,9 @@ func (m *CCSUsrMsg_KillCam) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_DesiredTimescale) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 5
@@ -4722,6 +7848,9 @@ func (m *CCSUsrMsg_DesiredTimescale) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_CurrentTimescale) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 5
@@ -4729,6 +7858,9 @@ func (m *CCSUsrMsg_CurrentTimescale) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_AchievementEvent) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Achievement))
@@ -4738,6 +7870,9 @@ func (m *CCSUsrMsg_AchievementEvent) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_MatchEndConditions) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Fraglimit))
@@ -4748,6 +7883,9 @@ func (m *CCSUsrMsg_MatchEndConditions) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_PlayerStatsUpdate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Version))
@@ -4763,6 +7901,9 @@ func (m *CCSUsrMsg_PlayerStatsUpdate) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Idx))
@@ -4771,6 +7912,9 @@ func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_DisplayInventory) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -4779,6 +7923,9 @@ func (m *CCSUsrMsg_DisplayInventory) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_QuestProgress) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.QuestId))
@@ -4789,6 +7936,22 @@ func (m *CCSUsrMsg_QuestProgress) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ScoreLeaderboardData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Data != nil {
+		l = m.Data.Size()
+		n += 1 + l + sovCstrike15Usermessages(uint64(l))
+	}
+	return n
+}
+
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Data != nil {
@@ -4799,6 +7962,9 @@ func (m *CCSUsrMsg_ScoreLeaderboardData) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_XRankGet) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.ModeIdx))
@@ -4807,6 +7973,9 @@ func (m *CCSUsrMsg_XRankGet) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_XRankUpd) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.ModeIdx))
@@ -4816,6 +7985,9 @@ func (m *CCSUsrMsg_XRankUpd) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_CallVoteFailed) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Reason))
@@ -4824,6 +7996,9 @@ func (m *CCSUsrMsg_CallVoteFailed) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_VoteStart) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Team))
@@ -4836,10 +8011,14 @@ func (m *CCSUsrMsg_VoteStart) Size() (n int) {
 	l = len(m.OtherTeamStr)
 	n += 1 + l + sovCstrike15Usermessages(uint64(l))
 	n += 2
+	n += 1 + sovCstrike15Usermessages(uint64(m.EntidxTarget))
 	return n
 }
 
 func (m *CCSUsrMsg_VotePass) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Team))
@@ -4852,6 +8031,9 @@ func (m *CCSUsrMsg_VotePass) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_VoteFailed) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Team))
@@ -4860,6 +8042,9 @@ func (m *CCSUsrMsg_VoteFailed) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_VoteSetup) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.PotentialIssues) > 0 {
@@ -4872,6 +8057,9 @@ func (m *CCSUsrMsg_VoteSetup) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_SendLastKillerDamageToClient) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.NumHitsGiven))
@@ -4882,6 +8070,9 @@ func (m *CCSUsrMsg_SendLastKillerDamageToClient) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ServerRankUpdate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if len(m.RankUpdate) > 0 {
@@ -4894,6 +8085,9 @@ func (m *CCSUsrMsg_ServerRankUpdate) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.AccountId))
@@ -4901,10 +8095,14 @@ func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) Size() (n int) {
 	n += 1 + sovCstrike15Usermessages(uint64(m.RankNew))
 	n += 1 + sovCstrike15Usermessages(uint64(m.NumWins))
 	n += 5
+	n += 1 + sovCstrike15Usermessages(uint64(m.RankTypeId))
 	return n
 }
 
 func (m *CCSUsrMsg_XpUpdate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	if m.Data != nil {
@@ -4915,6 +8113,9 @@ func (m *CCSUsrMsg_XpUpdate) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ItemPickup) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Item)
@@ -4923,6 +8124,9 @@ func (m *CCSUsrMsg_ItemPickup) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ShowMenu) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.BitsValidSlots))
@@ -4933,6 +8137,9 @@ func (m *CCSUsrMsg_ShowMenu) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_BarTime) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Time)
@@ -4941,6 +8148,9 @@ func (m *CCSUsrMsg_BarTime) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_AmmoDenied) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.AmmoIdx))
@@ -4948,6 +8158,9 @@ func (m *CCSUsrMsg_AmmoDenied) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_MarkAchievement) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Achievement)
@@ -4956,6 +8169,9 @@ func (m *CCSUsrMsg_MarkAchievement) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_MatchStatsUpdate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	l = len(m.Update)
@@ -4964,6 +8180,9 @@ func (m *CCSUsrMsg_MatchStatsUpdate) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ItemDrop) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Itemid))
@@ -4972,6 +8191,9 @@ func (m *CCSUsrMsg_ItemDrop) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_GlowPropTurnOff) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Entidx))
@@ -4979,6 +8201,9 @@ func (m *CCSUsrMsg_GlowPropTurnOff) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_RoundBackupFilenames) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Count))
@@ -4990,7 +8215,90 @@ func (m *CCSUsrMsg_RoundBackupFilenames) Size() (n int) {
 	return n
 }
 
+func (m *CCSUsrMsg_SSUI) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	n += 2
+	n += 5
+	n += 5
+	return n
+}
+
+func (m *CCSUsrMsg_SurvivalStats) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	n += 1 + sovCstrike15Usermessages(uint64(m.Xuid))
+	if len(m.Facts) > 0 {
+		for _, e := range m.Facts {
+			l = e.Size()
+			n += 1 + l + sovCstrike15Usermessages(uint64(l))
+		}
+	}
+	if len(m.Users) > 0 {
+		for _, e := range m.Users {
+			l = e.Size()
+			n += 1 + l + sovCstrike15Usermessages(uint64(l))
+		}
+	}
+	n += 1 + sovCstrike15Usermessages(uint64(m.Ticknumber))
+	if len(m.Damages) > 0 {
+		for _, e := range m.Damages {
+			l = e.Size()
+			n += 1 + l + sovCstrike15Usermessages(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Fact) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	n += 1 + sovCstrike15Usermessages(uint64(m.Type))
+	n += 1 + sovCstrike15Usermessages(uint64(m.Display))
+	n += 1 + sovCstrike15Usermessages(uint64(m.Value))
+	n += 5
+	return n
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Placement) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	n += 1 + sovCstrike15Usermessages(uint64(m.Xuid))
+	n += 1 + sovCstrike15Usermessages(uint64(m.Teamnumber))
+	n += 1 + sovCstrike15Usermessages(uint64(m.Placement))
+	return n
+}
+
+func (m *CCSUsrMsg_SurvivalStats_Damage) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	n += 1 + sovCstrike15Usermessages(uint64(m.Xuid))
+	n += 1 + sovCstrike15Usermessages(uint64(m.To))
+	n += 1 + sovCstrike15Usermessages(uint64(m.ToHits))
+	n += 1 + sovCstrike15Usermessages(uint64(m.From))
+	n += 1 + sovCstrike15Usermessages(uint64(m.FromHits))
+	return n
+}
+
 func (m *CCSUsrMsg_ResetHud) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 2
@@ -4998,6 +8306,9 @@ func (m *CCSUsrMsg_ResetHud) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_GameTitle) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Dummy))
@@ -5005,6 +8316,9 @@ func (m *CCSUsrMsg_GameTitle) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_RequestState) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Dummy))
@@ -5012,6 +8326,9 @@ func (m *CCSUsrMsg_RequestState) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_StopSpectatorMode) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Dummy))
@@ -5019,6 +8336,9 @@ func (m *CCSUsrMsg_StopSpectatorMode) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_DisconnectToLobby) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Dummy))
@@ -5026,6 +8346,9 @@ func (m *CCSUsrMsg_DisconnectToLobby) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_WarmupHasEnded) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Dummy))
@@ -5033,6 +8356,9 @@ func (m *CCSUsrMsg_WarmupHasEnded) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ClientInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.Dummy))
@@ -5040,6 +8366,9 @@ func (m *CCSUsrMsg_ClientInfo) Size() (n int) {
 }
 
 func (m *CCSUsrMsg_ServerRankRevealAll) Size() (n int) {
+	if m == nil {
+		return 0
+	}
 	var l int
 	_ = l
 	n += 1 + sovCstrike15Usermessages(uint64(m.SecondsTillShutdown))
@@ -5047,14 +8376,7 @@ func (m *CCSUsrMsg_ServerRankRevealAll) Size() (n int) {
 }
 
 func sovCstrike15Usermessages(x uint64) (n int) {
-	for {
-		n++
-		x >>= 7
-		if x == 0 {
-			break
-		}
-	}
-	return n
+	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozCstrike15Usermessages(x uint64) (n int) {
 	return sovCstrike15Usermessages(uint64((x << 1) ^ uint64((int64(x) >> 63))))
@@ -5074,7 +8396,7 @@ func (m *CCSUsrMsg_VGUIMenu) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5102,7 +8424,7 @@ func (m *CCSUsrMsg_VGUIMenu) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5112,6 +8434,9 @@ func (m *CCSUsrMsg_VGUIMenu) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -5131,7 +8456,7 @@ func (m *CCSUsrMsg_VGUIMenu) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5151,7 +8476,7 @@ func (m *CCSUsrMsg_VGUIMenu) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5160,6 +8485,9 @@ func (m *CCSUsrMsg_VGUIMenu) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -5175,6 +8503,9 @@ func (m *CCSUsrMsg_VGUIMenu) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -5204,7 +8535,7 @@ func (m *CCSUsrMsg_VGUIMenu_Subkey) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5232,7 +8563,7 @@ func (m *CCSUsrMsg_VGUIMenu_Subkey) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5242,6 +8573,9 @@ func (m *CCSUsrMsg_VGUIMenu_Subkey) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -5261,7 +8595,7 @@ func (m *CCSUsrMsg_VGUIMenu_Subkey) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5271,6 +8605,9 @@ func (m *CCSUsrMsg_VGUIMenu_Subkey) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -5283,6 +8620,9 @@ func (m *CCSUsrMsg_VGUIMenu_Subkey) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -5312,7 +8652,7 @@ func (m *CCSUsrMsg_Geiger) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5340,7 +8680,7 @@ func (m *CCSUsrMsg_Geiger) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Range |= (int32(b) & 0x7F) << shift
+				m.Range |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5352,6 +8692,9 @@ func (m *CCSUsrMsg_Geiger) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -5381,7 +8724,7 @@ func (m *CCSUsrMsg_Train) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5409,7 +8752,7 @@ func (m *CCSUsrMsg_Train) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Train |= (int32(b) & 0x7F) << shift
+				m.Train |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5421,6 +8764,9 @@ func (m *CCSUsrMsg_Train) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -5450,7 +8796,7 @@ func (m *CCSUsrMsg_HudText) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5478,7 +8824,7 @@ func (m *CCSUsrMsg_HudText) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5488,6 +8834,9 @@ func (m *CCSUsrMsg_HudText) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -5500,6 +8849,9 @@ func (m *CCSUsrMsg_HudText) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -5529,7 +8881,7 @@ func (m *CCSUsrMsg_SayText) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5557,7 +8909,7 @@ func (m *CCSUsrMsg_SayText) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EntIdx |= (int32(b) & 0x7F) << shift
+				m.EntIdx |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5576,7 +8928,7 @@ func (m *CCSUsrMsg_SayText) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5586,6 +8938,9 @@ func (m *CCSUsrMsg_SayText) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -5605,7 +8960,7 @@ func (m *CCSUsrMsg_SayText) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5625,7 +8980,7 @@ func (m *CCSUsrMsg_SayText) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5638,6 +8993,9 @@ func (m *CCSUsrMsg_SayText) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -5667,7 +9025,7 @@ func (m *CCSUsrMsg_SayText2) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5695,7 +9053,7 @@ func (m *CCSUsrMsg_SayText2) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EntIdx |= (int32(b) & 0x7F) << shift
+				m.EntIdx |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5714,7 +9072,7 @@ func (m *CCSUsrMsg_SayText2) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5734,7 +9092,7 @@ func (m *CCSUsrMsg_SayText2) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5744,6 +9102,9 @@ func (m *CCSUsrMsg_SayText2) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -5763,7 +9124,7 @@ func (m *CCSUsrMsg_SayText2) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5773,6 +9134,9 @@ func (m *CCSUsrMsg_SayText2) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -5792,7 +9156,7 @@ func (m *CCSUsrMsg_SayText2) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5805,6 +9169,9 @@ func (m *CCSUsrMsg_SayText2) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -5834,7 +9201,7 @@ func (m *CCSUsrMsg_TextMsg) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5862,7 +9229,7 @@ func (m *CCSUsrMsg_TextMsg) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MsgDst |= (int32(b) & 0x7F) << shift
+				m.MsgDst |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5881,7 +9248,7 @@ func (m *CCSUsrMsg_TextMsg) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5891,6 +9258,9 @@ func (m *CCSUsrMsg_TextMsg) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -5903,6 +9273,9 @@ func (m *CCSUsrMsg_TextMsg) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -5932,7 +9305,7 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -5960,7 +9333,7 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Channel |= (int32(b) & 0x7F) << shift
+				m.Channel |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5979,7 +9352,7 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -5988,6 +9361,9 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6012,7 +9388,7 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6021,6 +9397,9 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6045,7 +9424,7 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6054,6 +9433,9 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6078,7 +9460,7 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Effect |= (int32(b) & 0x7F) << shift
+				m.Effect |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6091,11 +9473,8 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.FadeInTime = float32(math.Float32frombits(v))
 		case 7:
 			if wireType != 5 {
@@ -6105,11 +9484,8 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.FadeOutTime = float32(math.Float32frombits(v))
 		case 9:
 			if wireType != 5 {
@@ -6119,11 +9495,8 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.HoldTime = float32(math.Float32frombits(v))
 		case 10:
 			if wireType != 5 {
@@ -6133,11 +9506,8 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.FxTime = float32(math.Float32frombits(v))
 		case 11:
 			if wireType != 2 {
@@ -6153,7 +9523,7 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6163,6 +9533,9 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6175,6 +9548,9 @@ func (m *CCSUsrMsg_HudMsg) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6204,7 +9580,7 @@ func (m *CCSUsrMsg_Shake) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6232,7 +9608,7 @@ func (m *CCSUsrMsg_Shake) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Command |= (int32(b) & 0x7F) << shift
+				m.Command |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6245,11 +9621,8 @@ func (m *CCSUsrMsg_Shake) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.LocalAmplitude = float32(math.Float32frombits(v))
 		case 3:
 			if wireType != 5 {
@@ -6259,11 +9632,8 @@ func (m *CCSUsrMsg_Shake) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Frequency = float32(math.Float32frombits(v))
 		case 4:
 			if wireType != 5 {
@@ -6273,11 +9643,8 @@ func (m *CCSUsrMsg_Shake) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Duration = float32(math.Float32frombits(v))
 		default:
 			iNdEx = preIndex
@@ -6286,6 +9653,9 @@ func (m *CCSUsrMsg_Shake) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6315,7 +9685,7 @@ func (m *CCSUsrMsg_Fade) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6343,7 +9713,7 @@ func (m *CCSUsrMsg_Fade) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Duration |= (int32(b) & 0x7F) << shift
+				m.Duration |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6362,7 +9732,7 @@ func (m *CCSUsrMsg_Fade) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.HoldTime |= (int32(b) & 0x7F) << shift
+				m.HoldTime |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6381,7 +9751,7 @@ func (m *CCSUsrMsg_Fade) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Flags |= (int32(b) & 0x7F) << shift
+				m.Flags |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6400,7 +9770,7 @@ func (m *CCSUsrMsg_Fade) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6409,6 +9779,9 @@ func (m *CCSUsrMsg_Fade) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6426,6 +9799,9 @@ func (m *CCSUsrMsg_Fade) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6455,7 +9831,7 @@ func (m *CCSUsrMsg_Rumble) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6483,7 +9859,7 @@ func (m *CCSUsrMsg_Rumble) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Index |= (int32(b) & 0x7F) << shift
+				m.Index |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6502,7 +9878,7 @@ func (m *CCSUsrMsg_Rumble) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Data |= (int32(b) & 0x7F) << shift
+				m.Data |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6521,7 +9897,7 @@ func (m *CCSUsrMsg_Rumble) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Flags |= (int32(b) & 0x7F) << shift
+				m.Flags |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6533,6 +9909,9 @@ func (m *CCSUsrMsg_Rumble) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6562,7 +9941,7 @@ func (m *CCSUsrMsg_CloseCaption) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6590,7 +9969,7 @@ func (m *CCSUsrMsg_CloseCaption) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Hash |= (uint32(b) & 0x7F) << shift
+				m.Hash |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6609,7 +9988,7 @@ func (m *CCSUsrMsg_CloseCaption) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Duration |= (int32(b) & 0x7F) << shift
+				m.Duration |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6628,7 +10007,7 @@ func (m *CCSUsrMsg_CloseCaption) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6641,6 +10020,9 @@ func (m *CCSUsrMsg_CloseCaption) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6670,7 +10052,7 @@ func (m *CCSUsrMsg_CloseCaptionDirect) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6698,7 +10080,7 @@ func (m *CCSUsrMsg_CloseCaptionDirect) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Hash |= (uint32(b) & 0x7F) << shift
+				m.Hash |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6717,7 +10099,7 @@ func (m *CCSUsrMsg_CloseCaptionDirect) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Duration |= (int32(b) & 0x7F) << shift
+				m.Duration |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6736,7 +10118,7 @@ func (m *CCSUsrMsg_CloseCaptionDirect) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6749,6 +10131,9 @@ func (m *CCSUsrMsg_CloseCaptionDirect) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6778,7 +10163,7 @@ func (m *CCSUsrMsg_SendAudio) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6806,7 +10191,7 @@ func (m *CCSUsrMsg_SendAudio) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6816,6 +10201,9 @@ func (m *CCSUsrMsg_SendAudio) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6828,6 +10216,9 @@ func (m *CCSUsrMsg_SendAudio) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6857,7 +10248,7 @@ func (m *CCSUsrMsg_RawAudio) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -6885,7 +10276,7 @@ func (m *CCSUsrMsg_RawAudio) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Pitch |= (int32(b) & 0x7F) << shift
+				m.Pitch |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6904,7 +10295,7 @@ func (m *CCSUsrMsg_RawAudio) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Entidx |= (int32(b) & 0x7F) << shift
+				m.Entidx |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6917,11 +10308,8 @@ func (m *CCSUsrMsg_RawAudio) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Duration = float32(math.Float32frombits(v))
 		case 4:
 			if wireType != 2 {
@@ -6937,7 +10325,7 @@ func (m *CCSUsrMsg_RawAudio) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -6947,6 +10335,9 @@ func (m *CCSUsrMsg_RawAudio) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -6959,6 +10350,9 @@ func (m *CCSUsrMsg_RawAudio) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -6988,7 +10382,7 @@ func (m *CCSUsrMsg_VoiceMask) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7016,7 +10410,7 @@ func (m *CCSUsrMsg_VoiceMask) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7025,6 +10419,9 @@ func (m *CCSUsrMsg_VoiceMask) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7047,7 +10444,7 @@ func (m *CCSUsrMsg_VoiceMask) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7060,6 +10457,9 @@ func (m *CCSUsrMsg_VoiceMask) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7089,7 +10489,7 @@ func (m *CCSUsrMsg_VoiceMask_PlayerMask) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7117,7 +10517,7 @@ func (m *CCSUsrMsg_VoiceMask_PlayerMask) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.GameRulesMask |= (int32(b) & 0x7F) << shift
+				m.GameRulesMask |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7136,7 +10536,7 @@ func (m *CCSUsrMsg_VoiceMask_PlayerMask) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BanMasks |= (int32(b) & 0x7F) << shift
+				m.BanMasks |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7148,6 +10548,9 @@ func (m *CCSUsrMsg_VoiceMask_PlayerMask) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7177,7 +10580,7 @@ func (m *CCSUsrMsg_Damage) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7205,7 +10608,7 @@ func (m *CCSUsrMsg_Damage) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Amount |= (int32(b) & 0x7F) << shift
+				m.Amount |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7224,7 +10627,7 @@ func (m *CCSUsrMsg_Damage) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7233,6 +10636,9 @@ func (m *CCSUsrMsg_Damage) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7257,7 +10663,7 @@ func (m *CCSUsrMsg_Damage) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.VictimEntindex |= (int32(b) & 0x7F) << shift
+				m.VictimEntindex |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7269,6 +10675,9 @@ func (m *CCSUsrMsg_Damage) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7298,7 +10707,7 @@ func (m *CCSUsrMsg_RadioText) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7326,7 +10735,7 @@ func (m *CCSUsrMsg_RadioText) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MsgDst |= (int32(b) & 0x7F) << shift
+				m.MsgDst |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7345,7 +10754,7 @@ func (m *CCSUsrMsg_RadioText) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Client |= (int32(b) & 0x7F) << shift
+				m.Client |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7364,7 +10773,7 @@ func (m *CCSUsrMsg_RadioText) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7374,6 +10783,9 @@ func (m *CCSUsrMsg_RadioText) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7393,7 +10805,7 @@ func (m *CCSUsrMsg_RadioText) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7403,6 +10815,9 @@ func (m *CCSUsrMsg_RadioText) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7415,6 +10830,9 @@ func (m *CCSUsrMsg_RadioText) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7444,7 +10862,7 @@ func (m *CCSUsrMsg_HintText) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7472,7 +10890,7 @@ func (m *CCSUsrMsg_HintText) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7482,6 +10900,9 @@ func (m *CCSUsrMsg_HintText) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7494,6 +10915,9 @@ func (m *CCSUsrMsg_HintText) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7523,7 +10947,7 @@ func (m *CCSUsrMsg_KeyHintText) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7551,7 +10975,7 @@ func (m *CCSUsrMsg_KeyHintText) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7561,6 +10985,9 @@ func (m *CCSUsrMsg_KeyHintText) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7573,6 +11000,9 @@ func (m *CCSUsrMsg_KeyHintText) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7602,7 +11032,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7630,7 +11060,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7650,7 +11080,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7659,6 +11089,9 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7674,6 +11107,9 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7703,7 +11139,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Unmarshal(dAt
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7731,7 +11167,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Unmarshal(dAt
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EntityIdx |= (int32(b) & 0x7F) << shift
+				m.EntityIdx |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7750,7 +11186,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Unmarshal(dAt
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ClassId |= (int32(b) & 0x7F) << shift
+				m.ClassId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7769,7 +11205,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Unmarshal(dAt
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.OriginX |= (int32(b) & 0x7F) << shift
+				m.OriginX |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7788,7 +11224,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Unmarshal(dAt
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.OriginY |= (int32(b) & 0x7F) << shift
+				m.OriginY |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7807,7 +11243,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Unmarshal(dAt
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.OriginZ |= (int32(b) & 0x7F) << shift
+				m.OriginZ |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7826,7 +11262,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Unmarshal(dAt
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AngleY |= (int32(b) & 0x7F) << shift
+				m.AngleY |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7845,7 +11281,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Unmarshal(dAt
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7865,7 +11301,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Unmarshal(dAt
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7885,7 +11321,7 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Unmarshal(dAt
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7898,6 +11334,9 @@ func (m *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Unmarshal(dAt
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -7927,7 +11366,7 @@ func (m *CCSUsrMsg_SendPlayerItemDrops) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -7955,7 +11394,7 @@ func (m *CCSUsrMsg_SendPlayerItemDrops) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7964,6 +11403,9 @@ func (m *CCSUsrMsg_SendPlayerItemDrops) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -7979,6 +11421,9 @@ func (m *CCSUsrMsg_SendPlayerItemDrops) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8008,7 +11453,7 @@ func (m *CCSUsrMsg_SendPlayerItemFound) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8036,7 +11481,7 @@ func (m *CCSUsrMsg_SendPlayerItemFound) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8045,6 +11490,9 @@ func (m *CCSUsrMsg_SendPlayerItemFound) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -8069,7 +11517,7 @@ func (m *CCSUsrMsg_SendPlayerItemFound) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Entindex |= (int32(b) & 0x7F) << shift
+				m.Entindex |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8081,6 +11529,9 @@ func (m *CCSUsrMsg_SendPlayerItemFound) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8110,7 +11561,7 @@ func (m *CCSUsrMsg_ReloadEffect) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8138,7 +11589,7 @@ func (m *CCSUsrMsg_ReloadEffect) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Entidx |= (int32(b) & 0x7F) << shift
+				m.Entidx |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8157,7 +11608,7 @@ func (m *CCSUsrMsg_ReloadEffect) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Actanim |= (int32(b) & 0x7F) << shift
+				m.Actanim |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8170,11 +11621,8 @@ func (m *CCSUsrMsg_ReloadEffect) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.OriginX = float32(math.Float32frombits(v))
 		case 4:
 			if wireType != 5 {
@@ -8184,11 +11632,8 @@ func (m *CCSUsrMsg_ReloadEffect) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.OriginY = float32(math.Float32frombits(v))
 		case 5:
 			if wireType != 5 {
@@ -8198,11 +11643,8 @@ func (m *CCSUsrMsg_ReloadEffect) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.OriginZ = float32(math.Float32frombits(v))
 		default:
 			iNdEx = preIndex
@@ -8211,6 +11653,342 @@ func (m *CCSUsrMsg_ReloadEffect) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CCSUsrMsg_WeaponSound) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowCstrike15Usermessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CCSUsrMsg_WeaponSound: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CCSUsrMsg_WeaponSound: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Entidx", wireType)
+			}
+			m.Entidx = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Entidx |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 5 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OriginX", wireType)
+			}
+			var v uint32
+			if (iNdEx + 4) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
+			iNdEx += 4
+			m.OriginX = float32(math.Float32frombits(v))
+		case 3:
+			if wireType != 5 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OriginY", wireType)
+			}
+			var v uint32
+			if (iNdEx + 4) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
+			iNdEx += 4
+			m.OriginY = float32(math.Float32frombits(v))
+		case 4:
+			if wireType != 5 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OriginZ", wireType)
+			}
+			var v uint32
+			if (iNdEx + 4) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
+			iNdEx += 4
+			m.OriginZ = float32(math.Float32frombits(v))
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sound", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Sound = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 5 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
+			}
+			var v uint32
+			if (iNdEx + 4) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
+			iNdEx += 4
+			m.Timestamp = float32(math.Float32frombits(v))
+		default:
+			iNdEx = preIndex
+			skippy, err := skipCstrike15Usermessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CCSUsrMsg_UpdateScreenHealthBar) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowCstrike15Usermessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CCSUsrMsg_UpdateScreenHealthBar: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CCSUsrMsg_UpdateScreenHealthBar: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Entidx", wireType)
+			}
+			m.Entidx = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Entidx |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 5 {
+				return fmt.Errorf("proto: wrong wireType = %d for field HealthratioOld", wireType)
+			}
+			var v uint32
+			if (iNdEx + 4) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
+			iNdEx += 4
+			m.HealthratioOld = float32(math.Float32frombits(v))
+		case 3:
+			if wireType != 5 {
+				return fmt.Errorf("proto: wrong wireType = %d for field HealthratioNew", wireType)
+			}
+			var v uint32
+			if (iNdEx + 4) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
+			iNdEx += 4
+			m.HealthratioNew = float32(math.Float32frombits(v))
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Style", wireType)
+			}
+			m.Style = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Style |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipCstrike15Usermessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CCSUsrMsg_EntityOutlineHighlight) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowCstrike15Usermessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CCSUsrMsg_EntityOutlineHighlight: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CCSUsrMsg_EntityOutlineHighlight: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Entidx", wireType)
+			}
+			m.Entidx = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Entidx |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipCstrike15Usermessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8240,7 +12018,7 @@ func (m *CCSUsrMsg_AdjustMoney) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8268,7 +12046,7 @@ func (m *CCSUsrMsg_AdjustMoney) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Amount |= (int32(b) & 0x7F) << shift
+				m.Amount |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8280,6 +12058,9 @@ func (m *CCSUsrMsg_AdjustMoney) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8309,7 +12090,7 @@ func (m *CCSUsrMsg_ReportHit) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8331,11 +12112,8 @@ func (m *CCSUsrMsg_ReportHit) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.PosX = float32(math.Float32frombits(v))
 		case 2:
 			if wireType != 5 {
@@ -8345,11 +12123,8 @@ func (m *CCSUsrMsg_ReportHit) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.PosY = float32(math.Float32frombits(v))
 		case 3:
 			if wireType != 5 {
@@ -8359,11 +12134,8 @@ func (m *CCSUsrMsg_ReportHit) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.PosZ = float32(math.Float32frombits(v))
 		case 4:
 			if wireType != 5 {
@@ -8373,11 +12145,8 @@ func (m *CCSUsrMsg_ReportHit) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.Timestamp = float32(math.Float32frombits(v))
 		default:
 			iNdEx = preIndex
@@ -8386,6 +12155,9 @@ func (m *CCSUsrMsg_ReportHit) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8415,7 +12187,7 @@ func (m *CCSUsrMsg_KillCam) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8443,7 +12215,7 @@ func (m *CCSUsrMsg_KillCam) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ObsMode |= (int32(b) & 0x7F) << shift
+				m.ObsMode |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8462,7 +12234,7 @@ func (m *CCSUsrMsg_KillCam) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.FirstTarget |= (int32(b) & 0x7F) << shift
+				m.FirstTarget |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8481,7 +12253,7 @@ func (m *CCSUsrMsg_KillCam) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SecondTarget |= (int32(b) & 0x7F) << shift
+				m.SecondTarget |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8493,6 +12265,9 @@ func (m *CCSUsrMsg_KillCam) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8522,7 +12297,7 @@ func (m *CCSUsrMsg_DesiredTimescale) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8544,11 +12319,8 @@ func (m *CCSUsrMsg_DesiredTimescale) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.DesiredTimescale = float32(math.Float32frombits(v))
 		case 2:
 			if wireType != 5 {
@@ -8558,11 +12330,8 @@ func (m *CCSUsrMsg_DesiredTimescale) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.DurationRealtimeSec = float32(math.Float32frombits(v))
 		case 3:
 			if wireType != 0 {
@@ -8578,7 +12347,7 @@ func (m *CCSUsrMsg_DesiredTimescale) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.InterpolatorType |= (int32(b) & 0x7F) << shift
+				m.InterpolatorType |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8591,11 +12360,8 @@ func (m *CCSUsrMsg_DesiredTimescale) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.StartBlendTime = float32(math.Float32frombits(v))
 		default:
 			iNdEx = preIndex
@@ -8604,6 +12370,9 @@ func (m *CCSUsrMsg_DesiredTimescale) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8633,7 +12402,7 @@ func (m *CCSUsrMsg_CurrentTimescale) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8655,11 +12424,8 @@ func (m *CCSUsrMsg_CurrentTimescale) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.CurTimescale = float32(math.Float32frombits(v))
 		default:
 			iNdEx = preIndex
@@ -8668,6 +12434,9 @@ func (m *CCSUsrMsg_CurrentTimescale) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8697,7 +12466,7 @@ func (m *CCSUsrMsg_AchievementEvent) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8725,7 +12494,7 @@ func (m *CCSUsrMsg_AchievementEvent) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Achievement |= (int32(b) & 0x7F) << shift
+				m.Achievement |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8744,7 +12513,7 @@ func (m *CCSUsrMsg_AchievementEvent) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Count |= (int32(b) & 0x7F) << shift
+				m.Count |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8763,7 +12532,7 @@ func (m *CCSUsrMsg_AchievementEvent) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.UserId |= (int32(b) & 0x7F) << shift
+				m.UserId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8775,6 +12544,9 @@ func (m *CCSUsrMsg_AchievementEvent) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8804,7 +12576,7 @@ func (m *CCSUsrMsg_MatchEndConditions) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8832,7 +12604,7 @@ func (m *CCSUsrMsg_MatchEndConditions) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Fraglimit |= (int32(b) & 0x7F) << shift
+				m.Fraglimit |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8851,7 +12623,7 @@ func (m *CCSUsrMsg_MatchEndConditions) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MpMaxrounds |= (int32(b) & 0x7F) << shift
+				m.MpMaxrounds |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8870,7 +12642,7 @@ func (m *CCSUsrMsg_MatchEndConditions) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MpWinlimit |= (int32(b) & 0x7F) << shift
+				m.MpWinlimit |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8889,7 +12661,7 @@ func (m *CCSUsrMsg_MatchEndConditions) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MpTimelimit |= (int32(b) & 0x7F) << shift
+				m.MpTimelimit |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8901,6 +12673,9 @@ func (m *CCSUsrMsg_MatchEndConditions) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8930,7 +12705,7 @@ func (m *CCSUsrMsg_PlayerStatsUpdate) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -8958,7 +12733,7 @@ func (m *CCSUsrMsg_PlayerStatsUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Version |= (int32(b) & 0x7F) << shift
+				m.Version |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8977,7 +12752,7 @@ func (m *CCSUsrMsg_PlayerStatsUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -8986,6 +12761,9 @@ func (m *CCSUsrMsg_PlayerStatsUpdate) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9008,7 +12786,7 @@ func (m *CCSUsrMsg_PlayerStatsUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.UserId |= (int32(b) & 0x7F) << shift
+				m.UserId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9027,7 +12805,7 @@ func (m *CCSUsrMsg_PlayerStatsUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Crc |= (int32(b) & 0x7F) << shift
+				m.Crc |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9039,6 +12817,9 @@ func (m *CCSUsrMsg_PlayerStatsUpdate) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9068,7 +12849,7 @@ func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9096,7 +12877,7 @@ func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Idx |= (int32(b) & 0x7F) << shift
+				m.Idx |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9115,7 +12896,7 @@ func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Delta |= (int32(b) & 0x7F) << shift
+				m.Delta |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9127,6 +12908,9 @@ func (m *CCSUsrMsg_PlayerStatsUpdate_Stat) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9156,7 +12940,7 @@ func (m *CCSUsrMsg_DisplayInventory) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9184,7 +12968,7 @@ func (m *CCSUsrMsg_DisplayInventory) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9204,7 +12988,7 @@ func (m *CCSUsrMsg_DisplayInventory) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.UserId |= (int32(b) & 0x7F) << shift
+				m.UserId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9216,6 +13000,9 @@ func (m *CCSUsrMsg_DisplayInventory) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9245,7 +13032,7 @@ func (m *CCSUsrMsg_QuestProgress) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9273,7 +13060,7 @@ func (m *CCSUsrMsg_QuestProgress) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.QuestId |= (uint32(b) & 0x7F) << shift
+				m.QuestId |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9292,7 +13079,7 @@ func (m *CCSUsrMsg_QuestProgress) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NormalPoints |= (uint32(b) & 0x7F) << shift
+				m.NormalPoints |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9311,7 +13098,7 @@ func (m *CCSUsrMsg_QuestProgress) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BonusPoints |= (uint32(b) & 0x7F) << shift
+				m.BonusPoints |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9330,7 +13117,7 @@ func (m *CCSUsrMsg_QuestProgress) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9343,6 +13130,9 @@ func (m *CCSUsrMsg_QuestProgress) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9372,7 +13162,7 @@ func (m *CCSUsrMsg_ScoreLeaderboardData) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9400,7 +13190,7 @@ func (m *CCSUsrMsg_ScoreLeaderboardData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9409,6 +13199,9 @@ func (m *CCSUsrMsg_ScoreLeaderboardData) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9426,6 +13219,98 @@ func (m *CCSUsrMsg_ScoreLeaderboardData) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CCSUsrMsg_PlayerDecalDigitalSignature) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowCstrike15Usermessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CCSUsrMsg_PlayerDecalDigitalSignature: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CCSUsrMsg_PlayerDecalDigitalSignature: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Data", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Data == nil {
+				m.Data = &PlayerDecalDigitalSignature{}
+			}
+			if err := m.Data.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipCstrike15Usermessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9455,7 +13340,7 @@ func (m *CCSUsrMsg_XRankGet) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9483,7 +13368,7 @@ func (m *CCSUsrMsg_XRankGet) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ModeIdx |= (int32(b) & 0x7F) << shift
+				m.ModeIdx |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9502,7 +13387,7 @@ func (m *CCSUsrMsg_XRankGet) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Controller |= (int32(b) & 0x7F) << shift
+				m.Controller |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9514,6 +13399,9 @@ func (m *CCSUsrMsg_XRankGet) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9543,7 +13431,7 @@ func (m *CCSUsrMsg_XRankUpd) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9571,7 +13459,7 @@ func (m *CCSUsrMsg_XRankUpd) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ModeIdx |= (int32(b) & 0x7F) << shift
+				m.ModeIdx |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9590,7 +13478,7 @@ func (m *CCSUsrMsg_XRankUpd) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Controller |= (int32(b) & 0x7F) << shift
+				m.Controller |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9609,7 +13497,7 @@ func (m *CCSUsrMsg_XRankUpd) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Ranking |= (int32(b) & 0x7F) << shift
+				m.Ranking |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9621,6 +13509,9 @@ func (m *CCSUsrMsg_XRankUpd) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9650,7 +13541,7 @@ func (m *CCSUsrMsg_CallVoteFailed) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9678,7 +13569,7 @@ func (m *CCSUsrMsg_CallVoteFailed) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Reason |= (int32(b) & 0x7F) << shift
+				m.Reason |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9697,7 +13588,7 @@ func (m *CCSUsrMsg_CallVoteFailed) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Time |= (int32(b) & 0x7F) << shift
+				m.Time |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9709,6 +13600,9 @@ func (m *CCSUsrMsg_CallVoteFailed) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9738,7 +13632,7 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9766,7 +13660,7 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Team |= (int32(b) & 0x7F) << shift
+				m.Team |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9785,7 +13679,7 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.EntIdx |= (int32(b) & 0x7F) << shift
+				m.EntIdx |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9804,7 +13698,7 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.VoteType |= (int32(b) & 0x7F) << shift
+				m.VoteType |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9823,7 +13717,7 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9833,6 +13727,9 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9852,7 +13749,7 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9862,6 +13759,9 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9881,7 +13781,7 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9891,6 +13791,9 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -9910,12 +13813,31 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 			m.IsYesNoVote = bool(v != 0)
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EntidxTarget", wireType)
+			}
+			m.EntidxTarget = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EntidxTarget |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipCstrike15Usermessages(dAtA[iNdEx:])
@@ -9923,6 +13845,9 @@ func (m *CCSUsrMsg_VoteStart) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9952,7 +13877,7 @@ func (m *CCSUsrMsg_VotePass) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -9980,7 +13905,7 @@ func (m *CCSUsrMsg_VotePass) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Team |= (int32(b) & 0x7F) << shift
+				m.Team |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -9999,7 +13924,7 @@ func (m *CCSUsrMsg_VotePass) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.VoteType |= (int32(b) & 0x7F) << shift
+				m.VoteType |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10018,7 +13943,7 @@ func (m *CCSUsrMsg_VotePass) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10028,6 +13953,9 @@ func (m *CCSUsrMsg_VotePass) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10047,7 +13975,7 @@ func (m *CCSUsrMsg_VotePass) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10057,6 +13985,9 @@ func (m *CCSUsrMsg_VotePass) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10069,6 +14000,9 @@ func (m *CCSUsrMsg_VotePass) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10098,7 +14032,7 @@ func (m *CCSUsrMsg_VoteFailed) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10126,7 +14060,7 @@ func (m *CCSUsrMsg_VoteFailed) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Team |= (int32(b) & 0x7F) << shift
+				m.Team |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10145,7 +14079,7 @@ func (m *CCSUsrMsg_VoteFailed) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Reason |= (int32(b) & 0x7F) << shift
+				m.Reason |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10157,6 +14091,9 @@ func (m *CCSUsrMsg_VoteFailed) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10186,7 +14123,7 @@ func (m *CCSUsrMsg_VoteSetup) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10214,7 +14151,7 @@ func (m *CCSUsrMsg_VoteSetup) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10224,6 +14161,9 @@ func (m *CCSUsrMsg_VoteSetup) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10236,6 +14176,9 @@ func (m *CCSUsrMsg_VoteSetup) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10265,7 +14208,7 @@ func (m *CCSUsrMsg_SendLastKillerDamageToClient) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10293,7 +14236,7 @@ func (m *CCSUsrMsg_SendLastKillerDamageToClient) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumHitsGiven |= (int32(b) & 0x7F) << shift
+				m.NumHitsGiven |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10312,7 +14255,7 @@ func (m *CCSUsrMsg_SendLastKillerDamageToClient) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DamageGiven |= (int32(b) & 0x7F) << shift
+				m.DamageGiven |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10331,7 +14274,7 @@ func (m *CCSUsrMsg_SendLastKillerDamageToClient) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumHitsTaken |= (int32(b) & 0x7F) << shift
+				m.NumHitsTaken |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10350,7 +14293,7 @@ func (m *CCSUsrMsg_SendLastKillerDamageToClient) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DamageTaken |= (int32(b) & 0x7F) << shift
+				m.DamageTaken |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10362,6 +14305,9 @@ func (m *CCSUsrMsg_SendLastKillerDamageToClient) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10391,7 +14337,7 @@ func (m *CCSUsrMsg_ServerRankUpdate) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10419,7 +14365,7 @@ func (m *CCSUsrMsg_ServerRankUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10428,6 +14374,9 @@ func (m *CCSUsrMsg_ServerRankUpdate) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10443,6 +14392,9 @@ func (m *CCSUsrMsg_ServerRankUpdate) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10472,7 +14424,7 @@ func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10500,7 +14452,7 @@ func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AccountId |= (int32(b) & 0x7F) << shift
+				m.AccountId |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10519,7 +14471,7 @@ func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.RankOld |= (int32(b) & 0x7F) << shift
+				m.RankOld |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10538,7 +14490,7 @@ func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.RankNew |= (int32(b) & 0x7F) << shift
+				m.RankNew |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10557,7 +14509,7 @@ func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NumWins |= (int32(b) & 0x7F) << shift
+				m.NumWins |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10570,12 +14522,28 @@ func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) Unmarshal(dAtA []byte) error {
 			if (iNdEx + 4) > l {
 				return io.ErrUnexpectedEOF
 			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
 			iNdEx += 4
-			v = uint32(dAtA[iNdEx-4])
-			v |= uint32(dAtA[iNdEx-3]) << 8
-			v |= uint32(dAtA[iNdEx-2]) << 16
-			v |= uint32(dAtA[iNdEx-1]) << 24
 			m.RankChange = float32(math.Float32frombits(v))
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RankTypeId", wireType)
+			}
+			m.RankTypeId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.RankTypeId |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipCstrike15Usermessages(dAtA[iNdEx:])
@@ -10583,6 +14551,9 @@ func (m *CCSUsrMsg_ServerRankUpdate_RankUpdate) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10612,7 +14583,7 @@ func (m *CCSUsrMsg_XpUpdate) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10640,7 +14611,7 @@ func (m *CCSUsrMsg_XpUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10649,6 +14620,9 @@ func (m *CCSUsrMsg_XpUpdate) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10666,6 +14640,9 @@ func (m *CCSUsrMsg_XpUpdate) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10695,7 +14672,7 @@ func (m *CCSUsrMsg_ItemPickup) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10723,7 +14700,7 @@ func (m *CCSUsrMsg_ItemPickup) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10733,6 +14710,9 @@ func (m *CCSUsrMsg_ItemPickup) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10745,6 +14725,9 @@ func (m *CCSUsrMsg_ItemPickup) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10774,7 +14757,7 @@ func (m *CCSUsrMsg_ShowMenu) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10802,7 +14785,7 @@ func (m *CCSUsrMsg_ShowMenu) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BitsValidSlots |= (int32(b) & 0x7F) << shift
+				m.BitsValidSlots |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10821,7 +14804,7 @@ func (m *CCSUsrMsg_ShowMenu) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DisplayTime |= (int32(b) & 0x7F) << shift
+				m.DisplayTime |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10840,7 +14823,7 @@ func (m *CCSUsrMsg_ShowMenu) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10850,6 +14833,9 @@ func (m *CCSUsrMsg_ShowMenu) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10862,6 +14848,9 @@ func (m *CCSUsrMsg_ShowMenu) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10891,7 +14880,7 @@ func (m *CCSUsrMsg_BarTime) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10919,7 +14908,7 @@ func (m *CCSUsrMsg_BarTime) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -10929,6 +14918,9 @@ func (m *CCSUsrMsg_BarTime) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -10941,6 +14933,9 @@ func (m *CCSUsrMsg_BarTime) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10970,7 +14965,7 @@ func (m *CCSUsrMsg_AmmoDenied) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -10998,7 +14993,7 @@ func (m *CCSUsrMsg_AmmoDenied) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.AmmoIdx |= (int32(b) & 0x7F) << shift
+				m.AmmoIdx |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11010,6 +15005,9 @@ func (m *CCSUsrMsg_AmmoDenied) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11039,7 +15037,7 @@ func (m *CCSUsrMsg_MarkAchievement) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11067,7 +15065,7 @@ func (m *CCSUsrMsg_MarkAchievement) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11077,6 +15075,9 @@ func (m *CCSUsrMsg_MarkAchievement) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11089,6 +15090,9 @@ func (m *CCSUsrMsg_MarkAchievement) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11118,7 +15122,7 @@ func (m *CCSUsrMsg_MatchStatsUpdate) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11146,7 +15150,7 @@ func (m *CCSUsrMsg_MatchStatsUpdate) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11156,6 +15160,9 @@ func (m *CCSUsrMsg_MatchStatsUpdate) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11168,6 +15175,9 @@ func (m *CCSUsrMsg_MatchStatsUpdate) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11197,7 +15207,7 @@ func (m *CCSUsrMsg_ItemDrop) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11225,7 +15235,7 @@ func (m *CCSUsrMsg_ItemDrop) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Itemid |= (int64(b) & 0x7F) << shift
+				m.Itemid |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11244,7 +15254,7 @@ func (m *CCSUsrMsg_ItemDrop) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11257,6 +15267,9 @@ func (m *CCSUsrMsg_ItemDrop) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11286,7 +15299,7 @@ func (m *CCSUsrMsg_GlowPropTurnOff) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11314,7 +15327,7 @@ func (m *CCSUsrMsg_GlowPropTurnOff) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Entidx |= (int32(b) & 0x7F) << shift
+				m.Entidx |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11326,6 +15339,9 @@ func (m *CCSUsrMsg_GlowPropTurnOff) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11355,7 +15371,7 @@ func (m *CCSUsrMsg_RoundBackupFilenames) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11383,7 +15399,7 @@ func (m *CCSUsrMsg_RoundBackupFilenames) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Count |= (int32(b) & 0x7F) << shift
+				m.Count |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11402,7 +15418,7 @@ func (m *CCSUsrMsg_RoundBackupFilenames) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Index |= (int32(b) & 0x7F) << shift
+				m.Index |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11421,7 +15437,7 @@ func (m *CCSUsrMsg_RoundBackupFilenames) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11431,6 +15447,9 @@ func (m *CCSUsrMsg_RoundBackupFilenames) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11450,7 +15469,7 @@ func (m *CCSUsrMsg_RoundBackupFilenames) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= (uint64(b) & 0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11460,6 +15479,9 @@ func (m *CCSUsrMsg_RoundBackupFilenames) Unmarshal(dAtA []byte) error {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -11472,6 +15494,676 @@ func (m *CCSUsrMsg_RoundBackupFilenames) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CCSUsrMsg_SSUI) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowCstrike15Usermessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CCSUsrMsg_SSUI: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CCSUsrMsg_SSUI: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Show", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Show = bool(v != 0)
+		case 2:
+			if wireType != 5 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StartTime", wireType)
+			}
+			var v uint32
+			if (iNdEx + 4) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
+			iNdEx += 4
+			m.StartTime = float32(math.Float32frombits(v))
+		case 3:
+			if wireType != 5 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EndTime", wireType)
+			}
+			var v uint32
+			if (iNdEx + 4) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
+			iNdEx += 4
+			m.EndTime = float32(math.Float32frombits(v))
+		default:
+			iNdEx = preIndex
+			skippy, err := skipCstrike15Usermessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CCSUsrMsg_SurvivalStats) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowCstrike15Usermessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CCSUsrMsg_SurvivalStats: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CCSUsrMsg_SurvivalStats: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Xuid", wireType)
+			}
+			m.Xuid = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Xuid |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Facts", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Facts = append(m.Facts, &CCSUsrMsg_SurvivalStats_Fact{})
+			if err := m.Facts[len(m.Facts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Users", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Users = append(m.Users, &CCSUsrMsg_SurvivalStats_Placement{})
+			if err := m.Users[len(m.Users)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ticknumber", wireType)
+			}
+			m.Ticknumber = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Ticknumber |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Damages", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Damages = append(m.Damages, &CCSUsrMsg_SurvivalStats_Damage{})
+			if err := m.Damages[len(m.Damages)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipCstrike15Usermessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CCSUsrMsg_SurvivalStats_Fact) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowCstrike15Usermessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Fact: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Fact: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
+			}
+			m.Type = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Type |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Display", wireType)
+			}
+			m.Display = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Display |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Value", wireType)
+			}
+			m.Value = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Value |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 5 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Interestingness", wireType)
+			}
+			var v uint32
+			if (iNdEx + 4) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint32(encoding_binary.LittleEndian.Uint32(dAtA[iNdEx:]))
+			iNdEx += 4
+			m.Interestingness = float32(math.Float32frombits(v))
+		default:
+			iNdEx = preIndex
+			skippy, err := skipCstrike15Usermessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CCSUsrMsg_SurvivalStats_Placement) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowCstrike15Usermessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Placement: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Placement: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Xuid", wireType)
+			}
+			m.Xuid = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Xuid |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Teamnumber", wireType)
+			}
+			m.Teamnumber = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Teamnumber |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Placement", wireType)
+			}
+			m.Placement = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Placement |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipCstrike15Usermessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CCSUsrMsg_SurvivalStats_Damage) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowCstrike15Usermessages
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Damage: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Damage: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Xuid", wireType)
+			}
+			m.Xuid = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Xuid |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field To", wireType)
+			}
+			m.To = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.To |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ToHits", wireType)
+			}
+			m.ToHits = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ToHits |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field From", wireType)
+			}
+			m.From = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.From |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FromHits", wireType)
+			}
+			m.FromHits = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCstrike15Usermessages
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.FromHits |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipCstrike15Usermessages(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11501,7 +16193,7 @@ func (m *CCSUsrMsg_ResetHud) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11529,7 +16221,7 @@ func (m *CCSUsrMsg_ResetHud) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= (int(b) & 0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11542,6 +16234,9 @@ func (m *CCSUsrMsg_ResetHud) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11571,7 +16266,7 @@ func (m *CCSUsrMsg_GameTitle) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11599,7 +16294,7 @@ func (m *CCSUsrMsg_GameTitle) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Dummy |= (int32(b) & 0x7F) << shift
+				m.Dummy |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11611,6 +16306,9 @@ func (m *CCSUsrMsg_GameTitle) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11640,7 +16338,7 @@ func (m *CCSUsrMsg_RequestState) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11668,7 +16366,7 @@ func (m *CCSUsrMsg_RequestState) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Dummy |= (int32(b) & 0x7F) << shift
+				m.Dummy |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11680,6 +16378,9 @@ func (m *CCSUsrMsg_RequestState) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11709,7 +16410,7 @@ func (m *CCSUsrMsg_StopSpectatorMode) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11737,7 +16438,7 @@ func (m *CCSUsrMsg_StopSpectatorMode) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Dummy |= (int32(b) & 0x7F) << shift
+				m.Dummy |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11749,6 +16450,9 @@ func (m *CCSUsrMsg_StopSpectatorMode) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11778,7 +16482,7 @@ func (m *CCSUsrMsg_DisconnectToLobby) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11806,7 +16510,7 @@ func (m *CCSUsrMsg_DisconnectToLobby) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Dummy |= (int32(b) & 0x7F) << shift
+				m.Dummy |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11818,6 +16522,9 @@ func (m *CCSUsrMsg_DisconnectToLobby) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11847,7 +16554,7 @@ func (m *CCSUsrMsg_WarmupHasEnded) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11875,7 +16582,7 @@ func (m *CCSUsrMsg_WarmupHasEnded) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Dummy |= (int32(b) & 0x7F) << shift
+				m.Dummy |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11887,6 +16594,9 @@ func (m *CCSUsrMsg_WarmupHasEnded) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11916,7 +16626,7 @@ func (m *CCSUsrMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -11944,7 +16654,7 @@ func (m *CCSUsrMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Dummy |= (int32(b) & 0x7F) << shift
+				m.Dummy |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -11956,6 +16666,9 @@ func (m *CCSUsrMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11985,7 +16698,7 @@ func (m *CCSUsrMsg_ServerRankRevealAll) Unmarshal(dAtA []byte) error {
 			}
 			b := dAtA[iNdEx]
 			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
+			wire |= uint64(b&0x7F) << shift
 			if b < 0x80 {
 				break
 			}
@@ -12013,7 +16726,7 @@ func (m *CCSUsrMsg_ServerRankRevealAll) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SecondsTillShutdown |= (int32(b) & 0x7F) << shift
+				m.SecondsTillShutdown |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -12025,6 +16738,9 @@ func (m *CCSUsrMsg_ServerRankRevealAll) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			if skippy < 0 {
+				return ErrInvalidLengthCstrike15Usermessages
+			}
+			if (iNdEx + skippy) < 0 {
 				return ErrInvalidLengthCstrike15Usermessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12093,8 +16809,11 @@ func skipCstrike15Usermessages(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			iNdEx += length
 			if length < 0 {
+				return 0, ErrInvalidLengthCstrike15Usermessages
+			}
+			iNdEx += length
+			if iNdEx < 0 {
 				return 0, ErrInvalidLengthCstrike15Usermessages
 			}
 			return iNdEx, nil
@@ -12125,6 +16844,9 @@ func skipCstrike15Usermessages(dAtA []byte) (n int, err error) {
 					return 0, err
 				}
 				iNdEx = start + next
+				if iNdEx < 0 {
+					return 0, ErrInvalidLengthCstrike15Usermessages
+				}
 			}
 			return iNdEx, nil
 		case 4:
@@ -12143,222 +16865,3 @@ var (
 	ErrInvalidLengthCstrike15Usermessages = fmt.Errorf("proto: negative length found during unmarshaling")
 	ErrIntOverflowCstrike15Usermessages   = fmt.Errorf("proto: integer overflow")
 )
-
-func init() { proto.RegisterFile("cstrike15_usermessages.proto", fileDescriptorCstrike15Usermessages) }
-
-var fileDescriptorCstrike15Usermessages = []byte{
-	// 3400 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x59, 0x4f, 0x73, 0x24, 0x47,
-	0x56, 0x77, 0x77, 0xeb, 0x6f, 0xb6, 0xa4, 0xc9, 0xa9, 0xf9, 0x63, 0x4d, 0x7b, 0x46, 0xa3, 0x29,
-	0x7b, 0x67, 0x67, 0x0c, 0xd3, 0x78, 0xc4, 0xd8, 0xbb, 0xf6, 0x2e, 0xb0, 0x52, 0x4b, 0x23, 0x09,
-	0x5b, 0x63, 0xd1, 0xad, 0x99, 0xf1, 0x78, 0x83, 0x28, 0x52, 0x55, 0xd9, 0xdd, 0x85, 0xaa, 0x32,
-	0x6b, 0x33, 0xb3, 0x24, 0xf5, 0xee, 0x01, 0xb8, 0x11, 0x6c, 0x04, 0xb1, 0x07, 0x2e, 0x44, 0x2c,
-	0x27, 0x22, 0x38, 0x72, 0x67, 0xf7, 0x0b, 0xf8, 0x48, 0x70, 0x25, 0x20, 0x08, 0x73, 0x82, 0xe0,
-	0xc4, 0x27, 0x20, 0x5e, 0x66, 0x55, 0x57, 0x66, 0xb7, 0x24, 0x3b, 0x08, 0x82, 0x5b, 0xf7, 0xef,
-	0xfd, 0x32, 0xf3, 0xe5, 0xcb, 0x97, 0x2f, 0xdf, 0x7b, 0x85, 0xee, 0x86, 0x52, 0x89, 0xf8, 0x84,
-	0x3e, 0xfd, 0x30, 0xc8, 0x25, 0x15, 0x29, 0x95, 0x92, 0x0c, 0xa8, 0x6c, 0x67, 0x82, 0x2b, 0xde,
-	0xba, 0xce, 0xa8, 0x9a, 0x80, 0x5a, 0xd5, 0x80, 0x41, 0xe8, 0xca, 0xfc, 0x5f, 0xd5, 0x90, 0xd7,
-	0xe9, 0xf4, 0x5e, 0x4a, 0x71, 0x20, 0x07, 0xc1, 0xab, 0xdd, 0x97, 0xfb, 0x07, 0x94, 0xe5, 0xde,
-	0x2a, 0x9a, 0x61, 0x24, 0xa5, 0xab, 0xb5, 0xf5, 0xda, 0xa3, 0xc5, 0xad, 0x99, 0xaf, 0xfe, 0xf5,
-	0xfe, 0x5b, 0x5d, 0x8d, 0x80, 0x44, 0x0e, 0xf9, 0xd9, 0x6a, 0x7d, 0xbd, 0xf6, 0x68, 0xa1, 0x94,
-	0x00, 0xe2, 0x3d, 0x43, 0xf3, 0x32, 0x3f, 0x3e, 0xa1, 0x23, 0xb9, 0xda, 0x58, 0x6f, 0x3c, 0x6a,
-	0x6e, 0xb4, 0xda, 0xd3, 0x33, 0xb7, 0x7b, 0x9a, 0xd2, 0x2d, 0xa9, 0xad, 0x4f, 0xd0, 0x9c, 0x81,
-	0xae, 0x58, 0xf3, 0x36, 0x6a, 0x48, 0x25, 0xf4, 0x92, 0xa5, 0x00, 0x00, 0xbf, 0x8d, 0x70, 0xb5,
-	0xc2, 0x2e, 0x8d, 0x07, 0x54, 0x78, 0x2d, 0x34, 0x2b, 0x08, 0x1b, 0x98, 0x69, 0x66, 0x0b, 0xb6,
-	0x81, 0xfc, 0x27, 0xe8, 0x5a, 0xc5, 0x3f, 0x12, 0x24, 0x66, 0x40, 0x57, 0xf0, 0xc3, 0xa5, 0x6b,
-	0xc8, 0x7f, 0x82, 0xae, 0x57, 0xf4, 0xbd, 0x3c, 0x3a, 0xa2, 0xe7, 0x0a, 0xb4, 0x54, 0xf4, 0x5c,
-	0xb9, 0x5a, 0x02, 0xe2, 0xff, 0x65, 0xcd, 0xe6, 0xf7, 0xc8, 0x48, 0xf3, 0xef, 0xa1, 0x79, 0xca,
-	0x54, 0x10, 0x47, 0xe7, 0xce, 0x12, 0x73, 0x94, 0xa9, 0xfd, 0xe8, 0x7c, 0x3c, 0x5d, 0x7d, 0x72,
-	0x3a, 0x90, 0x84, 0x43, 0xa2, 0x56, 0x1b, 0xb6, 0xa1, 0x01, 0xf1, 0x1e, 0xa2, 0x26, 0x30, 0x48,
-	0x92, 0x68, 0xc2, 0x8c, 0x45, 0xb0, 0x05, 0xfe, 0xdf, 0x3b, 0x67, 0x5b, 0x28, 0xb4, 0xf1, 0x2d,
-	0x34, 0xd2, 0xd3, 0xd6, 0xa7, 0xd6, 0xbd, 0x8f, 0x16, 0x52, 0x39, 0x08, 0xf4, 0x21, 0x35, 0x2c,
-	0x7d, 0xe7, 0x53, 0x39, 0x78, 0x61, 0xce, 0x69, 0x2e, 0x23, 0x82, 0xa4, 0x72, 0x75, 0x66, 0xbd,
-	0xf1, 0x68, 0xb1, 0x5b, 0xfc, 0x9b, 0x54, 0x78, 0xf6, 0x32, 0x85, 0x7f, 0xdf, 0x36, 0x20, 0x28,
-	0x7b, 0x20, 0x07, 0xa0, 0x2e, 0xac, 0x1a, 0x49, 0xe5, 0xaa, 0x9b, 0xca, 0xc1, 0xb6, 0x54, 0xd6,
-	0x9a, 0x0d, 0x7b, 0x4d, 0xff, 0x5f, 0xea, 0xb6, 0x73, 0xec, 0xe5, 0x11, 0xcc, 0xb5, 0x86, 0xe6,
-	0xc3, 0x21, 0x61, 0x8c, 0x26, 0xce, 0x5c, 0x25, 0xe8, 0xdd, 0x47, 0x8d, 0x8c, 0x4b, 0xbd, 0xf5,
-	0xe6, 0xc6, 0x72, 0xbb, 0x73, 0x20, 0x07, 0xaf, 0x68, 0xa8, 0xb8, 0xd8, 0xd8, 0xee, 0x82, 0xc4,
-	0xbb, 0x87, 0x66, 0xc2, 0x44, 0x3c, 0xd5, 0xdb, 0x6f, 0x6e, 0x2c, 0x6a, 0x46, 0x77, 0x77, 0x6b,
-	0xb3, 0xab, 0xe1, 0x42, 0xbc, 0xa1, 0x8f, 0x64, 0x4a, 0xbc, 0xe1, 0xdd, 0x45, 0x73, 0xb4, 0xdf,
-	0xa7, 0xa1, 0x31, 0x41, 0x65, 0x78, 0x8d, 0x79, 0x0f, 0xd1, 0x52, 0x9f, 0x44, 0x34, 0x88, 0x59,
-	0xa0, 0xe2, 0x94, 0xae, 0xce, 0xad, 0xd7, 0x1e, 0xd5, 0x0b, 0x0e, 0x02, 0xc9, 0x3e, 0x3b, 0x8a,
-	0x53, 0xea, 0x3d, 0x42, 0xcb, 0x9a, 0xc7, 0x73, 0x65, 0x88, 0xf3, 0x16, 0xb1, 0x09, 0xa2, 0xcf,
-	0x73, 0xa5, 0x99, 0x0f, 0xd0, 0xe2, 0x90, 0x27, 0x91, 0x61, 0x2d, 0x5a, 0xac, 0x05, 0x80, 0x35,
-	0xe5, 0x1e, 0x9a, 0xef, 0x9f, 0x1b, 0x02, 0xb2, 0x08, 0x73, 0xfd, 0x73, 0x2d, 0x2e, 0xdd, 0xb3,
-	0x39, 0xe5, 0xed, 0x7f, 0x57, 0xb3, 0x2f, 0x53, 0x6f, 0x48, 0x4e, 0xa8, 0x36, 0x2f, 0x4f, 0x53,
-	0xc2, 0xa2, 0x09, 0xf3, 0x1a, 0xd0, 0x7b, 0x82, 0xae, 0x25, 0x3c, 0x24, 0x49, 0x40, 0xd2, 0x2c,
-	0x89, 0x55, 0x1e, 0x51, 0x6d, 0xea, 0x72, 0xd1, 0x15, 0x2d, 0xdc, 0x2c, 0x65, 0x9e, 0x8f, 0x16,
-	0xfb, 0x82, 0xfe, 0x24, 0xa7, 0x2c, 0x1c, 0x69, 0x8b, 0x97, 0xc4, 0x0a, 0xf6, 0xd6, 0xd1, 0x42,
-	0x94, 0x0b, 0xa2, 0x62, 0xce, 0xb4, 0xd5, 0xc7, 0x3b, 0x2c, 0x51, 0xb8, 0x96, 0x2b, 0x95, 0xa2,
-	0xcf, 0x49, 0x44, 0x9d, 0x41, 0xb6, 0xa2, 0x63, 0xd4, 0xb5, 0x5c, 0xdd, 0xa6, 0x8c, 0x2d, 0xd7,
-	0x42, 0xb3, 0xfd, 0x84, 0x0c, 0xa4, 0xd6, 0x6c, 0x1c, 0x39, 0x34, 0xe4, 0xbd, 0x83, 0x1a, 0x61,
-	0x22, 0xa6, 0xdd, 0x00, 0x50, 0x3f, 0xb2, 0x1d, 0xb3, 0x9b, 0xa7, 0xc7, 0x89, 0x9e, 0x2c, 0x66,
-	0x11, 0x75, 0x6f, 0xa4, 0x81, 0xe0, 0x0c, 0x22, 0xa2, 0x88, 0xa3, 0x86, 0x46, 0xae, 0x52, 0xc1,
-	0xff, 0x19, 0xba, 0x5d, 0xad, 0xd2, 0x49, 0xb8, 0xa4, 0x1d, 0x92, 0xe9, 0xbd, 0xad, 0xa2, 0x99,
-	0x21, 0x91, 0x43, 0xbd, 0xd4, 0x72, 0x39, 0x1f, 0x20, 0x8e, 0x5d, 0xea, 0x17, 0xda, 0xe5, 0x3b,
-	0xa8, 0xd9, 0x17, 0x3c, 0x0d, 0xb2, 0x84, 0x8c, 0xa8, 0x70, 0x62, 0x13, 0x02, 0xc1, 0xa1, 0xc6,
-	0xfd, 0x3f, 0xab, 0xa1, 0xbb, 0x17, 0xaf, 0xbe, 0x1d, 0x0b, 0xf0, 0xf5, 0xff, 0x07, 0x1d, 0x7e,
-	0x88, 0x6e, 0x58, 0xfe, 0x49, 0x59, 0xb4, 0x99, 0x47, 0x31, 0x87, 0xd1, 0x82, 0x44, 0x31, 0x0f,
-	0x24, 0xcf, 0x0b, 0x3f, 0x2d, 0x1d, 0x1b, 0x69, 0x41, 0x0f, 0x70, 0xff, 0x6f, 0x9c, 0xd8, 0xd9,
-	0x25, 0x67, 0x66, 0x74, 0x0b, 0xcd, 0x66, 0xb1, 0x0a, 0x87, 0xee, 0x39, 0x69, 0x48, 0xdf, 0x6e,
-	0xa6, 0x20, 0xac, 0xd6, 0x27, 0xc2, 0x6a, 0x1c, 0x9d, 0x3b, 0xfb, 0x6a, 0x5c, 0xe4, 0xa8, 0xde,
-	0x6f, 0xa0, 0x95, 0x53, 0x1e, 0x87, 0x34, 0xe8, 0xc7, 0x09, 0xd5, 0x41, 0x76, 0xc6, 0x52, 0x6e,
-	0x59, 0xcb, 0x9e, 0x17, 0x22, 0xff, 0x3f, 0x6b, 0xf6, 0xf6, 0x5e, 0x81, 0xec, 0x80, 0xc8, 0x13,
-	0x6f, 0x0b, 0x2d, 0x19, 0xbb, 0x04, 0x29, 0x91, 0x27, 0x72, 0xb5, 0xa6, 0x5f, 0xe2, 0xfb, 0xed,
-	0x0b, 0xb8, 0x6d, 0x63, 0x28, 0xf8, 0xd9, 0x6d, 0x66, 0xe3, 0xdf, 0xd2, 0xfb, 0x00, 0x5d, 0x2f,
-	0xe7, 0xe0, 0x51, 0x40, 0x19, 0x39, 0x4e, 0xa8, 0xf3, 0x1c, 0x5c, 0x2b, 0xd8, 0x3c, 0xda, 0xd1,
-	0xc2, 0xd6, 0x1f, 0x22, 0x54, 0x4d, 0xe6, 0xfd, 0x26, 0xba, 0x36, 0x20, 0x29, 0x0d, 0x44, 0x9e,
-	0x50, 0xa9, 0xf5, 0x70, 0xcc, 0xb5, 0x0c, 0xc2, 0x2e, 0xc8, 0x34, 0xfb, 0x01, 0x5a, 0x3c, 0x26,
-	0xac, 0x50, 0xd7, 0x39, 0xf1, 0x63, 0xc2, 0xb4, 0x42, 0xfe, 0x2f, 0x6b, 0xf6, 0x95, 0xd9, 0x26,
-	0x29, 0x19, 0x50, 0x30, 0x37, 0x49, 0x79, 0xce, 0x26, 0x9e, 0x05, 0x83, 0x79, 0x3f, 0x40, 0x37,
-	0x62, 0xd6, 0x4f, 0x62, 0x08, 0xde, 0xc1, 0x19, 0x17, 0x49, 0x14, 0x54, 0x91, 0xbd, 0x69, 0x45,
-	0xf6, 0xee, 0xf5, 0x31, 0xef, 0x35, 0xd0, 0x0e, 0xb9, 0x84, 0x38, 0x75, 0x1a, 0x87, 0x2a, 0x4e,
-	0x03, 0x38, 0x3c, 0x7d, 0x2f, 0xed, 0x1b, 0xb6, 0x62, 0x84, 0x3b, 0x85, 0xcc, 0xff, 0xb9, 0x73,
-	0x16, 0x5d, 0x70, 0xa2, 0xf2, 0xe9, 0xbf, 0xea, 0xe5, 0xba, 0x8b, 0xe6, 0xc2, 0x24, 0xa6, 0x4c,
-	0xb9, 0xfe, 0x62, 0xb0, 0xff, 0xf5, 0x63, 0xeb, 0xb7, 0x6d, 0xc7, 0xdd, 0x8b, 0x99, 0xfa, 0x86,
-	0xb4, 0xe5, 0x09, 0xba, 0x55, 0xf1, 0x3f, 0xa5, 0xa3, 0xf1, 0x90, 0x9b, 0x68, 0x76, 0x18, 0x33,
-	0x65, 0x7c, 0x68, 0xb1, 0x6b, 0xfe, 0xf8, 0x3f, 0x9f, 0x41, 0xef, 0x55, 0xfc, 0x43, 0xc1, 0x43,
-	0x2a, 0x65, 0x2f, 0xe3, 0x4a, 0xd1, 0x08, 0x2c, 0xa2, 0x46, 0x2f, 0xb3, 0x88, 0x28, 0xea, 0xbd,
-	0x8b, 0x10, 0xa3, 0x67, 0x41, 0xae, 0xff, 0xe9, 0x75, 0x4b, 0xf7, 0x59, 0x64, 0xf4, 0xac, 0x20,
-	0xfd, 0x11, 0x5a, 0xa1, 0x7a, 0x50, 0xc1, 0x83, 0x13, 0x02, 0x87, 0xfd, 0xb8, 0xfd, 0x6d, 0xd6,
-	0x68, 0x5f, 0x80, 0x75, 0x97, 0xa9, 0xf5, 0x4f, 0xb6, 0xfe, 0xb9, 0x8e, 0x6e, 0x5c, 0xa2, 0x5e,
-	0xb1, 0xf2, 0x64, 0x22, 0xb4, 0x68, 0x70, 0xc8, 0x85, 0xee, 0xa3, 0x85, 0x30, 0x21, 0x52, 0x06,
-	0x71, 0xe4, 0x1c, 0xd2, 0xbc, 0x46, 0xf7, 0x23, 0x20, 0x70, 0x11, 0x0f, 0x62, 0x16, 0xb8, 0x2e,
-	0x32, 0x6f, 0xd0, 0x2f, 0x2c, 0xc2, 0x48, 0x5f, 0xe7, 0x09, 0xc2, 0x1b, 0x8b, 0xf0, 0x53, 0x27,
-	0x2b, 0x28, 0x08, 0x5f, 0x82, 0x17, 0x11, 0x36, 0x48, 0x68, 0x30, 0xd2, 0x19, 0x41, 0xe5, 0xe8,
-	0x00, 0xbe, 0x81, 0x37, 0x37, 0xa2, 0x7d, 0x28, 0x04, 0x74, 0x1e, 0x50, 0xda, 0xb8, 0x04, 0xbd,
-	0x0d, 0xe4, 0x15, 0x97, 0x79, 0x48, 0x64, 0x50, 0x52, 0x17, 0x2c, 0x2a, 0x36, 0xf2, 0x3d, 0x22,
-	0xb7, 0x8b, 0x31, 0x8f, 0xd0, 0xb2, 0x35, 0x26, 0x7c, 0xa6, 0x73, 0x87, 0x71, 0xc6, 0x36, 0xa6,
-	0x77, 0x9e, 0xf9, 0xc7, 0xe8, 0x9e, 0x1b, 0x64, 0x4d, 0x18, 0xd8, 0x57, 0x34, 0xdd, 0x16, 0x3c,
-	0x93, 0xde, 0xe6, 0xd4, 0x01, 0xd7, 0xca, 0xda, 0x60, 0x27, 0xe4, 0x0c, 0x88, 0x87, 0x82, 0x9e,
-	0xc6, 0xf4, 0x6c, 0x9b, 0x28, 0xb2, 0x95, 0xf0, 0xf0, 0x64, 0xe2, 0x04, 0xfd, 0xd1, 0xe5, 0x6b,
-	0x3c, 0x87, 0x58, 0xed, 0x7d, 0x84, 0x16, 0x62, 0x45, 0xd3, 0x98, 0xf5, 0xb9, 0x3e, 0xc8, 0xab,
-	0x67, 0x1f, 0x73, 0x21, 0x24, 0x8f, 0xef, 0xb7, 0x13, 0x78, 0x4a, 0xd4, 0xff, 0x87, 0x9a, 0xfd,
-	0x8a, 0x76, 0x69, 0xc2, 0x49, 0xb4, 0x63, 0xb2, 0xb5, 0x2a, 0xda, 0xd7, 0x2e, 0x88, 0xf6, 0x6b,
-	0x68, 0x9e, 0x84, 0x8a, 0xb0, 0x38, 0x75, 0xfd, 0xa6, 0x00, 0xa7, 0xfc, 0xa6, 0xfe, 0x4d, 0x7e,
-	0x53, 0xff, 0x26, 0xbf, 0x99, 0x20, 0x7c, 0xe9, 0x7f, 0x68, 0xdf, 0xeb, 0xcd, 0xe8, 0x8f, 0x73,
-	0xa9, 0x0e, 0x38, 0xa3, 0xa3, 0xab, 0x03, 0xa7, 0xff, 0x17, 0x6e, 0x30, 0xa3, 0x19, 0x17, 0x6a,
-	0x2f, 0x56, 0xde, 0x1d, 0x34, 0x9b, 0x71, 0x19, 0x98, 0xed, 0x96, 0x8b, 0xcd, 0x64, 0x5c, 0x7e,
-	0x51, 0x8a, 0x46, 0x4e, 0x32, 0x07, 0xa2, 0x37, 0xa5, 0xe8, 0xa7, 0xce, 0x26, 0x41, 0xf4, 0x25,
-	0x64, 0x77, 0x90, 0x5d, 0x49, 0x45, 0xd2, 0xcc, 0xd9, 0x62, 0x05, 0xfb, 0x7f, 0xee, 0x94, 0x54,
-	0x9f, 0xc6, 0x49, 0xd2, 0x21, 0xc6, 0x78, 0xc7, 0x12, 0x1e, 0x27, 0xb7, 0xca, 0x9b, 0xe7, 0xc7,
-	0xf2, 0x80, 0x47, 0xd4, 0xfb, 0x2e, 0x5a, 0xea, 0xc7, 0x42, 0xaa, 0x40, 0x11, 0x31, 0xa0, 0x6e,
-	0x7c, 0x6d, 0x6a, 0xc9, 0x91, 0x16, 0x78, 0x8f, 0xd1, 0xb2, 0xa4, 0x21, 0x67, 0x51, 0xc9, 0xb4,
-	0xef, 0xf0, 0x92, 0x11, 0x19, 0xaa, 0xff, 0x5f, 0x35, 0xd4, 0xb2, 0xde, 0x20, 0x2a, 0x63, 0x41,
-	0x75, 0x22, 0x28, 0x43, 0x92, 0x50, 0xef, 0x29, 0xba, 0x1e, 0x19, 0x4c, 0xe7, 0x8c, 0x1a, 0x74,
-	0x4c, 0x85, 0xa3, 0xc9, 0x21, 0xdf, 0x47, 0xb7, 0xca, 0xb7, 0x3f, 0x10, 0x94, 0x24, 0x30, 0x2e,
-	0x90, 0x34, 0x74, 0xcc, 0x78, 0xa3, 0xa4, 0x74, 0x0b, 0x46, 0x8f, 0x86, 0xb0, 0x58, 0xcc, 0x14,
-	0x15, 0x19, 0x4f, 0x08, 0xbc, 0x6f, 0x6a, 0x94, 0x51, 0x47, 0x75, 0x6c, 0x8b, 0x8f, 0x46, 0x19,
-	0xf5, 0xda, 0x08, 0x4b, 0x45, 0x84, 0x0a, 0x8e, 0x13, 0xca, 0x8a, 0xbc, 0xd6, 0x36, 0xfa, 0x8a,
-	0x96, 0x6e, 0x81, 0x10, 0x34, 0xf4, 0x77, 0xed, 0xdd, 0x76, 0x72, 0x21, 0x28, 0x53, 0x95, 0xea,
-	0x8f, 0xd1, 0x72, 0x98, 0x8b, 0x4b, 0x76, 0xba, 0x14, 0xe6, 0x62, 0x4c, 0xf5, 0xff, 0xc4, 0x9e,
-	0x68, 0x33, 0x1c, 0xc6, 0xf4, 0x94, 0xa6, 0x94, 0xa9, 0x9d, 0x53, 0x78, 0xe5, 0x1e, 0xa2, 0x26,
-	0xa9, 0x30, 0xe7, 0x34, 0x6d, 0x01, 0xe4, 0x5d, 0xa1, 0x76, 0x59, 0xfb, 0x28, 0x0d, 0x04, 0x01,
-	0x12, 0xa2, 0x16, 0xc4, 0x68, 0xdb, 0x06, 0x73, 0x00, 0xee, 0x47, 0xfe, 0xaf, 0x9d, 0x5c, 0xf4,
-	0x80, 0xa8, 0x70, 0xb8, 0xc3, 0xa2, 0x0e, 0x67, 0x51, 0x0c, 0x76, 0x95, 0xa6, 0xcc, 0x20, 0x83,
-	0x24, 0x4e, 0x63, 0x57, 0x83, 0x0a, 0x06, 0x8f, 0x4a, 0xb3, 0x20, 0x25, 0xe7, 0x02, 0x22, 0x8e,
-	0x9b, 0xa7, 0x34, 0xd3, 0xec, 0xa0, 0x14, 0x40, 0x7a, 0x99, 0x66, 0xc1, 0x59, 0xcc, 0xcc, 0x74,
-	0xb6, 0x42, 0x28, 0xcd, 0x5e, 0x17, 0x78, 0x31, 0x1f, 0xd8, 0xcf, 0xf0, 0x66, 0xdc, 0xf9, 0x8e,
-	0x4a, 0x81, 0xff, 0x1f, 0x35, 0xf4, 0x8e, 0xf5, 0x14, 0xea, 0xc8, 0xd7, 0x53, 0x44, 0xc9, 0xe2,
-	0x19, 0x5b, 0x43, 0xf3, 0xa7, 0x54, 0xc8, 0xc9, 0x4a, 0xa6, 0x04, 0xbd, 0xef, 0xa1, 0x59, 0x09,
-	0x74, 0x9d, 0x24, 0x34, 0x37, 0x1e, 0xb4, 0xaf, 0x98, 0xac, 0x0d, 0xbf, 0xbb, 0x86, 0x6f, 0x5b,
-	0x75, 0x76, 0xda, 0xaa, 0xde, 0x6d, 0xd4, 0x08, 0x45, 0xe8, 0xbc, 0x48, 0x00, 0xb4, 0x3e, 0x41,
-	0x33, 0x30, 0x0b, 0xc8, 0x27, 0x63, 0x23, 0x00, 0x70, 0x90, 0x11, 0x4d, 0x26, 0xaa, 0x19, 0x03,
-	0xf9, 0x3f, 0x76, 0x6e, 0x58, 0x2c, 0xe1, 0xa1, 0xd9, 0x67, 0xe0, 0x27, 0x5c, 0x8c, 0xf4, 0x43,
-	0x67, 0x30, 0x27, 0x99, 0x28, 0x41, 0x5b, 0xe1, 0xfa, 0x05, 0x6e, 0xf0, 0xab, 0x1a, 0x7a, 0xbb,
-	0x9a, 0xfd, 0x0f, 0x72, 0x2a, 0xd5, 0xa1, 0xe0, 0x03, 0x41, 0xa5, 0x84, 0x80, 0xf2, 0x13, 0x00,
-	0x60, 0xac, 0x5d, 0x91, 0xcc, 0x6b, 0x74, 0x3f, 0x02, 0x7f, 0x67, 0x5c, 0xa4, 0x24, 0x09, 0x32,
-	0xae, 0x53, 0xa2, 0xba, 0xc5, 0x5a, 0x32, 0xa2, 0x43, 0x2d, 0x81, 0x93, 0x3d, 0xe6, 0x2c, 0x97,
-	0x25, 0xb3, 0x61, 0x31, 0x9b, 0x5a, 0x52, 0x10, 0xdf, 0x47, 0x2b, 0xb1, 0x0c, 0x28, 0x6c, 0x2f,
-	0xd0, 0xeb, 0x38, 0x8d, 0x9c, 0xa5, 0x58, 0xea, 0x1b, 0xa2, 0x15, 0xf5, 0x3f, 0x45, 0x6b, 0xd6,
-	0x13, 0x18, 0x72, 0x41, 0x3f, 0xa3, 0x24, 0xa2, 0xe2, 0x98, 0x13, 0x11, 0xc1, 0xd3, 0xe6, 0x3d,
-	0x2e, 0x8a, 0x44, 0xf3, 0xfe, 0xdd, 0x6a, 0x5f, 0x44, 0x32, 0x55, 0xa3, 0xff, 0x63, 0x3b, 0x41,
-	0xfc, 0xa2, 0x4b, 0xd8, 0xc9, 0x2e, 0x35, 0xf9, 0x26, 0x8f, 0xe8, 0x54, 0x36, 0x34, 0x0f, 0x28,
-	0xe4, 0x42, 0xef, 0x21, 0x14, 0x72, 0xa6, 0x04, 0x4f, 0x12, 0x2a, 0x1c, 0x13, 0x5b, 0xb8, 0xff,
-	0xb3, 0xa9, 0xc9, 0x5f, 0x66, 0xd1, 0xff, 0xd1, 0xe4, 0xe0, 0x02, 0x82, 0xb0, 0x93, 0x98, 0x0d,
-	0xdc, 0x64, 0xab, 0x00, 0xfd, 0x2e, 0x5a, 0xb5, 0x82, 0x16, 0x49, 0x92, 0x57, 0x5c, 0xd1, 0xe7,
-	0x24, 0x4e, 0x68, 0x04, 0xaf, 0x9e, 0xa0, 0x44, 0x4e, 0xdc, 0x93, 0x02, 0xd3, 0xe9, 0xf1, 0x64,
-	0xa9, 0xaf, 0x11, 0xff, 0x17, 0x75, 0xb7, 0xd0, 0x52, 0xb4, 0x07, 0x91, 0xd2, 0x24, 0xd4, 0x24,
-	0x75, 0x66, 0xd3, 0x88, 0xdd, 0x5f, 0xab, 0x5f, 0xd0, 0x5f, 0x7b, 0x80, 0x16, 0x4f, 0xb9, 0xa2,
-	0xd3, 0x41, 0x7b, 0x01, 0x60, 0x1d, 0xac, 0xef, 0xa3, 0x05, 0xf0, 0xea, 0x40, 0x2a, 0xe1, 0xd4,
-	0x80, 0xda, 0xd7, 0x7b, 0x4a, 0x40, 0x94, 0x89, 0xa8, 0x22, 0x71, 0x22, 0x35, 0x67, 0xd6, 0x2e,
-	0x62, 0x0b, 0x01, 0xd0, 0xde, 0x47, 0x2b, 0x5c, 0x0d, 0xa9, 0x08, 0x40, 0x2f, 0xcd, 0x9c, 0xb3,
-	0x98, 0x4b, 0x5a, 0x76, 0x44, 0x49, 0x0a, 0xdc, 0xc7, 0xda, 0x1d, 0x47, 0x54, 0x06, 0x8c, 0x07,
-	0xa0, 0x89, 0x93, 0x4e, 0x36, 0x63, 0xf9, 0x86, 0xca, 0x17, 0x1c, 0xf6, 0xef, 0xff, 0xb5, 0xdb,
-	0x33, 0xe6, 0x8a, 0x1e, 0x12, 0x29, 0xaf, 0xb0, 0x88, 0xb3, 0xe5, 0xfa, 0x37, 0x6e, 0xb9, 0xf1,
-	0x2d, 0xb6, 0x3c, 0x73, 0xf1, 0x96, 0xfd, 0x17, 0xe8, 0xa6, 0xab, 0x5a, 0x71, 0xfc, 0x97, 0x2b,
-	0x57, 0x39, 0x46, 0x7d, 0xda, 0x31, 0xfc, 0x1f, 0x4d, 0x9d, 0x3e, 0x55, 0x79, 0xe6, 0x3d, 0x46,
-	0x38, 0xe3, 0x0a, 0x92, 0x3d, 0x92, 0x04, 0xb1, 0x94, 0x39, 0x2d, 0xcb, 0xa4, 0x6b, 0x63, 0x7c,
-	0x5f, 0xc3, 0xfe, 0x3f, 0xd5, 0xd0, 0x43, 0x37, 0x7f, 0xfd, 0x8c, 0x48, 0x05, 0xb9, 0x0c, 0x15,
-	0xa6, 0x94, 0x3d, 0xe2, 0x1d, 0x53, 0xf3, 0xbd, 0x8f, 0x56, 0x58, 0x9e, 0x06, 0xc3, 0x58, 0xc9,
-	0x60, 0x10, 0x9f, 0x52, 0xd7, 0x57, 0x97, 0x58, 0x9e, 0xee, 0xc5, 0x4a, 0xee, 0x82, 0x04, 0xe2,
-	0x4c, 0xa4, 0x47, 0x17, 0x4c, 0xe7, 0x45, 0x32, 0x12, 0x43, 0xb4, 0x27, 0x55, 0xe4, 0x84, 0x32,
-	0x37, 0xc9, 0x29, 0x26, 0x3d, 0x02, 0x89, 0x35, 0xa9, 0x61, 0xce, 0x4c, 0x4f, 0xaa, 0x89, 0xfe,
-	0xdf, 0xd6, 0xed, 0x58, 0xdd, 0xa3, 0xe2, 0x94, 0x8a, 0xe2, 0xb2, 0xc3, 0xab, 0xb4, 0x8b, 0x9a,
-	0x70, 0x27, 0xab, 0xe2, 0x0f, 0xde, 0x9e, 0x87, 0xed, 0xcb, 0x47, 0xb4, 0xab, 0x9f, 0x5d, 0x24,
-	0xc6, 0xbf, 0x5b, 0xbf, 0xae, 0x21, 0x64, 0xcd, 0xfb, 0x2e, 0x42, 0x24, 0xd4, 0xaf, 0x7e, 0x19,
-	0xaa, 0xc7, 0x6f, 0x75, 0x81, 0x9b, 0x9a, 0x4c, 0x2f, 0xce, 0x93, 0x89, 0xa2, 0x0d, 0xd0, 0xcf,
-	0x93, 0x8a, 0xc0, 0xe8, 0xd9, 0x74, 0x1c, 0x79, 0x41, 0xcf, 0x80, 0x00, 0x26, 0x3b, 0x8b, 0x99,
-	0x74, 0x8b, 0x36, 0x96, 0xa7, 0xaf, 0x63, 0x26, 0x4d, 0x13, 0x89, 0x9d, 0x04, 0xe1, 0x50, 0x7f,
-	0x6a, 0xb0, 0xf3, 0x6f, 0xad, 0x7d, 0x47, 0xe3, 0xfe, 0x6b, 0x27, 0x18, 0x66, 0xc5, 0x26, 0x36,
-	0x9d, 0x50, 0xfd, 0x44, 0xf7, 0x22, 0x76, 0x3b, 0x9d, 0xf1, 0x37, 0x9a, 0xd3, 0x8d, 0x60, 0xb7,
-	0xb3, 0x61, 0x2c, 0xf4, 0x82, 0xab, 0xb8, 0x3f, 0xfa, 0xe2, 0xb0, 0x4b, 0xcf, 0x88, 0x88, 0x68,
-	0x54, 0x84, 0xf0, 0x0f, 0x6c, 0x2f, 0xd7, 0x55, 0x4e, 0x1c, 0x9e, 0xe4, 0x19, 0x78, 0x39, 0x54,
-	0x37, 0x6e, 0x95, 0x0f, 0x88, 0xff, 0x57, 0xee, 0xb7, 0x80, 0x21, 0x3f, 0xd3, 0xdf, 0x79, 0xda,
-	0x08, 0x1f, 0x83, 0x63, 0x9c, 0x92, 0x24, 0x8e, 0x02, 0x99, 0x70, 0x5d, 0xee, 0x5b, 0xad, 0x0e,
-	0x90, 0xbe, 0x02, 0x61, 0x0f, 0x64, 0xda, 0x41, 0xcc, 0x7b, 0x3b, 0xdd, 0x1a, 0x6d, 0x16, 0x12,
-	0xdd, 0x1d, 0x85, 0x3c, 0x88, 0xb2, 0x1c, 0xee, 0x6a, 0x19, 0xae, 0xc7, 0xd7, 0x15, 0x04, 0x3d,
-	0x8d, 0xbb, 0x9f, 0x58, 0xb6, 0x88, 0x18, 0x37, 0x9d, 0xe3, 0xc9, 0x0f, 0x41, 0x3a, 0x18, 0x7f,
-	0x64, 0xef, 0x7b, 0x33, 0x4d, 0xf9, 0x36, 0x65, 0x31, 0x8d, 0x74, 0xb9, 0x95, 0xa6, 0x7c, 0x7f,
-	0xf2, 0x79, 0x29, 0x40, 0xbf, 0x83, 0xee, 0xd8, 0x29, 0xa0, 0x38, 0xb1, 0x12, 0xd1, 0x8b, 0x72,
-	0xd0, 0xc5, 0x0b, 0x72, 0x50, 0xff, 0x13, 0xdb, 0xe5, 0x75, 0x1e, 0x69, 0x27, 0x62, 0x77, 0xd1,
-	0x9c, 0xd5, 0xea, 0x58, 0x1c, 0x67, 0x1f, 0x1a, 0xf3, 0x5f, 0xd8, 0xd6, 0x2f, 0xab, 0x63, 0x18,
-	0xa3, 0x8b, 0x51, 0xe3, 0xca, 0x8d, 0x72, 0x8c, 0xc1, 0x4c, 0xaa, 0x44, 0xd4, 0xd0, 0x69, 0xbd,
-	0x19, 0xc8, 0xff, 0xd8, 0xde, 0xd0, 0x6e, 0xc2, 0xcf, 0x0e, 0x05, 0xcf, 0x8e, 0x72, 0xc1, 0x3e,
-	0xef, 0xf7, 0xaf, 0x2e, 0x4d, 0xfd, 0x5f, 0xd6, 0xec, 0x64, 0xa2, 0x0b, 0x69, 0xeb, 0x16, 0x01,
-	0xef, 0x29, 0x7b, 0x8b, 0xb2, 0xca, 0xb6, 0x6b, 0xd3, 0xd9, 0xf6, 0xb8, 0x53, 0x5d, 0x9f, 0xee,
-	0x54, 0xaf, 0xa3, 0x85, 0x71, 0xef, 0xd2, 0x3e, 0xf1, 0x31, 0x0a, 0x0c, 0x16, 0x87, 0xd3, 0xdd,
-	0xcd, 0x31, 0xea, 0x7f, 0xe0, 0xf4, 0x5d, 0xa9, 0xa4, 0x6a, 0x2f, 0xd7, 0xb6, 0x10, 0xf0, 0xdb,
-	0x49, 0xfd, 0x0c, 0xe4, 0x3f, 0xb5, 0x43, 0xf4, 0x2e, 0x49, 0xe9, 0x51, 0xac, 0x4c, 0x4b, 0x3d,
-	0xca, 0xd3, 0x74, 0xe4, 0x6e, 0x42, 0x43, 0xfe, 0x33, 0xb7, 0xac, 0xd7, 0xe9, 0x17, 0x1c, 0xe6,
-	0xd5, 0xa3, 0x3e, 0xb6, 0x53, 0xf1, 0x9e, 0xe2, 0x59, 0x2f, 0xa3, 0xa1, 0x82, 0x12, 0x4b, 0x57,
-	0x9d, 0xdf, 0x7a, 0xe8, 0x76, 0x2c, 0x43, 0xce, 0x18, 0x0d, 0xd5, 0x11, 0xff, 0x8c, 0x1f, 0x1f,
-	0x8f, 0xae, 0x1c, 0xfa, 0x91, 0x9d, 0xd4, 0xbc, 0x26, 0x22, 0xcd, 0xb3, 0x3d, 0x22, 0x77, 0x58,
-	0x44, 0xa3, 0x2b, 0xc7, 0x6d, 0xd8, 0x77, 0xc5, 0x3c, 0x30, 0xfb, 0xac, 0xcf, 0xaf, 0x1c, 0xf3,
-	0xc6, 0x6d, 0xb5, 0x94, 0x31, 0xba, 0x4b, 0x4f, 0x29, 0x49, 0x36, 0x93, 0x04, 0x6a, 0x56, 0x53,
-	0x15, 0xcb, 0x40, 0xc5, 0x49, 0x12, 0xc8, 0x61, 0xae, 0x22, 0x7e, 0xe6, 0x3e, 0x54, 0x37, 0x0a,
-	0xca, 0x51, 0x9c, 0x24, 0xbd, 0x82, 0xf0, 0xfe, 0x7f, 0x37, 0xd1, 0xed, 0x9d, 0x71, 0x90, 0x7b,
-	0x29, 0xa9, 0x38, 0x28, 0xbe, 0x44, 0x7b, 0x1e, 0x5a, 0xe9, 0xf4, 0x82, 0x97, 0x07, 0xe3, 0x8f,
-	0xc4, 0xb8, 0xe6, 0x61, 0xb4, 0x64, 0x30, 0xf3, 0x59, 0x17, 0xd7, 0xbd, 0x6b, 0xa8, 0x69, 0x10,
-	0xfd, 0xe1, 0x16, 0x37, 0xbc, 0xeb, 0x68, 0xd9, 0x00, 0xc5, 0xa7, 0x59, 0x3c, 0x53, 0x41, 0xc5,
-	0xc7, 0x4e, 0x3c, 0x5b, 0x4d, 0x5e, 0x7e, 0xff, 0xc4, 0x73, 0x15, 0xad, 0xf8, 0xc6, 0x88, 0xe7,
-	0xab, 0xf5, 0xcc, 0x97, 0x42, 0xbc, 0x50, 0x0d, 0x2c, 0x9d, 0x10, 0x2f, 0x7a, 0x37, 0xd0, 0xb5,
-	0x42, 0xab, 0xd2, 0xcd, 0x30, 0xaa, 0x14, 0xd3, 0x1f, 0xc1, 0xf0, 0x92, 0xb7, 0x82, 0x90, 0x01,
-	0x9e, 0x93, 0x88, 0xe2, 0xe5, 0x6a, 0x6e, 0xf3, 0xb1, 0x07, 0xaf, 0x78, 0xb7, 0x91, 0x67, 0x10,
-	0xfb, 0xd3, 0x08, 0xbe, 0xe6, 0xdd, 0x45, 0xab, 0xd3, 0xb8, 0xf9, 0x64, 0x82, 0x71, 0xb5, 0xfa,
-	0xf8, 0x6b, 0x06, 0xbe, 0x6e, 0xa9, 0x59, 0x7c, 0xa3, 0xc0, 0x5e, 0x45, 0x1c, 0xf7, 0xfa, 0xf1,
-	0x8d, 0x6a, 0x4d, 0xdb, 0xdf, 0xf1, 0xcd, 0x4a, 0x3b, 0x93, 0x8c, 0xe0, 0x5b, 0xd5, 0xf0, 0x71,
-	0x2b, 0x1b, 0xdf, 0xae, 0xd6, 0x29, 0xfb, 0xc3, 0xf8, 0x6d, 0xef, 0x16, 0xba, 0x6e, 0x30, 0xab,
-	0x6d, 0x8c, 0x57, 0xbd, 0xf7, 0xd0, 0xba, 0x81, 0x2f, 0xef, 0xdc, 0xe2, 0x3b, 0xb6, 0x3e, 0x55,
-	0x5b, 0x0d, 0xb7, 0xaa, 0x49, 0xad, 0x9e, 0x15, 0x7e, 0xc7, 0xbb, 0x83, 0x6e, 0x19, 0xd8, 0x4c,
-	0x00, 0x69, 0xab, 0x11, 0xdd, 0xf5, 0xde, 0x41, 0x6f, 0x17, 0x76, 0x99, 0xbc, 0x93, 0xf8, 0x5e,
-	0x75, 0xd6, 0x45, 0xf7, 0x08, 0xaf, 0x79, 0x2d, 0x74, 0xbb, 0xd8, 0xf1, 0x44, 0x4b, 0x06, 0xdf,
-	0xaf, 0x64, 0x93, 0x3d, 0x0f, 0xbc, 0x5e, 0xc9, 0x26, 0xdb, 0x18, 0xf8, 0x41, 0x75, 0x72, 0xd3,
-	0x0d, 0x06, 0xec, 0x57, 0x1a, 0x4e, 0x5d, 0x7d, 0xfc, 0x6e, 0x25, 0x9c, 0x2a, 0xc8, 0xf1, 0x7b,
-	0x96, 0xae, 0x13, 0xf5, 0x30, 0xfe, 0x8e, 0xb7, 0x8a, 0x6e, 0x1a, 0x99, 0x1b, 0x15, 0xf0, 0x43,
-	0xef, 0x26, 0xc2, 0xa5, 0x1f, 0x95, 0xf7, 0x1e, 0x7f, 0xb7, 0x3a, 0xc2, 0xb2, 0xe8, 0xc3, 0x8f,
-	0x26, 0xb0, 0x97, 0x59, 0x84, 0x1f, 0x57, 0xf3, 0xba, 0x25, 0x14, 0x7e, 0x62, 0x3b, 0x56, 0x51,
-	0x07, 0xe1, 0xb6, 0x75, 0x7d, 0x8b, 0x4a, 0x00, 0xff, 0x56, 0xa5, 0x80, 0x35, 0xfc, 0x83, 0x89,
-	0xe1, 0x90, 0x48, 0xe3, 0xa7, 0xde, 0x3d, 0x74, 0xa7, 0xf4, 0xea, 0xa9, 0x78, 0x83, 0x37, 0xbc,
-	0x87, 0xc8, 0xaf, 0x9c, 0xfe, 0xb2, 0xcc, 0x19, 0xff, 0x76, 0x65, 0xa8, 0xc9, 0xd4, 0x12, 0x3f,
-	0xab, 0xb4, 0xa9, 0x52, 0x25, 0xfc, 0xa1, 0x15, 0x19, 0x8a, 0x6c, 0x08, 0x7f, 0x54, 0x79, 0x4b,
-	0x91, 0x8b, 0xe0, 0xef, 0x55, 0x83, 0xab, 0x7c, 0x03, 0x7f, 0xbf, 0x72, 0xc7, 0x89, 0x6c, 0x02,
-	0x7f, 0x5c, 0x69, 0x32, 0x99, 0x23, 0xe0, 0x4f, 0xaa, 0x35, 0xcb, 0x1c, 0x00, 0xff, 0xa0, 0x9a,
-	0x6a, 0xe2, 0x1d, 0xc7, 0x3f, 0xb4, 0x6d, 0x33, 0xd5, 0x5a, 0xc7, 0xbf, 0xe3, 0xad, 0xa1, 0x56,
-	0x71, 0x85, 0x2e, 0x78, 0xc5, 0xf1, 0xef, 0x5e, 0x36, 0x5c, 0x77, 0xcd, 0xf1, 0xef, 0x59, 0xf7,
-	0xbc, 0xec, 0xf2, 0xe2, 0x1f, 0x59, 0x0e, 0x51, 0xe4, 0xab, 0x78, 0xd3, 0x7b, 0x1b, 0xdd, 0x30,
-	0x98, 0xd3, 0x36, 0xc1, 0x5b, 0x95, 0x02, 0x17, 0xb5, 0x1b, 0x70, 0x67, 0xab, 0xf5, 0xd5, 0xd7,
-	0x6b, 0xb5, 0x7f, 0xfc, 0x7a, 0xad, 0xf6, 0x6f, 0x5f, 0xaf, 0xd5, 0x7e, 0xf1, 0xef, 0x6b, 0x6f,
-	0xed, 0xd5, 0xbe, 0x6c, 0xa4, 0x72, 0xf0, 0xa7, 0xb5, 0xb7, 0xfe, 0x27, 0x00, 0x00, 0xff, 0xff,
-	0xd5, 0x67, 0x04, 0x15, 0xc7, 0x24, 0x00, 0x00,
-}
