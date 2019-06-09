@@ -13,13 +13,13 @@ import (
 	"testing"
 	"time"
 
-	proto "github.com/gogo/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 	dispatch "github.com/markus-wa/godispatch"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	"github.com/markus-wa/demoinfocs-golang/common"
+	"github.com/markus-wa/demoinfocs-golang/events"
+	"github.com/markus-wa/demoinfocs-golang/msg"
 )
 
 const csDemosPath = "cs-demos"
@@ -202,7 +202,7 @@ func TestCancelParseToEnd(t *testing.T) {
 	var tix int
 
 	var handlerID dispatch.HandlerIdentifier
-	handlerID = p.RegisterEventHandler(func(events.TickDone) {
+	handlerID = p.RegisterEventHandler(func(events.FrameDone) {
 		tix++
 		if tix == maxTicks {
 			p.Cancel()
@@ -215,7 +215,7 @@ func TestCancelParseToEnd(t *testing.T) {
 		t.Error("Parsing cancelled but error was not ErrCancelled:", err)
 	}
 	if tix > maxTicks {
-		t.Error("TickDoneEvent handler was triggered after being unregistered")
+		t.Error("FrameDone handler was triggered after being unregistered")
 	}
 }
 

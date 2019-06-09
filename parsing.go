@@ -349,6 +349,7 @@ func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
 
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.TickDone{})
+	p.eventDispatcher.Dispatch(events.FrameDone{})
 }
 
 /*
