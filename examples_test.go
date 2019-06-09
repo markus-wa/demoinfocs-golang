@@ -6,15 +6,14 @@ import (
 	"testing"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
-	events "github.com/markus-wa/demoinfocs-golang/events"
+	"github.com/markus-wa/demoinfocs-golang/events"
 )
 
-func TestReadmeExample(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping test")
-	}
-
-	f, err := os.Open(defaultDemPath)
+/*
+This will print all kills of a demo in the format '[[killer]] <[[weapon]] [(HS)] [(WB)]> [[victim]]'
+*/
+func ExampleParser() {
+	f, err := os.Open("cs-demos/default.dem")
 	if err != nil {
 		panic(err)
 	}
@@ -40,4 +39,11 @@ func TestReadmeExample(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func TestExamplesWithoutOutput(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping long running test")
+	}
+	ExampleParser()
 }
