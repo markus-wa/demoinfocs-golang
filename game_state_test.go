@@ -123,11 +123,11 @@ func TestParticipants_FindByHandle(t *testing.T) {
 
 	ptcps := Participants{
 		playersByEntityID: map[int]*common.Player{
-			3000&entityHandleIndexMask: pl,
+			3000 & entityHandleIndexMask: pl,
 		},
 	}
 
-	found := ptcps .FindByHandle(3000)
+	found := ptcps.FindByHandle(3000)
 
 	assert.Equal(t, pl, found)
 }
@@ -137,7 +137,7 @@ func TestParticipants_FindByHandle_InvalidEntityHandle(t *testing.T) {
 	pl.Team = common.TeamTerrorists
 	ptcps := Participants{
 		playersByEntityID: map[int]*common.Player{
-			invalidEntityHandle&entityHandleIndexMask: pl,
+			invalidEntityHandle & entityHandleIndexMask: pl,
 		},
 	}
 
