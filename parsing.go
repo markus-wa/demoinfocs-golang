@@ -25,14 +25,14 @@ const (
 // Parsing errors
 var (
 	// ErrCancelled signals that parsing was cancelled via Parser.Cancel()
-	ErrCancelled = errors.New("Parsing was cancelled before it finished (ErrCancelled)")
+	ErrCancelled = errors.New("parsing was cancelled before it finished (ErrCancelled)")
 
 	// ErrUnexpectedEndOfDemo signals that the demo is incomplete / corrupt -
 	// these demos may still be useful, check how far the parser got.
-	ErrUnexpectedEndOfDemo = errors.New("Demo stream ended unexpectedly (ErrUnexpectedEndOfDemo)")
+	ErrUnexpectedEndOfDemo = errors.New("demo stream ended unexpectedly (ErrUnexpectedEndOfDemo)")
 
 	// ErrInvalidFileType signals that the input isn't a valid CS:GO demo.
-	ErrInvalidFileType = errors.New("Invalid File-Type; expecting HL2DEMO in the first 8 bytes")
+	ErrInvalidFileType = errors.New("invalid File-Type; expecting HL2DEMO in the first 8 bytes (ErrInvalidFileType)")
 )
 
 // ParseHeader attempts to parse the header of the demo and returns it.
