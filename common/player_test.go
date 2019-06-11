@@ -125,13 +125,8 @@ func TestPlayer_FlashDurationTimeRemaining_Fallback(t *testing.T) {
 }
 
 func TestPlayer_IsSpottedBy_HasSpotted_True(t *testing.T) {
-	pl := newPlayer(0)
-	entity := new(fake.Entity)
-	pl.Entity = entity
+	pl := playerWithProperty("m_bSpottedByMask.000", sendtables.PropertyValue{IntVal: 2})
 	pl.EntityID = 1
-	prop := new(fake.Property)
-	prop.On("Value").Return(sendtables.PropertyValue{IntVal: 2})
-	entity.On("FindPropertyI", "m_bSpottedByMask.000").Return(prop)
 
 	other := newPlayer(0)
 	other.EntityID = 2
@@ -141,13 +136,8 @@ func TestPlayer_IsSpottedBy_HasSpotted_True(t *testing.T) {
 }
 
 func TestPlayer_IsSpottedBy_HasSpotted_False(t *testing.T) {
-	pl := newPlayer(0)
-	entity := new(fake.Entity)
-	pl.Entity = entity
+	pl := playerWithProperty("m_bSpottedByMask.000", sendtables.PropertyValue{IntVal: 0})
 	pl.EntityID = 1
-	prop := new(fake.Property)
-	prop.On("Value").Return(sendtables.PropertyValue{IntVal: 0})
-	entity.On("FindPropertyI", "m_bSpottedByMask.000").Return(prop)
 
 	other := newPlayer(0)
 	other.EntityID = 2
@@ -157,12 +147,7 @@ func TestPlayer_IsSpottedBy_HasSpotted_False(t *testing.T) {
 }
 
 func TestPlayer_IsSpottedBy_HasSpotted_BitOver32(t *testing.T) {
-	pl := newPlayer(0)
-	entity := new(fake.Entity)
-	prop := new(fake.Property)
-	prop.On("Value").Return(sendtables.PropertyValue{IntVal: 1})
-	entity.On("FindPropertyI", "m_bSpottedByMask.001").Return(prop)
-	pl.Entity = entity
+	pl := playerWithProperty("m_bSpottedByMask.001", sendtables.PropertyValue{IntVal: 1})
 	pl.EntityID = 1
 
 	other := newPlayer(0)
@@ -182,10 +167,55 @@ func TestPlayer_IsSpottedBy_EntityNull(t *testing.T) {
 	assert.False(t, other.HasSpotted(pl))
 }
 
+func TestPlayer_IsInBombZone(t *testing.T) {
+	pl := playerWithProperty("m_bInBombZone", sendtables.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.IsInBombZone())
+}
+
+func TestPlayer_IsInBuyZone(t *testing.T) {
+	pl := playerWithProperty("m_bInBuyZone", sendtables.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.IsInBuyZone())
+}
+
+func TestPlayer_IsWalking(t *testing.T) {
+	pl := playerWithProperty("m_bIsWalking", sendtables.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.IsWalking())
+}
+
+func TestPlayer_IsScoped(t *testing.T) {
+	pl := playerWithProperty("m_bIsScoped", sendtables.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.IsScoped())
+}
+
+func TestPlayer_CashSpentThisRound(t *testing.T) {
+	pl := playerWithProperty("m_iCashSpentThisRound", sendtables.PropertyValue{IntVal: 500})
+
+	assert.Equal(t, 500, pl.CashSpentThisRound())
+}
+
+func TestPlayer_CashSpentTotal(t *testing.T) {
+	pl := playerWithProperty("m_iTotalCashSpent", sendtables.PropertyValue{IntVal: 500})
+
+	assert.Equal(t, 500, pl.CashSpentTotal())
+}
+
 func newPlayer(tick int) *Player {
 	return NewPlayer(128, tickProvider(tick))
 }
 
 func tickProvider(tick int) ingameTickProvider {
 	return func() int { return tick }
+}
+
+func playerWithProperty(propName string, value sendtables.PropertyValue) *Player {
+	entity := new(fake.Entity)
+	prop := new(fake.Property)
+	prop.On("Value").Return(value)
+	entity.On("FindPropertyI", propName).Return(prop)
+	pl := &Player{Entity: entity}
+	return pl
 }
