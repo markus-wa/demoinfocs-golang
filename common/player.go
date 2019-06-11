@@ -138,6 +138,36 @@ func (p *Player) HasSpotted(other *Player) bool {
 	return other.IsSpottedBy(p)
 }
 
+// IsInBombZone returns whether the player is currently in the bomb zone or not.
+func (p *Player) IsInBombZone() bool {
+	return p.Entity.FindPropertyI("m_bInBombZone").Value().IntVal == 1
+}
+
+// IsInBuyZone returns whether the player is currently in the buy zone or not.
+func (p *Player) IsInBuyZone() bool {
+	return p.Entity.FindPropertyI("m_bInBuyZone").Value().IntVal == 1
+}
+
+// IsWalking returns whether the player is currently walking (sneaking) in or not.
+func (p *Player) IsWalking() bool {
+	return p.Entity.FindPropertyI("m_bIsWalking").Value().IntVal == 1
+}
+
+// IsScoped returns whether the player is currently scoped in or not.
+func (p *Player) IsScoped() bool {
+	return p.Entity.FindPropertyI("m_bIsScoped").Value().IntVal == 1
+}
+
+// CashSpentThisRound returns the amount of cash the player spent in the current round.
+func (p *Player) CashSpentThisRound() int {
+	return p.Entity.FindPropertyI("m_iCashSpentThisRound").Value().IntVal
+}
+
+// CashSpentTotal returns the amount of cash the player spent during the whole game up to the current point.
+func (p *Player) CashSpentTotal() int {
+	return p.Entity.FindPropertyI("m_iTotalCashSpent").Value().IntVal
+}
+
 // AdditionalPlayerInformation contains mostly scoreboard information.
 type AdditionalPlayerInformation struct {
 	Kills          int

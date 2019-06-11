@@ -6,6 +6,8 @@ import (
 
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 func TestBombPosition(t *testing.T) {
@@ -43,7 +45,55 @@ func TestDemoHeader_FrameTime_PlaybackFrames_Zero(t *testing.T) {
 	assert.Zero(t, DemoHeader{}.FrameTime())
 }
 
-func TestTeamState(t *testing.T) {
-	assert.Equal(t, TeamTerrorists, NewTeamState(TeamTerrorists).Team())
-	assert.Equal(t, TeamCounterTerrorists, NewTeamState(TeamCounterTerrorists).Team())
+func TestTeamState_Team(t *testing.T) {
+	assert.Equal(t, TeamTerrorists, NewTeamState(TeamTerrorists, nil).Team())
+	assert.Equal(t, TeamCounterTerrorists, NewTeamState(TeamCounterTerrorists, nil).Team())
+}
+
+func TestTeamState_Members(t *testing.T) {
+	members := []*Player{new(Player), new(Player)}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, members, state.Members())
+}
+
+func TestTeamState_CurrentEquipmentValue(t *testing.T) {
+	members := []*Player{{CurrentEquipmentValue: 100}, {CurrentEquipmentValue: 200}}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, 300, state.CurrentEquipmentValue())
+}
+
+func TestTeamState_RoundStartEquipmentValue(t *testing.T) {
+	members := []*Player{{RoundStartEquipmentValue: 100}, {RoundStartEquipmentValue: 200}}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, 300, state.RoundStartEquipmentValue())
+}
+
+func TestTeamState_FreezeTimeEndEquipmentValue(t *testing.T) {
+	members := []*Player{{FreezetimeEndEquipmentValue: 100}, {FreezetimeEndEquipmentValue: 200}}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, 300, state.FreezeTimeEndEquipmentValue())
+}
+
+func TestTeamState_CashSpentThisRound(t *testing.T) {
+	members := []*Player{
+		playerWithProperty("m_iCashSpentThisRound", sendtables.PropertyValue{IntVal: 100}),
+		playerWithProperty("m_iCashSpentThisRound", sendtables.PropertyValue{IntVal: 200}),
+	}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, 300, state.CashSpentThisRound())
+}
+
+func TestTeamState_CashSpentTotal(t *testing.T) {
+	members := []*Player{
+		playerWithProperty("m_iTotalCashSpent", sendtables.PropertyValue{IntVal: 100}),
+		playerWithProperty("m_iTotalCashSpent", sendtables.PropertyValue{IntVal: 200}),
+	}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, 300, state.CashSpentTotal())
 }

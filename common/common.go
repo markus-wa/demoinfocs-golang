@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	r3 "github.com/golang/geo/r3"
+	"github.com/golang/geo/r3"
 )
 
 // Team is the type for the various TeamXYZ constants.
@@ -110,7 +110,8 @@ func (b Bomb) Position() r3.Vector {
 
 // TeamState contains a team's ID, score, clan name & country flag.
 type TeamState struct {
-	team Team
+	team            Team
+	membersCallback func(Team) []*Player
 
 	// ID stays the same even after switching sides.
 	ID int
@@ -132,6 +133,55 @@ func (ts TeamState) Team() Team {
 	return ts.team
 }
 
-func NewTeamState(team Team) TeamState {
-	return TeamState{team: team}
+// Members returns the members of the team.
+func (ts TeamState) Members() []*Player {
+	return ts.membersCallback(ts.team)
+}
+
+// CurrentEquipmentValue returns the cumulative value of all equipment currently owned by the members of the team.
+func (ts TeamState) CurrentEquipmentValue() (value int) {
+	for _, pl := range ts.Members() {
+		value += pl.CurrentEquipmentValue
+	}
+	return
+}
+
+// RoundStartEquipmentValue returns the cumulative value of all equipment owned by the members of the team at the start of the current round.
+func (ts TeamState) RoundStartEquipmentValue() (value int) {
+	for _, pl := range ts.Members() {
+		value += pl.RoundStartEquipmentValue
+	}
+	return
+}
+
+// FreezeTimeEndEquipmentValue returns the cumulative value of all equipment owned by the members of the team at the end of the freeze-time of the current round.
+func (ts TeamState) FreezeTimeEndEquipmentValue() (value int) {
+	for _, pl := range ts.Members() {
+		value += pl.FreezetimeEndEquipmentValue
+	}
+	return
+}
+
+// CashSpentThisRound returns the total amount of cash spent by the whole team in the current round.
+func (ts TeamState) CashSpentThisRound() (value int) {
+	for _, pl := range ts.Members() {
+		value += pl.CashSpentThisRound()
+	}
+	return
+}
+
+// CashSpentThisRound returns the total amount of cash spent by the whole team during the whole game up to the current point.
+func (ts TeamState) CashSpentTotal() (value int) {
+	for _, pl := range ts.Members() {
+		value += pl.CashSpentTotal()
+	}
+	return
+}
+
+// NewTeamState creates a new TeamState with the given Team and members callback function.
+func NewTeamState(team Team, membersCallback func(Team) []*Player) TeamState {
+	return TeamState{
+		team:            team,
+		membersCallback: membersCallback,
+	}
 }
