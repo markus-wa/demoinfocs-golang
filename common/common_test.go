@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	r3 "github.com/golang/geo/r3"
-	assert "github.com/stretchr/testify/assert"
+	"github.com/golang/geo/r3"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBombPosition(t *testing.T) {
@@ -37,6 +37,10 @@ func TestDemoHeader(t *testing.T) {
 
 	assert.Equal(t, float64(128.0), header.TickRate(), "TickRate should be 128")
 	assert.Equal(t, time.Second/128, header.TickTime(), "TickTime should be 1/128")
+}
+
+func TestDemoHeader_FrameTime_PlaybackFrames_Zero(t *testing.T) {
+	assert.Zero(t, DemoHeader{}.FrameTime())
 }
 
 func TestTeamState(t *testing.T) {
