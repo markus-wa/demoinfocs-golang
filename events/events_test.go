@@ -19,3 +19,25 @@ func TestPlayerFlashed_FlashDuration(t *testing.T) {
 
 	assert.Equal(t, 2300*time.Millisecond, e.FlashDuration())
 }
+
+func TestGrenadeEvent_Base(t *testing.T) {
+	base := GrenadeEvent{GrenadeEntityID: 1}
+	flashEvent := FlashExplode{base}
+
+	assert.Equal(t, base, flashEvent.Base())
+}
+
+func TestBombEvents(t *testing.T) {
+	events := []BombEventIf{
+		BombDefuseStart{},
+		BombDefuseAborted{},
+		BombDefused{},
+		BombExplode{},
+		BombPlantBegin{},
+		BombPlanted{},
+	}
+
+	for _, e := range events {
+		e.implementsBombEventIf()
+	}
+}
