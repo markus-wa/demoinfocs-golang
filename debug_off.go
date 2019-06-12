@@ -9,8 +9,6 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
-const isDebug = false
-
 func debugGameEvent(descriptor *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	// NOP
 }

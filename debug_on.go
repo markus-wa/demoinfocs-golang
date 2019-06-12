@@ -11,8 +11,6 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
-const isDebug = true
-
 const (
 	yes = "YES"
 	no  = "NO"

@@ -295,9 +295,7 @@ func (p *Parser) parsePacket() {
 				name = msg.SVC_Messages_name[int32(cmd)]
 			}
 
-			if isDebug {
-				debugUnhandledMessage(cmd, name)
-			}
+			debugUnhandledMessage(cmd, name)
 
 			if name != "" {
 				// Handle additional net-messages as defined by the user
