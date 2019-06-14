@@ -73,11 +73,11 @@ func (e *Entity) FindPropertyI(name string) IProperty {
 	return prop
 }
 
-// BindProperty combines FindProperty() & Property.Bind() into one.
+// BindProperty combines FindPropertyI() & Property.Bind() into one.
 // Essentially binds a property's value to a pointer.
 // See the docs of the two individual functions for more info.
 func (e *Entity) BindProperty(name string, variable interface{}, valueType PropertyValueType) {
-	e.FindProperty(name).Bind(variable, valueType)
+	e.FindPropertyI(name).Bind(variable, valueType)
 }
 
 var updatedPropIndicesPool = sync.Pool{
@@ -189,13 +189,13 @@ const (
 )
 
 // Sets up the Entity.Position() function
-// Necessary because FindProperty() is fairly slow
+// Necessary because FindPropertyI() is fairly slow
 // This way we only need to find the necessary properties once
 func (e *Entity) initialize() {
 	// Player positions are calculated differently
 	if e.isPlayer() {
-		xyProp := e.FindProperty(propVecOriginPlayerXY)
-		zProp := e.FindProperty(propVecOriginPlayerZ)
+		xyProp := e.FindPropertyI(propVecOriginPlayerXY)
+		zProp := e.FindPropertyI(propVecOriginPlayerZ)
 
 		e.position = func() r3.Vector {
 			xy := xyProp.Value().VectorVal
@@ -207,11 +207,11 @@ func (e *Entity) initialize() {
 			}
 		}
 	} else {
-		cellBitsProp := e.FindProperty(propCellBits)
-		cellXProp := e.FindProperty(propCellX)
-		cellYProp := e.FindProperty(propCellY)
-		cellZProp := e.FindProperty(propCellZ)
-		offsetProp := e.FindProperty(propVecOrigin)
+		cellBitsProp := e.FindPropertyI(propCellBits)
+		cellXProp := e.FindPropertyI(propCellX)
+		cellYProp := e.FindPropertyI(propCellY)
+		cellZProp := e.FindPropertyI(propCellZ)
+		offsetProp := e.FindPropertyI(propVecOrigin)
 
 		e.position = func() r3.Vector {
 			cellWidth := 1 << uint(cellBitsProp.Value().IntVal)
@@ -253,13 +253,13 @@ func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 	}
 
 	if e.isPlayer() {
-		e.FindProperty(propVecOriginPlayerXY).OnUpdate(firePosUpdate)
-		e.FindProperty(propVecOriginPlayerZ).OnUpdate(firePosUpdate)
+		e.FindPropertyI(propVecOriginPlayerXY).OnUpdate(firePosUpdate)
+		e.FindPropertyI(propVecOriginPlayerZ).OnUpdate(firePosUpdate)
 	} else {
-		e.FindProperty(propCellX).OnUpdate(firePosUpdate)
-		e.FindProperty(propCellY).OnUpdate(firePosUpdate)
-		e.FindProperty(propCellZ).OnUpdate(firePosUpdate)
-		e.FindProperty(propVecOrigin).OnUpdate(firePosUpdate)
+		e.FindPropertyI(propCellX).OnUpdate(firePosUpdate)
+		e.FindPropertyI(propCellY).OnUpdate(firePosUpdate)
+		e.FindPropertyI(propCellZ).OnUpdate(firePosUpdate)
+		e.FindPropertyI(propVecOrigin).OnUpdate(firePosUpdate)
 	}
 }
 
