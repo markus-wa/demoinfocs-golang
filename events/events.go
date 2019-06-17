@@ -501,3 +501,8 @@ type IsWarmupPeriodChanged struct {
 	OldIsWarmupPeriod bool
 	NewIsWarmupPeriod bool
 }
+
+// PlayerSpottersChanged signals that a player's spotters (other players that can se him) changed.
+type PlayerSpottersChanged struct {
+	Spotted *common.Player
+}

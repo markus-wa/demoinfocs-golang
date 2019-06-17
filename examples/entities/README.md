@@ -815,11 +815,11 @@ p.RegisterEventHandler(func(events.DataTablesParsed) {
 	// DataTablesParsed has been sent out, register entity-creation handler
 	p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(entity *st.Entity) {
 		// Register update-hander on the owning entity (player who's holding the AWP)
-		entity.FindProperty("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+		entity.FindPropertyI("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 			owner := p.GameState().Participants().FindByHandle(val.IntVal)
 			if owner != nil {
 				var prev string
-				prevHandle := entity.FindProperty("m_hPrevOwner").Value().IntVal
+				prevHandle := entity.FindPropertyI("m_hPrevOwner").Value().IntVal
 				prevPlayer := p.GameState().Participants().FindByHandle(prevHandle)
 				if prevPlayer != nil {
 					if prevHandle != val.IntVal {

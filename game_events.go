@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strconv"
 
-	r3 "github.com/golang/geo/r3"
+	"github.com/golang/geo/r3"
 
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	"github.com/markus-wa/demoinfocs-golang/common"
+	"github.com/markus-wa/demoinfocs-golang/events"
+	"github.com/markus-wa/demoinfocs-golang/msg"
 )
 
 func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {

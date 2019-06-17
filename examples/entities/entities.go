@@ -6,7 +6,7 @@ import (
 	"os"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
-	events "github.com/markus-wa/demoinfocs-golang/events"
+	"github.com/markus-wa/demoinfocs-golang/events"
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
@@ -21,11 +21,11 @@ func main() {
 
 	p.RegisterEventHandler(func(events.DataTablesParsed) {
 		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent *st.Entity) {
-			ent.FindProperty("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+			ent.FindPropertyI("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 				x := p.GameState().Participants().FindByHandle(val.IntVal)
 				if x != nil {
 					var prev string
-					prevHandle := ent.FindProperty("m_hPrevOwner").Value().IntVal
+					prevHandle := ent.FindPropertyI("m_hPrevOwner").Value().IntVal
 					prevPlayer := p.GameState().Participants().FindByHandle(prevHandle)
 					if prevPlayer != nil {
 						if prevHandle != val.IntVal {
