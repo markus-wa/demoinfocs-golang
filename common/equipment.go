@@ -209,7 +209,7 @@ func initEqElementToName() {
 	eqElementToName[EqP2000] = "P2000"
 	eqElementToName[EqIncendiary] = "Incendiary Grenade"
 	eqElementToName[EqM249] = "M249"
-	eqElementToName[EqM4A4] = "M4A1"
+	eqElementToName[EqM4A4] = "M4A4"
 	eqElementToName[EqMac10] = "MAC-10"
 	eqElementToName[EqSwag7] = "MAG-7"
 	eqElementToName[EqMolotov] = "Molotov"
