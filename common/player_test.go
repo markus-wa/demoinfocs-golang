@@ -87,7 +87,7 @@ func TestPlayer_FlashDurationTime(t *testing.T) {
 }
 
 func TestPlayer_FlashDurationTimeRemaining_Default(t *testing.T) {
-	pl := NewPlayer(0, tickProvider(128))
+	pl := NewPlayer(mockDemoInfoProvider(0, 128))
 
 	assert.Equal(t, time.Duration(0), pl.FlashDurationTimeRemaining())
 }
@@ -117,7 +117,7 @@ func TestPlayer_FlashDurationTimeRemaining_FlashDuration_Over(t *testing.T) {
 }
 
 func TestPlayer_FlashDurationTimeRemaining_Fallback(t *testing.T) {
-	pl := NewPlayer(0, tickProvider(128))
+	pl := NewPlayer(mockDemoInfoProvider(0, 128))
 
 	pl.FlashDuration = 2
 	pl.FlashTick = 128 * 2
@@ -191,24 +191,28 @@ func TestPlayer_IsScoped(t *testing.T) {
 	assert.True(t, pl.IsScoped())
 }
 
-func TestPlayer_CashSpentThisRound(t *testing.T) {
-	pl := playerWithProperty("m_iCashSpentThisRound", sendtables.PropertyValue{IntVal: 500})
-
-	assert.Equal(t, 500, pl.CashSpentThisRound())
-}
-
-func TestPlayer_CashSpentTotal(t *testing.T) {
-	pl := playerWithProperty("m_iTotalCashSpent", sendtables.PropertyValue{IntVal: 500})
-
-	assert.Equal(t, 500, pl.CashSpentTotal())
-}
-
 func newPlayer(tick int) *Player {
-	return NewPlayer(128, tickProvider(tick))
+	return NewPlayer(mockDemoInfoProvider(128, tick))
 }
 
-func tickProvider(tick int) ingameTickProvider {
-	return func() int { return tick }
+type demoInfoProviderMock struct {
+	tickRate   float64
+	ingameTick int
+}
+
+func (p demoInfoProviderMock) TickRate() float64 {
+	return p.tickRate
+}
+
+func (p demoInfoProviderMock) IngameTick() int {
+	return p.ingameTick
+}
+
+func mockDemoInfoProvider(tickRate float64, tick int) demoInfoProvider {
+	return demoInfoProviderMock{
+		tickRate:   tickRate,
+		ingameTick: tick,
+	}
 }
 
 func playerWithProperty(propName string, value sendtables.PropertyValue) *Player {

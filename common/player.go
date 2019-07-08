@@ -9,8 +9,7 @@ import (
 
 // Player contains mostly game-relevant player information.
 type Player struct {
-	tickRate           float64            // the in-game tick rate, used for IsBlinded()
-	ingameTickProvider ingameTickProvider // provider for the current in-game tick, used for IsBlinded()
+	demoInfoProvider demoInfoProvider // provider for demo info such as tick-rate or current tick
 
 	SteamID                     int64     // int64 representation of the User's Steam ID
 	Position                    r3.Vector // In-game coordinates. Like the one you get from cl_showpos 1
@@ -73,11 +72,12 @@ func (p *Player) flashDurationTimeFull() time.Duration {
 func (p *Player) FlashDurationTimeRemaining() time.Duration {
 	// In case the demo header is broken
 	// TODO: read tickRate from CVARs as fallback
-	if p.tickRate == 0 {
+	tickRate := p.demoInfoProvider.TickRate()
+	if tickRate == 0 {
 		return time.Duration(p.FlashDuration) * time.Second
 	}
 
-	timeSinceFlash := time.Duration(float64(p.ingameTickProvider()-p.FlashTick) / p.tickRate * float64(time.Second))
+	timeSinceFlash := time.Duration(float64(p.demoInfoProvider.IngameTick()-p.FlashTick) / tickRate * float64(time.Second))
 	remaining := p.flashDurationTimeFull() - timeSinceFlash
 	if remaining < 0 {
 		return 0
@@ -159,37 +159,43 @@ func (p *Player) IsScoped() bool {
 }
 
 // CashSpentThisRound returns the amount of cash the player spent in the current round.
+//
+// Deprecated, use Player.AdditionalPlayerInformation.CashSpentThisRound instead.
 func (p *Player) CashSpentThisRound() int {
-	return p.Entity.FindPropertyI("m_iCashSpentThisRound").Value().IntVal
+	return p.AdditionalPlayerInformation.CashSpentThisRound
 }
 
 // CashSpentTotal returns the amount of cash the player spent during the whole game up to the current point.
+//
+// Deprecated, use Player.AdditionalPlayerInformation.TotalCashSpent instead.
 func (p *Player) CashSpentTotal() int {
-	return p.Entity.FindPropertyI("m_iTotalCashSpent").Value().IntVal
+	return p.AdditionalPlayerInformation.TotalCashSpent
 }
 
 // AdditionalPlayerInformation contains mostly scoreboard information.
 type AdditionalPlayerInformation struct {
-	Kills          int
-	Deaths         int
-	Assists        int
-	Score          int
-	MVPs           int
-	Ping           int
-	ClanTag        string
-	TotalCashSpent int
+	Kills              int
+	Deaths             int
+	Assists            int
+	Score              int
+	MVPs               int
+	Ping               int
+	ClanTag            string
+	TotalCashSpent     int
+	CashSpentThisRound int
 }
 
-// ingameTickProvider is a function that returns the current ingame tick of the demo related to a player.
-type ingameTickProvider func() int
+type demoInfoProvider interface {
+	IngameTick() int   // current in-game tick, used for IsBlinded()
+	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
+}
 
 // NewPlayer creates a *Player with an initialized equipment map.
 //
 // Intended for internal use only.
-func NewPlayer(tickRate float64, ingameTickProvider ingameTickProvider) *Player {
+func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 	return &Player{
-		RawWeapons:         make(map[int]*Equipment),
-		tickRate:           tickRate,
-		ingameTickProvider: ingameTickProvider,
+		RawWeapons:       make(map[int]*Equipment),
+		demoInfoProvider: demoInfoProvider,
 	}
 }

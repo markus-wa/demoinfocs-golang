@@ -6,8 +6,6 @@ import (
 
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 func TestBombPosition(t *testing.T) {
@@ -76,24 +74,4 @@ func TestTeamState_FreezeTimeEndEquipmentValue(t *testing.T) {
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
 
 	assert.Equal(t, 300, state.FreezeTimeEndEquipmentValue())
-}
-
-func TestTeamState_CashSpentThisRound(t *testing.T) {
-	members := []*Player{
-		playerWithProperty("m_iCashSpentThisRound", sendtables.PropertyValue{IntVal: 100}),
-		playerWithProperty("m_iCashSpentThisRound", sendtables.PropertyValue{IntVal: 200}),
-	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
-
-	assert.Equal(t, 300, state.CashSpentThisRound())
-}
-
-func TestTeamState_CashSpentTotal(t *testing.T) {
-	members := []*Player{
-		playerWithProperty("m_iTotalCashSpent", sendtables.PropertyValue{IntVal: 100}),
-		playerWithProperty("m_iTotalCashSpent", sendtables.PropertyValue{IntVal: 200}),
-	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
-
-	assert.Equal(t, 300, state.CashSpentTotal())
 }

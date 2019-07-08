@@ -174,6 +174,9 @@ func (p *Parser) bindPlayers() {
 			plInfo.BindProperty("m_iAssists."+iStr, &p.additionalPlayerInfo[i2].Assists, st.ValTypeInt)
 			plInfo.BindProperty("m_iMVPs."+iStr, &p.additionalPlayerInfo[i2].MVPs, st.ValTypeInt)
 			plInfo.BindProperty("m_iTotalCashSpent."+iStr, &p.additionalPlayerInfo[i2].TotalCashSpent, st.ValTypeInt)
+			if prop := plInfo.FindProperty("m_iCashSpentThisRound." + iStr); prop != nil {
+				prop.Bind(&p.additionalPlayerInfo[i2].CashSpentThisRound, st.ValTypeInt)
+			}
 		}
 	})
 }
@@ -191,7 +194,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 			isNew = true
 
 			// TODO: read tickRate from CVARs as fallback
-			pl = common.NewPlayer(p.header.TickRate(), p.gameState.IngameTick)
+			pl = common.NewPlayer(p.demoInfoProvider)
 			pl.Name = rp.name
 			pl.SteamID = rp.xuid
 			pl.IsBot = rp.isFakePlayer || rp.guid == "BOT"

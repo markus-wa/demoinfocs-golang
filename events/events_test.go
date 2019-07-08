@@ -10,7 +10,7 @@ import (
 )
 
 func TestPlayerFlashed_FlashDuration(t *testing.T) {
-	p := common.NewPlayer(128, func() int { return 0 })
+	p := common.NewPlayer(demoInfoProvider{})
 	e := PlayerFlashed{Player: p}
 
 	assert.Equal(t, time.Duration(0), e.FlashDuration())
@@ -40,4 +40,15 @@ func TestBombEvents(t *testing.T) {
 	for _, e := range events {
 		e.implementsBombEventIf()
 	}
+}
+
+type demoInfoProvider struct {
+}
+
+func (p demoInfoProvider) IngameTick() int {
+	return 0
+}
+
+func (p demoInfoProvider) TickRate() float64 {
+	return 128
 }

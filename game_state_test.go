@@ -149,7 +149,7 @@ func TestParticipants_FindByHandle_InvalidEntityHandle(t *testing.T) {
 
 func TestParticipants_Connected_SuppressNoEntity(t *testing.T) {
 	pl := newPlayer()
-	pl2 := common.NewPlayer(0, func() int { return 0 })
+	pl2 := common.NewPlayer(nil)
 	pl2.IsConnected = true
 
 	ptcps := Participants{
@@ -254,7 +254,7 @@ func TestParticipants_SpottedBy(t *testing.T) {
 }
 
 func newPlayer() *common.Player {
-	pl := common.NewPlayer(0, func() int { return 0 })
+	pl := common.NewPlayer(nil)
 	pl.Entity = new(st.Entity)
 	pl.IsConnected = true
 	return pl

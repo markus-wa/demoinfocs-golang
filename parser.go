@@ -54,9 +54,10 @@ type Parser struct {
 	currentFrame                 int                // Demo-frame, not ingame-tick
 	header                       *common.DemoHeader // Pointer so we can check for nil
 	gameState                    *GameState
-	cancelChan                   chan struct{} // Non-anime-related, used for aborting the parsing
-	err                          error         // Contains a error that occurred during parsing if any
-	errLock                      sync.Mutex    // Used to sync up error mutations between parsing & handling go-routines
+	demoInfoProvider             demoInfoProvider // Provides demo infos to other packages that the core package depends on
+	cancelChan                   chan struct{}    // Non-anime-related, used for aborting the parsing
+	err                          error            // Contains a error that occurred during parsing if any
+	errLock                      sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
 
 	// Additional fields, mainly caching & tracking things
 
@@ -243,6 +244,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.grenadeModelIndices = make(map[int]common.EquipmentElement)
 	p.gameEventHandler = newGameEventHandler(&p)
 	p.userMessageHandler = newUserMessageHandler(&p)
+	p.demoInfoProvider = demoInfoProvider{parser: &p}
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)
@@ -266,4 +268,16 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 func (p *Parser) initMsgQueue(buf int) {
 	p.msgQueue = make(chan interface{}, buf)
 	p.msgDispatcher.AddQueues(p.msgQueue)
+}
+
+type demoInfoProvider struct {
+	parser *Parser
+}
+
+func (p demoInfoProvider) IngameTick() int {
+	return p.parser.gameState.IngameTick()
+}
+
+func (p demoInfoProvider) TickRate() float64 {
+	return p.parser.header.TickRate()
 }
