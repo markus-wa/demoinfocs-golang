@@ -107,6 +107,7 @@ func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 	for _, v := range st.RankUpdate {
 		umh.dispatch(events.RankUpdate{
 			SteamID:    int64(v.AccountId),
+			SteamID32:  v.AccountId,
 			RankOld:    int(v.RankOld),
 			RankNew:    int(v.RankNew),
 			WinCount:   int(v.NumWins),

@@ -396,7 +396,8 @@ type ChatMessage struct {
 // RankUpdate signals the new rank. Not sure if this
 // only occurs if the rank changed.
 type RankUpdate struct {
-	SteamID    int64
+	SteamID    int64 // 32-bit SteamID. Deprecated, use SteamID32 instead
+	SteamID32  int32
 	RankOld    int
 	RankNew    int
 	WinCount   int
