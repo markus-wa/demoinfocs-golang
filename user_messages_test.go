@@ -44,12 +44,14 @@ func Test_UserMessages_ServerRankUpdate(t *testing.T) {
 
 	expected := []events.RankUpdate{{
 		SteamID:    123,
+		SteamID32:  123,
 		RankOld:    1,
 		RankNew:    2,
 		WinCount:   5,
 		RankChange: 1,
 	}, {
 		SteamID:    456,
+		SteamID32:  456,
 		RankOld:    2,
 		RankNew:    3,
 		WinCount:   6,
