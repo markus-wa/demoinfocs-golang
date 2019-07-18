@@ -407,22 +407,42 @@ type RankUpdate struct {
 // ItemEquip signals an item was equipped.
 // This event is not available in all demos.
 type ItemEquip struct {
-	Weapon common.Equipment
-	Player *common.Player
+	Player    *common.Player
+	Weapon    common.Equipment // Value of WeaponPtr, use WeaponPtr instead
+	WeaponPtr *common.Equipment
 }
 
 // ItemPickup signals an item was bought or picked up.
 // This event is not available in all demos.
 type ItemPickup struct {
-	Weapon common.Equipment
 	Player *common.Player
+	Weapon common.Equipment // UniqueID() of this cannot be used to trace the weapon, use WeaponTraceable() instead
+}
+
+// WeaponTraceable attempts to return the original Equipment instance.
+// This can be used to trace the same weapon with UniqueID() when it's being dropped to other players.
+//
+// If the original instance cannot be found, the returned Equipment will still have a different UniqueID().
+func (pu ItemPickup) WeaponTraceable() *common.Equipment {
+	if pu.Player == nil {
+		return &pu.Weapon
+	}
+
+	for _, wep := range pu.Player.RawWeapons {
+		if wep.Weapon == pu.Weapon.Weapon {
+			return wep
+		}
+	}
+
+	return &pu.Weapon
 }
 
 // ItemDrop signals an item was dropped.
 // This event is not available in all demos.
 type ItemDrop struct {
-	Weapon common.Equipment
-	Player *common.Player
+	Player    *common.Player
+	Weapon    common.Equipment // Value of WeaponPtr, use WeaponPtr instead
+	WeaponPtr *common.Equipment
 }
 
 // DataTablesParsed signals that the datatables were parsed.

@@ -42,6 +42,45 @@ func TestBombEvents(t *testing.T) {
 	}
 }
 
+func TestItemPickup_WeaponTraceable_PlayerNil(t *testing.T) {
+	e := ItemPickup{
+		Weapon: common.Equipment{Weapon: common.EqAK47},
+		Player: nil,
+	}
+
+	assert.Equal(t, e.Weapon, *e.WeaponTraceable())
+}
+
+func TestItemPickup_WeaponTraceable_WeaponFound(t *testing.T) {
+	wep := &common.Equipment{
+		EntityID: 1,
+		Weapon:   common.EqAK47,
+	}
+	e := ItemPickup{
+		Weapon: common.Equipment{Weapon: common.EqAK47},
+		Player: &common.Player{RawWeapons: map[int]*common.Equipment{
+			1: wep,
+		}},
+	}
+
+	assert.Equal(t, wep, e.WeaponTraceable())
+}
+
+func TestItemPickup_WeaponTraceable_WeaponNotFound(t *testing.T) {
+	wep := &common.Equipment{
+		EntityID: 1,
+		Weapon:   common.EqAK47,
+	}
+	e := ItemPickup{
+		Weapon: common.Equipment{Weapon: common.EqKnife},
+		Player: &common.Player{RawWeapons: map[int]*common.Equipment{
+			1: wep,
+		}},
+	}
+
+	assert.Equal(t, e.Weapon, *e.WeaponTraceable())
+}
+
 type demoInfoProvider struct {
 }
 

@@ -481,33 +481,36 @@ func (geh gameEventHandler) bombBegindefuse(desc *msg.CSVCMsg_GameEventListDescr
 func (geh gameEventHandler) itemEquip(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	player, weapon := geh.itemEvent(desc, ge)
 	geh.dispatch(events.ItemEquip{
-		Player: player,
-		Weapon: weapon,
+		Player:    player,
+		Weapon:    *weapon,
+		WeaponPtr: weapon,
 	})
 }
 
 func (geh gameEventHandler) itemPickup(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	player, weapon := geh.itemEvent(desc, ge)
-	geh.dispatch(events.ItemPickup{
+	// Delayed because of #119 - Equipment.UniqueID()
+	geh.parser.delayedEvents = append(geh.parser.delayedEvents, events.ItemPickup{
 		Player: player,
-		Weapon: weapon,
+		Weapon: *weapon,
 	})
 }
 
 func (geh gameEventHandler) itemRemove(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	player, weapon := geh.itemEvent(desc, ge)
 	geh.dispatch(events.ItemDrop{
-		Player: player,
-		Weapon: weapon,
+		Player:    player,
+		Weapon:    *weapon,
+		WeaponPtr: weapon,
 	})
 }
 
-func (geh gameEventHandler) itemEvent(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) (*common.Player, common.Equipment) {
+func (geh gameEventHandler) itemEvent(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) (*common.Player, *common.Equipment) {
 	data := mapGameEventData(desc, ge)
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 
 	wepType := common.MapEquipment(data["item"].GetValString())
-	weapon := common.NewEquipment(wepType)
+	weapon := getPlayerWeapon(player, wepType)
 
 	return player, weapon
 }
