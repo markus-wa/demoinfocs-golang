@@ -419,6 +419,9 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 	entity.FindPropertyI("m_iClip1").OnUpdate(func(val st.PropertyValue) {
 		eq.AmmoInMagazine = val.IntVal - 1
 	})
+	entity.FindPropertyI("m_iPrimaryReserveAmmoCount").OnUpdate(func(val st.PropertyValue) {
+		eq.AmmoReserve = val.IntVal
+	})
 
 	// Only weapons with scopes have m_zoomLevel property
 	if zoomLvlProp := entity.FindPropertyI("m_zoomLevel"); zoomLvlProp != nil {
