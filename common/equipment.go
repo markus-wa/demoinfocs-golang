@@ -48,7 +48,7 @@ const (
 	EqDeagle       EquipmentElement = 4
 	EqFiveSeven    EquipmentElement = 5
 	EqDualBerettas EquipmentElement = 6
-	EqDualBarettas EquipmentElement = 6 // Misspelled constant for compatibility
+	EqDualBarettas EquipmentElement = 6 // Deprecated, use EqDualBerettas instead (spelling error)
 	EqTec9         EquipmentElement = 7
 	EqCZ           EquipmentElement = 8
 	EqUSP          EquipmentElement = 9
