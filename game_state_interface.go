@@ -44,8 +44,12 @@ type IGameState interface {
 	Bomb() *common.Bomb
 	// TotalRoundsPlayed returns the amount of total rounds played according to CCSGameRulesProxy.
 	TotalRoundsPlayed() int
+	// GamePhase returns the game phase of the current game state. See common/gamerules.go for more.
+	GamePhase() common.GamePhase
 	// IsWarmupPeriod returns whether the game is currently in warmup period according to CCSGameRulesProxy.
 	IsWarmupPeriod() bool
 	// IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.
 	IsMatchStarted() bool
+	// CurrentDefuser returns the Player currently defusing the bomb, if any.
+	CurrentDefuser() *common.Player
 }
