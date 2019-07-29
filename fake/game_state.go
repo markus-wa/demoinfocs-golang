@@ -65,6 +65,11 @@ func (gs *GameState) TotalRoundsPlayed() int {
 	return gs.Called().Int(0)
 }
 
+// GamePhase is a mock-implementation of IGameState.GamePhase().
+func (gs *GameState) GamePhase() common.GamePhase {
+	return gs.Called().Get(0).(common.GamePhase)
+}
+
 // IsWarmupPeriod is a mock-implementation of IGameState.IsWarmupPeriod().
 func (gs *GameState) IsWarmupPeriod() bool {
 	return gs.Called().Bool(0)
@@ -73,4 +78,9 @@ func (gs *GameState) IsWarmupPeriod() bool {
 // IsMatchStarted is a mock-implementation of IGameState.IsMatchStarted().
 func (gs *GameState) IsMatchStarted() bool {
 	return gs.Called().Bool(0)
+}
+
+// CurrentDefuser is a mock-implementation of IGameState.CurrentDefuser().
+func (gs *GameState) CurrentDefuser() *common.Player {
+	return gs.Called().Get(0).(*common.Player)
 }
