@@ -1,0 +1,27 @@
+@startuml
+participant Consumer
+participant Parser
+participant BitReader
+participant Message
+participant Queue
+
+Consumer -> Parser ++: ParseToEnd
+
+loop while more messages to read
+    Parser -> Parser ++: parseFrame
+    
+    Parser -> BitReader ++: read
+    BitReader --> Parser --
+
+    Parser -> Message ++: decode
+    Message --> Parser --
+
+    Parser -> Queue: enqueue net-msg
+    Parser --
+end
+
+Parser -> Parser: wait for processing loop
+
+Parser --> Consumer --
+
+@enduml

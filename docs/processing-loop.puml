@@ -1,0 +1,31 @@
+@startuml
+participant Consumer
+participant Queue
+participant NetMessageDispatcher
+participant Parser
+participant GameState
+participant EventDispatcher
+participant Consumer
+
+loop while messages in queue
+    Queue -> NetMessageDispatcher ++: receive net-msg
+
+    NetMessageDispatcher -> Parser ++: handle
+
+    Parser -> GameState ++: update
+    GameState --> Parser --
+
+    Parser -> EventDispatcher ++: dispatch
+    EventDispatcher -> Consumer ++: handle
+    Consumer --> EventDispatcher --
+    EventDispatcher --> Parser --
+
+    Parser --> NetMessageDispatcher --
+
+    NetMessageDispatcher -> Consumer ++: handle
+    Consumer --> NetMessageDispatcher --
+
+    NetMessageDispatcher --
+end
+
+@enduml
