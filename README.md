@@ -183,6 +183,14 @@ To change the default debugging behavior, Go's `ldflags` parameter can be used. 
 
 Check out `debug_on.go` for any other settings that can be changed.
 
+### Generating interfaces
+
+We generate interfaces such as `IGameState` from structs to make it easier to keep docs in synch over structs and interfaces.
+For this we use [@vburenin](https://github.com/vburenin)'s [`ifacemaker`](https://github.com/vburenin/ifacemaker) tool.
+You can install it via `GO111MODULE=off go get github.com/vburenin/ifacemaker`.
+
+After adding it to your `PATH` you can use `go generate` to update interfaces.
+
 ### Generating protobuf code
 
 Should you need to re-generate the protobuf generated code in the `msg` package, you will need the following tools:

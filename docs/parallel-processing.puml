@@ -1,0 +1,30 @@
+@startuml
+participant Consumer
+participant Parser
+participant Queue
+
+Consumer ++
+Consumer -> Parser ++: ParseToEnd
+par
+    loop parsing loop
+        Parser -> Parser ++: parseFrame
+        Parser -> Queue ++: enqueue net-msg
+        Parser --
+    end
+    Parser --
+
+    else
+
+    loop processing loop
+        Queue --> Parser --: receive net-msg
+        Parser ++
+        Parser -> Parser ++: process
+        Parser -> Consumer ++: call EventHandler
+        Consumer --> Parser --
+        Parser --
+    end
+end
+Parser -> Consumer --
+Consumer --
+
+@enduml

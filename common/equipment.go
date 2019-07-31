@@ -47,7 +47,8 @@ const (
 	EqP250         EquipmentElement = 3
 	EqDeagle       EquipmentElement = 4
 	EqFiveSeven    EquipmentElement = 5
-	EqDualBarettas EquipmentElement = 6
+	EqDualBerettas EquipmentElement = 6
+	EqDualBarettas EquipmentElement = 6 // Deprecated, use EqDualBerettas instead (spelling error)
 	EqTec9         EquipmentElement = 7
 	EqCZ           EquipmentElement = 8
 	EqUSP          EquipmentElement = 9
@@ -112,6 +113,11 @@ var eqNameToWeapon map[string]EquipmentElement
 
 var eqElementToName map[EquipmentElement]string
 
+// EquipmentElementNames returns all human readable equipment names as map[EquipmentElement]string
+func EquipmentElementNames() map[EquipmentElement]string {
+	return eqElementToName
+}
+
 func init() {
 	initEqNameToWeapon()
 	initEqElementToName()
@@ -129,7 +135,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["decoy"] = EqDecoy
 	eqNameToWeapon["decoygrenade"] = EqDecoy
 	eqNameToWeapon["decoyprojectile"] = EqDecoy
-	eqNameToWeapon["elite"] = EqDualBarettas
+	eqNameToWeapon["elite"] = EqDualBerettas
 	eqNameToWeapon["famas"] = EqFamas
 	eqNameToWeapon["fiveseven"] = EqFiveSeven
 	eqNameToWeapon["flashbang"] = EqFlash
