@@ -106,6 +106,11 @@ func (gs GameState) TotalRoundsPlayed() int {
 	return gs.totalRoundsPlayed
 }
 
+// GamePhase returns the game phase of the current game state. See common/gamerules.go for more.
+func (gs GameState) GamePhase() common.GamePhase {
+	return gs.gamePhase
+}
+
 // IsWarmupPeriod returns whether the game is currently in warmup period according to CCSGameRulesProxy.
 func (gs GameState) IsWarmupPeriod() bool {
 	return gs.isWarmupPeriod
