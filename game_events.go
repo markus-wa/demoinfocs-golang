@@ -47,6 +47,10 @@ func (geh gameEventHandler) dispatch(event interface{}) {
 	geh.parser.eventDispatcher.Dispatch(event)
 }
 
+func (geh gameEventHandler) delay(event interface{}) {
+	geh.parser.delayedEvents = append(geh.parser.delayedEvents, event)
+}
+
 func (geh gameEventHandler) gameState() *GameState {
 	return geh.parser.gameState
 }
@@ -286,7 +290,7 @@ func (geh gameEventHandler) playerBlind(desc *msg.CSVCMsg_GameEventListDescripto
 
 	// Player.FlashDuration hasn't been updated yet,
 	// so we need to wait until the end of the tick before dispatching
-	geh.parser.delayedEvents = append(geh.parser.delayedEvents, events.PlayerFlashed{
+	geh.delay(events.PlayerFlashed{
 		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
 		Attacker: geh.gameState().lastFlasher,
 	})
@@ -308,7 +312,7 @@ func (geh gameEventHandler) heGrenadeDetonate(desc *msg.CSVCMsg_GameEventListDes
 }
 
 func (geh gameEventHandler) decoyStarted(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	geh.dispatch(events.DecoyStart{
+	geh.delay(events.DecoyStart{
 		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqDecoy),
 	})
 }
@@ -393,7 +397,7 @@ func (geh gameEventHandler) playerTeam(desc *msg.CSVCMsg_GameEventListDescriptor
 			// Delayed for two reasons
 			// - team IDs of other players changing teams in the same tick might not have changed yet
 			// - player entities might not have been re-created yet after a reconnect
-			geh.parser.delayedEvents = append(geh.parser.delayedEvents, events.PlayerTeamChange{
+			geh.delay(events.PlayerTeamChange{
 				Player:       player,
 				IsBot:        data["isbot"].GetValBool(),
 				Silent:       data["silent"].GetValBool(),
