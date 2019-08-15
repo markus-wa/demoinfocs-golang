@@ -154,8 +154,9 @@ It's recommended to use some kind of dependency management system such as [dep](
 
 ## Projects using demoinfocs-golang
 
-- [noesis.gg](https://www.noesis.gg/) - A suite of explorative tools to help you analyze and improve your CS:GO performance.
+- [noesis.gg](https://www.noesis.gg/) - A suite of explorative tools to help you analyze and improve your CS:GO performance
 - [cs-demo-minifier](https://github.com/markus-wa/cs-demo-minifier) - Converts demos to JSON, MessagePack and more
+- [csgo_spray_pattern_plotter](https://github.com/o40/csgo_spray_pattern_plotter) - A tool to extract and plot spray patterns from CS:GO replays
 
 If your project is using this library feel free to submit a PR or send a message in Gitter to be included in the list.
 
