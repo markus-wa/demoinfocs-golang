@@ -81,22 +81,22 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"player_death":                    geh.playerDeath,                // Player died
 		"player_hurt":                     geh.playerHurt,                 // Player got hurt
 		"player_blind":                    geh.playerBlind,                // Player got blinded by a flash
-		"flashbang_detonate":              geh.flashbangDetonate,          // Flash exploded
-		"hegrenade_detonate":              geh.hegranadeDetonate,          // HE exploded
+		"flashbang_detonate":              geh.flashBangDetonate,          // Flash exploded
+		"hegrenade_detonate":              geh.heGrenadeDetonate,          // HE exploded
 		"decoy_started":                   geh.decoyStarted,               // Decoy started
 		"decoy_detonate":                  geh.decoyDetonate,              // Decoy exploded/expired
-		"smokegrenade_detonate":           geh.smokegrenadeDetonate,       // Smoke popped
-		"smokegrenade_expired":            geh.smokegrenadeExpired,        // Smoke expired
-		"inferno_startburn":               geh.infernoStartburn,           // Incendiary exploded/started
+		"smokegrenade_detonate":           geh.smokeGrenadeDetonate,       // Smoke popped
+		"smokegrenade_expired":            geh.smokeGrenadeExpired,        // Smoke expired
+		"inferno_startburn":               geh.infernoStartBurn,           // Incendiary exploded/started
 		"inferno_expire":                  geh.infernoExpire,              // Incendiary expired
 		"player_connect":                  geh.playerConnect,              // Bot connected or player reconnected, players normally come in via string tables & data tables
 		"player_disconnect":               geh.playerDisconnect,           // Player disconnected (kicked, quit, timed out etc.)
 		"player_team":                     geh.playerTeam,                 // Player changed team
-		"bomb_beginplant":                 geh.bombBeginplant,             // Plant started
+		"bomb_beginplant":                 geh.bombBeginPlant,             // Plant started
 		"bomb_planted":                    geh.bombPlanted,                // Plant finished
 		"bomb_defused":                    geh.bombDefused,                // Defuse finished
 		"bomb_exploded":                   geh.bombExploded,               // Bomb exploded
-		"bomb_begindefuse":                geh.bombBegindefuse,            // Defuse started
+		"bomb_begindefuse":                geh.bombBeginDefuse,            // Defuse started
 		"item_equip":                      geh.itemEquip,                  // Equipped, I think
 		"item_pickup":                     geh.itemPickup,                 // Picked up or bought?
 		"item_remove":                     geh.itemRemove,                 // Dropped?
@@ -292,7 +292,7 @@ func (geh gameEventHandler) playerBlind(desc *msg.CSVCMsg_GameEventListDescripto
 	})
 }
 
-func (geh gameEventHandler) flashbangDetonate(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) flashBangDetonate(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	nadeEvent := geh.nadeEvent(desc, ge, common.EqFlash)
 
 	geh.gameState().lastFlasher = nadeEvent.Thrower
@@ -301,7 +301,7 @@ func (geh gameEventHandler) flashbangDetonate(desc *msg.CSVCMsg_GameEventListDes
 	})
 }
 
-func (geh gameEventHandler) hegranadeDetonate(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) heGrenadeDetonate(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	geh.dispatch(events.HeExplode{
 		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqHE),
 	})
@@ -319,20 +319,20 @@ func (geh gameEventHandler) decoyDetonate(desc *msg.CSVCMsg_GameEventListDescrip
 	})
 }
 
-func (geh gameEventHandler) smokegrenadeDetonate(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) smokeGrenadeDetonate(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	geh.dispatch(events.SmokeStart{
 		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqSmoke),
 	})
 }
 
-func (geh gameEventHandler) smokegrenadeExpired(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) smokeGrenadeExpired(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	geh.dispatch(events.SmokeExpired{
 		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqSmoke),
 	})
 }
 
-func (geh gameEventHandler) infernoStartburn(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	geh.dispatch(events.FireGrenadeStart{
+func (geh gameEventHandler) infernoStartBurn(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+	geh.delay(events.FireGrenadeStart{
 		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqIncendiary),
 	})
 }
@@ -414,7 +414,7 @@ func (geh gameEventHandler) playerTeam(desc *msg.CSVCMsg_GameEventListDescriptor
 	}
 }
 
-func (geh gameEventHandler) bombBeginplant(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) bombBeginPlant(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	geh.dispatch(events.BombPlantBegin{BombEvent: geh.bombEvent(desc, ge)})
 }
 
@@ -467,7 +467,7 @@ func (geh gameEventHandler) bombEvent(desc *msg.CSVCMsg_GameEventListDescriptorT
 	return bombEvent
 }
 
-func (geh gameEventHandler) bombBegindefuse(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) bombBeginDefuse(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
 	data := mapGameEventData(desc, ge)
 
 	geh.gameState().currentDefuser = geh.playerByUserID32(data["userid"].GetValShort())
