@@ -20,7 +20,7 @@ func main() {
 	// Configure parsing of ConVar net-message (id=6)
 	cfg := dem.DefaultParserConfig
 	cfg.AdditionalNetMessageCreators = map[int]dem.NetMessageCreator{
-		6: func() proto.Message {
+		int(msg.NET_Messages_net_SetConVar): func() proto.Message {
 			return new(msg.CNETMsg_SetConVar)
 		},
 	}

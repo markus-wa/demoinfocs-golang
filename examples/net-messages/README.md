@@ -35,16 +35,21 @@ Example: `ConVar` messages
 
 ```go
 import (
+	proto "github.com/gogo/protobuf/proto"
+
 	dem "github.com/markus-wa/demoinfocs-golang"
+	ex "github.com/markus-wa/demoinfocs-golang/examples"
 	msg "github.com/markus-wa/demoinfocs-golang/msg"
 )
 
 cfg := dem.DefaultParserConfig
 cfg.AdditionalNetMessageCreators = map[int]dem.NetMessageCreator{
-	6: func() proto.Message {
+	int(msg.NET_Messages_net_SetConVar): func() proto.Message {
 		return new(msg.CNETMsg_SetConVar)
 	},
 }
+
+p := dem.NewParserWithConfig(f, cfg)
 ```
 
 ## Registering net-message handlers
