@@ -188,6 +188,7 @@ type AdditionalPlayerInformation struct {
 type demoInfoProvider interface {
 	IngameTick() int   // current in-game tick, used for IsBlinded()
 	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
+	FindPlayerByHandle(handle int) *Player
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.

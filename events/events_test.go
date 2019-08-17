@@ -10,7 +10,7 @@ import (
 )
 
 func TestPlayerFlashed_FlashDuration(t *testing.T) {
-	p := common.NewPlayer(demoInfoProvider{})
+	p := common.NewPlayer(demoInfoProviderMock{})
 	e := PlayerFlashed{Player: p}
 
 	assert.Equal(t, time.Duration(0), e.FlashDuration())
@@ -81,13 +81,17 @@ func TestItemPickup_WeaponTraceable_WeaponNotFound(t *testing.T) {
 	assert.Equal(t, e.Weapon, *e.WeaponTraceable())
 }
 
-type demoInfoProvider struct {
+type demoInfoProviderMock struct {
 }
 
-func (p demoInfoProvider) IngameTick() int {
+func (p demoInfoProviderMock) IngameTick() int {
 	return 0
 }
 
-func (p demoInfoProvider) TickRate() float64 {
+func (p demoInfoProviderMock) TickRate() float64 {
 	return 128
+}
+
+func (p demoInfoProviderMock) FindPlayerByHandle(handle int) *common.Player {
+	return nil
 }

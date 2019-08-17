@@ -281,3 +281,7 @@ func (p demoInfoProvider) IngameTick() int {
 func (p demoInfoProvider) TickRate() float64 {
 	return p.parser.header.TickRate()
 }
+
+func (p demoInfoProvider) FindPlayerByHandle(handle int) *common.Player {
+	return p.parser.gameState.Participants().FindByHandle(handle)
+}

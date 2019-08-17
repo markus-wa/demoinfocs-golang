@@ -4,9 +4,11 @@ import (
 	"math/rand"
 	"sort"
 
-	r2 "github.com/golang/geo/r2"
-	r3 "github.com/golang/geo/r3"
-	quickhull "github.com/markus-wa/quickhull-go"
+	"github.com/golang/geo/r2"
+	"github.com/golang/geo/r3"
+	"github.com/markus-wa/quickhull-go"
+
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 // Inferno is a list of Fires with helper functions.
@@ -14,11 +16,13 @@ import (
 //
 // See also: Inferno.Active() and Fire.IsBurning
 type Inferno struct {
-	EntityID int
+	Entity   st.IEntity
+	EntityID int // Same as Entity.ID(), use Entity.ID() instead
 	Fires    []*Fire
 
 	// uniqueID is used to distinguish different infernos (which potentially have the same, reused entityID) from each other.
-	uniqueID int64
+	uniqueID         int64
+	demoInfoProvider demoInfoProvider
 }
 
 // Fire is a component of an Inferno.
@@ -133,6 +137,11 @@ func (inf Inferno) ConvexHull3D() quickhull.ConvexHull {
 	return convexHull(pointCloud)
 }
 
+// Owner returns the player who threw the fire grenade.
+func (inf Inferno) Owner() *Player {
+	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.FindPropertyI("m_hOwnerEntity").Value().IntVal)
+}
+
 func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 	return new(quickhull.QuickHull).ConvexHull(pointCloud, false, false, 0)
 }
@@ -140,6 +149,11 @@ func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 // NewInferno creates a inferno and sets the Unique-ID.
 //
 // Intended for internal use only.
-func NewInferno() *Inferno {
-	return &Inferno{uniqueID: rand.Int63()}
+func NewInferno(demoInfoProvider demoInfoProvider, entity st.IEntity) *Inferno {
+	return &Inferno{
+		Entity:           entity,
+		EntityID:         entity.ID(),
+		uniqueID:         rand.Int63(),
+		demoInfoProvider: demoInfoProvider,
+	}
 }

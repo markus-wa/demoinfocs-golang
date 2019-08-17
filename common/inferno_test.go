@@ -3,16 +3,19 @@ package common
 import (
 	"testing"
 
-	r2 "github.com/golang/geo/r2"
-	r3 "github.com/golang/geo/r3"
-	assert "github.com/stretchr/testify/assert"
+	"github.com/golang/geo/r2"
+	"github.com/golang/geo/r3"
+	"github.com/stretchr/testify/assert"
+
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
-func TestInfernoUniqueID(t *testing.T) {
-	assert.NotEqual(t, NewInferno().UniqueID(), NewInferno().UniqueID(), "UniqueIDs of different infernos should be different")
+func TestInferno_UniqueID(t *testing.T) {
+	entity := new(st.Entity)
+	assert.NotEqual(t, NewInferno(nil, entity).UniqueID(), NewInferno(nil, entity).UniqueID(), "UniqueIDs of different infernos should be different")
 }
 
-func TestInfernoActive(t *testing.T) {
+func TestInferno_Active(t *testing.T) {
 	inf := Inferno{
 		Fires: []*Fire{
 			{
@@ -39,7 +42,7 @@ func TestInfernoActive(t *testing.T) {
 	assert.Equal(t, activeFires, inf.Active().Fires, "Active inferno should contain active fires")
 }
 
-func TestInfernoConvexHull2D(t *testing.T) {
+func TestInferno_ConvexHull2D(t *testing.T) {
 	// Construct a Inferno that looks roughly like this.
 	// D should be inside the 2D Convex Hull but a corner of the 3D Convex Hull
 	//
@@ -79,7 +82,7 @@ func TestInfernoConvexHull2D(t *testing.T) {
 }
 
 // Just check that all fires are passed to quickhull.ConvexHull()
-func TestInfernoConvexHull3D(t *testing.T) {
+func TestInferno_ConvexHull3D(t *testing.T) {
 	inf := Inferno{
 		Fires: []*Fire{
 			{
@@ -105,4 +108,15 @@ func TestInfernoConvexHull3D(t *testing.T) {
 	}
 
 	assert.ElementsMatch(t, expectedHull, inf.ConvexHull3D().Vertices, "ConvexHull3D should contain all fire locations")
+}
+
+func TestInferno_Owner(t *testing.T) {
+	entity := entityWithProperty("m_hOwnerEntity", st.PropertyValue{IntVal: 1})
+
+	player := new(Player)
+	provider := demoInfoProviderMock{
+		playersByHandle: map[int]*Player{1: player},
+	}
+
+	assert.Equal(t, player, NewInferno(provider, entity).Owner())
 }

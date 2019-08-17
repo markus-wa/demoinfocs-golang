@@ -457,10 +457,8 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 }
 
 func (p *Parser) bindNewInferno(entity *st.Entity) {
-	entityID := entity.ID()
-	inf := common.NewInferno()
-	inf.EntityID = entityID
-	p.gameState.infernos[entityID] = inf
+	inf := common.NewInferno(p.demoInfoProvider, entity)
+	p.gameState.infernos[entity.ID()] = inf
 
 	entity.OnCreateFinished(func() {
 		p.eventDispatcher.Dispatch(events.InfernoStart{

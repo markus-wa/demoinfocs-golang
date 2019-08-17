@@ -6,8 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/markus-wa/demoinfocs-golang/sendtables"
-	"github.com/markus-wa/demoinfocs-golang/sendtables/fake"
+	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 func TestPlayerActiveWeapon(t *testing.T) {
@@ -125,7 +124,7 @@ func TestPlayer_FlashDurationTimeRemaining_Fallback(t *testing.T) {
 }
 
 func TestPlayer_IsSpottedBy_HasSpotted_True(t *testing.T) {
-	pl := playerWithProperty("m_bSpottedByMask.000", sendtables.PropertyValue{IntVal: 2})
+	pl := playerWithProperty("m_bSpottedByMask.000", st.PropertyValue{IntVal: 2})
 	pl.EntityID = 1
 
 	other := newPlayer(0)
@@ -136,7 +135,7 @@ func TestPlayer_IsSpottedBy_HasSpotted_True(t *testing.T) {
 }
 
 func TestPlayer_IsSpottedBy_HasSpotted_False(t *testing.T) {
-	pl := playerWithProperty("m_bSpottedByMask.000", sendtables.PropertyValue{IntVal: 0})
+	pl := playerWithProperty("m_bSpottedByMask.000", st.PropertyValue{IntVal: 0})
 	pl.EntityID = 1
 
 	other := newPlayer(0)
@@ -147,7 +146,7 @@ func TestPlayer_IsSpottedBy_HasSpotted_False(t *testing.T) {
 }
 
 func TestPlayer_IsSpottedBy_HasSpotted_BitOver32(t *testing.T) {
-	pl := playerWithProperty("m_bSpottedByMask.001", sendtables.PropertyValue{IntVal: 1})
+	pl := playerWithProperty("m_bSpottedByMask.001", st.PropertyValue{IntVal: 1})
 	pl.EntityID = 1
 
 	other := newPlayer(0)
@@ -168,25 +167,25 @@ func TestPlayer_IsSpottedBy_EntityNull(t *testing.T) {
 }
 
 func TestPlayer_IsInBombZone(t *testing.T) {
-	pl := playerWithProperty("m_bInBombZone", sendtables.PropertyValue{IntVal: 1})
+	pl := playerWithProperty("m_bInBombZone", st.PropertyValue{IntVal: 1})
 
 	assert.True(t, pl.IsInBombZone())
 }
 
 func TestPlayer_IsInBuyZone(t *testing.T) {
-	pl := playerWithProperty("m_bInBuyZone", sendtables.PropertyValue{IntVal: 1})
+	pl := playerWithProperty("m_bInBuyZone", st.PropertyValue{IntVal: 1})
 
 	assert.True(t, pl.IsInBuyZone())
 }
 
 func TestPlayer_IsWalking(t *testing.T) {
-	pl := playerWithProperty("m_bIsWalking", sendtables.PropertyValue{IntVal: 1})
+	pl := playerWithProperty("m_bIsWalking", st.PropertyValue{IntVal: 1})
 
 	assert.True(t, pl.IsWalking())
 }
 
 func TestPlayer_IsScoped(t *testing.T) {
-	pl := playerWithProperty("m_bIsScoped", sendtables.PropertyValue{IntVal: 1})
+	pl := playerWithProperty("m_bIsScoped", st.PropertyValue{IntVal: 1})
 
 	assert.True(t, pl.IsScoped())
 }
@@ -195,31 +194,6 @@ func newPlayer(tick int) *Player {
 	return NewPlayer(mockDemoInfoProvider(128, tick))
 }
 
-type demoInfoProviderMock struct {
-	tickRate   float64
-	ingameTick int
-}
-
-func (p demoInfoProviderMock) TickRate() float64 {
-	return p.tickRate
-}
-
-func (p demoInfoProviderMock) IngameTick() int {
-	return p.ingameTick
-}
-
-func mockDemoInfoProvider(tickRate float64, tick int) demoInfoProvider {
-	return demoInfoProviderMock{
-		tickRate:   tickRate,
-		ingameTick: tick,
-	}
-}
-
-func playerWithProperty(propName string, value sendtables.PropertyValue) *Player {
-	entity := new(fake.Entity)
-	prop := new(fake.Property)
-	prop.On("Value").Return(value)
-	entity.On("FindPropertyI", propName).Return(prop)
-	pl := &Player{Entity: entity}
-	return pl
+func playerWithProperty(propName string, value st.PropertyValue) *Player {
+	return &Player{Entity: entityWithProperty(propName, value)}
 }
