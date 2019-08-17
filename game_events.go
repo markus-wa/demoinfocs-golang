@@ -28,19 +28,27 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 
 	debugGameEvent(desc, ge)
 
-	p.gameEventHandler.handler(desc.Name)(desc, ge)
+	data := mapGameEventData(desc, ge)
+
+	if handler, eventKnown := p.gameEventHandler.gameEventNameToHandler[desc.Name]; eventKnown {
+		// some events are known but have no handler
+		// these will just be dispatched as GenericGameEvent
+		if handler != nil {
+			handler(data)
+		}
+	} else {
+		p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Unknown event %q", desc.Name)})
+	}
+
+	p.eventDispatcher.Dispatch(events.GenericGameEvent{
+		Name: desc.Name,
+		Data: data,
+	})
 }
 
 type gameEventHandler struct {
 	parser                 *Parser
 	gameEventNameToHandler map[string]gameEventHandlerFunc
-}
-
-func (geh gameEventHandler) handler(eventName string) gameEventHandlerFunc {
-	if handler, eventKnown := geh.gameEventNameToHandler[eventName]; eventKnown {
-		return handler
-	}
-	return geh.unknownEvent
 }
 
 func (geh gameEventHandler) dispatch(event interface{}) {
@@ -63,84 +71,84 @@ func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
 	return geh.playerByUserID(int(userID))
 }
 
-type gameEventHandlerFunc func(*msg.CSVCMsg_GameEventListDescriptorT, *msg.CSVCMsg_GameEvent)
+type gameEventHandlerFunc func(map[string]*msg.CSVCMsg_GameEventKeyT)
 
 func newGameEventHandler(parser *Parser) gameEventHandler {
 	geh := gameEventHandler{parser: parser}
 
 	geh.gameEventNameToHandler = map[string]gameEventHandlerFunc{
-		"round_start":                     geh.roundStart,                 // Round started
-		"cs_win_panel_match":              geh.csWinPanelMatch,            // Not sure, maybe match end event???
-		"round_announce_final":            geh.roundAnnounceFinal,         // 30th round for normal de_, not necessarily matchpoint
-		"round_announce_last_round_half":  geh.roundAnnounceLastRoundHalf, // Last round of the half
-		"round_end":                       geh.roundEnd,                   // Round ended and the winner was announced
-		"round_officially_ended":          geh.roundOfficiallyEnded,       // The event after which you get teleported to the spawn (=> You can still walk around between round_end and this event)
-		"round_mvp":                       geh.roundMVP,                   // Round MVP was announced
-		"bot_takeover":                    geh.botTakeover,                // Bot got taken over
+		// sorted alphabetically
+		"announce_phase_end":              nil,                            // Dunno
 		"begin_new_match":                 geh.beginNewMatch,              // Match started
-		"round_freeze_end":                geh.roundFreezeEnd,             // Round start freeze ended
-		"player_footstep":                 geh.playerFootstep,             // Footstep sound
-		"player_jump":                     geh.playerJump,                 // Player jumped
-		"weapon_fire":                     geh.weaponFire,                 // Weapon was fired
-		"player_death":                    geh.playerDeath,                // Player died
-		"player_hurt":                     geh.playerHurt,                 // Player got hurt
-		"player_blind":                    geh.playerBlind,                // Player got blinded by a flash
+		"bomb_beep":                       nil,                            // Bomb beep
+		"bomb_begindefuse":                geh.bombBeginDefuse,            // Defuse started
+		"bomb_beginplant":                 geh.bombBeginPlant,             // Plant started
+		"bomb_defused":                    geh.bombDefused,                // Defuse finished
+		"bomb_dropped":                    geh.bombDropped,                // Bomb dropped
+		"bomb_exploded":                   geh.bombExploded,               // Bomb exploded
+		"bomb_pickup":                     geh.bombPickup,                 // Bomb picked up
+		"bomb_planted":                    geh.bombPlanted,                // Plant finished
+		"bot_takeover":                    geh.botTakeover,                // Bot got taken over
+		"buytime_ended":                   nil,                            // Not actually end of buy time, seems to only be sent once per game at the start
+		"cs_match_end_restart":            nil,                            // Yawn
+		"cs_pre_restart":                  nil,                            // Not sure, doesn't seem to be important
+		"cs_round_final_beep":             nil,                            // Final beep
+		"cs_round_start_beep":             nil,                            // Round start beeps
+		"cs_win_panel_match":              geh.csWinPanelMatch,            // Not sure, maybe match end event???
+		"cs_win_panel_round":              nil,                            // Win panel, (==end of match?)
+		"decoy_detonate":                  geh.decoyDetonate,              // Decoy exploded/expired
+		"decoy_started":                   geh.decoyStarted,               // Decoy started
+		"endmatch_cmm_start_reveal_items": nil,                            // Drops
 		"flashbang_detonate":              geh.flashBangDetonate,          // Flash exploded
 		"hegrenade_detonate":              geh.heGrenadeDetonate,          // HE exploded
-		"decoy_started":                   geh.decoyStarted,               // Decoy started
-		"decoy_detonate":                  geh.decoyDetonate,              // Decoy exploded/expired
-		"smokegrenade_detonate":           geh.smokeGrenadeDetonate,       // Smoke popped
-		"smokegrenade_expired":            geh.smokeGrenadeExpired,        // Smoke expired
-		"inferno_startburn":               geh.infernoStartBurn,           // Incendiary exploded/started
+		"hltv_chase":                      nil,                            // Don't care
+		"hltv_fixed":                      nil,                            // Dunno
+		"hltv_status":                     nil,                            // Don't know
 		"inferno_expire":                  geh.infernoExpire,              // Incendiary expired
-		"player_connect":                  geh.playerConnect,              // Bot connected or player reconnected, players normally come in via string tables & data tables
-		"player_disconnect":               geh.playerDisconnect,           // Player disconnected (kicked, quit, timed out etc.)
-		"player_team":                     geh.playerTeam,                 // Player changed team
-		"bomb_beginplant":                 geh.bombBeginPlant,             // Plant started
-		"bomb_planted":                    geh.bombPlanted,                // Plant finished
-		"bomb_defused":                    geh.bombDefused,                // Defuse finished
-		"bomb_exploded":                   geh.bombExploded,               // Bomb exploded
-		"bomb_begindefuse":                geh.bombBeginDefuse,            // Defuse started
+		"inferno_startburn":               geh.infernoStartBurn,           // Incendiary exploded/started
 		"item_equip":                      geh.itemEquip,                  // Equipped, I think
 		"item_pickup":                     geh.itemPickup,                 // Picked up or bought?
 		"item_remove":                     geh.itemRemove,                 // Dropped?
-		"bomb_dropped":                    geh.bombDropped,                // Bomb dropped
-		"bomb_pickup":                     geh.bombPickup,                 // Bomb picked up
-		"player_connect_full":             geh.genericEvent,               // Connecting finished
-		"player_falldamage":               geh.genericEvent,               // Falldamage
-		"weapon_zoom":                     geh.genericEvent,               // Zooming in
-		"weapon_reload":                   geh.genericEvent,               // Weapon reloaded
-		"round_time_warning":              geh.genericEvent,               // Round time warning
-		"round_announce_match_point":      geh.genericEvent,               // Match point announcement
-		"player_changename":               geh.genericEvent,               // Name change
-		"buytime_ended":                   geh.genericEvent,               // Not actually end of buy time, seems to only be sent once per game at the start
-		"round_announce_match_start":      geh.genericEvent,               // Special match start announcement
-		"bomb_beep":                       geh.genericEvent,               // Bomb beep
-		"player_spawn":                    geh.genericEvent,               // Player spawn
-		"hltv_status":                     geh.genericEvent,               // Don't know
-		"hltv_chase":                      geh.genericEvent,               // Don't care
-		"cs_round_start_beep":             geh.genericEvent,               // Round start beeps
-		"cs_round_final_beep":             geh.genericEvent,               // Final beep
-		"cs_pre_restart":                  geh.genericEvent,               // Not sure, doesn't seem to be important
-		"round_prestart":                  geh.genericEvent,               // Ditto
-		"round_poststart":                 geh.genericEvent,               // Ditto
-		"cs_win_panel_round":              geh.genericEvent,               // Win panel, (==end of match?)
-		"endmatch_cmm_start_reveal_items": geh.genericEvent,               // Drops
-		"announce_phase_end":              geh.genericEvent,               // Dunno
-		"tournament_reward":               geh.genericEvent,               // Dunno
-		"other_death":                     geh.genericEvent,               // Dunno
-		"round_announce_warmup":           geh.genericEvent,               // Dunno
-		"server_cvar":                     geh.genericEvent,               // Dunno
-		"weapon_fire_on_empty":            geh.genericEvent,               // Sounds boring
-		"hltv_fixed":                      geh.genericEvent,               // Dunno
-		"cs_match_end_restart":            geh.genericEvent,               // Yawn
+		"other_death":                     nil,                            // Dunno
+		"player_blind":                    geh.playerBlind,                // Player got blinded by a flash
+		"player_changename":               nil,                            // Name change
+		"player_connect":                  geh.playerConnect,              // Bot connected or player reconnected, players normally come in via string tables & data tables
+		"player_connect_full":             nil,                            // Connecting finished
+		"player_death":                    geh.playerDeath,                // Player died
+		"player_disconnect":               geh.playerDisconnect,           // Player disconnected (kicked, quit, timed out etc.)
+		"player_falldamage":               nil,                            // Falldamage
+		"player_footstep":                 geh.playerFootstep,             // Footstep sound
+		"player_hurt":                     geh.playerHurt,                 // Player got hurt
+		"player_jump":                     geh.playerJump,                 // Player jumped
+		"player_spawn":                    nil,                            // Player spawn
+		"player_team":                     geh.playerTeam,                 // Player changed team
+		"round_announce_final":            geh.roundAnnounceFinal,         // 30th round for normal de_, not necessarily matchpoint
+		"round_announce_last_round_half":  geh.roundAnnounceLastRoundHalf, // Last round of the half
+		"round_announce_match_point":      nil,                            // Match point announcement
+		"round_announce_match_start":      nil,                            // Special match start announcement
+		"round_announce_warmup":           nil,                            // Dunno
+		"round_end":                       geh.roundEnd,                   // Round ended and the winner was announced
+		"round_freeze_end":                geh.roundFreezeEnd,             // Round start freeze ended
+		"round_mvp":                       geh.roundMVP,                   // Round MVP was announced
+		"round_officially_ended":          geh.roundOfficiallyEnded,       // The event after which you get teleported to the spawn (=> You can still walk around between round_end and this event)
+		"round_poststart":                 nil,                            // Ditto
+		"round_prestart":                  nil,                            // Ditto
+		"round_start":                     geh.roundStart,                 // Round started
+		"round_time_warning":              nil,                            // Round time warning
+		"server_cvar":                     nil,                            // Dunno
+		"smokegrenade_detonate":           geh.smokeGrenadeDetonate,       // Smoke popped
+		"smokegrenade_expired":            geh.smokeGrenadeExpired,        // Smoke expired
+		"tournament_reward":               nil,                            // Dunno
+		"weapon_fire":                     geh.weaponFire,                 // Weapon was fired
+		"weapon_fire_on_empty":            nil,                            // Sounds boring
+		"weapon_reload":                   nil,                            // Weapon reloaded
+		"weapon_zoom":                     nil,                            // Zooming in
 	}
 
 	return geh
 }
 
-func (geh gameEventHandler) roundStart(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
+func (geh gameEventHandler) roundStart(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.RoundStart{
 		TimeLimit: int(data["timelimit"].GetValLong()),
 		FragLimit: int(data["fraglimit"].GetValLong()),
@@ -148,21 +156,19 @@ func (geh gameEventHandler) roundStart(desc *msg.CSVCMsg_GameEventListDescriptor
 	})
 }
 
-func (geh gameEventHandler) csWinPanelMatch(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) csWinPanelMatch(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.AnnouncementWinPanelMatch{})
 }
 
-func (geh gameEventHandler) roundAnnounceFinal(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) roundAnnounceFinal(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.AnnouncementFinalRound{})
 }
 
-func (geh gameEventHandler) roundAnnounceLastRoundHalf(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) roundAnnounceLastRoundHalf(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.AnnouncementLastRoundHalf{})
 }
 
-func (geh gameEventHandler) roundEnd(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	winner := common.Team(data["winner"].ValByte)
 	winnerState := geh.gameState().Team(winner)
 	var loserState *common.TeamState
@@ -179,7 +185,7 @@ func (geh gameEventHandler) roundEnd(desc *msg.CSVCMsg_GameEventListDescriptorT,
 	})
 }
 
-func (geh gameEventHandler) roundOfficiallyEnded(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) roundOfficiallyEnded(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	// Issue #42
 	// Sometimes grenades & infernos aren't deleted / destroyed via entity-updates at the end of the round,
 	// so we need to do it here for those that weren't.
@@ -198,50 +204,40 @@ func (geh gameEventHandler) roundOfficiallyEnded(desc *msg.CSVCMsg_GameEventList
 	geh.dispatch(events.RoundEndOfficial{})
 }
 
-func (geh gameEventHandler) roundMVP(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) roundMVP(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.RoundMVPAnnouncement{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 		Reason: events.RoundMVPReason(data["reason"].GetValShort()),
 	})
 }
 
-func (geh gameEventHandler) botTakeover(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) botTakeover(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.BotTakenOver{
 		Taker: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
 }
 
-func (geh gameEventHandler) beginNewMatch(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) beginNewMatch(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.MatchStart{})
 }
 
-func (geh gameEventHandler) roundFreezeEnd(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) roundFreezeEnd(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.RoundFreezetimeEnd{})
 }
 
-func (geh gameEventHandler) playerFootstep(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) playerFootstep(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.Footstep{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
 }
 
-func (geh gameEventHandler) playerJump(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) playerJump(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.PlayerJump{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
 }
 
-func (geh gameEventHandler) weaponFire(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	shooter := geh.playerByUserID32(data["userid"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 
@@ -251,9 +247,7 @@ func (geh gameEventHandler) weaponFire(desc *msg.CSVCMsg_GameEventListDescriptor
 	})
 }
 
-func (geh gameEventHandler) playerDeath(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	killer := geh.playerByUserID32(data["attacker"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 
@@ -267,9 +261,7 @@ func (geh gameEventHandler) playerDeath(desc *msg.CSVCMsg_GameEventListDescripto
 	})
 }
 
-func (geh gameEventHandler) playerHurt(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	attacker := geh.playerByUserID32(data["attacker"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 
@@ -285,9 +277,7 @@ func (geh gameEventHandler) playerHurt(desc *msg.CSVCMsg_GameEventListDescriptor
 	})
 }
 
-func (geh gameEventHandler) playerBlind(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	// Player.FlashDuration hasn't been updated yet,
 	// so we need to wait until the end of the tick before dispatching
 	geh.delay(events.PlayerFlashed{
@@ -296,8 +286,8 @@ func (geh gameEventHandler) playerBlind(desc *msg.CSVCMsg_GameEventListDescripto
 	})
 }
 
-func (geh gameEventHandler) flashBangDetonate(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	nadeEvent := geh.nadeEvent(desc, ge, common.EqFlash)
+func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	nadeEvent := geh.nadeEvent(data, common.EqFlash)
 
 	geh.gameState().lastFlasher = nadeEvent.Thrower
 	geh.dispatch(events.FlashExplode{
@@ -305,51 +295,49 @@ func (geh gameEventHandler) flashBangDetonate(desc *msg.CSVCMsg_GameEventListDes
 	})
 }
 
-func (geh gameEventHandler) heGrenadeDetonate(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) heGrenadeDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.HeExplode{
-		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqHE),
+		GrenadeEvent: geh.nadeEvent(data, common.EqHE),
 	})
 }
 
-func (geh gameEventHandler) decoyStarted(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) decoyStarted(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.delay(events.DecoyStart{
-		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqDecoy),
+		GrenadeEvent: geh.nadeEvent(data, common.EqDecoy),
 	})
 }
 
-func (geh gameEventHandler) decoyDetonate(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) decoyDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.DecoyExpired{
-		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqDecoy),
+		GrenadeEvent: geh.nadeEvent(data, common.EqDecoy),
 	})
 }
 
-func (geh gameEventHandler) smokeGrenadeDetonate(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) smokeGrenadeDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.SmokeStart{
-		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqSmoke),
+		GrenadeEvent: geh.nadeEvent(data, common.EqSmoke),
 	})
 }
 
-func (geh gameEventHandler) smokeGrenadeExpired(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) smokeGrenadeExpired(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.SmokeExpired{
-		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqSmoke),
+		GrenadeEvent: geh.nadeEvent(data, common.EqSmoke),
 	})
 }
 
-func (geh gameEventHandler) infernoStartBurn(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) infernoStartBurn(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.delay(events.FireGrenadeStart{
-		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqIncendiary),
+		GrenadeEvent: geh.nadeEvent(data, common.EqIncendiary),
 	})
 }
 
-func (geh gameEventHandler) infernoExpire(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func (geh gameEventHandler) infernoExpire(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.FireGrenadeExpired{
-		GrenadeEvent: geh.nadeEvent(desc, ge, common.EqIncendiary),
+		GrenadeEvent: geh.nadeEvent(data, common.EqIncendiary),
 	})
 }
 
-func (geh gameEventHandler) playerConnect(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	pl := &playerInfo{
 		userID: int(data["userid"].GetValShort()),
 		name:   data["name"].GetValString(),
@@ -361,9 +349,7 @@ func (geh gameEventHandler) playerConnect(desc *msg.CSVCMsg_GameEventListDescrip
 	geh.parser.rawPlayers[int(data["index"].GetValByte())] = pl
 }
 
-func (geh gameEventHandler) playerDisconnect(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	uid := int(data["userid"].GetValShort())
 
 	for k, v := range geh.parser.rawPlayers {
@@ -383,9 +369,7 @@ func (geh gameEventHandler) playerDisconnect(desc *msg.CSVCMsg_GameEventListDesc
 	}
 }
 
-func (geh gameEventHandler) playerTeam(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 	newTeam := common.Team(data["team"].GetValByte())
 
@@ -418,29 +402,27 @@ func (geh gameEventHandler) playerTeam(desc *msg.CSVCMsg_GameEventListDescriptor
 	}
 }
 
-func (geh gameEventHandler) bombBeginPlant(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	geh.dispatch(events.BombPlantBegin{BombEvent: geh.bombEvent(desc, ge)})
+func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	geh.dispatch(events.BombPlantBegin{BombEvent: geh.bombEvent(data)})
 }
 
-func (geh gameEventHandler) bombPlanted(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	geh.dispatch(events.BombPlanted{BombEvent: geh.bombEvent(desc, ge)})
+func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	geh.dispatch(events.BombPlanted{BombEvent: geh.bombEvent(data)})
 }
 
-func (geh gameEventHandler) bombDefused(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	bombEvent := geh.bombEvent(desc, ge)
+func (geh gameEventHandler) bombDefused(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	bombEvent := geh.bombEvent(data)
 	geh.gameState().currentDefuser = nil
 	geh.dispatch(events.BombDefused{BombEvent: bombEvent})
 }
 
-func (geh gameEventHandler) bombExploded(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	bombEvent := geh.bombEvent(desc, ge)
+func (geh gameEventHandler) bombExploded(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	bombEvent := geh.bombEvent(data)
 	geh.gameState().currentDefuser = nil
 	geh.dispatch(events.BombExplode{BombEvent: bombEvent})
 }
 
-func (geh gameEventHandler) bombEvent(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) events.BombEvent {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT) events.BombEvent {
 	bombEvent := events.BombEvent{Player: geh.playerByUserID32(data["userid"].GetValShort())}
 
 	site := int(data["site"].GetValShort())
@@ -471,9 +453,7 @@ func (geh gameEventHandler) bombEvent(desc *msg.CSVCMsg_GameEventListDescriptorT
 	return bombEvent
 }
 
-func (geh gameEventHandler) bombBeginDefuse(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.gameState().currentDefuser = geh.playerByUserID32(data["userid"].GetValShort())
 
 	geh.dispatch(events.BombDefuseStart{
@@ -482,8 +462,8 @@ func (geh gameEventHandler) bombBeginDefuse(desc *msg.CSVCMsg_GameEventListDescr
 	})
 }
 
-func (geh gameEventHandler) itemEquip(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	player, weapon := geh.itemEvent(desc, ge)
+func (geh gameEventHandler) itemEquip(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	player, weapon := geh.itemEvent(data)
 	geh.dispatch(events.ItemEquip{
 		Player:    player,
 		Weapon:    *weapon,
@@ -491,8 +471,8 @@ func (geh gameEventHandler) itemEquip(desc *msg.CSVCMsg_GameEventListDescriptorT
 	})
 }
 
-func (geh gameEventHandler) itemPickup(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	player, weapon := geh.itemEvent(desc, ge)
+func (geh gameEventHandler) itemPickup(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	player, weapon := geh.itemEvent(data)
 	// Delayed because of #119 - Equipment.UniqueID()
 	geh.parser.delayedEvents = append(geh.parser.delayedEvents, events.ItemPickup{
 		Player: player,
@@ -500,8 +480,8 @@ func (geh gameEventHandler) itemPickup(desc *msg.CSVCMsg_GameEventListDescriptor
 	})
 }
 
-func (geh gameEventHandler) itemRemove(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	player, weapon := geh.itemEvent(desc, ge)
+func (geh gameEventHandler) itemRemove(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	player, weapon := geh.itemEvent(data)
 	geh.dispatch(events.ItemDrop{
 		Player:    player,
 		Weapon:    *weapon,
@@ -509,8 +489,7 @@ func (geh gameEventHandler) itemRemove(desc *msg.CSVCMsg_GameEventListDescriptor
 	})
 }
 
-func (geh gameEventHandler) itemEvent(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) (*common.Player, *common.Equipment) {
-	data := mapGameEventData(desc, ge)
+func (geh gameEventHandler) itemEvent(data map[string]*msg.CSVCMsg_GameEventKeyT) (*common.Player, *common.Equipment) {
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 
 	wepType := common.MapEquipment(data["item"].GetValString())
@@ -519,9 +498,7 @@ func (geh gameEventHandler) itemEvent(desc *msg.CSVCMsg_GameEventListDescriptorT
 	return player, weapon
 }
 
-func (geh gameEventHandler) bombDropped(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) bombDropped(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 	entityID := int(data["entityid"].GetValShort())
 
@@ -531,29 +508,14 @@ func (geh gameEventHandler) bombDropped(desc *msg.CSVCMsg_GameEventListDescripto
 	})
 }
 
-func (geh gameEventHandler) bombPickup(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	data := mapGameEventData(desc, ge)
-
+func (geh gameEventHandler) bombPickup(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.BombPickup{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
 }
 
-func (geh gameEventHandler) genericEvent(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	geh.dispatch(events.GenericGameEvent{
-		Name: desc.Name,
-		Data: mapGameEventData(desc, ge),
-	})
-}
-
-func (geh gameEventHandler) unknownEvent(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
-	geh.dispatch(events.ParserWarn{Message: fmt.Sprintf("Unknown event %q", desc.Name)})
-	geh.genericEvent(desc, ge)
-}
-
 // Just so we can nicely create GrenadeEvents in one line
-func (geh gameEventHandler) nadeEvent(desc *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent, nadeType common.EquipmentElement) events.GrenadeEvent {
-	data := mapGameEventData(desc, ge)
+func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT, nadeType common.EquipmentElement) events.GrenadeEvent {
 	thrower := geh.playerByUserID32(data["userid"].GetValShort())
 	position := r3.Vector{
 		X: float64(data["x"].ValFloat),
