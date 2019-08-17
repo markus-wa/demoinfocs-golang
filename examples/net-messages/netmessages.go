@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	proto "github.com/gogo/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	"github.com/markus-wa/demoinfocs-golang/msg"
 )
 
 // Run like this: go run netmessages.go -demo /path/to/demo.dem > out.png
@@ -17,21 +17,19 @@ func main() {
 	checkError(err)
 	defer f.Close()
 
-	// Configure parsing of ConVar net-message (id=6)
+	// Configure parsing of BSPDecal net-message
 	cfg := dem.DefaultParserConfig
 	cfg.AdditionalNetMessageCreators = map[int]dem.NetMessageCreator{
-		int(msg.NET_Messages_net_SetConVar): func() proto.Message {
-			return new(msg.CNETMsg_SetConVar)
+		int(msg.SVC_Messages_svc_BSPDecal): func() proto.Message {
+			return new(msg.CSVCMsg_BSPDecal)
 		},
 	}
 
 	p := dem.NewParserWithConfig(f, cfg)
 
-	// Register handler for ConVar updates
-	p.RegisterNetMessageHandler(func(m *msg.CNETMsg_SetConVar) {
-		for _, cvar := range m.Convars.Cvars {
-			fmt.Println(fmt.Sprintf("cvar %s=%s", cvar.Name, cvar.Value))
-		}
+	// Register handler for BSPDecal messages
+	p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_BSPDecal) {
+		fmt.Printf("bullet decal at x=%f y=%f z=%f\n", m.Pos.X, m.Pos.Y, m.Pos.Z)
 	})
 
 	// Parse to end
