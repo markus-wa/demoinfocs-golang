@@ -157,6 +157,11 @@ type WeaponFire struct {
 	Weapon  *common.Equipment
 }
 
+// WeaponReload signals that a player started to reload his weapon.
+type WeaponReload struct {
+	Player *common.Player
+}
+
 // GrenadeEventIf is the interface for all GrenadeEvents (except GrenadeProjectile* events).
 // Used to catch the different events with the same handler.
 type GrenadeEventIf interface {

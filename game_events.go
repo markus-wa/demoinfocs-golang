@@ -141,7 +141,7 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"tournament_reward":               nil,                            // Dunno
 		"weapon_fire":                     geh.weaponFire,                 // Weapon was fired
 		"weapon_fire_on_empty":            nil,                            // Sounds boring
-		"weapon_reload":                   nil,                            // Weapon reloaded
+		"weapon_reload":                   geh.weaponReload,               // Weapon reloaded
 		"weapon_zoom":                     nil,                            // Zooming in
 	}
 
@@ -244,6 +244,12 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKey
 	geh.dispatch(events.WeaponFire{
 		Shooter: shooter,
 		Weapon:  getPlayerWeapon(shooter, wepType),
+	})
+}
+
+func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	geh.dispatch(events.WeaponReload{
+		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
 }
 
