@@ -4,7 +4,7 @@
 
 You can use the build tag `debugdemoinfocs` to find interesting net-messages.
 
-Example: `go run myprogram.go -tags debugdemoinfocs | grep "UnhandledMessage" | sort | uniq -c`
+Example: `go run myprogram.go -tags debugdemoinfocs -ldflags '-X github.com/markus-wa/demoinfocs-golang.debugUnhandledMessages=YES' | grep "UnhandledMessage" | sort | uniq -c`
 
 <details>
 <summary>Sample output</summary>
