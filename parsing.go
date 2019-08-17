@@ -251,6 +251,18 @@ var byteSlicePool = sync.Pool{
 	},
 }
 
+var defaultNetMessageCreators = map[int]NetMessageCreator{
+	// We could pool CSVCMsg_PacketEntities as they take up A LOT of the allocations
+	// but unless we're on a system that's doing a lot of concurrent parsing there isn't really a point
+	// as handling packets is a lot slower than creating them and we can't pool until they are handled.
+	int(msg.SVC_Messages_svc_PacketEntities):    func() proto.Message { return new(msg.CSVCMsg_PacketEntities) },
+	int(msg.SVC_Messages_svc_GameEventList):     func() proto.Message { return new(msg.CSVCMsg_GameEventList) },
+	int(msg.SVC_Messages_svc_GameEvent):         func() proto.Message { return new(msg.CSVCMsg_GameEvent) },
+	int(msg.SVC_Messages_svc_CreateStringTable): func() proto.Message { return new(msg.CSVCMsg_CreateStringTable) },
+	int(msg.SVC_Messages_svc_UpdateStringTable): func() proto.Message { return new(msg.CSVCMsg_UpdateStringTable) },
+	int(msg.SVC_Messages_svc_UserMessage):       func() proto.Message { return new(msg.CSVCMsg_UserMessage) },
+}
+
 func (p *Parser) parsePacket() {
 	// Booooring
 	// 152 bytes CommandInfo, 4 bytes SeqNrIn, 4 bytes SeqNrOut
@@ -259,65 +271,44 @@ func (p *Parser) parsePacket() {
 
 	// Here we go
 	p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
+
 	for !p.bitReader.ChunkFinished() {
 		cmd := int(p.bitReader.ReadVarInt32())
 		size := int(p.bitReader.ReadVarInt32())
 
 		p.bitReader.BeginChunk(size << 3)
-		var m proto.Message
-		switch cmd {
-		case int(msg.SVC_Messages_svc_PacketEntities):
-			// We could pool CSVCMsg_PacketEntities as they take up A LOT of the allocations
-			// but unless we're on a system that's doing a lot of concurrent parsing there isn't really a point
-			// as handling packets is a lot slower than creating them and we can't pool until they are handled.
-			m = new(msg.CSVCMsg_PacketEntities)
 
-		case int(msg.SVC_Messages_svc_GameEventList):
-			m = new(msg.CSVCMsg_GameEventList)
+		msgCreator := defaultNetMessageCreators[cmd]
 
-		case int(msg.SVC_Messages_svc_GameEvent):
-			m = new(msg.CSVCMsg_GameEvent)
-
-		case int(msg.SVC_Messages_svc_CreateStringTable):
-			m = new(msg.CSVCMsg_CreateStringTable)
-
-		case int(msg.SVC_Messages_svc_UpdateStringTable):
-			m = new(msg.CSVCMsg_UpdateStringTable)
-
-		case int(msg.SVC_Messages_svc_UserMessage):
-			m = new(msg.CSVCMsg_UserMessage)
-
-		default:
-			var name string
+		if msgCreator == nil {
+			var msgName string
 			if cmd < 8 || cmd >= 100 {
-				name = msg.NET_Messages_name[int32(cmd)]
+				msgName = msg.NET_Messages_name[int32(cmd)]
 			} else {
-				name = msg.SVC_Messages_name[int32(cmd)]
+				msgName = msg.SVC_Messages_name[int32(cmd)]
 			}
 
-			debugUnhandledMessage(cmd, name)
-
-			if name != "" {
-				// Handle additional net-messages as defined by the user
-				creator := p.additionalNetMessageCreators[cmd]
-				if creator != nil {
-					m = creator()
-					break
-				}
-			} else {
+			if msgName == "" {
 				// Send a warning if the command is unknown
 				// This might mean our proto files are out of date
 				p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Unknown message command %q", cmd)})
 			}
 
-			// On to the next one
-			p.bitReader.EndChunk()
-			continue
+			// Handle additional net-messages as defined by the user
+			msgCreator = p.additionalNetMessageCreators[cmd]
+			if msgCreator == nil {
+				debugUnhandledMessage(cmd, msgName)
+
+				// On to the next one
+				p.bitReader.EndChunk()
+				continue
+			}
 		}
 
 		b := byteSlicePool.Get().(*[]byte)
 		p.bitReader.ReadBytesInto(b, size)
 
+		m := msgCreator()
 		if proto.Unmarshal(*b, m) != nil {
 			// TODO: Don't crash here, happens with demos that work in gotv
 			panic(fmt.Sprintf("Failed to unmarshal cmd %d", cmd))
@@ -330,6 +321,7 @@ func (p *Parser) parsePacket() {
 
 		p.bitReader.EndChunk()
 	}
+
 	p.bitReader.EndChunk()
 }
 
