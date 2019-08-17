@@ -403,10 +403,10 @@ type ChatMessage struct {
 type RankUpdate struct {
 	SteamID    int64 // 32-bit SteamID. Deprecated, use SteamID32 instead
 	SteamID32  int32
+	RankChange float32
 	RankOld    int
 	RankNew    int
 	WinCount   int
-	RankChange float32
 }
 
 // ItemEquip signals an item was equipped.
