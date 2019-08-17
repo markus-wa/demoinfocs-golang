@@ -101,7 +101,7 @@ Check out the [examples](examples) folder for more examples, like [how to genera
 ## Features
 
 * Game events (kills, shots, round starts/ends, footsteps etc.) - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
-* Tracking of game-state (players, teams, grenades etc.) - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState)
+* Tracking of game-state (players, teams, grenades, ConVars etc.) - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState)
 * Grenade projectiles / trajectories - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/nade-trajectories)
 * Access to entities, server-classes & data-tables - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/sendtables#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
 * Access to all net-messages - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)

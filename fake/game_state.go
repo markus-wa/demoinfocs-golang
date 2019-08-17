@@ -1,10 +1,10 @@
 package fake
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
-	common "github.com/markus-wa/demoinfocs-golang/common"
+	"github.com/markus-wa/demoinfocs-golang/common"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
@@ -78,4 +78,9 @@ func (gs *GameState) IsWarmupPeriod() bool {
 // IsMatchStarted is a mock-implementation of IGameState.IsMatchStarted().
 func (gs *GameState) IsMatchStarted() bool {
 	return gs.Called().Bool(0)
+}
+
+// ConVars is a mock-implementation of IGameState.ConVars().
+func (gs *GameState) ConVars() map[string]string {
+	return gs.Called().Get(0).(map[string]string)
 }

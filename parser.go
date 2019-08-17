@@ -253,6 +253,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.msgDispatcher.RegisterHandler(p.handleCreateStringTable)
 	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTable)
 	p.msgDispatcher.RegisterHandler(p.handleUserMessage)
+	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
 	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
 

@@ -536,3 +536,9 @@ type IsWarmupPeriodChanged struct {
 type PlayerSpottersChanged struct {
 	Spotted *common.Player
 }
+
+// ConVarsUpdated signals that ConVars/CVars have been updated.
+// See GameState.ConVars().
+type ConVarsUpdated struct {
+	UpdatedConVars map[string]string
+}

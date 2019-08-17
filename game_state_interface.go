@@ -50,4 +50,8 @@ type IGameState interface {
 	IsWarmupPeriod() bool
 	// IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.
 	IsMatchStarted() bool
+	// ConVars returns a map of CVar keys and values.
+	// Not all values might be set.
+	// See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
+	ConVars() map[string]string
 }

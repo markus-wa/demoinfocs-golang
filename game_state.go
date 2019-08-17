@@ -18,6 +18,7 @@ type GameState struct {
 	grenadeProjectiles map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos           map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	entities           map[int]*st.Entity                // Maps entity IDs to entities
+	conVars            map[string]string
 	bomb               common.Bomb
 	totalRoundsPlayed  int
 	gamePhase          common.GamePhase
@@ -121,6 +122,13 @@ func (gs GameState) IsMatchStarted() bool {
 	return gs.isMatchStarted
 }
 
+// ConVars returns a map of CVar keys and values.
+// Not all values might be set.
+// See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
+func (gs *GameState) ConVars() map[string]string {
+	return gs.conVars
+}
+
 func newGameState() *GameState {
 	gs := &GameState{
 		playersByEntityID:  make(map[int]*common.Player),
@@ -128,6 +136,7 @@ func newGameState() *GameState {
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
 		infernos:           make(map[int]*common.Inferno),
 		entities:           make(map[int]*st.Entity),
+		conVars:            make(map[string]string),
 	}
 
 	gs.tState = common.NewTeamState(common.TeamTerrorists, gs.Participants().TeamMembers)

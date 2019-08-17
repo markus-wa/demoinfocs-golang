@@ -54,6 +54,13 @@ func TestGameState_Participants(t *testing.T) {
 	assert.NotEqual(t, byUserID, ptcp.ByUserID())
 }
 
+func TestGameState_ConVars(t *testing.T) {
+	cvars := make(map[string]string)
+	gs := GameState{conVars: cvars}
+
+	assert.Equal(t, cvars, gs.ConVars())
+}
+
 func TestParticipants_All(t *testing.T) {
 	pl := newPlayer()
 	ptcps := Participants{
