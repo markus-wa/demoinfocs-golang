@@ -61,7 +61,7 @@ const (
 	EqMac10 EquipmentElement = 104
 	EqUMP   EquipmentElement = 105
 	EqP90   EquipmentElement = 106
-	EqMP5	EquipmentElement = 107
+	EqMP5   EquipmentElement = 107
 
 	// Heavy
 
