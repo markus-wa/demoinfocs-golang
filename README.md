@@ -26,8 +26,6 @@ If you are unfamiliar with Go modules there's a [list of recommended resources](
 
 	go get -u github.com/markus-wa/demoinfocs-golang
 
-If you are using a older (`v0.x`) version of the library, check out the [`v0.5` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v0.5). However, it's highly recommended to switch to master (v1.0.0), which contains many new features and improvements. It also promises compatibility with new relases for the foreseeable future.
-
 ## Example
 
 This is a simple example on how to handle game events using this library.
@@ -149,8 +147,6 @@ ok      github.com/markus-wa/demoinfocs-golang  165.244s
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/markus-wa/demoinfocs-golang/tags).
 There is one caveat however: Beta features - which are marked as such via comments and in release notes - may change in minor releases.
-
-It's recommended to use some kind of dependency management system such as [dep](https://github.com/golang/dep) to ensure reproducible builds.
 
 ## Projects using demoinfocs-golang
 
