@@ -62,6 +62,7 @@ const (
 	EqMac10 EquipmentElement = 104
 	EqUMP   EquipmentElement = 105
 	EqP90   EquipmentElement = 106
+	EqMP5   EquipmentElement = 107
 
 	// Heavy
 
@@ -155,6 +156,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["molotovgrenade"] = EqMolotov
 	eqNameToWeapon["molotovprojectile"] = EqMolotov
 	eqNameToWeapon["mp7"] = EqMP7
+	eqNameToWeapon["mp5sd"] = EqMP5
 	eqNameToWeapon["mp9"] = EqMP9
 	eqNameToWeapon["negev"] = EqNegev
 	eqNameToWeapon["nova"] = EqNova
@@ -220,6 +222,7 @@ func initEqElementToName() {
 	eqElementToName[EqSwag7] = "MAG-7"
 	eqElementToName[EqMolotov] = "Molotov"
 	eqElementToName[EqMP7] = "MP7"
+	eqElementToName[EqMP5] = "MP5-SD"
 	eqElementToName[EqMP9] = "MP9"
 	eqElementToName[EqNegev] = "Negev"
 	eqElementToName[EqNova] = "Nova"
