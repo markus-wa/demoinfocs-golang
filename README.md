@@ -154,6 +154,7 @@ There is one caveat however: Beta features - which are marked as such via commen
 - [cs-demo-minifier](https://github.com/markus-wa/cs-demo-minifier) - Converts demos to JSON, MessagePack and more
 - [csgo_spray_pattern_plotter](https://github.com/o40/csgo_spray_pattern_plotter) - A tool to extract and plot spray patterns from CS:GO replays
 - [CS:GO Player Skill Prediction](https://drive.google.com/file/d/1JXIB57BA2XBTYVLSy6Xg_5nfL6dWyDmG/view) - Machine learning master thesis by [@quancore](https://github.com/quancore) about predicting player performance
+- [csgoverview](https://github.com/Linus4/csgoverview) - A 2D demo replay tool for CS:GO
 
 If your project is using this library feel free to submit a PR or send a message in Gitter to be included in the list.
 
