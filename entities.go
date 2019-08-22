@@ -33,6 +33,11 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 			r.ReadBit()
 		} else if r.ReadBit() {
 			// Enter PVS
+			if existing := p.gameState.entities[currentEntity]; existing != nil {
+				// Sometimes entities don't get destroyed when they should be
+				// For instance when a player is replaced by a BOT
+				existing.Destroy()
+			}
 			p.gameState.entities[currentEntity] = p.stParser.ReadEnterPVS(r, currentEntity)
 		} else {
 			// Delta Update
