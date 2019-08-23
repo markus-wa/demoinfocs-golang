@@ -471,7 +471,8 @@ type ParserWarn struct {
 	Message string
 }
 
-// GenericGameEvent signals a otherwise unhandled event.
+// GenericGameEvent signals any game-event.
+// It contains the raw data as received from the net-message.
 type GenericGameEvent struct {
 	Name string
 	Data map[string]*msg.CSVCMsg_GameEventKeyT
