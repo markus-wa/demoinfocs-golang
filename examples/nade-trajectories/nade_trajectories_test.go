@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	examples "github.com/markus-wa/demoinfocs-golang/examples"
+	"github.com/markus-wa/demoinfocs-golang/examples"
 )
 
 // Just make sure the example runs
@@ -13,7 +13,7 @@ func TestBouncyNades(t *testing.T) {
 		t.Skip("skipping test")
 	}
 
-	os.Args = []string{"cmd", "-demo", "../../cs-demos/default.dem"}
+	os.Args = []string{"cmd", "-demo", "../../test/cs-demos/default.dem"}
 
 	examples.RedirectStdout(func() {
 		main()

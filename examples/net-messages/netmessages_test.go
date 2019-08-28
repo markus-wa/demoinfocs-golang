@@ -11,7 +11,7 @@ func TestNetMessages(t *testing.T) {
 		t.Skip("skipping test")
 	}
 
-	os.Args = []string{"cmd", "-demo", "../../cs-demos/default.dem"}
+	os.Args = []string{"cmd", "-demo", "../../test/cs-demos/default.dem"}
 
 	main()
 }
