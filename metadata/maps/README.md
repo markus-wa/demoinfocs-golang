@@ -1,4 +1,4 @@
-Map files courtesy of @zoidbergwill/csgo-overviews, granted under the MIT license:
+Map files courtesy of [@zoidbergwill/csgo-overviews](https://github.com/zoidbergwill/csgo-overviews), granted under the MIT license:
 
 > The MIT License (MIT)
 >
