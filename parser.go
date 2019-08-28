@@ -72,7 +72,7 @@ type Parser struct {
 	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
 	grenadeModelIndices  map[int]common.EquipmentElement                 // Used to map model indices to grenades (used for grenade projectiles)
 	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
-	delayedEvents        []interface{}                                   // Contains events that need to be dispatched at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
+	delayedEventHandlers []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.

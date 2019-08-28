@@ -333,10 +333,10 @@ var frameParsedToken = new(frameParsedTokenType)
 func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
 	// PlayerFlashed events need to be dispatched at the end of the tick
 	// because Player.FlashDuration is updated after the game-events are parsed.
-	for _, e := range p.delayedEvents {
-		p.eventDispatcher.Dispatch(e)
+	for _, eventHandler := range p.delayedEventHandlers {
+		eventHandler()
 	}
-	p.delayedEvents = p.delayedEvents[:0]
+	p.delayedEventHandlers = p.delayedEventHandlers[:0]
 
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.TickDone{})
