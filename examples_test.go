@@ -13,7 +13,7 @@ import (
 This will print all kills of a demo in the format '[[killer]] <[[weapon]] [(HS)] [(WB)]> [[victim]]'
 */
 func ExampleParser() {
-	f, err := os.Open("cs-demos/default.dem")
+	f, err := os.Open("test/cs-demos/default.dem")
 	if err != nil {
 		panic(err)
 	}
