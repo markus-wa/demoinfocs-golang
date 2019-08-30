@@ -73,7 +73,11 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 	geh := gameEventHandler{parser: parser}
 
 	delay := func(f gameEventHandlerFunc) gameEventHandlerFunc {
-		return func(data map[string]*msg.CSVCMsg_GameEventKeyT) { f(data) }
+		return func(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+			parser.delayedEventHandlers = append(parser.delayedEventHandlers, func() {
+				f(data)
+			})
+		}
 	}
 	geh.gameEventNameToHandler = map[string]gameEventHandlerFunc{
 		// sorted alphabetically
@@ -109,7 +113,7 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"item_pickup":                     delay(geh.itemPickup),       // Picked up or bought? Delayed because of #119 - Equipment.UniqueID()
 		"item_remove":                     geh.itemRemove,              // Dropped?
 		"other_death":                     nil,                         // Dunno
-		"player_blind":                    geh.playerBlind,             // Player got blinded by a flash
+		"player_blind":                    delay(geh.playerBlind),      // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
 		"player_changename":               nil,                         // Name change
 		"player_connect":                  geh.playerConnect,           // Bot connected or player reconnected, players normally come in via string tables & data tables
 		"player_connect_full":             nil,                         // Connecting finished
@@ -287,8 +291,6 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	// Player.FlashDuration hasn't been updated yet,
-	// so we need to wait until the end of the tick before dispatching
 	geh.dispatch(events.PlayerFlashed{
 		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
 		Attacker: geh.gameState().lastFlasher,
