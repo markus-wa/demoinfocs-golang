@@ -55,10 +55,6 @@ func (geh gameEventHandler) dispatch(event interface{}) {
 	geh.parser.eventDispatcher.Dispatch(event)
 }
 
-func (geh gameEventHandler) delay(event interface{}) {
-	geh.parser.delayedEvents = append(geh.parser.delayedEvents, event)
-}
-
 func (geh gameEventHandler) gameState() *GameState {
 	return geh.parser.gameState
 }
@@ -76,73 +72,84 @@ type gameEventHandlerFunc func(map[string]*msg.CSVCMsg_GameEventKeyT)
 func newGameEventHandler(parser *Parser) gameEventHandler {
 	geh := gameEventHandler{parser: parser}
 
+	delay := func(f gameEventHandlerFunc) gameEventHandlerFunc {
+		return func(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+			parser.delayedEventHandlers = append(parser.delayedEventHandlers, func() {
+				f(data)
+			})
+		}
+	}
 	geh.gameEventNameToHandler = map[string]gameEventHandlerFunc{
 		// sorted alphabetically
-		"announce_phase_end":              nil,                            // Dunno
-		"begin_new_match":                 geh.beginNewMatch,              // Match started
-		"bomb_beep":                       nil,                            // Bomb beep
-		"bomb_begindefuse":                geh.bombBeginDefuse,            // Defuse started
-		"bomb_beginplant":                 geh.bombBeginPlant,             // Plant started
-		"bomb_defused":                    geh.bombDefused,                // Defuse finished
-		"bomb_dropped":                    geh.bombDropped,                // Bomb dropped
-		"bomb_exploded":                   geh.bombExploded,               // Bomb exploded
-		"bomb_pickup":                     geh.bombPickup,                 // Bomb picked up
-		"bomb_planted":                    geh.bombPlanted,                // Plant finished
-		"bot_takeover":                    geh.botTakeover,                // Bot got taken over
-		"buytime_ended":                   nil,                            // Not actually end of buy time, seems to only be sent once per game at the start
-		"cs_match_end_restart":            nil,                            // Yawn
-		"cs_pre_restart":                  nil,                            // Not sure, doesn't seem to be important
-		"cs_round_final_beep":             nil,                            // Final beep
-		"cs_round_start_beep":             nil,                            // Round start beeps
-		"cs_win_panel_match":              geh.csWinPanelMatch,            // Not sure, maybe match end event???
-		"cs_win_panel_round":              nil,                            // Win panel, (==end of match?)
-		"decoy_detonate":                  geh.decoyDetonate,              // Decoy exploded/expired
-		"decoy_started":                   geh.decoyStarted,               // Decoy started
-		"endmatch_cmm_start_reveal_items": nil,                            // Drops
-		"flashbang_detonate":              geh.flashBangDetonate,          // Flash exploded
-		"hegrenade_detonate":              geh.heGrenadeDetonate,          // HE exploded
-		"hltv_chase":                      nil,                            // Don't care
-		"hltv_fixed":                      nil,                            // Dunno
-		"hltv_status":                     nil,                            // Don't know
-		"inferno_expire":                  geh.infernoExpire,              // Incendiary expired
-		"inferno_startburn":               geh.infernoStartBurn,           // Incendiary exploded/started
-		"item_equip":                      geh.itemEquip,                  // Equipped, I think
-		"item_pickup":                     geh.itemPickup,                 // Picked up or bought?
-		"item_remove":                     geh.itemRemove,                 // Dropped?
-		"other_death":                     nil,                            // Dunno
-		"player_blind":                    geh.playerBlind,                // Player got blinded by a flash
-		"player_changename":               nil,                            // Name change
-		"player_connect":                  geh.playerConnect,              // Bot connected or player reconnected, players normally come in via string tables & data tables
-		"player_connect_full":             nil,                            // Connecting finished
-		"player_death":                    geh.playerDeath,                // Player died
-		"player_disconnect":               geh.playerDisconnect,           // Player disconnected (kicked, quit, timed out etc.)
-		"player_falldamage":               nil,                            // Falldamage
-		"player_footstep":                 geh.playerFootstep,             // Footstep sound
-		"player_hurt":                     geh.playerHurt,                 // Player got hurt
-		"player_jump":                     geh.playerJump,                 // Player jumped
-		"player_spawn":                    nil,                            // Player spawn
-		"player_team":                     geh.playerTeam,                 // Player changed team
-		"round_announce_final":            geh.roundAnnounceFinal,         // 30th round for normal de_, not necessarily matchpoint
-		"round_announce_last_round_half":  geh.roundAnnounceLastRoundHalf, // Last round of the half
-		"round_announce_match_point":      nil,                            // Match point announcement
-		"round_announce_match_start":      nil,                            // Special match start announcement
-		"round_announce_warmup":           nil,                            // Dunno
-		"round_end":                       geh.roundEnd,                   // Round ended and the winner was announced
-		"round_freeze_end":                geh.roundFreezeEnd,             // Round start freeze ended
-		"round_mvp":                       geh.roundMVP,                   // Round MVP was announced
-		"round_officially_ended":          geh.roundOfficiallyEnded,       // The event after which you get teleported to the spawn (=> You can still walk around between round_end and this event)
-		"round_poststart":                 nil,                            // Ditto
-		"round_prestart":                  nil,                            // Ditto
-		"round_start":                     geh.roundStart,                 // Round started
-		"round_time_warning":              nil,                            // Round time warning
-		"server_cvar":                     nil,                            // Dunno
-		"smokegrenade_detonate":           geh.smokeGrenadeDetonate,       // Smoke popped
-		"smokegrenade_expired":            geh.smokeGrenadeExpired,        // Smoke expired
-		"tournament_reward":               nil,                            // Dunno
-		"weapon_fire":                     geh.weaponFire,                 // Weapon was fired
-		"weapon_fire_on_empty":            nil,                            // Sounds boring
-		"weapon_reload":                   geh.weaponReload,               // Weapon reloaded
-		"weapon_zoom":                     nil,                            // Zooming in
+		"announce_phase_end":              nil,                         // Dunno
+		"begin_new_match":                 geh.beginNewMatch,           // Match started
+		"bomb_beep":                       nil,                         // Bomb beep
+		"bomb_begindefuse":                geh.bombBeginDefuse,         // Defuse started
+		"bomb_beginplant":                 geh.bombBeginPlant,          // Plant started
+		"bomb_defused":                    geh.bombDefused,             // Defuse finished
+		"bomb_dropped":                    geh.bombDropped,             // Bomb dropped
+		"bomb_exploded":                   geh.bombExploded,            // Bomb exploded
+		"bomb_pickup":                     geh.bombPickup,              // Bomb picked up
+		"bomb_planted":                    geh.bombPlanted,             // Plant finished
+		"bot_takeover":                    geh.botTakeover,             // Bot got taken over
+		"buytime_ended":                   nil,                         // Not actually end of buy time, seems to only be sent once per game at the start
+		"cs_match_end_restart":            nil,                         // Yawn
+		"cs_pre_restart":                  nil,                         // Not sure, doesn't seem to be important
+		"cs_round_final_beep":             nil,                         // Final beep
+		"cs_round_start_beep":             nil,                         // Round start beeps
+		"cs_win_panel_match":              geh.csWinPanelMatch,         // Not sure, maybe match end event???
+		"cs_win_panel_round":              nil,                         // Win panel, (==end of match?)
+		"decoy_detonate":                  geh.decoyDetonate,           // Decoy exploded/expired
+		"decoy_started":                   delay(geh.decoyStarted),     // Decoy started. Delayed because projectile entity is not yet created
+		"endmatch_cmm_start_reveal_items": nil,                         // Drops
+		"flashbang_detonate":              geh.flashBangDetonate,       // Flash exploded
+		"hegrenade_detonate":              geh.heGrenadeDetonate,       // HE exploded
+		"hltv_chase":                      nil,                         // Don't care
+		"hltv_fixed":                      nil,                         // Dunno
+		"hltv_status":                     nil,                         // Don't know
+		"inferno_expire":                  geh.infernoExpire,           // Incendiary expired
+		"inferno_startburn":               delay(geh.infernoStartBurn), // Incendiary exploded/started. Delayed because inferno entity is not yet created
+		"item_equip":                      delay(geh.itemEquip),        // Equipped / weapon swap, I think. Delayed because of #142 - Bot entity possibly not yet created
+		"item_pickup":                     delay(geh.itemPickup),       // Picked up or bought? Delayed because of #119 - Equipment.UniqueID()
+		"item_remove":                     geh.itemRemove,              // Dropped?
+		"other_death":                     nil,                         // Dunno
+		"player_blind":                    delay(geh.playerBlind),      // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
+		"player_changename":               nil,                         // Name change
+		"player_connect":                  geh.playerConnect,           // Bot connected or player reconnected, players normally come in via string tables & data tables
+		"player_connect_full":             nil,                         // Connecting finished
+		"player_death":                    geh.playerDeath,             // Player died
+		"player_disconnect":               geh.playerDisconnect,        // Player disconnected (kicked, quit, timed out etc.)
+		"player_falldamage":               nil,                         // Falldamage
+		"player_footstep":                 geh.playerFootstep,          // Footstep sound
+		"player_hurt":                     geh.playerHurt,              // Player got hurt
+		"player_jump":                     geh.playerJump,              // Player jumped
+		"player_spawn":                    nil,                         // Player spawn
+
+		// Player changed team. Delayed for two reasons
+		// - team IDs of other players changing teams in the same tick might not have changed yet
+		// - player entities might not have been re-created yet after a reconnect
+		"player_team":                    delay(geh.playerTeam),
+		"round_announce_final":           geh.roundAnnounceFinal,         // 30th round for normal de_, not necessarily matchpoint
+		"round_announce_last_round_half": geh.roundAnnounceLastRoundHalf, // Last round of the half
+		"round_announce_match_point":     nil,                            // Match point announcement
+		"round_announce_match_start":     nil,                            // Special match start announcement
+		"round_announce_warmup":          nil,                            // Dunno
+		"round_end":                      geh.roundEnd,                   // Round ended and the winner was announced
+		"round_freeze_end":               geh.roundFreezeEnd,             // Round start freeze ended
+		"round_mvp":                      geh.roundMVP,                   // Round MVP was announced
+		"round_officially_ended":         geh.roundOfficiallyEnded,       // The event after which you get teleported to the spawn (=> You can still walk around between round_end and this event)
+		"round_poststart":                nil,                            // Ditto
+		"round_prestart":                 nil,                            // Ditto
+		"round_start":                    geh.roundStart,                 // Round started
+		"round_time_warning":             nil,                            // Round time warning
+		"server_cvar":                    nil,                            // Dunno
+		"smokegrenade_detonate":          geh.smokeGrenadeDetonate,       // Smoke popped
+		"smokegrenade_expired":           geh.smokeGrenadeExpired,        // Smoke expired
+		"tournament_reward":              nil,                            // Dunno
+		"weapon_fire":                    geh.weaponFire,                 // Weapon was fired
+		"weapon_fire_on_empty":           nil,                            // Sounds boring
+		"weapon_reload":                  geh.weaponReload,               // Weapon reloaded
+		"weapon_zoom":                    nil,                            // Zooming in
 	}
 
 	return geh
@@ -284,9 +291,7 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	// Player.FlashDuration hasn't been updated yet,
-	// so we need to wait until the end of the tick before dispatching
-	geh.delay(events.PlayerFlashed{
+	geh.dispatch(events.PlayerFlashed{
 		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
 		Attacker: geh.gameState().lastFlasher,
 	})
@@ -308,7 +313,7 @@ func (geh gameEventHandler) heGrenadeDetonate(data map[string]*msg.CSVCMsg_GameE
 }
 
 func (geh gameEventHandler) decoyStarted(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	geh.delay(events.DecoyStart{
+	geh.dispatch(events.DecoyStart{
 		GrenadeEvent: geh.nadeEvent(data, common.EqDecoy),
 	})
 }
@@ -332,7 +337,7 @@ func (geh gameEventHandler) smokeGrenadeExpired(data map[string]*msg.CSVCMsg_Gam
 }
 
 func (geh gameEventHandler) infernoStartBurn(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	geh.delay(events.FireGrenadeStart{
+	geh.dispatch(events.FireGrenadeStart{
 		GrenadeEvent: geh.nadeEvent(data, common.EqIncendiary),
 	})
 }
@@ -382,25 +387,18 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKey
 	if player != nil {
 		if player.Team != newTeam {
 			player.Team = newTeam
-
-			oldTeam := common.Team(data["oldteam"].GetValByte())
-			// Delayed for two reasons
-			// - team IDs of other players changing teams in the same tick might not have changed yet
-			// - player entities might not have been re-created yet after a reconnect
-			geh.delay(events.PlayerTeamChange{
-				Player:       player,
-				IsBot:        data["isbot"].GetValBool(),
-				Silent:       data["silent"].GetValBool(),
-				NewTeam:      newTeam,
-				NewTeamState: geh.gameState().Team(newTeam),
-				OldTeam:      oldTeam,
-				OldTeamState: geh.gameState().Team(oldTeam),
-			})
-		} else {
-			geh.dispatch(events.ParserWarn{
-				Message: "Player team swap game-event occurred but player.Team == newTeam",
-			})
 		}
+
+		oldTeam := common.Team(data["oldteam"].GetValByte())
+		geh.dispatch(events.PlayerTeamChange{
+			Player:       player,
+			IsBot:        data["isbot"].GetValBool(),
+			Silent:       data["silent"].GetValBool(),
+			NewTeam:      newTeam,
+			NewTeamState: geh.gameState().Team(newTeam),
+			OldTeam:      oldTeam,
+			OldTeamState: geh.gameState().Team(oldTeam),
+		})
 	} else {
 		geh.dispatch(events.ParserWarn{
 			Message: "Player team swap game-event occurred but player is nil",
@@ -479,8 +477,7 @@ func (geh gameEventHandler) itemEquip(data map[string]*msg.CSVCMsg_GameEventKeyT
 
 func (geh gameEventHandler) itemPickup(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	player, weapon := geh.itemEvent(data)
-	// Delayed because of #119 - Equipment.UniqueID()
-	geh.parser.delayedEvents = append(geh.parser.delayedEvents, events.ItemPickup{
+	geh.dispatch(events.ItemPickup{
 		Player: player,
 		Weapon: *weapon,
 	})
