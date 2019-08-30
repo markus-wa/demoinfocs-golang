@@ -44,7 +44,7 @@ var update = flag.Bool("update", false, "update .golden files")
 
 func TestDemoInfoCs(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping test")
+		t.Skip("skipping test due to -short flag")
 	}
 
 	f, err := os.Open(defaultDemPath)
@@ -255,7 +255,7 @@ func runConcurrently(runner func()) {
 
 func TestDemoSet(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping test")
+		t.Skip("skipping test due to -short flag")
 	}
 
 	dems, err := ioutil.ReadDir(demSetPath)

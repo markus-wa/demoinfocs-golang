@@ -159,18 +159,41 @@ If your project is using this library feel free to submit a PR or send a message
 
 ## Development
 
-### Running tests
+### Git hooks
 
-To run tests [Git LFS](https://git-lfs.github.com) is required.
+To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, you can run the following script.
 
-```sh
-git submodule init
-git submodule update
-pushd test/cs-demos && git lfs pull -I '*' && popd
-go test
-```
+    bin/git-hooks/link-git-hooks.sh
 
-Here's a cool [gist of a pre-commit hook](https://gist.github.com/micvbang/4c8cb1f24cfe04d1a0dfab010eb851d8) to run tests before each commit. You can put this inside the `.git/hooks` directory to avoid committing/pushing code with build errors or failing tests.
+#### `pre-commit`:
+- check if [interfaces have been updated](#generating-interfaces)
+- build the code
+- run unit tests
+
+#### `pre-push`:
+- run regression tests
+
+### Testing
+
+#### Unit tests
+
+For any new features, [Test Driven Development](https://medium.com/@pierreprinetti/test-driven-development-in-go-baeab5adb468) should be practiced where possible.
+However, due to some design flaws in some parts of the code it's currently not always practical to do so.
+
+Running unit tests:
+
+    bin/unit-tests.sh
+    # or (identical)
+    go test -short ./...
+
+#### Regression tests
+
+For the full regression suite you will need to download the test demo-set.
+For this, [Git LFS](https://git-lfs.github.com) is required.
+
+Downloading demos + running regression tests:
+
+    bin/regression-tests.sh
 
 ### Debugging
 
@@ -187,7 +210,7 @@ We generate interfaces such as `IGameState` from structs to make it easier to ke
 For this we use [@vburenin](https://github.com/vburenin)'s [`ifacemaker`](https://github.com/vburenin/ifacemaker) tool.
 You can install it via `GO111MODULE=off go get github.com/vburenin/ifacemaker`.
 
-After adding it to your `PATH` you can use `go generate` to update interfaces.
+After adding it to your `PATH` you can use `bin/generate-interfaces.sh` to update interfaces.
 
 ### Generating protobuf code
 
