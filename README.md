@@ -113,17 +113,17 @@ Check out the [examples](examples) folder for more examples, like [how to genera
 
 Two of the top priorities of this parser are performance and concurrency.
 
-Here are some benchmark results from a system with an Intel i7 2600k CPU and a SSD disk running Windows 10 and a demo with 85'000 frames.
+Here are some benchmark results from a system with an Intel i7 6700k CPU and a SSD disk running Windows 10 and a demo with 85'000 frames.
 
 ### Overview
 
 |Benchmark|Description|Average Duration|Speed|
 |-|-|-|-|
-|`BenchmarkConcurrent`|Read and parse 8 demos concurrently|2.84 s (per 8 demos)|~240'000 ticks / s|
-|`BenchmarkDemoInfoCs`|Read demo from drive and parse|1.24 s|~68'000 ticks / s
-|`BenchmarkInMemory`|Read demo from memory and parse|1.21 s|~70'000 ticks / s
+|`BenchmarkConcurrent`|Read and parse 8 demos concurrently|2.06 s (per 8 demos)|~330'000 ticks / s|
+|`BenchmarkDemoInfoCs`|Read demo from drive and parse|0.89 s|~95'000 ticks / s
+|`BenchmarkInMemory`|Read demo from memory and parse|0.88 s|~96'000 ticks / s
 
-*That's about 1h of gameplay per second when parsing in parallel (recorded at 64 ticks per second) - or 18 minues per second when only parsing a single demo at a time.*
+*That's almost 1.5 hours of gameplay per second when parsing in parallel (recorded at 64 ticks per second) - or 25 minues per second when only parsing a single demo at a time.*
 
 ### Raw output
 
@@ -132,15 +132,14 @@ $ go test -run _NONE_ -bench . -benchtime 30s -benchmem -concurrentdemos 8
 goos: windows
 goarch: amd64
 pkg: github.com/markus-wa/demoinfocs-golang
-BenchmarkDemoInfoCs-8             30    1237133300 ns/op    256055133 B/op    879104 allocs/op
-BenchmarkInMemory-8               30    1216333013 ns/op    255900492 B/op    878900 allocs/op
-BenchmarkConcurrent-8             20    2840799900 ns/op    2046866843 B/op  7031208 allocs/op
+BenchmarkDemoInfoCs-8             50     894500010 ns/op    257610127 B/op    914355 allocs/op
+BenchmarkInMemory-8               50     876279984 ns/op    257457271 B/op    914143 allocs/op
+BenchmarkConcurrent-8             20    2058303680 ns/op    2059386582 B/op  7313145 allocs/op
 --- BENCH: BenchmarkConcurrent-8
-    demoinfocs_test.go:369: Running concurrency benchmark with 8 demos
-    demoinfocs_test.go:369: Running concurrency benchmark with 8 demos
-    demoinfocs_test.go:369: Running concurrency benchmark with 8 demos
+    demoinfocs_test.go:315: Running concurrency benchmark with 8 demos
+    demoinfocs_test.go:315: Running concurrency benchmark with 8 demos
 PASS
-ok      github.com/markus-wa/demoinfocs-golang  165.244s
+ok      github.com/markus-wa/demoinfocs-golang  134.244s
 ```
 
 ## Versioning
