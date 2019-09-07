@@ -32,12 +32,9 @@ const demSetPath = csDemosPath + "/set"
 const defaultDemPath = csDemosPath + "/default.dem"
 const unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
 
-var concurrentDemos int
+var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current demos")
 
 func init() {
-	flag.IntVar(&concurrentDemos, "concurrentdemos", 2, "The `number` of current demos")
-	flag.Parse()
-
 	if _, err := os.Stat(defaultDemPath); err != nil {
 		panic(fmt.Sprintf("Failed to read test demo %q", defaultDemPath))
 	}
@@ -220,7 +217,7 @@ func TestConcurrent(t *testing.T) {
 		t.Skip("skipping test")
 	}
 
-	t.Logf("Running concurrency test with %d demos\n", concurrentDemos)
+	t.Logf("Running concurrency test with %d demos\n", *concurrentDemos)
 
 	var i int64
 	runner := func() {
@@ -249,7 +246,7 @@ func parseDefaultDemo(tb testing.TB) {
 
 func runConcurrently(runner func()) {
 	var wg sync.WaitGroup
-	for i := 0; i < concurrentDemos; i++ {
+	for i := 0; i < *concurrentDemos; i++ {
 		wg.Add(1)
 		go func() { runner(); wg.Done() }()
 	}
@@ -313,7 +310,7 @@ func BenchmarkInMemory(b *testing.B) {
 }
 
 func BenchmarkConcurrent(b *testing.B) {
-	b.Logf("Running concurrency benchmark with %d demos\n", concurrentDemos)
+	b.Logf("Running concurrency benchmark with %d demos\n", *concurrentDemos)
 
 	for i := 0; i < b.N; i++ {
 		runConcurrently(func() { parseDefaultDemo(b) })
