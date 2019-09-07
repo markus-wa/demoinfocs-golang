@@ -13,6 +13,7 @@ linters:
     - gochecknoinits
     - gochecknoglobals
     - lll
+    - typecheck
 linters-settings:
   gocritic:
     disabled-checks:
