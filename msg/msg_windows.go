@@ -1,3 +1,3 @@
 package msg
 
-//go:generate generate.bat
+//go:generate .\generate.bat
