@@ -14,18 +14,18 @@ type IEntity interface {
 	ServerClass() *ServerClass
 	// ID returns the entity's ID.
 	ID() int
-	// Properties is deprecated, use PropertiesI() instead.
+	// Properties is deprecated, use PropertiesI() instead which returns a slice of interfaces.
 	Properties() (out []Property)
 	// PropertiesI returns all properties of the Entity.
 	PropertiesI() (out []IProperty)
-	// FindProperty is deprecated, use FindPropertyI() instead.
+	// FindProperty is deprecated, use FindPropertyI() instead which returns an interface.
 	FindProperty(name string) (prop *Property)
 	// FindPropertyI finds a property on the Entity by name.
 	//
 	// Returns nil if the property wasn't found.
 	//
 	// Panics if more than one property with the same name was found.
-	FindPropertyI(name string) (prop IProperty)
+	FindPropertyI(name string) IProperty
 	// BindProperty combines FindPropertyI() & Property.Bind() into one.
 	// Essentially binds a property's value to a pointer.
 	// See the docs of the two individual functions for more info.
