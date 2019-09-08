@@ -2,13 +2,18 @@
 
 set -e
 
-echo 'downloading/updating test data (~ 1 GB), this may take a while ...'
+echo "downloading/updating '$@', this may take a while ..."
 
 git submodule init
 git submodule update
 
 pushd test/cs-demos >/dev/null
-git lfs pull -I '*'
+
+for f in "$@"; do
+	git lfs pull -I $f
+	7z x $f -aoa
+done
+
 popd >/dev/null
 
 echo 'download complete'

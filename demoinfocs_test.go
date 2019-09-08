@@ -34,12 +34,6 @@ const unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
 
 var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current demos")
 
-func init() {
-	if _, err := os.Stat(defaultDemPath); err != nil {
-		panic(fmt.Sprintf("Failed to read test demo %q", defaultDemPath))
-	}
-}
-
 var update = flag.Bool("update", false, "update .golden files")
 
 func TestDemoInfoCs(t *testing.T) {
@@ -153,7 +147,7 @@ func TestDemoInfoCs(t *testing.T) {
 
 func TestUnexpectedEndOfDemo(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping test")
+		t.Skip("skipping test due to -short flag")
 	}
 
 	f := openFile(t, unexpectedEndOfDemoPath)

@@ -2,7 +2,7 @@
 
 set -e
 
-bin/download-test-data.sh
+bin/download-test-data.sh default.7z unexpected_end_of_demo.7z regression-set.7z
 
 # don't cover mocks and generated protobuf code
 coverpkg_ignore='/(fake|msg)'
