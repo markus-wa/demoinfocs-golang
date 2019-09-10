@@ -192,7 +192,7 @@ For the full regression suite you will need to download the test demo-set.
 
 Prerequisites:
 - [Git LFS](https://git-lfs.github.com) must be installed
-- [`7z`](https://www.7-zip.org/) must be in your `PATH` environment variable (`p7zip` package on most Linux distros)
+- [`7z`](https://www.7-zip.org/) must be in your `PATH` environment variable (`p7zip` or `p7zip-full` package on most Linux distros)
 
 Downloading demos + running regression tests:
 
