@@ -206,7 +206,7 @@ func initEqElementToName() {
 	eqElementToName[EqBomb] = "C4"
 	eqElementToName[EqDeagle] = "Desert Eagle"
 	eqElementToName[EqDecoy] = "Decoy Grenade"
-	eqElementToName[EqDualBarettas] = "Dual Barettas"
+	eqElementToName[EqDualBerettas] = "Dual Berettas"
 	eqElementToName[EqFamas] = "FAMAS"
 	eqElementToName[EqFiveSeven] = "Five-SeveN"
 	eqElementToName[EqFlash] = "Flashbang"
