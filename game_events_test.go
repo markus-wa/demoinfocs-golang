@@ -53,3 +53,36 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 
 	assert.Equal(t, 1, eventOccurred)
 }
+
+func TestGetPlayerWeapon_NilPlayer(t *testing.T) {
+	wep := getPlayerWeapon(nil, common.EqAK47)
+
+	assert.NotNil(t, wep)
+	assert.Equal(t, common.EqAK47, wep.Weapon)
+}
+
+func TestGetPlayerWeapon_Found(t *testing.T) {
+	ak := &common.Equipment{Weapon: common.EqAK47}
+	pl := &common.Player{
+		RawWeapons: map[int]*common.Equipment{
+			1: ak,
+		},
+	}
+
+	wep := getPlayerWeapon(pl, common.EqAK47)
+
+	assert.True(t, wep == ak)
+}
+
+func TestGetPlayerWeapon_NotFound(t *testing.T) {
+	ak := &common.Equipment{Weapon: common.EqAK47}
+	pl := &common.Player{
+		RawWeapons: map[int]*common.Equipment{
+			1: ak,
+		},
+	}
+
+	wep := getPlayerWeapon(pl, common.EqM4A1)
+
+	assert.Equal(t, common.EqM4A1, wep.Weapon)
+}

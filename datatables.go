@@ -276,8 +276,14 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 				}
 				cache[i2] = entityID
 
-				// Attribute weapon to player
 				wep := &p.weapons[entityID]
+
+				// Clear previous owner
+				if wep.Owner != nil {
+					delete(wep.Owner.RawWeapons, wep.EntityID)
+				}
+
+				// Attribute weapon to player
 				wep.Owner = pl
 				pl.RawWeapons[entityID] = wep
 			} else {
@@ -411,8 +417,10 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) {
 	entityID := entity.ID()
+	currentOwner := p.weapons[entityID].Owner
 	p.weapons[entityID] = common.NewEquipment(wepType)
 	eq := &p.weapons[entityID]
+	eq.Owner = currentOwner
 	eq.EntityID = entityID
 	eq.AmmoInMagazine = -1
 
