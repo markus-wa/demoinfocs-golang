@@ -274,7 +274,7 @@ type Equipment struct {
 	Weapon         EquipmentElement // The type of weapon which the equipment instantiates.
 	Owner          *Player          // The player carrying the equipment, not necessarily the buyer.
 	AmmoType       int              // TODO: Remove this? doesn't seem applicable to CS:GO
-	AmmoInMagazine int              // Amount of bullets in the weapon's magazine
+	AmmoInMagazine int              // Amount of bullets in the weapon's magazine. Deprecated, use AmmoInMagazine2() instead.
 	AmmoReserve    int              // Amount of reserve bullets
 	OriginalString string           // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
 	ZoomLevel      int              // How far the player has zoomed in on the weapon. 0=no zoom, 1=first level, 2=maximum zoom
@@ -293,6 +293,32 @@ func (e Equipment) Class() EquipmentClass {
 // equipment from each other. This is needed because demo-files reuse entity ids.
 func (e Equipment) UniqueID() int64 {
 	return e.uniqueID
+}
+
+// AmmoInMagazine2 returns the ammo left in the magazine.
+// Returns CWeaponCSBase.m_iClip1 for most weapons and 1 for grenades.
+func (e Equipment) AmmoInMagazine2() int {
+	if e.Class() == EqClassGrenade {
+		return 1
+	}
+
+	return e.AmmoInMagazine
+}
+
+// AmmoReserve2 returns the ammo left available for reloading.
+// Returns CWeaponCSBase.m_iPrimaryReserveAmmoCount for most weapons and 'Owner.AmmoLeft[AmmoType] - 1' for grenades.
+// Use AmmoInMagazine2() + AmmoReserve2() to quickly get the amount of grenades a player owns.
+func (e Equipment) AmmoReserve2() int {
+	if e.Class() == EqClassGrenade {
+		if e.Owner != nil {
+			// minus one for 'InMagazine'
+			return e.Owner.AmmoLeft[e.AmmoType] - 1
+		}
+
+		return 0
+	}
+
+	return e.AmmoReserve
 }
 
 // NewEquipment creates a new Equipment and sets the UniqueID.
