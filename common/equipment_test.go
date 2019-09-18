@@ -78,3 +78,13 @@ func TestEquipment_AmmoReserve2_Grenade_OwnerNil(t *testing.T) {
 
 	assert.Equal(t, 0, wep.AmmoReserve2())
 }
+
+func TestEquipmentAlternative(t *testing.T) {
+	assert.Equal(t, EqUSP, EquipmentAlternative(EqP2000))
+	assert.Equal(t, EqCZ, EquipmentAlternative(EqP250))
+	assert.Equal(t, EqCZ, EquipmentAlternative(EqFiveSeven))
+	assert.Equal(t, EqCZ, EquipmentAlternative(EqTec9))
+	assert.Equal(t, EqRevolver, EquipmentAlternative(EqDeagle))
+	assert.Equal(t, EqMP5, EquipmentAlternative(EqMP7))
+	assert.Equal(t, EqM4A1, EquipmentAlternative(EqM4A4))
+}

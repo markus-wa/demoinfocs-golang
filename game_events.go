@@ -546,8 +546,9 @@ func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_Ga
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
 func getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *common.Equipment {
 	if player != nil {
+		alternateWepType := common.EquipmentAlternative(wepType)
 		for _, wep := range player.Weapons() {
-			if wep.Weapon == wepType {
+			if wep.Weapon == wepType || wep.Weapon == alternateWepType {
 				return wep
 			}
 		}

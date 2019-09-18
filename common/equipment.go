@@ -327,3 +327,20 @@ func (e Equipment) AmmoReserve2() int {
 func NewEquipment(wep EquipmentElement) Equipment {
 	return Equipment{Weapon: wep, uniqueID: rand.Int63()}
 }
+
+var equipmentToAlternative = map[EquipmentElement]EquipmentElement{
+	EqP2000:     EqUSP,
+	EqP250:      EqCZ, // for old demos where the CZ was the alternative for the P250
+	EqFiveSeven: EqCZ,
+	EqTec9:      EqCZ,
+	EqDeagle:    EqRevolver,
+	EqMP7:       EqMP5,
+	EqM4A4:      EqM4A1,
+}
+
+// EquipmentAlternative returns the EquipmentElement of the alternatively equippable weapon.
+// E.g. returns EquipmentAlternative(EqP2000) returns EqUSP.
+// Only works one way (default-to-alternative) as the Five-Seven and Tec-9 both map to the CZ-75.
+func EquipmentAlternative(eq EquipmentElement) EquipmentElement {
+	return equipmentToAlternative[eq]
+}
