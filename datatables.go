@@ -461,6 +461,8 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 		wepFix("_pist_p250", "_pist_cz_75", common.EqCZ)
 	case common.EqDeagle:
 		wepFix("_pist_deagle", "_pist_revolver", common.EqRevolver)
+	case common.EqMP7:
+		wepFix("_smg_mp7", "_smg_mp5sd", common.EqMP5)
 	}
 }
 
