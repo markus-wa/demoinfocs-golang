@@ -350,11 +350,11 @@ const (
 // PlayerHurt signals that a player has been damaged.
 type PlayerHurt struct {
 	Player       *common.Player
-	Attacker     *common.Player
+	Attacker     *common.Player // May be nil if the player is taking world damage (e.g. fall damage).
 	Health       int
 	Armor        int
-	Weapon       *common.Equipment
-	WeaponString string // Wrong for CZ, M4A1-S etc.
+	Weapon       *common.Equipment // May be EqUnknown for world-damage (falling / bomb).
+	WeaponString string            // Wrong for CZ, M4A1-S etc.
 	HealthDamage int
 	ArmorDamage  int
 	HitGroup     HitGroup
