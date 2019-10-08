@@ -4,7 +4,7 @@ import (
 	"bytes"
 
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
-	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	"github.com/markus-wa/demoinfocs-golang/msg"
 )
 
 const entitySentinel = 9999
@@ -26,8 +26,10 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 
 		if r.ReadBit() {
 			// Leave PVS
-			p.gameState.entities[currentEntity].Destroy()
-			delete(p.gameState.entities, currentEntity)
+			if entity := p.gameState.entities[currentEntity]; entity != nil {
+				entity.Destroy()
+				delete(p.gameState.entities, currentEntity)
+			}
 
 			// 'Force Delete' flag, not exactly sure what it's supposed to do
 			r.ReadBit()
@@ -41,7 +43,9 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 			p.gameState.entities[currentEntity] = p.stParser.ReadEnterPVS(r, currentEntity)
 		} else {
 			// Delta Update
-			p.gameState.entities[currentEntity].ApplyUpdate(r)
+			if entity := p.gameState.entities[currentEntity]; entity != nil {
+				entity.ApplyUpdate(r)
+			}
 		}
 	}
 	r.Pool()

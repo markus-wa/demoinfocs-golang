@@ -104,10 +104,12 @@ Check out the [examples](examples) folder for more examples, like [how to genera
 * Access to entities, server-classes & data-tables - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/sendtables#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
 * Access to all net-messages - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
 * Chat & console messages <sup id="achat1">1</sup> - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* POV demo support <sup id="achat1">2</sup>
 * [Easy debugging via build-flags](#debugging)
 * Built with performance & concurrency in mind
 
 1. <small id="f1">Only for some demos; in MM demos the chat is encrypted for example.</small>
+2. <small id="f2">Only partially supported (as good as other parsers), some POV demos seem to be inherently broken</small>
 
 ## Performance / Benchmarks
 
