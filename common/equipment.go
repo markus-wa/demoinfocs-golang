@@ -282,6 +282,12 @@ type Equipment struct {
 	uniqueID int64
 }
 
+// String returns a human readable name for the equipment.
+// E.g. 'AK-47', 'UMP-45', 'Smoke Grenade' etc.
+func (e Equipment) String() string {
+	return e.Weapon.String()
+}
+
 // Class returns the class of the equipment.
 // E.g. pistol, smg, heavy etc.
 func (e Equipment) Class() EquipmentClass {

@@ -44,6 +44,16 @@ type Player struct {
 	HasHelmet                   bool
 }
 
+// String returns the player's name.
+// Implements fmt.Stringer.
+func (p *Player) String() string {
+	if p == nil {
+		return "(nil)"
+	}
+
+	return p.Name
+}
+
 // IsAlive returns true if the Hp of the player are > 0.
 func (p *Player) IsAlive() bool {
 	return p.Hp > 0

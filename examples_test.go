@@ -12,6 +12,7 @@ import (
 /*
 This will print all kills of a demo in the format '[[killer]] <[[weapon]] [(HS)] [(WB)]> [[victim]]'
 */
+//noinspection GoUnhandledErrorResult
 func ExampleParser() {
 	f, err := os.Open("test/cs-demos/default.dem")
 	if err != nil {
@@ -31,7 +32,7 @@ func ExampleParser() {
 		if e.PenetratedObjects > 0 {
 			wallBang = " (WB)"
 		}
-		fmt.Printf("%s <%v%s%s> %s\n", e.Killer.Name, e.Weapon.Weapon, hs, wallBang, e.Victim.Name)
+		fmt.Printf("%s <%v%s%s> %s\n", e.Killer, e.Weapon, hs, wallBang, e.Victim)
 	})
 
 	// Parse to end

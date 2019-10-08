@@ -64,7 +64,7 @@ func main() {
 		if e.PenetratedObjects > 0 {
 			wallBang = " (WB)"
 		}
-		fmt.Printf("%s <%v%s%s> %s\n", e.Killer.Name, e.Weapon.Weapon, hs, wallBang, e.Victim.Name)
+		fmt.Printf("%s <%v%s%s> %s\n", e.Killer, e.Weapon, hs, wallBang, e.Victim)
 	})
 
 	// Parse to end
