@@ -232,6 +232,11 @@ Make sure both are inside your `PATH` variable.
 
 After installing these use `go generate ./msg` to generate the protobuf code. If you're on Windows you'll need to run go generate from CMD, not Bash.
 
+## Acknowledgements
+
+Thanks to [@JetBrains](https://github.com/JetBrains) for sponsoring a license of their awesome [GoLand](https://www.jetbrains.com/go/) IDE for this project - go check it out!
+
+And a very special thanks goes out to all the ⭐️contributors⭐️, be it in the form of PRs, issues or anything else.
 
 ## License
 
