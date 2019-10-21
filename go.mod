@@ -2,7 +2,7 @@ module github.com/markus-wa/demoinfocs-golang
 
 require (
 	github.com/dustin/go-heatmap v0.0.0-20180603032536-b89dbd73785a
-	github.com/gogo/protobuf v1.1.1
+	github.com/gogo/protobuf v1.3.1
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/geo v0.0.0-20180826223333-635502111454
 	github.com/llgcode/draw2d v0.0.0-20180124133339-274031cf2abe
