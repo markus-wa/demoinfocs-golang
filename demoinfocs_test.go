@@ -115,6 +115,14 @@ func TestDemoInfoCs(t *testing.T) {
 		}
 	})
 
+	// airborne checks
+	// we don't check RoundStart or RoundFreezetimeEnd since players may spawn airborne
+	p.RegisterEventHandler(func(plantBegin events.BombPlantBegin) {
+		if plantBegin.Player.IsAirborne() {
+			t.Error("Player is airborne during plant")
+		}
+	})
+
 	// Check some things at match start
 	p.RegisterEventHandler(func(events.MatchStart) {
 		participants := gs.Participants()
