@@ -123,6 +123,21 @@ func TestDemoInfoCs(t *testing.T) {
 		}
 	})
 
+	// reload checks
+	p.RegisterEventHandler(func(reload events.WeaponReload) {
+		if !reload.Player.IsReloading {
+			t.Error("Player started reloading but IsReloading is false")
+		}
+	})
+
+	p.RegisterEventHandler(func(start events.RoundFreezetimeEnd) {
+		for _, pl := range p.GameState().Participants().All() {
+			if pl.IsReloading {
+				t.Error("Player is reloading at the start of the round")
+			}
+		}
+	})
+
 	// Check some things at match start
 	p.RegisterEventHandler(func(events.MatchStart) {
 		participants := gs.Participants()

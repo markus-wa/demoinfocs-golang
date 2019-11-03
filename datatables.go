@@ -304,6 +304,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 
 	// Active weapon
 	playerEntity.FindPropertyI("m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
+		pl.IsReloading = false
 		pl.ActiveWeaponID = val.IntVal & entityHandleIndexMask
 	})
 
@@ -431,6 +432,10 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 
 	entity.FindPropertyI("m_iClip1").OnUpdate(func(val st.PropertyValue) {
 		eq.AmmoInMagazine = val.IntVal - 1
+
+		if eq.Owner != nil {
+			eq.Owner.IsReloading = false
+		}
 	})
 	// Some weapons in some demos might be missing this property
 	if reserveAmmoProp := entity.FindPropertyI("m_iPrimaryReserveAmmoCount"); reserveAmmoProp != nil {

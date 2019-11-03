@@ -281,8 +281,10 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	pl := geh.playerByUserID32(data["userid"].GetValShort())
+	pl.IsReloading = true
 	geh.dispatch(events.WeaponReload{
-		Player: geh.playerByUserID32(data["userid"].GetValShort()),
+		Player: pl,
 	})
 }
 

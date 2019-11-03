@@ -48,6 +48,7 @@ type Player struct {
 	IsDucking                   bool
 	IsDefusing                  bool
 	IsPlanting                  bool
+	IsReloading                 bool
 	HasDefuseKit                bool
 	HasHelmet                   bool
 }
