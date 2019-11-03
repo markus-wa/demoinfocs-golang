@@ -433,11 +433,17 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	geh.dispatch(events.BombPlantBegin{BombEvent: geh.bombEvent(data)})
+	event := events.BombPlantBegin{BombEvent: geh.bombEvent(data)}
+	event.Player.IsPlanting = true
+	geh.parser.gameState.currentPlanter = event.Player
+	geh.dispatch(event)
 }
 
 func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	geh.dispatch(events.BombPlanted{BombEvent: geh.bombEvent(data)})
+	event := events.BombPlanted{BombEvent: geh.bombEvent(data)}
+	event.Player.IsPlanting = false
+	geh.parser.gameState.currentPlanter = nil
+	geh.dispatch(event)
 }
 
 func (geh gameEventHandler) bombDefused(data map[string]*msg.CSVCMsg_GameEventKeyT) {

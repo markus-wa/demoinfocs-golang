@@ -98,6 +98,23 @@ func TestDemoInfoCs(t *testing.T) {
 		}
 	})
 
+	// bomb planting checks
+	p.RegisterEventHandler(func(begin events.BombPlantBegin) {
+		if !begin.Player.IsPlanting {
+			t.Error("Player started planting but IsPlanting is false")
+		}
+	})
+	p.RegisterEventHandler(func(abort events.BombPlantAborted) {
+		if abort.Player.IsPlanting {
+			t.Error("Player aborted planting but IsPlanting is true")
+		}
+	})
+	p.RegisterEventHandler(func(planted events.BombPlanted) {
+		if planted.Player.IsPlanting {
+			t.Error("Player finished planting but IsPlanting is true")
+		}
+	})
+
 	// Check some things at match start
 	p.RegisterEventHandler(func(events.MatchStart) {
 		participants := gs.Participants()

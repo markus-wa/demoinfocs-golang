@@ -40,6 +40,7 @@ type Player struct {
 	IsConnected                 bool
 	IsDucking                   bool
 	IsDefusing                  bool
+	IsPlanting                  bool
 	HasDefuseKit                bool
 	HasHelmet                   bool
 }
