@@ -213,8 +213,8 @@ Check out `debug_on.go` for any other settings that can be changed.
 
 We generate interfaces such as `IGameState` from structs to make it easier to keep docs in synch over structs and interfaces.
 For this we use [@vburenin](https://github.com/vburenin)'s [`ifacemaker`](https://github.com/vburenin/ifacemaker) tool.
-You can install it via `GO111MODULE=off go get github.com/vburenin/ifacemaker`.
 
+You can download the latest version [here](https://github.com/vburenin/ifacemaker/releases).
 After adding it to your `PATH` you can use `bin/generate-interfaces.sh` to update interfaces.
 
 ### Generating protobuf code
