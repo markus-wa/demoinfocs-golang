@@ -140,7 +140,7 @@ type PlayerJump struct {
 type Kill struct {
 	Weapon            *common.Equipment
 	Victim            *common.Player
-	Killer            *common.Player
+	Killer            *common.Player // May be nil for world damage (EqWorld)
 	Assister          *common.Player
 	PenetratedObjects int
 	IsHeadshot        bool
