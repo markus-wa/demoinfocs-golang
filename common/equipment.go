@@ -194,7 +194,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["sg550"] = EqUnknown
 	eqNameToWeapon["sg552"] = EqUnknown // This one still crashes the game :)
 	eqNameToWeapon["tmp"] = EqUnknown
-	eqNameToWeapon["worldspawn"] = EqUnknown
+	eqNameToWeapon["worldspawn"] = EqWorld
 }
 
 func initEqElementToName() {
