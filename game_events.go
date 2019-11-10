@@ -117,6 +117,11 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"decoy_detonate":                  geh.decoyDetonate,                    // Decoy exploded/expired
 		"decoy_started":                   delay(geh.decoyStarted),              // Decoy started. Delayed because projectile entity is not yet created
 		"endmatch_cmm_start_reveal_items": nil,                                  // Drops
+		"entity_visible":                  nil,                                  // Dunno, only in locally recorded demo
+		"enter_bombzone":                  nil,                                  // Dunno, only in locally recorded demo
+		"exit_bombzone":                   nil,                                  // Dunno, only in locally recorded demo
+		"enter_buyzone":                   nil,                                  // Dunno, only in locally recorded demo
+		"exit_buyzone":                    nil,                                  // Dunno, only in locally recorded demo
 		"flashbang_detonate":              geh.flashBangDetonate,                // Flash exploded
 		"hegrenade_detonate":              geh.heGrenadeDetonate,                // HE exploded
 		"hltv_chase":                      nil,                                  // Don't care
@@ -124,9 +129,11 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"hltv_status":                     nil,                                  // Don't know
 		"inferno_expire":                  geh.infernoExpire,                    // Incendiary expired
 		"inferno_startburn":               delay(geh.infernoStartBurn),          // Incendiary exploded/started. Delayed because inferno entity is not yet created
+		"inspect_weapon":                  nil,                                  // Dunno, only in locally recorded demo
 		"item_equip":                      delay(geh.itemEquip),                 // Equipped / weapon swap, I think. Delayed because of #142 - Bot entity possibly not yet created
 		"item_pickup":                     delay(geh.itemPickup),                // Picked up or bought? Delayed because of #119 - Equipment.UniqueID()
 		"item_remove":                     geh.itemRemove,                       // Dropped?
+		"jointeam_failed":                 nil,                                  // Dunno, only in locally recorded demo
 		"other_death":                     nil,                                  // Dunno
 		"player_blind":                    delay(geh.playerBlind),               // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
 		"player_changename":               nil,                                  // Name change
@@ -139,6 +146,7 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"player_hurt":                     geh.playerHurt,                       // Player got hurt
 		"player_jump":                     geh.playerJump,                       // Player jumped
 		"player_spawn":                    nil,                                  // Player spawn
+		"player_given_c4":                 nil,                                  // Dunno, only present in POV demos
 
 		// Player changed team. Delayed for two reasons
 		// - team IDs of other players changing teams in the same tick might not have changed yet
@@ -150,6 +158,7 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"round_announce_match_start":     nil,                              // Special match start announcement
 		"round_announce_warmup":          nil,                              // Dunno
 		"round_end":                      geh.roundEnd,                     // Round ended and the winner was announced
+		"round_end_upload_stats":         nil,                              // Dunno, only present in POV demos
 		"round_freeze_end":               geh.roundFreezeEnd,               // Round start freeze ended
 		"round_mvp":                      geh.roundMVP,                     // Round MVP was announced
 		"round_officially_ended":         geh.roundOfficiallyEnded,         // The event after which you get teleported to the spawn (=> You can still walk around between round_end and this event)
@@ -160,11 +169,13 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"server_cvar":                    nil,                              // Dunno
 		"smokegrenade_detonate":          geh.smokeGrenadeDetonate,         // Smoke popped
 		"smokegrenade_expired":           geh.smokeGrenadeExpired,          // Smoke expired
+		"switch_team":                    nil,                              // Dunno, only present in POV demos
 		"tournament_reward":              nil,                              // Dunno
 		"weapon_fire":                    delayIfNoPlayers(geh.weaponFire), // Weapon was fired
 		"weapon_fire_on_empty":           nil,                              // Sounds boring
 		"weapon_reload":                  geh.weaponReload,                 // Weapon reloaded
 		"weapon_zoom":                    nil,                              // Zooming in
+		"weapon_zoom_rifle":              nil,                              // Dunno, only in locally recorded demo
 	}
 
 	return geh
