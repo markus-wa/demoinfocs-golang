@@ -140,7 +140,7 @@ type PlayerJump struct {
 type Kill struct {
 	Weapon            *common.Equipment
 	Victim            *common.Player
-	Killer            *common.Player // May be nil for world damage (EqWorld)
+	Killer            *common.Player // May be nil for world damage (EqWorld) or if the demo is partially corrupt (see #156)
 	Assister          *common.Player
 	PenetratedObjects int
 	IsHeadshot        bool
@@ -153,7 +153,7 @@ type BotTakenOver struct {
 
 // WeaponFire signals that a weapon has been fired.
 type WeaponFire struct {
-	Shooter *common.Player
+	Shooter *common.Player // May be nil if the demo is partially corrupt (see #156)
 	Weapon  *common.Equipment
 }
 
