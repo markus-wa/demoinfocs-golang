@@ -190,6 +190,22 @@ func TestPlayer_IsScoped(t *testing.T) {
 	assert.True(t, pl.IsScoped())
 }
 
+func TestPlayer_IsAirborne_NilEntity(t *testing.T) {
+	pl := new(Player)
+
+	assert.False(t, pl.IsAirborne())
+}
+
+func TestPlayer_IsAirborne(t *testing.T) {
+	pl := playerWithProperty("m_hGroundEntity", st.PropertyValue{IntVal: 0})
+
+	assert.False(t, pl.IsAirborne())
+
+	pl = playerWithProperty("m_hGroundEntity", st.PropertyValue{IntVal: 2097151})
+
+	assert.True(t, pl.IsAirborne())
+}
+
 func newPlayer(tick int) *Player {
 	return NewPlayer(mockDemoInfoProvider(128, tick))
 }

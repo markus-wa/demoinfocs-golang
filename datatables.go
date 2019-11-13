@@ -72,14 +72,27 @@ func (p *Parser) bindEntities() {
 func (p *Parser) bindBomb() {
 	bomb := &p.gameState.bomb
 
-	// Track bomb when it is not held by a player
-	scDroppedC4 := p.stParser.ServerClasses().FindByName("CC4")
-	scDroppedC4.OnEntityCreated(func(bomb *st.Entity) {
-		bomb.OnPositionUpdate(func(pos r3.Vector) {
+	// Track bomb when it is dropped on the ground or being held by a player
+	scC4 := p.stParser.ServerClasses().FindByName("CC4")
+	scC4.OnEntityCreated(func(bombEntity *st.Entity) {
+		bombEntity.OnPositionUpdate(func(pos r3.Vector) {
 			// Bomb only has a position when not held by a player
-			p.gameState.bomb.Carrier = nil
+			bomb.Carrier = nil
 
-			p.gameState.bomb.LastOnGroundPosition = pos
+			bomb.LastOnGroundPosition = pos
+		})
+
+		bombEntity.FindPropertyI("m_hOwner").OnUpdate(func(val st.PropertyValue) {
+			bomb.Carrier = p.gameState.Participants().FindByHandle(val.IntVal)
+		})
+
+		bombEntity.FindPropertyI("m_bStartedArming").OnUpdate(func(val st.PropertyValue) {
+			if val.IntVal != 0 {
+				p.gameState.currentPlanter = bomb.Carrier
+			} else if p.gameState.currentPlanter != nil {
+				p.gameState.currentPlanter.IsPlanting = false
+				p.eventDispatcher.Dispatch(events.BombPlantAborted{Player: p.gameState.currentPlanter})
+			}
 		})
 	})
 
@@ -90,14 +103,6 @@ func (p *Parser) bindBomb() {
 		p.gameState.bomb.Carrier = nil
 
 		bomb.LastOnGroundPosition = bombEntity.Position()
-	})
-
-	// Track bomb when it is being held by a player
-	scPlayerC4 := p.stParser.ServerClasses().FindByName("CC4")
-	scPlayerC4.OnEntityCreated(func(bombEntity *st.Entity) {
-		bombEntity.FindPropertyI("m_hOwner").OnUpdate(func(val st.PropertyValue) {
-			bomb.Carrier = p.gameState.Participants().FindByHandle(val.IntVal)
-		})
 	})
 }
 
@@ -299,6 +304,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 
 	// Active weapon
 	playerEntity.FindPropertyI("m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
+		pl.IsReloading = false
 		pl.ActiveWeaponID = val.IntVal & entityHandleIndexMask
 	})
 
@@ -426,6 +432,10 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 
 	entity.FindPropertyI("m_iClip1").OnUpdate(func(val st.PropertyValue) {
 		eq.AmmoInMagazine = val.IntVal - 1
+
+		if eq.Owner != nil {
+			eq.Owner.IsReloading = false
+		}
 	})
 	// Some weapons in some demos might be missing this property
 	if reserveAmmoProp := entity.FindPropertyI("m_iPrimaryReserveAmmoCount"); reserveAmmoProp != nil {

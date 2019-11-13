@@ -286,6 +286,13 @@ type BombPlantBegin struct {
 	BombEvent
 }
 
+// BombPlantAbort signals the abortion of a plant.
+type BombPlantAborted struct {
+	Player *common.Player
+}
+
+func (BombPlantAborted) implementsBombEventIf() {}
+
 // BombPlanted signals that the bomb has been planted.
 type BombPlanted struct {
 	BombEvent

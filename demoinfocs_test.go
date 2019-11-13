@@ -98,6 +98,46 @@ func TestDemoInfoCs(t *testing.T) {
 		}
 	})
 
+	// bomb planting checks
+	p.RegisterEventHandler(func(begin events.BombPlantBegin) {
+		if !begin.Player.IsPlanting {
+			t.Error("Player started planting but IsPlanting is false")
+		}
+	})
+	p.RegisterEventHandler(func(abort events.BombPlantAborted) {
+		if abort.Player.IsPlanting {
+			t.Error("Player aborted planting but IsPlanting is true")
+		}
+	})
+	p.RegisterEventHandler(func(planted events.BombPlanted) {
+		if planted.Player.IsPlanting {
+			t.Error("Player finished planting but IsPlanting is true")
+		}
+	})
+
+	// airborne checks
+	// we don't check RoundStart or RoundFreezetimeEnd since players may spawn airborne
+	p.RegisterEventHandler(func(plantBegin events.BombPlantBegin) {
+		if plantBegin.Player.IsAirborne() {
+			t.Error("Player is airborne during plant")
+		}
+	})
+
+	// reload checks
+	p.RegisterEventHandler(func(reload events.WeaponReload) {
+		if !reload.Player.IsReloading {
+			t.Error("Player started reloading but IsReloading is false")
+		}
+	})
+
+	p.RegisterEventHandler(func(start events.RoundFreezetimeEnd) {
+		for _, pl := range p.GameState().Participants().All() {
+			if pl.IsReloading {
+				t.Error("Player is reloading at the start of the round")
+			}
+		}
+	})
+
 	// Check some things at match start
 	p.RegisterEventHandler(func(events.MatchStart) {
 		participants := gs.Participants()

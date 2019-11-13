@@ -8,6 +8,13 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
+const (
+	maxEdictBits                 = 11
+	entityHandleSerialNumberBits = 10
+	entityHandleBits             = maxEdictBits + entityHandleSerialNumberBits
+	invalidEntityHandle          = (1 << entityHandleBits) - 1
+)
+
 // Player contains mostly game-relevant player information.
 type Player struct {
 	demoInfoProvider demoInfoProvider // provider for demo info such as tick-rate or current tick
@@ -40,6 +47,8 @@ type Player struct {
 	IsConnected                 bool
 	IsDucking                   bool
 	IsDefusing                  bool
+	IsPlanting                  bool
+	IsReloading                 bool
 	HasDefuseKit                bool
 	HasHelmet                   bool
 }
@@ -63,6 +72,17 @@ func (p *Player) IsAlive() bool {
 // This is more accurate than 'FlashDuration != 0' as it also takes into account FlashTick, DemoHeader.TickRate() and GameState.IngameTick().
 func (p *Player) IsBlinded() bool {
 	return p.FlashDurationTimeRemaining() > 0
+}
+
+// IsAirborne returns true if the player is jumping or falling.
+func (p *Player) IsAirborne() bool {
+	if p.Entity == nil {
+		return false
+	}
+
+	groundEntityHandle := p.Entity.FindPropertyI("m_hGroundEntity").Value().IntVal
+
+	return groundEntityHandle == invalidEntityHandle
 }
 
 // FlashDurationTime returns the duration of the blinding effect as time.Duration instead of float32 in seconds.
