@@ -13,10 +13,10 @@ type Team byte
 
 // Team constants give information about which team a player is on.
 const (
-	TeamUnassigned Team = iota
-	TeamSpectators
-	TeamTerrorists
-	TeamCounterTerrorists
+	TeamUnassigned        Team = 0
+	TeamSpectators        Team = 1
+	TeamTerrorists        Team = 2
+	TeamCounterTerrorists Team = 3
 )
 
 // DemoHeader contains information from a demo's header.
