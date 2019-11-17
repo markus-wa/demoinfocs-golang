@@ -6,7 +6,7 @@ import (
 
 	"github.com/golang/geo/r2"
 	"github.com/golang/geo/r3"
-	"github.com/markus-wa/quickhull-go"
+	"github.com/markus-wa/quickhull-go/v2"
 
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
