@@ -419,6 +419,8 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	})
 
 	delete(p.gameState.grenadeProjectiles, proj.EntityID)
+
+	p.gameState.lastFlash.projectile = proj
 }
 
 func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) {
