@@ -324,10 +324,11 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	attacker := geh.gameState().lastFlash.player
 	geh.dispatch(events.PlayerFlashed{
 		Player:     geh.playerByUserID32(data["userid"].GetValShort()),
-		Attacker:   geh.gameState().lastFlash.player,
-		Projectile: geh.gameState().lastFlash.projectile,
+		Attacker:   attacker,
+		Projectile: geh.gameState().lastFlash.projectileByPlayer[attacker],
 	})
 }
 

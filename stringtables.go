@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	bit "github.com/markus-wa/demoinfocs-golang/bitread"
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	"github.com/markus-wa/demoinfocs-golang/common"
+	"github.com/markus-wa/demoinfocs-golang/events"
+	"github.com/markus-wa/demoinfocs-golang/msg"
 )
 
 const (
@@ -250,12 +250,12 @@ func parsePlayerInfo(reader io.Reader) *playerInfo {
 }
 
 var modelPreCacheSubstringToEq = map[string]common.EquipmentElement{
-	"flashbang_dropped":         common.EqFlash,
-	"fraggrenade_dropped":       common.EqHE,
-	"smokegrenade_thrown":       common.EqSmoke,
-	"molotov_dropped":           common.EqMolotov,
-	"incendiarygrenade_dropped": common.EqIncendiary,
-	"decoy_dropped":             common.EqDecoy,
+	"flashbang":         common.EqFlash,
+	"fraggrenade":       common.EqHE,
+	"smokegrenade":      common.EqSmoke,
+	"molotov":           common.EqMolotov,
+	"incendiarygrenade": common.EqIncendiary,
+	"decoy":             common.EqDecoy,
 	// @micvbang TODO: add all other weapons too.
 }
 

@@ -138,6 +138,13 @@ func TestDemoInfoCs(t *testing.T) {
 		}
 	})
 
+	// PlayerFlashed checks
+	p.RegisterEventHandler(func(flashed events.PlayerFlashed) {
+		if flashed.Projectile.Owner != flashed.Attacker {
+			t.Errorf("PlayerFlashed projectile.Owner != Attacker. tick=%d, owner=%s, attacker=%s\n", p.GameState().IngameTick(), flashed.Projectile.Owner, flashed.Attacker)
+		}
+	})
+
 	// Check some things at match start
 	p.RegisterEventHandler(func(events.MatchStart) {
 		participants := gs.Participants()
@@ -304,7 +311,7 @@ func TestDemoSet(t *testing.T) {
 				defer mustClose(t, f)
 
 				defer func() {
-					assert.Nil(t, recover(), "parsing of '%s/%s' paniced", demSetPath, name)
+					assert.Nil(t, recover(), "parsing of '%s/%s' panicked", demSetPath, name)
 				}()
 
 				p := dem.NewParser(f)
