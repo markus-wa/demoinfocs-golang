@@ -44,7 +44,6 @@ import (
 	events "github.com/markus-wa/demoinfocs-golang/events"
 )
 
-// Run like this: go run print_kills.go
 func main() {
 	f, err := os.Open("/path/to/demo.dem")
 	if err != nil {
