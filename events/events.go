@@ -248,8 +248,9 @@ type GrenadeProjectileDestroy struct {
 
 // PlayerFlashed signals that a player was flashed.
 type PlayerFlashed struct {
-	Player   *common.Player
-	Attacker *common.Player
+	Player     *common.Player
+	Attacker   *common.Player
+	Projectile *common.GrenadeProjectile
 }
 
 // FlashDuration returns the duration of the blinding effect.

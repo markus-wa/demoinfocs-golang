@@ -320,15 +320,16 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.PlayerFlashed{
-		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
-		Attacker: geh.gameState().lastFlasher,
+		Player:     geh.playerByUserID32(data["userid"].GetValShort()),
+		Attacker:   geh.gameState().lastFlash.player,
+		Projectile: geh.gameState().lastFlash.projectile,
 	})
 }
 
 func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	nadeEvent := geh.nadeEvent(data, common.EqFlash)
 
-	geh.gameState().lastFlasher = nadeEvent.Thrower
+	geh.gameState().lastFlash.player = nadeEvent.Thrower
 	geh.dispatch(events.FlashExplode{
 		GrenadeEvent: nadeEvent,
 	})
