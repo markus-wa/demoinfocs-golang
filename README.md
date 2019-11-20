@@ -199,6 +199,14 @@ Downloading demos + running regression tests:
 
     bin/regression-tests.sh
 
+#### Updating `.golden` files
+
+The file 
+
+To update the [`test/default.golden`](https://github.com/markus-wa/demoinfocs-golang/blob/master/test/default.golden) file which contains a serialized output of all expected game events in `test/cs-demos/default.dem` you can run the following command:
+
+	go test -run TestDemoInfoCs -update
+
 ### Debugging
 
 You can use the build tag `debugdemoinfocs` (i.e. `go test -tags debugdemoinfocs -v`) to print out debugging information - such as game events or unhandled demo-messages - during the parsing process.<br>
