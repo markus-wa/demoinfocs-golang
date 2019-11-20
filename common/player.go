@@ -82,7 +82,7 @@ func (p *Player) DeleteThrownGrenadeByType(wep EquipmentElement) {
 
 		// If same weapon type
 		// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
-        if(wep == v.Weapon || (wep == common.EqIncendiary && v.Weapon === common.EqMolotov)) {
+        if(wep == v.Weapon || (wep == common.EqIncendiary && v.Weapon == common.EqMolotov)) {
 
 			delete(p.ThrownGrenades, k)
 		}
