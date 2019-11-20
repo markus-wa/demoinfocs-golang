@@ -171,7 +171,8 @@ type GrenadeEventIf interface {
 // GrenadeEvent contains the common attributes of nade events. Dont register
 // handlers on this tho, you want GrenadeEventIf for that
 type GrenadeEvent struct {
-	GrenadeType     common.EquipmentElement
+	// IMPORTANT: I REMOVED GrenadeType to replace it by Grenade (which give access to its type), this means it could break user's code (feel free to do otherwise)... 
+	Grenade     	common.Equipment
 	Position        r3.Vector
 	Thrower         *common.Player
 	GrenadeEntityID int

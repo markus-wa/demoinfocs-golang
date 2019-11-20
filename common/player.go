@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/golang/geo/r3"
-
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
@@ -51,6 +50,43 @@ type Player struct {
 	IsReloading                 bool
 	HasDefuseKit                bool
 	HasHelmet                   bool
+
+	// Note: this shouldn't be epxosed (it's just used internally), but i don't know how to do it ?
+	ThrownGrenades			map[int64]*Equipment
+}
+
+// Note: this shouldn't be epxosed too (it's just used internally), but i don't know how to do it ?
+func (p *Player) GetThrownGrenade(wep EquipmentElement) Equipment {
+
+	// Get the first weapon we found with this weapon type
+	var ProjectileWeapon Equipment
+	for k, v := range p.ThrownGrenades {
+        if(wep == v.Weapon) {
+			ProjectileWeapon := v
+			break
+		}
+	}
+
+	// If we didn't found the thrown grenade we send back a new Weapon of the correct type (so we don't break anything)
+	if(ProjectileWeapon == nil) {
+		ProjectileWeapon := common.NewEquipment(wep)
+	}
+
+	return ProjectileWeapon
+}
+
+func (p *Player) DeleteThrownGrenadeByType(wep EquipmentElement) {
+
+	// Delete the first weapon we found with this weapon type
+	for k, v := range p.ThrownGrenades {
+
+		// If same weapon type
+		// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
+        if(wep == v.Weapon || (wep == common.EqIncendiary && v.Weapon === common.EqMolotov)) {
+
+			delete(p.ThrownGrenades, k)
+		}
+	}
 }
 
 // String returns the player's name.

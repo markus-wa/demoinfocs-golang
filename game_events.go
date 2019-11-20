@@ -372,9 +372,15 @@ func (geh gameEventHandler) infernoStartBurn(data map[string]*msg.CSVCMsg_GameEv
 }
 
 func (geh gameEventHandler) infernoExpire(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+
+	var nadeEvent := geh.nadeEvent(data, common.EqIncendiary)
 	geh.dispatch(events.FireGrenadeExpired{
-		GrenadeEvent: geh.nadeEvent(data, common.EqIncendiary),
+		GrenadeEvent: nadeEvent,
 	})
+
+	// Special case: we ask to delete throwGrenade reference at this point for inferno grenades (incendiary & molotovs)
+	// ISSUE: currently Thrower is always nil :-(
+	nadeEvent.Thrower.DeleteThrownGrenadeByType(common.EqIncendiary)
 }
 
 func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -563,7 +569,9 @@ func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 	nadeEntityID := int(data["entityid"].GetValShort())
 
 	return events.GrenadeEvent{
-		GrenadeType:     nadeType,
+		// We give access to the Grenade equipment instead
+		// IMPORTANT: I REMOVED GrenadeType to replace it by Grenade (which give access to its type), this means it could break user's code (feel free to do otherwise)...
+		Grenade:     	 thrower.GetThrownGrenade(nadeType),
 		Thrower:         thrower,
 		Position:        position,
 		GrenadeEntityID: nadeEntityID,
@@ -581,12 +589,19 @@ func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_Ga
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
 func getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *common.Equipment {
 	if player != nil {
-		alternateWepType := common.EquipmentAlternative(wepType)
-		for _, wep := range player.Weapons() {
-			if wep.Weapon == wepType || wep.Weapon == alternateWepType {
-				return wep
-			}
-		}
+
+	    isGrenade := wepType.Class() == common.EqClassGrenade
+
+	    if isGrenade {
+	        return player.GetThrownGrenade(wepType)
+	    } else {
+            alternateWepType := common.EquipmentAlternative(wepType)
+            for _, wep := range player.Weapons() {
+                if wep.Weapon == wepType || wep.Weapon == alternateWepType {
+                    return wep
+                }
+            }
+	    }
 	}
 
 	wep := common.NewEquipment(wepType)

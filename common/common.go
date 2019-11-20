@@ -65,7 +65,8 @@ func (h DemoHeader) TickTime() time.Duration {
 // positions between the time at which they are thrown and until they detonate.
 type GrenadeProjectile struct {
 	EntityID   int
-	Weapon     EquipmentElement
+	// IMPORTANT: I Switched Weapon from EquipmentElement to Equipment type, this means it could break user's code (feel free to do otherwise)...
+	Weapon     Equipment
 	Thrower    *Player // Always seems to be the same as Owner, even if the grenade was picked up
 	Owner      *Player // Always seems to be the same as Thrower, even if the grenade was picked up
 	Position   r3.Vector
