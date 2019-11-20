@@ -199,13 +199,16 @@ Downloading demos + running regression tests:
 
     bin/regression-tests.sh
 
-#### Updating `.golden` files
+#### Updating the `default.golden` file
 
-The file 
+The file [`test/default.golden`](https://github.com/markus-wa/demoinfocs-golang/blob/master/test/default.golden) file contains a serialized output of all expected game events in `test/cs-demos/default.dem`.
 
-To update the [`test/default.golden`](https://github.com/markus-wa/demoinfocs-golang/blob/master/test/default.golden) file which contains a serialized output of all expected game events in `test/cs-demos/default.dem` you can run the following command:
+If there is a change to game events (new fields etc.) it is necessary to update this file so the regression tests pass.
+To update it you can run the following command:
 
 	go test -run TestDemoInfoCs -update
+
+Please don't update the `.golden` file if you are not sure it's required. Maybe the failing CI is just pointing out a regression.
 
 ### Debugging
 
