@@ -381,7 +381,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 		// We also need to store this Equipment in a map for this player
 		// Note: I guess OnUpdate() is asynchrone, so not sure if Owner is loaded at this stage
 		if proj.Owner != nil {
-			proj.Owner.ThrownGrenades[proj.EntityID] = &proj.WeaponInstance
+			p.gameState.thrownGrenades[proj.Owner][proj.EntityID] = &proj.WeaponInstance
 		}
 	})
 
@@ -397,7 +397,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 		// So i kinda "duplicate" the process here to be sure it will be execute no matter the order of execution between "m_nModelIndex" & "m_hOwnerEntity"
 		// But we probably could it more properly
 		if (proj.WeaponInstance != common.Equipment{}) {
-			proj.Owner.ThrownGrenades[proj.EntityID] = &proj.WeaponInstance
+			p.gameState.thrownGrenades[proj.Owner][proj.EntityID] = &proj.WeaponInstance
 		}
 	})
 
@@ -439,8 +439,8 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 	// We delete from the Owner.ThrownGrenades (only if not inferno, because for inferno grenades we will delete it at the end of FireGrenadeExpired)
 	isInferno := (proj.WeaponInstance.Weapon == common.EqMolotov || proj.WeaponInstance.Weapon == common.EqIncendiary)
-	if !isInferno {
-		delete(proj.Owner.ThrownGrenades, proj.EntityID)
+	if(!isInferno) {
+		delete(p.gameState.thrownGrenades[proj.Owner], proj.EntityID)
 	}
 }
 

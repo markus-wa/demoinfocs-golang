@@ -276,7 +276,7 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKey
 
 	geh.dispatch(events.WeaponFire{
 		Shooter: shooter,
-		Weapon:  getPlayerWeapon(shooter, wepType),
+		Weapon:  geh.getPlayerWeapon(shooter, wepType),
 	})
 }
 
@@ -298,7 +298,7 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKe
 		Assister:          geh.playerByUserID32(data["assister"].GetValShort()),
 		IsHeadshot:        data["headshot"].GetValBool(),
 		PenetratedObjects: int(data["penetrated"].GetValShort()),
-		Weapon:            getPlayerWeapon(killer, wepType),
+		Weapon:            geh.getPlayerWeapon(killer, wepType),
 	})
 }
 
@@ -314,7 +314,7 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 		HealthDamage: int(data["dmg_health"].GetValShort()),
 		ArmorDamage:  int(data["dmg_armor"].GetValByte()),
 		HitGroup:     events.HitGroup(data["hitgroup"].GetValByte()),
-		Weapon:       getPlayerWeapon(attacker, wepType),
+		Weapon:       geh.getPlayerWeapon(attacker, wepType),
 	})
 }
 
@@ -379,8 +379,8 @@ func (geh gameEventHandler) infernoExpire(data map[string]*msg.CSVCMsg_GameEvent
 	})
 
 	// Special case: we ask to delete throwGrenade reference at this point for inferno grenades (incendiary & molotovs)
-	// ISSUE: currently Thrower is always nil :-(
-	nadeEvent.Thrower.DeleteThrownGrenadeByType(common.EqIncendiary)
+	// ISSUE: currently Thrower seems to always be nil :-(
+	geh.deleteThrownGrenadeByType(nadeEvent.Thrower, common.EqIncendiary)
 }
 
 func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -537,7 +537,7 @@ func (geh gameEventHandler) itemEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 
 	wepType := common.MapEquipment(data["item"].GetValString())
-	weapon := getPlayerWeapon(player, wepType)
+	weapon := geh.getPlayerWeapon(player, wepType)
 
 	return player, weapon
 }
@@ -570,28 +570,44 @@ func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 
 	return events.GrenadeEvent{
 		GrenadeType:     nadeType,
-		Grenade:     	 thrower.GetThrownGrenade(nadeType),
+		Grenade:     	 geh.getThrownGrenade(thrower, nadeType),
 		Thrower:         thrower,
 		Position:        position,
 		GrenadeEntityID: nadeEntityID,
 	}
 }
 
-func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_GameEvent) map[string]*msg.CSVCMsg_GameEventKeyT {
-	data := make(map[string]*msg.CSVCMsg_GameEventKeyT)
-	for i, k := range d.Keys {
-		data[k.Name] = e.Keys[i]
+func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.EquipmentElement) *common.Equipment {
+	// Get the first weapon we found for this player with this weapon type
+	for _, thrownGrenade := range geh.gameState().thrownGrenades[p] {
+        if(thrownGrenade.Weapon == wepType) {
+            return thrownGrenade
+		}
 	}
-	return data
+
+	// If we didn't found the thrown grenade we send back a new Weapon of the correct type (so we don't break anything)
+	thrownGrenade := common.NewEquipment(wepType)
+	return &thrownGrenade
+}
+
+func (geh gameEventHandler) deleteThrownGrenadeByType(p *common.Player, wepType common.EquipmentElement) {
+	// Delete the first weapon we found with this weapon type
+	for k, v := range geh.gameState().thrownGrenades[p] {
+		// If same weapon type
+		// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
+        if(wepType == v.Weapon || (wepType == common.EqIncendiary && v.Weapon == common.EqMolotov)) {
+			delete(geh.gameState().thrownGrenades[p], k)
+		}
+	}
 }
 
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
-func getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *common.Equipment {
+func (geh gameEventHandler) getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *common.Equipment {
 	if player != nil {
 	    isGrenade := wepType.Class() == common.EqClassGrenade
 
 	    if isGrenade {
-	        return player.GetThrownGrenade(wepType)
+	        return geh.getThrownGrenade(player, wepType)
 	    }
 
         alternateWepType := common.EquipmentAlternative(wepType)
@@ -604,6 +620,14 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *co
 
 	wep := common.NewEquipment(wepType)
 	return &wep
+}
+
+func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_GameEvent) map[string]*msg.CSVCMsg_GameEventKeyT {
+	data := make(map[string]*msg.CSVCMsg_GameEventKeyT)
+	for i, k := range d.Keys {
+		data[k.Name] = e.Keys[i]
+	}
+	return data
 }
 
 // We're all better off not asking questions
