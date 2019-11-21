@@ -69,7 +69,7 @@ type GrenadeProjectile struct {
 	// and should not be used. To access the weapon corresponding to his GrenadeProjectile,
 	// use the WeaponInstance.Weapon instead.
 	Weapon     	    EquipmentElement
-	WeaponInstance	Equipment
+	WeaponInstance  Equipment
 	Thrower    	    *Player // Always seems to be the same as Owner, even if the grenade was picked up
 	Owner      	    *Player // Always seems to be the same as Thrower, even if the grenade was picked up
 	Position   	    r3.Vector

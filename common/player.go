@@ -53,16 +53,15 @@ type Player struct {
 	HasHelmet                   bool
 
 	// Note: this shouldn't be epxosed (it's just used internally), but i don't know how to do it ?
-	ThrownGrenades			    map[int]*Equipment // int=GrenadeProjectile.EntityID (not sure if that's the best but it makes it easier to delete when projectile is destroyed for HE)
+	ThrownGrenades              map[int]*Equipment // int=GrenadeProjectile.EntityID (not sure if that's the best but it makes it easier to delete when projectile is destroyed for HE)
 }
 
 // Note: this shouldn't be epxosed too (it's just used internally), but i don't know how to do it ?
 func (p *Player) GetThrownGrenade(wepType EquipmentElement) *Equipment {
-
 	// Get the first weapon we found with this weapon type
 	for _, thrownGrenade := range p.ThrownGrenades {
         if(thrownGrenade.Weapon == wepType) {
-			return thrownGrenade
+            return thrownGrenade
 		}
 	}
 
@@ -72,14 +71,11 @@ func (p *Player) GetThrownGrenade(wepType EquipmentElement) *Equipment {
 }
 
 func (p *Player) DeleteThrownGrenadeByType(wep EquipmentElement) {
-
 	// Delete the first weapon we found with this weapon type
 	for k, v := range p.ThrownGrenades {
-
 		// If same weapon type
 		// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
         if(wep == v.Weapon || (wep == EqIncendiary && v.Weapon == EqMolotov)) {
-
 			delete(p.ThrownGrenades, k)
 		}
 	}
