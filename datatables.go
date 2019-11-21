@@ -439,7 +439,7 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 	// We delete from the Owner.ThrownGrenades (only if not inferno, because for inferno grenades we will delete it at the end of FireGrenadeExpired)
 	isInferno := (proj.WeaponInstance.Weapon == common.EqMolotov || proj.WeaponInstance.Weapon == common.EqIncendiary)
-	if(!isInferno) {
+	if !isInferno {
 		delete(proj.Owner.ThrownGrenades, proj.EntityID)
 	}
 }
