@@ -65,12 +65,15 @@ func (h DemoHeader) TickTime() time.Duration {
 // positions between the time at which they are thrown and until they detonate.
 type GrenadeProjectile struct {
 	EntityID   int
-	// IMPORTANT: I Switched Weapon from EquipmentElement to Equipment type, this means it could break user's code (feel free to do otherwise)...
-	Weapon     Equipment
-	Thrower    *Player // Always seems to be the same as Owner, even if the grenade was picked up
-	Owner      *Player // Always seems to be the same as Thrower, even if the grenade was picked up
-	Position   r3.Vector
-	Trajectory []r3.Vector // List of all known locations of the grenade up to the current point
+	// Deprecated: Weapon exists for historical compatibility
+	// and should not be used. To access the weapon corresponding to his GrenadeProjectile,
+	// use the WeaponInstance.Weapon instead.
+	Weapon     	EquipmentElement
+	WeaponInstance	Equipment
+	Thrower    	*Player // Always seems to be the same as Owner, even if the grenade was picked up
+	Owner      	*Player // Always seems to be the same as Thrower, even if the grenade was picked up
+	Position   	r3.Vector
+	Trajectory 	[]r3.Vector // List of all known locations of the grenade up to the current point
 
 	// uniqueID is used to distinguish different grenades (which potentially have the same, reused entityID) from each other.
 	uniqueID int64
