@@ -376,7 +376,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	entity.FindPropertyI("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
 
 		proj.Weapon = p.grenadeModelIndices[val.IntVal]
-		proj.WeaponInstance = common.NewEquipment(proj.Weapon)
+		proj.WeaponInstance = common.NewEquipment(p.grenadeModelIndices[val.IntVal])
 
 		// We also need to store this Equipment in a map for this player
 		// Note: I guess OnUpdate() is asynchrone, so not sure if Owner is loaded at this stage
