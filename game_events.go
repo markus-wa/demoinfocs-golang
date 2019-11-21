@@ -569,8 +569,7 @@ func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 	nadeEntityID := int(data["entityid"].GetValShort())
 
 	return events.GrenadeEvent{
-		// We give access to the Grenade equipment instead
-		// IMPORTANT: I REMOVED GrenadeType to replace it by Grenade (which give access to its type), this means it could break user's code (feel free to do otherwise)...
+		GrenadeType:     nadeType,
 		Grenade:     	 thrower.GetThrownGrenade(nadeType),
 		Thrower:         thrower,
 		Position:        position,
