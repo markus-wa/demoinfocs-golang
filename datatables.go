@@ -380,7 +380,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 
 		// We also need to store this Equipment in a map for this player
 		// Note: I guess OnUpdate() is asynchrone, so not sure if Owner is loaded at this stage
-		if(proj.Owner != nil) {
+		if proj.Owner != nil {
 			proj.Owner.ThrownGrenades[proj.EntityID] = &proj.WeaponInstance
 		}
 	})
