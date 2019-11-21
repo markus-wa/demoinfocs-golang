@@ -373,7 +373,7 @@ func (geh gameEventHandler) infernoStartBurn(data map[string]*msg.CSVCMsg_GameEv
 
 func (geh gameEventHandler) infernoExpire(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 
-	var nadeEvent := geh.nadeEvent(data, common.EqIncendiary)
+	nadeEvent := geh.nadeEvent(data, common.EqIncendiary)
 	geh.dispatch(events.FireGrenadeExpired{
 		GrenadeEvent: nadeEvent,
 	})

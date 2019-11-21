@@ -53,27 +53,22 @@ type Player struct {
 	HasHelmet                   bool
 
 	// Note: this shouldn't be epxosed (it's just used internally), but i don't know how to do it ?
-	ThrownGrenades			map[int64]*Equipment
+	ThrownGrenades			    map[int]*Equipment // int=GrenadeProjectile.EntityID (not sure if that's the best but it makes it easier to delete when projectile is destroyed for HE)
 }
 
 // Note: this shouldn't be epxosed too (it's just used internally), but i don't know how to do it ?
-func (p *Player) GetThrownGrenade(wep EquipmentElement) Equipment {
+func (p *Player) GetThrownGrenade(wepType EquipmentElement) *Equipment {
 
 	// Get the first weapon we found with this weapon type
-	var ProjectileWeapon Equipment
-	for k, v := range p.ThrownGrenades {
-        if(wep == v.Weapon) {
-			ProjectileWeapon := v
-			break
+	for _, thrownGrenade := range p.ThrownGrenades {
+        if(thrownGrenade.Weapon == wepType) {
+			return thrownGrenade
 		}
 	}
 
 	// If we didn't found the thrown grenade we send back a new Weapon of the correct type (so we don't break anything)
-	if(ProjectileWeapon == nil) {
-		ProjectileWeapon := common.NewEquipment(wep)
-	}
-
-	return ProjectileWeapon
+	thrownGrenade := NewEquipment(wepType)
+	return &thrownGrenade
 }
 
 func (p *Player) DeleteThrownGrenadeByType(wep EquipmentElement) {
@@ -83,7 +78,7 @@ func (p *Player) DeleteThrownGrenadeByType(wep EquipmentElement) {
 
 		// If same weapon type
 		// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
-        if(wep == v.Weapon || (wep == common.EqIncendiary && v.Weapon == common.EqMolotov)) {
+        if(wep == v.Weapon || (wep == EqIncendiary && v.Weapon == EqMolotov)) {
 
 			delete(p.ThrownGrenades, k)
 		}

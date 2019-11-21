@@ -175,7 +175,7 @@ type GrenadeEvent struct {
 	// and should not be used. To access the weapon type corresponding to his GrenadeEvent,
 	// use the Grenade.Weapon instead.
 	GrenadeType     common.EquipmentElement
-	Grenade     	common.Equipment
+	Grenade     	*common.Equipment
 	Position        r3.Vector
 	Thrower         *common.Player
 	GrenadeEntityID int
