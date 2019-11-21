@@ -396,7 +396,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 		// Note: I guess OnUpdate() is asynchrone, so not sure if Weapon is loaded at this stage
 		// So i kinda "duplicate" the process here to be sure it will be execute no matter the order of execution between "m_nModelIndex" & "m_hOwnerEntity"
 		// But we probably could it more properly
-		if(proj.WeaponInstance != common.Equipment{}) {
+		if (proj.WeaponInstance != common.Equipment{}) {
 			proj.Owner.ThrownGrenades[proj.EntityID] = &proj.WeaponInstance
 		}
 	})
