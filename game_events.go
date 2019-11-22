@@ -276,7 +276,7 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKey
 
 	geh.dispatch(events.WeaponFire{
 		Shooter: shooter,
-		Weapon:  geh.getPlayerWeapon(shooter, wepType),
+		Weapon:  getPlayerWeapon(shooter, wepType),
 	})
 }
 
@@ -298,7 +298,7 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKe
 		Assister:          geh.playerByUserID32(data["assister"].GetValShort()),
 		IsHeadshot:        data["headshot"].GetValBool(),
 		PenetratedObjects: int(data["penetrated"].GetValShort()),
-		Weapon:            geh.getPlayerWeapon(killer, wepType),
+		Weapon:            geh.getEquipmentInstance(killer, wepType),
 	})
 }
 
@@ -314,7 +314,7 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 		HealthDamage: int(data["dmg_health"].GetValShort()),
 		ArmorDamage:  int(data["dmg_armor"].GetValByte()),
 		HitGroup:     events.HitGroup(data["hitgroup"].GetValByte()),
-		Weapon:       geh.getPlayerWeapon(attacker, wepType),
+		Weapon:       geh.getEquipmentInstance(attacker, wepType),
 	})
 }
 
@@ -537,7 +537,7 @@ func (geh gameEventHandler) itemEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 
 	wepType := common.MapEquipment(data["item"].GetValString())
-	weapon := geh.getPlayerWeapon(player, wepType)
+	weapon := getPlayerWeapon(player, wepType)
 
 	return player, weapon
 }
@@ -578,12 +578,15 @@ func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 }
 
 func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.EquipmentElement) *common.Equipment {
-	// Get the first weapon we found for this player with this weapon type
-	for _, thrownGrenade := range geh.gameState().thrownGrenades[p] {
-        if(thrownGrenade.Weapon == wepType) {
-            return thrownGrenade
-		}
-	}
+
+    if p != nil {
+        // Get the first weapon we found for this player with this weapon type
+        for _, thrownGrenade := range geh.gameState().thrownGrenades[p] {
+            if(thrownGrenade.Weapon == wepType) {
+                return thrownGrenade
+            }
+        }
+    }
 
 	// If we didn't found the thrown grenade we send back a new Weapon of the correct type (so we don't break anything)
 	thrownGrenade := common.NewEquipment(wepType)
@@ -591,31 +594,38 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 }
 
 func (geh gameEventHandler) deleteThrownGrenadeByType(p *common.Player, wepType common.EquipmentElement) {
-	// Delete the first weapon we found with this weapon type
-	for k, v := range geh.gameState().thrownGrenades[p] {
-		// If same weapon type
-		// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
-        if(wepType == v.Weapon || (wepType == common.EqIncendiary && v.Weapon == common.EqMolotov)) {
-			delete(geh.gameState().thrownGrenades[p], k)
-		}
-	}
+
+    if p != nil {
+        // Delete the first weapon we found with this weapon type
+        for k, v := range geh.gameState().thrownGrenades[p] {
+            // If same weapon type
+            // OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
+            if(wepType == v.Weapon || (wepType == common.EqIncendiary && v.Weapon == common.EqMolotov)) {
+                delete(geh.gameState().thrownGrenades[p], k)
+            }
+        }
+    }
+}
+
+func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType common.EquipmentElement) *common.Equipment {
+
+    isGrenade := wepType.Class() == common.EqClassGrenade
+    if isGrenade {
+        return geh.getThrownGrenade(player, wepType)
+    }
+
+    return getPlayerWeapon(player, wepType)
 }
 
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
-func (geh gameEventHandler) getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *common.Equipment {
+func getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *common.Equipment {
 	if player != nil {
-	    isGrenade := wepType.Class() == common.EqClassGrenade
-
-	    if isGrenade {
-	        return geh.getThrownGrenade(player, wepType)
-	    }
-
-        alternateWepType := common.EquipmentAlternative(wepType)
-        for _, wep := range player.Weapons() {
-            if wep.Weapon == wepType || wep.Weapon == alternateWepType {
-                return wep
-            }
-        }
+		alternateWepType := common.EquipmentAlternative(wepType)
+		for _, wep := range player.Weapons() {
+			if wep.Weapon == wepType || wep.Weapon == alternateWepType {
+				return wep
+			}
+		}
 	}
 
 	wep := common.NewEquipment(wepType)
