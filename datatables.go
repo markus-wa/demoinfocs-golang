@@ -376,12 +376,14 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	entity.FindPropertyI("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
 
 		proj.Weapon = p.grenadeModelIndices[val.IntVal]
-		proj.WeaponInstance = common.NewEquipment(p.grenadeModelIndices[val.IntVal])
+
+		equipment := common.NewEquipment(p.grenadeModelIndices[val.IntVal])
+		proj.WeaponInstance = &equipment
 
 		// We also need to store this Equipment in a map for this player
 		// Note: I guess OnUpdate() is asynchrone, so not sure if Owner is loaded at this stage
 		if proj.Owner != nil {
-			p.gameState.thrownGrenades[proj.Owner][proj.EntityID] = &proj.WeaponInstance
+			p.gameState.thrownGrenades[proj.Owner][proj.EntityID] = proj.WeaponInstance
 		}
 	})
 
@@ -396,8 +398,8 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 		// Note: I guess OnUpdate() is asynchrone, so not sure if Weapon is loaded at this stage
 		// So i kinda "duplicate" the process here to be sure it will be execute no matter the order of execution between "m_nModelIndex" & "m_hOwnerEntity"
 		// But we probably could it more properly
-		if (proj.WeaponInstance != common.Equipment{}) {
-			p.gameState.thrownGrenades[proj.Owner][proj.EntityID] = &proj.WeaponInstance
+		if (proj.WeaponInstance != nil) {
+			p.gameState.thrownGrenades[proj.Owner][proj.EntityID] = proj.WeaponInstance
 		}
 	})
 
