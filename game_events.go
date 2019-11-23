@@ -282,6 +282,11 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKey
 
 func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	pl := geh.playerByUserID32(data["userid"].GetValShort())
+	if pl == nil {
+		// see #162, "unknown" players since November 2019 update
+		return
+	}
+
 	pl.IsReloading = true
 	geh.dispatch(events.WeaponReload{
 		Player: pl,

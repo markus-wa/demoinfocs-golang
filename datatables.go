@@ -193,21 +193,33 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 	isNew := false
 	pl := p.gameState.playersByEntityID[entityID]
 	if pl == nil {
-		pl = p.gameState.playersByUserID[rp.userID]
+		if rp != nil {
+			pl = p.gameState.playersByUserID[rp.userID]
 
-		if pl == nil {
-			isNew = true
+			if pl == nil {
+				isNew = true
 
-			// TODO: read tickRate from CVARs as fallback
+				pl = common.NewPlayer(p.demoInfoProvider)
+				pl.Name = rp.name
+				pl.SteamID = rp.xuid
+				pl.IsBot = rp.isFakePlayer || rp.guid == "BOT"
+				pl.UserID = rp.userID
+			}
+		} else {
+			// see #162.
+			// GOTV doesn't crash here either so we just initialize this player with default values.
+			// this happens in some demos since November 2019 for players that were are actually connected.
+			// in GOTV these players are just called "unknown".
 			pl = common.NewPlayer(p.demoInfoProvider)
-			pl.Name = rp.name
-			pl.SteamID = rp.xuid
-			pl.IsBot = rp.isFakePlayer || rp.guid == "BOT"
-			pl.UserID = rp.userID
+			pl.Name = "unknown"
+			pl.IsUnknown = true
 		}
 	}
 	p.gameState.playersByEntityID[entityID] = pl
-	p.gameState.playersByUserID[rp.userID] = pl
+
+	if rp != nil {
+		p.gameState.playersByUserID[rp.userID] = pl
+	}
 
 	pl.EntityID = entityID
 	pl.Entity = playerEntity
