@@ -3,8 +3,10 @@ package demoinfocs
 import (
 	"fmt"
 
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	msg "github.com/markus-wa/demoinfocs-golang/msg"
+	"github.com/markus-wa/go-unassert"
+
+	"github.com/markus-wa/demoinfocs-golang/events"
+	"github.com/markus-wa/demoinfocs-golang/msg"
 )
 
 func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
@@ -51,7 +53,8 @@ func (umh userMessageHandler) sayText(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_SayText)
 	err := st.Unmarshal(um.MsgData)
 	if err != nil {
-		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("Failed to decode SayText message: %s", err.Error())})
+		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("failed to decode SayText message: %s", err.Error())})
+		unassert.Error("failed to decode SayText message: %s", err.Error())
 	}
 
 	umh.dispatch(events.SayText{
@@ -66,7 +69,8 @@ func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_SayText2)
 	err := st.Unmarshal(um.MsgData)
 	if err != nil {
-		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("Failed to decode SayText2 message: %s", err.Error())})
+		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("failed to decode SayText2 message: %s", err.Error())})
+		unassert.Error("failed to decode SayText2 message: %s", err.Error())
 	}
 
 	umh.dispatch(events.SayText2{
@@ -91,9 +95,15 @@ func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 
 	case "#CSGO_Coach_Join_T": // Ignore these
 	case "#CSGO_Coach_Join_CT":
+	case "#Cstrike_Name_Change":
+	case "Cstrike_Chat_T_Loc":
+	case "Cstrike_Chat_CT_Loc":
+	case "Cstrike_Chat_T_Dead":
+	case "Cstrike_Chat_CT_Dead":
 
 	default:
-		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("Skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)})
+		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)})
+		unassert.Error("skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)
 	}
 }
 
@@ -101,7 +111,8 @@ func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_ServerRankUpdate)
 	err := st.Unmarshal(um.MsgData)
 	if err != nil {
-		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("Failed to decode ServerRankUpdate message: %s", err.Error())})
+		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("failed to decode ServerRankUpdate message: %s", err.Error())})
+		unassert.Error("failed to decode ServerRankUpdate message: %s", err.Error())
 	}
 
 	for _, v := range st.RankUpdate {

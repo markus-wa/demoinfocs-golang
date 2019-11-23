@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/golang/geo/r3"
+	"github.com/markus-wa/go-unassert"
 
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
@@ -20,7 +21,8 @@ func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 
 func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	if p.gameEventDescs == nil {
-		p.eventDispatcher.Dispatch(events.ParserWarn{Message: "Received GameEvent but event descriptors are missing"})
+		p.eventDispatcher.Dispatch(events.ParserWarn{Message: "received GameEvent but event descriptors are missing"})
+		unassert.Error("received GameEvent but event descriptors are missing")
 		return
 	}
 
@@ -37,7 +39,8 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			handler(data)
 		}
 	} else {
-		p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Unknown event %q", desc.Name)})
+		p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("unknown event %q", desc.Name)})
+		unassert.Error("unknown event %q", desc.Name)
 	}
 
 	p.eventDispatcher.Dispatch(events.GenericGameEvent{
@@ -126,6 +129,7 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"hegrenade_detonate":              geh.heGrenadeDetonate,                // HE exploded
 		"hltv_chase":                      nil,                                  // Don't care
 		"hltv_fixed":                      nil,                                  // Dunno
+		"hltv_message":                    nil,                                  // No clue
 		"hltv_status":                     nil,                                  // Don't know
 		"inferno_expire":                  geh.infernoExpire,                    // Incendiary expired
 		"inferno_startburn":               delay(geh.infernoStartBurn),          // Incendiary exploded/started. Delayed because inferno entity is not yet created
@@ -325,10 +329,18 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	attacker := geh.gameState().lastFlash.player
+	projectile := geh.gameState().lastFlash.projectileByPlayer[attacker]
+	unassert.NotNilf(projectile, "PlayerFlashed.Projectile should never be nil")
+
+	if projectile != nil {
+		unassert.Samef(attacker, projectile.Thrower, "PlayerFlashed.Attacker != PlayerFlashed.Projectile.Thrower")
+		unassert.Samef(projectile.Weapon, common.EqFlash, "PlayerFlashed.Projectile.Weapon != EqFlash")
+	}
+
 	geh.dispatch(events.PlayerFlashed{
 		Player:     geh.playerByUserID32(data["userid"].GetValShort()),
 		Attacker:   attacker,
-		Projectile: geh.gameState().lastFlash.projectileByPlayer[attacker],
+		Projectile: projectile,
 	})
 }
 
@@ -435,6 +447,7 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKey
 			OldTeamState: geh.gameState().Team(oldTeam),
 		})
 	} else {
+		// TODO: figure out why this happens and whether it's a bug or not
 		geh.dispatch(events.ParserWarn{
 			Message: "Player team swap game-event occurred but player is nil",
 		})
