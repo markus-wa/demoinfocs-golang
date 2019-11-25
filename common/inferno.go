@@ -143,6 +143,10 @@ func (inf Inferno) Owner() *Player {
 	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.FindPropertyI("m_hOwnerEntity").Value().IntVal)
 }
 
+func (inf Inferno) Thrower() *Player {
+	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.FindPropertyI("m_hThrower").Value().IntVal)
+}
+
 func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 	return new(quickhull.QuickHull).ConvexHull(pointCloud, false, false, 0)
 }

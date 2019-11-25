@@ -120,3 +120,14 @@ func TestInferno_Owner(t *testing.T) {
 
 	assert.Equal(t, player, NewInferno(provider, entity).Owner())
 }
+
+func TestInferno_Thrower(t *testing.T) {
+	entity := entityWithProperty("m_hThrower", st.PropertyValue{IntVal: 1})
+
+	player := new(Player)
+	provider := demoInfoProviderMock{
+		playersByHandle: map[int]*Player{1: player},
+	}
+
+	assert.Equal(t, player, NewInferno(provider, entity).Thrower())
+}
