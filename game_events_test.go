@@ -89,134 +89,134 @@ func TestGetPlayerWeapon_NotFound(t *testing.T) {
 
 func TestAddThrownGrenade_NilPlayer(t *testing.T) {
 
-    p := NewParser(rand.Reader)
-    he := common.NewEquipment(common.EqHE)
+	p := NewParser(rand.Reader)
+	he := common.NewEquipment(common.EqHE)
 
-    assert.Empty(t, p.gameState.thrownGrenades)
+	assert.Empty(t, p.gameState.thrownGrenades)
 
-    p.gameEventHandler.addThrownGrenade(nil, &he)
+	p.gameEventHandler.addThrownGrenade(nil, &he)
 
-    assert.Empty(t, p.gameState.thrownGrenades)
+	assert.Empty(t, p.gameState.thrownGrenades)
 }
 
 func TestAddThrownGrenade(t *testing.T) {
 
-    p := NewParser(rand.Reader)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
-    he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE)
 
-    assert.Empty(t, p.gameState.thrownGrenades)
+	assert.Empty(t, p.gameState.thrownGrenades)
 
-    p.gameEventHandler.addThrownGrenade(pl, &he)
+	p.gameEventHandler.addThrownGrenade(pl, &he)
 
-    assert.NotEmpty(t, p.gameState.thrownGrenades)
-    assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
-    assert.Equal(t, p.gameState.thrownGrenades[pl][0], &he)
+	assert.NotEmpty(t, p.gameState.thrownGrenades)
+	assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
+	assert.Equal(t, p.gameState.thrownGrenades[pl][0], &he)
 }
 
 func TestGetThrownGrenade_NilPlayer(t *testing.T) {
 
-    p := NewParser(rand.Reader)
-    he := common.NewEquipment(common.EqHE)
+	p := NewParser(rand.Reader)
+	he := common.NewEquipment(common.EqHE)
 
-    wep :=  p.gameEventHandler.getThrownGrenade(nil, he.Weapon)
+	wep := p.gameEventHandler.getThrownGrenade(nil, he.Weapon)
 
-    assert.Equal(t, wep.Weapon, he.Weapon)
-    assert.NotEqual(t, wep, &he)
+	assert.Equal(t, wep.Weapon, he.Weapon)
+	assert.NotEqual(t, wep, &he)
 }
 
 func TestGetThrownGrenade_NotFound(t *testing.T) {
 
-    p := NewParser(rand.Reader)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
-    he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE)
 
-    wep := p.gameEventHandler.getThrownGrenade(pl, he.Weapon)
+	wep := p.gameEventHandler.getThrownGrenade(pl, he.Weapon)
 
-    assert.Equal(t, wep.Weapon, he.Weapon)
-    assert.NotEqual(t, wep, &he)
+	assert.Equal(t, wep.Weapon, he.Weapon)
+	assert.NotEqual(t, wep, &he)
 }
 
 func TestGetThrownGrenade_Found(t *testing.T) {
 
-    p := NewParser(rand.Reader)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
-    he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE)
 
-    p.gameEventHandler.addThrownGrenade(pl, &he)
-    wep := p.gameEventHandler.getThrownGrenade(pl, he.Weapon)
+	p.gameEventHandler.addThrownGrenade(pl, &he)
+	wep := p.gameEventHandler.getThrownGrenade(pl, he.Weapon)
 
-    assert.Equal(t, wep.Weapon, he.Weapon)
-    assert.Equal(t, wep, &he)
+	assert.Equal(t, wep.Weapon, he.Weapon)
+	assert.Equal(t, wep, &he)
 }
 
 func TestDeleteThrownGrenade_NilPlayer(t *testing.T) {
-    p := NewParser(rand.Reader)
-    he := common.NewEquipment(common.EqHE)
+	p := NewParser(rand.Reader)
+	he := common.NewEquipment(common.EqHE)
 
-    // Do nothing, we just keep sure it doesn't crash
-    p.gameEventHandler.deleteThrownGrenade(nil, he.Weapon)
+	// Do nothing, we just keep sure it doesn't crash
+	p.gameEventHandler.deleteThrownGrenade(nil, he.Weapon)
 }
 
 func TestDeleteThrownGrenade_NotFound(t *testing.T) {
-    p := NewParser(rand.Reader)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
-    he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE)
 
-    assert.Empty(t, p.gameState.thrownGrenades)
+	assert.Empty(t, p.gameState.thrownGrenades)
 
-    p.gameEventHandler.addThrownGrenade(pl, &he)
+	p.gameEventHandler.addThrownGrenade(pl, &he)
 
-    assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
+	assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
 
-    p.gameEventHandler.deleteThrownGrenade(pl, common.EqMolotov)
+	p.gameEventHandler.deleteThrownGrenade(pl, common.EqMolotov)
 
-    assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
+	assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
 }
 
 func TestDeleteThrownGrenade_Found(t *testing.T) {
 
-    p := NewParser(rand.Reader)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
-    he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE)
 
-    assert.Empty(t, p.gameState.thrownGrenades)
+	assert.Empty(t, p.gameState.thrownGrenades)
 
-    p.gameEventHandler.addThrownGrenade(pl, &he)
+	p.gameEventHandler.addThrownGrenade(pl, &he)
 
-    assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
+	assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
 
-    p.gameEventHandler.deleteThrownGrenade(pl, he.Weapon)
+	p.gameEventHandler.deleteThrownGrenade(pl, he.Weapon)
 
-    assert.Empty(t, p.gameState.thrownGrenades[pl])
+	assert.Empty(t, p.gameState.thrownGrenades[pl])
 }
 
 func TestGetEquipmentInstance_NotGrenade(t *testing.T) {
 
-    p := NewParser(rand.Reader)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 
-    wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqAK47)
+	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqAK47)
 
-    assert.Equal(t, common.EqAK47, wep.Weapon)
+	assert.Equal(t, common.EqAK47, wep.Weapon)
 }
 
 func TestGetEquipmentInstance_Grenade(t *testing.T) {
-    p := NewParser(rand.Reader)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 
-    wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqHE)
+	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqHE)
 
-    assert.Equal(t, common.EqHE, wep.Weapon)
+	assert.Equal(t, common.EqHE, wep.Weapon)
 }
 
 func TestGetEquipmentInstance_GrenadeThrown(t *testing.T) {
-    p := NewParser(rand.Reader)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
-    he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE)
 
-    p.gameEventHandler.addThrownGrenade(pl, &he)
-    wep := p.gameEventHandler.getEquipmentInstance(pl, he.Weapon)
+	p.gameEventHandler.addThrownGrenade(pl, &he)
+	wep := p.gameEventHandler.getEquipmentInstance(pl, he.Weapon)
 
-    assert.Equal(t, &he, wep)
+	assert.Equal(t, &he, wep)
 }

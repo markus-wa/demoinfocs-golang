@@ -365,7 +365,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 
 	entity.OnCreateFinished(func() {
 
-        p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
+		p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
 
 		p.eventDispatcher.Dispatch(events.GrenadeProjectileThrow{
 			Projectile: proj,
