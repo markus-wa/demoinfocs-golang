@@ -576,7 +576,6 @@ func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 func (geh gameEventHandler) addThrownGrenade(p *common.Player, wep *common.Equipment) {
 
 	if p != nil {
-
 		gameState := geh.gameState()
 		gameState.thrownGrenades[p] = append(gameState.thrownGrenades[p], wep)
 	}
