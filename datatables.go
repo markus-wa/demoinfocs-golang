@@ -365,10 +365,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 
 	entity.OnCreateFinished(func() {
 
-        // Note: shouldn't Owner always be set here ?
-		if proj.Owner != nil {
-			p.gameState.thrownGrenades[proj.Owner][proj.EntityID] = proj.WeaponInstance
-		}
+        p.gameEventHandler.addThrownGrenade(proj.Owner, proj.WeaponInstance)
 
 		p.eventDispatcher.Dispatch(events.GrenadeProjectileThrow{
 			Projectile: proj,
@@ -435,7 +432,7 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	// We delete from the Owner.ThrownGrenades (only if not inferno, because for inferno grenades we will delete it at the end of FireGrenadeExpired)
 	isInferno := (proj.WeaponInstance.Weapon == common.EqMolotov || proj.WeaponInstance.Weapon == common.EqIncendiary)
 	if !isInferno {
-		delete(p.gameState.thrownGrenades[proj.Owner], proj.EntityID)
+		p.gameEventHandler.deleteThrownGrenade(proj.Owner, proj.WeaponInstance.Weapon)
 	}
 }
 

@@ -378,9 +378,7 @@ func (geh gameEventHandler) infernoExpire(data map[string]*msg.CSVCMsg_GameEvent
 		GrenadeEvent: nadeEvent,
 	})
 
-	// Special case: we ask to delete throwGrenade reference at this point for inferno grenades (incendiary & molotovs)
-	// ISSUE: currently Thrower seems to always be nil :-(
-	geh.deleteThrownGrenadeByType(nadeEvent.Thrower, common.EqIncendiary)
+	geh.deleteThrownGrenade(nadeEvent.Thrower, common.EqIncendiary)
 }
 
 func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -577,6 +575,15 @@ func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 	}
 }
 
+func (geh gameEventHandler) addThrownGrenade(p *common.Player, wep *common.Equipment) {
+
+    if p != nil {
+
+        gameState := geh.gameState()
+        gameState.thrownGrenades[p] = append(gameState.thrownGrenades[p], wep)
+    }
+}
+
 func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.EquipmentElement) *common.Equipment {
 
     if p != nil {
@@ -593,15 +600,21 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 	return &thrownGrenade
 }
 
-func (geh gameEventHandler) deleteThrownGrenadeByType(p *common.Player, wepType common.EquipmentElement) {
+func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common.EquipmentElement) {
 
     if p != nil {
+
+        gameState := geh.gameState()
+
         // Delete the first weapon we found with this weapon type
-        for k, v := range geh.gameState().thrownGrenades[p] {
+        for k, v := range gameState.thrownGrenades[p] {
             // If same weapon type
             // OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
             if(wepType == v.Weapon || (wepType == common.EqIncendiary && v.Weapon == common.EqMolotov)) {
-                delete(geh.gameState().thrownGrenades[p], k)
+
+                // Remove a specific key from the slice
+                slice := gameState.thrownGrenades[p]
+                gameState.thrownGrenades[p] = append(slice[:k], slice[k+1:]...)
             }
         }
     }

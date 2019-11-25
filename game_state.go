@@ -27,8 +27,7 @@ type GameState struct {
 	lastFlash          lastFlasher    // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
 	currentDefuser     *common.Player // Player currently defusing the bomb, if any
 	currentPlanter     *common.Player // Player currently planting the bomb, if any
-	thrownGrenades      map[*common.Player]map[int]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
-	// Note: int=GrenadeProjectile.EntityID
+	thrownGrenades      map[*common.Player][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
 }
 
 type lastFlasher struct {
@@ -145,6 +144,7 @@ func newGameState() *GameState {
 		infernos:           make(map[int]*common.Inferno),
 		entities:           make(map[int]*st.Entity),
 		conVars:            make(map[string]string),
+		thrownGrenades:     make(map[*common.Player][]*common.Equipment),
 	}
 
 	gs.tState = common.NewTeamState(common.TeamTerrorists, gs.Participants().TeamMembers)
