@@ -377,8 +377,6 @@ func (geh gameEventHandler) infernoExpire(data map[string]*msg.CSVCMsg_GameEvent
 	geh.dispatch(events.FireGrenadeExpired{
 		GrenadeEvent: nadeEvent,
 	})
-
-	geh.deleteThrownGrenade(nadeEvent.Thrower, common.EqIncendiary)
 }
 
 func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
