@@ -539,7 +539,7 @@ func (p *Parser) infernoExpired(inf *common.Inferno) {
 
 	delete(p.gameState.infernos, inf.EntityID)
 
-	p.gameEventHandler.deleteThrownGrenade(inf.Owner(), common.EqIncendiary)
+	p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
 }
 
 func (p *Parser) bindGameRules() {
