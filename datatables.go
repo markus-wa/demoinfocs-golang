@@ -364,6 +364,12 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	p.gameState.grenadeProjectiles[entityID] = proj
 
 	entity.OnCreateFinished(func() {
+
+        // Note: shouldn't Owner always be set here ?
+		if proj.Owner != nil {
+			p.gameState.thrownGrenades[proj.Owner][proj.EntityID] = proj.WeaponInstance
+		}
+
 		p.eventDispatcher.Dispatch(events.GrenadeProjectileThrow{
 			Projectile: proj,
 		})
@@ -379,12 +385,6 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 
 		equipment := common.NewEquipment(p.grenadeModelIndices[val.IntVal])
 		proj.WeaponInstance = &equipment
-
-		// We also need to store this Equipment in a map for this player
-		// Note: I guess OnUpdate() is asynchrone, so not sure if Owner is loaded at this stage
-		if proj.Owner != nil {
-			p.gameState.thrownGrenades[proj.Owner][proj.EntityID] = proj.WeaponInstance
-		}
 	})
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
@@ -394,13 +394,6 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 
 	entity.FindPropertyI("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 		proj.Owner = p.gameState.Participants().FindByHandle(val.IntVal)
-
-		// Note: I guess OnUpdate() is asynchrone, so not sure if Weapon is loaded at this stage
-		// So i kinda "duplicate" the process here to be sure it will be execute no matter the order of execution between "m_nModelIndex" & "m_hOwnerEntity"
-		// But we probably could it more properly
-		if (proj.WeaponInstance != nil) {
-			p.gameState.thrownGrenades[proj.Owner][proj.EntityID] = proj.WeaponInstance
-		}
 	})
 
 	entity.OnPositionUpdate(func(newPos r3.Vector) {
