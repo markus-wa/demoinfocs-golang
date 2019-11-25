@@ -568,7 +568,7 @@ func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 
 	return events.GrenadeEvent{
 		GrenadeType:     nadeType,
-		Grenade:     	 geh.getThrownGrenade(thrower, nadeType),
+		Grenade:         geh.getThrownGrenade(thrower, nadeType),
 		Thrower:         thrower,
 		Position:        position,
 		GrenadeEntityID: nadeEntityID,
