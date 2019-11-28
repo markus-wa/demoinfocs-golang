@@ -49,6 +49,7 @@ type Player struct {
 	IsDefusing                  bool
 	IsPlanting                  bool
 	IsReloading                 bool
+	IsUnknown                   bool // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 	HasDefuseKit                bool
 	HasHelmet                   bool
 }
