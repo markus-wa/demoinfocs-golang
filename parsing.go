@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/markus-wa/go-unassert"
 
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
@@ -292,7 +293,8 @@ func (p *Parser) parsePacket() {
 			if msgName == "" {
 				// Send a warning if the command is unknown
 				// This might mean our proto files are out of date
-				p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Unknown message command %q", cmd)})
+				p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("unknown message command %q", cmd)})
+				unassert.Error("unknown message command %q", cmd)
 			}
 
 			// Handle additional net-messages as defined by the user

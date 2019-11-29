@@ -280,6 +280,7 @@ func (p demoInfoProvider) IngameTick() int {
 }
 
 func (p demoInfoProvider) TickRate() float64 {
+	// TODO: read tickRate from CVARs as fallback
 	return p.parser.header.TickRate()
 }
 

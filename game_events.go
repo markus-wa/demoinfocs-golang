@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/golang/geo/r3"
+	"github.com/markus-wa/go-unassert"
 
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
@@ -20,7 +21,8 @@ func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 
 func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	if p.gameEventDescs == nil {
-		p.eventDispatcher.Dispatch(events.ParserWarn{Message: "Received GameEvent but event descriptors are missing"})
+		p.eventDispatcher.Dispatch(events.ParserWarn{Message: "received GameEvent but event descriptors are missing"})
+		unassert.Error("received GameEvent but event descriptors are missing")
 		return
 	}
 
@@ -37,7 +39,8 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 			handler(data)
 		}
 	} else {
-		p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("Unknown event %q", desc.Name)})
+		p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("unknown event %q", desc.Name)})
+		unassert.Error("unknown event %q", desc.Name)
 	}
 
 	p.eventDispatcher.Dispatch(events.GenericGameEvent{
@@ -126,6 +129,7 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"hegrenade_detonate":              geh.heGrenadeDetonate,                // HE exploded
 		"hltv_chase":                      nil,                                  // Don't care
 		"hltv_fixed":                      nil,                                  // Dunno
+		"hltv_message":                    nil,                                  // No clue
 		"hltv_status":                     nil,                                  // Don't know
 		"inferno_expire":                  geh.infernoExpire,                    // Incendiary expired
 		"inferno_startburn":               delay(geh.infernoStartBurn),          // Incendiary exploded/started. Delayed because inferno entity is not yet created
@@ -287,6 +291,11 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKey
 
 func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	pl := geh.playerByUserID32(data["userid"].GetValShort())
+	if pl == nil {
+		// see #162, "unknown" players since November 2019 update
+		return
+	}
+
 	pl.IsReloading = true
 	geh.dispatch(events.WeaponReload{
 		Player: pl,
@@ -324,10 +333,19 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	attacker := geh.gameState().lastFlash.player
+	projectile := geh.gameState().lastFlash.projectileByPlayer[attacker]
+	unassert.NotNilf(projectile, "PlayerFlashed.Projectile should never be nil")
+
+	if projectile != nil {
+		unassert.Samef(attacker, projectile.Thrower, "PlayerFlashed.Attacker != PlayerFlashed.Projectile.Thrower")
+		unassert.Samef(projectile.Weapon, common.EqFlash, "PlayerFlashed.Projectile.Weapon != EqFlash")
+	}
+
 	geh.dispatch(events.PlayerFlashed{
 		Player:     geh.playerByUserID32(data["userid"].GetValShort()),
-		Attacker:   geh.gameState().lastFlash.player,
-		Projectile: geh.gameState().lastFlash.projectile,
+		Attacker:   attacker,
+		Projectile: projectile,
 	})
 }
 
@@ -353,9 +371,12 @@ func (geh gameEventHandler) decoyStarted(data map[string]*msg.CSVCMsg_GameEventK
 }
 
 func (geh gameEventHandler) decoyDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	event := geh.nadeEvent(data, common.EqDecoy)
 	geh.dispatch(events.DecoyExpired{
-		GrenadeEvent: geh.nadeEvent(data, common.EqDecoy),
+		GrenadeEvent: event,
 	})
+
+	geh.deleteThrownGrenade(event.Thrower, common.EqDecoy)
 }
 
 func (geh gameEventHandler) smokeGrenadeDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -365,9 +386,12 @@ func (geh gameEventHandler) smokeGrenadeDetonate(data map[string]*msg.CSVCMsg_Ga
 }
 
 func (geh gameEventHandler) smokeGrenadeExpired(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	event := geh.nadeEvent(data, common.EqSmoke)
 	geh.dispatch(events.SmokeExpired{
-		GrenadeEvent: geh.nadeEvent(data, common.EqSmoke),
+		GrenadeEvent: event,
 	})
+
+	geh.deleteThrownGrenade(event.Thrower, common.EqSmoke)
 }
 
 func (geh gameEventHandler) infernoStartBurn(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -434,6 +458,7 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKey
 			OldTeamState: geh.gameState().Team(oldTeam),
 		})
 	} else {
+		// TODO: figure out why this happens and whether it's a bug or not
 		geh.dispatch(events.ParserWarn{
 			Message: "Player team swap game-event occurred but player is nil",
 		})
@@ -577,49 +602,55 @@ func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 }
 
 func (geh gameEventHandler) addThrownGrenade(p *common.Player, wep *common.Equipment) {
-	if p != nil {
-		gameState := geh.gameState()
-		gameState.thrownGrenades[p] = append(gameState.thrownGrenades[p], wep)
+	if p == nil {
+		// can happen for "unknown" players (see #162)
+		return
 	}
+
+	gameState := geh.gameState()
+	gameState.thrownGrenades[p] = append(gameState.thrownGrenades[p], wep)
 }
 
 func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.EquipmentElement) *common.Equipment {
-	if p != nil {
-		// Get the first weapon we found for this player with this weapon type
-		for _, thrownGrenade := range geh.gameState().thrownGrenades[p] {
-			if thrownGrenade.Weapon == wepType {
-				return thrownGrenade
-			}
+	if p == nil {
+		// can happen for incendiaries or "unknown" players (see #162)
+		return nil
+	}
+
+	// Get the first weapon we found for this player with this weapon type
+	for _, thrownGrenade := range geh.gameState().thrownGrenades[p] {
+		if isSameEquipmentElement(thrownGrenade.Weapon, wepType) {
+			return thrownGrenade
 		}
 	}
 
-	// If we didn't found the thrown grenade we send back a new Weapon of the correct type (so we don't break anything)
-	thrownGrenade := common.NewEquipment(wepType)
-
-	return &thrownGrenade
+	// smokes might have duplicate smokegrenade_expired events, so it could have already been deleted.
+	// if it's not a smoke this should never be reached
+	unassert.Samef(wepType, common.EqSmoke, "tried to get non-existing grenade from gameState.thrownGrenades")
+	return nil
 }
 
 func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common.EquipmentElement) {
-	if p != nil {
-		gameState := geh.gameState()
+	if p == nil {
+		// can happen for incendiaries or "unknown" players (see #162)
+		return
+	}
 
-		// Delete the first weapon we found with this weapon type
-		throwGrenades := gameState.thrownGrenades[p]
-		for index, weapon := range throwGrenades {
-			// If we found the same weapon type
-			// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
-			if wepType == weapon.Weapon || (wepType == common.EqIncendiary && weapon.Weapon == common.EqMolotov) {
-				// Remove a specific index from the slice : https://github.com/golang/go/wiki/SliceTricks#delete-without-preserving-order
-				// Note: We are using the example for pointer elements to avoid memory leak
-				throwGrenades[index] = throwGrenades[len(throwGrenades)-1]
-				throwGrenades[len(throwGrenades)-1] = nil
-				throwGrenades = throwGrenades[:len(throwGrenades)-1]
-				gameState.thrownGrenades[p] = throwGrenades
+	gameState := geh.gameState()
 
-				break // We only delete one
-			}
+	// Delete the first weapon we found with this weapon type
+	for i, weapon := range gameState.thrownGrenades[p] {
+		// If same weapon type
+		// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
+		if isSameEquipmentElement(wepType, weapon.Weapon) {
+			gameState.thrownGrenades[p] = append(gameState.thrownGrenades[p][:i], gameState.thrownGrenades[p][i+1:]...)
+			return
 		}
 	}
+
+	// smokes might have duplicate smokegrenade_expired events, so it might already be deleted.
+	// besides that this code should never be reached
+	unassert.Samef(wepType, common.EqSmoke, "trying to delete non-existing grenade from gameState.thrownGrenades")
 }
 
 func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType common.EquipmentElement) *common.Equipment {
@@ -629,6 +660,13 @@ func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType 
 	}
 
 	return getPlayerWeapon(player, wepType)
+}
+
+// checks if two EquipmentElements are the same, considering that incendiary and molotov should be treated as identical
+func isSameEquipmentElement(a common.EquipmentElement, b common.EquipmentElement) bool {
+	return a == b ||
+		(a == common.EqIncendiary && b == common.EqMolotov) ||
+		(b == common.EqIncendiary && a == common.EqMolotov)
 }
 
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
