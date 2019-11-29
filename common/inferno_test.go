@@ -122,7 +122,7 @@ func TestInferno_Owner(t *testing.T) {
 }
 
 func TestInferno_Thrower(t *testing.T) {
-	entity := entityWithProperty("m_hThrower", st.PropertyValue{IntVal: 1})
+	entity := entityWithProperty("m_hOwnerEntity", st.PropertyValue{IntVal: 1})
 
 	player := new(Player)
 	provider := demoInfoProviderMock{
