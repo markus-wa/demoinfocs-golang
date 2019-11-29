@@ -605,22 +605,19 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 		gameState := geh.gameState()
 
 		// Delete the first weapon we found with this weapon type
-		for index, weapon := range gameState.thrownGrenades[p] {
-			// If same weapon type
+		throwGrenades := gameState.thrownGrenades[p]
+		for index, weapon := range throwGrenades {
+			// If we found the same weapon type
 			// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
 			if wepType == weapon.Weapon || (wepType == common.EqIncendiary && weapon.Weapon == common.EqMolotov) {
-				slice := gameState.thrownGrenades[p]
 
 				// Remove a specific index from the slice : https://github.com/golang/go/wiki/SliceTricks#delete-without-preserving-order
 				// Note: We are using the example for pointer elements to avoid memory leak
-				if index < len(slice)-1 {
-					copy(slice[index:], slice[index+1:])
-				}
-
-				slice[len(slice)-1] = nil // or the zero value of T
-				slice = slice[:len(slice)-1]
-
-				gameState.thrownGrenades[p] = slice
+				throwGrenades[index] = throwGrenades[len(throwGrenades)-1]
+				throwGrenades[len(throwGrenades)-1] = nil
+				throwGrenades = throwGrenades[:len(throwGrenades)-1]
+				gameState.thrownGrenades[p] = throwGrenades
+				break // We only delete one
 			}
 		}
 	}
