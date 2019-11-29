@@ -146,7 +146,8 @@ func (inf Inferno) Owner() *Player {
 	return inf.Thrower()
 }
 
-// Thrower is a more consistent name than Owner
+// Thrower returns the player who threw the fire grenade.
+// Could be nil if the player disconnected after throwing it.
 func (inf Inferno) Thrower() *Player {
 	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.FindPropertyI("m_hOwnerEntity").Value().IntVal)
 }
