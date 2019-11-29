@@ -445,7 +445,8 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	isInferno := proj.WeaponInstance.Weapon == common.EqMolotov || proj.WeaponInstance.Weapon == common.EqIncendiary
 	isSmoke := proj.WeaponInstance.Weapon == common.EqSmoke
 	isDecoy := proj.WeaponInstance.Weapon == common.EqDecoy
-	if !isInferno && !isSmoke && !isDecoy {
+
+  if !isInferno && !isSmoke && !isDecoy {
 		p.gameEventHandler.deleteThrownGrenade(proj.Thrower, proj.WeaponInstance.Weapon)
 	}
 }
