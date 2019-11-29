@@ -143,7 +143,7 @@ func (inf Inferno) ConvexHull3D() quickhull.ConvexHull {
 // Deprecated: Owner() exists for historical compatibility
 // and should not be used. Use Thrower() instead.
 func (inf Inferno) Owner() *Player {
-	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.FindPropertyI("m_hOwnerEntity").Value().IntVal)
+	return inf.Thrower()
 }
 
 // Thrower is a more consistent name than Owner
