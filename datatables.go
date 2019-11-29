@@ -364,7 +364,6 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	p.gameState.grenadeProjectiles[entityID] = proj
 
 	entity.OnCreateFinished(func() {
-
 		p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
 
 		p.eventDispatcher.Dispatch(events.GrenadeProjectileThrow{
@@ -377,7 +376,6 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	})
 
 	entity.FindPropertyI("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
-
 		proj.Weapon = p.grenadeModelIndices[val.IntVal]
 
 		equipment := common.NewEquipment(p.grenadeModelIndices[val.IntVal])

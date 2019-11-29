@@ -88,7 +88,6 @@ func TestGetPlayerWeapon_NotFound(t *testing.T) {
 }
 
 func TestAddThrownGrenade_NilPlayer(t *testing.T) {
-
 	p := NewParser(rand.Reader)
 	he := common.NewEquipment(common.EqHE)
 
@@ -100,7 +99,6 @@ func TestAddThrownGrenade_NilPlayer(t *testing.T) {
 }
 
 func TestAddThrownGrenade(t *testing.T) {
-
 	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE)
@@ -115,7 +113,6 @@ func TestAddThrownGrenade(t *testing.T) {
 }
 
 func TestGetThrownGrenade_NilPlayer(t *testing.T) {
-
 	p := NewParser(rand.Reader)
 	he := common.NewEquipment(common.EqHE)
 
@@ -126,7 +123,6 @@ func TestGetThrownGrenade_NilPlayer(t *testing.T) {
 }
 
 func TestGetThrownGrenade_NotFound(t *testing.T) {
-
 	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE)
@@ -138,7 +134,6 @@ func TestGetThrownGrenade_NotFound(t *testing.T) {
 }
 
 func TestGetThrownGrenade_Found(t *testing.T) {
-
 	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE)
@@ -175,7 +170,6 @@ func TestDeleteThrownGrenade_NotFound(t *testing.T) {
 }
 
 func TestDeleteThrownGrenade_Found(t *testing.T) {
-
 	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE)
@@ -192,7 +186,6 @@ func TestDeleteThrownGrenade_Found(t *testing.T) {
 }
 
 func TestGetEquipmentInstance_NotGrenade(t *testing.T) {
-
 	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 
