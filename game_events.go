@@ -185,7 +185,7 @@ func (geh gameEventHandler) roundStart(data map[string]*msg.CSVCMsg_GameEventKey
 
 	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)
 	// So we clear them out when a new round start
-	geh.gameState().thrownGrenades = make(map[*common.Player][]*common.Equipment, 0)
+	geh.gameState().thrownGrenades = make(map[*common.Player][]*common.Equipment)
 
 	geh.dispatch(events.RoundStart{
 		TimeLimit: int(data["timelimit"].GetValLong()),
@@ -610,13 +610,13 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 			// If we found the same weapon type
 			// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
 			if wepType == weapon.Weapon || (wepType == common.EqIncendiary && weapon.Weapon == common.EqMolotov) {
-
 				// Remove a specific index from the slice : https://github.com/golang/go/wiki/SliceTricks#delete-without-preserving-order
 				// Note: We are using the example for pointer elements to avoid memory leak
 				throwGrenades[index] = throwGrenades[len(throwGrenades)-1]
 				throwGrenades[len(throwGrenades)-1] = nil
 				throwGrenades = throwGrenades[:len(throwGrenades)-1]
 				gameState.thrownGrenades[p] = throwGrenades
+
 				break // We only delete one
 			}
 		}
