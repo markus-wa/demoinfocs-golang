@@ -611,6 +611,7 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 				if index < len(slice)-1 {
 					copy(slice[index:], slice[index+1:])
 				}
+
 				slice[len(slice)-1] = nil // or the zero value of T
 				slice = slice[:len(slice)-1]
 
