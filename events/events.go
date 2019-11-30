@@ -171,11 +171,8 @@ type GrenadeEventIf interface {
 // GrenadeEvent contains the common attributes of nade events. Dont register
 // handlers on this tho, you want GrenadeEventIf for that
 type GrenadeEvent struct {
-	// Deprecated: GrenadeType exists for historical compatibility
-	// and should not be used. To access the weapon type corresponding to his GrenadeEvent,
-	// use the Grenade.Weapon instead.
 	GrenadeType     common.EquipmentElement
-	Grenade         *common.Equipment
+	Grenade         *common.Equipment // Maybe nil for InfernoStart & InfernoExpired since we don't know the thrower (at least in old demos)
 	Position        r3.Vector
 	Thrower         *common.Player
 	GrenadeEntityID int
