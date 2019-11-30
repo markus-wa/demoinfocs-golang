@@ -627,6 +627,7 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 	// smokes might have duplicate smokegrenade_expired events, so it could have already been deleted.
 	// if it's not a smoke this should never be reached
 	unassert.Samef(wepType, common.EqSmoke, "tried to get non-existing grenade from gameState.thrownGrenades")
+
 	return nil
 }
 

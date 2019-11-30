@@ -437,7 +437,7 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 	delete(p.gameState.grenadeProjectiles, proj.EntityID)
 
-	if proj.Weapon == common.EqFlash {
+	if proj.WeaponInstance.Weapon == common.EqFlash {
 		p.gameState.lastFlash.projectileByPlayer[proj.Owner] = proj
 	}
 
@@ -446,7 +446,7 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	isSmoke := proj.WeaponInstance.Weapon == common.EqSmoke
 	isDecoy := proj.WeaponInstance.Weapon == common.EqDecoy
 
-  if !isInferno && !isSmoke && !isDecoy {
+	if !isInferno && !isSmoke && !isDecoy {
 		p.gameEventHandler.deleteThrownGrenade(proj.Thrower, proj.WeaponInstance.Weapon)
 	}
 }
