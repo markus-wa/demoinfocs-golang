@@ -24,9 +24,10 @@ type GameState struct {
 	gamePhase          common.GamePhase
 	isWarmupPeriod     bool
 	isMatchStarted     bool
-	lastFlash          lastFlash      // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
-	currentDefuser     *common.Player // Player currently defusing the bomb, if any
-	currentPlanter     *common.Player // Player currently planting the bomb, if any
+	lastFlash          lastFlash                              // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
+	currentDefuser     *common.Player                         // Player currently defusing the bomb, if any
+	currentPlanter     *common.Player                         // Player currently planting the bomb, if any
+	thrownGrenades     map[*common.Player][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
 }
 
 type lastFlash struct {
@@ -143,6 +144,7 @@ func newGameState() *GameState {
 		infernos:           make(map[int]*common.Inferno),
 		entities:           make(map[int]*st.Entity),
 		conVars:            make(map[string]string),
+		thrownGrenades:     make(map[*common.Player][]*common.Equipment),
 		lastFlash: lastFlash{
 			projectileByPlayer: make(map[*common.Player]*common.GrenadeProjectile),
 		},

@@ -172,6 +172,7 @@ type GrenadeEventIf interface {
 // handlers on this tho, you want GrenadeEventIf for that
 type GrenadeEvent struct {
 	GrenadeType     common.EquipmentElement
+	Grenade         *common.Equipment // Maybe nil for InfernoStart & InfernoExpired since we don't know the thrower (at least in old demos)
 	Position        r3.Vector
 	Thrower         *common.Player
 	GrenadeEntityID int

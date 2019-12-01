@@ -139,7 +139,16 @@ func (inf Inferno) ConvexHull3D() quickhull.ConvexHull {
 
 // Owner returns the player who threw the fire grenade.
 // Could be nil if the player disconnected after throwing it.
+//
+// Deprecated: Owner() exists for historical compatibility
+// and should not be used. Use Thrower() instead.
 func (inf Inferno) Owner() *Player {
+	return inf.Thrower()
+}
+
+// Thrower returns the player who threw the fire grenade.
+// Could be nil if the player disconnected after throwing it.
+func (inf Inferno) Thrower() *Player {
 	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.FindPropertyI("m_hOwnerEntity").Value().IntVal)
 }
 
