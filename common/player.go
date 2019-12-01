@@ -43,7 +43,7 @@ type Player struct {
 	FlashTick                   int        // In-game tick at which the player was last flashed
 	TeamState                   *TeamState // When keeping the reference make sure you notice when the player changes teams
 	Team                        Team
-	IsBot                       bool
+	IsBot                       bool // True if this is a bot-entity. See also IsControllingBot and ControlledBot().
 	IsConnected                 bool
 	IsDucking                   bool
 	IsDefusing                  bool
@@ -202,6 +202,28 @@ func (p *Player) CashSpentThisRound() int {
 // Deprecated, use Player.AdditionalPlayerInformation.TotalCashSpent instead.
 func (p *Player) CashSpentTotal() int {
 	return p.AdditionalPlayerInformation.TotalCashSpent
+}
+
+// IsControllingBot returns true if the player is currently controlling a bot.
+// See also ControlledBot().
+func (p *Player) IsControllingBot() bool {
+	if p.Entity == nil {
+		return false
+	}
+
+	return p.Entity.FindPropertyI("m_bIsControllingBot").Value().IntVal != 0
+}
+
+// ControlledBot returns the player instance of the bot that the player is controlling, if any.
+// Returns nil if the player is not controlling a bot.
+func (p *Player) ControlledBot() *Player {
+	if p.Entity == nil {
+		return nil
+	}
+
+	botHandle := p.Entity.FindPropertyI("m_iControlledBotEntIndex").Value().IntVal
+
+	return p.demoInfoProvider.FindPlayerByHandle(botHandle)
 }
 
 // AdditionalPlayerInformation contains mostly scoreboard information.

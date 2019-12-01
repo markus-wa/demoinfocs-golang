@@ -206,6 +206,50 @@ func TestPlayer_IsAirborne(t *testing.T) {
 	assert.True(t, pl.IsAirborne())
 }
 
+func TestPlayer_IsControllingBot_NilEntity(t *testing.T) {
+	pl := new(Player)
+
+	assert.False(t, pl.IsControllingBot())
+}
+
+func TestPlayer_IsControllingBot(t *testing.T) {
+	pl := playerWithProperty("m_bIsControllingBot", st.PropertyValue{IntVal: 0})
+
+	assert.False(t, pl.IsControllingBot())
+
+	pl = playerWithProperty("m_bIsControllingBot", st.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.IsControllingBot())
+}
+
+func TestPlayer_ControlledBot_NilEntity(t *testing.T) {
+	pl := new(Player)
+
+	assert.Nil(t, pl.ControlledBot())
+}
+
+func TestPlayer_ControlledBot(t *testing.T) {
+	dave := &Player{
+		Name:  "Dave",
+		IsBot: true,
+	}
+	demoInfoProvider := &demoInfoProviderMock{
+		playersByHandle: map[int]*Player{
+			12: dave,
+		},
+	}
+
+	pl := playerWithProperty("m_iControlledBotEntIndex", st.PropertyValue{IntVal: 0})
+	pl.demoInfoProvider = demoInfoProvider
+
+	assert.Nil(t, pl.ControlledBot())
+
+	pl = playerWithProperty("m_iControlledBotEntIndex", st.PropertyValue{IntVal: 12})
+	pl.demoInfoProvider = demoInfoProvider
+
+	assert.Same(t, dave, pl.ControlledBot())
+}
+
 func newPlayer(tick int) *Player {
 	return NewPlayer(mockDemoInfoProvider(128, tick))
 }

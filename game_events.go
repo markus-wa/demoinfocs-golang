@@ -109,7 +109,7 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"bomb_exploded":                   geh.bombExploded,                     // Bomb exploded
 		"bomb_pickup":                     geh.bombPickup,                       // Bomb picked up
 		"bomb_planted":                    geh.bombPlanted,                      // Plant finished
-		"bot_takeover":                    geh.botTakeover,                      // Bot got taken over
+		"bot_takeover":                    delay(geh.botTakeover),               // Bot got taken over
 		"buytime_ended":                   nil,                                  // Not actually end of buy time, seems to only be sent once per game at the start
 		"cs_match_end_restart":            nil,                                  // Yawn
 		"cs_pre_restart":                  nil,                                  // Not sure, doesn't seem to be important
@@ -252,8 +252,14 @@ func (geh gameEventHandler) roundMVP(data map[string]*msg.CSVCMsg_GameEventKeyT)
 }
 
 func (geh gameEventHandler) botTakeover(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	taker := geh.playerByUserID32(data["userid"].GetValShort())
+
+	unassert.True(!taker.IsBot)
+	unassert.True(taker.IsControllingBot())
+	unassert.NotNil(taker.ControlledBot())
+
 	geh.dispatch(events.BotTakenOver{
-		Taker: geh.playerByUserID32(data["userid"].GetValShort()),
+		Taker: taker,
 	})
 }
 
