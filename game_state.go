@@ -193,6 +193,18 @@ func (ptcp Participants) ByEntityID() map[int]*common.Player {
 	return res
 }
 
+// AllByUserID returns all currently known players & spectators, including disconnected ones,
+// in a map where the key is the user-ID.
+// The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
+// Includes spectators.
+func (ptcp Participants) AllByUserID() map[int]*common.Player {
+	res := make(map[int]*common.Player)
+	for k, v := range ptcp.playersByUserID {
+		res[k] = v
+	}
+	return res
+}
+
 // All returns all currently known players & spectators, including disconnected ones, of the demo.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) All() []*common.Player {
