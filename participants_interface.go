@@ -16,15 +16,15 @@ type IParticipants interface {
 	// The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
 	// Includes spectators.
 	ByUserID() map[int]*common.Player
+	// ByEntityID returns all currently connected players in a map where the key is the entity-ID.
+	// The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
+	// Includes spectators.
+	ByEntityID() map[int]*common.Player
 	// AllByUserID returns all currently known players & spectators, including disconnected ones,
 	// in a map where the key is the user-ID.
 	// The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
 	// Includes spectators.
 	AllByUserID() map[int]*common.Player
-	// ByEntityID returns all currently connected players in a map where the key is the entity-ID.
-	// The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
-	// Includes spectators.
-	ByEntityID() map[int]*common.Player
 	// All returns all currently known players & spectators, including disconnected ones, of the demo.
 	// The returned slice is a snapshot and is not updated on changes.
 	All() []*common.Player
