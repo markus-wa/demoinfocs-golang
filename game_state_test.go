@@ -41,6 +41,7 @@ func TestGameState_Participants(t *testing.T) {
 	ptcp := gs.Participants()
 	byEntity := ptcp.ByEntityID()
 	byUserID := ptcp.ByUserID()
+	allByUserID := ptcp.AllByUserID()
 
 	// Should update ptcp as well since it uses the same map
 	gs.playersByEntityID[0] = newPlayer()
@@ -48,10 +49,23 @@ func TestGameState_Participants(t *testing.T) {
 
 	assert.Equal(t, gs.playersByEntityID, ptcp.ByEntityID())
 	assert.Equal(t, gs.playersByUserID, ptcp.ByUserID())
+	assert.Equal(t, gs.playersByUserID, ptcp.AllByUserID())
 
 	// But should not update byEntity or byUserID since they're copies
 	assert.NotEqual(t, byEntity, ptcp.ByEntityID())
-	assert.NotEqual(t, byUserID, ptcp.ByUserID())
+	byUserID2 := ptcp.ByUserID()
+	assert.NotEqual(t, byUserID, byUserID2)
+	assert.Equal(t, gs.playersByUserID, ptcp.AllByUserID())
+
+	gs.playersByEntityID[1] = newDisconnectedPlayer()
+	gs.playersByUserID[1] = newDisconnectedPlayer()
+
+	assert.Equal(t, gs.playersByUserID, ptcp.AllByUserID())
+
+	assert.NotEqual(t, byEntity, ptcp.ByEntityID())
+	// Should be equal since ByUserID() do not return disconnected users
+	assert.Equal(t, byUserID2, ptcp.ByUserID())
+	assert.NotEqual(t, allByUserID, ptcp.ByUserID())
 }
 
 func TestGameState_ConVars(t *testing.T) {
@@ -264,5 +278,11 @@ func newPlayer() *common.Player {
 	pl := common.NewPlayer(nil)
 	pl.Entity = new(st.Entity)
 	pl.IsConnected = true
+	return pl
+}
+
+func newDisconnectedPlayer() *common.Player {
+	pl := common.NewPlayer(nil)
+	pl.Entity = new(st.Entity)
 	return pl
 }
