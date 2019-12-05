@@ -361,6 +361,7 @@ func BenchmarkConcurrent(b *testing.B) {
 func openFile(tb testing.TB, file string) *os.File {
 	f, err := os.Open(file)
 	assert.NoError(tb, err, "failed to open file %q", file)
+
 	return f
 }
 
@@ -369,6 +370,7 @@ func assertGolden(tb testing.TB, assertions *assert.Assertions, testCase string,
 	if ver := runtime.Version(); strings.Compare(ver, goldenVerificationGoVersionMin) < 0 {
 		tb.Logf("old go version %q detected, skipping golden file verification", ver)
 		tb.Logf("need at least version %q to compare against golden file", goldenVerificationGoVersionMin)
+
 		return
 	}
 

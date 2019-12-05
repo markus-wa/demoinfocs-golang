@@ -59,6 +59,7 @@ func (gs *GameState) Team(team common.Team) *common.TeamState {
 	} else if team == common.TeamCounterTerrorists {
 		return &gs.ctState
 	}
+
 	return nil
 }
 
@@ -179,6 +180,7 @@ func (ptcp Participants) ByUserID() map[int]*common.Player {
 			res[k] = v
 		}
 	}
+
 	return res
 }
 
@@ -190,6 +192,20 @@ func (ptcp Participants) ByEntityID() map[int]*common.Player {
 	for k, v := range ptcp.playersByEntityID {
 		res[k] = v
 	}
+
+	return res
+}
+
+// AllByUserID returns all currently known players & spectators, including disconnected ones,
+// in a map where the key is the user-ID.
+// The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
+// Includes spectators.
+func (ptcp Participants) AllByUserID() map[int]*common.Player {
+	res := make(map[int]*common.Player)
+	for k, v := range ptcp.playersByUserID {
+		res[k] = v
+	}
+
 	return res
 }
 
@@ -200,6 +216,7 @@ func (ptcp Participants) All() []*common.Player {
 	for _, p := range ptcp.playersByUserID {
 		res = append(res, p)
 	}
+
 	return res
 }
 
@@ -210,6 +227,7 @@ func (ptcp Participants) Connected() []*common.Player {
 	for _, p := range original {
 		res = append(res, p)
 	}
+
 	return res
 }
 
@@ -222,6 +240,7 @@ func (ptcp Participants) Playing() []*common.Player {
 			res = append(res, p)
 		}
 	}
+
 	return res
 }
 
@@ -234,6 +253,7 @@ func (ptcp Participants) TeamMembers(team common.Team) []*common.Player {
 			res = append(res, p)
 		}
 	}
+
 	return res
 }
 
@@ -261,6 +281,7 @@ func (ptcp Participants) SpottersOf(spotted *common.Player) (spotters []*common.
 			spotters = append(spotters, other)
 		}
 	}
+
 	return
 }
 
@@ -271,5 +292,6 @@ func (ptcp Participants) SpottedBy(spotter *common.Player) (spotted []*common.Pl
 			spotted = append(spotted, other)
 		}
 	}
+
 	return
 }

@@ -24,6 +24,11 @@ func (ptcp *Participants) ByEntityID() map[int]*common.Player {
 	return ptcp.Called().Get(0).(map[int]*common.Player)
 }
 
+// AllByUserID is a mock-implementation of IParticipants.AllByUserID().
+func (ptcp *Participants) AllByUserID() map[int]*common.Player {
+	return ptcp.Called().Get(0).(map[int]*common.Player)
+}
+
 // All is a mock-implementation of IParticipants.All().
 func (ptcp *Participants) All() []*common.Player {
 	return ptcp.Called().Get(0).([]*common.Player)
