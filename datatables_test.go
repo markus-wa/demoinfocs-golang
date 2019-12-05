@@ -116,12 +116,14 @@ func testPlayerSpotted(t *testing.T, propName string) {
 func newParser() *Parser {
 	p := NewParser(new(DevNullReader))
 	p.header = &common.DemoHeader{}
+
 	return p
 }
 
 func fakePlayerEntity(id int) *fakest.Entity {
 	entity := new(fakest.Entity)
 	configurePlayerEntityMock(id, entity)
+
 	return entity
 }
 

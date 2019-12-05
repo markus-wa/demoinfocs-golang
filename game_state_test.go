@@ -278,11 +278,13 @@ func newPlayer() *common.Player {
 	pl := common.NewPlayer(nil)
 	pl.Entity = new(st.Entity)
 	pl.IsConnected = true
+
 	return pl
 }
 
 func newDisconnectedPlayer() *common.Player {
 	pl := common.NewPlayer(nil)
 	pl.Entity = new(st.Entity)
+
 	return pl
 }
