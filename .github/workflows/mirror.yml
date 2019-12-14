@@ -1,0 +1,15 @@
+name: Mirror
+on: [push]
+
+jobs:
+  build:
+    name: Mirror to GitLab
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror to GitLab
+        uses: wearerequired/git-mirror-action@v1.0.0
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        with:
+          source-repo: 'git@github.com:markus-wa/demoinfocs-golang.git'
+          destination-repo: 'git@gitlab.com:markus-wa/demoinfocs-golang.git'
