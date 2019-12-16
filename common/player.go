@@ -37,11 +37,11 @@ type Player struct {
 	AmmoLeft                    [32]int            // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
 	Entity                      st.IEntity
 	AdditionalPlayerInformation *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
-	ViewDirectionX              float32
-	ViewDirectionY              float32
-	FlashDuration               float32    // Blindness duration from the flashbang currently affecting the player (seconds)
-	FlashTick                   int        // In-game tick at which the player was last flashed
-	TeamState                   *TeamState // When keeping the reference make sure you notice when the player changes teams
+	ViewDirectionX              float32                      // Yaw in degrees, 0 to 360
+	ViewDirectionY              float32                      // Pitch in degrees, 270 to 90 (270=-90)
+	FlashDuration               float32                      // Blindness duration from the flashbang currently affecting the player (seconds)
+	FlashTick                   int                          // In-game tick at which the player was last flashed
+	TeamState                   *TeamState                   // When keeping the reference make sure you notice when the player changes teams
 	Team                        Team
 	IsBot                       bool // True if this is a bot-entity. See also IsControllingBot and ControlledBot().
 	IsConnected                 bool
