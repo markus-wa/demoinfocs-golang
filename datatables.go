@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/golang/geo/r3"
+	"github.com/markus-wa/go-unassert"
 
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
@@ -379,7 +380,17 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	proj.EntityID = entityID
 	p.gameState.grenadeProjectiles[entityID] = proj
 
+	var wep common.EquipmentElement
 	entity.OnCreateFinished(func() {
+		// copy the weapon so it doesn't get overwritten by a new entity in Parser.weapons
+		wepCopy := *(getPlayerWeapon(proj.Thrower, wep))
+		proj.WeaponInstance = &wepCopy
+
+		unassert.NotNilf(proj.WeaponInstance, "couldn't find grenade instance for player")
+		if proj.WeaponInstance != nil {
+			unassert.NotNilf(proj.WeaponInstance.Owner, "getPlayerWeapon() returned weapon instance with Owner=nil")
+		}
+
 		p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
 
 		p.eventDispatcher.Dispatch(events.GrenadeProjectileThrow{
@@ -393,9 +404,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 
 	entity.FindPropertyI("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
 		proj.Weapon = p.grenadeModelIndices[val.IntVal]
-
-		equipment := common.NewEquipment(p.grenadeModelIndices[val.IntVal])
-		proj.WeaponInstance = &equipment
+		wep = p.grenadeModelIndices[val.IntVal]
 	})
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
