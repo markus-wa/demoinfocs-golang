@@ -679,7 +679,7 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *co
 	if player != nil {
 		alternateWepType := common.EquipmentAlternative(wepType)
 		for _, wep := range player.Weapons() {
-			if wep.Weapon == wepType || wep.Weapon == alternateWepType {
+			if wep.Weapon == wepType || (alternateWepType != common.EqUnknown && wep.Weapon == alternateWepType) {
 				return wep
 			}
 		}

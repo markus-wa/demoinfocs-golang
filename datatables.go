@@ -24,36 +24,40 @@ const (
 
 func (p *Parser) mapEquipment() {
 	for _, sc := range p.stParser.ServerClasses() {
+		switch sc.Name() {
+		case "CC4":
+			p.equipmentMapping[sc] = common.EqBomb
+			continue
+
+		case "CWeaponNOVA":
+			fallthrough
+		case "CWeaponSawedoff":
+			fallthrough
+		case "CWeaponXM1014":
+			p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.Name()[7:]))
+			continue
+		}
+
 		baseClasses := sc.BaseClasses()
 		for _, bc := range baseClasses {
 			if bc.Name() == "CBaseGrenade" { // Grenades projectiles, i.e. thrown by player
 				p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.DataTableName()[3:]))
+				break
 			}
-		}
 
-		if len(baseClasses) > 6 && baseClasses[6].Name() == "CWeaponCSBase" {
-			if len(baseClasses) > 7 {
-				switch baseClasses[7].Name() {
-				case "CWeaponCSBaseGun":
-					// Most guns
-					p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.DataTableName()[9:]))
-				case "CBaseCSGrenade":
-					// Nades
-					p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.DataTableName()[3:]))
-				}
-			} else if sc.Name() == "CKnife" || (len(baseClasses) > 6 && baseClasses[6].Name() == "CKnife") {
+			if bc.Name() == "CKnife" {
 				p.equipmentMapping[sc] = common.EqKnife
-			} else {
-				switch sc.Name() {
-				case "CC4":
-					p.equipmentMapping[sc] = common.EqBomb
-				case "CWeaponNOVA":
-					fallthrough
-				case "CWeaponSawedoff":
-					fallthrough
-				case "CWeaponXM1014":
-					p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.Name()[7:]))
-				}
+				break
+			}
+
+			if bc.Name() == "CWeaponCSBaseGun" { // most guns
+				p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.DataTableName()[9:]))
+				break
+			}
+
+			if bc.Name() == "CBaseCSGrenade" { // nades
+				p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.DataTableName()[3:]))
+				break
 			}
 		}
 	}
