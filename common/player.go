@@ -32,10 +32,10 @@ type Player struct {
 	CurrentEquipmentValue       int
 	FreezetimeEndEquipmentValue int
 	RoundStartEquipmentValue    int
-	ActiveWeaponID              int                // Used internally to set the active weapon, see ActiveWeapon()
-	RawWeapons                  map[int]*Equipment // All weapons the player is currently carrying
-	AmmoLeft                    [32]int            // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
-	Entity                      st.IEntity
+	ActiveWeaponID              int                          // Used internally to set the active weapon, see ActiveWeapon()
+	RawWeapons                  map[int]*Equipment           // All weapons the player is currently carrying
+	AmmoLeft                    [32]int                      // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
+	Entity                      st.IEntity                   // May be nil between player-death and re-spawn
 	AdditionalPlayerInformation *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
 	ViewDirectionX              float32                      // Yaw in degrees, 0 to 360
 	ViewDirectionY              float32                      // Pitch in degrees, 270 to 90 (270=-90)
