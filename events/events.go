@@ -109,12 +109,12 @@ type AnnouncementWinPanelMatch struct{}
 
 // Footstep occurs when a player makes a footstep.
 type Footstep struct {
-	Player *common.Player
+	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 }
 
 // PlayerTeamChange occurs when a player swaps teams.
 type PlayerTeamChange struct {
-	Player *common.Player
+	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 
 	// TeamState of the old team.
 	// May be nil if player changed from spectators/unassigned (OldTeam == TeamSpectators || OldTeam == TeamUnassigned).
@@ -133,14 +133,14 @@ type PlayerTeamChange struct {
 
 // PlayerJump signals that a player has jumped.
 type PlayerJump struct {
-	Player *common.Player
+	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 }
 
 // Kill signals that a player has been killed.
 type Kill struct {
 	Weapon            *common.Equipment
-	Victim            *common.Player
-	Killer            *common.Player // May be nil for world damage (EqWorld) or if the demo is partially corrupt (see #156)
+	Victim            *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Killer            *common.Player // May be nil for world damage (EqWorld) or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Assister          *common.Player
 	PenetratedObjects int
 	IsHeadshot        bool
@@ -153,13 +153,13 @@ type BotTakenOver struct {
 
 // WeaponFire signals that a weapon has been fired.
 type WeaponFire struct {
-	Shooter *common.Player // May be nil if the demo is partially corrupt (see #156)
+	Shooter *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Weapon  *common.Equipment
 }
 
 // WeaponReload signals that a player started to reload his weapon.
 type WeaponReload struct {
-	Player *common.Player
+	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 }
 
 // GrenadeEventIf is the interface for all GrenadeEvents (except GrenadeProjectile* events).
@@ -174,7 +174,7 @@ type GrenadeEvent struct {
 	GrenadeType     common.EquipmentElement
 	Grenade         *common.Equipment // Maybe nil for InfernoStart & InfernoExpired since we don't know the thrower (at least in old demos)
 	Position        r3.Vector
-	Thrower         *common.Player
+	Thrower         *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	GrenadeEntityID int
 }
 
@@ -249,8 +249,8 @@ type GrenadeProjectileDestroy struct {
 
 // PlayerFlashed signals that a player was flashed.
 type PlayerFlashed struct {
-	Player     *common.Player
-	Attacker   *common.Player
+	Player     *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Attacker   *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Projectile *common.GrenadeProjectile
 }
 
@@ -358,8 +358,8 @@ const (
 
 // PlayerHurt signals that a player has been damaged.
 type PlayerHurt struct {
-	Player       *common.Player
-	Attacker     *common.Player // May be nil if the player is taking world damage (e.g. fall damage).
+	Player       *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Attacker     *common.Player // May be nil if the player is taking world damage (e.g. fall damage) or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Health       int
 	Armor        int
 	Weapon       *common.Equipment // May be EqUnknown for world-damage (falling / bomb).
