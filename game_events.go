@@ -117,7 +117,7 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 		"cs_round_start_beep":             nil,                                  // Round start beeps
 		"cs_win_panel_match":              geh.csWinPanelMatch,                  // Not sure, maybe match end event???
 		"cs_win_panel_round":              nil,                                  // Win panel, (==end of match?)
-		"decoy_detonate":                  geh.decoyDetonate,                    // Decoy exploded/expired
+		"decoy_detonate":                  delay(geh.decoyDetonate),             // Decoy exploded/expired. Delayed so deleteThrownGrenade() isn't called before player_hurt
 		"decoy_started":                   delay(geh.decoyStarted),              // Decoy started. Delayed because projectile entity is not yet created
 		"endmatch_cmm_start_reveal_items": nil,                                  // Drops
 		"entity_visible":                  nil,                                  // Dunno, only in locally recorded demo
@@ -679,7 +679,7 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *co
 	if player != nil {
 		alternateWepType := common.EquipmentAlternative(wepType)
 		for _, wep := range player.Weapons() {
-			if wep.Weapon == wepType || wep.Weapon == alternateWepType {
+			if wep.Weapon == wepType || (alternateWepType != common.EqUnknown && wep.Weapon == alternateWepType) {
 				return wep
 			}
 		}
