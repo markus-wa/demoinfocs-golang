@@ -267,7 +267,6 @@ func (ptcp Participants) FindByHandle(handle int) *common.Player {
 	}
 
 	entityID := handle & entityHandleIndexMask
-	
 	player := ptcp.playersByEntityID[entityID]
 	if player == nil {
 		for _, p := range ptcp.playersByUserID {
