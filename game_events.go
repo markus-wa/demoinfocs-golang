@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
@@ -479,9 +480,18 @@ func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CSVCMsg_GameEven
 }
 
 func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	gs := geh.gameState()
+	gs.currentPlanter.IsPlanting = false
+	gs.currentPlanter = nil
+
+	c4Timer, err := strconv.Atoi(gs.conVars["mp_c4timer"])
+	if err != nil {
+		c4Timer = 45
+	}
+	gs.nextBombExplosionTime = geh.parser.CurrentTime() + time.Second*time.Duration(c4Timer)
+
 	event := events.BombPlanted{BombEvent: geh.bombEvent(data)}
-	event.Player.IsPlanting = false
-	geh.parser.gameState.currentPlanter = nil
+	event.Player.IsPlanting = false // just to be sure, 'should' be the same as above
 	geh.dispatch(event)
 }
 
@@ -492,8 +502,11 @@ func (geh gameEventHandler) bombDefused(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) bombExploded(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	gs := geh.gameState()
+	gs.currentDefuser = nil
+	gs.bombExplosions[gs.ingameTick] = true
+
 	bombEvent := geh.bombEvent(data)
-	geh.gameState().currentDefuser = nil
 	geh.dispatch(events.BombExplode{BombEvent: bombEvent})
 }
 
@@ -661,6 +674,14 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 }
 
 func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType common.EquipmentElement) *common.Equipment {
+	gs := geh.gameState()
+	bombExplodedThisTick := gs.bombExplosions[geh.gameState().ingameTick]
+	diff := gs.nextBombExplosionTime - geh.parser.CurrentTime()
+	bombExplodedThisTick = bombExplodedThisTick || diff < 5*time.Second && diff > -5*time.Second
+	if wepType == common.EqUnknown && bombExplodedThisTick {
+		wepType = common.EqBomb
+	}
+
 	isGrenade := wepType.Class() == common.EqClassGrenade
 	if isGrenade {
 		return geh.getThrownGrenade(player, wepType)

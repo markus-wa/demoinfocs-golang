@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/golang/geo/r3"
+
+	"github.com/markus-wa/demoinfocs-golang/sendtables"
 )
 
 // Team is the type for the various TeamXYZ constants.
@@ -99,6 +101,7 @@ type Bomb struct {
 	// Contains the last location of the dropped or planted bomb.
 	LastOnGroundPosition r3.Vector
 	Carrier              *Player
+	Entity               sendtables.IEntity
 }
 
 // Position returns the current position of the bomb.

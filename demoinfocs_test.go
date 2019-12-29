@@ -123,6 +123,47 @@ func TestDemoInfoCs(t *testing.T) {
 		}
 	})
 
+	// bomb damage checks
+	kills := make(map[int][]events.Kill)
+	hurts := make(map[int][]events.PlayerHurt)
+	explosions := make(map[int]bool)
+	p.RegisterEventHandler(func(explode events.BombExplode) {
+		tick := p.GameState().IngameTick()
+		explosions[tick] = true
+
+		for _, kill := range kills[tick] {
+			if kill.Weapon.Weapon == common.EqUnknown {
+				t.Error("Unknown damage during bomb tick")
+			}
+		}
+
+		for _, hurt := range hurts[tick] {
+			if hurt.Weapon.Weapon == common.EqUnknown {
+				t.Error("Unknown damage during bomb tick")
+			}
+		}
+	})
+	p.RegisterEventHandler(func(kill events.Kill) {
+		tick := p.GameState().IngameTick()
+		kills[tick] = append(kills[tick], kill)
+
+		explosionTick := explosions[tick]
+
+		if kill.Weapon.Weapon == common.EqUnknown && explosionTick {
+			t.Error("Unknown damage during bomb tick")
+		}
+	})
+	p.RegisterEventHandler(func(hurt events.PlayerHurt) {
+		tick := p.GameState().IngameTick()
+		hurts[tick] = append(hurts[tick], hurt)
+
+		explosionTick := explosions[tick]
+
+		if hurt.Weapon.Weapon == common.EqUnknown && explosionTick {
+			t.Error("Unknown damage during bomb tick")
+		}
+	})
+
 	// reload checks
 	p.RegisterEventHandler(func(reload events.WeaponReload) {
 		if !reload.Player.IsReloading {
@@ -315,6 +356,47 @@ func TestDemoSet(t *testing.T) {
 				}()
 
 				p := dem.NewParser(f)
+
+				// bomb damage checks
+				kills := make(map[int][]events.Kill)
+				hurts := make(map[int][]events.PlayerHurt)
+				explosions := make(map[int]bool)
+				p.RegisterEventHandler(func(explode events.BombExplode) {
+					tick := p.GameState().IngameTick()
+					explosions[tick] = true
+
+					for _, kill := range kills[tick] {
+						if kill.Weapon.Weapon == common.EqUnknown {
+							t.Error("Unknown damage during bomb tick")
+						}
+					}
+
+					for _, hurt := range hurts[tick] {
+						if hurt.Weapon.Weapon == common.EqUnknown {
+							t.Error("Unknown damage during bomb tick")
+						}
+					}
+				})
+				p.RegisterEventHandler(func(kill events.Kill) {
+					tick := p.GameState().IngameTick()
+					kills[tick] = append(kills[tick], kill)
+
+					explosionTick := explosions[tick]
+
+					if kill.Weapon.Weapon == common.EqUnknown && explosionTick {
+						t.Error("Unknown damage during bomb tick")
+					}
+				})
+				p.RegisterEventHandler(func(hurt events.PlayerHurt) {
+					tick := p.GameState().IngameTick()
+					hurts[tick] = append(hurts[tick], hurt)
+
+					explosionTick := explosions[tick]
+
+					if hurt.Weapon.Weapon == common.EqUnknown && explosionTick {
+						t.Error("Unknown damage during bomb tick")
+					}
+				})
 
 				err = p.ParseToEnd()
 				assert.Nil(t, err, "parsing of '%s/%s' failed", demSetPath, name)

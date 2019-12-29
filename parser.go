@@ -63,14 +63,14 @@ type Parser struct {
 
 	bombsiteA            bombsite
 	bombsiteB            bombsite
-	equipmentMapping     map[*st.ServerClass]common.EquipmentElement     // Maps server classes to equipment-types
+	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
 	rawPlayers           map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
 	additionalPlayerInfo [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
+	equipmentMapping     map[*st.ServerClass]common.EquipmentElement     // Maps server classes to equipment-types
 	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
 	weapons              [maxEntities]common.Equipment                   // Used to remember what a weapon is (p250 / cz etc.)
-	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
-	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
 	grenadeModelIndices  map[int]common.EquipmentElement                 // Used to map model indices to grenades (used for grenade projectiles)
+	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
 	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
 	delayedEventHandlers []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 }
@@ -122,6 +122,10 @@ func (p *Parser) CurrentFrame() int {
 
 // CurrentTime returns the time elapsed since the start of the demo
 func (p *Parser) CurrentTime() time.Duration {
+	if p.header == nil {
+		return 0
+	}
+
 	return time.Duration(p.currentFrame) * p.header.FrameTime()
 }
 

@@ -80,6 +80,8 @@ func (p *Parser) bindBomb() {
 	// Track bomb when it is dropped on the ground or being held by a player
 	scC4 := p.stParser.ServerClasses().FindByName("CC4")
 	scC4.OnEntityCreated(func(bombEntity *st.Entity) {
+		bomb.Entity = bombEntity
+
 		bombEntity.OnPositionUpdate(func(pos r3.Vector) {
 			// Bomb only has a position when not held by a player
 			bomb.Carrier = nil

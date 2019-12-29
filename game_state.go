@@ -1,6 +1,8 @@
 package demoinfocs
 
 import (
+	"time"
+
 	"github.com/markus-wa/demoinfocs-golang/common"
 	st "github.com/markus-wa/demoinfocs-golang/sendtables"
 )
@@ -10,24 +12,26 @@ import (
 
 // GameState contains all game-state relevant information.
 type GameState struct {
-	ingameTick         int
-	tState             common.TeamState
-	ctState            common.TeamState
-	playersByUserID    map[int]*common.Player            // Maps user-IDs to players
-	playersByEntityID  map[int]*common.Player            // Maps entity-IDs to players
-	grenadeProjectiles map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
-	infernos           map[int]*common.Inferno           // Maps entity-IDs to active infernos.
-	entities           map[int]*st.Entity                // Maps entity IDs to entities
-	conVars            map[string]string
-	bomb               common.Bomb
-	totalRoundsPlayed  int
-	gamePhase          common.GamePhase
-	isWarmupPeriod     bool
-	isMatchStarted     bool
-	lastFlash          lastFlash                              // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
-	currentDefuser     *common.Player                         // Player currently defusing the bomb, if any
-	currentPlanter     *common.Player                         // Player currently planting the bomb, if any
-	thrownGrenades     map[*common.Player][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
+	ingameTick            int
+	tState                common.TeamState
+	ctState               common.TeamState
+	playersByUserID       map[int]*common.Player            // Maps user-IDs to players
+	playersByEntityID     map[int]*common.Player            // Maps entity-IDs to players
+	grenadeProjectiles    map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
+	infernos              map[int]*common.Inferno           // Maps entity-IDs to active infernos.
+	entities              map[int]*st.Entity                // Maps entity IDs to entities
+	conVars               map[string]string
+	bomb                  common.Bomb
+	totalRoundsPlayed     int
+	gamePhase             common.GamePhase
+	isWarmupPeriod        bool
+	isMatchStarted        bool
+	lastFlash             lastFlash                              // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
+	currentDefuser        *common.Player                         // Player currently defusing the bomb, if any
+	currentPlanter        *common.Player                         // Player currently planting the bomb, if any
+	thrownGrenades        map[*common.Player][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
+	bombExplosions        map[int]bool                           // Contains tick IDs in which bomb explosions occurred
+	nextBombExplosionTime time.Duration                          // Ingame time at which the next bomb is scheduled to explode
 }
 
 type lastFlash struct {
@@ -146,6 +150,7 @@ func newGameState() *GameState {
 		entities:           make(map[int]*st.Entity),
 		conVars:            make(map[string]string),
 		thrownGrenades:     make(map[*common.Player][]*common.Equipment),
+		bombExplosions:     make(map[int]bool),
 		lastFlash: lastFlash{
 			projectileByPlayer: make(map[*common.Player]*common.GrenadeProjectile),
 		},
