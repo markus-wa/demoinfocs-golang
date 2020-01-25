@@ -37,6 +37,10 @@ func (p *Parser) mapEquipment() {
 		case "CWeaponXM1014":
 			p.equipmentMapping[sc] = common.MapEquipment(strings.ToLower(sc.Name()[7:]))
 			continue
+
+		case "CKnife":
+			p.equipmentMapping[sc] = common.EqKnife
+			continue
 		}
 
 		baseClasses := sc.BaseClasses()
