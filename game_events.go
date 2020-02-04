@@ -99,58 +99,58 @@ func newGameEventHandler(parser *Parser) gameEventHandler {
 
 	geh.gameEventNameToHandler = map[string]gameEventHandlerFunc{
 		// sorted alphabetically
-		"announce_phase_end":              nil,                                  // Dunno
-		"begin_new_match":                 geh.beginNewMatch,                    // Match started
-		"bomb_beep":                       nil,                                  // Bomb beep
-		"bomb_begindefuse":                geh.bombBeginDefuse,                  // Defuse started
-		"bomb_beginplant":                 geh.bombBeginPlant,                   // Plant started
-		"bomb_defused":                    geh.bombDefused,                      // Defuse finished
-		"bomb_dropped":                    geh.bombDropped,                      // Bomb dropped
-		"bomb_exploded":                   geh.bombExploded,                     // Bomb exploded
-		"bomb_pickup":                     geh.bombPickup,                       // Bomb picked up
-		"bomb_planted":                    geh.bombPlanted,                      // Plant finished
-		"bot_takeover":                    delay(geh.botTakeover),               // Bot got taken over
-		"buytime_ended":                   nil,                                  // Not actually end of buy time, seems to only be sent once per game at the start
-		"cs_match_end_restart":            nil,                                  // Yawn
-		"cs_pre_restart":                  nil,                                  // Not sure, doesn't seem to be important
-		"cs_round_final_beep":             nil,                                  // Final beep
-		"cs_round_start_beep":             nil,                                  // Round start beeps
-		"cs_win_panel_match":              geh.csWinPanelMatch,                  // Not sure, maybe match end event???
-		"cs_win_panel_round":              nil,                                  // Win panel, (==end of match?)
-		"decoy_detonate":                  geh.decoyDetonate,                    // Decoy exploded/expired
-		"decoy_started":                   delay(geh.decoyStarted),              // Decoy started. Delayed because projectile entity is not yet created
-		"endmatch_cmm_start_reveal_items": nil,                                  // Drops
-		"entity_visible":                  nil,                                  // Dunno, only in locally recorded demo
-		"enter_bombzone":                  nil,                                  // Dunno, only in locally recorded demo
-		"exit_bombzone":                   nil,                                  // Dunno, only in locally recorded demo
-		"enter_buyzone":                   nil,                                  // Dunno, only in locally recorded demo
-		"exit_buyzone":                    nil,                                  // Dunno, only in locally recorded demo
-		"flashbang_detonate":              geh.flashBangDetonate,                // Flash exploded
-		"hegrenade_detonate":              geh.heGrenadeDetonate,                // HE exploded
-		"hltv_chase":                      nil,                                  // Don't care
-		"hltv_fixed":                      nil,                                  // Dunno
-		"hltv_message":                    nil,                                  // No clue
-		"hltv_status":                     nil,                                  // Don't know
-		"inferno_expire":                  geh.infernoExpire,                    // Incendiary expired
-		"inferno_startburn":               delay(geh.infernoStartBurn),          // Incendiary exploded/started. Delayed because inferno entity is not yet created
-		"inspect_weapon":                  nil,                                  // Dunno, only in locally recorded demo
-		"item_equip":                      delay(geh.itemEquip),                 // Equipped / weapon swap, I think. Delayed because of #142 - Bot entity possibly not yet created
-		"item_pickup":                     delay(geh.itemPickup),                // Picked up or bought? Delayed because of #119 - Equipment.UniqueID()
-		"item_remove":                     geh.itemRemove,                       // Dropped?
-		"jointeam_failed":                 nil,                                  // Dunno, only in locally recorded demo
-		"other_death":                     nil,                                  // Dunno
-		"player_blind":                    delay(geh.playerBlind),               // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
-		"player_changename":               nil,                                  // Name change
-		"player_connect":                  geh.playerConnect,                    // Bot connected or player reconnected, players normally come in via string tables & data tables
-		"player_connect_full":             nil,                                  // Connecting finished
-		"player_death":                    delayIfNoPlayers(geh.playerDeath),    // Player died
-		"player_disconnect":               geh.playerDisconnect,                 // Player disconnected (kicked, quit, timed out etc.)
-		"player_falldamage":               nil,                                  // Falldamage
-		"player_footstep":                 delayIfNoPlayers(geh.playerFootstep), // Footstep sound.- Delayed because otherwise Player might be nil
-		"player_hurt":                     geh.playerHurt,                       // Player got hurt
-		"player_jump":                     geh.playerJump,                       // Player jumped
-		"player_spawn":                    nil,                                  // Player spawn
-		"player_given_c4":                 nil,                                  // Dunno, only present in POV demos
+		"announce_phase_end":              nil,                                   // Dunno
+		"begin_new_match":                 geh.beginNewMatch,                     // Match started
+		"bomb_beep":                       nil,                                   // Bomb beep
+		"bomb_begindefuse":                delayIfNoPlayers(geh.bombBeginDefuse), // Defuse started
+		"bomb_beginplant":                 delayIfNoPlayers(geh.bombBeginPlant),  // Plant started
+		"bomb_defused":                    delayIfNoPlayers(geh.bombDefused),     // Defuse finished
+		"bomb_dropped":                    delayIfNoPlayers(geh.bombDropped),     // Bomb dropped
+		"bomb_exploded":                   delayIfNoPlayers(geh.bombExploded),    // Bomb exploded
+		"bomb_pickup":                     delayIfNoPlayers(geh.bombPickup),      // Bomb picked up
+		"bomb_planted":                    delayIfNoPlayers(geh.bombPlanted),     // Plant finished
+		"bot_takeover":                    delay(geh.botTakeover),                // Bot got taken over
+		"buytime_ended":                   nil,                                   // Not actually end of buy time, seems to only be sent once per game at the start
+		"cs_match_end_restart":            nil,                                   // Yawn
+		"cs_pre_restart":                  nil,                                   // Not sure, doesn't seem to be important
+		"cs_round_final_beep":             nil,                                   // Final beep
+		"cs_round_start_beep":             nil,                                   // Round start beeps
+		"cs_win_panel_match":              geh.csWinPanelMatch,                   // Not sure, maybe match end event???
+		"cs_win_panel_round":              nil,                                   // Win panel, (==end of match?)
+		"decoy_detonate":                  geh.decoyDetonate,                     // Decoy exploded/expired
+		"decoy_started":                   delay(geh.decoyStarted),               // Decoy started. Delayed because projectile entity is not yet created
+		"endmatch_cmm_start_reveal_items": nil,                                   // Drops
+		"entity_visible":                  nil,                                   // Dunno, only in locally recorded demo
+		"enter_bombzone":                  nil,                                   // Dunno, only in locally recorded demo
+		"exit_bombzone":                   nil,                                   // Dunno, only in locally recorded demo
+		"enter_buyzone":                   nil,                                   // Dunno, only in locally recorded demo
+		"exit_buyzone":                    nil,                                   // Dunno, only in locally recorded demo
+		"flashbang_detonate":              geh.flashBangDetonate,                 // Flash exploded
+		"hegrenade_detonate":              geh.heGrenadeDetonate,                 // HE exploded
+		"hltv_chase":                      nil,                                   // Don't care
+		"hltv_fixed":                      nil,                                   // Dunno
+		"hltv_message":                    nil,                                   // No clue
+		"hltv_status":                     nil,                                   // Don't know
+		"inferno_expire":                  geh.infernoExpire,                     // Incendiary expired
+		"inferno_startburn":               delay(geh.infernoStartBurn),           // Incendiary exploded/started. Delayed because inferno entity is not yet created
+		"inspect_weapon":                  nil,                                   // Dunno, only in locally recorded demo
+		"item_equip":                      delay(geh.itemEquip),                  // Equipped / weapon swap, I think. Delayed because of #142 - Bot entity possibly not yet created
+		"item_pickup":                     delay(geh.itemPickup),                 // Picked up or bought? Delayed because of #119 - Equipment.UniqueID()
+		"item_remove":                     geh.itemRemove,                        // Dropped?
+		"jointeam_failed":                 nil,                                   // Dunno, only in locally recorded demo
+		"other_death":                     nil,                                   // Dunno
+		"player_blind":                    delay(geh.playerBlind),                // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
+		"player_changename":               nil,                                   // Name change
+		"player_connect":                  geh.playerConnect,                     // Bot connected or player reconnected, players normally come in via string tables & data tables
+		"player_connect_full":             nil,                                   // Connecting finished
+		"player_death":                    delayIfNoPlayers(geh.playerDeath),     // Player died
+		"player_disconnect":               geh.playerDisconnect,                  // Player disconnected (kicked, quit, timed out etc.)
+		"player_falldamage":               nil,                                   // Falldamage
+		"player_footstep":                 delayIfNoPlayers(geh.playerFootstep),  // Footstep sound.- Delayed because otherwise Player might be nil
+		"player_hurt":                     geh.playerHurt,                        // Player got hurt
+		"player_jump":                     geh.playerJump,                        // Player jumped
+		"player_spawn":                    nil,                                   // Player spawn
+		"player_given_c4":                 nil,                                   // Dunno, only present in POV demos
 
 		// Player changed team. Delayed for two reasons
 		// - team IDs of other players changing teams in the same tick might not have changed yet
