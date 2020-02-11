@@ -158,7 +158,7 @@ There is one caveat however: Beta features - which are marked as such via commen
 - [CS:GO Player Skill Prediction](https://drive.google.com/file/d/1JXIB57BA2XBTYVLSy6Xg_5nfL6dWyDmG/view) - Machine learning master thesis by [@quancore](https://github.com/quancore) about predicting player performance
 - [csgoverview](https://github.com/Linus4/csgoverview) - A 2D demo replay tool for CS:GO
 
-If your project is using this library feel free to submit a PR or send a message in Gitter to be included in the list.
+If your project is using this library feel free to submit a PR or send a message in [Gitter](https://gitter.im/csgodemos/demoinfo-lib) to be included in the list.
 
 ## Development
 
