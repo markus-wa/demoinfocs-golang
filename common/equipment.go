@@ -136,6 +136,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["decoy"] = EqDecoy
 	eqNameToWeapon["decoygrenade"] = EqDecoy
 	eqNameToWeapon["decoyprojectile"] = EqDecoy
+	eqNameToWeapon["decoy_projectile"] = EqDecoy
 	eqNameToWeapon["elite"] = EqDualBerettas
 	eqNameToWeapon["famas"] = EqFamas
 	eqNameToWeapon["fiveseven"] = EqFiveSeven
@@ -155,6 +156,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["molotov"] = EqMolotov
 	eqNameToWeapon["molotovgrenade"] = EqMolotov
 	eqNameToWeapon["molotovprojectile"] = EqMolotov
+	eqNameToWeapon["molotov_projectile"] = EqMolotov
 	eqNameToWeapon["mp7"] = EqMP7
 	eqNameToWeapon["mp5sd"] = EqMP5
 	eqNameToWeapon["mp9"] = EqMP9
@@ -167,6 +169,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["sg556"] = EqSG556
 	eqNameToWeapon["smokegrenade"] = EqSmoke
 	eqNameToWeapon["smokegrenadeprojectile"] = EqSmoke
+	eqNameToWeapon["smokegrenade_projectile"] = EqSmoke
 	eqNameToWeapon["ssg08"] = EqScout
 	eqNameToWeapon["taser"] = EqZeus
 	eqNameToWeapon["tec9"] = EqTec9
