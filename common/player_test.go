@@ -92,11 +92,11 @@ func TestPlayer_FlashDurationTimeRemaining_Default(t *testing.T) {
 }
 
 func TestPlayer_FlashDurationTimeRemaining(t *testing.T) {
-	pl := newPlayer(128 * 2)
+	pl := newPlayer(32 * 5)
 
 	pl.FlashDuration = 3
 	pl.FlashTick = 128
-	assert.Equal(t, 2*time.Second, pl.FlashDurationTimeRemaining())
+	assert.Equal(t, 2750*time.Millisecond, pl.FlashDurationTimeRemaining())
 }
 
 func TestPlayer_FlashDurationTimeRemaining_Zero(t *testing.T) {
@@ -118,9 +118,9 @@ func TestPlayer_FlashDurationTimeRemaining_FlashDuration_Over(t *testing.T) {
 func TestPlayer_FlashDurationTimeRemaining_Fallback(t *testing.T) {
 	pl := NewPlayer(mockDemoInfoProvider(0, 128))
 
-	pl.FlashDuration = 2
-	pl.FlashTick = 128 * 2
-	assert.Equal(t, 2*time.Second, pl.FlashDurationTimeRemaining())
+	pl.FlashDuration = 2.7
+	pl.FlashTick = 128 * 3
+	assert.Equal(t, 2700*time.Millisecond, pl.FlashDurationTimeRemaining())
 }
 
 func TestPlayer_IsSpottedBy_HasSpotted_True(t *testing.T) {

@@ -106,7 +106,7 @@ func (p *Player) FlashDurationTimeRemaining() time.Duration {
 	// TODO: read tickRate from CVARs as fallback
 	tickRate := p.demoInfoProvider.TickRate()
 	if tickRate == 0 {
-		return time.Duration(p.FlashDuration) * time.Second
+		return p.flashDurationTimeFull()
 	}
 
 	timeSinceFlash := time.Duration(float64(p.demoInfoProvider.IngameTick()-p.FlashTick) / tickRate * float64(time.Second))
