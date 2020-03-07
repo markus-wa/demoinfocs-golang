@@ -110,6 +110,16 @@ func (p *Parser) CurrentTime() time.Duration {
 	return p.Called().Get(0).(time.Duration)
 }
 
+// TickRate is a mock-implementation of IParser.TickRate().
+func (p *Parser) TickRate() float64 {
+	return p.Called().Get(0).(float64)
+}
+
+// TickTime is a mock-implementation of IParser.TickTime().
+func (p *Parser) TickTime() time.Duration {
+	return p.Called().Get(0).(time.Duration)
+}
+
 // Progress is a mock-implementation of IParser.Progress().
 func (p *Parser) Progress() float32 {
 	return p.Called().Get(0).(float32)

@@ -103,7 +103,6 @@ func (p *Player) flashDurationTimeFull() time.Duration {
 // It takes into consideration FlashDuration, FlashTick, DemoHeader.TickRate() and GameState.IngameTick().
 func (p *Player) FlashDurationTimeRemaining() time.Duration {
 	// In case the demo header is broken
-	// TODO: read tickRate from CVARs as fallback
 	tickRate := p.demoInfoProvider.TickRate()
 	if tickRate == 0 {
 		return p.flashDurationTimeFull()
