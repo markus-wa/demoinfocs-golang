@@ -47,10 +47,15 @@ type IParser interface {
 	CurrentFrame() int
 	// CurrentTime returns the time elapsed since the start of the demo
 	CurrentTime() time.Duration
+	// TickRate returns the tick-rate the server ran on during the game.
+	TickRate() float64
+	// TickTime returns the time a single tick takes in seconds.
+	TickTime() time.Duration
 	// Progress returns the parsing progress from 0 to 1.
 	// Where 0 means nothing has been parsed yet and 1 means the demo has been parsed to the end.
 	//
 	// Might not be 100% correct since it's just based on the reported tick count of the header.
+	// May always return 0 if the demo header is corrupt.
 	Progress() float32
 	/*
 	   RegisterEventHandler registers a handler for game events.

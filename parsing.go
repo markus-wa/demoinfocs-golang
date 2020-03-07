@@ -262,6 +262,7 @@ var defaultNetMessageCreators = map[int]NetMessageCreator{
 	int(msg.SVC_Messages_svc_CreateStringTable): func() proto.Message { return new(msg.CSVCMsg_CreateStringTable) },
 	int(msg.SVC_Messages_svc_UpdateStringTable): func() proto.Message { return new(msg.CSVCMsg_UpdateStringTable) },
 	int(msg.SVC_Messages_svc_UserMessage):       func() proto.Message { return new(msg.CSVCMsg_UserMessage) },
+	int(msg.SVC_Messages_svc_ServerInfo):        func() proto.Message { return new(msg.CSVCMsg_ServerInfo) },
 	int(msg.NET_Messages_net_SetConVar):         func() proto.Message { return new(msg.CNETMsg_SetConVar) },
 }
 

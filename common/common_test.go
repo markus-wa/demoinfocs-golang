@@ -42,8 +42,20 @@ func TestDemoHeader(t *testing.T) {
 	assert.Equal(t, time.Second/128, header.TickTime(), "TickTime should be 1/128")
 }
 
+func TestDemoHeader_FrameRate_PlaybackTime_Zero(t *testing.T) {
+	assert.Zero(t, DemoHeader{}.FrameRate())
+}
+
 func TestDemoHeader_FrameTime_PlaybackFrames_Zero(t *testing.T) {
 	assert.Zero(t, DemoHeader{}.FrameTime())
+}
+
+func TestDemoHeader_TickRate_PlaybackTicks_Zero(t *testing.T) {
+	assert.Zero(t, DemoHeader{}.TickTime())
+}
+
+func TestDemoHeader_TickTime_PlaybackTime_Zero(t *testing.T) {
+	assert.Zero(t, DemoHeader{}.TickRate())
 }
 
 func TestTeamState_Team(t *testing.T) {
@@ -77,6 +89,26 @@ func TestTeamState_FreezeTimeEndEquipmentValue(t *testing.T) {
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
 
 	assert.Equal(t, 300, state.FreezeTimeEndEquipmentValue())
+}
+
+func TestTeamState_CashSpentThisRound(t *testing.T) {
+	members := []*Player{
+		{AdditionalPlayerInformation: &AdditionalPlayerInformation{CashSpentThisRound: 100}},
+		{AdditionalPlayerInformation: &AdditionalPlayerInformation{CashSpentThisRound: 200}},
+	}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, 300, state.CashSpentThisRound())
+}
+
+func TestTeamState_CashSpentTotal(t *testing.T) {
+	members := []*Player{
+		{AdditionalPlayerInformation: &AdditionalPlayerInformation{TotalCashSpent: 100}},
+		{AdditionalPlayerInformation: &AdditionalPlayerInformation{TotalCashSpent: 200}},
+	}
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	assert.Equal(t, 300, state.CashSpentTotal())
 }
 
 type demoInfoProviderMock struct {

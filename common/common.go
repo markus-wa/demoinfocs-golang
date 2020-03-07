@@ -36,7 +36,13 @@ type DemoHeader struct {
 
 // FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
 // Not necessarily the tick-rate the server ran on during the game.
+//
+// Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
 func (h DemoHeader) FrameRate() float64 {
+	if h.PlaybackTime == 0 {
+		return 0
+	}
+
 	return float64(h.PlaybackFrames) / h.PlaybackTime.Seconds()
 }
 
@@ -47,17 +53,28 @@ func (h DemoHeader) FrameTime() time.Duration {
 	if h.PlaybackFrames == 0 {
 		return 0
 	}
+
 	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackFrames))
 }
 
 // TickRate returns the tick-rate the server ran on during the game.
+// Deprecated: this function might return 0 in some cases (corrupt demo headers), use Parser.TickRate() instead.
 // VolvoPlx128TixKTnxBye
 func (h DemoHeader) TickRate() float64 {
+	if h.PlaybackTime == 0 {
+		return 0
+	}
+
 	return float64(h.PlaybackTicks) / h.PlaybackTime.Seconds()
 }
 
 // TickTime returns the time a single tick takes in seconds.
+// Deprecated: this function might return 0 in some cases (corrupt demo headers), use Parser.TickTime() instead.
 func (h DemoHeader) TickTime() time.Duration {
+	if h.PlaybackTicks == 0 {
+		return 0
+	}
+
 	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackTicks))
 }
 

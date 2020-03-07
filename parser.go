@@ -52,6 +52,7 @@ type Parser struct {
 	userMessageHandler           userMessageHandler
 	eventDispatcher              dp.Dispatcher
 	currentFrame                 int                // Demo-frame, not ingame-tick
+	tickInterval                 float32            // Duration between ticks in seconds
 	header                       *common.DemoHeader // Pointer so we can check for nil
 	gameState                    *GameState
 	demoInfoProvider             demoInfoProvider // Provides demo infos to other packages that the core package depends on
@@ -122,14 +123,37 @@ func (p *Parser) CurrentFrame() int {
 
 // CurrentTime returns the time elapsed since the start of the demo
 func (p *Parser) CurrentTime() time.Duration {
-	return time.Duration(p.currentFrame) * p.header.FrameTime()
+	return time.Duration(float32(p.gameState.ingameTick) * p.tickInterval * float32(time.Second))
+}
+
+// TickRate returns the tick-rate the server ran on during the game.
+func (p *Parser) TickRate() float64 {
+	if p.tickInterval != 0 {
+		return 1.0 / float64(p.tickInterval)
+	}
+
+	return p.header.TickRate()
+}
+
+// TickTime returns the time a single tick takes in seconds.
+func (p *Parser) TickTime() time.Duration {
+	if p.tickInterval != 0 {
+		return time.Duration(float32(time.Second) * p.tickInterval)
+	}
+
+	return p.header.TickTime()
 }
 
 // Progress returns the parsing progress from 0 to 1.
 // Where 0 means nothing has been parsed yet and 1 means the demo has been parsed to the end.
 //
 // Might not be 100% correct since it's just based on the reported tick count of the header.
+// May always return 0 if the demo header is corrupt.
 func (p *Parser) Progress() float32 {
+	if p.header == nil || p.header.PlaybackFrames == 0 {
+		return 0
+	}
+
 	return float32(p.currentFrame) / float32(p.header.PlaybackFrames)
 }
 
@@ -255,6 +279,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.msgDispatcher.RegisterHandler(p.handleUserMessage)
 	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
+	p.msgDispatcher.RegisterHandler(p.handleServerInfo)
 	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
 
 	if config.MsgQueueBufferSize >= 0 {
@@ -280,8 +305,7 @@ func (p demoInfoProvider) IngameTick() int {
 }
 
 func (p demoInfoProvider) TickRate() float64 {
-	// TODO: read tickRate from CVARs as fallback
-	return p.parser.header.TickRate()
+	return p.parser.TickRate()
 }
 
 func (p demoInfoProvider) FindPlayerByHandle(handle int) *common.Player {
