@@ -99,7 +99,7 @@ func (p *Parser) parseSingleStringTable(name string) {
 }
 
 func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
-	// No need for recoverFromUnexpectedEOF here as we do that in processStringTable already
+	// No need for recoverFromPanic here as we do that in processStringTable already
 
 	cTab := p.stringTables[tab.TableId]
 	switch cTab.Name {
@@ -117,7 +117,7 @@ func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 }
 
 func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
-	// No need for recoverFromUnexpectedEOF here as we do that in processStringTable already
+	// No need for recoverFromPanic here as we do that in processStringTable already
 
 	p.processStringTable(tab)
 
@@ -128,7 +128,7 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 
 func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
+		p.setError(recoverFromPanic(recover()))
 	}()
 
 	if tab.Name == stNameModelPreCache {

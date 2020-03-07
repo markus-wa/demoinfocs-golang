@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -419,7 +420,12 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEvent
 		guid:   data["networkid"].GetValString(),
 	}
 
-	pl.xuid = getCommunityID(pl.guid)
+	var err error
+	pl.xuid, err = getCommunityID(pl.guid)
+
+	if err != nil {
+		geh.parser.setError(fmt.Errorf("failed to parse player XUID: %v", err.Error()))
+	}
 
 	geh.parser.rawPlayers[int(data["index"].GetValByte())] = pl
 }
@@ -511,7 +517,7 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 		t := geh.parser.triggers[site]
 
 		if t == nil {
-			panic(fmt.Sprintf("Bombsite with index %d not found", site))
+			geh.parser.setError(fmt.Errorf("bombsite with index %d not found", site))
 		}
 
 		if t.contains(geh.parser.bombsiteA.center) {
@@ -521,7 +527,7 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 			bombEvent.Site = events.BombsiteB
 			geh.parser.bombsiteB.index = site
 		} else {
-			panic("Bomb not planted on bombsite A or B")
+			geh.parser.setError(errors.New("bomb not planted on bombsite A or B"))
 		}
 	}
 
@@ -703,21 +709,21 @@ func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_Ga
 // We're all better off not asking questions
 const valveMagicNumber = 76561197960265728
 
-func getCommunityID(guid string) int64 {
+func getCommunityID(guid string) (int64, error) {
 	if guid == "BOT" {
-		return 0
+		return 0, nil
 	}
 
 	authSrv, errSrv := strconv.ParseInt(guid[8:9], 10, 64)
 	authID, errID := strconv.ParseInt(guid[10:], 10, 64)
 
 	if errSrv != nil {
-		panic(errSrv.Error())
+		return 0, errSrv
 	}
 	if errID != nil {
-		panic(errID.Error())
+		return 0, errID
 	}
 
 	// WTF are we doing here?
-	return valveMagicNumber + authID*2 + authSrv
+	return valveMagicNumber + authID*2 + authSrv, nil
 }

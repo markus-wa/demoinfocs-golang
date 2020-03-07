@@ -12,7 +12,7 @@ const entitySentinel = 9999
 
 func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
+		p.setError(recoverFromPanic(recover()))
 	}()
 
 	r := bit.NewSmallBitReader(bytes.NewReader(pe.EntityData))

@@ -132,7 +132,7 @@ func (p *Parser) bindTeamStates() {
 		case "Spectator": // Ignore
 
 		default:
-			panic(fmt.Sprintf("Unexpected team %q", team))
+			p.setError(fmt.Errorf("unexpected team %q", team))
 		}
 
 		if s != nil {
@@ -505,7 +505,7 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 		if strings.Contains(eq.OriginalString, altName) {
 			eq.Weapon = alt
 		} else if !strings.Contains(eq.OriginalString, defaultName) {
-			panic(fmt.Sprintf("Unknown weapon model %q", eq.OriginalString))
+			p.setError(fmt.Errorf("unknown weapon model %q", eq.OriginalString))
 		}
 	}
 

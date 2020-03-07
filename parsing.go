@@ -84,7 +84,7 @@ func (p *Parser) ParseToEnd() (err error) {
 		}
 
 		if err == nil {
-			err = recoverFromUnexpectedEOF(recover())
+			err = recoverFromPanic(recover())
 		}
 	}()
 
@@ -112,14 +112,23 @@ func (p *Parser) ParseToEnd() (err error) {
 	}
 }
 
-func recoverFromUnexpectedEOF(r interface{}) error {
-	if r != nil {
-		if r == io.ErrUnexpectedEOF || r == io.EOF {
-			return ErrUnexpectedEndOfDemo
-		}
-		panic(r)
+func recoverFromPanic(r interface{}) error {
+	if r == nil {
+		return nil
 	}
-	return nil
+
+	if r == io.ErrUnexpectedEOF || r == io.EOF {
+		return ErrUnexpectedEndOfDemo
+	}
+
+	switch err := r.(type) {
+	case error:
+		return err
+	case string:
+		return errors.New(err)
+	default:
+		return fmt.Errorf("unexpected error: %v", err)
+	}
 }
 
 // Cancel aborts ParseToEnd().
@@ -149,7 +158,7 @@ func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
 		}
 
 		if err == nil {
-			err = recoverFromUnexpectedEOF(recover())
+			err = recoverFromPanic(recover())
 		}
 	}()
 

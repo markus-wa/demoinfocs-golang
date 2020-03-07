@@ -1,6 +1,8 @@
 package demoinfocs
 
 import (
+	"errors"
+	"io"
 	"math"
 	"testing"
 	"time"
@@ -61,4 +63,16 @@ func TestParser_TickTime_FallbackToHeader(t *testing.T) {
 func TestParser_Progress_NoHeader(t *testing.T) {
 	assert.Zero(t, new(Parser).Progress())
 	assert.Zero(t, (&Parser{header: &common.DemoHeader{}}).Progress())
+}
+
+func TestRecoverFromPanic(t *testing.T) {
+	assert.Nil(t, recoverFromPanic(nil))
+	assert.Equal(t, ErrUnexpectedEndOfDemo, recoverFromPanic(io.ErrUnexpectedEOF))
+	assert.Equal(t, ErrUnexpectedEndOfDemo, recoverFromPanic(io.EOF))
+
+	err := errors.New("test")
+	assert.Equal(t, err, recoverFromPanic(err))
+
+	assert.Equal(t, "test", recoverFromPanic("test").Error())
+	assert.Equal(t, "unexpected error: 1", recoverFromPanic(1).Error())
 }
