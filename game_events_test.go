@@ -212,3 +212,26 @@ func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
 
 	assert.Equal(t, &he, wep)
 }
+
+func TestGetCommunityId(t *testing.T) {
+	xuid, err := getCommunityID("abcdefgh1:3")
+	assert.Nil(t, err)
+	expected := int64(76561197960265728 + 6 + 1)
+	assert.Equal(t, expected, xuid)
+}
+
+func TestGetCommunityId_BOT(t *testing.T) {
+	xuid, err := getCommunityID("BOT")
+	assert.Zero(t, xuid)
+	assert.Nil(t, err)
+}
+
+func TestGetCommunityId_Errors(t *testing.T) {
+	_, err := getCommunityID("12345678a90123")
+	assert.NotNil(t, err)
+	assert.Equal(t, "strconv.ParseInt: parsing \"a\": invalid syntax", err.Error())
+
+	_, err = getCommunityID("1234567890abc")
+	assert.NotNil(t, err)
+	assert.Equal(t, "strconv.ParseInt: parsing \"abc\": invalid syntax", err.Error())
+}
