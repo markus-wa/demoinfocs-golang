@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"testing"
@@ -75,4 +76,42 @@ func TestRecoverFromPanic(t *testing.T) {
 
 	assert.Equal(t, "test", recoverFromPanic("test").Error())
 	assert.Equal(t, "unexpected error: 1", recoverFromPanic(1).Error())
+}
+
+type consumerCodePanicMock struct {
+	value interface{}
+}
+
+func (ucp consumerCodePanicMock) String() string {
+	return fmt.Sprint(ucp.value)
+}
+
+func (ucp consumerCodePanicMock) Value() interface{} {
+	return ucp.value
+}
+
+func TestRecoverFromPanic_ConsumerCodePanic(t *testing.T) {
+	assert.PanicsWithValue(t, 1, func() {
+		err := recoverFromPanic(consumerCodePanicMock{value: 1})
+		assert.Nil(t, err)
+	})
+}
+
+func TestParser_SetError(t *testing.T) {
+	err := errors.New("test")
+
+	p := new(Parser)
+	p.setError(err)
+
+	assert.Same(t, err, p.error())
+}
+
+func TestParser_SetError_Multiple(t *testing.T) {
+	err := errors.New("test")
+
+	p := new(Parser)
+	p.setError(err)
+	p.setError(errors.New("second error"))
+
+	assert.Same(t, err, p.error())
 }

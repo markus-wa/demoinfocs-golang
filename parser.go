@@ -212,11 +212,13 @@ func (p *Parser) error() (err error) {
 }
 
 func (p *Parser) setError(err error) {
-	if err != nil {
-		p.errLock.Lock()
-		p.err = err
-		p.errLock.Unlock()
+	if err == nil || p.err != nil {
+		return
 	}
+
+	p.errLock.Lock()
+	p.err = err
+	p.errLock.Unlock()
 }
 
 // NewParser creates a new Parser with the default configuration.

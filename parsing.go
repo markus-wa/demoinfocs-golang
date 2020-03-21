@@ -9,6 +9,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/markus-wa/go-unassert"
+	dispatch "github.com/markus-wa/godispatch"
 
 	"github.com/markus-wa/demoinfocs-golang/common"
 	"github.com/markus-wa/demoinfocs-golang/events"
@@ -122,6 +123,8 @@ func recoverFromPanic(r interface{}) error {
 	}
 
 	switch err := r.(type) {
+	case dispatch.ConsumerCodePanic:
+		panic(err.Value())
 	case error:
 		return err
 	case string:
