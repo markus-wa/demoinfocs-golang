@@ -9,7 +9,7 @@ require (
 	github.com/llgcode/ps v0.0.0-20150911083025-f1443b32eedb // indirect
 	github.com/markus-wa/go-unassert v0.1.1
 	github.com/markus-wa/gobitread v0.2.2
-	github.com/markus-wa/godispatch v1.1.0
+	github.com/markus-wa/godispatch v1.2.1
 	github.com/markus-wa/quickhull-go/v2 v2.1.0
 	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.5.1
