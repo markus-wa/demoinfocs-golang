@@ -125,6 +125,16 @@ func (p *Parser) Progress() float32 {
 	return p.Called().Get(0).(float32)
 }
 
+const (
+	maxEdictBits = 11
+	maxEntities  = 1 << maxEdictBits
+)
+
+// Weapons is a mock-implementation of IParser.Weapons().
+func (p *Parser) Weapons() [maxEntities]common.Equipment {
+	return p.Called().Get(0).([maxEntities]common.Equipment)
+}
+
 // RegisterEventHandler is a mock-implementation of IParser.RegisterEventHandler().
 // Return HandlerIdentifier cannot be mocked (for now).
 func (p *Parser) RegisterEventHandler(handler interface{}) dp.HandlerIdentifier {

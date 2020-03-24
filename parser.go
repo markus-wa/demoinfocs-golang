@@ -157,6 +157,13 @@ func (p *Parser) Progress() float32 {
 	return float32(p.currentFrame) / float32(p.header.PlaybackFrames)
 }
 
+// Weapons returns array which is used to remember what a weapon is (p250 / cz etc.).
+//
+// Note: this array is filled with meaningful values after DataTablesParsed event is dispatched.
+func (p *Parser) Weapons() [maxEntities]common.Equipment {
+	return p.weapons
+}
+
 /*
 RegisterEventHandler registers a handler for game events.
 
