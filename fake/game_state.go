@@ -50,6 +50,11 @@ func (gs *GameState) Infernos() map[int]*common.Inferno {
 	return gs.Called().Get(0).(map[int]*common.Inferno)
 }
 
+// Weapons is a mock-implementation of IGameState.Weapons().
+func (gs *GameState) Weapons() map[int]*common.Equipment {
+	return gs.Called().Get(0).(map[int]*common.Equipment)
+}
+
 // Entities is a mock-implementation of IGameState.Entities().
 func (gs *GameState) Entities() map[int]*st.Entity {
 	return gs.Called().Get(0).(map[int]*st.Entity)

@@ -17,6 +17,7 @@ func TestNewGameState(t *testing.T) {
 	assert.NotNil(t, gs.playersByUserID)
 	assert.NotNil(t, gs.grenadeProjectiles)
 	assert.NotNil(t, gs.infernos)
+	assert.NotNil(t, gs.weapons)
 	assert.NotNil(t, gs.entities)
 	assert.Equal(t, common.TeamTerrorists, gs.tState.Team())
 	assert.Equal(t, common.TeamCounterTerrorists, gs.ctState.Team())

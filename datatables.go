@@ -302,14 +302,18 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 				}
 				cache[i2] = entityID
 
-				wep := p.weapons[entityID]
+				wep := p.gameState.weapons[entityID]
 
 				if wep == nil {
 					// Something is clearly wrong here
 					// But since we had an empty Equipment instance here before the change
 					// from array with default elements to map, let's create a new instance.
 					wep = new(common.Equipment)
-					p.weapons[entityID] = wep
+					p.gameState.weapons[entityID] = wep
+
+					p.eventDispatcher.Dispatch(events.ParserWarn{
+						Message: "player entity has a handle for non-existing weapon",
+					})
 				}
 
 				// Clear previous owner
@@ -480,18 +484,18 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 	entityID := entity.ID()
 
 	var currentOwner *common.Player
-	if wep, ok := p.weapons[entityID]; ok {
+	if wep, ok := p.gameState.weapons[entityID]; ok {
 		currentOwner = wep.Owner
 	}
 
-	p.weapons[entityID] = common.NewEquipment(wepType)
-	eq := p.weapons[entityID]
+	p.gameState.weapons[entityID] = common.NewEquipment(wepType)
+	eq := p.gameState.weapons[entityID]
 	eq.Owner = currentOwner
 	eq.EntityID = entityID
 	eq.AmmoInMagazine = -1
 
 	entity.OnDestroy(func() {
-		delete(p.weapons, entityID)
+		delete(p.gameState.weapons, entityID)
 	})
 
 	entity.FindPropertyI("m_iClip1").OnUpdate(func(val st.PropertyValue) {
