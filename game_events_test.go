@@ -93,7 +93,7 @@ func TestAddThrownGrenade_NilPlayer(t *testing.T) {
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
-	p.gameEventHandler.addThrownGrenade(nil, &he)
+	p.gameEventHandler.addThrownGrenade(nil, he)
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 }
@@ -105,11 +105,11 @@ func TestAddThrownGrenade(t *testing.T) {
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
-	p.gameEventHandler.addThrownGrenade(pl, &he)
+	p.gameEventHandler.addThrownGrenade(pl, he)
 
 	assert.NotEmpty(t, p.gameState.thrownGrenades)
 	assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
-	assert.Equal(t, p.gameState.thrownGrenades[pl][0], &he)
+	assert.Equal(t, p.gameState.thrownGrenades[pl][0], he)
 }
 
 func TestGetThrownGrenade_NilPlayer(t *testing.T) {
@@ -137,11 +137,11 @@ func TestGetThrownGrenade_Found(t *testing.T) {
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE)
 
-	p.gameEventHandler.addThrownGrenade(pl, &he)
+	p.gameEventHandler.addThrownGrenade(pl, he)
 	wep := p.gameEventHandler.getThrownGrenade(pl, he.Weapon)
 
 	assert.Equal(t, wep.Weapon, he.Weapon)
-	assert.Equal(t, wep, &he)
+	assert.Equal(t, wep, he)
 }
 
 func TestDeleteThrownGrenade_NilPlayer(t *testing.T) {
@@ -159,7 +159,7 @@ func TestDeleteThrownGrenade_NotFound(t *testing.T) {
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
-	p.gameEventHandler.addThrownGrenade(pl, &he)
+	p.gameEventHandler.addThrownGrenade(pl, he)
 
 	assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
 
@@ -175,7 +175,7 @@ func TestDeleteThrownGrenade_Found(t *testing.T) {
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
-	p.gameEventHandler.addThrownGrenade(pl, &he)
+	p.gameEventHandler.addThrownGrenade(pl, he)
 
 	assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
 
@@ -207,10 +207,10 @@ func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE)
 
-	p.gameEventHandler.addThrownGrenade(pl, &he)
+	p.gameEventHandler.addThrownGrenade(pl, he)
 	wep := p.gameEventHandler.getEquipmentInstance(pl, he.Weapon)
 
-	assert.Equal(t, &he, wep)
+	assert.Equal(t, he, wep)
 }
 
 func TestGetCommunityId(t *testing.T) {

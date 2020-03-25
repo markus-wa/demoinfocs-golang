@@ -694,7 +694,8 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *co
 	}
 
 	wep := common.NewEquipment(wepType)
-	return &wep
+
+	return wep
 }
 
 func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_GameEvent) map[string]*msg.CSVCMsg_GameEventKeyT {

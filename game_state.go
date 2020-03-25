@@ -17,6 +17,7 @@ type GameState struct {
 	playersByEntityID  map[int]*common.Player            // Maps entity-IDs to players
 	grenadeProjectiles map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos           map[int]*common.Inferno           // Maps entity-IDs to active infernos.
+	weapons            map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
 	entities           map[int]*st.Entity                // Maps entity IDs to entities
 	conVars            map[string]string
 	bomb               common.Bomb
@@ -99,6 +100,11 @@ func (gs GameState) Infernos() map[int]*common.Inferno {
 	return gs.infernos
 }
 
+// Weapons returns a map from entity-IDs to all weapons currently in the game.
+func (gs GameState) Weapons() map[int]*common.Equipment {
+	return gs.weapons
+}
+
 // Entities returns all currently existing entities.
 // (Almost?) everything in the game is an entity, such as weapons, players, fire etc.
 func (gs GameState) Entities() map[int]*st.Entity {
@@ -143,6 +149,7 @@ func newGameState() *GameState {
 		playersByUserID:    make(map[int]*common.Player),
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
 		infernos:           make(map[int]*common.Inferno),
+		weapons:            make(map[int]*common.Equipment),
 		entities:           make(map[int]*st.Entity),
 		conVars:            make(map[string]string),
 		thrownGrenades:     make(map[*common.Player][]*common.Equipment),
@@ -223,7 +230,7 @@ func (ptcp Participants) All() []*common.Player {
 // Connected returns all currently connected players & spectators.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) Connected() []*common.Player {
-	res, original := ptcp.initalizeSliceFromByUserID()
+	res, original := ptcp.initializeSliceFromByUserID()
 	for _, p := range original {
 		res = append(res, p)
 	}
@@ -234,7 +241,7 @@ func (ptcp Participants) Connected() []*common.Player {
 // Playing returns all players that aren't spectating or unassigned.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) Playing() []*common.Player {
-	res, original := ptcp.initalizeSliceFromByUserID()
+	res, original := ptcp.initializeSliceFromByUserID()
 	for _, p := range original {
 		if p.Team != common.TeamSpectators && p.Team != common.TeamUnassigned {
 			res = append(res, p)
@@ -247,7 +254,7 @@ func (ptcp Participants) Playing() []*common.Player {
 // TeamMembers returns all players belonging to the requested team at this time.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) TeamMembers(team common.Team) []*common.Player {
-	res, original := ptcp.initalizeSliceFromByUserID()
+	res, original := ptcp.initializeSliceFromByUserID()
 	for _, p := range original {
 		if p.Team == team {
 			res = append(res, p)
@@ -281,7 +288,7 @@ func (ptcp Participants) FindByHandle(handle int) *common.Player {
 	return player
 }
 
-func (ptcp Participants) initalizeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {
+func (ptcp Participants) initializeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {
 	byUserID := ptcp.ByUserID()
 	return make([]*common.Player, 0, len(byUserID)), byUserID
 }

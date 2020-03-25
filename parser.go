@@ -68,7 +68,6 @@ type Parser struct {
 	rawPlayers           map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
 	additionalPlayerInfo [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
 	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
-	weapons              [maxEntities]common.Equipment                   // Used to remember what a weapon is (p250 / cz etc.)
 	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
 	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
 	grenadeModelIndices  map[int]common.EquipmentElement                 // Used to map model indices to grenades (used for grenade projectiles)
