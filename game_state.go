@@ -230,7 +230,7 @@ func (ptcp Participants) All() []*common.Player {
 // Connected returns all currently connected players & spectators.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) Connected() []*common.Player {
-	res, original := ptcp.initalizeSliceFromByUserID()
+	res, original := ptcp.initializeSliceFromByUserID()
 	for _, p := range original {
 		res = append(res, p)
 	}
@@ -241,7 +241,7 @@ func (ptcp Participants) Connected() []*common.Player {
 // Playing returns all players that aren't spectating or unassigned.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) Playing() []*common.Player {
-	res, original := ptcp.initalizeSliceFromByUserID()
+	res, original := ptcp.initializeSliceFromByUserID()
 	for _, p := range original {
 		if p.Team != common.TeamSpectators && p.Team != common.TeamUnassigned {
 			res = append(res, p)
@@ -254,7 +254,7 @@ func (ptcp Participants) Playing() []*common.Player {
 // TeamMembers returns all players belonging to the requested team at this time.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) TeamMembers(team common.Team) []*common.Player {
-	res, original := ptcp.initalizeSliceFromByUserID()
+	res, original := ptcp.initializeSliceFromByUserID()
 	for _, p := range original {
 		if p.Team == team {
 			res = append(res, p)
@@ -288,7 +288,7 @@ func (ptcp Participants) FindByHandle(handle int) *common.Player {
 	return player
 }
 
-func (ptcp Participants) initalizeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {
+func (ptcp Participants) initializeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {
 	byUserID := ptcp.ByUserID()
 	return make([]*common.Player, 0, len(byUserID)), byUserID
 }
