@@ -694,6 +694,7 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *co
 	}
 
 	wep := common.NewEquipment(wepType)
+	
 	return wep
 }
 
