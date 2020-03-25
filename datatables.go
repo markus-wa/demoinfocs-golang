@@ -310,10 +310,6 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 					// from array with default elements to map, let's create a new instance.
 					wep = new(common.Equipment)
 					p.gameState.weapons[entityID] = wep
-
-					p.eventDispatcher.Dispatch(events.ParserWarn{
-						Message: "player entity has a handle for non-existing weapon",
-					})
 				}
 
 				// Clear previous owner
