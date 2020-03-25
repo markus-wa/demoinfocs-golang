@@ -13,7 +13,7 @@ type Property struct {
 	mock.Mock
 }
 
-// Namp is a mock-implementation of IProperty.Name().
+// Name is a mock-implementation of IProperty.Name().
 func (p *Property) Name() string {
 	return p.Called().Get(0).(string)
 }

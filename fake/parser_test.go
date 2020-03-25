@@ -53,7 +53,7 @@ func kill(wepType common.EquipmentElement) events.Kill {
 	wep := common.NewEquipment(wepType)
 	return events.Kill{
 		Killer: new(common.Player),
-		Weapon: &wep,
+		Weapon: wep,
 		Victim: new(common.Player),
 	}
 }

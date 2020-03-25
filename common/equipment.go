@@ -333,8 +333,8 @@ func (e Equipment) AmmoReserve2() int {
 // NewEquipment creates a new Equipment and sets the UniqueID.
 //
 // Intended for internal use only.
-func NewEquipment(wep EquipmentElement) Equipment {
-	return Equipment{Weapon: wep, uniqueID: rand.Int63()}
+func NewEquipment(wep EquipmentElement) *Equipment {
+	return &Equipment{Weapon: wep, uniqueID: rand.Int63()}
 }
 
 var equipmentToAlternative = map[EquipmentElement]EquipmentElement{

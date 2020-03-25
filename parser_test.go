@@ -67,16 +67,22 @@ func TestParser_Progress_NoHeader(t *testing.T) {
 }
 
 func TestParser_Weapons(t *testing.T) {
-	p := &Parser{}
+	p := &Parser{
+		weapons: make(map[int]*common.Equipment),
+	}
 
 	p.weapons[5] = common.NewEquipment(common.EqAK47)
-	weapons := p.Weapons()
+	weapons := p.WeaponsByEntityID()
 
 	assert.Equal(t, p.weapons, weapons)
 
 	weapons[6] = common.NewEquipment(common.EqAWP)
 
 	assert.NotEqual(t, p.weapons, weapons)
+
+	for entityID, wep := range p.weapons {
+		assert.Equal(t, wep.Weapon, p.WeaponTypeByEntityID(entityID))
+	}
 }
 
 func TestRecoverFromPanic(t *testing.T) {

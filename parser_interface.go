@@ -57,10 +57,10 @@ type IParser interface {
 	// Might not be 100% correct since it's just based on the reported tick count of the header.
 	// May always return 0 if the demo header is corrupt.
 	Progress() float32
-	// Weapons returns array which is used to remember what a weapon is (p250 / cz etc.).
-	//
-	// Note: this array is filled with meaningful values after DataTablesParsed event is dispatched.
-	Weapons() [maxEntities]common.Equipment
+	// WeaponsByEntityID returns all weapons currently in the game in a map where the key is the entity-ID.
+	WeaponsByEntityID() map[int]*common.Equipment
+	// WeaponTypeByEntityID returns the weapon type by its entity-ID.
+	WeaponTypeByEntityID(entityID int) common.EquipmentElement
 	/*
 	   RegisterEventHandler registers a handler for game events.
 

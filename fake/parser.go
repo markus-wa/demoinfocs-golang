@@ -125,14 +125,14 @@ func (p *Parser) Progress() float32 {
 	return p.Called().Get(0).(float32)
 }
 
-const (
-	maxEdictBits = 11
-	maxEntities  = 1 << maxEdictBits
-)
-
 // Weapons is a mock-implementation of IParser.Weapons().
-func (p *Parser) Weapons() [maxEntities]common.Equipment {
-	return p.Called().Get(0).([maxEntities]common.Equipment)
+func (p *Parser) WeaponsByEntityID() map[int]*common.Equipment {
+	return p.Called().Get(0).(map[int]*common.Equipment)
+}
+
+// WeaponTypeByEntityID is a mock-implementation of IParser.WeaponTypeByEntityID().
+func (p *Parser) WeaponTypeByEntityID(entityID int) common.EquipmentElement {
+	return p.Called().Get(0).(common.EquipmentElement)
 }
 
 // RegisterEventHandler is a mock-implementation of IParser.RegisterEventHandler().

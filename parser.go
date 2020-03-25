@@ -68,7 +68,7 @@ type Parser struct {
 	rawPlayers           map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
 	additionalPlayerInfo [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
 	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
-	weapons              [maxEntities]common.Equipment                   // Used to remember what a weapon is (p250 / cz etc.)
+	weapons              map[int]*common.Equipment                       // Maps entity ID's to weapons. Used to remember what a weapon is (p250 / cz etc.)
 	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
 	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
 	grenadeModelIndices  map[int]common.EquipmentElement                 // Used to map model indices to grenades (used for grenade projectiles)
@@ -157,11 +157,23 @@ func (p *Parser) Progress() float32 {
 	return float32(p.currentFrame) / float32(p.header.PlaybackFrames)
 }
 
-// Weapons returns array which is used to remember what a weapon is (p250 / cz etc.).
-//
-// Note: this array is filled with meaningful values after DataTablesParsed event is dispatched.
-func (p *Parser) Weapons() [maxEntities]common.Equipment {
-	return p.weapons
+// Weapons returns all weapons currently in the game.
+func (p *Parser) WeaponsByEntityID() map[int]*common.Equipment {
+	res := make(map[int]*common.Equipment)
+	for k, v := range p.weapons {
+		res[k] = v
+	}
+
+	return res
+}
+
+// WeaponTypeByEntityID returns the weapon type by its entity-ID.
+func (p *Parser) WeaponTypeByEntityID(entityID int) common.EquipmentElement {
+	if wep, ok := p.weapons[entityID]; ok {
+		return wep.Weapon
+	}
+
+	return common.EqUnknown
 }
 
 /*
@@ -270,6 +282,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	p.bitReader = bit.NewLargeBitReader(demostream)
 	p.stParser = st.NewSendTableParser()
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
+	p.weapons = make(map[int]*common.Equipment)
 	p.rawPlayers = make(map[int]*playerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
