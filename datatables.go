@@ -305,6 +305,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 				wep := p.gameState.weapons[entityID]
 
 				if wep == nil {
+					// sometimes a weapon is assigned to a player before the weapon entity is created
 					wep = common.NewEquipment(common.EqUnknown)
 					p.gameState.weapons[entityID] = wep
 				}
