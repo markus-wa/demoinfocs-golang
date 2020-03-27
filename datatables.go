@@ -482,12 +482,20 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 	var currentOwner *common.Player
 	if wep, ok := p.gameState.weapons[entityID]; ok {
 		currentOwner = wep.Owner
-	}
-
-	if currentOwner == nil {
-		p.gameState.weapons[entityID] = common.NewEquipment(wepType)
+		if p.gameState.weapons[entityID].UniqueID() == 0 {
+			// If we are here, we already have a player that holds this weapon
+			// so the zero-valued Equipment instance was already created in bindPlayer()
+			// In this case we should create a new Equipment instance with non-zero unique id
+			// but having the same memory address so player's rawWeapons would still have a pointer to it
+			*wep = *(common.NewEquipment(wepType))
+		} else {
+			// Something horrible has happened
+			p.eventDispatcher.Dispatch(events.ParserWarn{
+				Message: "trying to bind a new weapon but its entity is already bound",
+			})
+		}
 	} else {
-		p.gameState.weapons[entityID].Weapon = wepType
+		p.gameState.weapons[entityID] = common.NewEquipment(wepType)
 	}
 
 	eq := p.gameState.weapons[entityID]
