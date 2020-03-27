@@ -483,7 +483,7 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 	if wep, ok := p.gameState.weapons[entityID]; ok {
 		currentOwner = wep.Owner
 
-		unassert.True(p.gameState.weapons[entityID].UniqueID() != 	0)
+		unassert.True(p.gameState.weapons[entityID].UniqueID() != 0)
 		// If we are here, we already have a player that holds this weapon
 		// so the zero-valued Equipment instance was already created in bindPlayer()
 		// In this case we should create a new Equipment instance with non-zero unique id
