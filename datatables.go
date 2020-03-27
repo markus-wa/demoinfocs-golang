@@ -484,7 +484,12 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 		currentOwner = wep.Owner
 	}
 
-	p.gameState.weapons[entityID] = common.NewEquipment(wepType)
+	if currentOwner == nil {
+		p.gameState.weapons[entityID] = common.NewEquipment(wepType)
+	} else {
+		p.gameState.weapons[entityID].Weapon = wepType
+	}
+
 	eq := p.gameState.weapons[entityID]
 	eq.Owner = currentOwner
 	eq.EntityID = entityID
