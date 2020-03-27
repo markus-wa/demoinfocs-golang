@@ -305,10 +305,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 				wep := p.gameState.weapons[entityID]
 
 				if wep == nil {
-					// Something is clearly wrong here
-					// But since we had an empty Equipment instance here before the change
-					// from array with default elements to map, let's create a new instance.
-					wep = new(common.Equipment)
+					wep = common.NewEquipment(common.EqUnknown)
 					p.gameState.weapons[entityID] = wep
 				}
 
@@ -479,22 +476,14 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) {
 	entityID := entity.ID()
 
-	var currentOwner *common.Player
-	if wep, ok := p.gameState.weapons[entityID]; ok {
-		currentOwner = wep.Owner
-
-		unassert.True(p.gameState.weapons[entityID].UniqueID() != 0)
-		// If we are here, we already have a player that holds this weapon
-		// so the zero-valued Equipment instance was already created in bindPlayer()
-		// In this case we should create a new Equipment instance with non-zero unique id
-		// but having the same memory address so player's rawWeapons would still have a pointer to it
-		*wep = *(common.NewEquipment(wepType))
+	eq, eqExists := p.gameState.weapons[entityID]
+	if !eqExists {
+		eq = common.NewEquipment(wepType)
+		p.gameState.weapons[entityID] = eq
 	} else {
-		p.gameState.weapons[entityID] = common.NewEquipment(wepType)
+		eq.Weapon = wepType
 	}
 
-	eq := p.gameState.weapons[entityID]
-	eq.Owner = currentOwner
 	eq.EntityID = entityID
 	eq.AmmoInMagazine = -1
 
