@@ -481,6 +481,10 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 		eq = common.NewEquipment(wepType)
 		p.gameState.weapons[entityID] = eq
 	} else {
+		// If we are here, we already have a player that holds this weapon
+		// so the zero-valued Equipment instance was already created in bindPlayer().
+		// In this case we should create update the weapon type
+		// but keep the same memory address so player's rawWeapons would still have a pointer to it
 		eq.Weapon = wepType
 	}
 
