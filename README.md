@@ -104,6 +104,7 @@ Check out the [examples](examples) folder for more examples, like [how to genera
 * Access to all net-messages - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
 * Chat & console messages <sup id="achat1">1</sup> - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
 * POV demo support <sup id="achat1">2</sup>
+* JavaScript (browser / Node.js) support via WebAssembly - [example](https://github.com/markus-wa/demoinfocs-wasm)
 * [Easy debugging via build-flags](#debugging)
 * Built with performance & concurrency in mind
 
