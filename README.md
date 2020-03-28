@@ -250,7 +250,7 @@ After installing these use `go generate ./msg` to generate the protobuf code. If
 
 Thanks to [@JetBrains](https://github.com/JetBrains) for sponsoring a license of their awesome [GoLand](https://www.jetbrains.com/go/) IDE for this project - go check it out!
 
-And a very special thanks goes out to all the [⭐️contributors⭐](https://github.com/markus-wa/demoinfocs-golang/graphs/contributors)️, be it in the form of PRs, issues or anything else.
+And a very special thanks goes out to all the [⭐contributors⭐](https://github.com/markus-wa/demoinfocs-golang/graphs/contributors)️, be it in the form of PRs, issues or anything else.
 
 ## License
 
