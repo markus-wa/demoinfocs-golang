@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"sync"
 	"time"
 
@@ -62,12 +63,24 @@ func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 	// Initialize queue if the buffer size wasn't specified, the amount of ticks
 	// seems to be a good indicator of how many events we'll get
 	if p.msgQueue == nil {
-		p.initMsgQueue(h.PlaybackTicks)
+		p.initMsgQueue(msgQueueSize(h.PlaybackTicks))
 	}
 
 	p.header = &h
 
 	return h, nil
+}
+
+func msgQueueSize(ticks int) int {
+	const (
+		msgQueueMinSize = 50000
+		msgQueueMaxSize = 500000
+	)
+
+	size := math.Max(msgQueueMinSize, float64(ticks))
+	size = math.Min(msgQueueMaxSize, size)
+
+	return int(size)
 }
 
 // ParseToEnd attempts to parse the demo until the end.
