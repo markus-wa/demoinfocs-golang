@@ -21,6 +21,8 @@ github.com/markus-wa/go-unassert v0.1.0 h1:SQlhZEu0GmO4kD2zz5wgqLxX5MKl2LZwYRz9t
 github.com/markus-wa/go-unassert v0.1.0/go.mod h1:XEvrxR+trvZeMDfXcZPvzqGo6eumEtdk5VjNRuvvzxQ=
 github.com/markus-wa/go-unassert v0.1.1 h1:Bn7NfuD85DFdUoGQREI3PWNT1m0THYbYazHmOVIPNYQ=
 github.com/markus-wa/go-unassert v0.1.1/go.mod h1:XEvrxR+trvZeMDfXcZPvzqGo6eumEtdk5VjNRuvvzxQ=
+github.com/markus-wa/go-unassert v0.1.2 h1:uXWlMDa8JVtc4RgNq4XJIjyRejv9MOVuy/E0VECPxxo=
+github.com/markus-wa/go-unassert v0.1.2/go.mod h1:XEvrxR+trvZeMDfXcZPvzqGo6eumEtdk5VjNRuvvzxQ=
 github.com/markus-wa/gobitread v0.2.2 h1:4Z4oJ8Bf1XnOy6JZ2/9AdFKVAoxdq7awRjrb+j2BeSQ=
 github.com/markus-wa/gobitread v0.2.2/go.mod h1:PcWXMH4gx7o2CKslbkFkLyJB/aHW7JVRG3MRZe3PINg=
 github.com/markus-wa/godispatch v1.1.0 h1:J8O+hRkOCexDUQevaSKWDtKeZ3+HcmbEUKY1uYraAjY=
