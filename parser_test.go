@@ -66,16 +66,15 @@ func TestParser_Progress_NoHeader(t *testing.T) {
 	assert.Zero(t, (&Parser{header: &common.DemoHeader{}}).Progress())
 }
 
-func TestRecoverFromPanic(t *testing.T) {
-	assert.Nil(t, recoverFromPanic(nil))
-	assert.Equal(t, ErrUnexpectedEndOfDemo, recoverFromPanic(io.ErrUnexpectedEOF))
-	assert.Equal(t, ErrUnexpectedEndOfDemo, recoverFromPanic(io.EOF))
+func TestRecoverFromUnexpectedEOF(t *testing.T) {
+	assert.Nil(t, recoverFromUnexpectedEOF(nil))
+	assert.Equal(t, ErrUnexpectedEndOfDemo, recoverFromUnexpectedEOF(io.ErrUnexpectedEOF))
+	assert.Equal(t, ErrUnexpectedEndOfDemo, recoverFromUnexpectedEOF(io.EOF))
 
-	err := errors.New("test")
-	assert.Equal(t, err, recoverFromPanic(err))
-
-	assert.Equal(t, "test", recoverFromPanic("test").Error())
-	assert.Equal(t, "unexpected error: 1", recoverFromPanic(1).Error())
+	assert.Panics(t, func() {
+		r := recoverFromUnexpectedEOF(errors.New("test"))
+		assert.Failf(t, "expected panic, got recovery", "recovered value = '%v'", r)
+	})
 }
 
 type consumerCodePanicMock struct {
@@ -92,7 +91,7 @@ func (ucp consumerCodePanicMock) Value() interface{} {
 
 func TestRecoverFromPanic_ConsumerCodePanic(t *testing.T) {
 	assert.PanicsWithValue(t, 1, func() {
-		err := recoverFromPanic(consumerCodePanicMock{value: 1})
+		err := recoverFromUnexpectedEOF(consumerCodePanicMock{value: 1})
 		assert.Nil(t, err)
 	})
 }

@@ -98,7 +98,7 @@ func (p *Parser) ParseToEnd() (err error) {
 		}
 
 		if err == nil {
-			err = recoverFromPanic(recover())
+			err = recoverFromUnexpectedEOF(recover())
 		}
 	}()
 
@@ -126,7 +126,7 @@ func (p *Parser) ParseToEnd() (err error) {
 	}
 }
 
-func recoverFromPanic(r interface{}) error {
+func recoverFromUnexpectedEOF(r interface{}) error {
 	if r == nil {
 		return nil
 	}
@@ -138,12 +138,8 @@ func recoverFromPanic(r interface{}) error {
 	switch err := r.(type) {
 	case dispatch.ConsumerCodePanic:
 		panic(err.Value())
-	case error:
-		return err
-	case string:
-		return errors.New(err)
 	default:
-		return fmt.Errorf("unexpected error: %v", err)
+		panic(err)
 	}
 }
 
@@ -174,7 +170,7 @@ func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
 		}
 
 		if err == nil {
-			err = recoverFromPanic(recover())
+			err = recoverFromUnexpectedEOF(recover())
 		}
 	}()
 
