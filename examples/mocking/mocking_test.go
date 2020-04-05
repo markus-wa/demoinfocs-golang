@@ -6,9 +6,9 @@ import (
 
 	assert "github.com/stretchr/testify/assert"
 
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	fake "github.com/markus-wa/demoinfocs-golang/fake"
+	common "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/events"
+	fake "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/fake"
 )
 
 func TestCollectKills(t *testing.T) {

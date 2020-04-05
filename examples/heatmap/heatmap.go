@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
 	"image"
 	"image/draw"
 	"image/jpeg"
@@ -11,10 +12,9 @@ import (
 	schemes "github.com/dustin/go-heatmap/schemes"
 	r2 "github.com/golang/geo/r2"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	events "github.com/markus-wa/demoinfocs-golang/events"
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	metadata "github.com/markus-wa/demoinfocs-golang/metadata"
+	events "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/events"
+	metadata "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/metadata"
 )
 
 const (
@@ -33,7 +33,7 @@ func main() {
 	checkError(err)
 	defer f.Close()
 
-	p := dem.NewParser(f)
+	p := demoinfocs.NewParser(f)
 
 	// Parse header (contains map-name etc.)
 	header, err := p.ParseHeader()
@@ -78,7 +78,7 @@ func main() {
 	//
 
 	// Load map overview image
-	fMap, err := os.Open(fmt.Sprintf("../../metadata/maps/%s.jpg", header.MapName))
+	fMap, err := os.Open(fmt.Sprintf("../../assets/maps/%s.jpg", header.MapName))
 	checkError(err)
 	imgMap, _, err := image.Decode(fMap)
 	checkError(err)

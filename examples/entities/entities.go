@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
 	_ "image/jpeg"
 	"os"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	"github.com/markus-wa/demoinfocs-golang/events"
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/events"
+	st "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/sendtables"
 )
 
 // Run like this: go run entities.go -demo /path/to/demo.dem
@@ -17,7 +17,7 @@ func main() {
 	checkError(err)
 	defer f.Close()
 
-	p := dem.NewParser(f)
+	p := demoinfocs.NewParser(f)
 
 	p.RegisterEventHandler(func(events.DataTablesParsed) {
 		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent *st.Entity) {

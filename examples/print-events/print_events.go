@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
 	"os"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
+	common "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/events"
 )
 
 // Run like this: go run print_events.go -demo /path/to/demo.dem
@@ -16,7 +16,7 @@ func main() {
 	defer f.Close()
 	checkError(err)
 
-	p := dem.NewParser(f)
+	p := demoinfocs.NewParser(f)
 
 	// Parse header
 	header, err := p.ParseHeader()

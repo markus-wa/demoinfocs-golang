@@ -167,7 +167,7 @@ If your project is using this library feel free to submit a PR or send a message
 
 To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, you can run the following script.
 
-    bin/git-hooks/link-git-hooks.sh
+    scripts/git-hooks/link-git-hooks.sh
 
 #### `pre-commit`:
 - check if [interfaces have been updated](#generating-interfaces)
@@ -186,7 +186,7 @@ However, due to some design flaws in some parts of the code it's currently not a
 
 Running unit tests:
 
-    bin/unit-tests.sh
+    scripts/unit-tests.sh
     # or (identical)
     go test -short ./...
 
@@ -200,7 +200,7 @@ Prerequisites:
 
 Downloading demos + running regression tests:
 
-    bin/regression-tests.sh
+    scripts/regression-tests.sh
 
 #### Updating the `default.golden` file
 
@@ -228,7 +228,7 @@ We generate interfaces such as `IGameState` from structs to make it easier to ke
 For this we use [@vburenin](https://github.com/vburenin)'s [`ifacemaker`](https://github.com/vburenin/ifacemaker) tool.
 
 You can download the latest version [here](https://github.com/vburenin/ifacemaker/releases).
-After adding it to your `PATH` you can use `bin/generate-interfaces.sh` to update interfaces.
+After adding it to your `PATH` you can use `scripts/generate-interfaces.sh` to update interfaces.
 
 ### Generating protobuf code
 

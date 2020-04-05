@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
 	"image"
 	"image/color"
 	"image/draw"
@@ -13,11 +14,10 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/llgcode/draw2d/draw2dimg"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	"github.com/markus-wa/demoinfocs-golang/common"
-	"github.com/markus-wa/demoinfocs-golang/events"
 	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	"github.com/markus-wa/demoinfocs-golang/metadata"
+	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/metadata"
 )
 
 type nadePath struct {
@@ -45,7 +45,7 @@ func main() {
 	checkError(err)
 	defer f.Close()
 
-	p := dem.NewParser(f)
+	p := demoinfocs.NewParser(f)
 
 	header, err := p.ParseHeader()
 	checkError(err)
@@ -103,7 +103,7 @@ func main() {
 	checkError(err)
 
 	// Use map overview as base image
-	fMap, err := os.Open(fmt.Sprintf("../../metadata/maps/%s.jpg", header.MapName))
+	fMap, err := os.Open(fmt.Sprintf("../../assets/maps/%s.jpg", header.MapName))
 	checkError(err)
 
 	imgMap, _, err := image.Decode(fMap)
