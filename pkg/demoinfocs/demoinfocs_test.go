@@ -21,10 +21,10 @@ import (
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
 const testDataPath = "../../test"

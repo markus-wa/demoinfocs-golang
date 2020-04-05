@@ -3,7 +3,7 @@ package fake
 import (
 	"github.com/stretchr/testify/mock"
 
-	st "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
 var _ st.IProperty = new(Property)

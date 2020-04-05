@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
 	"image"
 	"image/color"
 	"image/draw"
@@ -14,10 +13,11 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/llgcode/draw2d/draw2dimg"
 
-	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/metadata"
+	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 )
 
 type nadePath struct {

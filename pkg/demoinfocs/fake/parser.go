@@ -8,9 +8,9 @@ import (
 	dp "github.com/markus-wa/godispatch"
 	mock "github.com/stretchr/testify/mock"
 
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
 var _ demoinfocs.IParser = new(Parser)

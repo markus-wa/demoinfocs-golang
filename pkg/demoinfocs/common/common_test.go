@@ -7,8 +7,8 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
 
-	st "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/sendtables/fake"
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
 )
 
 func TestBombPosition(t *testing.T) {

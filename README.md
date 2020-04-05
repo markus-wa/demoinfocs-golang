@@ -24,7 +24,7 @@ If you are unfamiliar with Go modules there's a [list of recommended resources](
 
 ## Go Get
 
-	go get -u github.com/markus-wa/demoinfocs-golang
+	go get -u github.com/markus-wa/demoinfocs-golang/v2
 
 ## Example
 
@@ -40,8 +40,8 @@ import (
 	"fmt"
 	"os"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	events "github.com/markus-wa/demoinfocs-golang/events"
+	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 )
 
 func main() {

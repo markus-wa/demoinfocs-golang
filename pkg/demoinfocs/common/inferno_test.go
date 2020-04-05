@@ -7,7 +7,7 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
 
-	st "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
 func TestInferno_UniqueID(t *testing.T) {

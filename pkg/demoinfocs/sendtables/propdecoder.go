@@ -6,7 +6,7 @@ import (
 
 	r3 "github.com/golang/geo/r3"
 
-	bit "github.com/markus-wa/demoinfocs-golang/internal/bitread"
+	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 )
 
 const (

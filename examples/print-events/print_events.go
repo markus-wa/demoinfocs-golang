@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
 	"os"
 
-	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	common "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/events"
+	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 )
 
 // Run like this: go run print_events.go -demo /path/to/demo.dem

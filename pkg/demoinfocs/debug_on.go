@@ -7,8 +7,8 @@ package demoinfocs
 import (
 	"fmt"
 
-	msg "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/sendtables"
+	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
 const (
@@ -25,24 +25,34 @@ var debugDemoCommands = no
 var debugServerClasses = no
 
 func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+	const (
+		typeStr    = 1
+		typeFloat  = 2
+		typeLong   = 3
+		typeShort  = 4
+		typeByte   = 5
+		typeBool   = 6
+		typeUint64 = 7
+	)
+
 	if debugGameEvents == yes {
 		// Map only the relevant data for each type
 		data := make(map[string]interface{})
 		for k, v := range mapGameEventData(d, ge) {
 			switch v.Type {
-			case 1:
+			case typeStr:
 				data[k] = v.ValString
-			case 2:
+			case typeFloat:
 				data[k] = v.ValFloat
-			case 3:
+			case typeLong:
 				data[k] = v.ValLong
-			case 4:
+			case typeShort:
 				data[k] = v.ValShort
-			case 5:
+			case typeByte:
 				data[k] = v.ValByte
-			case 6:
+			case typeBool:
 				data[k] = v.ValBool
-			case 7:
+			case typeUint64:
 				data[k] = v.ValUint64
 			}
 		}

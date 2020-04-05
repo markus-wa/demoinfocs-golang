@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
 	_ "image/jpeg"
 	"os"
 
-	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/events"
-	st "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/sendtables"
+	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
 // Run like this: go run entities.go -demo /path/to/demo.dem

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
 	"image"
 	"image/draw"
 	"image/jpeg"
@@ -12,9 +11,10 @@ import (
 	schemes "github.com/dustin/go-heatmap/schemes"
 	r2 "github.com/golang/geo/r2"
 
-	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	events "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/events"
-	metadata "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/metadata"
+	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	metadata "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 )
 
 const (

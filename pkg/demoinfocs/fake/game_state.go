@@ -1,11 +1,11 @@
 package fake
 
 import (
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
 var _ demoinfocs.IGameState = new(GameState)

@@ -10,7 +10,7 @@ First, let's have a look at the API of our code, the 'system under test':
 ```go
 import (
 	dem "github.com/markus-wa/demoinfocs-golang"
-	events "github.com/markus-wa/demoinfocs-golang/events"
+	events "github.com/markus-wa/demoinfocs-golang/v2/events"
 )
 
 func collectKills(parser dem.IParser) (kills []events.Kill, err error) {
@@ -33,9 +33,9 @@ import (
 
 	assert "github.com/stretchr/testify/assert"
 
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	fake "github.com/markus-wa/demoinfocs-golang/fake"
+	common "github.com/markus-wa/demoinfocs-golang/v2/common"
+	events "github.com/markus-wa/demoinfocs-golang/v2/events"
+	fake "github.com/markus-wa/demoinfocs-golang/v2/fake"
 )
 
 func TestCollectKills(t *testing.T) {
@@ -83,9 +83,9 @@ import (
 
 	assert "github.com/stretchr/testify/assert"
 
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	fake "github.com/markus-wa/demoinfocs-golang/fake"
+	common "github.com/markus-wa/demoinfocs-golang/v2/common"
+	events "github.com/markus-wa/demoinfocs-golang/v2/events"
+	fake "github.com/markus-wa/demoinfocs-golang/v2/fake"
 )
 
 func TestCollectKillsError(t *testing.T) {

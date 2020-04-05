@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 )
 
 /*
