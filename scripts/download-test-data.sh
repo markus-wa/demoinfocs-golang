@@ -9,9 +9,13 @@ git submodule update
 
 pushd test/cs-demos >/dev/null
 
+minSize=1000000
 for f in "$@"; do
-	git lfs pull -I $f
-	7z x $f -aoa
+  fileSize=$(stat -c%s "$f")
+  if (( $fileSize < $minSize)); then
+	  git lfs pull -I $f
+	  7z x $f -aoa
+	fi
 done
 
 popd >/dev/null
