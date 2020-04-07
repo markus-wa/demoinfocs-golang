@@ -26,18 +26,23 @@ type BitReader struct {
 // ReadString reads a variable length string.
 func (r *BitReader) ReadString() string {
 	// Valve also uses this sooo
-	return r.readStringLimited(4096, false)
+	const valveMaxStringLength = 4096
+	return r.readStringLimited(valveMaxStringLength, false)
 }
 
 func (r *BitReader) readStringLimited(limit int, endOnNewLine bool) string {
-	result := make([]byte, 0, 512)
+	const minStringBufferLength = 256
+	result := make([]byte, 0, minStringBufferLength)
+
 	for i := 0; i < limit; i++ {
 		b := r.ReadSingleByte()
 		if b == 0 || (endOnNewLine && b == '\n') {
 			break
 		}
+
 		result = append(result, b)
 	}
+
 	return string(result)
 }
 
@@ -48,12 +53,16 @@ func (r *BitReader) ReadFloat() float32 {
 
 // ReadVarInt32 reads a variable size unsigned int (max 32-bit).
 func (r *BitReader) ReadVarInt32() uint32 {
-	var res uint32
-	var b uint32 = 0x80
+	var (
+		res uint32
+		b   uint32 = 0x80
+	)
+
 	for count := uint(0); b&0x80 != 0 && count != maxVarInt32Bytes; count++ {
 		b = uint32(r.ReadSingleByte())
 		res |= (b & 0x7f) << (7 * count)
 	}
+
 	return res
 }
 
@@ -75,6 +84,7 @@ func (r *BitReader) ReadUBitInt() uint {
 	case 48:
 		res = (res & 15) | (r.ReadInt(32-4) << 4)
 	}
+
 	return res
 }
 
@@ -88,9 +98,11 @@ var bitReaderPool = sync.Pool{
 // Pooling BitReaders improves performance by minimizing the amount newly allocated readers.
 func (r *BitReader) Pool() {
 	r.Close()
+
 	if len(*r.buffer) == smallBuffer {
 		smallBufferPool.Put(r.buffer)
 	}
+
 	r.buffer = nil
 
 	bitReaderPool.Put(r)
@@ -100,6 +112,7 @@ func newBitReader(underlying io.Reader, buffer *[]byte) *BitReader {
 	br := bitReaderPool.Get().(*BitReader)
 	br.buffer = buffer
 	br.OpenWithBuffer(underlying, *buffer)
+
 	return br
 }
 

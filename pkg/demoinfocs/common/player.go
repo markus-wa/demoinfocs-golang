@@ -92,6 +92,7 @@ func (p *Player) FlashDurationTime() time.Duration {
 	if !p.IsBlinded() {
 		return time.Duration(0)
 	}
+
 	return p.flashDurationTimeFull()
 }
 
@@ -110,9 +111,11 @@ func (p *Player) FlashDurationTimeRemaining() time.Duration {
 
 	timeSinceFlash := time.Duration(float64(p.demoInfoProvider.IngameTick()-p.FlashTick) / tickRate * float64(time.Second))
 	remaining := p.flashDurationTimeFull() - timeSinceFlash
+
 	if remaining < 0 {
 		return 0
 	}
+
 	return remaining
 }
 
@@ -154,6 +157,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 	// TODO extract ClientSlot() function
 	clientSlot := other.EntityID - 1
 	bit := uint(clientSlot)
+
 	var mask st.IProperty
 	if bit < 32 {
 		mask = p.Entity.FindPropertyI("m_bSpottedByMask.000")
@@ -161,6 +165,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 		bit -= 32
 		mask = p.Entity.FindPropertyI("m_bSpottedByMask.001")
 	}
+
 	return (mask.Value().IntVal & (1 << bit)) != 0
 }
 

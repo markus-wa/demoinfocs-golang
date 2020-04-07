@@ -56,6 +56,7 @@ func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_Gam
 				data[k] = v.ValUint64
 			}
 		}
+
 		fmt.Println("GameEvent:", d.Name, "Data:", data)
 	}
 }

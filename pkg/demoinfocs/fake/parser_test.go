@@ -32,8 +32,10 @@ func TestParseHeader(t *testing.T) {
 func TestParseNextFrameEvents(t *testing.T) {
 	p := fake.NewParser()
 	p.On("ParseNextFrame").Return(true, nil)
+
 	expected := []interface{}{kill(common.EqAK47), kill(common.EqScout)}
 	p.MockEvents(expected...)
+
 	// Kill on second frame that shouldn't be dispatched during the first frame
 	p.MockEvents(kill(common.EqAUG))
 

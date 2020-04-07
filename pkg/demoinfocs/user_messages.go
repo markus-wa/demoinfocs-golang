@@ -52,6 +52,7 @@ func newUserMessageHandler(parser *Parser) userMessageHandler {
 func (umh userMessageHandler) sayText(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_SayText)
 	err := st.Unmarshal(um.MsgData)
+
 	if err != nil {
 		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("failed to decode SayText message: %s", err.Error())})
 		unassert.Error("failed to decode SayText message: %s", err.Error())
@@ -68,6 +69,7 @@ func (umh userMessageHandler) sayText(um *msg.CSVCMsg_UserMessage) {
 func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_SayText2)
 	err := st.Unmarshal(um.MsgData)
+
 	if err != nil {
 		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("failed to decode SayText2 message: %s", err.Error())})
 		unassert.Error("failed to decode SayText2 message: %s", err.Error())
@@ -110,6 +112,7 @@ func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_ServerRankUpdate)
 	err := st.Unmarshal(um.MsgData)
+
 	if err != nil {
 		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("failed to decode ServerRankUpdate message: %s", err.Error())})
 		unassert.Error("failed to decode ServerRankUpdate message: %s", err.Error())

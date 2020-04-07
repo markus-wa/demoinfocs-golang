@@ -85,6 +85,7 @@ func (sc *ServerClass) BaseClasses() []*ServerClass {
 func (sc *ServerClass) PropertyEntries() []string {
 	propEntryCount := len(sc.flattenedProps)
 	names := make([]string, propEntryCount)
+
 	for i := 0; i < propEntryCount; i++ {
 		names[i] = sc.flattenedProps[i].name
 	}
@@ -93,8 +94,7 @@ func (sc *ServerClass) PropertyEntries() []string {
 }
 
 func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int) *Entity {
-	propCount := len(sc.flattenedProps)
-	props := make([]Property, propCount)
+	props := make([]Property, len(sc.flattenedProps))
 	for i := range sc.flattenedProps {
 		props[i] = Property{entry: &sc.flattenedProps[i]}
 	}

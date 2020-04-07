@@ -17,8 +17,8 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 
 	p.gameState.tState.Score = 1
 	p.gameState.ctState.Score = 2
-
 	eventOccurred := 0
+
 	p.RegisterEventHandler(func(e events.RoundEnd) {
 		eventOccurred++
 		assert.Equal(t, e, events.RoundEnd{

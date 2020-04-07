@@ -91,10 +91,12 @@ func testPlayerSpotted(t *testing.T, propName string) {
 	// TODO: Player interface so we don't have to mock all this
 	spotted := new(fakest.Entity)
 	spottedByProp0 := new(fakest.Property)
+
 	var spottedByUpdateHandler st.PropertyUpdateHandler
 	spottedByProp0.On("OnUpdate", mock.Anything).Run(func(args mock.Arguments) {
 		spottedByUpdateHandler = args.Get(0).(st.PropertyUpdateHandler)
 	})
+
 	spotted.On("FindPropertyI", propName).Return(spottedByProp0)
 	configurePlayerEntityMock(1, spotted)
 	p.bindNewPlayer(spotted)
@@ -129,10 +131,12 @@ func fakePlayerEntity(id int) *fakest.Entity {
 
 func configurePlayerEntityMock(id int, entity *fakest.Entity) {
 	entity.On("ID").Return(id)
+
 	var destroyCallback func()
 	entity.On("OnDestroy", mock.Anything).Run(func(args mock.Arguments) {
 		destroyCallback = args.Get(0).(func())
 	})
+
 	entity.On("OnPositionUpdate", mock.Anything).Return()
 	entity.On("FindPropertyI", mock.Anything).Return(new(st.Property))
 	entity.On("BindProperty", mock.Anything, mock.Anything, mock.Anything)

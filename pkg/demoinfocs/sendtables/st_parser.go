@@ -27,34 +27,26 @@ type SendTableParser struct {
 type ServerClasses []*ServerClass
 
 func (sc ServerClasses) findByDataTableName(name string) *ServerClass {
-	var res *ServerClass
 	for _, v := range sc {
 		if v.dataTableName == name {
-			if res != nil {
-				panic(fmt.Sprintf("More than one server class with DT name %q found", name))
-			}
-			res = v
+			return v
 		}
 	}
-	return res
+
+	return nil
 }
 
 // FindByName finds and returns a server-class by it's name.
 //
 // Returns nil if the server-class wasn't found.
-//
-// Panics if more than one server-class with the same name was found.
 func (sc ServerClasses) FindByName(name string) *ServerClass {
-	var res *ServerClass
 	for _, v := range sc {
 		if v.name == name {
-			if res != nil {
-				panic(fmt.Sprintf("More than one server class with name %q found", name))
-			}
-			res = v
+			return v
 		}
 	}
-	return res
+
+	return nil
 }
 
 type excludeEntry struct {
@@ -84,6 +76,7 @@ func (p *SendTableParser) ParsePacket(r *bit.BitReader) {
 		if st.isEnd {
 			break
 		}
+
 		p.sendTables = append(p.sendTables, st)
 	}
 
@@ -92,17 +85,20 @@ func (p *SendTableParser) ParsePacket(r *bit.BitReader) {
 	for i := 0; i < serverClassCount; i++ {
 		class := new(ServerClass)
 		class.id = int(r.ReadInt(16))
+
 		if class.id > serverClassCount {
 			panic("Invalid class index")
 		}
 
 		class.name = r.ReadString()
 		class.dataTableName = r.ReadString()
+
 		for j, v := range p.sendTables {
 			if v.name == class.dataTableName {
 				class.dataTableID = j
 			}
 		}
+
 		class.instanceBaseline = p.instanceBaselines[i]
 
 		p.serverClasses = append(p.serverClasses, class)
@@ -116,13 +112,16 @@ func (p *SendTableParser) ParsePacket(r *bit.BitReader) {
 func parseSendTable(r *bit.BitReader) sendTable {
 	size := int(r.ReadVarInt32())
 	r.BeginChunk(size << 3)
+
 	st := new(msg.CSVCMsg_SendTable)
 	if err := proto.Unmarshal(r.ReadBytes(size), st); err != nil {
 		panic(fmt.Sprintf("Failed to unmarshal SendTable: %s", err.Error()))
 	}
+
 	r.EndChunk()
 
 	var res sendTable
+
 	for _, v := range st.GetProps() {
 		var prop sendTableProperty
 		prop.dataTableName = v.DtName
@@ -156,25 +155,11 @@ func (p *SendTableParser) flattenDataTable(serverClassIndex int) {
 	p.gatherProps(tab, serverClassIndex, "")
 
 	fProps := p.serverClasses[serverClassIndex].flattenedProps
-
-	// Sort priorities
-	prioSet := make(map[int]struct{})
-	prioSet[64] = struct{}{}
-	for _, v := range fProps {
-		prioSet[v.prop.priority] = struct{}{}
-	}
-	prios := make([]int, len(prioSet))
-	{
-		i := 0
-		for k := range prioSet {
-			prios[i] = k
-			i++
-		}
-	}
-	sort.Ints(prios)
+	prios := sortProperyPrios(fProps)
 
 	// I honestly have no idea what the following bit of code does but the statshelix guys do it too (please don't sue me)
 	start := 0
+
 	for _, prio := range prios {
 		for {
 			cp := start
@@ -187,14 +172,37 @@ func (p *SendTableParser) flattenDataTable(serverClassIndex int) {
 						fProps[cp] = tmp
 					}
 					start++
+
 					break
 				}
 			}
+
 			if cp == len(fProps) {
 				break
 			}
 		}
 	}
+}
+
+func sortProperyPrios(fProps []flattenedPropEntry) []int {
+	prioSet := make(map[int]struct{})
+	prioSet[64] = struct{}{}
+
+	for _, v := range fProps {
+		prioSet[v.prop.priority] = struct{}{}
+	}
+
+	prios := make([]int, len(prioSet))
+
+	i := 0
+	for k := range prioSet {
+		prios[i] = k
+		i++
+	}
+
+	sort.Ints(prios)
+
+	return prios
 }
 
 func (p *SendTableParser) gatherExcludesAndBaseClasses(st *sendTable, collectBaseClasses bool) {
@@ -285,7 +293,9 @@ func (p *SendTableParser) SetInstanceBaseline(scID int, data []byte) {
 // Intended for internal use only.
 func (p *SendTableParser) ReadEnterPVS(r *bit.BitReader, entityID int) *Entity {
 	scID := int(r.ReadInt(p.classBits()))
-	r.Skip(10) // Serial Number
+	
+	const nSerialNumberBits = 10
+	r.Skip(nSerialNumberBits) // Serial Number
 
 	return p.serverClasses[scID].newEntity(r, entityID)
 }

@@ -43,7 +43,8 @@ func (e *Entity) PropertiesI() (out []IProperty) {
 	for i := range e.props {
 		out = append(out, &e.props[i])
 	}
-	return
+
+	return out
 }
 
 // FindProperty is deprecated, use FindPropertyI() instead which returns an interface.
@@ -53,9 +54,11 @@ func (e *Entity) FindProperty(name string) (prop *Property) {
 			if prop != nil {
 				panic(fmt.Sprintf("More than one property with name %q found", name))
 			}
+
 			prop = &e.props[i]
 		}
 	}
+
 	return
 }
 
@@ -70,6 +73,7 @@ func (e *Entity) FindPropertyI(name string) IProperty {
 		// See https://stackoverflow.com/questions/13476349/check-for-nil-and-nil-interface-in-go
 		return nil
 	}
+
 	return prop
 }
 
@@ -122,6 +126,7 @@ func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 		// NewWay A
 		return lastIndex + 1
 	}
+
 	var res uint
 	if newWay && reader.ReadBit() {
 		// NewWay B
@@ -138,8 +143,8 @@ func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 		}
 	}
 
-	// end marker
-	if res == 0xfff {
+	const fileIndexEndMarker = 0xfff
+	if res == fileIndexEndMarker {
 		return -1
 	}
 
@@ -149,6 +154,7 @@ func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 // Collects an initial baseline for a server-class
 func (e *Entity) initializeBaseline(r *bit.BitReader) map[int]PropertyValue {
 	baseline := make(map[int]PropertyValue)
+
 	for i := range e.props {
 		i2 := i // Copy for the adder
 		adder := func(val PropertyValue) {
@@ -200,6 +206,7 @@ func (e *Entity) initialize() {
 		e.position = func() r3.Vector {
 			xy := xyProp.Value().VectorVal
 			z := float64(zProp.Value().FloatVal)
+
 			return r3.Vector{
 				X: xy.X,
 				Y: xy.Y,
@@ -362,6 +369,7 @@ The valueType indicates which field of the PropertyValue to use for the binding.
 */
 func (pe *Property) Bind(variable interface{}, valueType PropertyValueType) {
 	var binder PropertyUpdateHandler
+
 	switch valueType {
 	case ValTypeInt:
 		binder = func(val PropertyValue) {
@@ -397,5 +405,6 @@ func (pe *Property) Bind(variable interface{}, valueType PropertyValueType) {
 			*(variable.(*[]PropertyValue)) = val.ArrayVal
 		}
 	}
+
 	pe.OnUpdate(binder)
 }

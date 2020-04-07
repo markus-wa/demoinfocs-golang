@@ -139,8 +139,11 @@ func mockDemoInfoProvider(tickRate float64, tick int) demoInfoProvider {
 func entityWithProperty(propName string, value st.PropertyValue) st.IEntity {
 	entity := new(stfake.Entity)
 	entity.On("ID").Return(1)
+
 	prop := new(stfake.Property)
 	prop.On("Value").Return(value)
+
 	entity.On("FindPropertyI", propName).Return(prop)
+
 	return entity
 }

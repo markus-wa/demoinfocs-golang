@@ -27,7 +27,9 @@ type EquipmentElement int
 // Class returns the class of the equipment.
 // E.g. pistol, smg, heavy etc.
 func (e EquipmentElement) Class() EquipmentClass {
-	return EquipmentClass((int(e) + 99) / 100)
+	const classDenominator = 100
+
+	return EquipmentClass((int(e) + classDenominator - 1) / classDenominator)
 }
 
 // String returns a human readable name for the equipment.

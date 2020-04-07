@@ -113,9 +113,11 @@ func (propertyDecoder) decodeInt(prop *sendTableProperty, reader *bit.BitReader)
 		}
 		return int(reader.ReadSignedVarInt32())
 	}
+
 	if prop.flags.hasFlagSet(propFlagUnsigned) {
 		return int(reader.ReadInt(prop.numberOfBits))
 	}
+
 	return reader.ReadSignedInt(prop.numberOfBits)
 }
 
@@ -150,19 +152,23 @@ func (propertyDecoder) decodeSpecialFloat(prop *sendTableProperty, reader *bit.B
 	} else if prop.flags.hasFlagSet(propFlagCellCoordIntegral) {
 		return propDecoder.readBitCellCoord(reader, prop.numberOfBits, false, true)
 	}
+
 	panic(fmt.Sprintf("Unexpected special float flag (Flags %v)", prop.flags))
 }
 
 func (propertyDecoder) readBitCoord(reader *bit.BitReader) float32 {
-	var intVal, fractVal int
-	var res float32
-	isNegative := false
+	var (
+		intVal, fractVal int
+		res              float32
+		isNegative       = false
+	)
 
 	intVal = int(reader.ReadInt(1))
 	fractVal = int(reader.ReadInt(1))
 
 	if intVal|fractVal != 0 {
 		isNegative = reader.ReadBit()
+
 		if intVal == 1 {
 			intVal = int(reader.ReadInt(coordIntegerBits) + 1)
 		}
@@ -182,13 +188,17 @@ func (propertyDecoder) readBitCoord(reader *bit.BitReader) float32 {
 }
 
 func (propertyDecoder) readBitCoordMp(reader *bit.BitReader, isIntegral bool, isLowPrecision bool) float32 {
-	var res float32
-	isNegative := false
+	var (
+		res        float32
+		isNegative = false
+	)
 
 	inBounds := reader.ReadBit()
+
 	if isIntegral {
 		if reader.ReadBit() {
 			isNegative = reader.ReadBit()
+
 			if inBounds {
 				res = float32(reader.ReadInt(coordIntegerBitsMp) + 1)
 			} else {
@@ -236,8 +246,10 @@ func (propertyDecoder) readBitNormal(reader *bit.BitReader) float32 {
 }
 
 func (propertyDecoder) readBitCellCoord(reader *bit.BitReader, bits int, isIntegral bool, isLowPrecision bool) float32 {
-	var intVal, fractVal int
-	var res float32
+	var (
+		intVal, fractVal int
+		res              float32
+	)
 
 	if isIntegral {
 		res = float32(reader.ReadInt(bits))
@@ -267,7 +279,7 @@ func (propertyDecoder) decodeVector(prop *sendTableProperty, reader *bit.BitRead
 		res.Z = float64(propDecoder.decodeFloat(prop, reader))
 	} else {
 		absolute := res.X*res.X + res.Y*res.Y
-		if absolute < 1.0 {
+		if absolute < 1 {
 			res.Z = math.Sqrt(1 - absolute)
 		} else {
 			res.Z = 0

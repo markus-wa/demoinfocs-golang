@@ -195,40 +195,47 @@ func (p *Parser) bindPlayers() {
 	})
 }
 
-func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
-	entityID := playerEntity.ID()
-	rp := p.rawPlayers[entityID-1]
+func (p *Parser) getOrCreatePlayer(entityID int, rp *playerInfo) (isNew bool, player *common.Player) {
+	player = p.gameState.playersByEntityID[entityID]
 
-	isNew := false
-	pl := p.gameState.playersByEntityID[entityID]
-	if pl == nil {
+	if player == nil {
 		if rp != nil {
-			pl = p.gameState.playersByUserID[rp.userID]
+			player = p.gameState.playersByUserID[rp.userID]
 
-			if pl == nil {
+			if player == nil {
 				isNew = true
 
-				pl = common.NewPlayer(p.demoInfoProvider)
-				pl.Name = rp.name
-				pl.SteamID = rp.xuid
-				pl.IsBot = rp.isFakePlayer || rp.guid == "BOT"
-				pl.UserID = rp.userID
+				player = common.NewPlayer(p.demoInfoProvider)
+				player.Name = rp.name
+				player.SteamID = rp.xuid
+				player.IsBot = rp.isFakePlayer || rp.guid == "BOT"
+				player.UserID = rp.userID
 			}
 		} else {
 			// see #162.
 			// GOTV doesn't crash here either so we just initialize this player with default values.
 			// this happens in some demos since November 2019 for players that were are actually connected.
 			// in GOTV these players are just called "unknown".
-			pl = common.NewPlayer(p.demoInfoProvider)
-			pl.Name = "unknown"
-			pl.IsUnknown = true
+			player = common.NewPlayer(p.demoInfoProvider)
+			player.Name = "unknown"
+			player.IsUnknown = true
 		}
 	}
-	p.gameState.playersByEntityID[entityID] = pl
+
+	p.gameState.playersByEntityID[entityID] = player
 
 	if rp != nil {
-		p.gameState.playersByUserID[rp.userID] = pl
+		p.gameState.playersByUserID[rp.userID] = player
 	}
+
+	return isNew, player
+}
+
+func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
+	entityID := playerEntity.ID()
+	rp := p.rawPlayers[entityID-1]
+
+	isNew, pl := p.getOrCreatePlayer(entityID, rp)
 
 	pl.EntityID = entityID
 	pl.Entity = playerEntity
@@ -281,6 +288,42 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 	playerEntity.BindProperty("m_unRoundStartEquipmentValue", &pl.RoundStartEquipmentValue, st.ValTypeInt)
 	playerEntity.BindProperty("m_unFreezetimeEndEquipmentValue", &pl.FreezetimeEndEquipmentValue, st.ValTypeInt)
 
+	p.bindPlayerWeapons(playerEntity, pl)
+
+	// Active weapon
+	playerEntity.FindPropertyI("m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
+		pl.IsReloading = false
+		pl.ActiveWeaponID = val.IntVal & entityHandleIndexMask
+	})
+
+	for i := 0; i < 32; i++ {
+		i2 := i // Copy so it stays the same
+		playerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
+	}
+
+	playerEntity.FindPropertyI("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
+		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.IntVal == 0 {
+			p.eventDispatcher.Dispatch(events.BombDefuseAborted{Player: pl})
+			p.gameState.currentDefuser = nil
+		}
+		pl.IsDefusing = val.IntVal != 0
+	})
+
+	spottedByMaskProp := playerEntity.FindPropertyI("m_bSpottedByMask.000")
+	if spottedByMaskProp != nil {
+		spottersChanged := func(val st.PropertyValue) {
+			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
+		}
+		spottedByMaskProp.OnUpdate(spottersChanged)
+		playerEntity.FindPropertyI("m_bSpottedByMask.001").OnUpdate(spottersChanged)
+	}
+
+	if isNew && pl.SteamID != 0 {
+		p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
+	}
+}
+
+func (p *Parser) bindPlayerWeapons(playerEntity st.IEntity, pl *common.Player) {
 	// Some demos have an additional prefix for player weapons weapon
 	var wepPrefix string
 	if playerEntity.FindPropertyI(playerWeaponPrefix+"000") != nil {
@@ -327,38 +370,6 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 				cache[i2] = 0
 			}
 		})
-	}
-
-	// Active weapon
-	playerEntity.FindPropertyI("m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
-		pl.IsReloading = false
-		pl.ActiveWeaponID = val.IntVal & entityHandleIndexMask
-	})
-
-	for i := 0; i < 32; i++ {
-		i2 := i // Copy so it stays the same
-		playerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
-	}
-
-	playerEntity.FindPropertyI("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
-		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.IntVal == 0 {
-			p.eventDispatcher.Dispatch(events.BombDefuseAborted{Player: pl})
-			p.gameState.currentDefuser = nil
-		}
-		pl.IsDefusing = val.IntVal != 0
-	})
-
-	spottedByMaskProp := playerEntity.FindPropertyI("m_bSpottedByMask.000")
-	if spottedByMaskProp != nil {
-		spottersChanged := func(val st.PropertyValue) {
-			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
-		}
-		spottedByMaskProp.OnUpdate(spottersChanged)
-		playerEntity.FindPropertyI("m_bSpottedByMask.001").OnUpdate(spottersChanged)
-	}
-
-	if isNew && pl.SteamID != 0 {
-		p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 	}
 }
 
@@ -558,6 +569,7 @@ func (p *Parser) bindNewInferno(entity *st.Entity) {
 
 	origin := entity.Position()
 	nFires := 0
+
 	entity.FindPropertyI("m_fireCount").OnUpdate(func(val st.PropertyValue) {
 		for i := nFires; i < val.IntVal; i++ {
 			iStr := fmt.Sprintf("%03d", i)

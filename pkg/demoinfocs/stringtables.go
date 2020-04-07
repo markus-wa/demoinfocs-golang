@@ -42,11 +42,13 @@ type playerInfo struct {
 
 func (p *Parser) parseStringTables() {
 	p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
+
 	tables := int(p.bitReader.ReadSingleByte())
 	for i := 0; i < tables; i++ {
 		tableName := p.bitReader.ReadString()
 		p.parseSingleStringTable(tableName)
 	}
+
 	p.processModelPreCacheUpdate()
 	p.bitReader.EndChunk()
 }
@@ -55,19 +57,25 @@ func (p *Parser) parseSingleStringTable(name string) {
 	nStrings := p.bitReader.ReadSignedInt(16)
 	for i := 0; i < nStrings; i++ {
 		stringName := p.bitReader.ReadString()
-		if len(stringName) >= 100 {
+
+		const roysMaxStringLength = 100
+		if len(stringName) >= roysMaxStringLength {
 			panic("Someone said that Roy said I should panic")
 		}
+
 		if p.bitReader.ReadBit() {
 			userDataSize := p.bitReader.ReadSignedInt(16)
 			data := p.bitReader.ReadBytes(userDataSize)
+
 			switch name {
 			case stNameUserInfo:
 				player := parsePlayerInfo(bytes.NewReader(data))
+
 				playerIndex, err := strconv.ParseInt(stringName, 10, 64)
 				if err != nil {
 					panic("Couldn't parse playerIndex from string")
 				}
+
 				p.rawPlayers[int(playerIndex)] = player
 
 			case stNameInstanceBaseline:
@@ -75,13 +83,13 @@ func (p *Parser) parseSingleStringTable(name string) {
 				if err != nil {
 					panic("Couldn't parse id from string")
 				}
+
 				p.stParser.SetInstanceBaseline(int(classID), data)
 
 			case stNameModelPreCache:
 				p.modelPreCache = append(p.modelPreCache, stringName)
 
-			default:
-				// Irrelevant table
+			default: // Irrelevant table
 			}
 		}
 	}
@@ -91,6 +99,7 @@ func (p *Parser) parseSingleStringTable(name string) {
 		strings2 := p.bitReader.ReadSignedInt(16)
 		for i := 0; i < strings2; i++ {
 			p.bitReader.ReadString()
+
 			if p.bitReader.ReadBit() {
 				p.bitReader.Skip(p.bitReader.ReadSignedInt(16))
 			}
@@ -150,12 +159,14 @@ func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		nTmp >>= 1
 		nEntryBits++
 	}
+
 	if nEntryBits > 0 {
 		nEntryBits--
 	}
 
 	hist := make([]string, 0)
 	lastEntry := -1
+
 	for i := 0; i < int(tab.NumEntries); i++ {
 		entryIndex := lastEntry + 1
 		if !br.ReadBit() {
@@ -164,10 +175,11 @@ func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 
 		lastEntry = entryIndex
 
-		var entry string
 		if entryIndex < 0 || entryIndex >= int(tab.MaxEntries) {
 			panic("Something went to shit")
 		}
+
+		var entry string
 		if br.ReadBit() {
 			if br.ReadBit() {
 				idx := br.ReadInt(5)
@@ -180,9 +192,11 @@ func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 			}
 		}
 
-		if len(hist) > 31 {
+		const maxHistoryLength = 31
+		if len(hist) > maxHistoryLength {
 			hist = hist[1:]
 		}
+
 		hist = append(hist, entry)
 
 		var userdata []byte
@@ -191,7 +205,8 @@ func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 				// Should always be < 8 bits => use faster ReadBitsToByte() over ReadBits()
 				userdata = []byte{br.ReadBitsToByte(int(tab.UserDataSizeBits))}
 			} else {
-				userdata = br.ReadBytes(int(br.ReadInt(14)))
+				const nUserdataBits = 14
+				userdata = br.ReadBytes(int(br.ReadInt(nUserdataBits)))
 			}
 		}
 
@@ -225,17 +240,22 @@ func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 func parsePlayerInfo(reader io.Reader) *playerInfo {
 	br := bit.NewSmallBitReader(reader)
 
+	const (
+		playerNameMaxLength = 128
+		guidLength          = 33
+	)
+
 	res := &playerInfo{
 		version:     int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
 		xuid:        int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
-		name:        br.ReadCString(128),
+		name:        br.ReadCString(playerNameMaxLength),
 		userID:      int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
-		guid:        br.ReadCString(33),
+		guid:        br.ReadCString(guidLength),
 		friendsID:   int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
-		friendsName: br.ReadCString(128),
+		friendsName: br.ReadCString(playerNameMaxLength),
 
-		isFakePlayer: br.ReadSingleByte()&0xff != 0,
-		isHltv:       br.ReadSingleByte()&0xff != 0,
+		isFakePlayer: br.ReadSingleByte() != 0,
+		isHltv:       br.ReadSingleByte() != 0,
 
 		customFiles0: int(br.ReadInt(32)),
 		customFiles1: int(br.ReadInt(32)),
@@ -246,6 +266,7 @@ func parsePlayerInfo(reader io.Reader) *playerInfo {
 	}
 
 	br.Pool()
+
 	return res
 }
 

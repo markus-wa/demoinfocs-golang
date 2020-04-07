@@ -164,6 +164,7 @@ func (ts TeamState) CurrentEquipmentValue() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.CurrentEquipmentValue
 	}
+
 	return
 }
 
@@ -172,6 +173,7 @@ func (ts TeamState) RoundStartEquipmentValue() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.RoundStartEquipmentValue
 	}
+
 	return
 }
 
@@ -180,6 +182,7 @@ func (ts TeamState) FreezeTimeEndEquipmentValue() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.FreezetimeEndEquipmentValue
 	}
+
 	return
 }
 
@@ -188,6 +191,7 @@ func (ts TeamState) CashSpentThisRound() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.AdditionalPlayerInformation.CashSpentThisRound
 	}
+
 	return
 }
 
@@ -196,6 +200,7 @@ func (ts TeamState) CashSpentTotal() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.AdditionalPlayerInformation.TotalCashSpent
 	}
+
 	return
 }
 

@@ -47,6 +47,7 @@ func (inf Inferno) Active() Inferno {
 	}
 
 	res.Fires = make([]*Fire, 0, len(inf.Fires))
+
 	for _, f := range inf.Fires {
 		if f.IsBurning {
 			res.Fires = append(res.Fires, f)
@@ -66,10 +67,12 @@ func (inf Inferno) ConvexHull2D() []r2.Point {
 	}
 
 	vertices := convexHull(convexHull(pointCloud).Vertices).Vertices
+
 	points := make([]r2.Point, len(vertices))
 	for i, v := range vertices {
 		points[i] = r2.Point{X: v.X, Y: v.Y}
 	}
+
 	sortPointsClockwise(points)
 
 	return points
@@ -92,13 +95,16 @@ func (s pointsClockwiseSorter) Less(i, j int) bool {
 	if a.X-s.center.X >= 0 && b.X-s.center.X < 0 {
 		return true
 	}
+
 	if a.X-s.center.X < 0 && b.X-s.center.X >= 0 {
 		return false
 	}
+
 	if a.X-s.center.X == 0 && b.X-s.center.X == 0 {
 		if a.Y-s.center.Y >= 0 || b.Y-s.center.Y >= 0 {
 			return a.Y > b.Y
 		}
+
 		return b.Y > a.Y
 	}
 
@@ -107,6 +113,7 @@ func (s pointsClockwiseSorter) Less(i, j int) bool {
 	if det < 0 {
 		return true
 	}
+
 	if det > 0 {
 		return false
 	}
@@ -115,6 +122,7 @@ func (s pointsClockwiseSorter) Less(i, j int) bool {
 	// check which point is closer to the s.center
 	d1 := (a.X-s.center.X)*(a.X-s.center.X) + (a.Y-s.center.Y)*(a.Y-s.center.Y)
 	d2 := (b.X-s.center.X)*(b.X-s.center.X) + (b.Y-s.center.Y)*(b.Y-s.center.Y)
+
 	return d1 > d2
 }
 

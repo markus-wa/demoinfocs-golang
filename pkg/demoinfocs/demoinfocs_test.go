@@ -45,6 +45,7 @@ func TestDemoInfoCs(t *testing.T) {
 	f, err := os.Open(defaultDemPath)
 	assertions := assert.New(t)
 	assertions.NoError(err, "error opening demo %q", defaultDemPath)
+
 	defer mustClose(t, f)
 
 	p := demoinfocs.NewParserWithConfig(f, demoinfocs.ParserConfig{
@@ -166,6 +167,7 @@ func TestDemoInfoCs(t *testing.T) {
 
 	frameByFrameCount := 1000
 	fmt.Printf("Parsing frame by frame (%d frames)\n", frameByFrameCount)
+
 	for i := 0; i < frameByFrameCount; i++ {
 		ok, err := p.ParseNextFrame()
 		assertions.NoError(err, "error occurred in ParseNextFrame()")
@@ -205,8 +207,10 @@ func TestCancelParseToEnd(t *testing.T) {
 
 	p := demoinfocs.NewParser(f)
 
-	maxTicks := 100
-	var tix int
+	var (
+		tix      = 0
+		maxTicks = 100
+	)
 
 	var handlerID dispatch.HandlerIdentifier
 	handlerID = p.RegisterEventHandler(func(events.FrameDone) {
@@ -276,10 +280,13 @@ func parseDefaultDemo(tb testing.TB) {
 
 func runConcurrently(runner func()) {
 	var wg sync.WaitGroup
+
 	for i := 0; i < *concurrentDemos; i++ {
 		wg.Add(1)
+
 		go func() { runner(); wg.Done() }()
 	}
+
 	wg.Wait()
 }
 
@@ -331,6 +338,7 @@ func BenchmarkInMemory(b *testing.B) {
 	assert.Equal(b, int64(n), inf.Size(), "byte count not as expected")
 
 	b.ResetTimer()
+
 	for i := 0; i < b.N; i++ {
 		p := demoinfocs.NewParser(bytes.NewReader(d))
 
@@ -367,12 +375,12 @@ func assertGolden(tb testing.TB, assertions *assert.Assertions, testCase string,
 	actual = removePointers(actual)
 
 	goldenFile := fmt.Sprintf("%s/%s.golden", testDataPath, testCase)
+
 	if *update {
 		f, err := os.OpenFile(goldenFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 		assertions.NoError(err, "error creating/opening %q", goldenFile)
 
 		w := gzip.NewWriter(f)
-		assertions.NoError(err, "error writing/updating %q", goldenFile)
 
 		_, err = w.Write(actual)
 		assertions.NoError(err, "error writing gzip data to %q", goldenFile)

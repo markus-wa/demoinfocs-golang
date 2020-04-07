@@ -209,6 +209,7 @@ func (geh gameEventHandler) roundAnnounceLastRoundHalf(data map[string]*msg.CSVC
 func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	winner := common.Team(data["winner"].ValByte)
 	winnerState := geh.gameState().Team(winner)
+
 	var loserState *common.TeamState
 	if winnerState != nil {
 		loserState = winnerState.Opponent
@@ -302,6 +303,7 @@ func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventK
 	}
 
 	pl.IsReloading = true
+
 	geh.dispatch(events.WeaponReload{
 		Player: pl,
 	})
@@ -460,6 +462,7 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKey
 		}
 
 		oldTeam := common.Team(data["oldteam"].GetValByte())
+
 		geh.dispatch(events.PlayerTeamChange{
 			Player:       player,
 			IsBot:        data["isbot"].GetValBool(),
@@ -478,32 +481,54 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	event := events.BombPlantBegin{BombEvent: geh.bombEvent(data)}
+	bombEvent, err := geh.bombEvent(data)
+	if err != nil {
+		geh.parser.setError(err)
+		return
+	}
+
+	event := events.BombPlantBegin{BombEvent: bombEvent}
 	event.Player.IsPlanting = true
 	geh.parser.gameState.currentPlanter = event.Player
 	geh.dispatch(event)
 }
 
 func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	event := events.BombPlanted{BombEvent: geh.bombEvent(data)}
+	bombEvent, err := geh.bombEvent(data)
+	if err != nil {
+		geh.parser.setError(err)
+		return
+	}
+
+	event := events.BombPlanted{BombEvent: bombEvent}
 	event.Player.IsPlanting = false
 	geh.parser.gameState.currentPlanter = nil
 	geh.dispatch(event)
 }
 
 func (geh gameEventHandler) bombDefused(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	bombEvent := geh.bombEvent(data)
+	bombEvent, err := geh.bombEvent(data)
+	if err != nil {
+		geh.parser.setError(err)
+		return
+	}
+
 	geh.gameState().currentDefuser = nil
 	geh.dispatch(events.BombDefused{BombEvent: bombEvent})
 }
 
 func (geh gameEventHandler) bombExploded(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	bombEvent := geh.bombEvent(data)
+	bombEvent, err := geh.bombEvent(data)
+	if err != nil {
+		geh.parser.setError(err)
+		return
+	}
+
 	geh.gameState().currentDefuser = nil
 	geh.dispatch(events.BombExplode{BombEvent: bombEvent})
 }
 
-func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT) events.BombEvent {
+func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT) (events.BombEvent, error) {
 	bombEvent := events.BombEvent{Player: geh.playerByUserID32(data["userid"].GetValShort())}
 
 	site := int(data["site"].GetValShort())
@@ -517,7 +542,7 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 		t := geh.parser.triggers[site]
 
 		if t == nil {
-			geh.parser.setError(fmt.Errorf("bombsite with index %d not found", site))
+			return bombEvent, fmt.Errorf("bombsite with index %d not found", site)
 		}
 
 		if t.contains(geh.parser.bombsiteA.center) {
@@ -527,11 +552,11 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 			bombEvent.Site = events.BombsiteB
 			geh.parser.bombsiteB.index = site
 		} else {
-			geh.parser.setError(errors.New("bomb not planted on bombsite A or B"))
+			return bombEvent, errors.New("bomb not planted on bombsite A or B")
 		}
 	}
 
-	return bombEvent
+	return bombEvent, nil
 }
 
 func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -716,11 +741,11 @@ func getCommunityID(guid string) (int64, error) {
 	}
 
 	authSrv, errSrv := strconv.ParseInt(guid[8:9], 10, 64)
-	authID, errID := strconv.ParseInt(guid[10:], 10, 64)
-
 	if errSrv != nil {
 		return 0, errSrv
 	}
+
+	authID, errID := strconv.ParseInt(guid[10:], 10, 64)
 	if errID != nil {
 		return 0, errID
 	}

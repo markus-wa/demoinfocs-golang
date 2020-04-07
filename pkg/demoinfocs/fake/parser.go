@@ -167,6 +167,7 @@ func (p *Parser) ParseToEnd() (err error) {
 
 	maxFrame := max(p.Events)
 	maxNetMessageFrame := max(p.NetMessages)
+
 	if maxFrame < maxNetMessageFrame {
 		maxFrame = maxNetMessageFrame
 	}

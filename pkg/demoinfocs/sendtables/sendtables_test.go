@@ -22,6 +22,7 @@ func TestServerClassGetters(t *testing.T) {
 
 func TestServerClassPropertyEntries(t *testing.T) {
 	var sc ServerClass
+
 	assert.Empty(t, sc.PropertyEntries())
 
 	sc.flattenedProps = []flattenedPropEntry{{name: "prop1"}, {name: "prop2"}}

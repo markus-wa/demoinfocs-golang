@@ -35,6 +35,7 @@ func Test_UserMessages_ServerRankUpdate(t *testing.T) {
 	}
 
 	p := NewParser(new(DevNullReader))
+
 	var evs []events.RankUpdate
 	p.RegisterEventHandler(func(update events.RankUpdate) {
 		evs = append(evs, update)
@@ -75,6 +76,7 @@ func Test_UserMessages_SayText(t *testing.T) {
 	}
 
 	p := NewParser(new(DevNullReader))
+
 	var actual events.SayText
 	p.RegisterEventHandler(func(chat events.SayText) {
 		actual = chat
