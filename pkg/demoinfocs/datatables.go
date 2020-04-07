@@ -521,7 +521,9 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 
 	// Only weapons with scopes have m_zoomLevel property
 	if zoomLvlProp := entity.FindPropertyI("m_zoomLevel"); zoomLvlProp != nil {
-		zoomLvlProp.Bind(&eq.ZoomLevel, st.ValTypeInt)
+		zoomLvlProp.OnUpdate(func(value st.PropertyValue) {
+			eq.ZoomLevel = common.ZoomLevel(value.IntVal)
+		})
 	}
 
 	eq.AmmoType = entity.FindPropertyI("LocalWeaponData.m_iPrimaryAmmoType").Value().IntVal

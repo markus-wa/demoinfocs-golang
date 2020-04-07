@@ -272,6 +272,14 @@ func MapEquipment(eqName string) EquipmentElement {
 	return wep
 }
 
+type ZoomLevel int
+
+const (
+	ZoomNone = 0
+	ZoomHalf = 1
+	ZoomFull = 2
+)
+
 // Equipment is a weapon / piece of equipment belonging to a player.
 // This also includes the skin and some additional data.
 type Equipment struct {
@@ -282,7 +290,7 @@ type Equipment struct {
 	AmmoInMagazine int              // Amount of bullets in the weapon's magazine. Deprecated, use AmmoInMagazine2() instead.
 	AmmoReserve    int              // Amount of reserve bullets
 	OriginalString string           // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
-	ZoomLevel      int              // How far the player has zoomed in on the weapon. 0=no zoom, 1=first level, 2=maximum zoom
+	ZoomLevel      ZoomLevel        // How far the player has zoomed in on the weapon.
 
 	uniqueID int64
 }
