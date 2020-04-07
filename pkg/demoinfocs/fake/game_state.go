@@ -1,10 +1,10 @@
 package fake
 
 import (
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 

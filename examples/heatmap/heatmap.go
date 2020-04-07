@@ -12,7 +12,7 @@ import (
 	r2 "github.com/golang/geo/r2"
 
 	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	metadata "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 )

@@ -5,8 +5,8 @@ import (
 
 	"github.com/markus-wa/go-unassert"
 
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
 func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {

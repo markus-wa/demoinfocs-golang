@@ -5,7 +5,7 @@ import (
 	"os"
 
 	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 )

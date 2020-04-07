@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/markus-wa/demoinfocs-golang/v2/examples"
+	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
 )
 
 // Just make sure the example runs
@@ -15,7 +15,7 @@ func TestBouncyNades(t *testing.T) {
 
 	os.Args = []string{"cmd", "-demo", "../../test/cs-demos/default.dem"}
 
-	examples.RedirectStdout(func() {
+	ex.RedirectStdout(func() {
 		main()
 	})
 }

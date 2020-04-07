@@ -7,8 +7,8 @@ import (
 	"github.com/gogo/protobuf/proto"
 
 	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
 // Run like this: go run netmessages.go -demo /path/to/demo.dem > out.png

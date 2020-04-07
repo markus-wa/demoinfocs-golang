@@ -4,8 +4,8 @@ import (
 	"bytes"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
 const entitySentinel = 9999

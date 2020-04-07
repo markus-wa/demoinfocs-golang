@@ -21,17 +21,19 @@ import (
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
-const testDataPath = "../../test"
-const csDemosPath = testDataPath + "/cs-demos"
-const demSetPath = csDemosPath + "/set"
-const defaultDemPath = csDemosPath + "/default.dem"
-const unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
+const (
+	testDataPath            = "../../test"
+	csDemosPath             = testDataPath + "/cs-demos"
+	demSetPath              = csDemosPath + "/set"
+	defaultDemPath          = csDemosPath + "/default.dem"
+	unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
+)
 
 var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current demos")
 
