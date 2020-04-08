@@ -341,7 +341,7 @@ func (p *Parser) bindPlayerWeapons(playerEntity st.IEntity, pl *common.Player) {
 			if entityID != entityHandleIndexMask {
 				if cache[i2] != 0 {
 					// Player already has a weapon in this slot.
-					delete(pl.RawWeapons, cache[i2])
+					delete(pl.Inventory, cache[i2])
 				}
 				cache[i2] = entityID
 
@@ -355,17 +355,17 @@ func (p *Parser) bindPlayerWeapons(playerEntity st.IEntity, pl *common.Player) {
 
 				// Clear previous owner
 				if wep.Owner != nil {
-					delete(wep.Owner.RawWeapons, wep.EntityID)
+					delete(wep.Owner.Inventory, wep.EntityID)
 				}
 
 				// Attribute weapon to player
 				wep.Owner = pl
-				pl.RawWeapons[entityID] = wep
+				pl.Inventory[entityID] = wep
 			} else {
-				if cache[i2] != 0 && pl.RawWeapons[cache[i2]] != nil {
-					pl.RawWeapons[cache[i2]].Owner = nil
+				if cache[i2] != 0 && pl.Inventory[cache[i2]] != nil {
+					pl.Inventory[cache[i2]].Owner = nil
 				}
-				delete(pl.RawWeapons, cache[i2])
+				delete(pl.Inventory, cache[i2])
 
 				cache[i2] = 0
 			}

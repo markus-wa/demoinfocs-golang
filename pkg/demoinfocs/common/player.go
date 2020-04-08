@@ -33,7 +33,7 @@ type Player struct {
 	FreezetimeEndEquipmentValue int
 	RoundStartEquipmentValue    int
 	ActiveWeaponID              int                          // Used internally to set the active weapon, see ActiveWeapon()
-	RawWeapons                  map[int]*Equipment           // All weapons the player is currently carrying
+	Inventory                   map[int]*Equipment           // All weapons / equipment the player is currently carrying
 	AmmoLeft                    [32]int                      // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
 	Entity                      st.IEntity                   // May be nil between player-death and re-spawn
 	AdditionalPlayerInformation *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
@@ -136,13 +136,13 @@ This isn't very conclusive but it looks like IsFlashed isn't super reliable curr
 
 // ActiveWeapon returns the currently active / equipped weapon of the player.
 func (p *Player) ActiveWeapon() *Equipment {
-	return p.RawWeapons[p.ActiveWeaponID]
+	return p.Inventory[p.ActiveWeaponID]
 }
 
 // Weapons returns all weapons in the player's possession.
 func (p *Player) Weapons() []*Equipment {
-	res := make([]*Equipment, 0, len(p.RawWeapons))
-	for _, w := range p.RawWeapons {
+	res := make([]*Equipment, 0, len(p.Inventory))
+	for _, w := range p.Inventory {
 		res = append(res, w)
 	}
 	return res
@@ -254,7 +254,7 @@ type demoInfoProvider interface {
 // Intended for internal use only.
 func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 	return &Player{
-		RawWeapons:       make(map[int]*Equipment),
+		Inventory:        make(map[int]*Equipment),
 		demoInfoProvider: demoInfoProvider,
 	}
 }

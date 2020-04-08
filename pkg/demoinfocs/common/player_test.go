@@ -15,9 +15,9 @@ func TestPlayerActiveWeapon(t *testing.T) {
 	ak47 := NewEquipment(EqAK47)
 
 	pl := newPlayer(0)
-	pl.RawWeapons[1] = knife
-	pl.RawWeapons[2] = glock
-	pl.RawWeapons[3] = ak47
+	pl.Inventory[1] = knife
+	pl.Inventory[2] = glock
+	pl.Inventory[3] = ak47
 	pl.ActiveWeaponID = 3
 
 	assert.Equal(t, ak47, pl.ActiveWeapon(), "Should have AK-47 equipped")
@@ -29,9 +29,9 @@ func TestPlayerWeapons(t *testing.T) {
 	ak47 := NewEquipment(EqAK47)
 
 	pl := newPlayer(0)
-	pl.RawWeapons[1] = knife
-	pl.RawWeapons[2] = glock
-	pl.RawWeapons[3] = ak47
+	pl.Inventory[1] = knife
+	pl.Inventory[2] = glock
+	pl.Inventory[3] = ak47
 
 	expected := []*Equipment{knife, glock, ak47}
 	assert.ElementsMatch(t, expected, pl.Weapons(), "Should have expected weapons")

@@ -446,7 +446,7 @@ func (pu ItemPickup) WeaponTraceable() *common.Equipment {
 		return &pu.Weapon
 	}
 
-	for _, wep := range pu.Player.RawWeapons {
+	for _, wep := range pu.Player.Inventory {
 		if wep.Weapon == pu.Weapon.Weapon {
 			return wep
 		}

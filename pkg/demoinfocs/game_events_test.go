@@ -64,7 +64,7 @@ func TestGetPlayerWeapon_NilPlayer(t *testing.T) {
 func TestGetPlayerWeapon_Found(t *testing.T) {
 	ak := &common.Equipment{Weapon: common.EqAK47}
 	pl := &common.Player{
-		RawWeapons: map[int]*common.Equipment{
+		Inventory: map[int]*common.Equipment{
 			1: ak,
 		},
 	}
@@ -77,7 +77,7 @@ func TestGetPlayerWeapon_Found(t *testing.T) {
 func TestGetPlayerWeapon_NotFound(t *testing.T) {
 	ak := &common.Equipment{Weapon: common.EqAK47}
 	pl := &common.Player{
-		RawWeapons: map[int]*common.Equipment{
+		Inventory: map[int]*common.Equipment{
 			1: ak,
 		},
 	}

@@ -58,7 +58,7 @@ func TestItemPickup_WeaponTraceable_WeaponFound(t *testing.T) {
 	}
 	e := ItemPickup{
 		Weapon: common.Equipment{Weapon: common.EqAK47},
-		Player: &common.Player{RawWeapons: map[int]*common.Equipment{
+		Player: &common.Player{Inventory: map[int]*common.Equipment{
 			1: wep,
 		}},
 	}
@@ -73,7 +73,7 @@ func TestItemPickup_WeaponTraceable_WeaponNotFound(t *testing.T) {
 	}
 	e := ItemPickup{
 		Weapon: common.Equipment{Weapon: common.EqKnife},
-		Player: &common.Player{RawWeapons: map[int]*common.Equipment{
+		Player: &common.Player{Inventory: map[int]*common.Equipment{
 			1: wep,
 		}},
 	}
