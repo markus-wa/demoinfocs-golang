@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/golang/geo/r3"
+
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
 // Team is the type for the various TeamXYZ constants.
@@ -57,39 +59,22 @@ func (h DemoHeader) FrameTime() time.Duration {
 	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackFrames))
 }
 
-// TickRate returns the tick-rate the server ran on during the game.
-// Deprecated: this function might return 0 in some cases (corrupt demo headers), use Parser.TickRate() instead.
-// VolvoPlx128TixKTnxBye
-func (h DemoHeader) TickRate() float64 {
-	if h.PlaybackTime == 0 {
-		return 0
-	}
-
-	return float64(h.PlaybackTicks) / h.PlaybackTime.Seconds()
-}
-
-// TickTime returns the time a single tick takes in seconds.
-// Deprecated: this function might return 0 in some cases (corrupt demo headers), use Parser.TickTime() instead.
-func (h DemoHeader) TickTime() time.Duration {
-	if h.PlaybackTicks == 0 {
-		return 0
-	}
-
-	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackTicks))
-}
-
 // GrenadeProjectile is a grenade thrown intentionally by a player. It is used to track grenade projectile
 // positions between the time at which they are thrown and until they detonate.
 type GrenadeProjectile struct {
-	EntityID       int
+	Entity         st.IEntity
 	WeaponInstance *Equipment
-	Thrower        *Player // Always seems to be the same as Owner, even if the grenade was picked up
-	Owner          *Player // Always seems to be the same as Thrower, even if the grenade was picked up
-	Position       r3.Vector
+	Thrower        *Player     // Always seems to be the same as Owner, even if the grenade was picked up
+	Owner          *Player     // Always seems to be the same as Thrower, even if the grenade was picked up
 	Trajectory     []r3.Vector // List of all known locations of the grenade up to the current point
 
 	// uniqueID is used to distinguish different grenades (which potentially have the same, reused entityID) from each other.
 	uniqueID int64
+}
+
+// Position returns the current position of the grenade projectile in world coordinates.
+func (g GrenadeProjectile) Position() r3.Vector {
+	return g.Entity.Position()
 }
 
 // UniqueID returns the unique id of the grenade.

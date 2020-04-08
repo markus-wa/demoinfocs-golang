@@ -126,21 +126,51 @@ func (p *Parser) CurrentTime() time.Duration {
 }
 
 // TickRate returns the tick-rate the server ran on during the game.
+//
+// Returns tick rate based on CSVCMsg_ServerInfo if possible.
+// Otherwise returns tick rate based on demo header or -1 if the header info isn't available.
 func (p *Parser) TickRate() float64 {
 	if p.tickInterval != 0 {
 		return 1.0 / float64(p.tickInterval)
 	}
 
-	return p.header.TickRate()
+	if p.header != nil {
+		return legacyTickRate(*p.header)
+	}
+
+	return -1
+}
+
+func legacyTickRate(h common.DemoHeader) float64 {
+	if h.PlaybackTime == 0 {
+		return 0
+	}
+
+	return float64(h.PlaybackTicks) / h.PlaybackTime.Seconds()
 }
 
 // TickTime returns the time a single tick takes in seconds.
+//
+// Returns tick time based on CSVCMsg_ServerInfo if possible.
+// Otherwise returns tick time based on demo header or -1 if the header info isn't available.
 func (p *Parser) TickTime() time.Duration {
 	if p.tickInterval != 0 {
 		return time.Duration(float32(time.Second) * p.tickInterval)
 	}
 
-	return p.header.TickTime()
+	if p.header != nil {
+		return legayTickTime(*p.header)
+	}
+
+	return -1
+}
+
+func legayTickTime(h common.DemoHeader) time.Duration {
+	if h.PlaybackTicks == 0 {
+		return 0
+	}
+
+	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackTicks))
 }
 
 // Progress returns the parsing progress from 0 to 1.

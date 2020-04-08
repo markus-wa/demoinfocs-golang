@@ -37,9 +37,6 @@ func TestDemoHeader(t *testing.T) {
 
 	assert.Equal(t, float64(64), header.FrameRate(), "FrameRate should be 64")
 	assert.Equal(t, time.Second/64, header.FrameTime(), "FrameTime should be 1/64 sec")
-
-	assert.Equal(t, float64(128.0), header.TickRate(), "TickRate should be 128")
-	assert.Equal(t, time.Second/128, header.TickTime(), "TickTime should be 1/128")
 }
 
 func TestDemoHeader_FrameRate_PlaybackTime_Zero(t *testing.T) {
@@ -48,14 +45,6 @@ func TestDemoHeader_FrameRate_PlaybackTime_Zero(t *testing.T) {
 
 func TestDemoHeader_FrameTime_PlaybackFrames_Zero(t *testing.T) {
 	assert.Zero(t, DemoHeader{}.FrameTime())
-}
-
-func TestDemoHeader_TickRate_PlaybackTicks_Zero(t *testing.T) {
-	assert.Zero(t, DemoHeader{}.TickTime())
-}
-
-func TestDemoHeader_TickTime_PlaybackTime_Zero(t *testing.T) {
-	assert.Zero(t, DemoHeader{}.TickRate())
 }
 
 func TestTeamState_Team(t *testing.T) {
@@ -144,6 +133,8 @@ func entityWithProperty(propName string, value st.PropertyValue) st.IEntity {
 	prop.On("Value").Return(value)
 
 	entity.On("FindProperty", propName).Return(prop)
+	entity.On("PropertyValue", propName).Return(prop, true)
+	entity.On("PropertyValueMust", propName).Return(value)
 
 	return entity
 }

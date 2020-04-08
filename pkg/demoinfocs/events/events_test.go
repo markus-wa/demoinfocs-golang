@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
 )
 
 func TestPlayerFlashed_FlashDuration(t *testing.T) {
@@ -53,8 +55,8 @@ func TestItemPickup_WeaponTraceable_PlayerNil(t *testing.T) {
 
 func TestItemPickup_WeaponTraceable_WeaponFound(t *testing.T) {
 	wep := &common.Equipment{
-		EntityID: 1,
-		Type:     common.EqAK47,
+		Entity: entity(),
+		Type:   common.EqAK47,
 	}
 	e := ItemPickup{
 		Weapon: common.Equipment{Type: common.EqAK47},
@@ -66,10 +68,17 @@ func TestItemPickup_WeaponTraceable_WeaponFound(t *testing.T) {
 	assert.Equal(t, wep, e.WeaponTraceable())
 }
 
+func entity() sendtables.IEntity {
+	entity := new(stfake.Entity)
+	entity.On("ID").Return(1)
+
+	return entity
+}
+
 func TestItemPickup_WeaponTraceable_WeaponNotFound(t *testing.T) {
 	wep := &common.Equipment{
-		EntityID: 1,
-		Type:     common.EqAK47,
+		Entity: entity(),
+		Type:   common.EqAK47,
 	}
 	e := ItemPickup{
 		Weapon: common.Equipment{Type: common.EqKnife},

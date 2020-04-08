@@ -93,6 +93,15 @@ func (e *Entity) PropertyValue(name string) (PropertyValue, bool) {
 	return prop.value, true
 }
 
+// PropertyValueMust finds a property on the Entity by name and returns its value.
+//
+// Panics with nil pointer dereference error if the property was not found.
+//
+// Panics if more than one property with the same name were found.
+func (e *Entity) PropertyValueMust(name string) PropertyValue {
+	return e.findProperty(name).value
+}
+
 var updatedPropIndicesPool = sync.Pool{
 	New: func() interface{} {
 		s := make([]int, 0, 8)

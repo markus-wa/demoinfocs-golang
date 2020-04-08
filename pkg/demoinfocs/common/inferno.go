@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"math/rand"
 	"sort"
 
@@ -16,9 +17,7 @@ import (
 //
 // See also: Inferno.Active() and Fire.IsBurning
 type Inferno struct {
-	Entity   st.IEntity
-	EntityID int // Same as Entity.ID(), use Entity.ID() instead
-	Fires    []*Fire
+	Entity st.IEntity
 
 	// uniqueID is used to distinguish different infernos (which potentially have the same, reused entityID) from each other.
 	uniqueID         int64
@@ -32,6 +31,11 @@ type Fire struct {
 	IsBurning bool
 }
 
+// Fires is a collection of fires that provides utility functions for things like calculation of 2D & 3D convex hulls.
+type Fires struct {
+	s []Fire
+}
+
 // UniqueID returns the unique id of the inferno.
 // The unique id is a random int generated internally by this library and can be used to differentiate
 // infernos from each other. This is needed because demo-files reuse entity ids.
@@ -39,29 +43,53 @@ func (inf Inferno) UniqueID() int64 {
 	return inf.uniqueID
 }
 
-// Active returns an Inferno containing only the active fires of the original.
-// The returned Inferno will have the same Unique-ID as the original.
-func (inf Inferno) Active() Inferno {
-	res := Inferno{
-		uniqueID: inf.uniqueID,
+// Fires returns all fires (past + present).
+// Some are currently active and some have extinguished (see Fire.IsBurning).
+func (inf Inferno) Fires() Fires {
+	entity := inf.Entity
+	origin := entity.Position()
+
+	var fires []Fire
+	nFires := entity.PropertyValueMust("m_fireCount").IntVal
+
+	for i := 0; i < nFires; i++ {
+		iStr := fmt.Sprintf("%03d", i)
+		offset := r3.Vector{
+			X: float64(entity.PropertyValueMust("m_fireXDelta." + iStr).IntVal),
+			Y: float64(entity.PropertyValueMust("m_fireYDelta." + iStr).IntVal),
+			Z: float64(entity.PropertyValueMust("m_fireZDelta." + iStr).IntVal),
+		}
+
+		fire := Fire{
+			Vector:    origin.Add(offset),
+			IsBurning: entity.PropertyValueMust("m_bFireIsBurning."+iStr).IntVal == 1,
+		}
+
+		fires = append(fires, fire)
 	}
 
-	res.Fires = make([]*Fire, 0, len(inf.Fires))
+	return Fires{s: fires}
+}
 
-	for _, f := range inf.Fires {
+// Active returns all currently active fires (only Fire.IsBurning == true).
+func (f Fires) Active() Fires {
+	allFires := f.s
+	active := make([]Fire, 0, len(allFires))
+
+	for _, f := range allFires {
 		if f.IsBurning {
-			res.Fires = append(res.Fires, f)
+			active = append(active, f)
 		}
 	}
 
-	return res
+	return Fires{s: active}
 }
 
 // ConvexHull2D returns clockwise sorted corner points making up the 2D convex hull of all the fires in the inferno.
 // Useful for drawing on 2D maps.
-func (inf Inferno) ConvexHull2D() []r2.Point {
-	pointCloud := make([]r3.Vector, len(inf.Fires))
-	for i, f := range inf.Fires {
+func (f Fires) ConvexHull2D() []r2.Point {
+	pointCloud := make([]r3.Vector, len(f.s))
+	for i, f := range f.s {
 		pointCloud[i] = f.Vector
 		pointCloud[i].Z = 0
 	}
@@ -135,23 +163,14 @@ func sortPointsClockwise(points []r2.Point) {
 }
 
 // ConvexHull3D returns the 3D convex hull of all the fires in the inferno.
-func (inf Inferno) ConvexHull3D() quickhull.ConvexHull {
-	pointCloud := make([]r3.Vector, len(inf.Fires))
+func (f Fires) ConvexHull3D() quickhull.ConvexHull {
+	pointCloud := make([]r3.Vector, len(f.s))
 
-	for i, f := range inf.Fires {
+	for i, f := range f.s {
 		pointCloud[i] = f.Vector
 	}
 
 	return convexHull(pointCloud)
-}
-
-// Owner returns the player who threw the fire grenade.
-// Could be nil if the player disconnected after throwing it.
-//
-// Deprecated: Owner() exists for historical compatibility
-// and should not be used. Use Thrower() instead.
-func (inf Inferno) Owner() *Player {
-	return inf.Thrower()
 }
 
 // Thrower returns the player who threw the fire grenade.
@@ -170,7 +189,6 @@ func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 func NewInferno(demoInfoProvider demoInfoProvider, entity st.IEntity) *Inferno {
 	return &Inferno{
 		Entity:           entity,
-		EntityID:         entity.ID(),
 		uniqueID:         rand.Int63(),
 		demoInfoProvider: demoInfoProvider,
 	}

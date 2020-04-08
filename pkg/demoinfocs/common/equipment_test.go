@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
 func TestEquipmentElement_Class(t *testing.T) {
@@ -47,10 +49,12 @@ func TestEquipment_AmmoInMagazine_Grenade(t *testing.T) {
 func TestEquipment_AmmoReserve_Grenade(t *testing.T) {
 	owner := new(Player)
 	owner.AmmoLeft[1] = 2
+
+	entity := entityWithProperty("LocalWeaponData.m_iPrimaryAmmoType", st.PropertyValue{IntVal: 1})
 	wep := &Equipment{
-		Type:     EqFlash,
-		Owner:    owner,
-		AmmoType: 1,
+		Type:   EqFlash,
+		Owner:  owner,
+		Entity: entity,
 	}
 
 	assert.Equal(t, 1, wep.AmmoReserve())

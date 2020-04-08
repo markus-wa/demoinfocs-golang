@@ -354,8 +354,8 @@ func (p *Parser) bindPlayerWeapons(playerEntity st.IEntity, pl *common.Player) {
 				}
 
 				// Clear previous owner
-				if wep.Owner != nil {
-					delete(wep.Owner.Inventory, wep.EntityID)
+				if wep.Owner != nil && wep.Entity != nil {
+					delete(wep.Owner.Inventory, wep.Entity.ID())
 				}
 
 				// Attribute weapon to player
@@ -398,7 +398,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	entityID := entity.ID()
 
 	proj := common.NewGrenadeProjectile()
-	proj.EntityID = entityID
+	proj.Entity = entity
 	p.gameState.grenadeProjectiles[entityID] = proj
 
 	var wep common.EquipmentType
@@ -437,8 +437,6 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	})
 
 	entity.OnPositionUpdate(func(newPos r3.Vector) {
-		proj.Position = newPos
-
 		proj.Trajectory = append(proj.Trajectory, newPos)
 	})
 
@@ -460,7 +458,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	// If the grenade projectile entity is destroyed AFTER round_officially_ended
 	// we already executed this code when we received that event.
-	if _, exists := p.gameState.grenadeProjectiles[proj.EntityID]; !exists {
+	if _, exists := p.gameState.grenadeProjectiles[proj.Entity.ID()]; !exists {
 		return
 	}
 
@@ -468,7 +466,7 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 		Projectile: proj,
 	})
 
-	delete(p.gameState.grenadeProjectiles, proj.EntityID)
+	delete(p.gameState.grenadeProjectiles, proj.Entity.ID())
 
 	if proj.WeaponInstance.Type == common.EqFlash {
 		p.gameState.lastFlash.projectileByPlayer[proj.Owner] = proj
@@ -499,7 +497,7 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentType) {
 		eq.Type = wepType
 	}
 
-	eq.EntityID = entityID
+	eq.Entity = entity
 
 	entity.OnDestroy(func() {
 		delete(p.gameState.weapons, entityID)
@@ -510,15 +508,6 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentType) {
 			eq.Owner.IsReloading = false
 		}
 	})
-
-	// Only weapons with scopes have m_zoomLevel property
-	if zoomLvlProp := entity.FindProperty("m_zoomLevel"); zoomLvlProp != nil {
-		zoomLvlProp.OnUpdate(func(value st.PropertyValue) {
-			eq.ZoomLevel = common.ZoomLevel(value.IntVal)
-		})
-	}
-
-	eq.AmmoType = entity.FindProperty("LocalWeaponData.m_iPrimaryAmmoType").Value().IntVal
 
 	// Detect alternative weapons (P2k -> USP, M4A4 -> M4A1-S etc.)
 	modelIndex := entity.FindProperty("m_nModelIndex").Value().IntVal
@@ -560,33 +549,13 @@ func (p *Parser) bindNewInferno(entity *st.Entity) {
 	entity.OnDestroy(func() {
 		p.infernoExpired(inf)
 	})
-
-	origin := entity.Position()
-	nFires := 0
-
-	entity.FindProperty("m_fireCount").OnUpdate(func(val st.PropertyValue) {
-		for i := nFires; i < val.IntVal; i++ {
-			iStr := fmt.Sprintf("%03d", i)
-			offset := r3.Vector{
-				X: float64(entity.FindProperty("m_fireXDelta." + iStr).Value().IntVal),
-				Y: float64(entity.FindProperty("m_fireYDelta." + iStr).Value().IntVal),
-				Z: float64(entity.FindProperty("m_fireZDelta." + iStr).Value().IntVal),
-			}
-
-			fire := &common.Fire{Vector: origin.Add(offset), IsBurning: true}
-			entity.BindProperty("m_bFireIsBurning."+iStr, &fire.IsBurning, st.ValTypeBoolInt)
-
-			inf.Fires = append(inf.Fires, fire)
-		}
-		nFires = val.IntVal
-	})
 }
 
 // Separate function because we also use it in round_officially_ended (issue #42)
 func (p *Parser) infernoExpired(inf *common.Inferno) {
 	// If the inferno entity is destroyed AFTER round_officially_ended
 	// we already executed this code when we received that event.
-	if _, exists := p.gameState.infernos[inf.EntityID]; !exists {
+	if _, exists := p.gameState.infernos[inf.Entity.ID()]; !exists {
 		return
 	}
 
@@ -594,7 +563,7 @@ func (p *Parser) infernoExpired(inf *common.Inferno) {
 		Inferno: inf,
 	})
 
-	delete(p.gameState.infernos, inf.EntityID)
+	delete(p.gameState.infernos, inf.Entity.ID())
 
 	p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
 }

@@ -40,11 +40,18 @@ func (e *Entity) BindProperty(name string, variable interface{}, valueType st.Pr
 	e.Called(name, variable, valueType)
 }
 
-// BindProperty is a mock-implementation of IEntity.BindProperty().
+// PropertyValue is a mock-implementation of IEntity.PropertyValue().
 func (e *Entity) PropertyValue(name string) (st.PropertyValue, bool) {
 	args := e.Called(name)
 
 	return args.Get(0).(st.PropertyValue), args.Bool(1)
+}
+
+// PropertyValueMust is a mock-implementation of IEntity.PropertyValueMust().
+func (e *Entity) PropertyValueMust(name string) st.PropertyValue {
+	args := e.Called(name)
+
+	return args.Get(0).(st.PropertyValue)
 }
 
 // ApplyUpdate is a mock-implementation of IEntity.ApplyUpdate().

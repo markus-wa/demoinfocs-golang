@@ -66,7 +66,7 @@ func TestDemoInfoCs(t *testing.T) {
 	h, err := p.ParseHeader()
 	assertions.NoError(err, "error returned by Parser.ParseHeader()")
 	assertions.Equal(h, p.Header(), "values returned by ParseHeader() and Header() don't match")
-	fmt.Printf("Header: %v - FrameRate()=%.2f frames/s ; FrameTime()=%s ; TickRate()=%.2f frames/s ; TickTime()=%s\n", h, h.FrameRate(), h.FrameTime(), h.TickRate(), h.TickTime())
+	fmt.Printf("Header: %v - FrameRate()=%.2f frames/s ; FrameTime()=%s ; TickRate()=%.2f frames/s ; TickTime()=%s\n", h, h.FrameRate(), h.FrameTime(), p.TickRate(), p.TickTime())
 
 	fmt.Println("Registering handlers")
 	gs := p.GameState()

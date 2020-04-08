@@ -32,6 +32,12 @@ type IEntity interface {
 	//
 	// Panics if more than one property with the same name were found.
 	PropertyValue(name string) (PropertyValue, bool)
+	// PropertyValueMust finds a property on the Entity by name and returns its value.
+	//
+	// Panics with nil pointer dereference error if the property was not found.
+	//
+	// Panics if more than one property with the same name were found.
+	PropertyValueMust(name string) PropertyValue
 	// ApplyUpdate reads an update to an Enitiy's properties and
 	// triggers registered PropertyUpdateHandlers if values changed.
 	//

@@ -285,13 +285,10 @@ const (
 // Equipment is a weapon / piece of equipment belonging to a player.
 // This also includes the skin and some additional data.
 type Equipment struct {
-	EntityID       int           // ID of the game entity
-	Entity         st.IEntity    // The entity instance
 	Type           EquipmentType // The type of weapon which the equipment instantiates.
+	Entity         st.IEntity    // The game entity instance
 	Owner          *Player       // The player carrying the equipment, not necessarily the buyer.
-	AmmoType       int           // TODO: Remove this? doesn't seem applicable to CS:GO
 	OriginalString string        // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
-	ZoomLevel      ZoomLevel     // How far the player has zoomed in on the weapon.
 
 	uniqueID int64
 }
@@ -330,14 +327,26 @@ func (e Equipment) AmmoInMagazine() int {
 	return val.IntVal
 }
 
+// AmmoType returns the weapon's ammo type, mostly (only?) relevant for grenades.
+func (e Equipment) AmmoType() int {
+	return e.Entity.PropertyValueMust("LocalWeaponData.m_iPrimaryAmmoType").IntVal
+}
+
+// ZoomLevel returns how far the player has zoomed in on the weapon.
+// Only weapons with scopes have a valid zoom level.
+func (e Equipment) ZoomLevel() ZoomLevel {
+	val, _ := e.Entity.PropertyValue("LocalWeaponData.m_iPrimaryAmmoType")
+	return ZoomLevel(val.IntVal)
+}
+
 // AmmoReserve returns the ammo left available for reloading.
 // Returns CWeaponCSBase.m_iPrimaryReserveAmmoCount for most weapons and 'Owner.AmmoLeft[AmmoType] - 1' for grenades.
-// Use AmmoInMagazine2() + AmmoReserve2() to quickly get the amount of grenades a player owns.
+// Use AmmoInMagazine() + AmmoReserve() to quickly get the amount of grenades a player owns.
 func (e Equipment) AmmoReserve() int {
 	if e.Class() == EqClassGrenade {
 		if e.Owner != nil {
 			// minus one for 'InMagazine'
-			return e.Owner.AmmoLeft[e.AmmoType] - 1
+			return e.Owner.AmmoLeft[e.AmmoType()] - 1
 		}
 
 		return 0
