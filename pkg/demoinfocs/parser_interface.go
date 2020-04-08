@@ -66,7 +66,7 @@ type IParser interface {
 	   Example:
 
 	   	parser.RegisterEventHandler(func(e events.WeaponFired) {
-	   		fmt.Printf("%s fired his %s\n", e.Shooter.Name, e.Weapon.Weapon)
+	   		fmt.Printf("%s fired his %s\n", e.Shooter.Name, e.Weapon.Type)
 	   	})
 
 	   Parameter handler has to be of type interface{} because lolnogenerics.

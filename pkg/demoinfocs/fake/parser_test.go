@@ -51,7 +51,7 @@ func TestParseNextFrameEvents(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func kill(wepType common.EquipmentElement) events.Kill {
+func kill(wepType common.EquipmentType) events.Kill {
 	wep := common.NewEquipment(wepType)
 	return events.Kill{
 		Killer: new(common.Player),

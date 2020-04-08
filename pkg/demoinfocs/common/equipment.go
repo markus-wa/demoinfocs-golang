@@ -10,7 +10,7 @@ type EquipmentClass int
 
 // EquipmentClass constants give information about the type of an equipment (SMG, Rifle, Grenade etc.).
 //
-// Note: (EquipmentElement+99) / 100 = EquipmentClass
+// Note: (EquipmentType+99) / 100 = EquipmentClass
 const (
 	EqClassUnknown   EquipmentClass = 0
 	EqClassPistols   EquipmentClass = 1
@@ -21,12 +21,12 @@ const (
 	EqClassGrenade   EquipmentClass = 6
 )
 
-// EquipmentElement is the type for the various EqXYZ constants.
-type EquipmentElement int
+// EquipmentType is the type for the various EqXYZ constants.
+type EquipmentType int
 
 // Class returns the class of the equipment.
 // E.g. pistol, smg, heavy etc.
-func (e EquipmentElement) Class() EquipmentClass {
+func (e EquipmentType) Class() EquipmentClass {
 	const classDenominator = 100
 
 	return EquipmentClass((int(e) + classDenominator - 1) / classDenominator)
@@ -34,90 +34,90 @@ func (e EquipmentElement) Class() EquipmentClass {
 
 // String returns a human readable name for the equipment.
 // E.g. 'AK-47', 'UMP-45', 'Smoke Grenade' etc.
-func (e EquipmentElement) String() string {
+func (e EquipmentType) String() string {
 	return eqElementToName[e]
 }
 
-// EquipmentElement constants give information about what weapon a player has equipped.
+// EquipmentType constants give information about what weapon a player has equipped.
 const (
-	EqUnknown EquipmentElement = 0
+	EqUnknown EquipmentType = 0
 
 	// Pistols
 
-	EqP2000        EquipmentElement = 1
-	EqGlock        EquipmentElement = 2
-	EqP250         EquipmentElement = 3
-	EqDeagle       EquipmentElement = 4
-	EqFiveSeven    EquipmentElement = 5
-	EqDualBerettas EquipmentElement = 6
-	EqDualBarettas EquipmentElement = 6 // Deprecated, use EqDualBerettas instead (spelling error)
-	EqTec9         EquipmentElement = 7
-	EqCZ           EquipmentElement = 8
-	EqUSP          EquipmentElement = 9
-	EqRevolver     EquipmentElement = 10
+	EqP2000        EquipmentType = 1
+	EqGlock        EquipmentType = 2
+	EqP250         EquipmentType = 3
+	EqDeagle       EquipmentType = 4
+	EqFiveSeven    EquipmentType = 5
+	EqDualBerettas EquipmentType = 6
+	EqDualBarettas EquipmentType = 6 // Deprecated, use EqDualBerettas instead (spelling error)
+	EqTec9         EquipmentType = 7
+	EqCZ           EquipmentType = 8
+	EqUSP          EquipmentType = 9
+	EqRevolver     EquipmentType = 10
 
 	// SMGs
 
-	EqMP7   EquipmentElement = 101
-	EqMP9   EquipmentElement = 102
-	EqBizon EquipmentElement = 103
-	EqMac10 EquipmentElement = 104
-	EqUMP   EquipmentElement = 105
-	EqP90   EquipmentElement = 106
-	EqMP5   EquipmentElement = 107
+	EqMP7   EquipmentType = 101
+	EqMP9   EquipmentType = 102
+	EqBizon EquipmentType = 103
+	EqMac10 EquipmentType = 104
+	EqUMP   EquipmentType = 105
+	EqP90   EquipmentType = 106
+	EqMP5   EquipmentType = 107
 
 	// Heavy
 
-	EqSawedOff EquipmentElement = 201
-	EqNova     EquipmentElement = 202
-	EqMag7     EquipmentElement = 203 // You should consider using EqSwag7 instead
-	EqSwag7    EquipmentElement = 203
-	EqXM1014   EquipmentElement = 204
-	EqM249     EquipmentElement = 205
-	EqNegev    EquipmentElement = 206
+	EqSawedOff EquipmentType = 201
+	EqNova     EquipmentType = 202
+	EqMag7     EquipmentType = 203 // You should consider using EqSwag7 instead
+	EqSwag7    EquipmentType = 203
+	EqXM1014   EquipmentType = 204
+	EqM249     EquipmentType = 205
+	EqNegev    EquipmentType = 206
 
 	// Rifles
 
-	EqGalil  EquipmentElement = 301
-	EqFamas  EquipmentElement = 302
-	EqAK47   EquipmentElement = 303
-	EqM4A4   EquipmentElement = 304
-	EqM4A1   EquipmentElement = 305
-	EqScout  EquipmentElement = 306
-	EqSSG08  EquipmentElement = 306
-	EqSG556  EquipmentElement = 307
-	EqSG553  EquipmentElement = 307
-	EqAUG    EquipmentElement = 308
-	EqAWP    EquipmentElement = 309
-	EqScar20 EquipmentElement = 310
-	EqG3SG1  EquipmentElement = 311
+	EqGalil  EquipmentType = 301
+	EqFamas  EquipmentType = 302
+	EqAK47   EquipmentType = 303
+	EqM4A4   EquipmentType = 304
+	EqM4A1   EquipmentType = 305
+	EqScout  EquipmentType = 306
+	EqSSG08  EquipmentType = 306
+	EqSG556  EquipmentType = 307
+	EqSG553  EquipmentType = 307
+	EqAUG    EquipmentType = 308
+	EqAWP    EquipmentType = 309
+	EqScar20 EquipmentType = 310
+	EqG3SG1  EquipmentType = 311
 
 	// Equipment
 
-	EqZeus      EquipmentElement = 401
-	EqKevlar    EquipmentElement = 402
-	EqHelmet    EquipmentElement = 403
-	EqBomb      EquipmentElement = 404
-	EqKnife     EquipmentElement = 405
-	EqDefuseKit EquipmentElement = 406
-	EqWorld     EquipmentElement = 407
+	EqZeus      EquipmentType = 401
+	EqKevlar    EquipmentType = 402
+	EqHelmet    EquipmentType = 403
+	EqBomb      EquipmentType = 404
+	EqKnife     EquipmentType = 405
+	EqDefuseKit EquipmentType = 406
+	EqWorld     EquipmentType = 407
 
 	// Grenades
 
-	EqDecoy      EquipmentElement = 501
-	EqMolotov    EquipmentElement = 502
-	EqIncendiary EquipmentElement = 503
-	EqFlash      EquipmentElement = 504
-	EqSmoke      EquipmentElement = 505
-	EqHE         EquipmentElement = 506
+	EqDecoy      EquipmentType = 501
+	EqMolotov    EquipmentType = 502
+	EqIncendiary EquipmentType = 503
+	EqFlash      EquipmentType = 504
+	EqSmoke      EquipmentType = 505
+	EqHE         EquipmentType = 506
 )
 
-var eqNameToWeapon map[string]EquipmentElement
+var eqNameToWeapon map[string]EquipmentType
 
-var eqElementToName map[EquipmentElement]string
+var eqElementToName map[EquipmentType]string
 
-// EquipmentElementNames returns all human readable equipment names as map[EquipmentElement]string
-func EquipmentElementNames() map[EquipmentElement]string {
+// EquipmentElementNames returns all human readable equipment names as map[EquipmentType]string
+func EquipmentElementNames() map[EquipmentType]string {
 	return eqElementToName
 }
 
@@ -127,7 +127,7 @@ func init() {
 }
 
 func initEqNameToWeapon() {
-	eqNameToWeapon = make(map[string]EquipmentElement)
+	eqNameToWeapon = make(map[string]EquipmentType)
 
 	eqNameToWeapon["ak47"] = EqAK47
 	eqNameToWeapon["aug"] = EqAUG
@@ -203,7 +203,7 @@ func initEqNameToWeapon() {
 }
 
 func initEqElementToName() {
-	eqElementToName = make(map[EquipmentElement]string)
+	eqElementToName = make(map[EquipmentType]string)
 	eqElementToName[EqAK47] = "AK-47"
 	eqElementToName[EqAUG] = "AUG"
 	eqElementToName[EqAWP] = "AWP"
@@ -256,16 +256,16 @@ func initEqElementToName() {
 
 const weaponPrefix = "weapon_"
 
-// MapEquipment creates an EquipmentElement from the name of the weapon / equipment.
+// MapEquipment creates an EquipmentType from the name of the weapon / equipment.
 // Returns EqUnknown if no mapping can be found.
-func MapEquipment(eqName string) EquipmentElement {
+func MapEquipment(eqName string) EquipmentType {
 	eqName = strings.TrimPrefix(eqName, weaponPrefix)
 
-	var wep EquipmentElement
+	var wep EquipmentType
 	if strings.Contains(eqName, "knife") || strings.Contains(eqName, "bayonet") {
 		wep = EqKnife
 	} else {
-		// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentElement
+		// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentType
 		wep = eqNameToWeapon[eqName]
 	}
 
@@ -283,14 +283,14 @@ const (
 // Equipment is a weapon / piece of equipment belonging to a player.
 // This also includes the skin and some additional data.
 type Equipment struct {
-	EntityID       int              // ID of the game entity
-	Weapon         EquipmentElement // The type of weapon which the equipment instantiates.
-	Owner          *Player          // The player carrying the equipment, not necessarily the buyer.
-	AmmoType       int              // TODO: Remove this? doesn't seem applicable to CS:GO
-	AmmoInMagazine int              // Amount of bullets in the weapon's magazine. Deprecated, use AmmoInMagazine2() instead.
-	AmmoReserve    int              // Amount of reserve bullets
-	OriginalString string           // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
-	ZoomLevel      ZoomLevel        // How far the player has zoomed in on the weapon.
+	EntityID       int           // ID of the game entity
+	Type           EquipmentType // The type of weapon which the equipment instantiates.
+	Owner          *Player       // The player carrying the equipment, not necessarily the buyer.
+	AmmoType       int           // TODO: Remove this? doesn't seem applicable to CS:GO
+	AmmoInMagazine int           // Amount of bullets in the weapon's magazine. Deprecated, use AmmoInMagazine2() instead.
+	AmmoReserve    int           // Amount of reserve bullets
+	OriginalString string        // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
+	ZoomLevel      ZoomLevel     // How far the player has zoomed in on the weapon.
 
 	uniqueID int64
 }
@@ -298,13 +298,13 @@ type Equipment struct {
 // String returns a human readable name for the equipment.
 // E.g. 'AK-47', 'UMP-45', 'Smoke Grenade' etc.
 func (e Equipment) String() string {
-	return e.Weapon.String()
+	return e.Type.String()
 }
 
 // Class returns the class of the equipment.
 // E.g. pistol, smg, heavy etc.
 func (e Equipment) Class() EquipmentClass {
-	return e.Weapon.Class()
+	return e.Type.Class()
 }
 
 // UniqueID returns the unique id of the equipment element.
@@ -343,11 +343,11 @@ func (e Equipment) AmmoReserve2() int {
 // NewEquipment creates a new Equipment and sets the UniqueID.
 //
 // Intended for internal use only.
-func NewEquipment(wep EquipmentElement) *Equipment {
-	return &Equipment{Weapon: wep, uniqueID: rand.Int63()}
+func NewEquipment(wep EquipmentType) *Equipment {
+	return &Equipment{Type: wep, uniqueID: rand.Int63()}
 }
 
-var equipmentToAlternative = map[EquipmentElement]EquipmentElement{
+var equipmentToAlternative = map[EquipmentType]EquipmentType{
 	EqP2000:     EqUSP,
 	EqP250:      EqCZ, // for old demos where the CZ was the alternative for the P250
 	EqFiveSeven: EqCZ,
@@ -357,9 +357,9 @@ var equipmentToAlternative = map[EquipmentElement]EquipmentElement{
 	EqM4A4:      EqM4A1,
 }
 
-// EquipmentAlternative returns the EquipmentElement of the alternatively equippable weapon.
+// EquipmentAlternative returns the EquipmentType of the alternatively equippable weapon.
 // E.g. returns EquipmentAlternative(EqP2000) returns EqUSP.
 // Only works one way (default-to-alternative) as the Five-Seven and Tec-9 both map to the CZ-75.
-func EquipmentAlternative(eq EquipmentElement) EquipmentElement {
+func EquipmentAlternative(eq EquipmentType) EquipmentType {
 	return equipmentToAlternative[eq]
 }

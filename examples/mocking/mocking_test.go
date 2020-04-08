@@ -28,7 +28,7 @@ func TestCollectKills(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
-func kill(wep common.EquipmentElement) events.Kill {
+func kill(wep common.EquipmentType) events.Kill {
 	eq := common.NewEquipment(wep)
 	return events.Kill{
 		Killer: new(common.Player),

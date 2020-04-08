@@ -620,7 +620,7 @@ func (geh gameEventHandler) bombPickup(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 // Just so we can nicely create GrenadeEvents in one line
-func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT, nadeType common.EquipmentElement) events.GrenadeEvent {
+func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT, nadeType common.EquipmentType) events.GrenadeEvent {
 	thrower := geh.playerByUserID32(data["userid"].GetValShort())
 	position := r3.Vector{
 		X: float64(data["x"].ValFloat),
@@ -648,7 +648,7 @@ func (geh gameEventHandler) addThrownGrenade(p *common.Player, wep *common.Equip
 	gameState.thrownGrenades[p] = append(gameState.thrownGrenades[p], wep)
 }
 
-func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.EquipmentElement) *common.Equipment {
+func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.EquipmentType) *common.Equipment {
 	if p == nil {
 		// can happen for incendiaries or "unknown" players (see #162)
 		return nil
@@ -656,7 +656,7 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 
 	// Get the first weapon we found for this player with this weapon type
 	for _, thrownGrenade := range geh.gameState().thrownGrenades[p] {
-		if isSameEquipmentElement(thrownGrenade.Weapon, wepType) {
+		if isSameEquipmentElement(thrownGrenade.Type, wepType) {
 			return thrownGrenade
 		}
 	}
@@ -668,7 +668,7 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 	return nil
 }
 
-func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common.EquipmentElement) {
+func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common.EquipmentType) {
 	if p == nil {
 		// can happen for incendiaries or "unknown" players (see #162)
 		return
@@ -680,7 +680,7 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 	for i, weapon := range gameState.thrownGrenades[p] {
 		// If same weapon type
 		// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
-		if isSameEquipmentElement(wepType, weapon.Weapon) {
+		if isSameEquipmentElement(wepType, weapon.Type) {
 			gameState.thrownGrenades[p] = append(gameState.thrownGrenades[p][:i], gameState.thrownGrenades[p][i+1:]...)
 			return
 		}
@@ -691,7 +691,7 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 	unassert.Samef(wepType, common.EqSmoke, "trying to delete non-existing grenade from gameState.thrownGrenades")
 }
 
-func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType common.EquipmentElement) *common.Equipment {
+func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType common.EquipmentType) *common.Equipment {
 	isGrenade := wepType.Class() == common.EqClassGrenade
 	if isGrenade {
 		return geh.getThrownGrenade(player, wepType)
@@ -701,18 +701,18 @@ func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType 
 }
 
 // checks if two EquipmentElements are the same, considering that incendiary and molotov should be treated as identical
-func isSameEquipmentElement(a common.EquipmentElement, b common.EquipmentElement) bool {
+func isSameEquipmentElement(a common.EquipmentType, b common.EquipmentType) bool {
 	return a == b ||
 		(a == common.EqIncendiary && b == common.EqMolotov) ||
 		(b == common.EqIncendiary && a == common.EqMolotov)
 }
 
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
-func getPlayerWeapon(player *common.Player, wepType common.EquipmentElement) *common.Equipment {
+func getPlayerWeapon(player *common.Player, wepType common.EquipmentType) *common.Equipment {
 	if player != nil {
 		alternateWepType := common.EquipmentAlternative(wepType)
 		for _, wep := range player.Weapons() {
-			if wep.Weapon == wepType || (alternateWepType != common.EqUnknown && wep.Weapon == alternateWepType) {
+			if wep.Type == wepType || (alternateWepType != common.EqUnknown && wep.Type == alternateWepType) {
 				return wep
 			}
 		}

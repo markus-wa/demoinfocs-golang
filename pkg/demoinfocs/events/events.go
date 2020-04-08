@@ -171,7 +171,7 @@ type GrenadeEventIf interface {
 // GrenadeEvent contains the common attributes of nade events. Dont register
 // handlers on this tho, you want GrenadeEventIf for that
 type GrenadeEvent struct {
-	GrenadeType     common.EquipmentElement
+	GrenadeType     common.EquipmentType
 	Grenade         *common.Equipment // Maybe nil for InfernoStart & InfernoExpired since we don't know the thrower (at least in old demos)
 	Position        r3.Vector
 	Thrower         *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
@@ -447,7 +447,7 @@ func (pu ItemPickup) WeaponTraceable() *common.Equipment {
 	}
 
 	for _, wep := range pu.Player.Inventory {
-		if wep.Weapon == pu.Weapon.Weapon {
+		if wep.Type == pu.Weapon.Type {
 			return wep
 		}
 	}

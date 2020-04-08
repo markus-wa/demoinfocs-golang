@@ -21,7 +21,7 @@ import (
 )
 
 type nadePath struct {
-	wep  common.EquipmentElement
+	wep  common.EquipmentType
 	path []r3.Vector
 	team common.Team
 }

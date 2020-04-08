@@ -401,7 +401,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	proj.EntityID = entityID
 	p.gameState.grenadeProjectiles[entityID] = proj
 
-	var wep common.EquipmentElement
+	var wep common.EquipmentType
 	entity.OnCreateFinished(func() {
 		// copy the weapon so it doesn't get overwritten by a new entity in Parser.weapons
 		wepCopy := *(getPlayerWeapon(proj.Thrower, wep))
@@ -471,21 +471,21 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 	delete(p.gameState.grenadeProjectiles, proj.EntityID)
 
-	if proj.WeaponInstance.Weapon == common.EqFlash {
+	if proj.WeaponInstance.Type == common.EqFlash {
 		p.gameState.lastFlash.projectileByPlayer[proj.Owner] = proj
 	}
 
 	// We delete from the Owner.ThrownGrenades (only if not inferno or smoke, because they will be deleted when they expire)
-	isInferno := proj.WeaponInstance.Weapon == common.EqMolotov || proj.WeaponInstance.Weapon == common.EqIncendiary
-	isSmoke := proj.WeaponInstance.Weapon == common.EqSmoke
-	isDecoy := proj.WeaponInstance.Weapon == common.EqDecoy
+	isInferno := proj.WeaponInstance.Type == common.EqMolotov || proj.WeaponInstance.Type == common.EqIncendiary
+	isSmoke := proj.WeaponInstance.Type == common.EqSmoke
+	isDecoy := proj.WeaponInstance.Type == common.EqDecoy
 
 	if !isInferno && !isSmoke && !isDecoy {
-		p.gameEventHandler.deleteThrownGrenade(proj.Thrower, proj.WeaponInstance.Weapon)
+		p.gameEventHandler.deleteThrownGrenade(proj.Thrower, proj.WeaponInstance.Type)
 	}
 }
 
-func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) {
+func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentType) {
 	entityID := entity.ID()
 
 	eq, eqExists := p.gameState.weapons[entityID]
@@ -497,7 +497,7 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 		// so the zero-valued Equipment instance was already created in bindPlayer().
 		// In this case we should create update the weapon type
 		// but keep the same memory address so player's rawWeapons would still have a pointer to it
-		eq.Weapon = wepType
+		eq.Type = wepType
 	}
 
 	eq.EntityID = entityID
@@ -532,16 +532,16 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentElement) 
 	modelIndex := entity.FindPropertyI("m_nModelIndex").Value().IntVal
 	eq.OriginalString = p.modelPreCache[modelIndex]
 
-	wepFix := func(defaultName, altName string, alt common.EquipmentElement) {
+	wepFix := func(defaultName, altName string, alt common.EquipmentType) {
 		// Check 'altName' first because otherwise the m4a1_s is recognized as m4a4
 		if strings.Contains(eq.OriginalString, altName) {
-			eq.Weapon = alt
+			eq.Type = alt
 		} else if !strings.Contains(eq.OriginalString, defaultName) {
 			p.setError(fmt.Errorf("unknown weapon model %q", eq.OriginalString))
 		}
 	}
 
-	switch eq.Weapon {
+	switch eq.Type {
 	case common.EqP2000:
 		wepFix("_pist_hkp2000", "_pist_223", common.EqUSP)
 	case common.EqM4A4:

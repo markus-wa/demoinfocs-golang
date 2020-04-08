@@ -44,7 +44,7 @@ func TestBombEvents(t *testing.T) {
 
 func TestItemPickup_WeaponTraceable_PlayerNil(t *testing.T) {
 	e := ItemPickup{
-		Weapon: common.Equipment{Weapon: common.EqAK47},
+		Weapon: common.Equipment{Type: common.EqAK47},
 		Player: nil,
 	}
 
@@ -54,10 +54,10 @@ func TestItemPickup_WeaponTraceable_PlayerNil(t *testing.T) {
 func TestItemPickup_WeaponTraceable_WeaponFound(t *testing.T) {
 	wep := &common.Equipment{
 		EntityID: 1,
-		Weapon:   common.EqAK47,
+		Type:     common.EqAK47,
 	}
 	e := ItemPickup{
-		Weapon: common.Equipment{Weapon: common.EqAK47},
+		Weapon: common.Equipment{Type: common.EqAK47},
 		Player: &common.Player{Inventory: map[int]*common.Equipment{
 			1: wep,
 		}},
@@ -69,10 +69,10 @@ func TestItemPickup_WeaponTraceable_WeaponFound(t *testing.T) {
 func TestItemPickup_WeaponTraceable_WeaponNotFound(t *testing.T) {
 	wep := &common.Equipment{
 		EntityID: 1,
-		Weapon:   common.EqAK47,
+		Type:     common.EqAK47,
 	}
 	e := ItemPickup{
-		Weapon: common.Equipment{Weapon: common.EqKnife},
+		Weapon: common.Equipment{Type: common.EqKnife},
 		Player: &common.Player{Inventory: map[int]*common.Equipment{
 			1: wep,
 		}},

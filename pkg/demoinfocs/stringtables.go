@@ -270,7 +270,7 @@ func parsePlayerInfo(reader io.Reader) *playerInfo {
 	return res
 }
 
-var modelPreCacheSubstringToEq = map[string]common.EquipmentElement{
+var modelPreCacheSubstringToEq = map[string]common.EquipmentType{
 	"flashbang":         common.EqFlash,
 	"fraggrenade":       common.EqHE,
 	"smokegrenade":      common.EqSmoke,

@@ -44,7 +44,7 @@ func TestEquipment_AmmoInMagazine2_Default(t *testing.T) {
 
 func TestEquipment_AmmoInMagazine2_Grenade(t *testing.T) {
 	wep := &Equipment{
-		Weapon: EqFlash,
+		Type: EqFlash,
 	}
 
 	assert.Equal(t, 1, wep.AmmoInMagazine2())
@@ -62,7 +62,7 @@ func TestEquipment_AmmoReserve2_Grenade(t *testing.T) {
 	owner := new(Player)
 	owner.AmmoLeft[1] = 2
 	wep := &Equipment{
-		Weapon:         EqFlash,
+		Type:           EqFlash,
 		AmmoInMagazine: -1,
 		Owner:          owner,
 		AmmoType:       1,
@@ -73,7 +73,7 @@ func TestEquipment_AmmoReserve2_Grenade(t *testing.T) {
 
 func TestEquipment_AmmoReserve2_Grenade_OwnerNil(t *testing.T) {
 	wep := &Equipment{
-		Weapon: EqFlash,
+		Type: EqFlash,
 	}
 
 	assert.Equal(t, 0, wep.AmmoReserve2())

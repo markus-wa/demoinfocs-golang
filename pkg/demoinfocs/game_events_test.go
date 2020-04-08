@@ -58,11 +58,11 @@ func TestGetPlayerWeapon_NilPlayer(t *testing.T) {
 	wep := getPlayerWeapon(nil, common.EqAK47)
 
 	assert.NotNil(t, wep)
-	assert.Equal(t, common.EqAK47, wep.Weapon)
+	assert.Equal(t, common.EqAK47, wep.Type)
 }
 
 func TestGetPlayerWeapon_Found(t *testing.T) {
-	ak := &common.Equipment{Weapon: common.EqAK47}
+	ak := &common.Equipment{Type: common.EqAK47}
 	pl := &common.Player{
 		Inventory: map[int]*common.Equipment{
 			1: ak,
@@ -75,7 +75,7 @@ func TestGetPlayerWeapon_Found(t *testing.T) {
 }
 
 func TestGetPlayerWeapon_NotFound(t *testing.T) {
-	ak := &common.Equipment{Weapon: common.EqAK47}
+	ak := &common.Equipment{Type: common.EqAK47}
 	pl := &common.Player{
 		Inventory: map[int]*common.Equipment{
 			1: ak,
@@ -84,7 +84,7 @@ func TestGetPlayerWeapon_NotFound(t *testing.T) {
 
 	wep := getPlayerWeapon(pl, common.EqM4A1)
 
-	assert.Equal(t, common.EqM4A1, wep.Weapon)
+	assert.Equal(t, common.EqM4A1, wep.Type)
 }
 
 func TestAddThrownGrenade_NilPlayer(t *testing.T) {
@@ -116,7 +116,7 @@ func TestGetThrownGrenade_NilPlayer(t *testing.T) {
 	p := NewParser(rand.Reader)
 	he := common.NewEquipment(common.EqHE)
 
-	wep := p.gameEventHandler.getThrownGrenade(nil, he.Weapon)
+	wep := p.gameEventHandler.getThrownGrenade(nil, he.Type)
 
 	assert.Nil(t, wep)
 }
@@ -127,7 +127,7 @@ func TestGetThrownGrenade_NotFound(t *testing.T) {
 
 	he := common.NewEquipment(common.EqSmoke)
 
-	wep := p.gameEventHandler.getThrownGrenade(pl, he.Weapon)
+	wep := p.gameEventHandler.getThrownGrenade(pl, he.Type)
 
 	assert.Nil(t, wep)
 }
@@ -138,9 +138,9 @@ func TestGetThrownGrenade_Found(t *testing.T) {
 	he := common.NewEquipment(common.EqHE)
 
 	p.gameEventHandler.addThrownGrenade(pl, he)
-	wep := p.gameEventHandler.getThrownGrenade(pl, he.Weapon)
+	wep := p.gameEventHandler.getThrownGrenade(pl, he.Type)
 
-	assert.Equal(t, wep.Weapon, he.Weapon)
+	assert.Equal(t, wep.Type, he.Type)
 	assert.Equal(t, wep, he)
 }
 
@@ -149,7 +149,7 @@ func TestDeleteThrownGrenade_NilPlayer(t *testing.T) {
 	he := common.NewEquipment(common.EqHE)
 
 	// Do nothing, we just keep sure it doesn't crash
-	p.gameEventHandler.deleteThrownGrenade(nil, he.Weapon)
+	p.gameEventHandler.deleteThrownGrenade(nil, he.Type)
 }
 
 func TestDeleteThrownGrenade_NotFound(t *testing.T) {
@@ -179,7 +179,7 @@ func TestDeleteThrownGrenade_Found(t *testing.T) {
 
 	assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
 
-	p.gameEventHandler.deleteThrownGrenade(pl, he.Weapon)
+	p.gameEventHandler.deleteThrownGrenade(pl, he.Type)
 
 	assert.Empty(t, p.gameState.thrownGrenades[pl])
 }
@@ -190,7 +190,7 @@ func TestGetEquipmentInstance_NotGrenade(t *testing.T) {
 
 	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqAK47)
 
-	assert.Equal(t, common.EqAK47, wep.Weapon)
+	assert.Equal(t, common.EqAK47, wep.Type)
 }
 
 func TestGetEquipmentInstance_Grenade_NotThrown(t *testing.T) {
@@ -208,7 +208,7 @@ func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
 	he := common.NewEquipment(common.EqHE)
 
 	p.gameEventHandler.addThrownGrenade(pl, he)
-	wep := p.gameEventHandler.getEquipmentInstance(pl, he.Weapon)
+	wep := p.gameEventHandler.getEquipmentInstance(pl, he.Type)
 
 	assert.Equal(t, he, wep)
 }

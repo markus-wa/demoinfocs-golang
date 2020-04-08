@@ -64,13 +64,13 @@ type Parser struct {
 
 	bombsiteA            bombsite
 	bombsiteB            bombsite
-	equipmentMapping     map[*st.ServerClass]common.EquipmentElement     // Maps server classes to equipment-types
+	equipmentMapping     map[*st.ServerClass]common.EquipmentType        // Maps server classes to equipment-types
 	rawPlayers           map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
 	additionalPlayerInfo [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
 	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
 	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
 	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
-	grenadeModelIndices  map[int]common.EquipmentElement                 // Used to map model indices to grenades (used for grenade projectiles)
+	grenadeModelIndices  map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
 	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
 	delayedEventHandlers []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 }
@@ -165,7 +165,7 @@ To catch all events func(interface{}) can be used.
 Example:
 
 	parser.RegisterEventHandler(func(e events.WeaponFired) {
-		fmt.Printf("%s fired his %s\n", e.Shooter.Name, e.Weapon.Weapon)
+		fmt.Printf("%s fired his %s\n", e.Shooter.Name, e.Weapon.Type)
 	})
 
 Parameter handler has to be of type interface{} because lolnogenerics.
@@ -261,12 +261,12 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	// Init parser
 	p.bitReader = bit.NewLargeBitReader(demostream)
 	p.stParser = st.NewSendTableParser()
-	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentElement)
+	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*playerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
 	p.gameState = newGameState()
-	p.grenadeModelIndices = make(map[int]common.EquipmentElement)
+	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.gameEventHandler = newGameEventHandler(&p)
 	p.userMessageHandler = newUserMessageHandler(&p)
 	p.demoInfoProvider = demoInfoProvider{parser: &p}
