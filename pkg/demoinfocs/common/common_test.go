@@ -143,7 +143,7 @@ func entityWithProperty(propName string, value st.PropertyValue) st.IEntity {
 	prop := new(stfake.Property)
 	prop.On("Value").Return(value)
 
-	entity.On("FindPropertyI", propName).Return(prop)
+	entity.On("FindProperty", propName).Return(prop)
 
 	return entity
 }

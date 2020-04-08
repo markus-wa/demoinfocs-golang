@@ -26,28 +26,25 @@ func (e *Entity) ID() int {
 }
 
 // Properties is a mock-implementation of IEntity.Properties().
-func (e *Entity) Properties() []st.Property {
-	return e.Called().Get(0).([]st.Property)
-}
-
-// PropertiesI is a mock-implementation of IEntity.PropertiesI().
-func (e *Entity) PropertiesI() []st.IProperty {
+func (e *Entity) Properties() []st.IProperty {
 	return e.Called().Get(0).([]st.IProperty)
 }
 
 // FindProperty is a mock-implementation of IEntity.FindProperty().
-func (e *Entity) FindProperty(name string) *st.Property {
-	return e.Called(name).Get(0).(*st.Property)
-}
-
-// FindPropertyI is a mock-implementation of IEntity.FindPropertyI().
-func (e *Entity) FindPropertyI(name string) st.IProperty {
+func (e *Entity) FindProperty(name string) st.IProperty {
 	return e.Called(name).Get(0).(st.IProperty)
 }
 
 // BindProperty is a mock-implementation of IEntity.BindProperty().
 func (e *Entity) BindProperty(name string, variable interface{}, valueType st.PropertyValueType) {
 	e.Called(name, variable, valueType)
+}
+
+// BindProperty is a mock-implementation of IEntity.BindProperty().
+func (e *Entity) PropertyValue(name string) (st.PropertyValue, bool) {
+	args := e.Called(name)
+
+	return args.Get(0).(st.PropertyValue), args.Bool(1)
 }
 
 // ApplyUpdate is a mock-implementation of IEntity.ApplyUpdate().

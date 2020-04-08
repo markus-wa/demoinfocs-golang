@@ -81,7 +81,7 @@ func (p *Player) IsAirborne() bool {
 		return false
 	}
 
-	groundEntityHandle := p.Entity.FindPropertyI("m_hGroundEntity").Value().IntVal
+	groundEntityHandle := p.Entity.FindProperty("m_hGroundEntity").Value().IntVal
 
 	return groundEntityHandle == invalidEntityHandle
 }
@@ -160,10 +160,10 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 
 	var mask st.IProperty
 	if bit < 32 {
-		mask = p.Entity.FindPropertyI("m_bSpottedByMask.000")
+		mask = p.Entity.FindProperty("m_bSpottedByMask.000")
 	} else {
 		bit -= 32
-		mask = p.Entity.FindPropertyI("m_bSpottedByMask.001")
+		mask = p.Entity.FindProperty("m_bSpottedByMask.001")
 	}
 
 	return (mask.Value().IntVal & (1 << bit)) != 0
@@ -176,22 +176,22 @@ func (p *Player) HasSpotted(other *Player) bool {
 
 // IsInBombZone returns whether the player is currently in the bomb zone or not.
 func (p *Player) IsInBombZone() bool {
-	return p.Entity.FindPropertyI("m_bInBombZone").Value().IntVal == 1
+	return p.Entity.FindProperty("m_bInBombZone").Value().IntVal == 1
 }
 
 // IsInBuyZone returns whether the player is currently in the buy zone or not.
 func (p *Player) IsInBuyZone() bool {
-	return p.Entity.FindPropertyI("m_bInBuyZone").Value().IntVal == 1
+	return p.Entity.FindProperty("m_bInBuyZone").Value().IntVal == 1
 }
 
 // IsWalking returns whether the player is currently walking (sneaking) in or not.
 func (p *Player) IsWalking() bool {
-	return p.Entity.FindPropertyI("m_bIsWalking").Value().IntVal == 1
+	return p.Entity.FindProperty("m_bIsWalking").Value().IntVal == 1
 }
 
 // IsScoped returns whether the player is currently scoped in or not.
 func (p *Player) IsScoped() bool {
-	return p.Entity.FindPropertyI("m_bIsScoped").Value().IntVal == 1
+	return p.Entity.FindProperty("m_bIsScoped").Value().IntVal == 1
 }
 
 // CashSpentThisRound returns the amount of cash the player spent in the current round.
@@ -215,7 +215,7 @@ func (p *Player) IsControllingBot() bool {
 		return false
 	}
 
-	return p.Entity.FindPropertyI("m_bIsControllingBot").Value().IntVal != 0
+	return p.Entity.FindProperty("m_bIsControllingBot").Value().IntVal != 0
 }
 
 // ControlledBot returns the player instance of the bot that the player is controlling, if any.
@@ -225,7 +225,7 @@ func (p *Player) ControlledBot() *Player {
 		return nil
 	}
 
-	botHandle := p.Entity.FindPropertyI("m_iControlledBotEntIndex").Value().IntVal
+	botHandle := p.Entity.FindProperty("m_iControlledBotEntIndex").Value().IntVal
 
 	return p.demoInfoProvider.FindPlayerByHandle(botHandle)
 }

@@ -33,13 +33,8 @@ func (e *Entity) ID() int {
 	return e.id
 }
 
-// Properties is deprecated, use PropertiesI() instead which returns a slice of interfaces.
-func (e *Entity) Properties() (out []Property) {
-	return e.props
-}
-
-// PropertiesI returns all properties of the Entity.
-func (e *Entity) PropertiesI() (out []IProperty) {
+// Properties returns all properties of the Entity.
+func (e *Entity) Properties() (out []IProperty) {
 	for i := range e.props {
 		out = append(out, &e.props[i])
 	}
@@ -47,8 +42,7 @@ func (e *Entity) PropertiesI() (out []IProperty) {
 	return out
 }
 
-// FindProperty is deprecated, use FindPropertyI() instead which returns an interface.
-func (e *Entity) FindProperty(name string) (prop *Property) {
+func (e *Entity) findProperty(name string) (prop *Property) {
 	for i := range e.props {
 		if e.props[i].entry.name == name {
 			if prop != nil {
@@ -62,13 +56,13 @@ func (e *Entity) FindProperty(name string) (prop *Property) {
 	return
 }
 
-// FindPropertyI finds a property on the Entity by name.
+// FindProperty finds a property on the Entity by name.
 //
 // Returns nil if the property wasn't found.
 //
 // Panics if more than one property with the same name was found.
-func (e *Entity) FindPropertyI(name string) IProperty {
-	prop := e.FindProperty(name)
+func (e *Entity) FindProperty(name string) IProperty {
+	prop := e.findProperty(name)
 	if prop == nil {
 		// See https://stackoverflow.com/questions/13476349/check-for-nil-and-nil-interface-in-go
 		return nil
@@ -77,11 +71,11 @@ func (e *Entity) FindPropertyI(name string) IProperty {
 	return prop
 }
 
-// BindProperty combines FindPropertyI() & Property.Bind() into one.
+// BindProperty combines FindProperty() & Property.Bind() into one.
 // Essentially binds a property's value to a pointer.
 // See the docs of the two individual functions for more info.
 func (e *Entity) BindProperty(name string, variable interface{}, valueType PropertyValueType) {
-	e.FindPropertyI(name).Bind(variable, valueType)
+	e.FindProperty(name).Bind(variable, valueType)
 }
 
 // PropertyValue finds a property on the Entity by name and returns its value.
@@ -90,7 +84,7 @@ func (e *Entity) BindProperty(name string, variable interface{}, valueType Prope
 //
 // Panics if more than one property with the same name were found.
 func (e *Entity) PropertyValue(name string) (PropertyValue, bool) {
-	prop := e.FindProperty(name)
+	prop := e.findProperty(name)
 	if prop == nil {
 		// See https://stackoverflow.com/questions/13476349/check-for-nil-and-nil-interface-in-go
 		return PropertyValue{}, false
@@ -210,13 +204,13 @@ const (
 )
 
 // Sets up the Entity.Position() function
-// Necessary because FindPropertyI() is fairly slow
+// Necessary because FindProperty() is fairly slow
 // This way we only need to find the necessary properties once
 func (e *Entity) initialize() {
 	// Player positions are calculated differently
 	if e.isPlayer() {
-		xyProp := e.FindPropertyI(propVecOriginPlayerXY)
-		zProp := e.FindPropertyI(propVecOriginPlayerZ)
+		xyProp := e.FindProperty(propVecOriginPlayerXY)
+		zProp := e.FindProperty(propVecOriginPlayerZ)
 
 		e.position = func() r3.Vector {
 			xy := xyProp.Value().VectorVal
@@ -229,11 +223,11 @@ func (e *Entity) initialize() {
 			}
 		}
 	} else {
-		cellBitsProp := e.FindPropertyI(propCellBits)
-		cellXProp := e.FindPropertyI(propCellX)
-		cellYProp := e.FindPropertyI(propCellY)
-		cellZProp := e.FindPropertyI(propCellZ)
-		offsetProp := e.FindPropertyI(propVecOrigin)
+		cellBitsProp := e.FindProperty(propCellBits)
+		cellXProp := e.FindProperty(propCellX)
+		cellYProp := e.FindProperty(propCellY)
+		cellZProp := e.FindProperty(propCellZ)
+		offsetProp := e.FindProperty(propVecOrigin)
 
 		e.position = func() r3.Vector {
 			cellWidth := 1 << uint(cellBitsProp.Value().IntVal)
@@ -275,13 +269,13 @@ func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 	}
 
 	if e.isPlayer() {
-		e.FindPropertyI(propVecOriginPlayerXY).OnUpdate(firePosUpdate)
-		e.FindPropertyI(propVecOriginPlayerZ).OnUpdate(firePosUpdate)
+		e.FindProperty(propVecOriginPlayerXY).OnUpdate(firePosUpdate)
+		e.FindProperty(propVecOriginPlayerZ).OnUpdate(firePosUpdate)
 	} else {
-		e.FindPropertyI(propCellX).OnUpdate(firePosUpdate)
-		e.FindPropertyI(propCellY).OnUpdate(firePosUpdate)
-		e.FindPropertyI(propCellZ).OnUpdate(firePosUpdate)
-		e.FindPropertyI(propVecOrigin).OnUpdate(firePosUpdate)
+		e.FindProperty(propCellX).OnUpdate(firePosUpdate)
+		e.FindProperty(propCellY).OnUpdate(firePosUpdate)
+		e.FindProperty(propCellZ).OnUpdate(firePosUpdate)
+		e.FindProperty(propVecOrigin).OnUpdate(firePosUpdate)
 	}
 }
 
