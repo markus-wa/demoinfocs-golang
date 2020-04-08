@@ -57,7 +57,7 @@ func main() {
 	})
 
 	p.RegisterEventHandler(func(e events.RankUpdate) {
-		fmt.Printf("Rank Update: %d went from rank %d to rank %d, change: %f\n", e.SteamID, e.RankOld, e.RankNew, e.RankChange)
+		fmt.Printf("Rank Update: %d went from rank %d to rank %d, change: %f\n", e.SteamID32, e.RankOld, e.RankNew, e.RankChange)
 	})
 
 	// Parse to end

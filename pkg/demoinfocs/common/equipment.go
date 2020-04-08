@@ -52,7 +52,6 @@ const (
 	EqDeagle       EquipmentType = 4
 	EqFiveSeven    EquipmentType = 5
 	EqDualBerettas EquipmentType = 6
-	EqDualBarettas EquipmentType = 6 // Deprecated, use EqDualBerettas instead (spelling error)
 	EqTec9         EquipmentType = 7
 	EqCZ           EquipmentType = 8
 	EqUSP          EquipmentType = 9

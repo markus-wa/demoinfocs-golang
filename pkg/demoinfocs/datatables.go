@@ -187,7 +187,7 @@ func (p *Parser) bindPlayers() {
 			plInfo.BindProperty("m_iDeaths."+iStr, &p.additionalPlayerInfo[i2].Deaths, st.ValTypeInt)
 			plInfo.BindProperty("m_iAssists."+iStr, &p.additionalPlayerInfo[i2].Assists, st.ValTypeInt)
 			plInfo.BindProperty("m_iMVPs."+iStr, &p.additionalPlayerInfo[i2].MVPs, st.ValTypeInt)
-			plInfo.BindProperty("m_iTotalCashSpent."+iStr, &p.additionalPlayerInfo[i2].TotalCashSpent, st.ValTypeInt)
+			plInfo.BindProperty("m_iTotalCashSpent."+iStr, &p.additionalPlayerInfo[i2].CashSpentTotal, st.ValTypeInt)
 			if prop := plInfo.FindProperty("m_iCashSpentThisRound." + iStr); prop != nil {
 				prop.Bind(&p.additionalPlayerInfo[i2].CashSpentThisRound, st.ValTypeInt)
 			}
@@ -239,7 +239,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 
 	pl.EntityID = entityID
 	pl.Entity = playerEntity
-	pl.AdditionalPlayerInformation = &p.additionalPlayerInfo[entityID]
+	pl.AdditionalInformation = &p.additionalPlayerInfo[entityID]
 	pl.IsConnected = true
 
 	playerEntity.OnDestroy(func() {

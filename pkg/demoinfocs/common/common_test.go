@@ -82,8 +82,8 @@ func TestTeamState_FreezeTimeEndEquipmentValue(t *testing.T) {
 
 func TestTeamState_CashSpentThisRound(t *testing.T) {
 	members := []*Player{
-		{AdditionalPlayerInformation: &AdditionalPlayerInformation{CashSpentThisRound: 100}},
-		{AdditionalPlayerInformation: &AdditionalPlayerInformation{CashSpentThisRound: 200}},
+		{AdditionalInformation: &AdditionalPlayerInformation{CashSpentThisRound: 100}},
+		{AdditionalInformation: &AdditionalPlayerInformation{CashSpentThisRound: 200}},
 	}
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
 
@@ -92,8 +92,8 @@ func TestTeamState_CashSpentThisRound(t *testing.T) {
 
 func TestTeamState_CashSpentTotal(t *testing.T) {
 	members := []*Player{
-		{AdditionalPlayerInformation: &AdditionalPlayerInformation{TotalCashSpent: 100}},
-		{AdditionalPlayerInformation: &AdditionalPlayerInformation{TotalCashSpent: 200}},
+		{AdditionalInformation: &AdditionalPlayerInformation{CashSpentTotal: 100}},
+		{AdditionalInformation: &AdditionalPlayerInformation{CashSpentTotal: 200}},
 	}
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
 

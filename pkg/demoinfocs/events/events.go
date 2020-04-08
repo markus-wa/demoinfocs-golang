@@ -14,10 +14,6 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
-// TickDone is deprecated, use the identical FrameDone event instead.
-// It does NOT signal the end of a tick, it signals the end of a demo-frame instead.
-type TickDone struct{}
-
 // FrameDone signals that a demo-frame has been processed.
 // A frame can contain multiple ticks (usually 2 or 4) if the tv_snapshotrate differs from the tick-rate the game was played at.
 type FrameDone struct{}
@@ -414,7 +410,6 @@ type ChatMessage struct {
 // RankUpdate signals the new rank. Not sure if this
 // only occurs if the rank changed.
 type RankUpdate struct {
-	SteamID    int64 // 32-bit SteamID. Deprecated, use SteamID32 instead
 	SteamID32  int32
 	RankChange float32
 	RankOld    int

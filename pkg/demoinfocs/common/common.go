@@ -170,7 +170,7 @@ func (ts TeamState) FreezeTimeEndEquipmentValue() (value int) {
 // CashSpentThisRound returns the total amount of cash spent by the whole team in the current round.
 func (ts TeamState) CashSpentThisRound() (value int) {
 	for _, pl := range ts.Members() {
-		value += pl.AdditionalPlayerInformation.CashSpentThisRound
+		value += pl.AdditionalInformation.CashSpentThisRound
 	}
 
 	return
@@ -179,7 +179,7 @@ func (ts TeamState) CashSpentThisRound() (value int) {
 // CashSpentThisRound returns the total amount of cash spent by the whole team during the whole game up to the current point.
 func (ts TeamState) CashSpentTotal() (value int) {
 	for _, pl := range ts.Members() {
-		value += pl.AdditionalPlayerInformation.TotalCashSpent
+		value += pl.AdditionalInformation.CashSpentTotal
 	}
 
 	return

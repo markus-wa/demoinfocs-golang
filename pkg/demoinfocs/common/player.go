@@ -36,7 +36,7 @@ type Player struct {
 	Inventory                   map[int]*Equipment           // All weapons / equipment the player is currently carrying
 	AmmoLeft                    [32]int                      // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
 	Entity                      st.IEntity                   // May be nil between player-death and re-spawn
-	AdditionalPlayerInformation *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
+	AdditionalInformation       *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
 	ViewDirectionX              float32                      // Yaw in degrees, 0 to 360
 	ViewDirectionY              float32                      // Pitch in degrees, 270 to 90 (270=-90)
 	FlashDuration               float32                      // Blindness duration from the flashbang currently affecting the player (seconds)
@@ -194,20 +194,6 @@ func (p *Player) IsScoped() bool {
 	return p.Entity.FindProperty("m_bIsScoped").Value().IntVal == 1
 }
 
-// CashSpentThisRound returns the amount of cash the player spent in the current round.
-//
-// Deprecated, use Player.AdditionalPlayerInformation.CashSpentThisRound instead.
-func (p *Player) CashSpentThisRound() int {
-	return p.AdditionalPlayerInformation.CashSpentThisRound
-}
-
-// CashSpentTotal returns the amount of cash the player spent during the whole game up to the current point.
-//
-// Deprecated, use Player.AdditionalPlayerInformation.TotalCashSpent instead.
-func (p *Player) CashSpentTotal() int {
-	return p.AdditionalPlayerInformation.TotalCashSpent
-}
-
 // IsControllingBot returns true if the player is currently controlling a bot.
 // See also ControlledBot().
 func (p *Player) IsControllingBot() bool {
@@ -239,7 +225,7 @@ type AdditionalPlayerInformation struct {
 	MVPs               int
 	Ping               int
 	ClanTag            string
-	TotalCashSpent     int
+	CashSpentTotal     int
 	CashSpentThisRound int
 }
 
