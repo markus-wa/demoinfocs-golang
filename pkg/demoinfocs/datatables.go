@@ -501,23 +501,16 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentType) {
 	}
 
 	eq.EntityID = entityID
-	eq.AmmoInMagazine = -1
 
 	entity.OnDestroy(func() {
 		delete(p.gameState.weapons, entityID)
 	})
 
 	entity.FindPropertyI("m_iClip1").OnUpdate(func(val st.PropertyValue) {
-		eq.AmmoInMagazine = val.IntVal - 1
-
 		if eq.Owner != nil {
 			eq.Owner.IsReloading = false
 		}
 	})
-	// Some weapons in some demos might be missing this property
-	if reserveAmmoProp := entity.FindPropertyI("m_iPrimaryReserveAmmoCount"); reserveAmmoProp != nil {
-		reserveAmmoProp.Bind(&eq.AmmoReserve, st.ValTypeInt)
-	}
 
 	// Only weapons with scopes have m_zoomLevel property
 	if zoomLvlProp := entity.FindPropertyI("m_zoomLevel"); zoomLvlProp != nil {

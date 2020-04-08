@@ -4,7 +4,6 @@ package sendtables
 
 import (
 	"github.com/golang/geo/r3"
-
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 )
 
@@ -31,6 +30,12 @@ type IEntity interface {
 	// Essentially binds a property's value to a pointer.
 	// See the docs of the two individual functions for more info.
 	BindProperty(name string, variable interface{}, valueType PropertyValueType)
+	// PropertyValue finds a property on the Entity by name and returns its value.
+	//
+	// Returns false as second value if the property was not found.
+	//
+	// Panics if more than one property with the same name were found.
+	PropertyValue(name string) (PropertyValue, bool)
 	// ApplyUpdate reads an update to an Enitiy's properties and
 	// triggers registered PropertyUpdateHandlers if values changed.
 	//

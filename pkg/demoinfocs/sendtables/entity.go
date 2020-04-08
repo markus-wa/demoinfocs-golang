@@ -84,6 +84,21 @@ func (e *Entity) BindProperty(name string, variable interface{}, valueType Prope
 	e.FindPropertyI(name).Bind(variable, valueType)
 }
 
+// PropertyValue finds a property on the Entity by name and returns its value.
+//
+// Returns false as second value if the property was not found.
+//
+// Panics if more than one property with the same name were found.
+func (e *Entity) PropertyValue(name string) (PropertyValue, bool) {
+	prop := e.FindProperty(name)
+	if prop == nil {
+		// See https://stackoverflow.com/questions/13476349/check-for-nil-and-nil-interface-in-go
+		return PropertyValue{}, false
+	}
+
+	return prop.value, true
+}
+
 var updatedPropIndicesPool = sync.Pool{
 	New: func() interface{} {
 		s := make([]int, 0, 8)

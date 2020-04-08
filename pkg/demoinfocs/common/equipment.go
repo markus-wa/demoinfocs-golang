@@ -3,6 +3,8 @@ package common
 import (
 	"math/rand"
 	"strings"
+
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
 // EquipmentClass is the type for the various EqClassXYZ constants.
@@ -284,11 +286,10 @@ const (
 // This also includes the skin and some additional data.
 type Equipment struct {
 	EntityID       int           // ID of the game entity
+	Entity         st.IEntity    // The entity instance
 	Type           EquipmentType // The type of weapon which the equipment instantiates.
 	Owner          *Player       // The player carrying the equipment, not necessarily the buyer.
 	AmmoType       int           // TODO: Remove this? doesn't seem applicable to CS:GO
-	AmmoInMagazine int           // Amount of bullets in the weapon's magazine. Deprecated, use AmmoInMagazine2() instead.
-	AmmoReserve    int           // Amount of reserve bullets
 	OriginalString string        // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
 	ZoomLevel      ZoomLevel     // How far the player has zoomed in on the weapon.
 
@@ -314,20 +315,25 @@ func (e Equipment) UniqueID() int64 {
 	return e.uniqueID
 }
 
-// AmmoInMagazine2 returns the ammo left in the magazine.
+// AmmoInMagazine returns the ammo left in the magazine.
 // Returns CWeaponCSBase.m_iClip1 for most weapons and 1 for grenades.
-func (e Equipment) AmmoInMagazine2() int {
+func (e Equipment) AmmoInMagazine() int {
 	if e.Class() == EqClassGrenade {
 		return 1
 	}
 
-	return e.AmmoInMagazine
+	val, ok := e.Entity.PropertyValue("m_iClip1")
+	if !ok {
+		return -1
+	}
+
+	return val.IntVal
 }
 
-// AmmoReserve2 returns the ammo left available for reloading.
+// AmmoReserve returns the ammo left available for reloading.
 // Returns CWeaponCSBase.m_iPrimaryReserveAmmoCount for most weapons and 'Owner.AmmoLeft[AmmoType] - 1' for grenades.
 // Use AmmoInMagazine2() + AmmoReserve2() to quickly get the amount of grenades a player owns.
-func (e Equipment) AmmoReserve2() int {
+func (e Equipment) AmmoReserve() int {
 	if e.Class() == EqClassGrenade {
 		if e.Owner != nil {
 			// minus one for 'InMagazine'
@@ -337,7 +343,8 @@ func (e Equipment) AmmoReserve2() int {
 		return 0
 	}
 
-	return e.AmmoReserve
+	val, _ := e.Entity.PropertyValue("m_iPrimaryReserveAmmoCount")
+	return val.IntVal
 }
 
 // NewEquipment creates a new Equipment and sets the UniqueID.

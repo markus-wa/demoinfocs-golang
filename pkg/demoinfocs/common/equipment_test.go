@@ -36,39 +36,24 @@ func TestEquipment_UniqueID(t *testing.T) {
 	assert.NotEqual(t, NewEquipment(EqAK47).UniqueID(), NewEquipment(EqAK47).UniqueID(), "UniqueIDs of different equipment instances should be different")
 }
 
-func TestEquipment_AmmoInMagazine2_Default(t *testing.T) {
-	wep := &Equipment{AmmoInMagazine: 1}
-
-	assert.Equal(t, 1, wep.AmmoInMagazine2())
-}
-
-func TestEquipment_AmmoInMagazine2_Grenade(t *testing.T) {
+func TestEquipment_AmmoInMagazine_Grenade(t *testing.T) {
 	wep := &Equipment{
 		Type: EqFlash,
 	}
 
-	assert.Equal(t, 1, wep.AmmoInMagazine2())
+	assert.Equal(t, 1, wep.AmmoInMagazine())
 }
 
-func TestEquipment_AmmoReserve2_Default(t *testing.T) {
-	wep := &Equipment{
-		AmmoReserve: 1,
-	}
-
-	assert.Equal(t, 1, wep.AmmoReserve2())
-}
-
-func TestEquipment_AmmoReserve2_Grenade(t *testing.T) {
+func TestEquipment_AmmoReserve_Grenade(t *testing.T) {
 	owner := new(Player)
 	owner.AmmoLeft[1] = 2
 	wep := &Equipment{
-		Type:           EqFlash,
-		AmmoInMagazine: -1,
-		Owner:          owner,
-		AmmoType:       1,
+		Type:     EqFlash,
+		Owner:    owner,
+		AmmoType: 1,
 	}
 
-	assert.Equal(t, 1, wep.AmmoReserve2())
+	assert.Equal(t, 1, wep.AmmoReserve())
 }
 
 func TestEquipment_AmmoReserve2_Grenade_OwnerNil(t *testing.T) {
@@ -76,7 +61,7 @@ func TestEquipment_AmmoReserve2_Grenade_OwnerNil(t *testing.T) {
 		Type: EqFlash,
 	}
 
-	assert.Equal(t, 0, wep.AmmoReserve2())
+	assert.Equal(t, 0, wep.AmmoReserve())
 }
 
 func TestEquipmentAlternative(t *testing.T) {
