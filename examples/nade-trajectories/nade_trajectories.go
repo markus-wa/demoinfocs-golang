@@ -65,7 +65,7 @@ func main() {
 
 		if nadeTrajectories[id] == nil {
 			nadeTrajectories[id] = &nadePath{
-				wep:  e.Projectile.Weapon,
+				wep:  e.Projectile.WeaponInstance.Type,
 				team: team,
 			}
 		}

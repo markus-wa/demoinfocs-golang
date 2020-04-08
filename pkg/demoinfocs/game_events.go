@@ -346,7 +346,11 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKe
 
 	if projectile != nil {
 		unassert.Samef(attacker, projectile.Thrower, "PlayerFlashed.Attacker != PlayerFlashed.Projectile.Thrower")
-		unassert.Samef(projectile.Weapon, common.EqFlash, "PlayerFlashed.Projectile.Weapon != EqFlash")
+		unassert.NotNilf(projectile.WeaponInstance, "WeaponInstance == nil")
+
+		if projectile.WeaponInstance != nil {
+			unassert.Samef(projectile.WeaponInstance.Type, common.EqFlash, "PlayerFlashed.Projectile.Weapon != EqFlash")
+		}
 	}
 
 	geh.dispatch(events.PlayerFlashed{
