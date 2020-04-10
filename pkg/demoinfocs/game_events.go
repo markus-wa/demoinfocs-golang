@@ -728,7 +728,7 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentType) *commo
 }
 
 func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_GameEvent) map[string]*msg.CSVCMsg_GameEventKeyT {
-	data := make(map[string]*msg.CSVCMsg_GameEventKeyT)
+	data := make(map[string]*msg.CSVCMsg_GameEventKeyT, len(d.Keys))
 	for i, k := range d.Keys {
 		data[k.Name] = e.Keys[i]
 	}
