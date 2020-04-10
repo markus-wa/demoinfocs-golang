@@ -83,7 +83,7 @@ func (p *parser) bindBomb() {
 
 	// Track bomb when it is dropped on the ground or being held by a player
 	scC4 := p.stParser.ServerClasses().FindByName("CC4")
-	scC4.OnEntityCreated(func(bombEntity *st.Entity) {
+	scC4.OnEntityCreated(func(bombEntity st.Entity) {
 		bombEntity.OnPositionUpdate(func(pos r3.Vector) {
 			// Bomb only has a position when not held by a player
 			bomb.Carrier = nil
@@ -107,7 +107,7 @@ func (p *parser) bindBomb() {
 
 	// Track bomb when it has been planted
 	scPlantedC4 := p.stParser.ServerClasses().FindByName("CPlantedC4")
-	scPlantedC4.OnEntityCreated(func(bombEntity *st.Entity) {
+	scPlantedC4.OnEntityCreated(func(bombEntity st.Entity) {
 		// Player can't hold the bomb when it has been planted
 		p.gameState.bomb.Carrier = nil
 
@@ -116,7 +116,7 @@ func (p *parser) bindBomb() {
 }
 
 func (p *parser) bindTeamStates() {
-	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity *st.Entity) {
+	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity st.Entity) {
 		team := entity.PropertyValueMust("m_szTeamname").StringVal
 
 		var s *common.TeamState
@@ -155,12 +155,12 @@ func (p *parser) bindTeamStates() {
 }
 
 func (p *parser) bindBombSites() {
-	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(playerResource *st.Entity) {
+	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(playerResource st.Entity) {
 		playerResource.BindProperty("m_bombsiteCenterA", &p.bombsiteA.center, st.ValTypeVector)
 		playerResource.BindProperty("m_bombsiteCenterB", &p.bombsiteB.center, st.ValTypeVector)
 	})
 
-	p.stParser.ServerClasses().FindByName("CBaseTrigger").OnEntityCreated(func(baseTrigger *st.Entity) {
+	p.stParser.ServerClasses().FindByName("CBaseTrigger").OnEntityCreated(func(baseTrigger st.Entity) {
 		t := new(boundingBoxInformation)
 		p.triggers[baseTrigger.ID()] = t
 
@@ -170,11 +170,11 @@ func (p *parser) bindBombSites() {
 }
 
 func (p *parser) bindPlayers() {
-	p.stParser.ServerClasses().FindByName("CCSPlayer").OnEntityCreated(func(player *st.Entity) {
+	p.stParser.ServerClasses().FindByName("CCSPlayer").OnEntityCreated(func(player st.Entity) {
 		p.bindNewPlayer(player)
 	})
 
-	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(entity *st.Entity) {
+	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(entity st.Entity) {
 		p.playerResourceEntity = entity
 	})
 }
@@ -215,7 +215,7 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *playerInfo) (isNew bool, pl
 	return isNew, player
 }
 
-func (p *parser) bindNewPlayer(playerEntity st.IEntity) {
+func (p *parser) bindNewPlayer(playerEntity st.Entity) {
 	entityID := playerEntity.ID()
 	rp := p.rawPlayers[entityID-1]
 
@@ -289,7 +289,7 @@ func (p *parser) bindNewPlayer(playerEntity st.IEntity) {
 	}
 }
 
-func (p *parser) bindPlayerWeapons(playerEntity st.IEntity, pl *common.Player) {
+func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 	// Some demos have an additional prefix for player weapons weapon
 	var wepPrefix string
 	if playerEntity.Property(playerWeaponPrefix+"000") != nil {
@@ -345,7 +345,7 @@ func (p *parser) bindWeapons() {
 			switch bc.Name() {
 			case "CWeaponCSBase":
 				sc2 := sc // Local copy for loop
-				sc.OnEntityCreated(func(e *st.Entity) { p.bindWeapon(e, p.equipmentMapping[sc2]) })
+				sc.OnEntityCreated(func(e st.Entity) { p.bindWeapon(e, p.equipmentMapping[sc2]) })
 			case "CBaseGrenade": // Grenade that has been thrown by player.
 				sc.OnEntityCreated(p.bindGrenadeProjectiles)
 			case "CBaseCSGrenade":
@@ -360,7 +360,7 @@ func (p *parser) bindWeapons() {
 
 // bindGrenadeProjectiles keeps track of the location of live grenades (parser.gameState.grenadeProjectiles), actively thrown by players.
 // It does NOT track the location of grenades lying on the ground, i.e. that were dropped by dead players.
-func (p *parser) bindGrenadeProjectiles(entity *st.Entity) {
+func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	entityID := entity.ID()
 
 	proj := common.NewGrenadeProjectile()
@@ -448,7 +448,7 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	}
 }
 
-func (p *parser) bindWeapon(entity *st.Entity, wepType common.EquipmentType) {
+func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 	entityID := entity.ID()
 
 	eq, eqExists := p.gameState.weapons[entityID]
@@ -502,7 +502,7 @@ func (p *parser) bindWeapon(entity *st.Entity, wepType common.EquipmentType) {
 	}
 }
 
-func (p *parser) bindNewInferno(entity *st.Entity) {
+func (p *parser) bindNewInferno(entity st.Entity) {
 	inf := common.NewInferno(p.demoInfoProvider, entity)
 	p.gameState.infernos[entity.ID()] = inf
 
@@ -540,7 +540,7 @@ func (p *parser) bindGameRules() {
 	}
 
 	gameRules := p.ServerClasses().FindByName("CCSGameRulesProxy")
-	gameRules.OnEntityCreated(func(entity *st.Entity) {
+	gameRules.OnEntityCreated(func(entity st.Entity) {
 		entity.Property(grPrefix("m_gamePhase")).OnUpdate(func(val st.PropertyValue) {
 			oldGamePhase := p.gameState.gamePhase
 			p.gameState.gamePhase = common.GamePhase(val.IntVal)

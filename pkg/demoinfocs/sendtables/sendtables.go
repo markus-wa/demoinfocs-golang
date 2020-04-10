@@ -94,14 +94,14 @@ func (sc *ServerClass) PropertyEntries() []string {
 	return names
 }
 
-func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int) *Entity {
-	props := make([]Property, len(sc.flattenedProps))
+func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int) *entity {
+	props := make([]property, len(sc.flattenedProps))
 
 	for i := range sc.flattenedProps {
-		props[i] = Property{entry: &sc.flattenedProps[i]}
+		props[i] = property{entry: &sc.flattenedProps[i]}
 	}
 
-	entity := &Entity{serverClass: sc, id: entityID, props: props}
+	entity := &entity{serverClass: sc, id: entityID, props: props}
 
 	entity.initialize()
 
@@ -136,7 +136,7 @@ func (sc *ServerClass) OnEntityCreated(handler EntityCreatedHandler) {
 }
 
 // EntityCreatedHandler is the interface for handlers that are interested in EntityCreatedEvents.
-type EntityCreatedHandler func(*Entity)
+type EntityCreatedHandler func(Entity)
 
 var serverClassStringFormat = `ServerClass: id=%d name=%s
 	dataTableId=%d

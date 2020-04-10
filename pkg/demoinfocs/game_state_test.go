@@ -296,7 +296,7 @@ func newPlayerWithEntityID(id int) *common.Player {
 
 func newDisconnectedPlayer() *common.Player {
 	pl := common.NewPlayer(nil)
-	pl.Entity = new(st.Entity)
+	pl.Entity = new(stfake.Entity)
 
 	return pl
 }

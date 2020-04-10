@@ -62,7 +62,7 @@ func (h DemoHeader) FrameTime() time.Duration {
 // GrenadeProjectile is a grenade thrown intentionally by a player. It is used to track grenade projectile
 // positions between the time at which they are thrown and until they detonate.
 type GrenadeProjectile struct {
-	Entity         st.IEntity
+	Entity         st.Entity
 	WeaponInstance *Equipment
 	Thrower        *Player     // Always seems to be the same as Owner, even if the grenade was picked up
 	Owner          *Player     // Always seems to be the same as Thrower, even if the grenade was picked up
@@ -115,7 +115,7 @@ type TeamState struct {
 	team            Team
 	membersCallback func(Team) []*Player
 
-	Entity st.IEntity
+	Entity st.Entity
 
 	// Terrorist TeamState for CTs, CT TeamState for Terrorists
 	Opponent *TeamState

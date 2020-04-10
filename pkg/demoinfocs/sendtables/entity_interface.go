@@ -7,28 +7,28 @@ import (
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 )
 
-// IEntity is an auto-generated interface for Entity, intended to be used when mockability is needed.
-// Entity stores a entity in the game (e.g. players etc.) with its properties.
-type IEntity interface {
+// Entity is an auto-generated interface for entity, intended to be used when mockability is needed.
+// entity stores a entity in the game (e.g. players etc.) with its properties.
+type Entity interface {
 	// ServerClass returns the entity's server-class.
 	ServerClass() *ServerClass
 	// ID returns the entity's ID.
 	ID() int
-	// Properties returns all properties of the Entity.
-	Properties() (out []IProperty)
-	// Property finds a property on the Entity by name.
+	// Properties returns all properties of the entity.
+	Properties() (out []Property)
+	// Property finds a property on the entity by name.
 	//
 	// Returns nil if the property wasn't found.
-	Property(name string) IProperty
+	Property(name string) Property
 	// BindProperty combines Property() & Property.Bind() into one.
 	// Essentially binds a property's value to a pointer.
 	// See the docs of the two individual functions for more info.
 	BindProperty(name string, variable interface{}, valueType PropertyValueType)
-	// PropertyValue finds a property on the Entity by name and returns its value.
+	// PropertyValue finds a property on the entity by name and returns its value.
 	//
 	// Returns false as second value if the property was not found.
 	PropertyValue(name string) (PropertyValue, bool)
-	// PropertyValueMust finds a property on the Entity by name and returns its value.
+	// PropertyValueMust finds a property on the entity by name and returns its value.
 	//
 	// Panics with nil pointer dereference error if the property was not found.
 	PropertyValueMust(name string) PropertyValue

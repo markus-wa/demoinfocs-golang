@@ -9,7 +9,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
-	fakest "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
+	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
 )
 
 type DevNullReader struct {
@@ -89,8 +89,8 @@ func testPlayerSpotted(t *testing.T, propName string) {
 	}
 
 	// TODO: Player interface so we don't have to mock all this
-	spotted := new(fakest.Entity)
-	spottedByProp0 := new(fakest.Property)
+	spotted := new(stfake.Entity)
+	spottedByProp0 := new(stfake.Property)
 
 	var spottedByUpdateHandler st.PropertyUpdateHandler
 	spottedByProp0.On("OnUpdate", mock.Anything).Run(func(args mock.Arguments) {
@@ -122,14 +122,14 @@ func newParser() *parser {
 	return p
 }
 
-func fakePlayerEntity(id int) *fakest.Entity {
-	entity := new(fakest.Entity)
+func fakePlayerEntity(id int) *stfake.Entity {
+	entity := new(stfake.Entity)
 	configurePlayerEntityMock(id, entity)
 
 	return entity
 }
 
-func configurePlayerEntityMock(id int, entity *fakest.Entity) {
+func configurePlayerEntityMock(id int, entity *stfake.Entity) {
 	entity.On("ID").Return(id)
 
 	var destroyCallback func()
@@ -138,7 +138,9 @@ func configurePlayerEntityMock(id int, entity *fakest.Entity) {
 	})
 
 	entity.On("OnPositionUpdate", mock.Anything).Return()
-	entity.On("Property", mock.Anything).Return(new(st.Property))
+	prop := new(stfake.Property)
+	prop.On("OnUpdate", mock.Anything).Return()
+	entity.On("Property", mock.Anything).Return(prop)
 	entity.On("BindProperty", mock.Anything, mock.Anything, mock.Anything)
 	entity.On("Destroy").Run(func(mock.Arguments) {
 		destroyCallback()

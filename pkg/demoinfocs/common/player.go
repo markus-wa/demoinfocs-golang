@@ -28,7 +28,7 @@ type Player struct {
 	Inventory         map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
 	AmmoLeft          [32]int            // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
 	EntityID          int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
-	Entity            st.IEntity         // May be nil between player-death and re-spawn
+	Entity            st.Entity          // May be nil between player-death and re-spawn
 	FlashDuration     float32            // Blindness duration from the flashbang currently affecting the player (seconds)
 	FlashTick         int                // In-game tick at which the player was last flashed
 	TeamState         *TeamState         // When keeping the reference make sure you notice when the player changes teams
@@ -152,7 +152,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 	clientSlot := other.EntityID - 1
 	bit := uint(clientSlot)
 
-	var mask st.IProperty
+	var mask st.Property
 	if bit < 32 {
 		mask = p.Entity.Property("m_bSpottedByMask.000")
 	} else {
@@ -343,7 +343,7 @@ type demoInfoProvider interface {
 	IngameTick() int   // current in-game tick, used for IsBlinded()
 	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
 	FindPlayerByHandle(handle int) *Player
-	PlayerResourceEntity() st.IEntity
+	PlayerResourceEntity() st.Entity
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.

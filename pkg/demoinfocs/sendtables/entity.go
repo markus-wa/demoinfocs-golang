@@ -8,14 +8,14 @@ import (
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 )
 
-//go:generate ifacemaker -f entity.go -s Entity -i IEntity -p sendtables -D -y "IEntity is an auto-generated interface for Entity, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o entity_interface.go
-//go:generate ifacemaker -f entity.go -s Property -i IProperty -p sendtables -D -y "IProperty is an auto-generated interface for Property, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o property_interface.go
+//go:generate ifacemaker -f entity.go -s entity -i Entity -p sendtables -D -y "Entity is an auto-generated interface for entity, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o entity_interface.go
+//go:generate ifacemaker -f entity.go -s property -i Property -p sendtables -D -y "Property is an auto-generated interface for property, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o property_interface.go
 
-// Entity stores a entity in the game (e.g. players etc.) with its properties.
-type Entity struct {
+// entity stores a entity in the game (e.g. players etc.) with its properties.
+type entity struct {
 	serverClass *ServerClass
 	id          int
-	props       []Property
+	props       []property
 
 	onCreateFinished []func()
 	onDestroy        []func()
@@ -23,17 +23,17 @@ type Entity struct {
 }
 
 // ServerClass returns the entity's server-class.
-func (e *Entity) ServerClass() *ServerClass {
+func (e *entity) ServerClass() *ServerClass {
 	return e.serverClass
 }
 
 // ID returns the entity's ID.
-func (e *Entity) ID() int {
+func (e *entity) ID() int {
 	return e.id
 }
 
-// Properties returns all properties of the Entity.
-func (e *Entity) Properties() (out []IProperty) {
+// Properties returns all properties of the entity.
+func (e *entity) Properties() (out []Property) {
 	for i := range e.props {
 		out = append(out, &e.props[i])
 	}
@@ -41,14 +41,14 @@ func (e *Entity) Properties() (out []IProperty) {
 	return out
 }
 
-func (e *Entity) property(name string) *Property {
+func (e *entity) property(name string) *property {
 	return &e.props[e.serverClass.propNameToIndex[name]]
 }
 
-// Property finds a property on the Entity by name.
+// Property finds a property on the entity by name.
 //
 // Returns nil if the property wasn't found.
-func (e *Entity) Property(name string) IProperty {
+func (e *entity) Property(name string) Property {
 	prop := e.property(name)
 	if prop == nil {
 		// See https://stackoverflow.com/questions/13476349/check-for-nil-and-nil-interface-in-go
@@ -61,14 +61,14 @@ func (e *Entity) Property(name string) IProperty {
 // BindProperty combines Property() & Property.Bind() into one.
 // Essentially binds a property's value to a pointer.
 // See the docs of the two individual functions for more info.
-func (e *Entity) BindProperty(name string, variable interface{}, valueType PropertyValueType) {
+func (e *entity) BindProperty(name string, variable interface{}, valueType PropertyValueType) {
 	e.Property(name).Bind(variable, valueType)
 }
 
-// PropertyValue finds a property on the Entity by name and returns its value.
+// PropertyValue finds a property on the entity by name and returns its value.
 //
 // Returns false as second value if the property was not found.
-func (e *Entity) PropertyValue(name string) (PropertyValue, bool) {
+func (e *entity) PropertyValue(name string) (PropertyValue, bool) {
 	prop := e.property(name)
 	if prop == nil {
 		// See https://stackoverflow.com/questions/13476349/check-for-nil-and-nil-interface-in-go
@@ -78,10 +78,10 @@ func (e *Entity) PropertyValue(name string) (PropertyValue, bool) {
 	return prop.value, true
 }
 
-// PropertyValueMust finds a property on the Entity by name and returns its value.
+// PropertyValueMust finds a property on the entity by name and returns its value.
 //
 // Panics with nil pointer dereference error if the property was not found.
-func (e *Entity) PropertyValueMust(name string) PropertyValue {
+func (e *entity) PropertyValueMust(name string) PropertyValue {
 	return e.property(name).value
 }
 
@@ -96,7 +96,7 @@ var updatedPropIndicesPool = sync.Pool{
 // triggers registered PropertyUpdateHandlers if values changed.
 //
 // Intended for internal use only.
-func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
+func (e *entity) ApplyUpdate(reader *bit.BitReader) {
 	idx := -1
 	newWay := reader.ReadBit()
 	updatedPropIndices := updatedPropIndicesPool.Get().(*[]int)
@@ -153,7 +153,7 @@ func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 }
 
 // Collects an initial baseline for a server-class
-func (e *Entity) initializeBaseline(r *bit.BitReader) map[int]PropertyValue {
+func (e *entity) initializeBaseline(r *bit.BitReader) map[int]PropertyValue {
 	baseline := make(map[int]PropertyValue)
 
 	for i := range e.props {
@@ -175,7 +175,7 @@ func (e *Entity) initializeBaseline(r *bit.BitReader) map[int]PropertyValue {
 }
 
 // Apply a previously via initializeBaseline collected baseline
-func (e *Entity) applyBaseline(baseline map[int]PropertyValue) {
+func (e *entity) applyBaseline(baseline map[int]PropertyValue) {
 	for idx := range baseline {
 		e.props[idx].value = baseline[idx]
 	}
@@ -195,10 +195,10 @@ const (
 	serverClassPlayer = "CCSPlayer"
 )
 
-// Sets up the Entity.Position() function
+// Sets up the entity.Position() function
 // Necessary because Property() is fairly slow
 // This way we only need to find the necessary properties once
-func (e *Entity) initialize() {
+func (e *entity) initialize() {
 	// Player positions are calculated differently
 	if e.isPlayer() {
 		xyProp := e.Property(propVecOriginPlayerXY)
@@ -237,12 +237,12 @@ func (e *Entity) initialize() {
 	}
 }
 
-func (e *Entity) isPlayer() bool {
+func (e *entity) isPlayer() bool {
 	return e.serverClass.name == serverClassPlayer
 }
 
 // Position returns the entity's position in world coordinates.
-func (e *Entity) Position() r3.Vector {
+func (e *entity) Position() r3.Vector {
 	return e.position()
 }
 
@@ -250,7 +250,7 @@ func (e *Entity) Position() r3.Vector {
 // The handler is called with the new position every time a position-relevant property is updated.
 //
 // See also Position()
-func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
+func (e *entity) OnPositionUpdate(h func(pos r3.Vector)) {
 	pos := new(r3.Vector)
 	firePosUpdate := func(PropertyValue) {
 		newPos := e.Position()
@@ -275,7 +275,7 @@ func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 // The pointer is updated every time a position-relevant property is updated.
 //
 // See also OnPositionUpdate()
-func (e *Entity) BindPosition(pos *r3.Vector) {
+func (e *entity) BindPosition(pos *r3.Vector) {
 	e.OnPositionUpdate(func(newPos r3.Vector) {
 		*pos = newPos
 	})
@@ -287,14 +287,14 @@ func coordFromCell(cell, cellWidth int, offset float64) float64 {
 }
 
 // OnDestroy registers a function to be called on the entity's destruction.
-func (e *Entity) OnDestroy(delegate func()) {
+func (e *entity) OnDestroy(delegate func()) {
 	e.onDestroy = append(e.onDestroy, delegate)
 }
 
 // Destroy triggers all via OnDestroy() registered functions.
 //
 // Intended for internal use only.
-func (e *Entity) Destroy() {
+func (e *entity) Destroy() {
 	for _, f := range e.onDestroy {
 		f()
 	}
@@ -302,25 +302,25 @@ func (e *Entity) Destroy() {
 
 // OnCreateFinished registers a function to be called once the entity is fully created -
 // i.e. once all property updates have been sent out.
-func (e *Entity) OnCreateFinished(delegate func()) {
+func (e *entity) OnCreateFinished(delegate func()) {
 	e.onCreateFinished = append(e.onCreateFinished, delegate)
 }
 
-// Property wraps a flattenedPropEntry and allows registering handlers
+// property wraps a flattenedPropEntry and allows registering handlers
 // that can be triggered on a update of the property.
-type Property struct {
+type property struct {
 	entry          *flattenedPropEntry
 	updateHandlers []PropertyUpdateHandler
 	value          PropertyValue
 }
 
 // Name returns the property's name.
-func (pe *Property) Name() string {
+func (pe *property) Name() string {
 	return pe.entry.name
 }
 
 // Value returns current value of the property.
-func (pe *Property) Value() PropertyValue {
+func (pe *property) Value() PropertyValue {
 	return pe.value
 }
 
@@ -339,19 +339,19 @@ const (
 	ValTypeBoolInt // Int that is treated as bool (1 -> true, != 1 -> false)
 )
 
-// PropertyUpdateHandler is the interface for handlers that are interested in Property changes.
+// PropertyUpdateHandler is the interface for handlers that are interested in property changes.
 type PropertyUpdateHandler func(PropertyValue)
 
-// OnUpdate registers a handler for updates of the Property's value.
+// OnUpdate registers a handler for updates of the property's value.
 //
 // The handler will be called with the current value upon registration.
-func (pe *Property) OnUpdate(handler PropertyUpdateHandler) {
+func (pe *property) OnUpdate(handler PropertyUpdateHandler) {
 	handler(pe.value)
 	pe.updateHandlers = append(pe.updateHandlers, handler)
 }
 
 // Trigger all the registered PropertyUpdateHandlers on this entry.
-func (pe *Property) firePropertyUpdate() {
+func (pe *property) firePropertyUpdate() {
 	for _, h := range pe.updateHandlers {
 		h(pe.value)
 	}
@@ -362,13 +362,13 @@ Bind binds a property's value to a pointer.
 
 Example:
 	var i int
-	Property.Bind(&i, ValTypeInt)
+	property.Bind(&i, ValTypeInt)
 
 This will bind the property's value to i so every time it's updated i is updated as well.
 
 The valueType indicates which field of the PropertyValue to use for the binding.
 */
-func (pe *Property) Bind(variable interface{}, valueType PropertyValueType) {
+func (pe *property) Bind(variable interface{}, valueType PropertyValueType) {
 	var binder PropertyUpdateHandler
 
 	switch valueType {

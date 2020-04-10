@@ -56,8 +56,8 @@ func (gs *GameState) Weapons() map[int]*common.Equipment {
 }
 
 // Entities is a mock-implementation of GameState.Entities().
-func (gs *GameState) Entities() map[int]*st.Entity {
-	return gs.Called().Get(0).(map[int]*st.Entity)
+func (gs *GameState) Entities() map[int]st.Entity {
+	return gs.Called().Get(0).(map[int]st.Entity)
 }
 
 // Bomb is a mock-implementation of GameState.Bomb().

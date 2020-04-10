@@ -91,7 +91,7 @@ func (v PropertyValue) Float64Val() float64 {
 
 type propertyDecoder struct{}
 
-func (propertyDecoder) decodeProp(prop *Property, reader *bit.BitReader) {
+func (propertyDecoder) decodeProp(prop *property, reader *bit.BitReader) {
 	switch prop.entry.prop.rawType {
 	case propTypeFloat:
 		prop.value.FloatVal = propDecoder.decodeFloat(prop.entry.prop, reader)
@@ -308,7 +308,7 @@ func (propertyDecoder) decodeArray(fProp *flattenedPropEntry, reader *bit.BitRea
 
 	res := make([]PropertyValue, int(reader.ReadInt(numBits)))
 
-	tmp := &Property{
+	tmp := &property{
 		entry: &flattenedPropEntry{prop: fProp.arrayElementProp},
 	}
 

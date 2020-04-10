@@ -41,7 +41,7 @@ type GameState interface {
 	Weapons() map[int]*common.Equipment
 	// Entities returns all currently existing entities.
 	// (Almost?) everything in the game is an entity, such as weapons, players, fire etc.
-	Entities() map[int]*st.Entity
+	Entities() map[int]st.Entity
 	// Bomb returns the current bomb state.
 	Bomb() *common.Bomb
 	// TotalRoundsPlayed returns the amount of total rounds played according to CCSGameRulesProxy.

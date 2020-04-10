@@ -20,7 +20,7 @@ func main() {
 	p := demoinfocs.NewParser(f)
 
 	p.RegisterEventHandler(func(events.DataTablesParsed) {
-		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent *st.Entity) {
+		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent st.Entity) {
 			ent.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 				x := p.GameState().Participants().FindByHandle(val.IntVal)
 				if x != nil {

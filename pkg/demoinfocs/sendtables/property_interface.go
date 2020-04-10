@@ -2,15 +2,15 @@
 
 package sendtables
 
-// IProperty is an auto-generated interface for Property, intended to be used when mockability is needed.
-// Property wraps a flattenedPropEntry and allows registering handlers
+// Property is an auto-generated interface for property, intended to be used when mockability is needed.
+// property wraps a flattenedPropEntry and allows registering handlers
 // that can be triggered on a update of the property.
-type IProperty interface {
+type Property interface {
 	// Name returns the property's name.
 	Name() string
 	// Value returns current value of the property.
 	Value() PropertyValue
-	// OnUpdate registers a handler for updates of the Property's value.
+	// OnUpdate registers a handler for updates of the property's value.
 	//
 	// The handler will be called with the current value upon registration.
 	OnUpdate(handler PropertyUpdateHandler)
@@ -19,7 +19,7 @@ type IProperty interface {
 
 	   Example:
 	   	var i int
-	   	Property.Bind(&i, ValTypeInt)
+	   	property.Bind(&i, ValTypeInt)
 
 	   This will bind the property's value to i so every time it's updated i is updated as well.
 

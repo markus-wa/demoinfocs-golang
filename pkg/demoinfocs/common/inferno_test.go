@@ -8,10 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
 )
 
 func TestInferno_UniqueID(t *testing.T) {
-	entity := new(st.Entity)
+	entity := new(stfake.Entity)
 	assert.NotEqual(t, NewInferno(nil, entity).UniqueID(), NewInferno(nil, entity).UniqueID(), "UniqueIDs of different infernos should be different")
 }
 

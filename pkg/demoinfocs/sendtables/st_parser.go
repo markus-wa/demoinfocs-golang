@@ -303,7 +303,7 @@ func (p *SendTableParser) SetInstanceBaseline(scID int, data []byte) {
 // ReadEnterPVS reads an entity entering the PVS (potentially visible system).
 //
 // Intended for internal use only.
-func (p *SendTableParser) ReadEnterPVS(r *bit.BitReader, entityID int) *Entity {
+func (p *SendTableParser) ReadEnterPVS(r *bit.BitReader, entityID int) *entity {
 	scID := int(r.ReadInt(p.classBits()))
 
 	const nSerialNumberBits = 10

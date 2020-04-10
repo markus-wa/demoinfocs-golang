@@ -72,7 +72,7 @@ type parser struct {
 	grenadeModelIndices  map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
 	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
 	delayedEventHandlers []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
-	playerResourceEntity st.IEntity                                      // CCSPlayerResource entity instance, contains scoreboard info and more
+	playerResourceEntity st.Entity                                       // CCSPlayerResource entity instance, contains scoreboard info and more
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
@@ -343,6 +343,6 @@ func (p demoInfoProvider) FindPlayerByHandle(handle int) *common.Player {
 	return p.parser.gameState.Participants().FindByHandle(handle)
 }
 
-func (p demoInfoProvider) PlayerResourceEntity() st.IEntity {
+func (p demoInfoProvider) PlayerResourceEntity() st.Entity {
 	return p.parser.playerResourceEntity
 }

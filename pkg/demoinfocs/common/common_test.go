@@ -117,7 +117,7 @@ type demoInfoProviderMock struct {
 	tickRate             float64
 	ingameTick           int
 	playersByHandle      map[int]*Player
-	playerResourceEntity st.IEntity
+	playerResourceEntity st.Entity
 }
 
 func (p demoInfoProviderMock) TickRate() float64 {
@@ -132,7 +132,7 @@ func (p demoInfoProviderMock) FindPlayerByHandle(handle int) *Player {
 	return p.playersByHandle[handle]
 }
 
-func (p demoInfoProviderMock) PlayerResourceEntity() st.IEntity {
+func (p demoInfoProviderMock) PlayerResourceEntity() st.Entity {
 	return p.playerResourceEntity
 }
 

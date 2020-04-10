@@ -68,7 +68,7 @@ func TestItemPickup_WeaponTraceable_WeaponFound(t *testing.T) {
 	assert.Equal(t, wep, e.WeaponTraceable())
 }
 
-func entity() st.IEntity {
+func entity() st.Entity {
 	entity := new(stfake.Entity)
 	entity.On("ID").Return(1)
 
@@ -104,6 +104,6 @@ func (p demoInfoProviderMock) TickRate() float64 {
 func (p demoInfoProviderMock) FindPlayerByHandle(handle int) *common.Player {
 	return nil
 }
-func (p demoInfoProviderMock) PlayerResourceEntity() st.IEntity {
+func (p demoInfoProviderMock) PlayerResourceEntity() st.Entity {
 	return nil
 }
