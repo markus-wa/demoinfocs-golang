@@ -5,3 +5,5 @@ demoinfocs-golang.test.exe
 .idea/
 *.log
 coverage.*
+*.out
+demoinfocs.test
