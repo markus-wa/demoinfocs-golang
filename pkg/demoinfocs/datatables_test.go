@@ -115,8 +115,8 @@ func testPlayerSpotted(t *testing.T, propName string) {
 	assert.Equal(t, expected, actual)
 }
 
-func newParser() *Parser {
-	p := NewParser(new(DevNullReader))
+func newParser() *parser {
+	p := NewParser(new(DevNullReader)).(*parser)
 	p.header = &common.DemoHeader{}
 
 	return p

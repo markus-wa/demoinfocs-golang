@@ -1,4 +1,4 @@
-// Package fake provides basic mocks for IParser, IGameState and IParticipants.
+// Package fake provides basic mocks for Parser, GameState and Participants.
 // See examples/mocking (https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/mocking).
 package fake
 
@@ -13,9 +13,9 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
-var _ demoinfocs.IParser = new(Parser)
+var _ demoinfocs.Parser = new(Parser)
 
-// Parser is a mock for of demoinfocs.IParser.
+// Parser is a mock for of demoinfocs.Parser.
 type Parser struct {
 	mock.Mock
 
@@ -83,81 +83,81 @@ func NewParser() *Parser {
 	return p
 }
 
-// ServerClasses is a mock-implementation of IParser.ServerClasses().
+// ServerClasses is a mock-implementation of Parser.ServerClasses().
 //
 // Unfortunately sendtables.ServerClasses currently isn't mockable.
 func (p *Parser) ServerClasses() st.ServerClasses {
 	return p.Called().Get(0).(st.ServerClasses)
 }
 
-// Header is a mock-implementation of IParser.Header().
+// Header is a mock-implementation of Parser.Header().
 func (p *Parser) Header() common.DemoHeader {
 	return p.Called().Get(0).(common.DemoHeader)
 }
 
-// GameState is a mock-implementation of IParser.GameState().
-func (p *Parser) GameState() demoinfocs.IGameState {
-	return p.Called().Get(0).(demoinfocs.IGameState)
+// GameState is a mock-implementation of Parser.GameState().
+func (p *Parser) GameState() demoinfocs.GameState {
+	return p.Called().Get(0).(demoinfocs.GameState)
 }
 
-// CurrentFrame is a mock-implementation of IParser.CurrentFrame().
+// CurrentFrame is a mock-implementation of Parser.CurrentFrame().
 func (p *Parser) CurrentFrame() int {
 	return p.Called().Int(0)
 }
 
-// CurrentTime is a mock-implementation of IParser.CurrentTime().
+// CurrentTime is a mock-implementation of Parser.CurrentTime().
 func (p *Parser) CurrentTime() time.Duration {
 	return p.Called().Get(0).(time.Duration)
 }
 
-// TickRate is a mock-implementation of IParser.TickRate().
+// TickRate is a mock-implementation of Parser.TickRate().
 func (p *Parser) TickRate() float64 {
 	return p.Called().Get(0).(float64)
 }
 
-// TickTime is a mock-implementation of IParser.TickTime().
+// TickTime is a mock-implementation of Parser.TickTime().
 func (p *Parser) TickTime() time.Duration {
 	return p.Called().Get(0).(time.Duration)
 }
 
-// Progress is a mock-implementation of IParser.Progress().
+// Progress is a mock-implementation of Parser.Progress().
 func (p *Parser) Progress() float32 {
 	return p.Called().Get(0).(float32)
 }
 
-// RegisterEventHandler is a mock-implementation of IParser.RegisterEventHandler().
+// RegisterEventHandler is a mock-implementation of Parser.RegisterEventHandler().
 // Return HandlerIdentifier cannot be mocked (for now).
 func (p *Parser) RegisterEventHandler(handler interface{}) dp.HandlerIdentifier {
 	p.Called()
 	return p.eventDispatcher.RegisterHandler(handler)
 }
 
-// UnregisterEventHandler is a mock-implementation of IParser.UnregisterEventHandler().
+// UnregisterEventHandler is a mock-implementation of Parser.UnregisterEventHandler().
 func (p *Parser) UnregisterEventHandler(identifier dp.HandlerIdentifier) {
 	p.Called()
 	p.eventDispatcher.UnregisterHandler(identifier)
 }
 
-// RegisterNetMessageHandler is a mock-implementation of IParser.RegisterNetMessageHandler().
+// RegisterNetMessageHandler is a mock-implementation of Parser.RegisterNetMessageHandler().
 // Return HandlerIdentifier cannot be mocked (for now).
 func (p *Parser) RegisterNetMessageHandler(handler interface{}) dp.HandlerIdentifier {
 	p.Called()
 	return p.msgDispatcher.RegisterHandler(handler)
 }
 
-// UnregisterNetMessageHandler is a mock-implementation of IParser.UnregisterNetMessageHandler().
+// UnregisterNetMessageHandler is a mock-implementation of Parser.UnregisterNetMessageHandler().
 func (p *Parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 	p.Called()
 	p.msgDispatcher.UnregisterHandler(identifier)
 }
 
-// ParseHeader is a mock-implementation of IParser.ParseHeader().
+// ParseHeader is a mock-implementation of Parser.ParseHeader().
 func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 	args := p.Called()
 	return args.Get(0).(common.DemoHeader), args.Error(1)
 }
 
-// ParseToEnd is a mock-implementation of IParser.ParseToEnd().
+// ParseToEnd is a mock-implementation of Parser.ParseToEnd().
 //
 // Dispatches Parser.Events and Parser.NetMessages in the specified order.
 //
@@ -197,7 +197,7 @@ func (p *Parser) parseNextFrame() {
 	p.currentFrame++
 }
 
-// ParseNextFrame is a mock-implementation of IParser.ParseNextFrame().
+// ParseNextFrame is a mock-implementation of Parser.ParseNextFrame().
 //
 // Dispatches Parser.Events and Parser.NetMessages in the specified order.
 //
@@ -222,7 +222,7 @@ func max(numbers map[int][]interface{}) (maxNumber int) {
 	return
 }
 
-// Cancel is a mock-implementation of IParser.Cancel().
+// Cancel is a mock-implementation of Parser.Cancel().
 // Does not cancel the mock's ParseToEnd() function,
 // mock the return value of ParseToEnd() to be ErrCancelled instead.
 func (p *Parser) Cancel() {

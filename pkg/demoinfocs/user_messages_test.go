@@ -34,7 +34,7 @@ func Test_UserMessages_ServerRankUpdate(t *testing.T) {
 		MsgData: userMessageData,
 	}
 
-	p := NewParser(new(DevNullReader))
+	p := NewParser(new(DevNullReader)).(*parser)
 
 	var evs []events.RankUpdate
 	p.RegisterEventHandler(func(update events.RankUpdate) {
@@ -73,7 +73,7 @@ func Test_UserMessages_SayText(t *testing.T) {
 		MsgData: userMessageData,
 	}
 
-	p := NewParser(new(DevNullReader))
+	p := NewParser(new(DevNullReader)).(*parser)
 
 	var actual events.SayText
 	p.RegisterEventHandler(func(chat events.SayText) {
@@ -106,7 +106,7 @@ func Test_UserMessages_SayText2_Generic(t *testing.T) {
 		MsgData: userMessageData,
 	}
 
-	p := NewParser(new(DevNullReader))
+	p := NewParser(new(DevNullReader)).(*parser)
 
 	chatter := &common.Player{
 		Name: "The Suspect",
@@ -144,7 +144,7 @@ func Test_UserMessages_SayText2_ChatMessage(t *testing.T) {
 		MsgData: userMessageData,
 	}
 
-	p := NewParser(new(DevNullReader))
+	p := NewParser(new(DevNullReader)).(*parser)
 
 	chatter := &common.Player{
 		Name: "The Suspect",

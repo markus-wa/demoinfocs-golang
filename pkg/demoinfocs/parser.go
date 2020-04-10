@@ -15,7 +15,7 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
-//go:generate ifacemaker -f parser.go -f parsing.go -s Parser -i IParser -p demoinfocs -D -y "IParser is an auto-generated interface for Parser, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o parser_interface.go
+//go:generate ifacemaker -f parser.go -f parsing.go -s parser -i Parser -p demoinfocs -D -y "Parser is an auto-generated interface for Parser, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o parser_interface.go
 
 /*
 Parser can parse a CS:GO demo.
@@ -40,7 +40,7 @@ Example (without error handling):
 
 Prints out '{A/B} site went BOOM!' when a bomb explodes.
 */
-type Parser struct {
+type parser struct {
 	// Important fields
 
 	bitReader                    *bit.BitReader
@@ -54,7 +54,7 @@ type Parser struct {
 	currentFrame                 int                // Demo-frame, not ingame-tick
 	tickInterval                 float32            // Duration between ticks in seconds
 	header                       *common.DemoHeader // Pointer so we can check for nil
-	gameState                    *GameState
+	gameState                    *gameState
 	demoInfoProvider             demoInfoProvider // Provides demo infos to other packages that the core package depends on
 	cancelChan                   chan struct{}    // Non-anime-related, used for aborting the parsing
 	err                          error            // Contains a error that occurred during parsing if any
@@ -98,30 +98,30 @@ func (bbi boundingBoxInformation) contains(point r3.Vector) bool {
 
 // ServerClasses returns the server-classes of this demo.
 // These are available after events.DataTablesParsed has been fired.
-func (p *Parser) ServerClasses() st.ServerClasses {
+func (p *parser) ServerClasses() st.ServerClasses {
 	return p.stParser.ServerClasses()
 }
 
 // Header returns the DemoHeader which contains the demo's metadata.
 // Only possible after ParserHeader() has been called.
-func (p *Parser) Header() common.DemoHeader {
+func (p *parser) Header() common.DemoHeader {
 	return *p.header
 }
 
 // GameState returns the current game-state.
 // It contains most of the relevant information about the game such as players, teams, scores, grenades etc.
-func (p *Parser) GameState() IGameState {
+func (p *parser) GameState() GameState {
 	return p.gameState
 }
 
 // CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
 // Starts with frame 0, should go up to DemoHeader.PlaybackFrames but might not be the case (usually it's just close to it).
-func (p *Parser) CurrentFrame() int {
+func (p *parser) CurrentFrame() int {
 	return p.currentFrame
 }
 
 // CurrentTime returns the time elapsed since the start of the demo
-func (p *Parser) CurrentTime() time.Duration {
+func (p *parser) CurrentTime() time.Duration {
 	return time.Duration(float32(p.gameState.ingameTick) * p.tickInterval * float32(time.Second))
 }
 
@@ -129,7 +129,7 @@ func (p *Parser) CurrentTime() time.Duration {
 //
 // Returns tick rate based on CSVCMsg_ServerInfo if possible.
 // Otherwise returns tick rate based on demo header or -1 if the header info isn't available.
-func (p *Parser) TickRate() float64 {
+func (p *parser) TickRate() float64 {
 	if p.tickInterval != 0 {
 		return 1.0 / float64(p.tickInterval)
 	}
@@ -153,7 +153,7 @@ func legacyTickRate(h common.DemoHeader) float64 {
 //
 // Returns tick time based on CSVCMsg_ServerInfo if possible.
 // Otherwise returns tick time based on demo header or -1 if the header info isn't available.
-func (p *Parser) TickTime() time.Duration {
+func (p *parser) TickTime() time.Duration {
 	if p.tickInterval != 0 {
 		return time.Duration(float32(time.Second) * p.tickInterval)
 	}
@@ -178,7 +178,7 @@ func legayTickTime(h common.DemoHeader) time.Duration {
 //
 // Might not be 100% correct since it's just based on the reported tick count of the header.
 // May always return 0 if the demo header is corrupt.
-func (p *Parser) Progress() float32 {
+func (p *parser) Progress() float32 {
 	if p.header == nil || p.header.PlaybackFrames == 0 {
 		return 0
 	}
@@ -202,14 +202,14 @@ Parameter handler has to be of type interface{} because lolnogenerics.
 
 Returns a identifier with which the handler can be removed via UnregisterEventHandler().
 */
-func (p *Parser) RegisterEventHandler(handler interface{}) dp.HandlerIdentifier {
+func (p *parser) RegisterEventHandler(handler interface{}) dp.HandlerIdentifier {
 	return p.eventDispatcher.RegisterHandler(handler)
 }
 
 // UnregisterEventHandler removes a game event handler via identifier.
 //
 // The identifier is returned at registration by RegisterEventHandler().
-func (p *Parser) UnregisterEventHandler(identifier dp.HandlerIdentifier) {
+func (p *parser) UnregisterEventHandler(identifier dp.HandlerIdentifier) {
 	p.eventDispatcher.UnregisterHandler(identifier)
 }
 
@@ -222,25 +222,25 @@ Returns a identifier with which the handler can be removed via UnregisterNetMess
 
 See also: RegisterEventHandler()
 */
-func (p *Parser) RegisterNetMessageHandler(handler interface{}) dp.HandlerIdentifier {
+func (p *parser) RegisterNetMessageHandler(handler interface{}) dp.HandlerIdentifier {
 	return p.msgDispatcher.RegisterHandler(handler)
 }
 
 // UnregisterNetMessageHandler removes a net-message handler via identifier.
 //
 // The identifier is returned at registration by RegisterNetMessageHandler().
-func (p *Parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
+func (p *parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 	p.msgDispatcher.UnregisterHandler(identifier)
 }
 
-func (p *Parser) error() (err error) {
+func (p *parser) error() (err error) {
 	p.errLock.Lock()
 	err = p.err
 	p.errLock.Unlock()
 	return
 }
 
-func (p *Parser) setError(err error) {
+func (p *parser) setError(err error) {
 	if err == nil || p.err != nil {
 		return
 	}
@@ -254,7 +254,7 @@ func (p *Parser) setError(err error) {
 // The demostream io.Reader (e.g. os.File or bytes.Reader) must provide demo data in the '.DEM' format.
 //
 // See also: NewCustomParser() & DefaultParserConfig
-func NewParser(demostream io.Reader) *Parser {
+func NewParser(demostream io.Reader) Parser {
 	return NewParserWithConfig(demostream, DefaultParserConfig)
 }
 
@@ -285,8 +285,8 @@ var DefaultParserConfig = ParserConfig{
 // NewParserWithConfig returns a new Parser with a custom configuration.
 //
 // See also: NewParser() & ParserConfig
-func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
-	var p Parser
+func NewParserWithConfig(demostream io.Reader, config ParserConfig) *parser {
+	var p parser
 
 	// Init parser
 	p.bitReader = bit.NewLargeBitReader(demostream)
@@ -322,13 +322,13 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) *Parser {
 	return &p
 }
 
-func (p *Parser) initMsgQueue(buf int) {
+func (p *parser) initMsgQueue(buf int) {
 	p.msgQueue = make(chan interface{}, buf)
 	p.msgDispatcher.AddQueues(p.msgQueue)
 }
 
 type demoInfoProvider struct {
-	parser *Parser
+	parser *parser
 }
 
 func (p demoInfoProvider) IngameTick() int {

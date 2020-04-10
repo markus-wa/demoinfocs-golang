@@ -10,7 +10,7 @@ import (
 
 const entitySentinel = 9999
 
-func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
+func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -52,7 +52,7 @@ func (p *Parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 	r.Pool()
 }
 
-func (p *Parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
+func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 	updated := make(map[string]string)
 	for _, cvar := range setConVar.Convars.Cvars {
 		updated[cvar.Name] = cvar.Value
@@ -64,7 +64,7 @@ func (p *Parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 	})
 }
 
-func (p *Parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
+func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
 	// srvInfo.MapCrc might be interesting as well
 	p.tickInterval = srvInfo.TickInterval
 }

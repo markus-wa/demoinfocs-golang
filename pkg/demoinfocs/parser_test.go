@@ -14,29 +14,29 @@ import (
 )
 
 func TestParser_CurrentFrame(t *testing.T) {
-	assert.Equal(t, 1, (&Parser{currentFrame: 1}).CurrentFrame())
+	assert.Equal(t, 1, (&parser{currentFrame: 1}).CurrentFrame())
 }
 
 func TestParser_GameState(t *testing.T) {
-	gs := new(GameState)
-	assert.Equal(t, gs, (&Parser{gameState: gs}).GameState())
+	gs := new(gameState)
+	assert.Equal(t, gs, (&parser{gameState: gs}).GameState())
 }
 
 func TestParser_CurrentTime(t *testing.T) {
-	p := &Parser{
+	p := &parser{
 		tickInterval: 2,
-		gameState:    &GameState{ingameTick: 3},
+		gameState:    &gameState{ingameTick: 3},
 	}
 
 	assert.Equal(t, 6*time.Second, p.CurrentTime())
 }
 
 func TestParser_TickRate(t *testing.T) {
-	assert.Equal(t, float64(5), math.Round((&Parser{tickInterval: 0.2}).TickRate()))
+	assert.Equal(t, float64(5), math.Round((&parser{tickInterval: 0.2}).TickRate()))
 }
 
 func TestParser_TickRate_FallbackToHeader(t *testing.T) {
-	p := &Parser{
+	p := &parser{
 		header: &common.DemoHeader{
 			PlaybackTime:  time.Second,
 			PlaybackTicks: 5,
@@ -47,11 +47,11 @@ func TestParser_TickRate_FallbackToHeader(t *testing.T) {
 }
 
 func TestParser_TickTime(t *testing.T) {
-	assert.Equal(t, time.Duration(200)*time.Millisecond, (&Parser{tickInterval: 0.2}).TickTime())
+	assert.Equal(t, time.Duration(200)*time.Millisecond, (&parser{tickInterval: 0.2}).TickTime())
 }
 
 func TestParser_TickTime_FallbackToHeader(t *testing.T) {
-	p := &Parser{
+	p := &parser{
 		header: &common.DemoHeader{
 			PlaybackTime:  time.Second,
 			PlaybackTicks: 5,
@@ -62,8 +62,8 @@ func TestParser_TickTime_FallbackToHeader(t *testing.T) {
 }
 
 func TestParser_Progress_NoHeader(t *testing.T) {
-	assert.Zero(t, new(Parser).Progress())
-	assert.Zero(t, (&Parser{header: &common.DemoHeader{}}).Progress())
+	assert.Zero(t, new(parser).Progress())
+	assert.Zero(t, (&parser{header: &common.DemoHeader{}}).Progress())
 }
 
 func TestRecoverFromUnexpectedEOF(t *testing.T) {
@@ -99,7 +99,7 @@ func TestRecoverFromPanic_ConsumerCodePanic(t *testing.T) {
 func TestParser_SetError(t *testing.T) {
 	err := errors.New("test")
 
-	p := new(Parser)
+	p := new(parser)
 	p.setError(err)
 
 	assert.Same(t, err, p.error())
@@ -108,7 +108,7 @@ func TestParser_SetError(t *testing.T) {
 func TestParser_SetError_Multiple(t *testing.T) {
 	err := errors.New("test")
 
-	p := new(Parser)
+	p := new(parser)
 	p.setError(err)
 	p.setError(errors.New("second error"))
 

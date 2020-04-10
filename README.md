@@ -224,7 +224,7 @@ Check out `debug_on.go` for any other settings that can be changed.
 
 ### Generating interfaces
 
-We generate interfaces such as `IGameState` from structs to make it easier to keep docs in synch over structs and interfaces.
+We generate interfaces such as `GameState` from structs to make it easier to keep docs in synch over structs and interfaces.
 For this we use [@vburenin](https://github.com/vburenin)'s [`ifacemaker`](https://github.com/vburenin/ifacemaker) tool.
 
 You can download the latest version [here](https://github.com/vburenin/ifacemaker/releases).

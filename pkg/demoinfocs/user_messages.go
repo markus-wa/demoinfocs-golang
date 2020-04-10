@@ -9,12 +9,12 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
-func (p *Parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
+func (p *parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
 	p.userMessageHandler.handler(msg.ECstrike15UserMessages(um.MsgType))(um)
 }
 
 type userMessageHandler struct {
-	parser           *Parser
+	parser           *parser
 	msgTypeToHandler map[msg.ECstrike15UserMessages]userMessageHandlerFunc
 }
 
@@ -29,13 +29,13 @@ func (umh userMessageHandler) dispatch(event interface{}) {
 	umh.parser.eventDispatcher.Dispatch(event)
 }
 
-func (umh userMessageHandler) gameState() *GameState {
+func (umh userMessageHandler) gameState() *gameState {
 	return umh.parser.gameState
 }
 
 type userMessageHandlerFunc func(*msg.CSVCMsg_UserMessage)
 
-func newUserMessageHandler(parser *Parser) userMessageHandler {
+func newUserMessageHandler(parser *parser) userMessageHandler {
 	umh := userMessageHandler{parser: parser}
 
 	umh.msgTypeToHandler = map[msg.ECstrike15UserMessages]userMessageHandlerFunc{

@@ -6,12 +6,12 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 )
 
-// IParticipants is an auto-generated interface for Participants.
-// Participants provides helper functions on top of the currently connected players.
+// Participants is an auto-generated interface for participants.
+// participants provides helper functions on top of the currently connected players.
 // E.g. ByUserID(), ByEntityID(), TeamMembers(), etc.
 //
 // See GameState.Participants()
-type IParticipants interface {
+type Participants interface {
 	// ByUserID returns all currently connected players in a map where the key is the user-ID.
 	// The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
 	// Includes spectators.

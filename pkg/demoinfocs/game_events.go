@@ -13,14 +13,14 @@ import (
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
-func (p *Parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
+func (p *parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 	p.gameEventDescs = make(map[int32]*msg.CSVCMsg_GameEventListDescriptorT)
 	for _, d := range gel.GetDescriptors() {
 		p.gameEventDescs[d.GetEventid()] = d
 	}
 }
 
-func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
+func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	if p.gameEventDescs == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{Message: "received GameEvent but event descriptors are missing"})
 		unassert.Error("received GameEvent but event descriptors are missing")
@@ -51,7 +51,7 @@ func (p *Parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 }
 
 type gameEventHandler struct {
-	parser                 *Parser
+	parser                 *parser
 	gameEventNameToHandler map[string]gameEventHandlerFunc
 }
 
@@ -59,7 +59,7 @@ func (geh gameEventHandler) dispatch(event interface{}) {
 	geh.parser.eventDispatcher.Dispatch(event)
 }
 
-func (geh gameEventHandler) gameState() *GameState {
+func (geh gameEventHandler) gameState() *gameState {
 	return geh.parser.gameState
 }
 
@@ -73,7 +73,7 @@ func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
 
 type gameEventHandlerFunc func(map[string]*msg.CSVCMsg_GameEventKeyT)
 
-func newGameEventHandler(parser *Parser) gameEventHandler {
+func newGameEventHandler(parser *parser) gameEventHandler {
 	geh := gameEventHandler{parser: parser}
 
 	// some events need to be delayed until their data is available
@@ -231,7 +231,7 @@ func (geh gameEventHandler) roundOfficiallyEnded(data map[string]*msg.CSVCMsg_Ga
 	//
 	// We're not deleting them from entitites though as that's supposed to be as close to the actual demo data as possible.
 	// We're also not using Entity.Destroy() because it would - in some cases - be called twice on the same entity
-	// and it's supposed to be called when the demo actually says so (same case as with GameState.entities).
+	// and it's supposed to be called when the demo actually says so (same case as with gameState.entities).
 	for _, proj := range geh.gameState().grenadeProjectiles {
 		geh.parser.nadeProjectileDestroyed(proj)
 	}

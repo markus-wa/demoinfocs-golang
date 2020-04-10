@@ -71,14 +71,14 @@ func TestGameState_Participants(t *testing.T) {
 
 func TestGameState_ConVars(t *testing.T) {
 	cvars := make(map[string]string)
-	gs := GameState{conVars: cvars}
+	gs := gameState{conVars: cvars}
 
 	assert.Equal(t, cvars, gs.ConVars())
 }
 
 func TestParticipants_All(t *testing.T) {
 	pl := newPlayer()
-	ptcps := Participants{
+	ptcps := participants{
 		playersByUserID: map[int]*common.Player{0: pl},
 	}
 
@@ -98,7 +98,7 @@ func TestParticipants_Playing(t *testing.T) {
 	spectator.Team = common.TeamSpectators
 	def := newPlayer()
 
-	ptcps := Participants{
+	ptcps := participants{
 		playersByUserID: map[int]*common.Player{
 			0: terrorist,
 			1: ct,
@@ -125,7 +125,7 @@ func TestParticipants_TeamMembers(t *testing.T) {
 	spectator.Team = common.TeamSpectators
 	def := newPlayer()
 
-	ptcps := Participants{
+	ptcps := participants{
 		playersByUserID: map[int]*common.Player{
 			0: terrorist,
 			1: ct,
@@ -144,7 +144,7 @@ func TestParticipants_FindByHandle(t *testing.T) {
 	pl := newPlayer()
 	pl.Team = common.TeamTerrorists
 
-	ptcps := Participants{
+	ptcps := participants{
 		playersByEntityID: map[int]*common.Player{
 			3000 & entityHandleIndexMask: pl,
 		},
@@ -158,7 +158,7 @@ func TestParticipants_FindByHandle(t *testing.T) {
 func TestParticipants_FindByHandle_InvalidEntityHandle(t *testing.T) {
 	pl := newPlayer()
 	pl.Team = common.TeamTerrorists
-	ptcps := Participants{
+	ptcps := participants{
 		playersByEntityID: map[int]*common.Player{
 			invalidEntityHandle & entityHandleIndexMask: pl,
 		},
@@ -174,7 +174,7 @@ func TestParticipants_Connected_SuppressNoEntity(t *testing.T) {
 	pl2 := common.NewPlayer(nil)
 	pl2.IsConnected = true
 
-	ptcps := Participants{
+	ptcps := participants{
 		playersByUserID: map[int]*common.Player{
 			0: pl,
 			1: pl2,
@@ -191,7 +191,7 @@ func TestParticipants_Connected_SuppressNotConnected(t *testing.T) {
 	pl2 := newPlayer()
 	pl2.IsConnected = false
 
-	ptcps := Participants{
+	ptcps := participants{
 		playersByUserID: map[int]*common.Player{
 			0: pl,
 			1: pl2,
@@ -222,7 +222,7 @@ func TestParticipants_SpottersOf(t *testing.T) {
 	entity.On("Property", "m_bSpottedByMask.001").Return(prop1)
 	spotted.Entity = entity
 
-	ptcps := Participants{
+	ptcps := participants{
 		playersByUserID: map[int]*common.Player{
 			0: spotted,
 			1: spotter1,
@@ -267,7 +267,7 @@ func TestParticipants_SpottedBy(t *testing.T) {
 	spotterEntity.On("Property", "m_bSpottedByMask.000").Return(unSpottedProp)
 	spotter.Entity = spotterEntity
 
-	ptcps := Participants{
+	ptcps := participants{
 		playersByUserID: map[int]*common.Player{
 			0: spotter,
 			1: spotted1,

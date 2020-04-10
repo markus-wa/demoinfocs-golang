@@ -10,7 +10,7 @@ import (
 	dp "github.com/markus-wa/godispatch"
 )
 
-// IParser is an auto-generated interface for Parser, intended to be used when mockability is needed.
+// Parser is an auto-generated interface for Parser, intended to be used when mockability is needed.
 // Parser can parse a CS:GO demo.
 // Creating a new instance is done via NewParser().
 //
@@ -32,7 +32,7 @@ import (
 // 	p.ParseToEnd()
 //
 // Prints out '{A/B} site went BOOM!' when a bomb explodes.
-type IParser interface {
+type Parser interface {
 	// ServerClasses returns the server-classes of this demo.
 	// These are available after events.DataTablesParsed has been fired.
 	ServerClasses() st.ServerClasses
@@ -41,7 +41,7 @@ type IParser interface {
 	Header() common.DemoHeader
 	// GameState returns the current game-state.
 	// It contains most of the relevant information about the game such as players, teams, scores, grenades etc.
-	GameState() IGameState
+	GameState() GameState
 	// CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
 	// Starts with frame 0, should go up to DemoHeader.PlaybackFrames but might not be the case (usually it's just close to it).
 	CurrentFrame() int

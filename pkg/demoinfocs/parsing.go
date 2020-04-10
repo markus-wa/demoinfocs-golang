@@ -42,7 +42,7 @@ var (
 // If not done manually this will be called by Parser.ParseNextFrame() or Parser.ParseToEnd().
 //
 // Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match HL2DEMO.
-func (p *Parser) ParseHeader() (common.DemoHeader, error) {
+func (p *parser) ParseHeader() (common.DemoHeader, error) {
 	var h common.DemoHeader
 	h.Filestamp = p.bitReader.ReadCString(8)
 	h.Protocol = p.bitReader.ReadSignedInt(32)
@@ -87,7 +87,7 @@ func msgQueueSize(ticks int) int {
 // Aborts and returns ErrCancelled if Cancel() is called before the end.
 //
 // See also: ParseNextFrame() for other possible errors.
-func (p *Parser) ParseToEnd() (err error) {
+func (p *parser) ParseToEnd() (err error) {
 	defer func() {
 		// Make sure all the messages of the demo are handled
 		p.msgDispatcher.SyncAllQueues()
@@ -145,7 +145,7 @@ func recoverFromUnexpectedEOF(r interface{}) error {
 
 // Cancel aborts ParseToEnd().
 // All information that was already read up to this point may still be used (and new events may still be sent out).
-func (p *Parser) Cancel() {
+func (p *parser) Cancel() {
 	p.cancelChan <- struct{}{}
 }
 
@@ -159,7 +159,7 @@ May panic if the demo is corrupt in some way.
 
 See also: ParseToEnd() for parsing the complete demo in one go (faster).
 */
-func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
+func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 	defer func() {
 		// Make sure all the messages of the frame are handled
 		p.msgDispatcher.SyncAllQueues()
@@ -201,7 +201,7 @@ const (
 	dcStringTables   demoCommand = 9
 )
 
-func (p *Parser) parseFrame() bool {
+func (p *parser) parseFrame() bool {
 	cmd := demoCommand(p.bitReader.ReadSingleByte())
 
 	// Send ingame tick number update
@@ -288,7 +288,7 @@ var defaultNetMessageCreators = map[int]NetMessageCreator{
 	int(msg.NET_Messages_net_SetConVar):         func() proto.Message { return new(msg.CNETMsg_SetConVar) },
 }
 
-func (p *Parser) parsePacket() {
+func (p *parser) parsePacket() {
 	// Booooring
 	// 152 bytes CommandInfo, 4 bytes SeqNrIn, 4 bytes SeqNrOut
 	// See at the bottom of the file what the CommandInfo would contain if you are interested.
@@ -357,7 +357,7 @@ type frameParsedTokenType struct{}
 
 var frameParsedToken = new(frameParsedTokenType)
 
-func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
+func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 	// PlayerFlashed events need to be dispatched at the end of the tick
 	// because Player.FlashDuration is updated after the game-events are parsed.
 	for _, eventHandler := range p.delayedEventHandlers {

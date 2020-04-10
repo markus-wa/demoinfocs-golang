@@ -1,6 +1,6 @@
 # Mocking the parser
 
-This example shows you how to use the provided [`fake` package](https://godoc.org/github.com/markus-wa/demoinfocs-golang/fake) to mock `demoinfocs.IParser` and other parts of the library.
+This example shows you how to use the provided [`fake` package](https://godoc.org/github.com/markus-wa/demoinfocs-golang/fake) to mock `demoinfocs.Parser` and other parts of the library.
 That way you will be able to write useful unit tests for your application.
 
 ## System under test
@@ -13,14 +13,14 @@ import (
 	events "github.com/markus-wa/demoinfocs-golang/v2/events"
 )
 
-func collectKills(parser dem.IParser) (kills []events.Kill, err error) {
+func collectKills(parser dem.Parser) (kills []events.Kill, err error) {
     ...
 }
 ```
 
 We deliberately ignore the implementation so we don't make assumptions about the code since it might change in the future.
 
-As you can see `collectKills` takes an `IParser` as input and returns a slice of `events.Kill` and potentially an error.
+As you can see `collectKills` takes an `Parser` as input and returns a slice of `events.Kill` and potentially an error.
 
 ## Positive test case
 

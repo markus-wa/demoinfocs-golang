@@ -23,7 +23,7 @@ const (
 	maxWeapons                   = 64
 )
 
-func (p *Parser) mapEquipment() {
+func (p *parser) mapEquipment() {
 	for _, sc := range p.stParser.ServerClasses() {
 		switch sc.Name() {
 		case "CC4":
@@ -69,7 +69,7 @@ func (p *Parser) mapEquipment() {
 }
 
 // Bind the attributes of the various entities to our structs on the parser
-func (p *Parser) bindEntities() {
+func (p *parser) bindEntities() {
 	p.bindTeamStates()
 	p.bindBombSites()
 	p.bindPlayers()
@@ -78,7 +78,7 @@ func (p *Parser) bindEntities() {
 	p.bindGameRules()
 }
 
-func (p *Parser) bindBomb() {
+func (p *parser) bindBomb() {
 	bomb := &p.gameState.bomb
 
 	// Track bomb when it is dropped on the ground or being held by a player
@@ -115,7 +115,7 @@ func (p *Parser) bindBomb() {
 	})
 }
 
-func (p *Parser) bindTeamStates() {
+func (p *parser) bindTeamStates() {
 	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity *st.Entity) {
 		team := entity.PropertyValueMust("m_szTeamname").StringVal
 
@@ -154,7 +154,7 @@ func (p *Parser) bindTeamStates() {
 	})
 }
 
-func (p *Parser) bindBombSites() {
+func (p *parser) bindBombSites() {
 	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(playerResource *st.Entity) {
 		playerResource.BindProperty("m_bombsiteCenterA", &p.bombsiteA.center, st.ValTypeVector)
 		playerResource.BindProperty("m_bombsiteCenterB", &p.bombsiteB.center, st.ValTypeVector)
@@ -169,7 +169,7 @@ func (p *Parser) bindBombSites() {
 	})
 }
 
-func (p *Parser) bindPlayers() {
+func (p *parser) bindPlayers() {
 	p.stParser.ServerClasses().FindByName("CCSPlayer").OnEntityCreated(func(player *st.Entity) {
 		p.bindNewPlayer(player)
 	})
@@ -179,7 +179,7 @@ func (p *Parser) bindPlayers() {
 	})
 }
 
-func (p *Parser) getOrCreatePlayer(entityID int, rp *playerInfo) (isNew bool, player *common.Player) {
+func (p *parser) getOrCreatePlayer(entityID int, rp *playerInfo) (isNew bool, player *common.Player) {
 	player = p.gameState.playersByEntityID[entityID]
 
 	if player == nil {
@@ -215,7 +215,7 @@ func (p *Parser) getOrCreatePlayer(entityID int, rp *playerInfo) (isNew bool, pl
 	return isNew, player
 }
 
-func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
+func (p *parser) bindNewPlayer(playerEntity st.IEntity) {
 	entityID := playerEntity.ID()
 	rp := p.rawPlayers[entityID-1]
 
@@ -289,7 +289,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 	}
 }
 
-func (p *Parser) bindPlayerWeapons(playerEntity st.IEntity, pl *common.Player) {
+func (p *parser) bindPlayerWeapons(playerEntity st.IEntity, pl *common.Player) {
 	// Some demos have an additional prefix for player weapons weapon
 	var wepPrefix string
 	if playerEntity.Property(playerWeaponPrefix+"000") != nil {
@@ -339,7 +339,7 @@ func (p *Parser) bindPlayerWeapons(playerEntity st.IEntity, pl *common.Player) {
 	}
 }
 
-func (p *Parser) bindWeapons() {
+func (p *parser) bindWeapons() {
 	for _, sc := range p.stParser.ServerClasses() {
 		for _, bc := range sc.BaseClasses() {
 			switch bc.Name() {
@@ -358,9 +358,9 @@ func (p *Parser) bindWeapons() {
 	p.stParser.ServerClasses().FindByName("CInferno").OnEntityCreated(p.bindNewInferno)
 }
 
-// bindGrenadeProjectiles keeps track of the location of live grenades (Parser.gameState.grenadeProjectiles), actively thrown by players.
+// bindGrenadeProjectiles keeps track of the location of live grenades (parser.gameState.grenadeProjectiles), actively thrown by players.
 // It does NOT track the location of grenades lying on the ground, i.e. that were dropped by dead players.
-func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
+func (p *parser) bindGrenadeProjectiles(entity *st.Entity) {
 	entityID := entity.ID()
 
 	proj := common.NewGrenadeProjectile()
@@ -369,7 +369,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 
 	var wep common.EquipmentType
 	entity.OnCreateFinished(func() {
-		// copy the weapon so it doesn't get overwritten by a new entity in Parser.weapons
+		// copy the weapon so it doesn't get overwritten by a new entity in parser.weapons
 		wepCopy := *(getPlayerWeapon(proj.Thrower, wep))
 		proj.WeaponInstance = &wepCopy
 
@@ -421,7 +421,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 }
 
 // Separate function because we also use it in round_officially_ended (issue #42)
-func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
+func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	// If the grenade projectile entity is destroyed AFTER round_officially_ended
 	// we already executed this code when we received that event.
 	if _, exists := p.gameState.grenadeProjectiles[proj.Entity.ID()]; !exists {
@@ -448,7 +448,7 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	}
 }
 
-func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentType) {
+func (p *parser) bindWeapon(entity *st.Entity, wepType common.EquipmentType) {
 	entityID := entity.ID()
 
 	eq, eqExists := p.gameState.weapons[entityID]
@@ -502,7 +502,7 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentType) {
 	}
 }
 
-func (p *Parser) bindNewInferno(entity *st.Entity) {
+func (p *parser) bindNewInferno(entity *st.Entity) {
 	inf := common.NewInferno(p.demoInfoProvider, entity)
 	p.gameState.infernos[entity.ID()] = inf
 
@@ -518,7 +518,7 @@ func (p *Parser) bindNewInferno(entity *st.Entity) {
 }
 
 // Separate function because we also use it in round_officially_ended (issue #42)
-func (p *Parser) infernoExpired(inf *common.Inferno) {
+func (p *parser) infernoExpired(inf *common.Inferno) {
 	// If the inferno entity is destroyed AFTER round_officially_ended
 	// we already executed this code when we received that event.
 	if _, exists := p.gameState.infernos[inf.Entity.ID()]; !exists {
@@ -534,7 +534,7 @@ func (p *Parser) infernoExpired(inf *common.Inferno) {
 	p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
 }
 
-func (p *Parser) bindGameRules() {
+func (p *parser) bindGameRules() {
 	grPrefix := func(s string) string {
 		return fmt.Sprintf("%s.%s", gameRulesPrefix, s)
 	}
