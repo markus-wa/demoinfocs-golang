@@ -24,7 +24,7 @@ If you are unfamiliar with Go modules there's a [list of recommended resources](
 
 ## Go Get
 
-	go get -u github.com/markus-wa/demoinfocs-golang/v2
+	go get -u github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs
 
 ## Example
 
