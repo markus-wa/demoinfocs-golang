@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -20,25 +21,24 @@ const (
 type Player struct {
 	demoInfoProvider demoInfoProvider // provider for demo info such as tick-rate or current tick
 
-	SteamID               int64                        // int64 representation of the User's Steam ID
-	LastAlivePosition     r3.Vector                    // The location where the player was last alive. Should be equal to Position if the player is still alive.
-	UserID                int                          // Mostly used in game-events to address this player
-	Name                  string                       // Steam / in-game user name
-	Inventory             map[int]*Equipment           // All weapons / equipment the player is currently carrying
-	AmmoLeft              [32]int                      // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
-	EntityID              int                          // Usually the same as Entity.ID() but may be different between player death and re-spawn.
-	Entity                st.IEntity                   // May be nil between player-death and re-spawn
-	AdditionalInformation *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
-	FlashDuration         float32                      // Blindness duration from the flashbang currently affecting the player (seconds)
-	FlashTick             int                          // In-game tick at which the player was last flashed
-	TeamState             *TeamState                   // When keeping the reference make sure you notice when the player changes teams
-	Team                  Team                         // Team identifier for the player (e.g. TeamTerrorists or TeamCounterTerrorists).
-	IsBot                 bool                         // True if this is a bot-entity. See also IsControllingBot and ControlledBot().
-	IsConnected           bool
-	IsDefusing            bool
-	IsPlanting            bool
-	IsReloading           bool
-	IsUnknown             bool // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
+	SteamID           int64              // int64 representation of the User's Steam ID
+	LastAlivePosition r3.Vector          // The location where the player was last alive. Should be equal to Position if the player is still alive.
+	UserID            int                // Mostly used in game-events to address this player
+	Name              string             // Steam / in-game user name
+	Inventory         map[int]*Equipment // All weapons / equipment the player is currently carrying
+	AmmoLeft          [32]int            // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
+	EntityID          int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
+	Entity            st.IEntity         // May be nil between player-death and re-spawn
+	FlashDuration     float32            // Blindness duration from the flashbang currently affecting the player (seconds)
+	FlashTick         int                // In-game tick at which the player was last flashed
+	TeamState         *TeamState         // When keeping the reference make sure you notice when the player changes teams
+	Team              Team               // Team identifier for the player (e.g. TeamTerrorists or TeamCounterTerrorists).
+	IsBot             bool               // True if this is a bot-entity. See also IsControllingBot and ControlledBot().
+	IsConnected       bool
+	IsDefusing        bool
+	IsPlanting        bool
+	IsReloading       bool
+	IsUnknown         bool // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 }
 
 // String returns the player's name.
@@ -120,6 +120,11 @@ Going by the last two lines, the player should not have been blinded at ~49m57.0
 
 This isn't very conclusive but it looks like IsFlashed isn't super reliable currently.
 */
+
+// Used internally to set the active weapon, see ActiveWeapon()
+func (p *Player) activeWeaponID() int {
+	return getInt(p.Entity, "m_hActiveWeapon") & entityHandleIndexMask
+}
 
 // ActiveWeapon returns the currently active / equipped weapon of the player.
 func (p *Player) ActiveWeapon() *Equipment {
@@ -280,28 +285,64 @@ func (p *Player) Velocity() r3.Vector {
 	}
 }
 
-// Used internally to set the active weapon, see ActiveWeapon()
-func (p *Player) activeWeaponID() int {
-	return getInt(p.Entity, "m_hActiveWeapon") & entityHandleIndexMask
+/////////////////////////////
+// CCSPlayerResource stuff //
+/////////////////////////////
+
+func (p *Player) entityIDStr() string {
+	return fmt.Sprintf("%03d", p.EntityID)
 }
 
-// AdditionalPlayerInformation contains mostly scoreboard information.
-type AdditionalPlayerInformation struct {
-	Kills               int
-	Deaths              int
-	Assists             int
-	Score               int
-	MVPs                int
-	Ping                int
-	ClanTag             string
-	MoneySpentTotal     int
-	MoneySpentThisRound int
+// ClanTag returns the player's individual clan tag (Steam Groups etc.).
+func (p *Player) ClanTag() string {
+	return getString(p.demoInfoProvider.PlayerResourceEntity(), "m_szClan."+p.entityIDStr())
+}
+
+// Ping returns the players latency to the game server.
+func (p *Player) Ping() int {
+	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iPing."+p.entityIDStr())
+}
+
+// Score returns the players score as shown on the scoreboard.
+func (p *Player) Score() int {
+	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iScore."+p.entityIDStr())
+}
+
+// Kills returns the amount of kills the player has as shown on the scoreboard.
+func (p *Player) Kills() int {
+	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iKills."+p.entityIDStr())
+}
+
+// Deaths returns the amount of deaths the player has as shown on the scoreboard.
+func (p *Player) Deaths() int {
+	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iDeaths."+p.entityIDStr())
+}
+
+// Assists returns the amount of assists the player has as shown on the scoreboard.
+func (p *Player) Assists() int {
+	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iAssists."+p.entityIDStr())
+}
+
+// MVPs returns the amount of Most-Valuable-Player awards the player has as shown on the scoreboard.
+func (p *Player) MVPs() int {
+	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iMVPs."+p.entityIDStr())
+}
+
+// MoneySpentTotal returns the total amount of money the player has spent in the current match.
+func (p *Player) MoneySpentTotal() int {
+	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iTotalCashSpent."+p.entityIDStr())
+}
+
+// MoneySpentThisRound returns the amount of money the player has spent in the current round.
+func (p *Player) MoneySpentThisRound() int {
+	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iCashSpentThisRound."+p.entityIDStr())
 }
 
 type demoInfoProvider interface {
 	IngameTick() int   // current in-game tick, used for IsBlinded()
 	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
 	FindPlayerByHandle(handle int) *Player
+	PlayerResourceEntity() st.IEntity
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.

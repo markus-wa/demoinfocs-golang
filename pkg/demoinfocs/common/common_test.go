@@ -95,8 +95,8 @@ func TestTeamState_EquipmentValueFreezeTimeEnd(t *testing.T) {
 
 func TestTeamState_MoneySpentThisRound(t *testing.T) {
 	members := []*Player{
-		{AdditionalInformation: &AdditionalPlayerInformation{MoneySpentThisRound: 100}},
-		{AdditionalInformation: &AdditionalPlayerInformation{MoneySpentThisRound: 200}},
+		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iCashSpentThisRound.000", st.PropertyValue{IntVal: 100})}),
+		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iCashSpentThisRound.000", st.PropertyValue{IntVal: 200})}),
 	}
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
 
@@ -105,8 +105,8 @@ func TestTeamState_MoneySpentThisRound(t *testing.T) {
 
 func TestTeamState_MoneySpentTotal(t *testing.T) {
 	members := []*Player{
-		{AdditionalInformation: &AdditionalPlayerInformation{MoneySpentTotal: 100}},
-		{AdditionalInformation: &AdditionalPlayerInformation{MoneySpentTotal: 200}},
+		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iTotalCashSpent.000", st.PropertyValue{IntVal: 100})}),
+		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iTotalCashSpent.000", st.PropertyValue{IntVal: 200})}),
 	}
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
 
@@ -114,9 +114,10 @@ func TestTeamState_MoneySpentTotal(t *testing.T) {
 }
 
 type demoInfoProviderMock struct {
-	tickRate        float64
-	ingameTick      int
-	playersByHandle map[int]*Player
+	tickRate             float64
+	ingameTick           int
+	playersByHandle      map[int]*Player
+	playerResourceEntity st.IEntity
 }
 
 func (p demoInfoProviderMock) TickRate() float64 {
@@ -129,6 +130,10 @@ func (p demoInfoProviderMock) IngameTick() int {
 
 func (p demoInfoProviderMock) FindPlayerByHandle(handle int) *Player {
 	return p.playersByHandle[handle]
+}
+
+func (p demoInfoProviderMock) PlayerResourceEntity() st.IEntity {
+	return p.playerResourceEntity
 }
 
 func mockDemoInfoProvider(tickRate float64, tick int) demoInfoProvider {

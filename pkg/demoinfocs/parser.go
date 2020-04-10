@@ -66,13 +66,13 @@ type Parser struct {
 	bombsiteB            bombsite
 	equipmentMapping     map[*st.ServerClass]common.EquipmentType        // Maps server classes to equipment-types
 	rawPlayers           map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
-	additionalPlayerInfo [maxPlayers]common.AdditionalPlayerInformation  // Maps entity IDs to additional player info (scoreboard info)
 	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
 	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
 	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
 	grenadeModelIndices  map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
 	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
 	delayedEventHandlers []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
+	playerResourceEntity st.IEntity                                      // CCSPlayerResource entity instance, contains scoreboard info and more
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
@@ -341,4 +341,8 @@ func (p demoInfoProvider) TickRate() float64 {
 
 func (p demoInfoProvider) FindPlayerByHandle(handle int) *common.Player {
 	return p.parser.gameState.Participants().FindByHandle(handle)
+}
+
+func (p demoInfoProvider) PlayerResourceEntity() st.IEntity {
+	return p.parser.playerResourceEntity
 }

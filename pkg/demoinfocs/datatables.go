@@ -174,23 +174,8 @@ func (p *Parser) bindPlayers() {
 		p.bindNewPlayer(player)
 	})
 
-	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(plInfo *st.Entity) {
-		for i := 0; i < maxPlayers; i++ {
-			i2 := i // Copy so it stays the same (for passing to handlers)
-			iStr := fmt.Sprintf("%03d", i)
-
-			plInfo.BindProperty("m_szClan."+iStr, &p.additionalPlayerInfo[i2].ClanTag, st.ValTypeString)
-			plInfo.BindProperty("m_iPing."+iStr, &p.additionalPlayerInfo[i2].Ping, st.ValTypeInt)
-			plInfo.BindProperty("m_iScore."+iStr, &p.additionalPlayerInfo[i2].Score, st.ValTypeInt)
-			plInfo.BindProperty("m_iKills."+iStr, &p.additionalPlayerInfo[i2].Kills, st.ValTypeInt)
-			plInfo.BindProperty("m_iDeaths."+iStr, &p.additionalPlayerInfo[i2].Deaths, st.ValTypeInt)
-			plInfo.BindProperty("m_iAssists."+iStr, &p.additionalPlayerInfo[i2].Assists, st.ValTypeInt)
-			plInfo.BindProperty("m_iMVPs."+iStr, &p.additionalPlayerInfo[i2].MVPs, st.ValTypeInt)
-			plInfo.BindProperty("m_iTotalCashSpent."+iStr, &p.additionalPlayerInfo[i2].MoneySpentTotal, st.ValTypeInt)
-			if prop := plInfo.Property("m_iCashSpentThisRound." + iStr); prop != nil {
-				prop.Bind(&p.additionalPlayerInfo[i2].MoneySpentThisRound, st.ValTypeInt)
-			}
-		}
+	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(entity *st.Entity) {
+		p.playerResourceEntity = entity
 	})
 }
 
@@ -238,7 +223,6 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 
 	pl.EntityID = entityID
 	pl.Entity = playerEntity
-	pl.AdditionalInformation = &p.additionalPlayerInfo[entityID]
 	pl.IsConnected = true
 
 	playerEntity.OnDestroy(func() {

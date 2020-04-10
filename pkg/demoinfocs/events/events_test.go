@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
 )
 
@@ -68,7 +68,7 @@ func TestItemPickup_WeaponTraceable_WeaponFound(t *testing.T) {
 	assert.Equal(t, wep, e.WeaponTraceable())
 }
 
-func entity() sendtables.IEntity {
+func entity() st.IEntity {
 	entity := new(stfake.Entity)
 	entity.On("ID").Return(1)
 
@@ -102,5 +102,8 @@ func (p demoInfoProviderMock) TickRate() float64 {
 }
 
 func (p demoInfoProviderMock) FindPlayerByHandle(handle int) *common.Player {
+	return nil
+}
+func (p demoInfoProviderMock) PlayerResourceEntity() st.IEntity {
 	return nil
 }
