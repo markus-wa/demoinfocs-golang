@@ -25,7 +25,7 @@ type Player struct {
 	LastAlivePosition r3.Vector          // The location where the player was last alive. Should be equal to Position if the player is still alive.
 	UserID            int                // Mostly used in game-events to address this player
 	Name              string             // Steam / in-game user name
-	Inventory         map[int]*Equipment // All weapons / equipment the player is currently carrying
+	Inventory         map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
 	AmmoLeft          [32]int            // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
 	EntityID          int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
 	Entity            st.IEntity         // May be nil between player-death and re-spawn
@@ -132,6 +132,7 @@ func (p *Player) ActiveWeapon() *Equipment {
 }
 
 // Weapons returns all weapons in the player's possession.
+// Contains all entries from Player.Inventory but as a slice instead of a map.
 func (p *Player) Weapons() []*Equipment {
 	res := make([]*Equipment, 0, len(p.Inventory))
 	for _, w := range p.Inventory {
