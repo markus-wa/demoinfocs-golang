@@ -23,7 +23,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type GCProtoBufMsgSrc int32
 
@@ -258,7 +258,7 @@ func (m *CMsgProtoBufHeader) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_CMsgProtoBufHeader.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -381,7 +381,7 @@ func (m *CMsgWebAPIKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return xxx_messageInfo_CMsgWebAPIKey.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -464,7 +464,7 @@ func (m *CMsgHttpRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_CMsgHttpRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -558,7 +558,7 @@ func (m *CMsgHttpRequest_RequestHeader) XXX_Marshal(b []byte, deterministic bool
 		return xxx_messageInfo_CMsgHttpRequest_RequestHeader.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -610,7 +610,7 @@ func (m *CMsgHttpRequest_QueryParam) XXX_Marshal(b []byte, deterministic bool) (
 		return xxx_messageInfo_CMsgHttpRequest_QueryParam.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -667,7 +667,7 @@ func (m *CMsgWebAPIRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CMsgWebAPIRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -755,7 +755,7 @@ func (m *CMsgHttpResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_CMsgHttpResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -814,7 +814,7 @@ func (m *CMsgHttpResponse_ResponseHeader) XXX_Marshal(b []byte, deterministic bo
 		return xxx_messageInfo_CMsgHttpResponse_ResponseHeader.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -866,7 +866,7 @@ func (m *CMsgAMFindAccounts) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_CMsgAMFindAccounts.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -917,7 +917,7 @@ func (m *CMsgAMFindAccountsResponse) XXX_Marshal(b []byte, deterministic bool) (
 		return xxx_messageInfo_CMsgAMFindAccountsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -967,7 +967,7 @@ func (m *CMsgNotifyWatchdog) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_CMsgNotifyWatchdog.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1053,7 +1053,7 @@ func (m *CMsgAMGetLicenses) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CMsgAMGetLicenses.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1099,7 +1099,7 @@ func (m *CMsgPackageLicense) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_CMsgPackageLicense.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1158,7 +1158,7 @@ func (m *CMsgAMGetLicensesResponse) XXX_Marshal(b []byte, deterministic bool) ([
 		return xxx_messageInfo_CMsgAMGetLicensesResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1211,7 +1211,7 @@ func (m *CMsgAMGetUserGameStats) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_CMsgAMGetUserGameStats.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1273,7 +1273,7 @@ func (m *CMsgAMGetUserGameStatsResponse) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_CMsgAMGetUserGameStatsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1348,7 +1348,7 @@ func (m *CMsgAMGetUserGameStatsResponse_Stats) XXX_Marshal(b []byte, determinist
 		return xxx_messageInfo_CMsgAMGetUserGameStatsResponse_Stats.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1405,7 +1405,7 @@ func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) XXX_Marshal(b []byte
 		return xxx_messageInfo_CMsgAMGetUserGameStatsResponse_Achievement_Blocks.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1464,7 +1464,7 @@ func (m *CMsgGCGetCommandList) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CMsgGCGetCommandList.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1515,7 +1515,7 @@ func (m *CMsgGCGetCommandListResponse) XXX_Marshal(b []byte, deterministic bool)
 		return xxx_messageInfo_CMsgGCGetCommandListResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1559,7 +1559,7 @@ func (m *CGCMsgMemCachedGet) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_CGCMsgMemCachedGet.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1603,7 +1603,7 @@ func (m *CGCMsgMemCachedGetResponse) XXX_Marshal(b []byte, deterministic bool) (
 		return xxx_messageInfo_CGCMsgMemCachedGetResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1648,7 +1648,7 @@ func (m *CGCMsgMemCachedGetResponse_ValueTag) XXX_Marshal(b []byte, deterministi
 		return xxx_messageInfo_CGCMsgMemCachedGetResponse_ValueTag.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1699,7 +1699,7 @@ func (m *CGCMsgMemCachedSet) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_CGCMsgMemCachedSet.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1744,7 +1744,7 @@ func (m *CGCMsgMemCachedSet_KeyPair) XXX_Marshal(b []byte, deterministic bool) (
 		return xxx_messageInfo_CGCMsgMemCachedSet_KeyPair.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1795,7 +1795,7 @@ func (m *CGCMsgMemCachedDelete) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return xxx_messageInfo_CGCMsgMemCachedDelete.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1838,7 +1838,7 @@ func (m *CGCMsgMemCachedStats) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CGCMsgMemCachedStats.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1888,7 +1888,7 @@ func (m *CGCMsgMemCachedStatsResponse) XXX_Marshal(b []byte, deterministic bool)
 		return xxx_messageInfo_CGCMsgMemCachedStatsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2023,7 +2023,7 @@ func (m *CGCMsgSQLStats) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_CGCMsgSQLStats.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2075,7 +2075,7 @@ func (m *CGCMsgSQLStatsResponse) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_CGCMsgSQLStatsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2178,7 +2178,7 @@ func (m *CMsgAMAddFreeLicense) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CMsgAMAddFreeLicense.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2245,7 +2245,7 @@ func (m *CMsgAMAddFreeLicenseResponse) XXX_Marshal(b []byte, deterministic bool)
 		return xxx_messageInfo_CMsgAMAddFreeLicenseResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2305,7 +2305,7 @@ func (m *CGCMsgGetIPLocation) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_CGCMsgGetIPLocation.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2354,7 +2354,7 @@ func (m *CIPLocationInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_CIPLocationInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2433,7 +2433,7 @@ func (m *CGCMsgGetIPLocationResponse) XXX_Marshal(b []byte, deterministic bool) 
 		return xxx_messageInfo_CGCMsgGetIPLocationResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2478,7 +2478,7 @@ func (m *CGCMsgSystemStatsSchema) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return xxx_messageInfo_CGCMsgSystemStatsSchema.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2528,7 +2528,7 @@ func (m *CGCMsgGetSystemStats) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CGCMsgGetSystemStats.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2577,7 +2577,7 @@ func (m *CGCMsgGetSystemStatsResponse) XXX_Marshal(b []byte, deterministic bool)
 		return xxx_messageInfo_CGCMsgGetSystemStatsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2710,7 +2710,7 @@ func (m *CMsgAMSendEmail) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_CMsgAMSendEmail.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2790,7 +2790,7 @@ func (m *CMsgAMSendEmail_ReplacementToken) XXX_Marshal(b []byte, deterministic b
 		return xxx_messageInfo_CMsgAMSendEmail_ReplacementToken.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2846,7 +2846,7 @@ func (m *CMsgAMSendEmail_PersonaNameReplacementToken) XXX_Marshal(b []byte, dete
 		return xxx_messageInfo_CMsgAMSendEmail_PersonaNameReplacementToken.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2897,7 +2897,7 @@ func (m *CMsgAMSendEmailResponse) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return xxx_messageInfo_CMsgAMSendEmailResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2946,7 +2946,7 @@ func (m *CMsgGCGetEmailTemplate) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_CMsgGCGetEmailTemplate.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3013,7 +3013,7 @@ func (m *CMsgGCGetEmailTemplateResponse) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_CMsgGCGetEmailTemplateResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3077,7 +3077,7 @@ func (m *CMsgAMGrantGuestPasses2) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return xxx_messageInfo_CMsgAMGrantGuestPasses2.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3150,7 +3150,7 @@ func (m *CMsgAMGrantGuestPasses2Response) XXX_Marshal(b []byte, deterministic bo
 		return xxx_messageInfo_CMsgAMGrantGuestPasses2Response.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3205,7 +3205,7 @@ func (m *CGCSystemMsg_GetAccountDetails) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_CGCSystemMsg_GetAccountDetails.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3291,7 +3291,7 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) XXX_Marshal(b []byte, determin
 		return xxx_messageInfo_CGCSystemMsg_GetAccountDetails_Response.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3568,7 +3568,7 @@ func (m *CMsgGCGetPersonaNames) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return xxx_messageInfo_CMsgGCGetPersonaNames.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3613,7 +3613,7 @@ func (m *CMsgGCGetPersonaNames_Response) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_CMsgGCGetPersonaNames_Response.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3669,7 +3669,7 @@ func (m *CMsgGCGetPersonaNames_Response_PersonaName) XXX_Marshal(b []byte, deter
 		return xxx_messageInfo_CMsgGCGetPersonaNames_Response_PersonaName.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3721,7 +3721,7 @@ func (m *CMsgGCCheckFriendship) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return xxx_messageInfo_CMsgGCCheckFriendship.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3773,7 +3773,7 @@ func (m *CMsgGCCheckFriendship_Response) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_CMsgGCCheckFriendship_Response.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3825,7 +3825,7 @@ func (m *CMsgGCMsgMasterSetDirectory) XXX_Marshal(b []byte, deterministic bool) 
 		return xxx_messageInfo_CMsgGCMsgMasterSetDirectory.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3880,7 +3880,7 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) XXX_Marshal(b []byte, deterministic 
 		return xxx_messageInfo_CMsgGCMsgMasterSetDirectory_SubGC.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3952,7 +3952,7 @@ func (m *CMsgGCMsgMasterSetDirectory_Response) XXX_Marshal(b []byte, determinist
 		return xxx_messageInfo_CMsgGCMsgMasterSetDirectory_Response.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4000,7 +4000,7 @@ func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) XXX_Marshal(b []byte, determi
 		return xxx_messageInfo_CMsgGCMsgWebAPIJobRequestForwardResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4044,7 +4044,7 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Request) XXX_Marshal(b []byte, determinis
 		return xxx_messageInfo_CGCSystemMsg_GetPurchaseTrust_Request.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4093,7 +4093,7 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Response) XXX_Marshal(b []byte, determini
 		return xxx_messageInfo_CGCSystemMsg_GetPurchaseTrust_Response.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4162,7 +4162,7 @@ func (m *CMsgGCHAccountVacStatusChange) XXX_Marshal(b []byte, deterministic bool
 		return xxx_messageInfo_CMsgGCHAccountVacStatusChange.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4234,7 +4234,7 @@ func (m *CMsgGCGetPartnerAccountLink) XXX_Marshal(b []byte, deterministic bool) 
 		return xxx_messageInfo_CMsgGCGetPartnerAccountLink.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4279,7 +4279,7 @@ func (m *CMsgGCGetPartnerAccountLink_Response) XXX_Marshal(b []byte, determinist
 		return xxx_messageInfo_CMsgGCGetPartnerAccountLink_Response.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4334,7 +4334,7 @@ func (m *CMsgGCRoutingInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CMsgGCRoutingInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4409,7 +4409,7 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting) XXX_Marshal(b []byte, deterministic bo
 		return xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4455,7 +4455,7 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) XXX_Marshal(b []byte, determinis
 		return xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting_Entry.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4513,7 +4513,7 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting) XXX_Marshal(b []byte, deterministic
 		return xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4560,7 +4560,7 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) XXX_Marshal(b []byte, determi
 		return xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting_Entry.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4613,7 +4613,7 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) XXX_Marshal(b []byte, determi
 		return xxx_messageInfo_CMsgGCMsgMasterSetWebAPIRouting_Response.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4663,7 +4663,7 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) XXX_Marshal(b []byte, dete
 		return xxx_messageInfo_CMsgGCMsgMasterSetClientMsgRouting_Response.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4710,7 +4710,7 @@ func (m *CMsgGCMsgSetOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_CMsgGCMsgSetOptions.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4762,7 +4762,7 @@ func (m *CMsgGCMsgSetOptions_MessageRange) XXX_Marshal(b []byte, deterministic b
 		return xxx_messageInfo_CMsgGCMsgSetOptions_MessageRange.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4825,7 +4825,7 @@ func (m *CMsgGCHUpdateSession) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CMsgGCHUpdateSession.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4954,7 +4954,7 @@ func (m *CMsgGCHUpdateSession_ExtraField) XXX_Marshal(b []byte, deterministic bo
 		return xxx_messageInfo_CMsgGCHUpdateSession_ExtraField.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5007,7 +5007,7 @@ func (m *CMsgNotificationOfSuspiciousActivity) XXX_Marshal(b []byte, determinist
 		return xxx_messageInfo_CMsgNotificationOfSuspiciousActivity.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5070,7 +5070,7 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) XXX_Marshal
 		return xxx_messageInfo_CMsgNotificationOfSuspiciousActivity_MultipleGameInstances.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5124,7 +5124,7 @@ func (m *CMsgDPPartnerMicroTxns) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_CMsgDPPartnerMicroTxns.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5207,7 +5207,7 @@ func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) XXX_Marshal(b []byte, determini
 		return xxx_messageInfo_CMsgDPPartnerMicroTxns_PartnerMicroTxn.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5366,7 +5366,7 @@ func (m *CMsgDPPartnerMicroTxns_PartnerInfo) XXX_Marshal(b []byte, deterministic
 		return xxx_messageInfo_CMsgDPPartnerMicroTxns_PartnerInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5432,7 +5432,7 @@ func (m *CMsgDPPartnerMicroTxnsResponse) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_CMsgDPPartnerMicroTxnsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5950,7 +5950,7 @@ var fileDescriptor_662a1850681ae3f8 = []byte{
 func (m *CMsgProtoBufHeader) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5958,67 +5958,74 @@ func (m *CMsgProtoBufHeader) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgProtoBufHeader) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgProtoBufHeader) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.ClientSteamId))
-	i += 8
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.ClientSessionId))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.SourceAppId))
-	if m.JobIdSource != nil {
-		dAtA[i] = 0x51
-		i++
-		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(*m.JobIdSource))
-		i += 8
-	}
-	if m.JobIdTarget != nil {
-		dAtA[i] = 0x59
-		i++
-		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(*m.JobIdTarget))
-		i += 8
-	}
-	dAtA[i] = 0x62
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.TargetJobName)))
-	i += copy(dAtA[i:], m.TargetJobName)
-	if m.Eresult != nil {
-		dAtA[i] = 0x68
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
-	}
-	dAtA[i] = 0x72
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.ErrorMessage)))
-	i += copy(dAtA[i:], m.ErrorMessage)
-	dAtA[i] = 0x78
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Ip))
-	if m.GcMsgSrc != nil {
-		dAtA[i] = 0xc0
-		i++
-		dAtA[i] = 0xc
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(*m.GcMsgSrc))
-	}
-	dAtA[i] = 0xc8
-	i++
-	dAtA[i] = 0xc
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.GcDirIndexSource))
-	return i, nil
+	i--
+	dAtA[i] = 0xc
+	i--
+	dAtA[i] = 0xc8
+	if m.GcMsgSrc != nil {
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.GcMsgSrc))
+		i--
+		dAtA[i] = 0xc
+		i--
+		dAtA[i] = 0xc0
+	}
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Ip))
+	i--
+	dAtA[i] = 0x78
+	i -= len(m.ErrorMessage)
+	copy(dAtA[i:], m.ErrorMessage)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.ErrorMessage)))
+	i--
+	dAtA[i] = 0x72
+	if m.Eresult != nil {
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+		i--
+		dAtA[i] = 0x68
+	}
+	i -= len(m.TargetJobName)
+	copy(dAtA[i:], m.TargetJobName)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.TargetJobName)))
+	i--
+	dAtA[i] = 0x62
+	if m.JobIdTarget != nil {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(*m.JobIdTarget))
+		i--
+		dAtA[i] = 0x59
+	}
+	if m.JobIdSource != nil {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(*m.JobIdSource))
+		i--
+		dAtA[i] = 0x51
+	}
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.SourceAppId))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.ClientSessionId))
+	i--
+	dAtA[i] = 0x10
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.ClientSteamId))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgWebAPIKey) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6026,39 +6033,45 @@ func (m *CMsgWebAPIKey) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgWebAPIKey) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgWebAPIKey) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Status != nil {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Status))
+	i -= len(m.Domain)
+	copy(dAtA[i:], m.Domain)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Domain)))
+	i--
+	dAtA[i] = 0x2a
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.KeyId))
+	i--
+	dAtA[i] = 0x20
+	if m.PublisherGroupId != nil {
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.PublisherGroupId))
+		i--
+		dAtA[i] = 0x18
 	}
 	if m.AccountId != nil {
-		dAtA[i] = 0x10
-		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(*m.AccountId))
+		i--
+		dAtA[i] = 0x10
 	}
-	if m.PublisherGroupId != nil {
-		dAtA[i] = 0x18
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(*m.PublisherGroupId))
+	if m.Status != nil {
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Status))
+		i--
+		dAtA[i] = 0x8
 	}
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.KeyId))
-	dAtA[i] = 0x2a
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Domain)))
-	i += copy(dAtA[i:], m.Domain)
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgHttpRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6066,73 +6079,87 @@ func (m *CMsgHttpRequest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgHttpRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgHttpRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.RequestMethod))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Hostname)))
-	i += copy(dAtA[i:], m.Hostname)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Url)))
-	i += copy(dAtA[i:], m.Url)
-	if len(m.Headers) > 0 {
-		for _, msg := range m.Headers {
-			dAtA[i] = 0x22
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AbsoluteTimeout))
+	i--
+	dAtA[i] = 0x40
+	if m.Body != nil {
+		i -= len(m.Body)
+		copy(dAtA[i:], m.Body)
+		i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Body)))
+		i--
+		dAtA[i] = 0x3a
+	}
+	if len(m.PostParams) > 0 {
+		for iNdEx := len(m.PostParams) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.PostParams[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x32
 		}
 	}
 	if len(m.GetParams) > 0 {
-		for _, msg := range m.GetParams {
+		for iNdEx := len(m.GetParams) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.GetParams[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
+			}
+			i--
 			dAtA[i] = 0x2a
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
 		}
 	}
-	if len(m.PostParams) > 0 {
-		for _, msg := range m.PostParams {
-			dAtA[i] = 0x32
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+	if len(m.Headers) > 0 {
+		for iNdEx := len(m.Headers) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Headers[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x22
 		}
 	}
-	if m.Body != nil {
-		dAtA[i] = 0x3a
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Body)))
-		i += copy(dAtA[i:], m.Body)
-	}
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AbsoluteTimeout))
-	return i, nil
+	i -= len(m.Url)
+	copy(dAtA[i:], m.Url)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Url)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.Hostname)
+	copy(dAtA[i:], m.Hostname)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Hostname)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.RequestMethod))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgHttpRequest_RequestHeader) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6140,25 +6167,32 @@ func (m *CMsgHttpRequest_RequestHeader) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgHttpRequest_RequestHeader) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgHttpRequest_RequestHeader) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.Value)
+	copy(dAtA[i:], m.Value)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Value)))
-	i += copy(dAtA[i:], m.Value)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgHttpRequest_QueryParam) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6166,27 +6200,34 @@ func (m *CMsgHttpRequest_QueryParam) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgHttpRequest_QueryParam) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgHttpRequest_QueryParam) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
 	if m.Value != nil {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.Value)
+		copy(dAtA[i:], m.Value)
 		i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Value)))
-		i += copy(dAtA[i:], m.Value)
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgWebAPIRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6194,55 +6235,67 @@ func (m *CMsgWebAPIRequest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgWebAPIRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgWebAPIRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.UNUSEDJobName)))
-	i += copy(dAtA[i:], m.UNUSEDJobName)
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.InterfaceName)))
-	i += copy(dAtA[i:], m.InterfaceName)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.MethodName)))
-	i += copy(dAtA[i:], m.MethodName)
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Version))
-	if m.ApiKey != nil {
-		dAtA[i] = 0x2a
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(m.ApiKey.Size()))
-		n1, err1 := m.ApiKey.MarshalTo(dAtA[i:])
-		if err1 != nil {
-			return 0, err1
-		}
-		i += n1
-	}
-	if m.Request != nil {
-		dAtA[i] = 0x32
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(m.Request.Size()))
-		n2, err2 := m.Request.MarshalTo(dAtA[i:])
-		if err2 != nil {
-			return 0, err2
-		}
-		i += n2
-	}
-	dAtA[i] = 0x38
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.RoutingAppId))
-	return i, nil
+	i--
+	dAtA[i] = 0x38
+	if m.Request != nil {
+		{
+			size, err := m.Request.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintSteammessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x32
+	}
+	if m.ApiKey != nil {
+		{
+			size, err := m.ApiKey.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintSteammessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x2a
+	}
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Version))
+	i--
+	dAtA[i] = 0x20
+	i -= len(m.MethodName)
+	copy(dAtA[i:], m.MethodName)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.MethodName)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.InterfaceName)
+	copy(dAtA[i:], m.InterfaceName)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.InterfaceName)))
+	i--
+	dAtA[i] = 0x12
+	i -= len(m.UNUSEDJobName)
+	copy(dAtA[i:], m.UNUSEDJobName)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.UNUSEDJobName)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgHttpResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6250,38 +6303,46 @@ func (m *CMsgHttpResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgHttpResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgHttpResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.StatusCode))
+	if m.Body != nil {
+		i -= len(m.Body)
+		copy(dAtA[i:], m.Body)
+		i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Body)))
+		i--
+		dAtA[i] = 0x1a
+	}
 	if len(m.Headers) > 0 {
-		for _, msg := range m.Headers {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Headers) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Headers[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x12
 		}
 	}
-	if m.Body != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Body)))
-		i += copy(dAtA[i:], m.Body)
-	}
-	return i, nil
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.StatusCode))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgHttpResponse_ResponseHeader) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6289,25 +6350,32 @@ func (m *CMsgHttpResponse_ResponseHeader) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgHttpResponse_ResponseHeader) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgHttpResponse_ResponseHeader) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.Value)
+	copy(dAtA[i:], m.Value)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Value)))
-	i += copy(dAtA[i:], m.Value)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMFindAccounts) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6315,24 +6383,30 @@ func (m *CMsgAMFindAccounts) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMFindAccounts) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMFindAccounts) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.SearchType))
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.SearchString)
+	copy(dAtA[i:], m.SearchString)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.SearchString)))
-	i += copy(dAtA[i:], m.SearchString)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.SearchType))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMFindAccountsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6340,25 +6414,30 @@ func (m *CMsgAMFindAccountsResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMFindAccountsResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMFindAccountsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.SteamId) > 0 {
-		for _, num := range m.SteamId {
+		for iNdEx := len(m.SteamId) - 1; iNdEx >= 0; iNdEx-- {
+			i -= 8
+			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId[iNdEx]))
+			i--
 			dAtA[i] = 0x9
-			i++
-			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(num))
-			i += 8
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgNotifyWatchdog) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6366,44 +6445,50 @@ func (m *CMsgNotifyWatchdog) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgNotifyWatchdog) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgNotifyWatchdog) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Source))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AlertType))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AlertDestination))
-	dAtA[i] = 0x20
-	i++
+	i -= len(m.Text)
+	copy(dAtA[i:], m.Text)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Text)))
+	i--
+	dAtA[i] = 0x3a
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Appid))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Time))
+	i--
+	dAtA[i] = 0x28
+	i--
 	if m.Critical {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Time))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Appid))
-	dAtA[i] = 0x3a
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Text)))
-	i += copy(dAtA[i:], m.Text)
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AlertDestination))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AlertType))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Source))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMGetLicenses) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6411,21 +6496,26 @@ func (m *CMsgAMGetLicenses) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMGetLicenses) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMGetLicenses) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
+	i -= 8
 	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
-	i += 8
-	return i, nil
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgPackageLicense) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6433,26 +6523,31 @@ func (m *CMsgPackageLicense) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgPackageLicense) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgPackageLicense) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.PackageId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.TimeCreated))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.OwnerId))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.TimeCreated))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PackageId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMGetLicensesResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6460,32 +6555,39 @@ func (m *CMsgAMGetLicensesResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMGetLicensesResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMGetLicensesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Result))
+	i--
+	dAtA[i] = 0x10
 	if len(m.License) > 0 {
-		for _, msg := range m.License {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.License) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.License[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Result))
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMGetUserGameStats) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6493,32 +6595,37 @@ func (m *CMsgAMGetUserGameStats) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMGetUserGameStats) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMGetUserGameStats) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
-	i += 8
-	dAtA[i] = 0x11
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.GameId))
-	i += 8
 	if len(m.Stats) > 0 {
-		for _, num := range m.Stats {
+		for iNdEx := len(m.Stats) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintSteammessages(dAtA, i, uint64(m.Stats[iNdEx]))
+			i--
 			dAtA[i] = 0x18
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(num))
 		}
 	}
-	return i, nil
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.GameId))
+	i--
+	dAtA[i] = 0x11
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMGetUserGameStatsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6526,54 +6633,63 @@ func (m *CMsgAMGetUserGameStatsResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMGetUserGameStatsResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMGetUserGameStatsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
-	i += 8
-	dAtA[i] = 0x11
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.GameId))
-	i += 8
-	if m.Eresult != nil {
-		dAtA[i] = 0x18
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+	if len(m.AchievementBlocks) > 0 {
+		for iNdEx := len(m.AchievementBlocks) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.AchievementBlocks[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x2a
+		}
 	}
 	if len(m.Stats) > 0 {
-		for _, msg := range m.Stats {
+		for iNdEx := len(m.Stats) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Stats[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
+			}
+			i--
 			dAtA[i] = 0x22
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
 		}
 	}
-	if len(m.AchievementBlocks) > 0 {
-		for _, msg := range m.AchievementBlocks {
-			dAtA[i] = 0x2a
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
+	if m.Eresult != nil {
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+		i--
+		dAtA[i] = 0x18
 	}
-	return i, nil
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.GameId))
+	i--
+	dAtA[i] = 0x11
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMGetUserGameStatsResponse_Stats) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6581,23 +6697,28 @@ func (m *CMsgAMGetUserGameStatsResponse_Stats) Marshal() (dAtA []byte, err error
 }
 
 func (m *CMsgAMGetUserGameStatsResponse_Stats) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMGetUserGameStatsResponse_Stats) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.StatId))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.StatValue))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.StatId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6605,27 +6726,32 @@ func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) Marshal() (dAtA []by
 }
 
 func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMGetUserGameStatsResponse_Achievement_Blocks) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AchievementId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AchievementBitId))
-	dAtA[i] = 0x1d
-	i++
+	i -= 4
 	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.UnlockTime))
-	i += 4
-	return i, nil
+	i--
+	dAtA[i] = 0x1d
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AchievementBitId))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AchievementId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCGetCommandList) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6633,24 +6759,30 @@ func (m *CMsgGCGetCommandList) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCGetCommandList) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCGetCommandList) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppId))
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.CommandPrefix)
+	copy(dAtA[i:], m.CommandPrefix)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CommandPrefix)))
-	i += copy(dAtA[i:], m.CommandPrefix)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCGetCommandListResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6658,32 +6790,31 @@ func (m *CMsgGCGetCommandListResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCGetCommandListResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCGetCommandListResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.CommandName) > 0 {
-		for _, s := range m.CommandName {
+		for iNdEx := len(m.CommandName) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.CommandName[iNdEx])
+			copy(dAtA[i:], m.CommandName[iNdEx])
+			i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CommandName[iNdEx])))
+			i--
 			dAtA[i] = 0xa
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgMemCachedGet) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6691,32 +6822,31 @@ func (m *CGCMsgMemCachedGet) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgMemCachedGet) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgMemCachedGet) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Keys) > 0 {
-		for _, s := range m.Keys {
+		for iNdEx := len(m.Keys) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Keys[iNdEx])
+			copy(dAtA[i:], m.Keys[iNdEx])
+			i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Keys[iNdEx])))
+			i--
 			dAtA[i] = 0xa
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgMemCachedGetResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6724,29 +6854,36 @@ func (m *CGCMsgMemCachedGetResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgMemCachedGetResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgMemCachedGetResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Values) > 0 {
-		for _, msg := range m.Values {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Values) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Values[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgMemCachedGetResponse_ValueTag) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6754,31 +6891,37 @@ func (m *CGCMsgMemCachedGetResponse_ValueTag) Marshal() (dAtA []byte, err error)
 }
 
 func (m *CGCMsgMemCachedGetResponse_ValueTag) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgMemCachedGetResponse_ValueTag) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
+	if m.Value != nil {
+		i -= len(m.Value)
+		copy(dAtA[i:], m.Value)
+		i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Value)))
+		i--
+		dAtA[i] = 0x12
+	}
+	i--
 	if m.Found {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	if m.Value != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Value)))
-		i += copy(dAtA[i:], m.Value)
-	}
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgMemCachedSet) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6786,29 +6929,36 @@ func (m *CGCMsgMemCachedSet) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgMemCachedSet) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgMemCachedSet) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Keys) > 0 {
-		for _, msg := range m.Keys {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Keys) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Keys[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgMemCachedSet_KeyPair) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6816,27 +6966,34 @@ func (m *CGCMsgMemCachedSet_KeyPair) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgMemCachedSet_KeyPair) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgMemCachedSet_KeyPair) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
 	if m.Value != nil {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.Value)
+		copy(dAtA[i:], m.Value)
 		i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Value)))
-		i += copy(dAtA[i:], m.Value)
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgMemCachedDelete) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6844,32 +7001,31 @@ func (m *CGCMsgMemCachedDelete) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgMemCachedDelete) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgMemCachedDelete) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Keys) > 0 {
-		for _, s := range m.Keys {
+		for iNdEx := len(m.Keys) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Keys[iNdEx])
+			copy(dAtA[i:], m.Keys[iNdEx])
+			i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Keys[iNdEx])))
+			i--
 			dAtA[i] = 0xa
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgMemCachedStats) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6877,17 +7033,22 @@ func (m *CGCMsgMemCachedStats) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgMemCachedStats) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgMemCachedStats) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgMemCachedStatsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6895,59 +7056,64 @@ func (m *CGCMsgMemCachedStatsResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgMemCachedStatsResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgMemCachedStatsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.CurrConnections))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmdGet))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmdSet))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmdFlush))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.GetHits))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.GetMisses))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.DeleteHits))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.DeleteMisses))
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.BytesRead))
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.BytesWritten))
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.LimitMaxbytes))
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.CurrItems))
-	dAtA[i] = 0x68
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Evictions))
-	dAtA[i] = 0x70
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.Bytes))
-	return i, nil
+	i--
+	dAtA[i] = 0x70
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Evictions))
+	i--
+	dAtA[i] = 0x68
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.CurrItems))
+	i--
+	dAtA[i] = 0x60
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.LimitMaxbytes))
+	i--
+	dAtA[i] = 0x58
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.BytesWritten))
+	i--
+	dAtA[i] = 0x50
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.BytesRead))
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.DeleteMisses))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.DeleteHits))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.GetMisses))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.GetHits))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmdFlush))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmdSet))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmdGet))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.CurrConnections))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgSQLStats) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6955,20 +7121,25 @@ func (m *CGCMsgSQLStats) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgSQLStats) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgSQLStats) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.SchemaCatalog))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgSQLStatsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6976,44 +7147,49 @@ func (m *CGCMsgSQLStatsResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgSQLStatsResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgSQLStatsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Threads))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.ThreadsConnected))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.ThreadsActive))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.OperationsSubmitted))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.PreparedStatementsExecuted))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.NonPreparedStatementsExecuted))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.DeadlockRetries))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.OperationsTimedOutInQueue))
-	dAtA[i] = 0x48
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.Errors))
-	return i, nil
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.OperationsTimedOutInQueue))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.DeadlockRetries))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.NonPreparedStatementsExecuted))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PreparedStatementsExecuted))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.OperationsSubmitted))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.ThreadsActive))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.ThreadsConnected))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Threads))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMAddFreeLicense) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7021,31 +7197,37 @@ func (m *CMsgAMAddFreeLicense) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMAddFreeLicense) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMAddFreeLicense) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
-	i += 8
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.IpPublic))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Packageid))
-	dAtA[i] = 0x22
-	i++
+	i -= len(m.StoreCountryCode)
+	copy(dAtA[i:], m.StoreCountryCode)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.StoreCountryCode)))
-	i += copy(dAtA[i:], m.StoreCountryCode)
-	return i, nil
+	i--
+	dAtA[i] = 0x22
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Packageid))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.IpPublic))
+	i--
+	dAtA[i] = 0x10
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMAddFreeLicenseResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7053,29 +7235,34 @@ func (m *CMsgAMAddFreeLicenseResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMAddFreeLicenseResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMAddFreeLicenseResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Eresult != nil {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
-	}
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.PurchaseResultDetail))
-	dAtA[i] = 0x19
-	i++
+	i -= 8
 	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Transid))
-	i += 8
-	return i, nil
+	i--
+	dAtA[i] = 0x19
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PurchaseResultDetail))
+	i--
+	dAtA[i] = 0x10
+	if m.Eresult != nil {
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgGetIPLocation) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7083,25 +7270,30 @@ func (m *CGCMsgGetIPLocation) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgGetIPLocation) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgGetIPLocation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Ips) > 0 {
-		for _, num := range m.Ips {
+		for iNdEx := len(m.Ips) - 1; iNdEx >= 0; iNdEx-- {
+			i -= 4
+			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.Ips[iNdEx]))
+			i--
 			dAtA[i] = 0xd
-			i++
-			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(num))
-			i += 4
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CIPLocationInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7109,40 +7301,48 @@ func (m *CIPLocationInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CIPLocationInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CIPLocationInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Ip))
-	dAtA[i] = 0x15
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Latitude))))
-	i += 4
-	dAtA[i] = 0x1d
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Longitude))))
-	i += 4
-	dAtA[i] = 0x22
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Country)))
-	i += copy(dAtA[i:], m.Country)
-	dAtA[i] = 0x2a
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.State)))
-	i += copy(dAtA[i:], m.State)
-	dAtA[i] = 0x32
-	i++
+	i -= len(m.City)
+	copy(dAtA[i:], m.City)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.City)))
-	i += copy(dAtA[i:], m.City)
-	return i, nil
+	i--
+	dAtA[i] = 0x32
+	i -= len(m.State)
+	copy(dAtA[i:], m.State)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.State)))
+	i--
+	dAtA[i] = 0x2a
+	i -= len(m.Country)
+	copy(dAtA[i:], m.Country)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Country)))
+	i--
+	dAtA[i] = 0x22
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Longitude))))
+	i--
+	dAtA[i] = 0x1d
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Latitude))))
+	i--
+	dAtA[i] = 0x15
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Ip))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgGetIPLocationResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7150,29 +7350,36 @@ func (m *CGCMsgGetIPLocationResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgGetIPLocationResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgGetIPLocationResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Infos) > 0 {
-		for _, msg := range m.Infos {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Infos) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Infos[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgSystemStatsSchema) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7180,26 +7387,32 @@ func (m *CGCMsgSystemStatsSchema) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgSystemStatsSchema) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgSystemStatsSchema) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.GcAppId))
 	if m.SchemaKv != nil {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.SchemaKv)
+		copy(dAtA[i:], m.SchemaKv)
 		i = encodeVarintSteammessages(dAtA, i, uint64(len(m.SchemaKv)))
-		i += copy(dAtA[i:], m.SchemaKv)
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.GcAppId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgGetSystemStats) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7207,17 +7420,22 @@ func (m *CGCMsgGetSystemStats) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgGetSystemStats) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgGetSystemStats) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCMsgGetSystemStatsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7225,59 +7443,65 @@ func (m *CGCMsgGetSystemStatsResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCMsgGetSystemStatsResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCMsgGetSystemStatsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.GcAppId))
-	if m.StatsKv != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(len(m.StatsKv)))
-		i += copy(dAtA[i:], m.StatsKv)
-	}
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.ActiveJobs))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.YieldingJobs))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.UserSessions))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.GameServerSessions))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Socaches))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.SocachesToUnload))
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.SocachesLoading))
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.WritebackQueue))
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.SteamidLocks))
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.LogonQueue))
-	dAtA[i] = 0x68
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.LogonJobs))
-	return i, nil
+	i--
+	dAtA[i] = 0x68
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.LogonQueue))
+	i--
+	dAtA[i] = 0x60
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.SteamidLocks))
+	i--
+	dAtA[i] = 0x58
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.WritebackQueue))
+	i--
+	dAtA[i] = 0x50
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.SocachesLoading))
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.SocachesToUnload))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Socaches))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.GameServerSessions))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.UserSessions))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.YieldingJobs))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.ActiveJobs))
+	i--
+	dAtA[i] = 0x18
+	if m.StatsKv != nil {
+		i -= len(m.StatsKv)
+		copy(dAtA[i:], m.StatsKv)
+		i = encodeVarintSteammessages(dAtA, i, uint64(len(m.StatsKv)))
+		i--
+		dAtA[i] = 0x12
+	}
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.GcAppId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMSendEmail) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7285,54 +7509,63 @@ func (m *CMsgAMSendEmail) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMSendEmail) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMSendEmail) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
-	i += 8
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.EmailMsgType))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.EmailFormat))
-	if len(m.PersonaNameTokens) > 0 {
-		for _, msg := range m.PersonaNameTokens {
-			dAtA[i] = 0x2a
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.SourceGc))
 	if len(m.Tokens) > 0 {
-		for _, msg := range m.Tokens {
-			dAtA[i] = 0x3a
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Tokens) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Tokens[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x3a
 		}
 	}
-	return i, nil
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.SourceGc))
+	i--
+	dAtA[i] = 0x30
+	if len(m.PersonaNameTokens) > 0 {
+		for iNdEx := len(m.PersonaNameTokens) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.PersonaNameTokens[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.EmailFormat))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.EmailMsgType))
+	i--
+	dAtA[i] = 0x10
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMSendEmail_ReplacementToken) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7340,25 +7573,32 @@ func (m *CMsgAMSendEmail_ReplacementToken) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMSendEmail_ReplacementToken) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMSendEmail_ReplacementToken) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.TokenName)))
-	i += copy(dAtA[i:], m.TokenName)
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.TokenValue)
+	copy(dAtA[i:], m.TokenValue)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.TokenValue)))
-	i += copy(dAtA[i:], m.TokenValue)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i -= len(m.TokenName)
+	copy(dAtA[i:], m.TokenName)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.TokenName)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMSendEmail_PersonaNameReplacementToken) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7366,25 +7606,31 @@ func (m *CMsgAMSendEmail_PersonaNameReplacementToken) Marshal() (dAtA []byte, er
 }
 
 func (m *CMsgAMSendEmail_PersonaNameReplacementToken) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMSendEmail_PersonaNameReplacementToken) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
-	i += 8
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.TokenName)
+	copy(dAtA[i:], m.TokenName)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.TokenName)))
-	i += copy(dAtA[i:], m.TokenName)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMSendEmailResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7392,22 +7638,27 @@ func (m *CMsgAMSendEmailResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMSendEmailResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMSendEmailResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Eresult != nil {
-		dAtA[i] = 0x8
-		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+		i--
+		dAtA[i] = 0x8
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCGetEmailTemplate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7415,29 +7666,34 @@ func (m *CMsgGCGetEmailTemplate) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCGetEmailTemplate) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCGetEmailTemplate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.EmailMsgType))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.EmailLang))
-	dAtA[i] = 0x20
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.EmailFormat))
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.EmailLang))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.EmailMsgType))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCGetEmailTemplateResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7445,34 +7701,40 @@ func (m *CMsgGCGetEmailTemplateResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCGetEmailTemplateResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCGetEmailTemplateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Eresult != nil {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
-	}
-	dAtA[i] = 0x10
-	i++
+	i -= len(m.Template)
+	copy(dAtA[i:], m.Template)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Template)))
+	i--
+	dAtA[i] = 0x1a
+	i--
 	if m.TemplateExists {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Template)))
-	i += copy(dAtA[i:], m.Template)
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	if m.Eresult != nil {
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMGrantGuestPasses2) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7480,33 +7742,38 @@ func (m *CMsgAMGrantGuestPasses2) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMGrantGuestPasses2) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMGrantGuestPasses2) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
-	i += 8
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.PackageId))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.PassesToGrant))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.DaysToExpiration))
-	dAtA[i] = 0x28
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.Action))
-	return i, nil
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.DaysToExpiration))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PassesToGrant))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PackageId))
+	i--
+	dAtA[i] = 0x10
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgAMGrantGuestPasses2Response) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7514,27 +7781,32 @@ func (m *CMsgAMGrantGuestPasses2Response) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgAMGrantGuestPasses2Response) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgAMGrantGuestPasses2Response) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Eresult != nil {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
-	}
 	if m.PassesGranted != nil {
-		dAtA[i] = 0x10
-		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(*m.PassesGranted))
+		i--
+		dAtA[i] = 0x10
 	}
-	return i, nil
+	if m.Eresult != nil {
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCSystemMsg_GetAccountDetails) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7542,24 +7814,29 @@ func (m *CGCSystemMsg_GetAccountDetails) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CGCSystemMsg_GetAccountDetails) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCSystemMsg_GetAccountDetails) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
-	i += 8
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.Appid))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCSystemMsg_GetAccountDetails_Response) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7567,245 +7844,254 @@ func (m *CGCSystemMsg_GetAccountDetails_Response) Marshal() (dAtA []byte, err er
 }
 
 func (m *CGCSystemMsg_GetAccountDetails_Response) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCSystemMsg_GetAccountDetails_Response) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.EresultDeprecated != nil {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(*m.EresultDeprecated))
-	}
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.AccountName)))
-	i += copy(dAtA[i:], m.AccountName)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.PersonaName)))
-	i += copy(dAtA[i:], m.PersonaName)
-	dAtA[i] = 0x20
-	i++
-	if m.IsProfilePublic {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x28
-	i++
-	if m.IsInventoryPublic {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x38
-	i++
-	if m.IsVacBanned {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x40
-	i++
-	if m.IsCyberCafe {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x48
-	i++
-	if m.IsSchoolAccount {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x50
-	i++
-	if m.IsLimited {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x58
-	i++
-	if m.IsSubscribed {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Package))
-	dAtA[i] = 0x68
-	i++
-	if m.IsFreeTrialAccount {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x70
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.FreeTrialExpiration))
-	dAtA[i] = 0x78
-	i++
-	if m.IsLowViolence {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x80
-	i++
-	dAtA[i] = 0x1
-	i++
-	if m.IsAccountLockedDown {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x88
-	i++
-	dAtA[i] = 0x1
-	i++
-	if m.IsCommunityBanned {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x90
-	i++
-	dAtA[i] = 0x1
-	i++
-	if m.IsTradeBanned {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x98
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.TradeBanExpiration))
+	i -= len(m.TxnCountryCode)
+	copy(dAtA[i:], m.TxnCountryCode)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.TxnCountryCode)))
+	i--
+	dAtA[i] = 0x2
+	i--
+	dAtA[i] = 0xaa
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.RtBirthDate))
+	i--
+	dAtA[i] = 0x2
+	i--
 	dAtA[i] = 0xa0
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Accountid))
-	dAtA[i] = 0xa8
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.SuspensionEndTime))
-	dAtA[i] = 0xb2
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Currency)))
-	i += copy(dAtA[i:], m.Currency)
-	dAtA[i] = 0xb8
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.SteamLevel))
-	dAtA[i] = 0xc0
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.FriendCount))
-	dAtA[i] = 0xc8
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AccountCreationTime))
-	dAtA[i] = 0xd8
-	i++
-	dAtA[i] = 0x1
-	i++
-	if m.IsSteamguardEnabled {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0xe0
-	i++
-	dAtA[i] = 0x1
-	i++
-	if m.IsPhoneVerified {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0xe8
-	i++
-	dAtA[i] = 0x1
-	i++
-	if m.IsTwoFactorAuthEnabled {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0xf0
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.TwoFactorEnabledTime))
-	dAtA[i] = 0xf8
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.PhoneVerificationTime))
-	dAtA[i] = 0x88
-	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.RtIdentityLinked))
+	i--
 	dAtA[i] = 0x2
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.PhoneId))
-	dAtA[i] = 0x90
-	i++
-	dAtA[i] = 0x2
-	i++
+	i--
+	dAtA[i] = 0x98
+	i--
 	if m.IsPhoneIdentifying {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0x98
-	i++
+	i--
 	dAtA[i] = 0x2
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.RtIdentityLinked))
+	i--
+	dAtA[i] = 0x90
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PhoneId))
+	i--
+	dAtA[i] = 0x2
+	i--
+	dAtA[i] = 0x88
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PhoneVerificationTime))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xf8
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.TwoFactorEnabledTime))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xf0
+	i--
+	if m.IsTwoFactorAuthEnabled {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xe8
+	i--
+	if m.IsPhoneVerified {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xe0
+	i--
+	if m.IsSteamguardEnabled {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xd8
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AccountCreationTime))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xc8
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.FriendCount))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xc0
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.SteamLevel))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xb8
+	i -= len(m.Currency)
+	copy(dAtA[i:], m.Currency)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Currency)))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xb2
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.SuspensionEndTime))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xa8
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x1
+	i--
 	dAtA[i] = 0xa0
-	i++
-	dAtA[i] = 0x2
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.RtBirthDate))
-	dAtA[i] = 0xaa
-	i++
-	dAtA[i] = 0x2
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.TxnCountryCode)))
-	i += copy(dAtA[i:], m.TxnCountryCode)
-	return i, nil
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.TradeBanExpiration))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x98
+	i--
+	if m.IsTradeBanned {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x90
+	i--
+	if m.IsCommunityBanned {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x88
+	i--
+	if m.IsAccountLockedDown {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x80
+	i--
+	if m.IsLowViolence {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x78
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.FreeTrialExpiration))
+	i--
+	dAtA[i] = 0x70
+	i--
+	if m.IsFreeTrialAccount {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x68
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Package))
+	i--
+	dAtA[i] = 0x60
+	i--
+	if m.IsSubscribed {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x58
+	i--
+	if m.IsLimited {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x50
+	i--
+	if m.IsSchoolAccount {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x48
+	i--
+	if m.IsCyberCafe {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x40
+	i--
+	if m.IsVacBanned {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x38
+	i--
+	if m.IsInventoryPublic {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x28
+	i--
+	if m.IsProfilePublic {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x20
+	i -= len(m.PersonaName)
+	copy(dAtA[i:], m.PersonaName)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.PersonaName)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.AccountName)
+	copy(dAtA[i:], m.AccountName)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.AccountName)))
+	i--
+	dAtA[i] = 0x12
+	if m.EresultDeprecated != nil {
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.EresultDeprecated))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCGetPersonaNames) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7813,25 +8099,30 @@ func (m *CMsgGCGetPersonaNames) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCGetPersonaNames) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCGetPersonaNames) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Steamids) > 0 {
-		for _, num := range m.Steamids {
+		for iNdEx := len(m.Steamids) - 1; iNdEx >= 0; iNdEx-- {
+			i -= 8
+			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamids[iNdEx]))
+			i--
 			dAtA[i] = 0x9
-			i++
-			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(num))
-			i += 8
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCGetPersonaNames_Response) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7839,37 +8130,44 @@ func (m *CMsgGCGetPersonaNames_Response) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCGetPersonaNames_Response) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCGetPersonaNames_Response) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.SucceededLookups) > 0 {
-		for _, msg := range m.SucceededLookups {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
 	if len(m.FailedLookupSteamids) > 0 {
-		for _, num := range m.FailedLookupSteamids {
+		for iNdEx := len(m.FailedLookupSteamids) - 1; iNdEx >= 0; iNdEx-- {
+			i -= 8
+			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.FailedLookupSteamids[iNdEx]))
+			i--
 			dAtA[i] = 0x11
-			i++
-			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(num))
-			i += 8
 		}
 	}
-	return i, nil
+	if len(m.SucceededLookups) > 0 {
+		for iNdEx := len(m.SucceededLookups) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.SucceededLookups[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCGetPersonaNames_Response_PersonaName) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7877,25 +8175,31 @@ func (m *CMsgGCGetPersonaNames_Response_PersonaName) Marshal() (dAtA []byte, err
 }
 
 func (m *CMsgGCGetPersonaNames_Response_PersonaName) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCGetPersonaNames_Response_PersonaName) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
-	i += 8
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.PersonaName)
+	copy(dAtA[i:], m.PersonaName)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.PersonaName)))
-	i += copy(dAtA[i:], m.PersonaName)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCheckFriendship) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7903,25 +8207,30 @@ func (m *CMsgGCCheckFriendship) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCheckFriendship) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCheckFriendship) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamidLeft))
-	i += 8
-	dAtA[i] = 0x11
-	i++
+	i -= 8
 	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamidRight))
-	i += 8
-	return i, nil
+	i--
+	dAtA[i] = 0x11
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamidLeft))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCheckFriendship_Response) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7929,33 +8238,38 @@ func (m *CMsgGCCheckFriendship_Response) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCheckFriendship_Response) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCheckFriendship_Response) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	if m.Success {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x10
-	i++
+	i--
 	if m.FoundFriendship {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i--
+	if m.Success {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgMasterSetDirectory) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7963,32 +8277,39 @@ func (m *CMsgGCMsgMasterSetDirectory) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCMsgMasterSetDirectory) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgMasterSetDirectory) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.MasterDirIndex))
 	if len(m.Dir) > 0 {
-		for _, msg := range m.Dir {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Dir) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Dir[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x12
 		}
 	}
-	return i, nil
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.MasterDirIndex))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgMasterSetDirectory_SubGC) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7996,36 +8317,45 @@ func (m *CMsgGCMsgMasterSetDirectory_SubGC) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCMsgMasterSetDirectory_SubGC) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgMasterSetDirectory_SubGC) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.DirIndex))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Box)))
-	i += copy(dAtA[i:], m.Box)
-	dAtA[i] = 0x22
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CommandLine)))
-	i += copy(dAtA[i:], m.CommandLine)
-	dAtA[i] = 0x2a
-	i++
+	i -= len(m.GcBinary)
+	copy(dAtA[i:], m.GcBinary)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.GcBinary)))
-	i += copy(dAtA[i:], m.GcBinary)
-	return i, nil
+	i--
+	dAtA[i] = 0x2a
+	i -= len(m.CommandLine)
+	copy(dAtA[i:], m.CommandLine)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CommandLine)))
+	i--
+	dAtA[i] = 0x22
+	i -= len(m.Box)
+	copy(dAtA[i:], m.Box)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Box)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.DirIndex))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgMasterSetDirectory_Response) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8033,22 +8363,27 @@ func (m *CMsgGCMsgMasterSetDirectory_Response) Marshal() (dAtA []byte, err error
 }
 
 func (m *CMsgGCMsgMasterSetDirectory_Response) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgMasterSetDirectory_Response) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Eresult != nil {
-		dAtA[i] = 0x8
-		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+		i--
+		dAtA[i] = 0x8
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8056,20 +8391,25 @@ func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) Marshal() (dAtA []byte, err e
 }
 
 func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgWebAPIJobRequestForwardResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.DirIndex))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCSystemMsg_GetPurchaseTrust_Request) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8077,21 +8417,26 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Request) Marshal() (dAtA []byte, err erro
 }
 
 func (m *CGCSystemMsg_GetPurchaseTrust_Request) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCSystemMsg_GetPurchaseTrust_Request) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
+	i -= 8
 	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
-	i += 8
-	return i, nil
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CGCSystemMsg_GetPurchaseTrust_Response) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8099,44 +8444,49 @@ func (m *CGCSystemMsg_GetPurchaseTrust_Response) Marshal() (dAtA []byte, err err
 }
 
 func (m *CGCSystemMsg_GetPurchaseTrust_Response) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CGCSystemMsg_GetPurchaseTrust_Response) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	if m.HasPriorPurchaseHistory {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x10
-	i++
-	if m.HasNoRecentPasswordResets {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x18
-	i++
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.TimeAllTrusted))
+	i--
+	dAtA[i] = 0x20
+	i--
 	if m.IsWalletCashTrusted {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.TimeAllTrusted))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i--
+	if m.HasNoRecentPasswordResets {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x10
+	i--
+	if m.HasPriorPurchaseHistory {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCHAccountVacStatusChange) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8144,43 +8494,48 @@ func (m *CMsgGCHAccountVacStatusChange) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCHAccountVacStatusChange) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCHAccountVacStatusChange) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
-	i += 8
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppId))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.RtimeVacbanStarts))
-	dAtA[i] = 0x20
-	i++
-	if m.IsBannedNow {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x28
-	i++
+	i--
 	if m.IsBannedFuture {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x28
+	i--
+	if m.IsBannedNow {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.RtimeVacbanStarts))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppId))
+	i--
+	dAtA[i] = 0x10
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCGetPartnerAccountLink) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8188,21 +8543,26 @@ func (m *CMsgGCGetPartnerAccountLink) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCGetPartnerAccountLink) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCGetPartnerAccountLink) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
+	i -= 8
 	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
-	i += 8
-	return i, nil
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCGetPartnerAccountLink_Response) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8210,23 +8570,28 @@ func (m *CMsgGCGetPartnerAccountLink_Response) Marshal() (dAtA []byte, err error
 }
 
 func (m *CMsgGCGetPartnerAccountLink_Response) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCGetPartnerAccountLink_Response) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Pwid))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.Nexonid))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Pwid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCRoutingInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8234,41 +8599,47 @@ func (m *CMsgGCRoutingInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCRoutingInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCRoutingInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.DirIndex) > 0 {
-		for _, num := range m.DirIndex {
-			dAtA[i] = 0x8
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(num))
-		}
+	i -= len(m.WebapiParam)
+	copy(dAtA[i:], m.WebapiParam)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.WebapiParam)))
+	i--
+	dAtA[i] = 0x2a
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.ProtobufField))
+	i--
+	dAtA[i] = 0x20
+	if m.Fallback != nil {
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Fallback))
+		i--
+		dAtA[i] = 0x18
 	}
 	if m.Method != nil {
-		dAtA[i] = 0x10
-		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Method))
+		i--
+		dAtA[i] = 0x10
 	}
-	if m.Fallback != nil {
-		dAtA[i] = 0x18
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Fallback))
+	if len(m.DirIndex) > 0 {
+		for iNdEx := len(m.DirIndex) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintSteammessages(dAtA, i, uint64(m.DirIndex[iNdEx]))
+			i--
+			dAtA[i] = 0x8
+		}
 	}
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.ProtobufField))
-	dAtA[i] = 0x2a
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.WebapiParam)))
-	i += copy(dAtA[i:], m.WebapiParam)
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgMasterSetWebAPIRouting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8276,29 +8647,36 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCMsgMasterSetWebAPIRouting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgMasterSetWebAPIRouting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Entries) > 0 {
-		for _, msg := range m.Entries {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Entries) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Entries[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8306,35 +8684,44 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) Marshal() (dAtA []byte, err erro
 }
 
 func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Entry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.InterfaceName)))
-	i += copy(dAtA[i:], m.InterfaceName)
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.MethodName)))
-	i += copy(dAtA[i:], m.MethodName)
 	if m.Routing != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(m.Routing.Size()))
-		n3, err3 := m.Routing.MarshalTo(dAtA[i:])
-		if err3 != nil {
-			return 0, err3
+		{
+			size, err := m.Routing.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintSteammessages(dAtA, i, uint64(size))
 		}
-		i += n3
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	i -= len(m.MethodName)
+	copy(dAtA[i:], m.MethodName)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.MethodName)))
+	i--
+	dAtA[i] = 0x12
+	i -= len(m.InterfaceName)
+	copy(dAtA[i:], m.InterfaceName)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.InterfaceName)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgMasterSetClientMsgRouting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8342,29 +8729,36 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting) Marshal() (dAtA []byte, err error) 
 }
 
 func (m *CMsgGCMsgMasterSetClientMsgRouting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgMasterSetClientMsgRouting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Entries) > 0 {
-		for _, msg := range m.Entries {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Entries) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Entries[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8372,30 +8766,37 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) Marshal() (dAtA []byte, err e
 }
 
 func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Entry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.MsgType))
 	if m.Routing != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(m.Routing.Size()))
-		n4, err4 := m.Routing.MarshalTo(dAtA[i:])
-		if err4 != nil {
-			return 0, err4
+		{
+			size, err := m.Routing.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintSteammessages(dAtA, i, uint64(size))
 		}
-		i += n4
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.MsgType))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8403,22 +8804,27 @@ func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) Marshal() (dAtA []byte, err e
 }
 
 func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgMasterSetWebAPIRouting_Response) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Eresult != nil {
-		dAtA[i] = 0x8
-		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+		i--
+		dAtA[i] = 0x8
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8426,22 +8832,27 @@ func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) Marshal() (dAtA []byte, er
 }
 
 func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgMasterSetClientMsgRouting_Response) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Eresult != nil {
-		dAtA[i] = 0x8
-		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+		i--
+		dAtA[i] = 0x8
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgSetOptions) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8449,36 +8860,43 @@ func (m *CMsgGCMsgSetOptions) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCMsgSetOptions) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgSetOptions) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Options) > 0 {
-		for _, num := range m.Options {
-			dAtA[i] = 0x8
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(num))
-		}
-	}
 	if len(m.ClientMsgRanges) > 0 {
-		for _, msg := range m.ClientMsgRanges {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.ClientMsgRanges) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ClientMsgRanges[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x12
 		}
 	}
-	return i, nil
+	if len(m.Options) > 0 {
+		for iNdEx := len(m.Options) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintSteammessages(dAtA, i, uint64(m.Options[iNdEx]))
+			i--
+			dAtA[i] = 0x8
+		}
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCMsgSetOptions_MessageRange) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8486,23 +8904,28 @@ func (m *CMsgGCMsgSetOptions_MessageRange) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCMsgSetOptions_MessageRange) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCMsgSetOptions_MessageRange) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Low))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.High))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Low))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCHUpdateSession) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8510,77 +8933,84 @@ func (m *CMsgGCHUpdateSession) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCHUpdateSession) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCHUpdateSession) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
-	i += 8
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppId))
-	dAtA[i] = 0x18
-	i++
+	if len(m.DepotIds) > 0 {
+		for iNdEx := len(m.DepotIds) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintSteammessages(dAtA, i, uint64(m.DepotIds[iNdEx]))
+			i--
+			dAtA[i] = 0x68
+		}
+	}
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmSessionIdentifier))
+	i--
+	dAtA[i] = 0x60
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmSessionSysid))
+	i--
+	dAtA[i] = 0x58
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.OwnerId))
+	i--
+	dAtA[i] = 0x51
+	if len(m.ExtraFields) > 0 {
+		for iNdEx := len(m.ExtraFields) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ExtraFields[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x4a
+		}
+	}
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.ClientAddr))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.OsType))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.ServerPort))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.ServerAddr))
+	i--
+	dAtA[i] = 0x28
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.ServerSteamId))
+	i--
+	dAtA[i] = 0x21
+	i--
 	if m.Online {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0x21
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.ServerSteamId))
-	i += 8
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.ServerAddr))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.ServerPort))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.OsType))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.ClientAddr))
-	if len(m.ExtraFields) > 0 {
-		for _, msg := range m.ExtraFields {
-			dAtA[i] = 0x4a
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	dAtA[i] = 0x51
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.OwnerId))
-	i += 8
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmSessionSysid))
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.CmSessionIdentifier))
-	if len(m.DepotIds) > 0 {
-		for _, num := range m.DepotIds {
-			dAtA[i] = 0x68
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(num))
-		}
-	}
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppId))
+	i--
+	dAtA[i] = 0x10
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.SteamId))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCHUpdateSession_ExtraField) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8588,25 +9018,32 @@ func (m *CMsgGCHUpdateSession_ExtraField) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCHUpdateSession_ExtraField) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCHUpdateSession_ExtraField) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.Value)
+	copy(dAtA[i:], m.Value)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Value)))
-	i += copy(dAtA[i:], m.Value)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgNotificationOfSuspiciousActivity) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8614,34 +9051,41 @@ func (m *CMsgNotificationOfSuspiciousActivity) Marshal() (dAtA []byte, err error
 }
 
 func (m *CMsgNotificationOfSuspiciousActivity) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgNotificationOfSuspiciousActivity) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
-	i += 8
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Appid))
 	if m.MultipleInstances != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(m.MultipleInstances.Size()))
-		n5, err5 := m.MultipleInstances.MarshalTo(dAtA[i:])
-		if err5 != nil {
-			return 0, err5
+		{
+			size, err := m.MultipleInstances.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintSteammessages(dAtA, i, uint64(size))
 		}
-		i += n5
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Appid))
+	i--
+	dAtA[i] = 0x10
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Steamid))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8649,28 +9093,33 @@ func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) Marshal() (
 }
 
 func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgNotificationOfSuspiciousActivity_MultipleGameInstances) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppInstanceCount))
 	if len(m.OtherSteamids) > 0 {
-		for _, num := range m.OtherSteamids {
+		for iNdEx := len(m.OtherSteamids) - 1; iNdEx >= 0; iNdEx-- {
+			i -= 8
+			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.OtherSteamids[iNdEx]))
+			i--
 			dAtA[i] = 0x11
-			i++
-			encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(num))
-			i += 8
 		}
 	}
-	return i, nil
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AppInstanceCount))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgDPPartnerMicroTxns) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8678,46 +9127,56 @@ func (m *CMsgDPPartnerMicroTxns) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgDPPartnerMicroTxns) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgDPPartnerMicroTxns) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Appid))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.GcName)))
-	i += copy(dAtA[i:], m.GcName)
-	if m.Partner != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(m.Partner.Size()))
-		n6, err6 := m.Partner.MarshalTo(dAtA[i:])
-		if err6 != nil {
-			return 0, err6
-		}
-		i += n6
-	}
 	if len(m.Transactions) > 0 {
-		for _, msg := range m.Transactions {
+		for iNdEx := len(m.Transactions) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Transactions[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintSteammessages(dAtA, i, uint64(size))
+			}
+			i--
 			dAtA[i] = 0x22
-			i++
-			i = encodeVarintSteammessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+		}
+	}
+	if m.Partner != nil {
+		{
+			size, err := m.Partner.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintSteammessages(dAtA, i, uint64(size))
 		}
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	i -= len(m.GcName)
+	copy(dAtA[i:], m.GcName)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.GcName)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Appid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8725,74 +9184,81 @@ func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) Marshal() (dAtA []byte, err err
 }
 
 func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerMicroTxn) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.InitTime))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.LastUpdateTime))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.TxnId))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.LineItem))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.ItemId))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.DefIndex))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Price))
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Tax))
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.PriceUsd))
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.TaxUsd))
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.PurchaseType))
-	dAtA[i] = 0x68
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.SteamTxnType))
-	dAtA[i] = 0x72
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CountryCode)))
-	i += copy(dAtA[i:], m.CountryCode)
-	dAtA[i] = 0x7a
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.RegionCode)))
-	i += copy(dAtA[i:], m.RegionCode)
-	dAtA[i] = 0x80
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.Quantity))
-	dAtA[i] = 0x88
-	i++
-	dAtA[i] = 0x1
-	i++
 	i = encodeVarintSteammessages(dAtA, i, uint64(m.RefTransId))
-	return i, nil
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x88
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Quantity))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x80
+	i -= len(m.RegionCode)
+	copy(dAtA[i:], m.RegionCode)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.RegionCode)))
+	i--
+	dAtA[i] = 0x7a
+	i -= len(m.CountryCode)
+	copy(dAtA[i:], m.CountryCode)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CountryCode)))
+	i--
+	dAtA[i] = 0x72
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.SteamTxnType))
+	i--
+	dAtA[i] = 0x68
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PurchaseType))
+	i--
+	dAtA[i] = 0x60
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.TaxUsd))
+	i--
+	dAtA[i] = 0x58
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PriceUsd))
+	i--
+	dAtA[i] = 0x50
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Tax))
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.Price))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.DefIndex))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.ItemId))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.LineItem))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.TxnId))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.LastUpdateTime))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.InitTime))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgDPPartnerMicroTxns_PartnerInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8800,32 +9266,40 @@ func (m *CMsgDPPartnerMicroTxns_PartnerInfo) Marshal() (dAtA []byte, err error) 
 }
 
 func (m *CMsgDPPartnerMicroTxns_PartnerInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgDPPartnerMicroTxns_PartnerInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(m.PartnerId))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.PartnerName)))
-	i += copy(dAtA[i:], m.PartnerName)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CurrencyCode)))
-	i += copy(dAtA[i:], m.CurrencyCode)
-	dAtA[i] = 0x22
-	i++
+	i -= len(m.CurrencyName)
+	copy(dAtA[i:], m.CurrencyName)
 	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CurrencyName)))
-	i += copy(dAtA[i:], m.CurrencyName)
-	return i, nil
+	i--
+	dAtA[i] = 0x22
+	i -= len(m.CurrencyCode)
+	copy(dAtA[i:], m.CurrencyCode)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.CurrencyCode)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.PartnerName)
+	copy(dAtA[i:], m.PartnerName)
+	i = encodeVarintSteammessages(dAtA, i, uint64(len(m.PartnerName)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintSteammessages(dAtA, i, uint64(m.PartnerId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgDPPartnerMicroTxnsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8833,31 +9307,38 @@ func (m *CMsgDPPartnerMicroTxnsResponse) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgDPPartnerMicroTxnsResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgDPPartnerMicroTxnsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Eresult != nil {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
-	}
 	if m.Eerrorcode != nil {
-		dAtA[i] = 0x10
-		i++
 		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eerrorcode))
+		i--
+		dAtA[i] = 0x10
 	}
-	return i, nil
+	if m.Eresult != nil {
+		i = encodeVarintSteammessages(dAtA, i, uint64(*m.Eresult))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintSteammessages(dAtA []byte, offset int, v uint64) int {
+	offset -= sovSteammessages(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func (m *CMsgProtoBufHeader) Size() (n int) {
 	if m == nil {
@@ -21166,6 +21647,7 @@ func (m *CMsgDPPartnerMicroTxnsResponse) Unmarshal(dAtA []byte) error {
 func skipSteammessages(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
+	depth := 0
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
@@ -21197,10 +21679,8 @@ func skipSteammessages(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			return iNdEx, nil
 		case 1:
 			iNdEx += 8
-			return iNdEx, nil
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
@@ -21221,55 +21701,30 @@ func skipSteammessages(dAtA []byte) (n int, err error) {
 				return 0, ErrInvalidLengthSteammessages
 			}
 			iNdEx += length
-			if iNdEx < 0 {
-				return 0, ErrInvalidLengthSteammessages
-			}
-			return iNdEx, nil
 		case 3:
-			for {
-				var innerWire uint64
-				var start int = iNdEx
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return 0, ErrIntOverflowSteammessages
-					}
-					if iNdEx >= l {
-						return 0, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					innerWire |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				innerWireType := int(innerWire & 0x7)
-				if innerWireType == 4 {
-					break
-				}
-				next, err := skipSteammessages(dAtA[start:])
-				if err != nil {
-					return 0, err
-				}
-				iNdEx = start + next
-				if iNdEx < 0 {
-					return 0, ErrInvalidLengthSteammessages
-				}
-			}
-			return iNdEx, nil
+			depth++
 		case 4:
-			return iNdEx, nil
+			if depth == 0 {
+				return 0, ErrUnexpectedEndOfGroupSteammessages
+			}
+			depth--
 		case 5:
 			iNdEx += 4
-			return iNdEx, nil
 		default:
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
+		if iNdEx < 0 {
+			return 0, ErrInvalidLengthSteammessages
+		}
+		if depth == 0 {
+			return iNdEx, nil
+		}
 	}
-	panic("unreachable")
+	return 0, io.ErrUnexpectedEOF
 }
 
 var (
-	ErrInvalidLengthSteammessages = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowSteammessages   = fmt.Errorf("proto: integer overflow")
+	ErrInvalidLengthSteammessages        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowSteammessages          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupSteammessages = fmt.Errorf("proto: unexpected end of group")
 )

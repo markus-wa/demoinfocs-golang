@@ -22,7 +22,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type NET_Messages int32
 
@@ -425,7 +425,7 @@ func (m *CMsgVector) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_CMsgVector.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -484,7 +484,7 @@ func (m *CMsgVector2D) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return xxx_messageInfo_CMsgVector2D.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -537,7 +537,7 @@ func (m *CMsgQAngle) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_CMsgQAngle.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -598,7 +598,7 @@ func (m *CMsgRGBA) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_CMsgRGBA.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -667,7 +667,7 @@ func (m *CNETMsg_Tick) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return xxx_messageInfo_CNETMsg_Tick.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -739,7 +739,7 @@ func (m *CNETMsg_StringCmd) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CNETMsg_StringCmd.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -787,7 +787,7 @@ func (m *CNETMsg_SignonState) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_CNETMsg_SignonState.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -859,7 +859,7 @@ func (m *CMsg_CVars) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_CMsg_CVars.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -905,7 +905,7 @@ func (m *CMsg_CVars_CVar) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_CMsg_CVars_CVar.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -963,7 +963,7 @@ func (m *CNETMsg_SetConVar) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CNETMsg_SetConVar.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1006,7 +1006,7 @@ func (m *CNETMsg_NOP) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return xxx_messageInfo_CNETMsg_NOP.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1043,7 +1043,7 @@ func (m *CNETMsg_Disconnect) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_CNETMsg_Disconnect.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1090,7 +1090,7 @@ func (m *CNETMsg_File) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return xxx_messageInfo_CNETMsg_File.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1155,7 +1155,7 @@ func (m *CNETMsg_SplitScreenUser) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return xxx_messageInfo_CNETMsg_SplitScreenUser.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1200,7 +1200,7 @@ func (m *CNETMsg_PlayerAvatarData) XXX_Marshal(b []byte, deterministic bool) ([]
 		return xxx_messageInfo_CNETMsg_PlayerAvatarData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1257,7 +1257,7 @@ func (m *CCLCMsg_ClientInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_CCLCMsg_ClientInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1345,7 +1345,7 @@ func (m *CCLCMsg_Move) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return xxx_messageInfo_CCLCMsg_Move.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1408,7 +1408,7 @@ func (m *CCLCMsg_VoiceData) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CCLCMsg_VoiceData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1490,7 +1490,7 @@ func (m *CCLCMsg_BaselineAck) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_CCLCMsg_BaselineAck.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1541,7 +1541,7 @@ func (m *CCLCMsg_ListenEvents) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CCLCMsg_ListenEvents.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1588,7 +1588,7 @@ func (m *CCLCMsg_RespondCvarValue) XXX_Marshal(b []byte, deterministic bool) ([]
 		return xxx_messageInfo_CCLCMsg_RespondCvarValue.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1663,7 +1663,7 @@ func (m *CCLCMsg_FileCRCCheck) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CCLCMsg_FileCRCCheck.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1777,7 +1777,7 @@ func (m *CCLCMsg_LoadingProgress) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return xxx_messageInfo_CCLCMsg_LoadingProgress.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1821,7 +1821,7 @@ func (m *CCLCMsg_SplitPlayerConnect) XXX_Marshal(b []byte, deterministic bool) (
 		return xxx_messageInfo_CCLCMsg_SplitPlayerConnect.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1865,7 +1865,7 @@ func (m *CCLCMsg_CmdKeyValues) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CCLCMsg_CmdKeyValues.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1930,7 +1930,7 @@ func (m *CSVCMsg_ServerInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_CSVCMsg_ServerInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2122,7 +2122,7 @@ func (m *CSVCMsg_ClassInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CSVCMsg_ClassInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2175,7 +2175,7 @@ func (m *CSVCMsg_ClassInfoClassT) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return xxx_messageInfo_CSVCMsg_ClassInfoClassT.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2236,7 +2236,7 @@ func (m *CSVCMsg_SendTable) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CSVCMsg_SendTable.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2309,7 +2309,7 @@ func (m *CSVCMsg_SendTableSendpropT) XXX_Marshal(b []byte, deterministic bool) (
 		return xxx_messageInfo_CSVCMsg_SendTableSendpropT.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2409,7 +2409,7 @@ func (m *CSVCMsg_Print) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return xxx_messageInfo_CSVCMsg_Print.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2453,7 +2453,7 @@ func (m *CSVCMsg_SetPause) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_CSVCMsg_SetPause.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2497,7 +2497,7 @@ func (m *CSVCMsg_SetView) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_CSVCMsg_SetView.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2548,7 +2548,7 @@ func (m *CSVCMsg_CreateStringTable) XXX_Marshal(b []byte, deterministic bool) ([
 		return xxx_messageInfo_CSVCMsg_CreateStringTable.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2643,7 +2643,7 @@ func (m *CSVCMsg_UpdateStringTable) XXX_Marshal(b []byte, deterministic bool) ([
 		return xxx_messageInfo_CSVCMsg_UpdateStringTable.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2703,7 +2703,7 @@ func (m *CSVCMsg_VoiceInit) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CSVCMsg_VoiceInit.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2772,7 +2772,7 @@ func (m *CSVCMsg_VoiceData) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CSVCMsg_VoiceData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2882,7 +2882,7 @@ func (m *CSVCMsg_FixAngle) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_CSVCMsg_FixAngle.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2933,7 +2933,7 @@ func (m *CSVCMsg_CrosshairAngle) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_CSVCMsg_CrosshairAngle.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2977,7 +2977,7 @@ func (m *CSVCMsg_Prefetch) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_CSVCMsg_Prefetch.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3025,7 +3025,7 @@ func (m *CSVCMsg_BSPDecal) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_CSVCMsg_BSPDecal.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3099,7 +3099,7 @@ func (m *CSVCMsg_SplitScreen) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_CSVCMsg_SplitScreen.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3160,7 +3160,7 @@ func (m *CSVCMsg_GetCvarValue) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CSVCMsg_GetCvarValue.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3212,7 +3212,7 @@ func (m *CSVCMsg_Menu) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return xxx_messageInfo_CSVCMsg_Menu.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3265,7 +3265,7 @@ func (m *CSVCMsg_UserMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_CSVCMsg_UserMessage.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3323,7 +3323,7 @@ func (m *CSVCMsg_PaintmapData) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CSVCMsg_PaintmapData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3370,7 +3370,7 @@ func (m *CSVCMsg_GameEvent) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CSVCMsg_GameEvent.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3443,7 +3443,7 @@ func (m *CSVCMsg_GameEventKeyT) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return xxx_messageInfo_CSVCMsg_GameEventKeyT.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3543,7 +3543,7 @@ func (m *CSVCMsg_GameEventList) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return xxx_messageInfo_CSVCMsg_GameEventList.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3588,7 +3588,7 @@ func (m *CSVCMsg_GameEventListKeyT) XXX_Marshal(b []byte, deterministic bool) ([
 		return xxx_messageInfo_CSVCMsg_GameEventListKeyT.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3641,7 +3641,7 @@ func (m *CSVCMsg_GameEventListDescriptorT) XXX_Marshal(b []byte, deterministic b
 		return xxx_messageInfo_CSVCMsg_GameEventListDescriptorT.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3701,7 +3701,7 @@ func (m *CSVCMsg_TempEntities) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CSVCMsg_TempEntities.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3765,7 +3765,7 @@ func (m *CSVCMsg_PacketEntities) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_CSVCMsg_PacketEntities.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3852,7 +3852,7 @@ func (m *CSVCMsg_Sounds) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_CSVCMsg_Sounds.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3919,7 +3919,7 @@ func (m *CSVCMsg_SoundsSounddataT) XXX_Marshal(b []byte, deterministic bool) ([]
 		return xxx_messageInfo_CSVCMsg_SoundsSounddataT.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4077,7 +4077,7 @@ func (m *CSVCMsg_EntityMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CSVCMsg_EntityMsg.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4135,7 +4135,7 @@ func (m *CSVCMsg_CmdKeyValues) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CSVCMsg_CmdKeyValues.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4180,7 +4180,7 @@ func (m *CSVCMsg_EncryptedData) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return xxx_messageInfo_CSVCMsg_EncryptedData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4237,7 +4237,7 @@ func (m *CSVCMsg_HltvReplay) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_CSVCMsg_HltvReplay.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4327,7 +4327,7 @@ func (m *CCLCMsg_HltvReplay) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_CCLCMsg_HltvReplay.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4399,7 +4399,7 @@ func (m *CSVCMsg_Broadcast_Command) XXX_Marshal(b []byte, deterministic bool) ([
 		return xxx_messageInfo_CSVCMsg_Broadcast_Command.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4778,7 +4778,7 @@ var fileDescriptor_52cbc162d33bb4fa = []byte{
 func (m *CMsgVector) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -4786,29 +4786,34 @@ func (m *CMsgVector) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgVector) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgVector) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xd
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.X))))
-	i += 4
-	dAtA[i] = 0x15
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Y))))
-	i += 4
-	dAtA[i] = 0x1d
-	i++
+	i -= 4
 	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Z))))
-	i += 4
-	return i, nil
+	i--
+	dAtA[i] = 0x1d
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Y))))
+	i--
+	dAtA[i] = 0x15
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.X))))
+	i--
+	dAtA[i] = 0xd
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgVector2D) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -4816,25 +4821,30 @@ func (m *CMsgVector2D) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgVector2D) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgVector2D) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xd
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.X))))
-	i += 4
-	dAtA[i] = 0x15
-	i++
+	i -= 4
 	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Y))))
-	i += 4
-	return i, nil
+	i--
+	dAtA[i] = 0x15
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.X))))
+	i--
+	dAtA[i] = 0xd
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgQAngle) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -4842,29 +4852,34 @@ func (m *CMsgQAngle) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgQAngle) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgQAngle) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xd
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.X))))
-	i += 4
-	dAtA[i] = 0x15
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Y))))
-	i += 4
-	dAtA[i] = 0x1d
-	i++
+	i -= 4
 	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Z))))
-	i += 4
-	return i, nil
+	i--
+	dAtA[i] = 0x1d
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Y))))
+	i--
+	dAtA[i] = 0x15
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.X))))
+	i--
+	dAtA[i] = 0xd
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgRGBA) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -4872,29 +4887,34 @@ func (m *CMsgRGBA) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgRGBA) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgRGBA) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.R))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.G))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.B))
-	dAtA[i] = 0x20
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.A))
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.B))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.G))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.R))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CNETMsg_Tick) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -4902,32 +4922,37 @@ func (m *CNETMsg_Tick) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CNETMsg_Tick) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CNETMsg_Tick) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Tick))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.HostComputationtime))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.HostComputationtimeStdDeviation))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.HostFramestarttimeStdDeviation))
-	dAtA[i] = 0x38
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.HltvReplayFlags))
-	return i, nil
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.HostFramestarttimeStdDeviation))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.HostComputationtimeStdDeviation))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.HostComputationtime))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Tick))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CNETMsg_StringCmd) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -4935,21 +4960,27 @@ func (m *CNETMsg_StringCmd) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CNETMsg_StringCmd) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CNETMsg_StringCmd) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
+	i -= len(m.Command)
+	copy(dAtA[i:], m.Command)
 	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Command)))
-	i += copy(dAtA[i:], m.Command)
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CNETMsg_SignonState) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -4957,45 +4988,45 @@ func (m *CNETMsg_SignonState) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CNETMsg_SignonState) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CNETMsg_SignonState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.SignonState))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.SpawnCount))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumServerPlayers))
+	i -= len(m.MapName)
+	copy(dAtA[i:], m.MapName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.MapName)))
+	i--
+	dAtA[i] = 0x2a
 	if len(m.PlayersNetworkids) > 0 {
-		for _, s := range m.PlayersNetworkids {
+		for iNdEx := len(m.PlayersNetworkids) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.PlayersNetworkids[iNdEx])
+			copy(dAtA[i:], m.PlayersNetworkids[iNdEx])
+			i = encodeVarintNetmessages(dAtA, i, uint64(len(m.PlayersNetworkids[iNdEx])))
+			i--
 			dAtA[i] = 0x22
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	dAtA[i] = 0x2a
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.MapName)))
-	i += copy(dAtA[i:], m.MapName)
-	return i, nil
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumServerPlayers))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.SpawnCount))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.SignonState))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsg_CVars) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5003,29 +5034,36 @@ func (m *CMsg_CVars) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsg_CVars) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsg_CVars) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Cvars) > 0 {
-		for _, msg := range m.Cvars {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintNetmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Cvars) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Cvars[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintNetmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsg_CVars_CVar) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5033,28 +5071,35 @@ func (m *CMsg_CVars_CVar) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsg_CVars_CVar) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsg_CVars_CVar) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Value)))
-	i += copy(dAtA[i:], m.Value)
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.DictionaryName))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i -= len(m.Value)
+	copy(dAtA[i:], m.Value)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Value)))
+	i--
+	dAtA[i] = 0x12
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CNETMsg_SetConVar) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5062,27 +5107,34 @@ func (m *CNETMsg_SetConVar) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CNETMsg_SetConVar) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CNETMsg_SetConVar) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Convars != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(m.Convars.Size()))
-		n1, err1 := m.Convars.MarshalTo(dAtA[i:])
-		if err1 != nil {
-			return 0, err1
+		{
+			size, err := m.Convars.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintNetmessages(dAtA, i, uint64(size))
 		}
-		i += n1
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CNETMsg_NOP) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5090,17 +5142,22 @@ func (m *CNETMsg_NOP) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CNETMsg_NOP) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CNETMsg_NOP) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CNETMsg_Disconnect) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5108,21 +5165,27 @@ func (m *CNETMsg_Disconnect) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CNETMsg_Disconnect) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CNETMsg_Disconnect) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
+	i -= len(m.Text)
+	copy(dAtA[i:], m.Text)
 	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Text)))
-	i += copy(dAtA[i:], m.Text)
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CNETMsg_File) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5130,40 +5193,46 @@ func (m *CNETMsg_File) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CNETMsg_File) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CNETMsg_File) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.TransferId))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.FileName)))
-	i += copy(dAtA[i:], m.FileName)
-	dAtA[i] = 0x18
-	i++
-	if m.IsReplayDemoFile {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x20
-	i++
+	i--
 	if m.Deny {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i--
+	if m.IsReplayDemoFile {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x18
+	i -= len(m.FileName)
+	copy(dAtA[i:], m.FileName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.FileName)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.TransferId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CNETMsg_SplitScreenUser) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5171,20 +5240,25 @@ func (m *CNETMsg_SplitScreenUser) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CNETMsg_SplitScreenUser) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CNETMsg_SplitScreenUser) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.Slot))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CNETMsg_PlayerAvatarData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5192,26 +5266,32 @@ func (m *CNETMsg_PlayerAvatarData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CNETMsg_PlayerAvatarData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CNETMsg_PlayerAvatarData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Accountid))
 	if m.Rgb != nil {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.Rgb)
+		copy(dAtA[i:], m.Rgb)
 		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Rgb)))
-		i += copy(dAtA[i:], m.Rgb)
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CCLCMsg_ClientInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5219,55 +5299,61 @@ func (m *CCLCMsg_ClientInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CCLCMsg_ClientInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CCLCMsg_ClientInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xd
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.SendTableCrc))
-	i += 4
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ServerCount))
-	dAtA[i] = 0x18
-	i++
-	if m.IsHltv {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
+	if len(m.CustomFiles) > 0 {
+		for iNdEx := len(m.CustomFiles) - 1; iNdEx >= 0; iNdEx-- {
+			i -= 4
+			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.CustomFiles[iNdEx]))
+			i--
+			dAtA[i] = 0x3d
+		}
 	}
-	i++
-	dAtA[i] = 0x20
-	i++
+	i -= len(m.FriendsName)
+	copy(dAtA[i:], m.FriendsName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.FriendsName)))
+	i--
+	dAtA[i] = 0x32
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.FriendsId))
+	i--
+	dAtA[i] = 0x28
+	i--
 	if m.IsReplay {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.FriendsId))
-	dAtA[i] = 0x32
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.FriendsName)))
-	i += copy(dAtA[i:], m.FriendsName)
-	if len(m.CustomFiles) > 0 {
-		for _, num := range m.CustomFiles {
-			dAtA[i] = 0x3d
-			i++
-			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(num))
-			i += 4
-		}
+	i--
+	dAtA[i] = 0x20
+	i--
+	if m.IsHltv {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
 	}
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ServerCount))
+	i--
+	dAtA[i] = 0x10
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.SendTableCrc))
+	i--
+	dAtA[i] = 0xd
+	return len(dAtA) - i, nil
 }
 
 func (m *CCLCMsg_Move) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5275,29 +5361,35 @@ func (m *CCLCMsg_Move) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CCLCMsg_Move) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CCLCMsg_Move) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumBackupCommands))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumNewCommands))
 	if m.Data != nil {
-		dAtA[i] = 0x1a
-		i++
+		i -= len(m.Data)
+		copy(dAtA[i:], m.Data)
 		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Data)))
-		i += copy(dAtA[i:], m.Data)
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumNewCommands))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumBackupCommands))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CCLCMsg_VoiceData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5305,41 +5397,47 @@ func (m *CCLCMsg_VoiceData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CCLCMsg_VoiceData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CCLCMsg_VoiceData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Data != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Data)))
-		i += copy(dAtA[i:], m.Data)
-	}
-	dAtA[i] = 0x11
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Xuid))
-	i += 8
-	if m.Format != nil {
-		dAtA[i] = 0x18
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(*m.Format))
-	}
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.SequenceBytes))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.SectionNumber))
-	dAtA[i] = 0x30
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.UncompressedSampleOffset))
-	return i, nil
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.SectionNumber))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.SequenceBytes))
+	i--
+	dAtA[i] = 0x20
+	if m.Format != nil {
+		i = encodeVarintNetmessages(dAtA, i, uint64(*m.Format))
+		i--
+		dAtA[i] = 0x18
+	}
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Xuid))
+	i--
+	dAtA[i] = 0x11
+	if m.Data != nil {
+		i -= len(m.Data)
+		copy(dAtA[i:], m.Data)
+		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Data)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CCLCMsg_BaselineAck) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5347,23 +5445,28 @@ func (m *CCLCMsg_BaselineAck) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CCLCMsg_BaselineAck) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CCLCMsg_BaselineAck) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.BaselineTick))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.BaselineNr))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.BaselineTick))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CCLCMsg_ListenEvents) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5371,25 +5474,30 @@ func (m *CCLCMsg_ListenEvents) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CCLCMsg_ListenEvents) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CCLCMsg_ListenEvents) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.EventMask) > 0 {
-		for _, num := range m.EventMask {
+		for iNdEx := len(m.EventMask) - 1; iNdEx >= 0; iNdEx-- {
+			i -= 4
+			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.EventMask[iNdEx]))
+			i--
 			dAtA[i] = 0xd
-			i++
-			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(num))
-			i += 4
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CCLCMsg_RespondCvarValue) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5397,31 +5505,38 @@ func (m *CCLCMsg_RespondCvarValue) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CCLCMsg_RespondCvarValue) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CCLCMsg_RespondCvarValue) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Cookie))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.StatusCode))
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
-	dAtA[i] = 0x22
-	i++
+	i -= len(m.Value)
+	copy(dAtA[i:], m.Value)
 	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Value)))
-	i += copy(dAtA[i:], m.Value)
-	return i, nil
+	i--
+	dAtA[i] = 0x22
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0x1a
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.StatusCode))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Cookie))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CCLCMsg_FileCRCCheck) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5429,55 +5544,63 @@ func (m *CCLCMsg_FileCRCCheck) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CCLCMsg_FileCRCCheck) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CCLCMsg_FileCRCCheck) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.CodePath))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Path)))
-	i += copy(dAtA[i:], m.Path)
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.CodeFilename))
-	dAtA[i] = 0x22
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Filename)))
-	i += copy(dAtA[i:], m.Filename)
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.FileFraction))
-	if m.Md5 != nil {
-		dAtA[i] = 0x32
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Md5)))
-		i += copy(dAtA[i:], m.Md5)
-	}
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Crc))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.FileHashType))
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.FileLen))
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.PackFileId))
-	dAtA[i] = 0x58
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.PackFileNumber))
-	return i, nil
+	i--
+	dAtA[i] = 0x58
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.PackFileId))
+	i--
+	dAtA[i] = 0x50
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.FileLen))
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.FileHashType))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Crc))
+	i--
+	dAtA[i] = 0x38
+	if m.Md5 != nil {
+		i -= len(m.Md5)
+		copy(dAtA[i:], m.Md5)
+		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Md5)))
+		i--
+		dAtA[i] = 0x32
+	}
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.FileFraction))
+	i--
+	dAtA[i] = 0x28
+	i -= len(m.Filename)
+	copy(dAtA[i:], m.Filename)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Filename)))
+	i--
+	dAtA[i] = 0x22
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.CodeFilename))
+	i--
+	dAtA[i] = 0x18
+	i -= len(m.Path)
+	copy(dAtA[i:], m.Path)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Path)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.CodePath))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CCLCMsg_LoadingProgress) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5485,20 +5608,25 @@ func (m *CCLCMsg_LoadingProgress) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CCLCMsg_LoadingProgress) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CCLCMsg_LoadingProgress) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.Progress))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CCLCMsg_SplitPlayerConnect) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5506,27 +5634,34 @@ func (m *CCLCMsg_SplitPlayerConnect) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CCLCMsg_SplitPlayerConnect) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CCLCMsg_SplitPlayerConnect) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Convars != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(m.Convars.Size()))
-		n2, err2 := m.Convars.MarshalTo(dAtA[i:])
-		if err2 != nil {
-			return 0, err2
+		{
+			size, err := m.Convars.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintNetmessages(dAtA, i, uint64(size))
 		}
-		i += n2
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CCLCMsg_CmdKeyValues) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5534,23 +5669,29 @@ func (m *CCLCMsg_CmdKeyValues) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CCLCMsg_CmdKeyValues) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CCLCMsg_CmdKeyValues) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Keyvalues != nil {
-		dAtA[i] = 0xa
-		i++
+		i -= len(m.Keyvalues)
+		copy(dAtA[i:], m.Keyvalues)
 		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Keyvalues)))
-		i += copy(dAtA[i:], m.Keyvalues)
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_ServerInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5558,131 +5699,141 @@ func (m *CSVCMsg_ServerInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_ServerInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_ServerInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Protocol))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ServerCount))
-	dAtA[i] = 0x18
-	i++
-	if m.IsDedicated {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x20
-	i++
-	if m.IsOfficialValveServer {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x28
-	i++
-	if m.IsHltv {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x30
-	i++
-	if m.IsReplay {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.COs))
-	dAtA[i] = 0x45
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.MapCrc))
-	i += 4
-	dAtA[i] = 0x4d
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.ClientCrc))
-	i += 4
-	dAtA[i] = 0x55
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.StringTableCrc))
-	i += 4
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.MaxClients))
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.MaxClasses))
-	dAtA[i] = 0x68
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.PlayerSlot))
-	dAtA[i] = 0x75
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.TickInterval))))
-	i += 4
-	dAtA[i] = 0x7a
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.GameDir)))
-	i += copy(dAtA[i:], m.GameDir)
-	dAtA[i] = 0x82
-	i++
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.UgcMapId))
+	i--
 	dAtA[i] = 0x1
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.MapName)))
-	i += copy(dAtA[i:], m.MapName)
-	dAtA[i] = 0x8a
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.MapGroupName)))
-	i += copy(dAtA[i:], m.MapGroupName)
-	dAtA[i] = 0x92
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.SkyName)))
-	i += copy(dAtA[i:], m.SkyName)
-	dAtA[i] = 0x9a
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.HostName)))
-	i += copy(dAtA[i:], m.HostName)
-	dAtA[i] = 0xa0
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.PublicIp))
-	dAtA[i] = 0xa8
-	i++
-	dAtA[i] = 0x1
-	i++
+	i--
+	dAtA[i] = 0xb0
+	i--
 	if m.IsRedirectingToProxyRelay {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0xb0
-	i++
+	i--
 	dAtA[i] = 0x1
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.UgcMapId))
-	return i, nil
+	i--
+	dAtA[i] = 0xa8
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.PublicIp))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xa0
+	i -= len(m.HostName)
+	copy(dAtA[i:], m.HostName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.HostName)))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x9a
+	i -= len(m.SkyName)
+	copy(dAtA[i:], m.SkyName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.SkyName)))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x92
+	i -= len(m.MapGroupName)
+	copy(dAtA[i:], m.MapGroupName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.MapGroupName)))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x8a
+	i -= len(m.MapName)
+	copy(dAtA[i:], m.MapName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.MapName)))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x82
+	i -= len(m.GameDir)
+	copy(dAtA[i:], m.GameDir)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.GameDir)))
+	i--
+	dAtA[i] = 0x7a
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.TickInterval))))
+	i--
+	dAtA[i] = 0x75
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.PlayerSlot))
+	i--
+	dAtA[i] = 0x68
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.MaxClasses))
+	i--
+	dAtA[i] = 0x60
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.MaxClients))
+	i--
+	dAtA[i] = 0x58
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.StringTableCrc))
+	i--
+	dAtA[i] = 0x55
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.ClientCrc))
+	i--
+	dAtA[i] = 0x4d
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.MapCrc))
+	i--
+	dAtA[i] = 0x45
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.COs))
+	i--
+	dAtA[i] = 0x38
+	i--
+	if m.IsReplay {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x30
+	i--
+	if m.IsHltv {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x28
+	i--
+	if m.IsOfficialValveServer {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x20
+	i--
+	if m.IsDedicated {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ServerCount))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Protocol))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_ClassInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5690,37 +5841,44 @@ func (m *CSVCMsg_ClassInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_ClassInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_ClassInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
+	if len(m.Classes) > 0 {
+		for iNdEx := len(m.Classes) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Classes[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintNetmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	i--
 	if m.CreateOnClient {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	if len(m.Classes) > 0 {
-		for _, msg := range m.Classes {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintNetmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_ClassInfoClassT) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5728,28 +5886,35 @@ func (m *CSVCMsg_ClassInfoClassT) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_ClassInfoClassT) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_ClassInfoClassT) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ClassId))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.DataTableName)))
-	i += copy(dAtA[i:], m.DataTableName)
-	dAtA[i] = 0x1a
-	i++
+	i -= len(m.ClassName)
+	copy(dAtA[i:], m.ClassName)
 	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.ClassName)))
-	i += copy(dAtA[i:], m.ClassName)
-	return i, nil
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.DataTableName)
+	copy(dAtA[i:], m.DataTableName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.DataTableName)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ClassId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_SendTable) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5757,49 +5922,57 @@ func (m *CSVCMsg_SendTable) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_SendTable) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_SendTable) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	if m.IsEnd {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
+	if len(m.Props) > 0 {
+		for iNdEx := len(m.Props) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Props[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintNetmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
 	}
-	i++
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.NetTableName)))
-	i += copy(dAtA[i:], m.NetTableName)
-	dAtA[i] = 0x18
-	i++
+	i--
 	if m.NeedsDecoder {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	if len(m.Props) > 0 {
-		for _, msg := range m.Props {
-			dAtA[i] = 0x22
-			i++
-			i = encodeVarintNetmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
+	i--
+	dAtA[i] = 0x18
+	i -= len(m.NetTableName)
+	copy(dAtA[i:], m.NetTableName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.NetTableName)))
+	i--
+	dAtA[i] = 0x12
+	i--
+	if m.IsEnd {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
 	}
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_SendTableSendpropT) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5807,48 +5980,55 @@ func (m *CSVCMsg_SendTableSendpropT) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_SendTableSendpropT) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_SendTableSendpropT) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Type))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.VarName)))
-	i += copy(dAtA[i:], m.VarName)
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Flags))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Priority))
-	dAtA[i] = 0x2a
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.DtName)))
-	i += copy(dAtA[i:], m.DtName)
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumElements))
-	dAtA[i] = 0x3d
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.LowValue))))
-	i += 4
-	dAtA[i] = 0x45
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.HighValue))))
-	i += 4
-	dAtA[i] = 0x48
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumBits))
-	return i, nil
+	i--
+	dAtA[i] = 0x48
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.HighValue))))
+	i--
+	dAtA[i] = 0x45
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.LowValue))))
+	i--
+	dAtA[i] = 0x3d
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumElements))
+	i--
+	dAtA[i] = 0x30
+	i -= len(m.DtName)
+	copy(dAtA[i:], m.DtName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.DtName)))
+	i--
+	dAtA[i] = 0x2a
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Priority))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Flags))
+	i--
+	dAtA[i] = 0x18
+	i -= len(m.VarName)
+	copy(dAtA[i:], m.VarName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.VarName)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Type))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_Print) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5856,21 +6036,27 @@ func (m *CSVCMsg_Print) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_Print) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_Print) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
+	i -= len(m.Text)
+	copy(dAtA[i:], m.Text)
 	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Text)))
-	i += copy(dAtA[i:], m.Text)
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_SetPause) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5878,25 +6064,30 @@ func (m *CSVCMsg_SetPause) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_SetPause) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_SetPause) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
+	i--
 	if m.Paused {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_SetView) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5904,20 +6095,25 @@ func (m *CSVCMsg_SetView) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_SetView) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_SetView) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.EntityIndex))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_CreateStringTable) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5925,50 +6121,57 @@ func (m *CSVCMsg_CreateStringTable) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_CreateStringTable) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_CreateStringTable) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.MaxEntries))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumEntries))
-	dAtA[i] = 0x20
-	i++
+	if m.StringData != nil {
+		i -= len(m.StringData)
+		copy(dAtA[i:], m.StringData)
+		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.StringData)))
+		i--
+		dAtA[i] = 0x42
+	}
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Flags))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.UserDataSizeBits))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.UserDataSize))
+	i--
+	dAtA[i] = 0x28
+	i--
 	if m.UserDataFixedSize {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.UserDataSize))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.UserDataSizeBits))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Flags))
-	if m.StringData != nil {
-		dAtA[i] = 0x42
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.StringData)))
-		i += copy(dAtA[i:], m.StringData)
-	}
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumEntries))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.MaxEntries))
+	i--
+	dAtA[i] = 0x10
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_UpdateStringTable) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5976,29 +6179,35 @@ func (m *CSVCMsg_UpdateStringTable) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_UpdateStringTable) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_UpdateStringTable) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.TableId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumChangedEntries))
 	if m.StringData != nil {
-		dAtA[i] = 0x1a
-		i++
+		i -= len(m.StringData)
+		copy(dAtA[i:], m.StringData)
 		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.StringData)))
-		i += copy(dAtA[i:], m.StringData)
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumChangedEntries))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.TableId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_VoiceInit) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6006,29 +6215,35 @@ func (m *CSVCMsg_VoiceInit) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_VoiceInit) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_VoiceInit) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Quality))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Codec)))
-	i += copy(dAtA[i:], m.Codec)
 	if m.Version != nil {
-		dAtA[i] = 0x18
-		i++
 		i = encodeVarintNetmessages(dAtA, i, uint64(*m.Version))
+		i--
+		dAtA[i] = 0x18
 	}
-	return i, nil
+	i -= len(m.Codec)
+	copy(dAtA[i:], m.Codec)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Codec)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Quality))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_VoiceData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6036,63 +6251,69 @@ func (m *CSVCMsg_VoiceData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_VoiceData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_VoiceData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Client))
-	dAtA[i] = 0x10
-	i++
-	if m.Proximity {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.UncompressedSampleOffset))
+	i--
+	dAtA[i] = 0x50
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.SectionNumber))
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.SequenceBytes))
+	i--
+	dAtA[i] = 0x40
+	if m.Format != nil {
+		i = encodeVarintNetmessages(dAtA, i, uint64(*m.Format))
+		i--
+		dAtA[i] = 0x38
 	}
-	i++
-	dAtA[i] = 0x19
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Xuid))
-	i += 8
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.AudibleMask))
-	if m.VoiceData != nil {
-		dAtA[i] = 0x2a
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.VoiceData)))
-		i += copy(dAtA[i:], m.VoiceData)
-	}
-	dAtA[i] = 0x30
-	i++
+	i--
 	if m.Caster {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	if m.Format != nil {
-		dAtA[i] = 0x38
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(*m.Format))
+	i--
+	dAtA[i] = 0x30
+	if m.VoiceData != nil {
+		i -= len(m.VoiceData)
+		copy(dAtA[i:], m.VoiceData)
+		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.VoiceData)))
+		i--
+		dAtA[i] = 0x2a
 	}
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.SequenceBytes))
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.SectionNumber))
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.UncompressedSampleOffset))
-	return i, nil
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.AudibleMask))
+	i--
+	dAtA[i] = 0x20
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.Xuid))
+	i--
+	dAtA[i] = 0x19
+	i--
+	if m.Proximity {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Client))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_FixAngle) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6100,35 +6321,42 @@ func (m *CSVCMsg_FixAngle) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_FixAngle) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_FixAngle) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
+	if m.Angle != nil {
+		{
+			size, err := m.Angle.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintNetmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	i--
 	if m.Relative {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	if m.Angle != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(m.Angle.Size()))
-		n3, err3 := m.Angle.MarshalTo(dAtA[i:])
-		if err3 != nil {
-			return 0, err3
-		}
-		i += n3
-	}
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_CrosshairAngle) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6136,27 +6364,34 @@ func (m *CSVCMsg_CrosshairAngle) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_CrosshairAngle) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_CrosshairAngle) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Angle != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(m.Angle.Size()))
-		n4, err4 := m.Angle.MarshalTo(dAtA[i:])
-		if err4 != nil {
-			return 0, err4
+		{
+			size, err := m.Angle.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintNetmessages(dAtA, i, uint64(size))
 		}
-		i += n4
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_Prefetch) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6164,20 +6399,25 @@ func (m *CSVCMsg_Prefetch) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_Prefetch) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_Prefetch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.SoundIndex))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_BSPDecal) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6185,44 +6425,51 @@ func (m *CSVCMsg_BSPDecal) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_BSPDecal) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_BSPDecal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Pos != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(m.Pos.Size()))
-		n5, err5 := m.Pos.MarshalTo(dAtA[i:])
-		if err5 != nil {
-			return 0, err5
-		}
-		i += n5
-	}
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.DecalTextureIndex))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.EntityIndex))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ModelIndex))
-	dAtA[i] = 0x28
-	i++
+	i--
 	if m.LowPriority {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ModelIndex))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.EntityIndex))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.DecalTextureIndex))
+	i--
+	dAtA[i] = 0x10
+	if m.Pos != nil {
+		{
+			size, err := m.Pos.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintNetmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_SplitScreen) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6230,28 +6477,33 @@ func (m *CSVCMsg_SplitScreen) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_SplitScreen) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_SplitScreen) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Type != nil {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(*m.Type))
-	}
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Slot))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.PlayerIndex))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Slot))
+	i--
+	dAtA[i] = 0x10
+	if m.Type != nil {
+		i = encodeVarintNetmessages(dAtA, i, uint64(*m.Type))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_GetCvarValue) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6259,24 +6511,30 @@ func (m *CSVCMsg_GetCvarValue) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_GetCvarValue) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_GetCvarValue) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Cookie))
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.CvarName)
+	copy(dAtA[i:], m.CvarName)
 	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.CvarName)))
-	i += copy(dAtA[i:], m.CvarName)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Cookie))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_Menu) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6284,26 +6542,32 @@ func (m *CSVCMsg_Menu) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_Menu) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_Menu) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.DialogType))
 	if m.MenuKeyValues != nil {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.MenuKeyValues)
+		copy(dAtA[i:], m.MenuKeyValues)
 		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.MenuKeyValues)))
-		i += copy(dAtA[i:], m.MenuKeyValues)
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.DialogType))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_UserMessage) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6311,29 +6575,35 @@ func (m *CSVCMsg_UserMessage) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_UserMessage) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_UserMessage) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.MsgType))
-	if m.MsgData != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.MsgData)))
-		i += copy(dAtA[i:], m.MsgData)
-	}
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.Passthrough))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	if m.MsgData != nil {
+		i -= len(m.MsgData)
+		copy(dAtA[i:], m.MsgData)
+		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.MsgData)))
+		i--
+		dAtA[i] = 0x12
+	}
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.MsgType))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_PaintmapData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6341,23 +6611,29 @@ func (m *CSVCMsg_PaintmapData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_PaintmapData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_PaintmapData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Paintmap != nil {
-		dAtA[i] = 0xa
-		i++
+		i -= len(m.Paintmap)
+		copy(dAtA[i:], m.Paintmap)
 		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Paintmap)))
-		i += copy(dAtA[i:], m.Paintmap)
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_GameEvent) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6365,39 +6641,47 @@ func (m *CSVCMsg_GameEvent) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_GameEvent) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_GameEvent) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.EventName)))
-	i += copy(dAtA[i:], m.EventName)
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Eventid))
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Passthrough))
+	i--
+	dAtA[i] = 0x20
 	if len(m.Keys) > 0 {
-		for _, msg := range m.Keys {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintNetmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Keys) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Keys[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintNetmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x1a
 		}
 	}
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Passthrough))
-	return i, nil
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Eventid))
+	i--
+	dAtA[i] = 0x10
+	i -= len(m.EventName)
+	copy(dAtA[i:], m.EventName)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.EventName)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_GameEventKeyT) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6405,54 +6689,61 @@ func (m *CSVCMsg_GameEventKeyT) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_GameEventKeyT) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_GameEventKeyT) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Type))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.ValString)))
-	i += copy(dAtA[i:], m.ValString)
-	dAtA[i] = 0x1d
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.ValFloat))))
-	i += 4
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ValLong))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ValShort))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ValByte))
-	dAtA[i] = 0x38
-	i++
+	if m.ValWstring != nil {
+		i -= len(m.ValWstring)
+		copy(dAtA[i:], m.ValWstring)
+		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.ValWstring)))
+		i--
+		dAtA[i] = 0x4a
+	}
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ValUint64))
+	i--
+	dAtA[i] = 0x40
+	i--
 	if m.ValBool {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ValUint64))
-	if m.ValWstring != nil {
-		dAtA[i] = 0x4a
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.ValWstring)))
-		i += copy(dAtA[i:], m.ValWstring)
-	}
-	return i, nil
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ValByte))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ValShort))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ValLong))
+	i--
+	dAtA[i] = 0x20
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.ValFloat))))
+	i--
+	dAtA[i] = 0x1d
+	i -= len(m.ValString)
+	copy(dAtA[i:], m.ValString)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.ValString)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Type))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_GameEventList) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6460,29 +6751,36 @@ func (m *CSVCMsg_GameEventList) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_GameEventList) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_GameEventList) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Descriptors) > 0 {
-		for _, msg := range m.Descriptors {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintNetmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Descriptors) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Descriptors[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintNetmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_GameEventListKeyT) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6490,24 +6788,30 @@ func (m *CSVCMsg_GameEventListKeyT) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_GameEventListKeyT) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_GameEventListKeyT) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Type))
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
 	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Type))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_GameEventListDescriptorT) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6515,36 +6819,44 @@ func (m *CSVCMsg_GameEventListDescriptorT) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_GameEventListDescriptorT) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_GameEventListDescriptorT) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Eventid))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
 	if len(m.Keys) > 0 {
-		for _, msg := range m.Keys {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintNetmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Keys) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Keys[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintNetmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x1a
 		}
 	}
-	return i, nil
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Eventid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_TempEntities) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6552,34 +6864,40 @@ func (m *CSVCMsg_TempEntities) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_TempEntities) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_TempEntities) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
+	if m.EntityData != nil {
+		i -= len(m.EntityData)
+		copy(dAtA[i:], m.EntityData)
+		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.EntityData)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumEntries))
+	i--
+	dAtA[i] = 0x10
+	i--
 	if m.Reliable {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.NumEntries))
-	if m.EntityData != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.EntityData)))
-		i += copy(dAtA[i:], m.EntityData)
-	}
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_PacketEntities) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6587,51 +6905,57 @@ func (m *CSVCMsg_PacketEntities) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_PacketEntities) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_PacketEntities) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.MaxEntries))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.UpdatedEntries))
-	dAtA[i] = 0x18
-	i++
-	if m.IsDelta {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
+	if m.EntityData != nil {
+		i -= len(m.EntityData)
+		copy(dAtA[i:], m.EntityData)
+		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.EntityData)))
+		i--
+		dAtA[i] = 0x3a
 	}
-	i++
-	dAtA[i] = 0x20
-	i++
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.DeltaFrom))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Baseline))
+	i--
+	dAtA[i] = 0x28
+	i--
 	if m.UpdateBaseline {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Baseline))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.DeltaFrom))
-	if m.EntityData != nil {
-		dAtA[i] = 0x3a
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.EntityData)))
-		i += copy(dAtA[i:], m.EntityData)
+	i--
+	dAtA[i] = 0x20
+	i--
+	if m.IsDelta {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
 	}
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.UpdatedEntries))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.MaxEntries))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_Sounds) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6639,37 +6963,44 @@ func (m *CSVCMsg_Sounds) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_Sounds) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_Sounds) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
+	if len(m.Sounds) > 0 {
+		for iNdEx := len(m.Sounds) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Sounds[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintNetmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	i--
 	if m.ReliableSound {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	if len(m.Sounds) > 0 {
-		for _, msg := range m.Sounds {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintNetmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_SoundsSounddataT) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6677,84 +7008,89 @@ func (m *CSVCMsg_SoundsSounddataT) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_SoundsSounddataT) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_SoundsSounddataT) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64((uint32(m.OriginX)<<1)^uint32((m.OriginX>>31))))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64((uint32(m.OriginY)<<1)^uint32((m.OriginY>>31))))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64((uint32(m.OriginZ)<<1)^uint32((m.OriginZ>>31))))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Volume))
-	dAtA[i] = 0x2d
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.DelayValue))))
-	i += 4
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.SequenceNumber))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.EntityIndex))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Channel))
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Pitch))
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Flags))
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.SoundNum))
-	dAtA[i] = 0x65
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.SoundNumHandle))
-	i += 4
-	dAtA[i] = 0x68
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.SpeakerEntity))
-	dAtA[i] = 0x70
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.RandomSeed))
-	dAtA[i] = 0x78
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.SoundLevel))
-	dAtA[i] = 0x80
-	i++
-	dAtA[i] = 0x1
-	i++
-	if m.IsSentence {
-		dAtA[i] = 1
-	} else {
-		dAtA[i] = 0
-	}
-	i++
-	dAtA[i] = 0x88
-	i++
-	dAtA[i] = 0x1
-	i++
+	i--
 	if m.IsAmbient {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x88
+	i--
+	if m.IsSentence {
+		dAtA[i] = 1
+	} else {
+		dAtA[i] = 0
+	}
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x80
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.SoundLevel))
+	i--
+	dAtA[i] = 0x78
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.RandomSeed))
+	i--
+	dAtA[i] = 0x70
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.SpeakerEntity))
+	i--
+	dAtA[i] = 0x68
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.SoundNumHandle))
+	i--
+	dAtA[i] = 0x65
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.SoundNum))
+	i--
+	dAtA[i] = 0x58
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Flags))
+	i--
+	dAtA[i] = 0x50
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Pitch))
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Channel))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.EntityIndex))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.SequenceNumber))
+	i--
+	dAtA[i] = 0x30
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.DelayValue))))
+	i--
+	dAtA[i] = 0x2d
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Volume))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintNetmessages(dAtA, i, uint64((uint32(m.OriginZ)<<1)^uint32((m.OriginZ>>31))))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintNetmessages(dAtA, i, uint64((uint32(m.OriginY)<<1)^uint32((m.OriginY>>31))))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64((uint32(m.OriginX)<<1)^uint32((m.OriginX>>31))))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_EntityMsg) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6762,29 +7098,35 @@ func (m *CSVCMsg_EntityMsg) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_EntityMsg) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_EntityMsg) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.EntIndex))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ClassId))
 	if m.EntData != nil {
-		dAtA[i] = 0x1a
-		i++
+		i -= len(m.EntData)
+		copy(dAtA[i:], m.EntData)
 		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.EntData)))
-		i += copy(dAtA[i:], m.EntData)
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ClassId))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.EntIndex))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_CmdKeyValues) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6792,23 +7134,29 @@ func (m *CSVCMsg_CmdKeyValues) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_CmdKeyValues) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_CmdKeyValues) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Keyvalues != nil {
-		dAtA[i] = 0xa
-		i++
+		i -= len(m.Keyvalues)
+		copy(dAtA[i:], m.Keyvalues)
 		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Keyvalues)))
-		i += copy(dAtA[i:], m.Keyvalues)
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_EncryptedData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6816,26 +7164,32 @@ func (m *CSVCMsg_EncryptedData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_EncryptedData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_EncryptedData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Encrypted != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Encrypted)))
-		i += copy(dAtA[i:], m.Encrypted)
-	}
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintNetmessages(dAtA, i, uint64(m.KeyType))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	if m.Encrypted != nil {
+		i -= len(m.Encrypted)
+		copy(dAtA[i:], m.Encrypted)
+		i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Encrypted)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_HltvReplay) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6843,39 +7197,44 @@ func (m *CSVCMsg_HltvReplay) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_HltvReplay) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_HltvReplay) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Delay))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.PrimaryTarget))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ReplayStopAt))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ReplayStartAt))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ReplaySlowdownBegin))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.ReplaySlowdownEnd))
-	dAtA[i] = 0x3d
-	i++
+	i -= 4
 	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.ReplaySlowdownRate))))
-	i += 4
-	return i, nil
+	i--
+	dAtA[i] = 0x3d
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ReplaySlowdownEnd))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ReplaySlowdownBegin))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ReplayStartAt))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.ReplayStopAt))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.PrimaryTarget))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Delay))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CCLCMsg_HltvReplay) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6883,35 +7242,40 @@ func (m *CCLCMsg_HltvReplay) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CCLCMsg_HltvReplay) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CCLCMsg_HltvReplay) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.Request))
-	dAtA[i] = 0x15
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.SlowdownLength))))
-	i += 4
-	dAtA[i] = 0x1d
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.SlowdownRate))))
-	i += 4
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintNetmessages(dAtA, i, uint64(m.PrimaryTargetEntIndex))
-	dAtA[i] = 0x2d
-	i++
+	i -= 4
 	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.EventTime))))
-	i += 4
-	return i, nil
+	i--
+	dAtA[i] = 0x2d
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.PrimaryTargetEntIndex))
+	i--
+	dAtA[i] = 0x20
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.SlowdownRate))))
+	i--
+	dAtA[i] = 0x1d
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.SlowdownLength))))
+	i--
+	dAtA[i] = 0x15
+	i = encodeVarintNetmessages(dAtA, i, uint64(m.Request))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSVCMsg_Broadcast_Command) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6919,25 +7283,33 @@ func (m *CSVCMsg_Broadcast_Command) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSVCMsg_Broadcast_Command) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSVCMsg_Broadcast_Command) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
+	i -= len(m.Cmd)
+	copy(dAtA[i:], m.Cmd)
 	i = encodeVarintNetmessages(dAtA, i, uint64(len(m.Cmd)))
-	i += copy(dAtA[i:], m.Cmd)
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintNetmessages(dAtA []byte, offset int, v uint64) int {
+	offset -= sovNetmessages(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func (m *CMsgVector) Size() (n int) {
 	if m == nil {
@@ -16168,6 +16540,7 @@ func (m *CSVCMsg_Broadcast_Command) Unmarshal(dAtA []byte) error {
 func skipNetmessages(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
+	depth := 0
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
@@ -16199,10 +16572,8 @@ func skipNetmessages(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			return iNdEx, nil
 		case 1:
 			iNdEx += 8
-			return iNdEx, nil
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
@@ -16223,55 +16594,30 @@ func skipNetmessages(dAtA []byte) (n int, err error) {
 				return 0, ErrInvalidLengthNetmessages
 			}
 			iNdEx += length
-			if iNdEx < 0 {
-				return 0, ErrInvalidLengthNetmessages
-			}
-			return iNdEx, nil
 		case 3:
-			for {
-				var innerWire uint64
-				var start int = iNdEx
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return 0, ErrIntOverflowNetmessages
-					}
-					if iNdEx >= l {
-						return 0, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					innerWire |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				innerWireType := int(innerWire & 0x7)
-				if innerWireType == 4 {
-					break
-				}
-				next, err := skipNetmessages(dAtA[start:])
-				if err != nil {
-					return 0, err
-				}
-				iNdEx = start + next
-				if iNdEx < 0 {
-					return 0, ErrInvalidLengthNetmessages
-				}
-			}
-			return iNdEx, nil
+			depth++
 		case 4:
-			return iNdEx, nil
+			if depth == 0 {
+				return 0, ErrUnexpectedEndOfGroupNetmessages
+			}
+			depth--
 		case 5:
 			iNdEx += 4
-			return iNdEx, nil
 		default:
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
+		if iNdEx < 0 {
+			return 0, ErrInvalidLengthNetmessages
+		}
+		if depth == 0 {
+			return iNdEx, nil
+		}
 	}
-	panic("unreachable")
+	return 0, io.ErrUnexpectedEOF
 }
 
 var (
-	ErrInvalidLengthNetmessages = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowNetmessages   = fmt.Errorf("proto: integer overflow")
+	ErrInvalidLengthNetmessages        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowNetmessages          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupNetmessages = fmt.Errorf("proto: unexpected end of group")
 )

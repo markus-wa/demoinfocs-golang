@@ -21,7 +21,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type ECsgoGCMsg int32
 
@@ -374,7 +374,7 @@ func (m *GameServerPing) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_GameServerPing.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -433,7 +433,7 @@ func (m *DataCenterPing) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_DataCenterPing.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -486,7 +486,7 @@ func (m *DetailedSearchStatistic) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return xxx_messageInfo_DetailedSearchStatistic.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -550,7 +550,7 @@ func (m *TournamentPlayer) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_TournamentPlayer.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -640,7 +640,7 @@ func (m *TournamentTeam) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_TournamentTeam.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -720,7 +720,7 @@ func (m *TournamentEvent) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_TournamentEvent.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -834,7 +834,7 @@ func (m *GlobalStatistics) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_GlobalStatistics.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -977,7 +977,7 @@ func (m *OperationalStatisticDescription) XXX_Marshal(b []byte, deterministic bo
 		return xxx_messageInfo_OperationalStatisticDescription.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1029,7 +1029,7 @@ func (m *OperationalStatisticElement) XXX_Marshal(b []byte, deterministic bool) 
 		return xxx_messageInfo_OperationalStatisticElement.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1082,7 +1082,7 @@ func (m *OperationalStatisticsPacket) XXX_Marshal(b []byte, deterministic bool) 
 		return xxx_messageInfo_OperationalStatisticsPacket.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1144,7 +1144,7 @@ func (m *PlayerRankingInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_PlayerRankingInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1218,7 +1218,7 @@ func (m *PlayerCommendationInfo) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_PlayerCommendationInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1277,7 +1277,7 @@ func (m *PlayerMedalsInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_PlayerMedalsInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1331,7 +1331,7 @@ func (m *AccountActivity) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_AccountActivity.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1399,7 +1399,7 @@ func (m *TournamentMatchSetup) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_TournamentMatchSetup.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1483,7 +1483,7 @@ func (m *ServerHltvInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_ServerHltvInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1665,7 +1665,7 @@ func (m *IpAddressMask) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return xxx_messageInfo_IpAddressMask.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1745,7 +1745,7 @@ func (m *XpProgressData) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_XpProgressData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1798,7 +1798,7 @@ func (m *MatchEndItemUpdates) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_MatchEndItemUpdates.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1859,7 +1859,7 @@ func (m *ScoreLeaderboardData) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_ScoreLeaderboardData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1925,7 +1925,7 @@ func (m *ScoreLeaderboardData_Entry) XXX_Marshal(b []byte, deterministic bool) (
 		return xxx_messageInfo_ScoreLeaderboardData_Entry.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1977,7 +1977,7 @@ func (m *ScoreLeaderboardData_AccountEntries) XXX_Marshal(b []byte, deterministi
 		return xxx_messageInfo_ScoreLeaderboardData_AccountEntries.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2034,7 +2034,7 @@ func (m *PlayerQuestData) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_PlayerQuestData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2122,7 +2122,7 @@ func (m *PlayerQuestData_QuestItemData) XXX_Marshal(b []byte, deterministic bool
 		return xxx_messageInfo_PlayerQuestData_QuestItemData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2183,7 +2183,7 @@ func (m *CMsgGC_ServerQuestUpdateData) XXX_Marshal(b []byte, deterministic bool)
 		return xxx_messageInfo_CMsgGC_ServerQuestUpdateData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2254,7 +2254,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingGCOperationalStats) XXX_Marshal(b []byte, 
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingGCOperationalStats.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2318,7 +2318,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerConfirm) XXX_Marshal(b []byte, de
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingGC2ServerConfirm.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2381,7 +2381,7 @@ func (m *CMsgGCCStrike15V2_GC2ServerReservationUpdate) XXX_Marshal(b []byte, det
 		return xxx_messageInfo_CMsgGCCStrike15V2_GC2ServerReservationUpdate.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2437,7 +2437,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingStart) XXX_Marshal(b []byte, deterministic
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingStart.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2516,7 +2516,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingStop) XXX_Marshal(b []byte, deterministic 
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingStop.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2569,7 +2569,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingClient2ServerPing) XXX_Marshal(b []byte, d
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingClient2ServerPing.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2666,7 +2666,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate) XXX_Marshal(b []byte, det
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2815,7 +2815,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate_Note) XXX_Marshal(b []byte
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate_Note.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2891,7 +2891,7 @@ func (m *CDataGCCStrike15V2_TournamentMatchDraft) XXX_Marshal(b []byte, determin
 		return xxx_messageInfo_CDataGCCStrike15V2_TournamentMatchDraft.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3003,7 +3003,7 @@ func (m *CDataGCCStrike15V2_TournamentMatchDraft_Entry) XXX_Marshal(b []byte, de
 		return xxx_messageInfo_CDataGCCStrike15V2_TournamentMatchDraft_Entry.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3057,7 +3057,7 @@ func (m *CPreMatchInfoData) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CPreMatchInfoData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3124,7 +3124,7 @@ func (m *CPreMatchInfoData_TeamStats) XXX_Marshal(b []byte, deterministic bool) 
 		return xxx_messageInfo_CPreMatchInfoData_TeamStats.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3203,7 +3203,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerReserve) XXX_Marshal(b []byte, de
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingGC2ServerReserve.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3386,7 +3386,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingServerReservationResponse) XXX_Marshal(b [
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingServerReservationResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3552,7 +3552,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientReserve) XXX_Marshal(b []byte, de
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingGC2ClientReserve.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3667,7 +3667,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingServerRoundStats) XXX_Marshal(b []byte, de
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingServerRoundStats.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3890,7 +3890,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingServerRoundStats_DropInfo) XXX_Marshal(b [
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingServerRoundStats_DropInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3945,7 +3945,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingServerMatchEnd) XXX_Marshal(b []byte, dete
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingServerMatchEnd.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4046,7 +4046,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingServerMatchEndPartial) XXX_Marshal(b []byt
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingServerMatchEndPartial.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4121,7 +4121,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingClient2GCHello) XXX_Marshal(b []byte, dete
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingClient2GCHello.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4180,7 +4180,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientHello) XXX_Marshal(b []byte, dete
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingGC2ClientHello.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4352,7 +4352,7 @@ func (m *CMsgGCCStrike15V2_AccountPrivacySettings) XXX_Marshal(b []byte, determi
 		return xxx_messageInfo_CMsgGCCStrike15V2_AccountPrivacySettings.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4401,7 +4401,7 @@ func (m *CMsgGCCStrike15V2_AccountPrivacySettings_Setting) XXX_Marshal(b []byte,
 		return xxx_messageInfo_CMsgGCCStrike15V2_AccountPrivacySettings_Setting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4459,7 +4459,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientAbandon) XXX_Marshal(b []byte, de
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingGC2ClientAbandon.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4530,7 +4530,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingServer2GCKick) XXX_Marshal(b []byte, deter
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingServer2GCKick.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4593,7 +4593,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerRankUpdate) XXX_Marshal(b []byte,
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingGC2ServerRankUpdate.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4644,7 +4644,7 @@ func (m *CMsgGCCStrike15V2_ClientGCRankUpdate) XXX_Marshal(b []byte, determinist
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientGCRankUpdate.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4692,7 +4692,7 @@ func (m *CMsgGCCStrike15V2_MatchmakingOperator2GCBlogUpdate) XXX_Marshal(b []byt
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchmakingOperator2GCBlogUpdate.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4742,7 +4742,7 @@ func (m *CMsgGCCStrike15V2_ServerNotificationForUserPenalty) XXX_Marshal(b []byt
 		return xxx_messageInfo_CMsgGCCStrike15V2_ServerNotificationForUserPenalty.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4807,7 +4807,7 @@ func (m *CMsgGCCStrike15V2_ClientReportPlayer) XXX_Marshal(b []byte, determinist
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientReportPlayer.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4903,7 +4903,7 @@ func (m *CMsgGCCStrike15V2_ClientCommendPlayer) XXX_Marshal(b []byte, determinis
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientCommendPlayer.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4973,7 +4973,7 @@ func (m *CMsgGCCStrike15V2_ClientReportServer) XXX_Marshal(b []byte, determinist
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientReportServer.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5059,7 +5059,7 @@ func (m *CMsgGCCStrike15V2_ClientReportResponse) XXX_Marshal(b []byte, determini
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientReportResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5147,7 +5147,7 @@ func (m *CMsgGCCStrike15V2_ClientRequestWatchInfoFriends) XXX_Marshal(b []byte, 
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientRequestWatchInfoFriends.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5238,7 +5238,7 @@ func (m *WatchableMatchInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_WatchableMatchInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5375,7 +5375,7 @@ func (m *CMsgGCCStrike15V2_ClientRequestJoinFriendData) XXX_Marshal(b []byte, de
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientRequestJoinFriendData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5464,7 +5464,7 @@ func (m *CMsgGCCStrike15V2_ClientRequestJoinServerData) XXX_Marshal(b []byte, de
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientRequestJoinServerData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5540,8 +5540,10 @@ type CMsgGCCstrike15V2_ClientRequestNewMission struct {
 func (m *CMsgGCCstrike15V2_ClientRequestNewMission) Reset() {
 	*m = CMsgGCCstrike15V2_ClientRequestNewMission{}
 }
-func (m *CMsgGCCstrike15V2_ClientRequestNewMission) String() string { return proto.CompactTextString(m) }
-func (*CMsgGCCstrike15V2_ClientRequestNewMission) ProtoMessage()    {}
+func (m *CMsgGCCstrike15V2_ClientRequestNewMission) String() string {
+	return proto.CompactTextString(m)
+}
+func (*CMsgGCCstrike15V2_ClientRequestNewMission) ProtoMessage() {}
 func (*CMsgGCCstrike15V2_ClientRequestNewMission) Descriptor() ([]byte, []int) {
 	return fileDescriptor_27ac1cab292d7f96, []int{54}
 }
@@ -5553,7 +5555,7 @@ func (m *CMsgGCCstrike15V2_ClientRequestNewMission) XXX_Marshal(b []byte, determ
 		return xxx_messageInfo_CMsgGCCstrike15V2_ClientRequestNewMission.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5613,7 +5615,7 @@ func (m *CMsgGCCstrike15V2_GC2ServerNotifyXPRewarded) XXX_Marshal(b []byte, dete
 		return xxx_messageInfo_CMsgGCCstrike15V2_GC2ServerNotifyXPRewarded.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5695,7 +5697,7 @@ func (m *CMsgGCCStrike15V2_WatchInfoUsers) XXX_Marshal(b []byte, deterministic b
 		return xxx_messageInfo_CMsgGCCStrike15V2_WatchInfoUsers.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5767,7 +5769,7 @@ func (m *CMsgGCCStrike15V2_ClientRequestPlayersProfile) XXX_Marshal(b []byte, de
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientRequestPlayersProfile.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5833,7 +5835,7 @@ func (m *CMsgGCCStrike15V2_PlayersProfile) XXX_Marshal(b []byte, deterministic b
 		return xxx_messageInfo_CMsgGCCStrike15V2_PlayersProfile.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5895,7 +5897,7 @@ func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseUpdate) XXX_Marshal(b []byte, dete
 		return xxx_messageInfo_CMsgGCCStrike15V2_PlayerOverwatchCaseUpdate.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6002,7 +6004,7 @@ func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseAssignment) XXX_Marshal(b []byte, 
 		return xxx_messageInfo_CMsgGCCStrike15V2_PlayerOverwatchCaseAssignment.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6121,7 +6123,7 @@ func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseStatus) XXX_Marshal(b []byte, dete
 		return xxx_messageInfo_CMsgGCCStrike15V2_PlayerOverwatchCaseStatus.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6173,7 +6175,7 @@ func (m *CClientHeaderOverwatchEvidence) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_CClientHeaderOverwatchEvidence.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6226,7 +6228,7 @@ func (m *CMsgGCCStrike15V2_GC2ClientTextMsg) XXX_Marshal(b []byte, deterministic
 		return xxx_messageInfo_CMsgGCCStrike15V2_GC2ClientTextMsg.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6285,7 +6287,7 @@ func (m *CMsgGCCStrike15V2_Client2GCTextMsg) XXX_Marshal(b []byte, deterministic
 		return xxx_messageInfo_CMsgGCCStrike15V2_Client2GCTextMsg.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6339,7 +6341,7 @@ func (m *CMsgGCCStrike15V2_MatchEndRunRewardDrops) XXX_Marshal(b []byte, determi
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchEndRunRewardDrops.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6407,7 +6409,7 @@ func (m *CEconItemPreviewDataBlock) XXX_Marshal(b []byte, deterministic bool) ([
 		return xxx_messageInfo_CEconItemPreviewDataBlock.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6575,7 +6577,7 @@ func (m *CEconItemPreviewDataBlock_Sticker) XXX_Marshal(b []byte, deterministic 
 		return xxx_messageInfo_CEconItemPreviewDataBlock_Sticker.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6658,7 +6660,7 @@ func (m *CMsgGCCStrike15V2_MatchEndRewardDropsNotification) XXX_Marshal(b []byte
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchEndRewardDropsNotification.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6702,7 +6704,7 @@ func (m *CMsgItemAcknowledged) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CMsgItemAcknowledged.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6753,7 +6755,7 @@ func (m *CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockRequest) XXX_Marshal(b [
 		return xxx_messageInfo_CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6822,7 +6824,7 @@ func (m *CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockResponse) XXX_Marshal(b 
 		return xxx_messageInfo_CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6872,7 +6874,7 @@ func (m *CMsgGCCStrike15V2_TournamentMatchRewardDropsNotification) XXX_Marshal(b
 		return xxx_messageInfo_CMsgGCCStrike15V2_TournamentMatchRewardDropsNotification.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6933,7 +6935,7 @@ func (m *CMsgGCCStrike15V2_MatchListRequestCurrentLiveGames) XXX_Marshal(b []byt
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchListRequestCurrentLiveGames.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -6974,7 +6976,7 @@ func (m *CMsgGCCStrike15V2_MatchListRequestLiveGameForUser) XXX_Marshal(b []byte
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchListRequestLiveGameForUser.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7022,7 +7024,7 @@ func (m *CMsgGCCStrike15V2_MatchListRequestRecentUserGames) XXX_Marshal(b []byte
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchListRequestRecentUserGames.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7070,7 +7072,7 @@ func (m *CMsgGCCStrike15V2_MatchListRequestTournamentGames) XXX_Marshal(b []byte
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchListRequestTournamentGames.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7120,7 +7122,7 @@ func (m *CMsgGCCStrike15V2_MatchListRequestFullGameInfo) XXX_Marshal(b []byte, d
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchListRequestFullGameInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7182,7 +7184,7 @@ func (m *CDataGCCStrike15V2_MatchInfo) XXX_Marshal(b []byte, deterministic bool)
 		return xxx_messageInfo_CDataGCCStrike15V2_MatchInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7258,7 +7260,7 @@ func (m *CDataGCCStrike15V2_TournamentGroupTeam) XXX_Marshal(b []byte, determini
 		return xxx_messageInfo_CDataGCCStrike15V2_TournamentGroupTeam.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7325,7 +7327,7 @@ func (m *CDataGCCStrike15V2_TournamentGroup) XXX_Marshal(b []byte, deterministic
 		return xxx_messageInfo_CDataGCCStrike15V2_TournamentGroup.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7434,7 +7436,7 @@ func (m *CDataGCCStrike15V2_TournamentGroup_Picks) XXX_Marshal(b []byte, determi
 		return xxx_messageInfo_CDataGCCStrike15V2_TournamentGroup_Picks.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7481,7 +7483,7 @@ func (m *CDataGCCStrike15V2_TournamentSection) XXX_Marshal(b []byte, determinist
 		return xxx_messageInfo_CDataGCCStrike15V2_TournamentSection.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7548,7 +7550,7 @@ func (m *CDataGCCStrike15V2_TournamentInfo) XXX_Marshal(b []byte, deterministic 
 		return xxx_messageInfo_CDataGCCStrike15V2_TournamentInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7611,7 +7613,7 @@ func (m *CMsgGCCStrike15V2_MatchList) XXX_Marshal(b []byte, deterministic bool) 
 		return xxx_messageInfo_CMsgGCCStrike15V2_MatchList.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7691,7 +7693,7 @@ func (m *CMsgGCCStrike15V2_Predictions) XXX_Marshal(b []byte, deterministic bool
 		return xxx_messageInfo_CMsgGCCStrike15V2_Predictions.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7750,7 +7752,7 @@ func (m *CMsgGCCStrike15V2_Predictions_GroupMatchTeamPick) XXX_Marshal(b []byte,
 		return xxx_messageInfo_CMsgGCCStrike15V2_Predictions_GroupMatchTeamPick.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7823,7 +7825,7 @@ func (m *CMsgGCCStrike15V2_Fantasy) XXX_Marshal(b []byte, deterministic bool) ([
 		return xxx_messageInfo_CMsgGCCStrike15V2_Fantasy.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7876,7 +7878,7 @@ func (m *CMsgGCCStrike15V2_Fantasy_FantasySlot) XXX_Marshal(b []byte, determinis
 		return xxx_messageInfo_CMsgGCCStrike15V2_Fantasy_FantasySlot.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7935,7 +7937,7 @@ func (m *CMsgGCCStrike15V2_Fantasy_FantasyTeam) XXX_Marshal(b []byte, determinis
 		return xxx_messageInfo_CMsgGCCStrike15V2_Fantasy_FantasyTeam.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -7986,7 +7988,7 @@ func (m *CAttribute_String) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_CAttribute_String.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8029,7 +8031,7 @@ func (m *CMsgGCToGCReloadVersions) XXX_Marshal(b []byte, deterministic bool) ([]
 		return xxx_messageInfo_CMsgGCToGCReloadVersions.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8072,7 +8074,7 @@ func (m *CMsgCStrike15Welcome) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CMsgCStrike15Welcome.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8166,7 +8168,7 @@ func (m *CMsgGCCStrike15V2_ClientVarValueNotificationInfo) XXX_Marshal(b []byte,
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientVarValueNotificationInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8244,7 +8246,7 @@ func (m *CMsgGCCStrike15V2_ServerVarValueNotificationInfo) XXX_Marshal(b []byte,
 		return xxx_messageInfo_CMsgGCCStrike15V2_ServerVarValueNotificationInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8290,8 +8292,10 @@ type CMsgGCCStrike15V2_GiftsLeaderboardRequest struct {
 func (m *CMsgGCCStrike15V2_GiftsLeaderboardRequest) Reset() {
 	*m = CMsgGCCStrike15V2_GiftsLeaderboardRequest{}
 }
-func (m *CMsgGCCStrike15V2_GiftsLeaderboardRequest) String() string { return proto.CompactTextString(m) }
-func (*CMsgGCCStrike15V2_GiftsLeaderboardRequest) ProtoMessage()    {}
+func (m *CMsgGCCStrike15V2_GiftsLeaderboardRequest) String() string {
+	return proto.CompactTextString(m)
+}
+func (*CMsgGCCStrike15V2_GiftsLeaderboardRequest) ProtoMessage() {}
 func (*CMsgGCCStrike15V2_GiftsLeaderboardRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_27ac1cab292d7f96, []int{90}
 }
@@ -8303,7 +8307,7 @@ func (m *CMsgGCCStrike15V2_GiftsLeaderboardRequest) XXX_Marshal(b []byte, determ
 		return xxx_messageInfo_CMsgGCCStrike15V2_GiftsLeaderboardRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8348,7 +8352,7 @@ func (m *CMsgGCCStrike15V2_GiftsLeaderboardResponse) XXX_Marshal(b []byte, deter
 		return xxx_messageInfo_CMsgGCCStrike15V2_GiftsLeaderboardResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8425,7 +8429,7 @@ func (m *CMsgGCCStrike15V2_GiftsLeaderboardResponse_GiftLeaderboardEntry) XXX_Ma
 		return xxx_messageInfo_CMsgGCCStrike15V2_GiftsLeaderboardResponse_GiftLeaderboardEntry.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8479,7 +8483,7 @@ func (m *CMsgGCCStrike15V2_ClientSubmitSurveyVote) XXX_Marshal(b []byte, determi
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientSubmitSurveyVote.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8519,8 +8523,10 @@ type CMsgGCCStrike15V2_Server2GCClientValidate struct {
 func (m *CMsgGCCStrike15V2_Server2GCClientValidate) Reset() {
 	*m = CMsgGCCStrike15V2_Server2GCClientValidate{}
 }
-func (m *CMsgGCCStrike15V2_Server2GCClientValidate) String() string { return proto.CompactTextString(m) }
-func (*CMsgGCCStrike15V2_Server2GCClientValidate) ProtoMessage()    {}
+func (m *CMsgGCCStrike15V2_Server2GCClientValidate) String() string {
+	return proto.CompactTextString(m)
+}
+func (*CMsgGCCStrike15V2_Server2GCClientValidate) ProtoMessage() {}
 func (*CMsgGCCStrike15V2_Server2GCClientValidate) Descriptor() ([]byte, []int) {
 	return fileDescriptor_27ac1cab292d7f96, []int{93}
 }
@@ -8532,7 +8538,7 @@ func (m *CMsgGCCStrike15V2_Server2GCClientValidate) XXX_Marshal(b []byte, determ
 		return xxx_messageInfo_CMsgGCCStrike15V2_Server2GCClientValidate.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8587,7 +8593,7 @@ func (m *CMsgGCCStrike15V2_Server2GCPureServerValidationFailure) XXX_Marshal(b [
 		return xxx_messageInfo_CMsgGCCStrike15V2_Server2GCPureServerValidationFailure.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8672,8 +8678,10 @@ type CMsgGCCStrike15V2_GC2ClientTournamentInfo struct {
 func (m *CMsgGCCStrike15V2_GC2ClientTournamentInfo) Reset() {
 	*m = CMsgGCCStrike15V2_GC2ClientTournamentInfo{}
 }
-func (m *CMsgGCCStrike15V2_GC2ClientTournamentInfo) String() string { return proto.CompactTextString(m) }
-func (*CMsgGCCStrike15V2_GC2ClientTournamentInfo) ProtoMessage()    {}
+func (m *CMsgGCCStrike15V2_GC2ClientTournamentInfo) String() string {
+	return proto.CompactTextString(m)
+}
+func (*CMsgGCCStrike15V2_GC2ClientTournamentInfo) ProtoMessage() {}
 func (*CMsgGCCStrike15V2_GC2ClientTournamentInfo) Descriptor() ([]byte, []int) {
 	return fileDescriptor_27ac1cab292d7f96, []int{95}
 }
@@ -8685,7 +8693,7 @@ func (m *CMsgGCCStrike15V2_GC2ClientTournamentInfo) XXX_Marshal(b []byte, determ
 		return xxx_messageInfo_CMsgGCCStrike15V2_GC2ClientTournamentInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8752,7 +8760,7 @@ func (m *CSOEconCoupon) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return xxx_messageInfo_CSOEconCoupon.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8812,7 +8820,7 @@ func (m *CSOQuestProgress) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_CSOQuestProgress.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8872,7 +8880,7 @@ func (m *CSOPersonaDataPublic) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_CSOPersonaDataPublic.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8930,7 +8938,7 @@ func (m *CMsgGC_GlobalGame_Subscribe) XXX_Marshal(b []byte, deterministic bool) 
 		return xxx_messageInfo_CMsgGC_GlobalGame_Subscribe.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -8974,7 +8982,7 @@ func (m *CMsgGC_GlobalGame_Unsubscribe) XXX_Marshal(b []byte, deterministic bool
 		return xxx_messageInfo_CMsgGC_GlobalGame_Unsubscribe.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9020,7 +9028,7 @@ func (m *CMsgGC_GlobalGame_Play) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_CMsgGC_GlobalGame_Play.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9078,7 +9086,7 @@ func (m *CMsgGCCStrike15V2_AcknowledgePenalty) XXX_Marshal(b []byte, determinist
 		return xxx_messageInfo_CMsgGCCStrike15V2_AcknowledgePenalty.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9129,7 +9137,7 @@ func (m *CMsgGCCStrike15V2_Client2GCRequestPrestigeCoin) XXX_Marshal(b []byte, d
 		return xxx_messageInfo_CMsgGCCStrike15V2_Client2GCRequestPrestigeCoin.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9197,7 +9205,7 @@ func (m *CMsgGCCStrike15V2_Client2GCStreamUnlock) XXX_Marshal(b []byte, determin
 		return xxx_messageInfo_CMsgGCCStrike15V2_Client2GCStreamUnlock.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9252,7 +9260,7 @@ func (m *CMsgGCCStrike15V2_ClientToGCRequestElevate) XXX_Marshal(b []byte, deter
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientToGCRequestElevate.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9297,7 +9305,7 @@ func (m *CMsgGCCStrike15V2_ClientToGCChat) XXX_Marshal(b []byte, deterministic b
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientToGCChat.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9349,7 +9357,7 @@ func (m *CMsgGCCStrike15V2_GCToClientChat) XXX_Marshal(b []byte, deterministic b
 		return xxx_messageInfo_CMsgGCCStrike15V2_GCToClientChat.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9401,7 +9409,7 @@ func (m *CMsgGCCStrike15V2_ClientAuthKeyCode) XXX_Marshal(b []byte, deterministi
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientAuthKeyCode.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9452,7 +9460,7 @@ func (m *CMsgGCCStrike15_GotvSyncPacket) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_CMsgGCCStrike15_GotvSyncPacket.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9509,7 +9517,7 @@ func (m *PlayerDecalDigitalSignature) XXX_Marshal(b []byte, deterministic bool) 
 		return xxx_messageInfo_PlayerDecalDigitalSignature.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9647,7 +9655,7 @@ func (m *CMsgGCCStrike15V2_ClientPlayerDecalSign) XXX_Marshal(b []byte, determin
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientPlayerDecalSign.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9702,7 +9710,7 @@ func (m *CMsgGCCStrike15V2_ClientLogonFatalError) XXX_Marshal(b []byte, determin
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientLogonFatalError.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9762,7 +9770,7 @@ func (m *CMsgGCCStrike15V2_ClientPollState) XXX_Marshal(b []byte, deterministic 
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientPollState.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9828,7 +9836,7 @@ func (m *CMsgGCCStrike15V2_Party_Register) XXX_Marshal(b []byte, deterministic b
 		return xxx_messageInfo_CMsgGCCStrike15V2_Party_Register.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -9933,7 +9941,7 @@ func (m *CMsgGCCStrike15V2_Party_Search) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_CMsgGCCStrike15V2_Party_Search.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10012,7 +10020,7 @@ func (m *CMsgGCCStrike15V2_Party_SearchResults) XXX_Marshal(b []byte, determinis
 		return xxx_messageInfo_CMsgGCCStrike15V2_Party_SearchResults.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10065,7 +10073,7 @@ func (m *CMsgGCCStrike15V2_Party_SearchResults_Entry) XXX_Marshal(b []byte, dete
 		return xxx_messageInfo_CMsgGCCStrike15V2_Party_SearchResults_Entry.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10145,7 +10153,7 @@ func (m *CMsgGCCStrike15V2_Party_Invite) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_CMsgGCCStrike15V2_Party_Invite.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10199,7 +10207,7 @@ func (m *CMsgGCCStrike15V2_Account_RequestCoPlays) XXX_Marshal(b []byte, determi
 		return xxx_messageInfo_CMsgGCCStrike15V2_Account_RequestCoPlays.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10256,7 +10264,7 @@ func (m *CMsgGCCStrike15V2_Account_RequestCoPlays_Player) XXX_Marshal(b []byte, 
 		return xxx_messageInfo_CMsgGCCStrike15V2_Account_RequestCoPlays_Player.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10306,8 +10314,10 @@ type CMsgGCCStrike15V2_ClientToGCRequestTicket struct {
 func (m *CMsgGCCStrike15V2_ClientToGCRequestTicket) Reset() {
 	*m = CMsgGCCStrike15V2_ClientToGCRequestTicket{}
 }
-func (m *CMsgGCCStrike15V2_ClientToGCRequestTicket) String() string { return proto.CompactTextString(m) }
-func (*CMsgGCCStrike15V2_ClientToGCRequestTicket) ProtoMessage()    {}
+func (m *CMsgGCCStrike15V2_ClientToGCRequestTicket) String() string {
+	return proto.CompactTextString(m)
+}
+func (*CMsgGCCStrike15V2_ClientToGCRequestTicket) ProtoMessage() {}
 func (*CMsgGCCStrike15V2_ClientToGCRequestTicket) Descriptor() ([]byte, []int) {
 	return fileDescriptor_27ac1cab292d7f96, []int{119}
 }
@@ -10319,7 +10329,7 @@ func (m *CMsgGCCStrike15V2_ClientToGCRequestTicket) XXX_Marshal(b []byte, determ
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientToGCRequestTicket.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10384,7 +10394,7 @@ func (m *CMsgGCToClientSteamDatagramTicket) XXX_Marshal(b []byte, deterministic 
 		return xxx_messageInfo_CMsgGCToClientSteamDatagramTicket.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10427,7 +10437,7 @@ func (m *CMsgGCCStrike15V2_ClientRequestOffers) XXX_Marshal(b []byte, determinis
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientRequestOffers.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10468,7 +10478,7 @@ func (m *CMsgGCCStrike15V2_ClientRequestSouvenir) XXX_Marshal(b []byte, determin
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientRequestSouvenir.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10529,7 +10539,7 @@ func (m *CMsgGCCStrike15V2_ClientAccountBalance) XXX_Marshal(b []byte, determini
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientAccountBalance.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10583,7 +10593,7 @@ func (m *CMsgGCCStrike15V2_ClientPartyJoinRelay) XXX_Marshal(b []byte, determini
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientPartyJoinRelay.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10634,7 +10644,7 @@ func (m *CMsgGCCStrike15V2_ClientPartyWarning) XXX_Marshal(b []byte, determinist
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientPartyWarning.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10683,7 +10693,7 @@ func (m *CMsgGCCStrike15V2_ClientPartyWarning_Entry) XXX_Marshal(b []byte, deter
 		return xxx_messageInfo_CMsgGCCStrike15V2_ClientPartyWarning_Entry.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10735,7 +10745,7 @@ func (m *CMsgGCCStrike15V2_SetEventFavorite) XXX_Marshal(b []byte, deterministic
 		return xxx_messageInfo_CMsgGCCStrike15V2_SetEventFavorite.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10790,7 +10800,7 @@ func (m *CMsgGCCStrike15V2_GetEventFavorites_Request) XXX_Marshal(b []byte, dete
 		return xxx_messageInfo_CMsgGCCStrike15V2_GetEventFavorites_Request.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -10840,7 +10850,7 @@ func (m *CMsgGCCStrike15V2_GetEventFavorites_Response) XXX_Marshal(b []byte, det
 		return xxx_messageInfo_CMsgGCCStrike15V2_GetEventFavorites_Response.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -11690,7 +11700,7 @@ var fileDescriptor_27ac1cab292d7f96 = []byte{
 func (m *GameServerPing) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -11698,26 +11708,31 @@ func (m *GameServerPing) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *GameServerPing) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GameServerPing) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ping))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ip))
-	dAtA[i] = 0x28
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Instances))
-	return i, nil
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ip))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ping))
+	i--
+	dAtA[i] = 0x10
+	return len(dAtA) - i, nil
 }
 
 func (m *DataCenterPing) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -11725,24 +11740,29 @@ func (m *DataCenterPing) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *DataCenterPing) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DataCenterPing) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xd
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.DataCenterId))
-	i += 4
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64((uint32(m.Ping)<<1)^uint32((m.Ping>>31))))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.DataCenterId))
+	i--
+	dAtA[i] = 0xd
+	return len(dAtA) - i, nil
 }
 
 func (m *DetailedSearchStatistic) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -11750,26 +11770,31 @@ func (m *DetailedSearchStatistic) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *DetailedSearchStatistic) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DetailedSearchStatistic) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SearchTimeAvg))
-	dAtA[i] = 0x20
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayersSearching))
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SearchTimeAvg))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *TournamentPlayer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -11777,43 +11802,53 @@ func (m *TournamentPlayer) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *TournamentPlayer) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *TournamentPlayer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.PlayerNick)))
-	i += copy(dAtA[i:], m.PlayerNick)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.PlayerName)))
-	i += copy(dAtA[i:], m.PlayerName)
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayerDob))
-	dAtA[i] = 0x2a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.PlayerFlag)))
-	i += copy(dAtA[i:], m.PlayerFlag)
-	dAtA[i] = 0x32
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.PlayerLocation)))
-	i += copy(dAtA[i:], m.PlayerLocation)
-	dAtA[i] = 0x3a
-	i++
+	i -= len(m.PlayerDesc)
+	copy(dAtA[i:], m.PlayerDesc)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.PlayerDesc)))
-	i += copy(dAtA[i:], m.PlayerDesc)
-	return i, nil
+	i--
+	dAtA[i] = 0x3a
+	i -= len(m.PlayerLocation)
+	copy(dAtA[i:], m.PlayerLocation)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.PlayerLocation)))
+	i--
+	dAtA[i] = 0x32
+	i -= len(m.PlayerFlag)
+	copy(dAtA[i:], m.PlayerFlag)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.PlayerFlag)))
+	i--
+	dAtA[i] = 0x2a
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayerDob))
+	i--
+	dAtA[i] = 0x20
+	i -= len(m.PlayerName)
+	copy(dAtA[i:], m.PlayerName)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.PlayerName)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.PlayerNick)
+	copy(dAtA[i:], m.PlayerNick)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.PlayerNick)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *TournamentTeam) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -11821,44 +11856,54 @@ func (m *TournamentTeam) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *TournamentTeam) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *TournamentTeam) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamId))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TeamTag)))
-	i += copy(dAtA[i:], m.TeamTag)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TeamFlag)))
-	i += copy(dAtA[i:], m.TeamFlag)
-	dAtA[i] = 0x22
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TeamName)))
-	i += copy(dAtA[i:], m.TeamName)
 	if len(m.Players) > 0 {
-		for _, msg := range m.Players {
-			dAtA[i] = 0x2a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Players) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Players[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x2a
 		}
 	}
-	return i, nil
+	i -= len(m.TeamName)
+	copy(dAtA[i:], m.TeamName)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TeamName)))
+	i--
+	dAtA[i] = 0x22
+	i -= len(m.TeamFlag)
+	copy(dAtA[i:], m.TeamFlag)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TeamFlag)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.TeamTag)
+	copy(dAtA[i:], m.TeamTag)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TeamTag)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *TournamentEvent) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -11866,47 +11911,55 @@ func (m *TournamentEvent) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *TournamentEvent) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *TournamentEvent) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventId))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.EventTag)))
-	i += copy(dAtA[i:], m.EventTag)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.EventName)))
-	i += copy(dAtA[i:], m.EventName)
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventTimeStart))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventTimeEnd))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventPublic))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventStageId))
-	dAtA[i] = 0x42
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.EventStageName)))
-	i += copy(dAtA[i:], m.EventStageName)
-	dAtA[i] = 0x48
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ActiveSectionId))
-	return i, nil
+	i--
+	dAtA[i] = 0x48
+	i -= len(m.EventStageName)
+	copy(dAtA[i:], m.EventStageName)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.EventStageName)))
+	i--
+	dAtA[i] = 0x42
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventStageId))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventPublic))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventTimeEnd))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventTimeStart))
+	i--
+	dAtA[i] = 0x20
+	i -= len(m.EventName)
+	copy(dAtA[i:], m.EventName)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.EventName)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.EventTag)
+	copy(dAtA[i:], m.EventTag)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.EventTag)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *GlobalStatistics) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -11914,72 +11967,80 @@ func (m *GlobalStatistics) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *GlobalStatistics) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GlobalStatistics) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayersOnline))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServersOnline))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayersSearching))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServersAvailable))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.OngoingMatches))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SearchTimeAvg))
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rtime32EventStart))
+	i--
+	dAtA[i] = 0x78
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rtime32Cur))
+	i--
+	dAtA[i] = 0x70
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ActiveSurveyId))
+	i--
+	dAtA[i] = 0x68
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ActiveTournamentEventid))
+	i--
+	dAtA[i] = 0x60
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TwitchStreamsVersion))
+	i--
+	dAtA[i] = 0x58
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PricesheetVersion))
+	i--
+	dAtA[i] = 0x50
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequiredAppidVersion))
+	i--
+	dAtA[i] = 0x48
+	i -= len(m.MainPostUrl)
+	copy(dAtA[i:], m.MainPostUrl)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.MainPostUrl)))
+	i--
+	dAtA[i] = 0x42
 	if len(m.SearchStatistics) > 0 {
-		for _, msg := range m.SearchStatistics {
-			dAtA[i] = 0x3a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.SearchStatistics) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.SearchStatistics[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x3a
 		}
 	}
-	dAtA[i] = 0x42
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.MainPostUrl)))
-	i += copy(dAtA[i:], m.MainPostUrl)
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequiredAppidVersion))
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PricesheetVersion))
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TwitchStreamsVersion))
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ActiveTournamentEventid))
-	dAtA[i] = 0x68
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ActiveSurveyId))
-	dAtA[i] = 0x70
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rtime32Cur))
-	dAtA[i] = 0x78
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rtime32EventStart))
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SearchTimeAvg))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.OngoingMatches))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServersAvailable))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayersSearching))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServersOnline))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayersOnline))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *OperationalStatisticDescription) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -11987,24 +12048,30 @@ func (m *OperationalStatisticDescription) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *OperationalStatisticDescription) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *OperationalStatisticDescription) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Idkey))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *OperationalStatisticElement) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12012,27 +12079,32 @@ func (m *OperationalStatisticElement) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *OperationalStatisticElement) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *OperationalStatisticElement) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Idkey))
 	if len(m.Values) > 0 {
-		for _, num := range m.Values {
+		for iNdEx := len(m.Values) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Values[iNdEx]))
+			i--
 			dAtA[i] = 0x10
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Idkey))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *OperationalStatisticsPacket) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12040,35 +12112,42 @@ func (m *OperationalStatisticsPacket) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *OperationalStatisticsPacket) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *OperationalStatisticsPacket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Packetid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Mstimestamp))
 	if len(m.Values) > 0 {
-		for _, msg := range m.Values {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Values) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Values[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x1a
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Mstimestamp))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Packetid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *PlayerRankingInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12076,33 +12155,38 @@ func (m *PlayerRankingInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *PlayerRankingInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PlayerRankingInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RankId))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Wins))
-	dAtA[i] = 0x25
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.RankChange))))
-	i += 4
-	dAtA[i] = 0x30
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RankTypeId))
-	return i, nil
+	i--
+	dAtA[i] = 0x30
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.RankChange))))
+	i--
+	dAtA[i] = 0x25
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Wins))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RankId))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *PlayerCommendationInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12110,26 +12194,31 @@ func (m *PlayerCommendationInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *PlayerCommendationInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PlayerCommendationInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.CmdFriendly))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.CmdTeaching))
-	dAtA[i] = 0x20
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.CmdLeader))
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.CmdTeaching))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.CmdFriendly))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *PlayerMedalsInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12137,27 +12226,32 @@ func (m *PlayerMedalsInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *PlayerMedalsInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PlayerMedalsInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.FeaturedDisplayItemDefidx))
+	i--
+	dAtA[i] = 0x40
 	if len(m.DisplayItemsDefidx) > 0 {
-		for _, num := range m.DisplayItemsDefidx {
+		for iNdEx := len(m.DisplayItemsDefidx) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.DisplayItemsDefidx[iNdEx]))
+			i--
 			dAtA[i] = 0x38
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
 		}
 	}
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.FeaturedDisplayItemDefidx))
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *AccountActivity) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12165,29 +12259,34 @@ func (m *AccountActivity) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *AccountActivity) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AccountActivity) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Activity))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Mode))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Map))
-	dAtA[i] = 0x20
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchid))
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Map))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Mode))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Activity))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *TournamentMatchSetup) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12195,29 +12294,34 @@ func (m *TournamentMatchSetup) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *TournamentMatchSetup) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *TournamentMatchSetup) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamIdCt))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamIdT))
-	dAtA[i] = 0x20
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventStageId))
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamIdT))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamIdCt))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *ServerHltvInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12225,91 +12329,98 @@ func (m *ServerHltvInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ServerHltvInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ServerHltvInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvUdpPort))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvWatchKey))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvSlots))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvClients))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvProxies))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvTime))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
-	dAtA[i] = 0x4a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.GameMapgroup)))
-	i += copy(dAtA[i:], m.GameMapgroup)
-	dAtA[i] = 0x52
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.GameMap)))
-	i += copy(dAtA[i:], m.GameMap)
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvMasterSteamid))
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvLocalSlots))
-	dAtA[i] = 0x68
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvLocalClients))
-	dAtA[i] = 0x70
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvLocalProxies))
-	dAtA[i] = 0x78
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelaySlots))
-	dAtA[i] = 0x80
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelayClients))
-	dAtA[i] = 0x88
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelayProxies))
-	dAtA[i] = 0x90
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelayAddress))
-	dAtA[i] = 0x98
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelayPort))
-	dAtA[i] = 0xa0
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelaySteamid))
-	dAtA[i] = 0xa8
-	i++
-	dAtA[i] = 0x1
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Flags))
-	return i, nil
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xa8
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelaySteamid))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xa0
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelayPort))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x98
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelayAddress))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x90
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelayProxies))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x88
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelayClients))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x80
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelaySlots))
+	i--
+	dAtA[i] = 0x78
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvLocalProxies))
+	i--
+	dAtA[i] = 0x70
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvLocalClients))
+	i--
+	dAtA[i] = 0x68
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvLocalSlots))
+	i--
+	dAtA[i] = 0x60
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvMasterSteamid))
+	i--
+	dAtA[i] = 0x58
+	i -= len(m.GameMap)
+	copy(dAtA[i:], m.GameMap)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.GameMap)))
+	i--
+	dAtA[i] = 0x52
+	i -= len(m.GameMapgroup)
+	copy(dAtA[i:], m.GameMapgroup)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.GameMapgroup)))
+	i--
+	dAtA[i] = 0x4a
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvTime))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvProxies))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvClients))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvSlots))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvWatchKey))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvUdpPort))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *IpAddressMask) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12317,35 +12428,40 @@ func (m *IpAddressMask) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *IpAddressMask) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *IpAddressMask) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.A))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.B))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.C))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.D))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Bits))
-	dAtA[i] = 0x30
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Token))
-	return i, nil
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Bits))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.D))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.C))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.B))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.A))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *XpProgressData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12353,23 +12469,28 @@ func (m *XpProgressData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *XpProgressData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *XpProgressData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.XpPoints))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.XpCategory))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.XpPoints))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *MatchEndItemUpdates) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12377,26 +12498,31 @@ func (m *MatchEndItemUpdates) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *MatchEndItemUpdates) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MatchEndItemUpdates) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ItemId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ItemAttrDefidx))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ItemAttrDeltaValue))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ItemAttrDefidx))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ItemId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *ScoreLeaderboardData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12404,47 +12530,56 @@ func (m *ScoreLeaderboardData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ScoreLeaderboardData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ScoreLeaderboardData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.QuestId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Score))
-	if len(m.Accountentries) > 0 {
-		for _, msg := range m.Accountentries {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
 	if len(m.Matchentries) > 0 {
-		for _, msg := range m.Matchentries {
-			dAtA[i] = 0x2a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Matchentries) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Matchentries[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x2a
 		}
 	}
-	return i, nil
+	if len(m.Accountentries) > 0 {
+		for iNdEx := len(m.Accountentries) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Accountentries[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Score))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.QuestId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *ScoreLeaderboardData_Entry) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12452,23 +12587,28 @@ func (m *ScoreLeaderboardData_Entry) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ScoreLeaderboardData_Entry) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ScoreLeaderboardData_Entry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Tag))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Val))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Tag))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *ScoreLeaderboardData_AccountEntries) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12476,32 +12616,39 @@ func (m *ScoreLeaderboardData_AccountEntries) Marshal() (dAtA []byte, err error)
 }
 
 func (m *ScoreLeaderboardData_AccountEntries) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ScoreLeaderboardData_AccountEntries) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
 	if len(m.Entries) > 0 {
-		for _, msg := range m.Entries {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Entries) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Entries[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x12
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *PlayerQuestData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12509,70 +12656,81 @@ func (m *PlayerQuestData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *PlayerQuestData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PlayerQuestData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.QuesterAccountId))
-	if len(m.QuestItemData) > 0 {
-		for _, msg := range m.QuestItemData {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	if len(m.XpProgressData) > 0 {
-		for _, msg := range m.XpProgressData {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TimePlayed))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MmGameMode))
-	if len(m.ItemUpdates) > 0 {
-		for _, msg := range m.ItemUpdates {
-			dAtA[i] = 0x32
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	dAtA[i] = 0x38
-	i++
+	i--
 	if m.OperationPointsEligible {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x38
+	if len(m.ItemUpdates) > 0 {
+		for iNdEx := len(m.ItemUpdates) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ItemUpdates[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x32
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MmGameMode))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TimePlayed))
+	i--
+	dAtA[i] = 0x20
+	if len(m.XpProgressData) > 0 {
+		for iNdEx := len(m.XpProgressData) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.XpProgressData[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.QuestItemData) > 0 {
+		for iNdEx := len(m.QuestItemData) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.QuestItemData[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.QuesterAccountId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *PlayerQuestData_QuestItemData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12580,26 +12738,31 @@ func (m *PlayerQuestData_QuestItemData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *PlayerQuestData_QuestItemData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PlayerQuestData_QuestItemData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.QuestId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.QuestNormalPointsEarned))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.QuestBonusPointsEarned))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.QuestNormalPointsEarned))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.QuestId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGC_ServerQuestUpdateData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12607,48 +12770,58 @@ func (m *CMsgGC_ServerQuestUpdateData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGC_ServerQuestUpdateData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGC_ServerQuestUpdateData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.PlayerQuestData) > 0 {
-		for _, msg := range m.PlayerQuestData {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+	if m.Missionlbsdata != nil {
+		{
+			size, err := m.Missionlbsdata.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
-	}
-	if m.BinaryData != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.BinaryData)))
-		i += copy(dAtA[i:], m.BinaryData)
-	}
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MmGameMode))
-	if m.Missionlbsdata != nil {
+		i--
 		dAtA[i] = 0x22
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Missionlbsdata.Size()))
-		n1, err1 := m.Missionlbsdata.MarshalTo(dAtA[i:])
-		if err1 != nil {
-			return 0, err1
-		}
-		i += n1
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MmGameMode))
+	i--
+	dAtA[i] = 0x18
+	if m.BinaryData != nil {
+		i -= len(m.BinaryData)
+		copy(dAtA[i:], m.BinaryData)
+		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.BinaryData)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.PlayerQuestData) > 0 {
+		for iNdEx := len(m.PlayerQuestData) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.PlayerQuestData[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGCOperationalStats) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12656,44 +12829,53 @@ func (m *CMsgGCCStrike15V2_MatchmakingGCOperationalStats) Marshal() (dAtA []byte
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGCOperationalStats) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingGCOperationalStats) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Packetid))
-	if len(m.Namekeys) > 0 {
-		for _, msg := range m.Namekeys {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
 	if len(m.Packets) > 0 {
-		for _, msg := range m.Packets {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Packets) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Packets[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x1a
 		}
 	}
-	return i, nil
+	if len(m.Namekeys) > 0 {
+		for iNdEx := len(m.Namekeys) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Namekeys[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Packetid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerConfirm) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12701,26 +12883,31 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerConfirm) Marshal() (dAtA []byte, 
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerConfirm) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerConfirm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Token))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Stamp))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Exchange))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Stamp))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Token))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_GC2ServerReservationUpdate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12728,23 +12915,28 @@ func (m *CMsgGCCStrike15V2_GC2ServerReservationUpdate) Marshal() (dAtA []byte, e
 }
 
 func (m *CMsgGCCStrike15V2_GC2ServerReservationUpdate) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_GC2ServerReservationUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ViewersExternalTotal))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ViewersExternalSteam))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ViewersExternalTotal))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingStart) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12752,52 +12944,60 @@ func (m *CMsgGCCStrike15V2_MatchmakingStart) Marshal() (dAtA []byte, err error) 
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingStart) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingStart) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.AccountIds) > 0 {
-		for _, num := range m.AccountIds {
-			dAtA[i] = 0x8
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TicketData)))
-	i += copy(dAtA[i:], m.TicketData)
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ClientVersion))
-	if m.TournamentMatch != nil {
-		dAtA[i] = 0x2a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TournamentMatch.Size()))
-		n2, err2 := m.TournamentMatch.MarshalTo(dAtA[i:])
-		if err2 != nil {
-			return 0, err2
-		}
-		i += n2
-	}
-	dAtA[i] = 0x30
-	i++
+	i--
 	if m.PrimeOnly {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x30
+	if m.TournamentMatch != nil {
+		{
+			size, err := m.TournamentMatch.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x2a
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ClientVersion))
+	i--
+	dAtA[i] = 0x20
+	i -= len(m.TicketData)
+	copy(dAtA[i:], m.TicketData)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TicketData)))
+	i--
+	dAtA[i] = 0x1a
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
+	i--
+	dAtA[i] = 0x10
+	if len(m.AccountIds) > 0 {
+		for iNdEx := len(m.AccountIds) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountIds[iNdEx]))
+			i--
+			dAtA[i] = 0x8
+		}
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingStop) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12805,20 +13005,25 @@ func (m *CMsgGCCStrike15V2_MatchmakingStop) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingStop) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingStop) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Abandon))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingClient2ServerPing) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12826,54 +13031,63 @@ func (m *CMsgGCCStrike15V2_MatchmakingClient2ServerPing) Marshal() (dAtA []byte,
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingClient2ServerPing) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingClient2ServerPing) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Gameserverpings) > 0 {
-		for _, msg := range m.Gameserverpings {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.OffsetIndex))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.FinalBatch))
-	if len(m.DataCenterPings) > 0 {
-		for _, msg := range m.DataCenterPings {
-			dAtA[i] = 0x22
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MaxPing))
-	dAtA[i] = 0x35
-	i++
+	i -= 4
 	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.TestToken))
-	i += 4
-	return i, nil
+	i--
+	dAtA[i] = 0x35
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MaxPing))
+	i--
+	dAtA[i] = 0x28
+	if len(m.DataCenterPings) > 0 {
+		for iNdEx := len(m.DataCenterPings) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.DataCenterPings[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.FinalBatch))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.OffsetIndex))
+	i--
+	dAtA[i] = 0x10
+	if len(m.Gameserverpings) > 0 {
+		for iNdEx := len(m.Gameserverpings) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Gameserverpings[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -12881,130 +13095,142 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate) Marshal() (dAtA []byte, e
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchmaking))
-	if len(m.WaitingAccountIdSessions) > 0 {
-		for _, num := range m.WaitingAccountIdSessions {
-			dAtA[i] = 0x10
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Error)))
-	i += copy(dAtA[i:], m.Error)
-	if len(m.OngoingmatchAccountIdSessions) > 0 {
-		for _, num := range m.OngoingmatchAccountIdSessions {
-			dAtA[i] = 0x30
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if m.GlobalStats != nil {
-		dAtA[i] = 0x3a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GlobalStats.Size()))
-		n3, err3 := m.GlobalStats.MarshalTo(dAtA[i:])
-		if err3 != nil {
-			return 0, err3
-		}
-		i += n3
-	}
-	if len(m.FailpingAccountIdSessions) > 0 {
-		for _, num := range m.FailpingAccountIdSessions {
-			dAtA[i] = 0x40
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if len(m.PenaltyAccountIdSessions) > 0 {
-		for _, num := range m.PenaltyAccountIdSessions {
-			dAtA[i] = 0x48
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if len(m.FailreadyAccountIdSessions) > 0 {
-		for _, num := range m.FailreadyAccountIdSessions {
-			dAtA[i] = 0x50
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if len(m.VacbannedAccountIdSessions) > 0 {
-		for _, num := range m.VacbannedAccountIdSessions {
-			dAtA[i] = 0x58
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if m.ServerIpaddressMask != nil {
-		dAtA[i] = 0x62
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerIpaddressMask.Size()))
-		n4, err4 := m.ServerIpaddressMask.MarshalTo(dAtA[i:])
-		if err4 != nil {
-			return 0, err4
-		}
-		i += n4
-	}
-	if len(m.Notes) > 0 {
-		for _, msg := range m.Notes {
-			dAtA[i] = 0x6a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	if len(m.PenaltyAccountIdSessionsGreen) > 0 {
-		for _, num := range m.PenaltyAccountIdSessionsGreen {
-			dAtA[i] = 0x70
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if len(m.InsufficientlevelSessions) > 0 {
-		for _, num := range m.InsufficientlevelSessions {
-			dAtA[i] = 0x78
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
+	if len(m.LauncherMismatchSessions) > 0 {
+		for iNdEx := len(m.LauncherMismatchSessions) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.LauncherMismatchSessions[iNdEx]))
+			i--
+			dAtA[i] = 0x1
+			i--
+			dAtA[i] = 0x88
 		}
 	}
 	if len(m.VsncheckAccountIdSessions) > 0 {
-		for _, num := range m.VsncheckAccountIdSessions {
+		for iNdEx := len(m.VsncheckAccountIdSessions) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.VsncheckAccountIdSessions[iNdEx]))
+			i--
+			dAtA[i] = 0x1
+			i--
 			dAtA[i] = 0x80
-			i++
-			dAtA[i] = 0x1
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
 		}
 	}
-	if len(m.LauncherMismatchSessions) > 0 {
-		for _, num := range m.LauncherMismatchSessions {
-			dAtA[i] = 0x88
-			i++
-			dAtA[i] = 0x1
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
+	if len(m.InsufficientlevelSessions) > 0 {
+		for iNdEx := len(m.InsufficientlevelSessions) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.InsufficientlevelSessions[iNdEx]))
+			i--
+			dAtA[i] = 0x78
 		}
 	}
-	return i, nil
+	if len(m.PenaltyAccountIdSessionsGreen) > 0 {
+		for iNdEx := len(m.PenaltyAccountIdSessionsGreen) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PenaltyAccountIdSessionsGreen[iNdEx]))
+			i--
+			dAtA[i] = 0x70
+		}
+	}
+	if len(m.Notes) > 0 {
+		for iNdEx := len(m.Notes) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Notes[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x6a
+		}
+	}
+	if m.ServerIpaddressMask != nil {
+		{
+			size, err := m.ServerIpaddressMask.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x62
+	}
+	if len(m.VacbannedAccountIdSessions) > 0 {
+		for iNdEx := len(m.VacbannedAccountIdSessions) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.VacbannedAccountIdSessions[iNdEx]))
+			i--
+			dAtA[i] = 0x58
+		}
+	}
+	if len(m.FailreadyAccountIdSessions) > 0 {
+		for iNdEx := len(m.FailreadyAccountIdSessions) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.FailreadyAccountIdSessions[iNdEx]))
+			i--
+			dAtA[i] = 0x50
+		}
+	}
+	if len(m.PenaltyAccountIdSessions) > 0 {
+		for iNdEx := len(m.PenaltyAccountIdSessions) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PenaltyAccountIdSessions[iNdEx]))
+			i--
+			dAtA[i] = 0x48
+		}
+	}
+	if len(m.FailpingAccountIdSessions) > 0 {
+		for iNdEx := len(m.FailpingAccountIdSessions) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.FailpingAccountIdSessions[iNdEx]))
+			i--
+			dAtA[i] = 0x40
+		}
+	}
+	if m.GlobalStats != nil {
+		{
+			size, err := m.GlobalStats.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x3a
+	}
+	if len(m.OngoingmatchAccountIdSessions) > 0 {
+		for iNdEx := len(m.OngoingmatchAccountIdSessions) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.OngoingmatchAccountIdSessions[iNdEx]))
+			i--
+			dAtA[i] = 0x30
+		}
+	}
+	i -= len(m.Error)
+	copy(dAtA[i:], m.Error)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Error)))
+	i--
+	dAtA[i] = 0x1a
+	if len(m.WaitingAccountIdSessions) > 0 {
+		for iNdEx := len(m.WaitingAccountIdSessions) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.WaitingAccountIdSessions[iNdEx]))
+			i--
+			dAtA[i] = 0x10
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchmaking))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate_Note) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13012,31 +13238,36 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate_Note) Marshal() (dAtA []by
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate_Note) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientUpdate_Note) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Type))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RegionId))
-	dAtA[i] = 0x1d
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.RegionR))))
-	i += 4
-	dAtA[i] = 0x25
-	i++
+	i -= 4
 	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Distance))))
-	i += 4
-	return i, nil
+	i--
+	dAtA[i] = 0x25
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.RegionR))))
+	i--
+	dAtA[i] = 0x1d
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RegionId))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Type))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CDataGCCStrike15V2_TournamentMatchDraft) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13044,56 +13275,63 @@ func (m *CDataGCCStrike15V2_TournamentMatchDraft) Marshal() (dAtA []byte, err er
 }
 
 func (m *CDataGCCStrike15V2_TournamentMatchDraft) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CDataGCCStrike15V2_TournamentMatchDraft) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventStageId))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamId_0))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamId_1))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MapsCount))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MapsCurrent))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamIdStart))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamIdVeto1))
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamIdPickn))
 	if len(m.Drafts) > 0 {
-		for _, msg := range m.Drafts {
-			dAtA[i] = 0x52
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Drafts) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Drafts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x52
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamIdPickn))
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamIdVeto1))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamIdStart))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MapsCurrent))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MapsCount))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamId_1))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamId_0))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventStageId))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CDataGCCStrike15V2_TournamentMatchDraft_Entry) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13101,23 +13339,28 @@ func (m *CDataGCCStrike15V2_TournamentMatchDraft_Entry) Marshal() (dAtA []byte, 
 }
 
 func (m *CDataGCCStrike15V2_TournamentMatchDraft_Entry) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CDataGCCStrike15V2_TournamentMatchDraft_Entry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Mapid))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamIdCt))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Mapid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CPreMatchInfoData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13125,49 +13368,58 @@ func (m *CPreMatchInfoData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CPreMatchInfoData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CPreMatchInfoData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PredictionsPct))
-	if m.Draft != nil {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Draft.Size()))
-		n5, err5 := m.Draft.MarshalTo(dAtA[i:])
-		if err5 != nil {
-			return 0, err5
+	if len(m.Wins) > 0 {
+		for iNdEx := len(m.Wins) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Wins[iNdEx]))
+			i--
+			dAtA[i] = 0x30
 		}
-		i += n5
 	}
 	if len(m.Stats) > 0 {
-		for _, msg := range m.Stats {
+		for iNdEx := len(m.Stats) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Stats[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
 			dAtA[i] = 0x2a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+		}
+	}
+	if m.Draft != nil {
+		{
+			size, err := m.Draft.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
+		i--
+		dAtA[i] = 0x22
 	}
-	if len(m.Wins) > 0 {
-		for _, num := range m.Wins {
-			dAtA[i] = 0x30
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PredictionsPct))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CPreMatchInfoData_TeamStats) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13175,39 +13427,39 @@ func (m *CPreMatchInfoData_TeamStats) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CPreMatchInfoData_TeamStats) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CPreMatchInfoData_TeamStats) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchInfoIdxtxt))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.MatchInfoTxt)))
-	i += copy(dAtA[i:], m.MatchInfoTxt)
 	if len(m.MatchInfoTeams) > 0 {
-		for _, s := range m.MatchInfoTeams {
+		for iNdEx := len(m.MatchInfoTeams) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.MatchInfoTeams[iNdEx])
+			copy(dAtA[i:], m.MatchInfoTeams[iNdEx])
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.MatchInfoTeams[iNdEx])))
+			i--
 			dAtA[i] = 0x1a
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	return i, nil
+	i -= len(m.MatchInfoTxt)
+	copy(dAtA[i:], m.MatchInfoTxt)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.MatchInfoTxt)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchInfoIdxtxt))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerReserve) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13215,130 +13467,145 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerReserve) Marshal() (dAtA []byte, 
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerReserve) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerReserve) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.AccountIds) > 0 {
-		for _, num := range m.AccountIds {
-			dAtA[i] = 0x8
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerVersion))
-	if len(m.Rankings) > 0 {
-		for _, msg := range m.Rankings {
-			dAtA[i] = 0x2a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Flags))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x90
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvControl))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x88
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rtime32EventStart))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x80
+	if m.PreMatchData != nil {
+		{
+			size, err := m.PreMatchData.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
+		i--
+		dAtA[i] = 0x7a
 	}
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EncryptionKey))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EncryptionKeyPub))
-	if len(m.PartyIds) > 0 {
-		for _, num := range m.PartyIds {
-			dAtA[i] = 0x40
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelaySteamid))
+	i--
+	dAtA[i] = 0x70
+	if len(m.TournamentCastersAccountIds) > 0 {
+		for iNdEx := len(m.TournamentCastersAccountIds) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TournamentCastersAccountIds[iNdEx]))
+			i--
+			dAtA[i] = 0x68
 		}
-	}
-	if len(m.Whitelist) > 0 {
-		for _, msg := range m.Whitelist {
-			dAtA[i] = 0x4a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvMasterSteamid))
-	if m.TournamentEvent != nil {
-		dAtA[i] = 0x5a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TournamentEvent.Size()))
-		n6, err6 := m.TournamentEvent.MarshalTo(dAtA[i:])
-		if err6 != nil {
-			return 0, err6
-		}
-		i += n6
 	}
 	if len(m.TournamentTeams) > 0 {
-		for _, msg := range m.TournamentTeams {
+		for iNdEx := len(m.TournamentTeams) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.TournamentTeams[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
 			dAtA[i] = 0x62
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+		}
+	}
+	if m.TournamentEvent != nil {
+		{
+			size, err := m.TournamentEvent.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x5a
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvMasterSteamid))
+	i--
+	dAtA[i] = 0x50
+	if len(m.Whitelist) > 0 {
+		for iNdEx := len(m.Whitelist) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Whitelist[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x4a
 		}
 	}
-	if len(m.TournamentCastersAccountIds) > 0 {
-		for _, num := range m.TournamentCastersAccountIds {
-			dAtA[i] = 0x68
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
+	if len(m.PartyIds) > 0 {
+		for iNdEx := len(m.PartyIds) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PartyIds[iNdEx]))
+			i--
+			dAtA[i] = 0x40
 		}
 	}
-	dAtA[i] = 0x70
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvRelaySteamid))
-	if m.PreMatchData != nil {
-		dAtA[i] = 0x7a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PreMatchData.Size()))
-		n7, err7 := m.PreMatchData.MarshalTo(dAtA[i:])
-		if err7 != nil {
-			return 0, err7
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EncryptionKeyPub))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EncryptionKey))
+	i--
+	dAtA[i] = 0x30
+	if len(m.Rankings) > 0 {
+		for iNdEx := len(m.Rankings) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Rankings[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x2a
 		}
-		i += n7
 	}
-	dAtA[i] = 0x80
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rtime32EventStart))
-	dAtA[i] = 0x88
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvControl))
-	dAtA[i] = 0x90
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Flags))
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerVersion))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
+	i--
+	dAtA[i] = 0x10
+	if len(m.AccountIds) > 0 {
+		for iNdEx := len(m.AccountIds) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountIds[iNdEx]))
+			i--
+			dAtA[i] = 0x8
+		}
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServerReservationResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13346,97 +13613,108 @@ func (m *CMsgGCCStrike15V2_MatchmakingServerReservationResponse) Marshal() (dAtA
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServerReservationResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingServerReservationResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservationid))
-	if m.Reservation != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservation.Size()))
-		n8, err8 := m.Reservation.MarshalTo(dAtA[i:])
-		if err8 != nil {
-			return 0, err8
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SteamdatagramRouting))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x88
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Flags))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x80
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.TestToken))
+	i--
+	dAtA[i] = 0x7d
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.LegacySteamdatagramPort))
+	i--
+	dAtA[i] = 0x70
+	i -= len(m.TournamentTag)
+	copy(dAtA[i:], m.TournamentTag)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TournamentTag)))
+	i--
+	dAtA[i] = 0x6a
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RewardDropList))
+	i--
+	dAtA[i] = 0x60
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RewardItemAttrRewardIdx))
+	i--
+	dAtA[i] = 0x58
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RewardItemAttrValue))
+	i--
+	dAtA[i] = 0x50
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RewardItemAttrDefIdx))
+	i--
+	dAtA[i] = 0x48
+	if len(m.IdlePlayerAccounts) > 0 {
+		for iNdEx := len(m.IdlePlayerAccounts) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.IdlePlayerAccounts[iNdEx]))
+			i--
+			dAtA[i] = 0x40
 		}
-		i += n8
-	}
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Map)))
-	i += copy(dAtA[i:], m.Map)
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GcReservationSent))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerVersion))
-	if m.TvInfo != nil {
-		dAtA[i] = 0x32
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvInfo.Size()))
-		n9, err9 := m.TvInfo.MarshalTo(dAtA[i:])
-		if err9 != nil {
-			return 0, err9
-		}
-		i += n9
 	}
 	if len(m.RewardPlayerAccounts) > 0 {
-		for _, num := range m.RewardPlayerAccounts {
+		for iNdEx := len(m.RewardPlayerAccounts) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RewardPlayerAccounts[iNdEx]))
+			i--
 			dAtA[i] = 0x38
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
 		}
 	}
-	if len(m.IdlePlayerAccounts) > 0 {
-		for _, num := range m.IdlePlayerAccounts {
-			dAtA[i] = 0x40
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
+	if m.TvInfo != nil {
+		{
+			size, err := m.TvInfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
+		i--
+		dAtA[i] = 0x32
 	}
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RewardItemAttrDefIdx))
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RewardItemAttrValue))
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RewardItemAttrRewardIdx))
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RewardDropList))
-	dAtA[i] = 0x6a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TournamentTag)))
-	i += copy(dAtA[i:], m.TournamentTag)
-	dAtA[i] = 0x70
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.LegacySteamdatagramPort))
-	dAtA[i] = 0x7d
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.TestToken))
-	i += 4
-	dAtA[i] = 0x80
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Flags))
-	dAtA[i] = 0x88
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SteamdatagramRouting))
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerVersion))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GcReservationSent))
+	i--
+	dAtA[i] = 0x20
+	i -= len(m.Map)
+	copy(dAtA[i:], m.Map)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Map)))
+	i--
+	dAtA[i] = 0x1a
+	if m.Reservation != nil {
+		{
+			size, err := m.Reservation.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservationid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientReserve) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13444,47 +13722,56 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientReserve) Marshal() (dAtA []byte, 
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientReserve) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientReserve) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Serverid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.DirectUdpIp))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.DirectUdpPort))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservationid))
-	if m.Reservation != nil {
-		dAtA[i] = 0x2a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservation.Size()))
-		n10, err10 := m.Reservation.MarshalTo(dAtA[i:])
-		if err10 != nil {
-			return 0, err10
-		}
-		i += n10
-	}
-	dAtA[i] = 0x32
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Map)))
-	i += copy(dAtA[i:], m.Map)
-	dAtA[i] = 0x3a
-	i++
+	i -= len(m.ServerAddress)
+	copy(dAtA[i:], m.ServerAddress)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.ServerAddress)))
-	i += copy(dAtA[i:], m.ServerAddress)
-	return i, nil
+	i--
+	dAtA[i] = 0x3a
+	i -= len(m.Map)
+	copy(dAtA[i:], m.Map)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Map)))
+	i--
+	dAtA[i] = 0x32
+	if m.Reservation != nil {
+		{
+			size, err := m.Reservation.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x2a
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservationid))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.DirectUdpPort))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.DirectUdpIp))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Serverid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServerRoundStats) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13492,191 +13779,203 @@ func (m *CMsgGCCStrike15V2_MatchmakingServerRoundStats) Marshal() (dAtA []byte, 
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServerRoundStats) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingServerRoundStats) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservationid))
-	if m.Reservation != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservation.Size()))
-		n11, err11 := m.Reservation.MarshalTo(dAtA[i:])
-		if err11 != nil {
-			return 0, err11
+	if m.DropInfo != nil {
+		{
+			size, err := m.DropInfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
-		i += n11
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xd2
 	}
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Map)))
-	i += copy(dAtA[i:], m.Map)
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Round))
-	if len(m.Kills) > 0 {
-		for _, num := range m.Kills {
-			dAtA[i] = 0x28
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if len(m.Assists) > 0 {
-		for _, num := range m.Assists {
-			dAtA[i] = 0x30
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if len(m.Deaths) > 0 {
-		for _, num := range m.Deaths {
-			dAtA[i] = 0x38
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if len(m.Scores) > 0 {
-		for _, num := range m.Scores {
-			dAtA[i] = 0x40
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if len(m.Pings) > 0 {
-		for _, num := range m.Pings {
-			dAtA[i] = 0x48
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RoundResult))
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchResult))
-	if len(m.TeamScores) > 0 {
-		for _, num := range m.TeamScores {
-			dAtA[i] = 0x60
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if m.Confirm != nil {
-		dAtA[i] = 0x6a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Confirm.Size()))
-		n12, err12 := m.Confirm.MarshalTo(dAtA[i:])
-		if err12 != nil {
-			return 0, err12
-		}
-		i += n12
-	}
-	dAtA[i] = 0x70
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ReservationStage))
-	dAtA[i] = 0x78
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchDuration))
-	if len(m.EnemyKills) > 0 {
-		for _, num := range m.EnemyKills {
-			dAtA[i] = 0x80
-			i++
+	if len(m.EnemyKillsAgg) > 0 {
+		for iNdEx := len(m.EnemyKillsAgg) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EnemyKillsAgg[iNdEx]))
+			i--
 			dAtA[i] = 0x1
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
+			i--
+			dAtA[i] = 0xc8
 		}
 	}
-	if len(m.EnemyHeadshots) > 0 {
-		for _, num := range m.EnemyHeadshots {
-			dAtA[i] = 0x88
-			i++
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SpectatorsCountLnk))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xc0
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SpectatorsCountTv))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xb8
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SpectatorsCount))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0xb0
+	if len(m.Mvps) > 0 {
+		for iNdEx := len(m.Mvps) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Mvps[iNdEx]))
+			i--
 			dAtA[i] = 0x1
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if len(m.Enemy_3Ks) > 0 {
-		for _, num := range m.Enemy_3Ks {
-			dAtA[i] = 0x90
-			i++
-			dAtA[i] = 0x1
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if len(m.Enemy_4Ks) > 0 {
-		for _, num := range m.Enemy_4Ks {
-			dAtA[i] = 0x98
-			i++
-			dAtA[i] = 0x1
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
+			i--
+			dAtA[i] = 0xa8
 		}
 	}
 	if len(m.Enemy_5Ks) > 0 {
-		for _, num := range m.Enemy_5Ks {
+		for iNdEx := len(m.Enemy_5Ks) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Enemy_5Ks[iNdEx]))
+			i--
+			dAtA[i] = 0x1
+			i--
 			dAtA[i] = 0xa0
-			i++
+		}
+	}
+	if len(m.Enemy_4Ks) > 0 {
+		for iNdEx := len(m.Enemy_4Ks) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Enemy_4Ks[iNdEx]))
+			i--
 			dAtA[i] = 0x1
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
+			i--
+			dAtA[i] = 0x98
 		}
 	}
-	if len(m.Mvps) > 0 {
-		for _, num := range m.Mvps {
-			dAtA[i] = 0xa8
-			i++
+	if len(m.Enemy_3Ks) > 0 {
+		for iNdEx := len(m.Enemy_3Ks) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Enemy_3Ks[iNdEx]))
+			i--
 			dAtA[i] = 0x1
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
+			i--
+			dAtA[i] = 0x90
 		}
 	}
-	dAtA[i] = 0xb0
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SpectatorsCount))
-	dAtA[i] = 0xb8
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SpectatorsCountTv))
-	dAtA[i] = 0xc0
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SpectatorsCountLnk))
-	if len(m.EnemyKillsAgg) > 0 {
-		for _, num := range m.EnemyKillsAgg {
-			dAtA[i] = 0xc8
-			i++
+	if len(m.EnemyHeadshots) > 0 {
+		for iNdEx := len(m.EnemyHeadshots) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EnemyHeadshots[iNdEx]))
+			i--
 			dAtA[i] = 0x1
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
+			i--
+			dAtA[i] = 0x88
 		}
 	}
-	if m.DropInfo != nil {
-		dAtA[i] = 0xd2
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.DropInfo.Size()))
-		n13, err13 := m.DropInfo.MarshalTo(dAtA[i:])
-		if err13 != nil {
-			return 0, err13
+	if len(m.EnemyKills) > 0 {
+		for iNdEx := len(m.EnemyKills) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EnemyKills[iNdEx]))
+			i--
+			dAtA[i] = 0x1
+			i--
+			dAtA[i] = 0x80
 		}
-		i += n13
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchDuration))
+	i--
+	dAtA[i] = 0x78
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ReservationStage))
+	i--
+	dAtA[i] = 0x70
+	if m.Confirm != nil {
+		{
+			size, err := m.Confirm.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x6a
+	}
+	if len(m.TeamScores) > 0 {
+		for iNdEx := len(m.TeamScores) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamScores[iNdEx]))
+			i--
+			dAtA[i] = 0x60
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchResult))
+	i--
+	dAtA[i] = 0x58
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RoundResult))
+	i--
+	dAtA[i] = 0x50
+	if len(m.Pings) > 0 {
+		for iNdEx := len(m.Pings) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Pings[iNdEx]))
+			i--
+			dAtA[i] = 0x48
+		}
+	}
+	if len(m.Scores) > 0 {
+		for iNdEx := len(m.Scores) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Scores[iNdEx]))
+			i--
+			dAtA[i] = 0x40
+		}
+	}
+	if len(m.Deaths) > 0 {
+		for iNdEx := len(m.Deaths) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Deaths[iNdEx]))
+			i--
+			dAtA[i] = 0x38
+		}
+	}
+	if len(m.Assists) > 0 {
+		for iNdEx := len(m.Assists) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Assists[iNdEx]))
+			i--
+			dAtA[i] = 0x30
+		}
+	}
+	if len(m.Kills) > 0 {
+		for iNdEx := len(m.Kills) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Kills[iNdEx]))
+			i--
+			dAtA[i] = 0x28
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Round))
+	i--
+	dAtA[i] = 0x20
+	i -= len(m.Map)
+	copy(dAtA[i:], m.Map)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Map)))
+	i--
+	dAtA[i] = 0x1a
+	if m.Reservation != nil {
+		{
+			size, err := m.Reservation.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservationid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServerRoundStats_DropInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13684,20 +13983,25 @@ func (m *CMsgGCCStrike15V2_MatchmakingServerRoundStats_DropInfo) Marshal() (dAtA
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServerRoundStats_DropInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingServerRoundStats_DropInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountMvp))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServerMatchEnd) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13705,67 +14009,78 @@ func (m *CMsgGCCStrike15V2_MatchmakingServerMatchEnd) Marshal() (dAtA []byte, er
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServerMatchEnd) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingServerMatchEnd) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Stats != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Stats.Size()))
-		n14, err14 := m.Stats.MarshalTo(dAtA[i:])
-		if err14 != nil {
-			return 0, err14
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerVersion))
+	i--
+	dAtA[i] = 0x48
+	if m.MatchEndQuestData != nil {
+		{
+			size, err := m.MatchEndQuestData.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
-		i += n14
+		i--
+		dAtA[i] = 0x42
 	}
-	if m.Confirm != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Confirm.Size()))
-		n15, err15 := m.Confirm.MarshalTo(dAtA[i:])
-		if err15 != nil {
-			return 0, err15
-		}
-		i += n15
-	}
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rematch))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ReplayToken))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ReplayClusterId))
-	dAtA[i] = 0x38
-	i++
+	i--
 	if m.AbortedMatch {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	if m.MatchEndQuestData != nil {
-		dAtA[i] = 0x42
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchEndQuestData.Size()))
-		n16, err16 := m.MatchEndQuestData.MarshalTo(dAtA[i:])
-		if err16 != nil {
-			return 0, err16
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ReplayClusterId))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ReplayToken))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rematch))
+	i--
+	dAtA[i] = 0x20
+	if m.Confirm != nil {
+		{
+			size, err := m.Confirm.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
-		i += n16
+		i--
+		dAtA[i] = 0x1a
 	}
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerVersion))
-	return i, nil
+	if m.Stats != nil {
+		{
+			size, err := m.Stats.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServerMatchEndPartial) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13773,53 +14088,64 @@ func (m *CMsgGCCStrike15V2_MatchmakingServerMatchEndPartial) Marshal() (dAtA []b
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServerMatchEndPartial) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingServerMatchEndPartial) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservationid))
-	if m.Reservation != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservation.Size()))
-		n17, err17 := m.Reservation.MarshalTo(dAtA[i:])
-		if err17 != nil {
-			return 0, err17
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerVersion))
+	i--
+	dAtA[i] = 0x28
+	if m.CompletedPlayerQuestData != nil {
+		{
+			size, err := m.CompletedPlayerQuestData.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
-		i += n17
+		i--
+		dAtA[i] = 0x22
 	}
 	if m.Confirm != nil {
+		{
+			size, err := m.Confirm.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
 		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Confirm.Size()))
-		n18, err18 := m.Confirm.MarshalTo(dAtA[i:])
-		if err18 != nil {
-			return 0, err18
-		}
-		i += n18
 	}
-	if m.CompletedPlayerQuestData != nil {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.CompletedPlayerQuestData.Size()))
-		n19, err19 := m.CompletedPlayerQuestData.MarshalTo(dAtA[i:])
-		if err19 != nil {
-			return 0, err19
+	if m.Reservation != nil {
+		{
+			size, err := m.Reservation.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
-		i += n19
+		i--
+		dAtA[i] = 0x12
 	}
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerVersion))
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservationid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingClient2GCHello) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13827,17 +14153,22 @@ func (m *CMsgGCCStrike15V2_MatchmakingClient2GCHello) Marshal() (dAtA []byte, er
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingClient2GCHello) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingClient2GCHello) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientHello) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -13845,165 +14176,192 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientHello) Marshal() (dAtA []byte, er
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientHello) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientHello) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	if m.Ongoingmatch != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ongoingmatch.Size()))
-		n20, err20 := m.Ongoingmatch.MarshalTo(dAtA[i:])
-		if err20 != nil {
-			return 0, err20
+	if len(m.Rankings) > 0 {
+		for iNdEx := len(m.Rankings) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Rankings[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1
+			i--
+			dAtA[i] = 0xa2
 		}
-		i += n20
 	}
-	if m.GlobalStats != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GlobalStats.Size()))
-		n21, err21 := m.GlobalStats.MarshalTo(dAtA[i:])
-		if err21 != nil {
-			return 0, err21
-		}
-		i += n21
-	}
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PenaltySeconds))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PenaltyReason))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.VacBanned))
-	if m.Ranking != nil {
-		dAtA[i] = 0x3a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ranking.Size()))
-		n22, err22 := m.Ranking.MarshalTo(dAtA[i:])
-		if err22 != nil {
-			return 0, err22
-		}
-		i += n22
-	}
-	if m.Commendation != nil {
-		dAtA[i] = 0x42
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Commendation.Size()))
-		n23, err23 := m.Commendation.MarshalTo(dAtA[i:])
-		if err23 != nil {
-			return 0, err23
-		}
-		i += n23
-	}
-	if m.Medals != nil {
-		dAtA[i] = 0x4a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Medals.Size()))
-		n24, err24 := m.Medals.MarshalTo(dAtA[i:])
-		if err24 != nil {
-			return 0, err24
-		}
-		i += n24
-	}
-	if m.MyCurrentEvent != nil {
-		dAtA[i] = 0x52
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MyCurrentEvent.Size()))
-		n25, err25 := m.MyCurrentEvent.MarshalTo(dAtA[i:])
-		if err25 != nil {
-			return 0, err25
-		}
-		i += n25
-	}
-	if len(m.MyCurrentEventTeams) > 0 {
-		for _, msg := range m.MyCurrentEventTeams {
-			dAtA[i] = 0x5a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayerXpBonusFlags))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x98
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayerCurXp))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x90
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayerLevel))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x88
+	if m.Activity != nil {
+		{
+			size, err := m.Activity.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x7a
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SurveyVote))
+	i--
+	dAtA[i] = 0x70
+	if len(m.MyCurrentEventStages) > 0 {
+		for iNdEx := len(m.MyCurrentEventStages) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.MyCurrentEventStages[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x6a
 		}
 	}
 	if m.MyCurrentTeam != nil {
+		{
+			size, err := m.MyCurrentTeam.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
 		dAtA[i] = 0x62
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MyCurrentTeam.Size()))
-		n26, err26 := m.MyCurrentTeam.MarshalTo(dAtA[i:])
-		if err26 != nil {
-			return 0, err26
-		}
-		i += n26
 	}
-	if len(m.MyCurrentEventStages) > 0 {
-		for _, msg := range m.MyCurrentEventStages {
-			dAtA[i] = 0x6a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+	if len(m.MyCurrentEventTeams) > 0 {
+		for iNdEx := len(m.MyCurrentEventTeams) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.MyCurrentEventTeams[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x5a
+		}
+	}
+	if m.MyCurrentEvent != nil {
+		{
+			size, err := m.MyCurrentEvent.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
+		i--
+		dAtA[i] = 0x52
 	}
-	dAtA[i] = 0x70
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SurveyVote))
-	if m.Activity != nil {
-		dAtA[i] = 0x7a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Activity.Size()))
-		n27, err27 := m.Activity.MarshalTo(dAtA[i:])
-		if err27 != nil {
-			return 0, err27
-		}
-		i += n27
-	}
-	dAtA[i] = 0x88
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayerLevel))
-	dAtA[i] = 0x90
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayerCurXp))
-	dAtA[i] = 0x98
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayerXpBonusFlags))
-	if len(m.Rankings) > 0 {
-		for _, msg := range m.Rankings {
-			dAtA[i] = 0xa2
-			i++
-			dAtA[i] = 0x1
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+	if m.Medals != nil {
+		{
+			size, err := m.Medals.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
+		i--
+		dAtA[i] = 0x4a
 	}
-	return i, nil
+	if m.Commendation != nil {
+		{
+			size, err := m.Commendation.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x42
+	}
+	if m.Ranking != nil {
+		{
+			size, err := m.Ranking.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x3a
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.VacBanned))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PenaltyReason))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PenaltySeconds))
+	i--
+	dAtA[i] = 0x20
+	if m.GlobalStats != nil {
+		{
+			size, err := m.GlobalStats.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.Ongoingmatch != nil {
+		{
+			size, err := m.Ongoingmatch.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_AccountPrivacySettings) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14011,29 +14369,36 @@ func (m *CMsgGCCStrike15V2_AccountPrivacySettings) Marshal() (dAtA []byte, err e
 }
 
 func (m *CMsgGCCStrike15V2_AccountPrivacySettings) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_AccountPrivacySettings) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Settings) > 0 {
-		for _, msg := range m.Settings {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Settings) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Settings[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_AccountPrivacySettings_Setting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14041,23 +14406,28 @@ func (m *CMsgGCCStrike15V2_AccountPrivacySettings_Setting) Marshal() (dAtA []byt
 }
 
 func (m *CMsgGCCStrike15V2_AccountPrivacySettings_Setting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_AccountPrivacySettings_Setting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SettingType))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SettingValue))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SettingType))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientAbandon) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14065,36 +14435,43 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientAbandon) Marshal() (dAtA []byte, 
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientAbandon) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingGC2ClientAbandon) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	if m.AbandonedMatch != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AbandonedMatch.Size()))
-		n28, err28 := m.AbandonedMatch.MarshalTo(dAtA[i:])
-		if err28 != nil {
-			return 0, err28
-		}
-		i += n28
-	}
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PenaltySeconds))
-	dAtA[i] = 0x20
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PenaltyReason))
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PenaltySeconds))
+	i--
+	dAtA[i] = 0x18
+	if m.AbandonedMatch != nil {
+		{
+			size, err := m.AbandonedMatch.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServer2GCKick) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14102,33 +14479,40 @@ func (m *CMsgGCCStrike15V2_MatchmakingServer2GCKick) Marshal() (dAtA []byte, err
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingServer2GCKick) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingServer2GCKick) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	if m.Reservation != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reservation.Size()))
-		n29, err29 := m.Reservation.MarshalTo(dAtA[i:])
-		if err29 != nil {
-			return 0, err29
-		}
-		i += n29
-	}
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reason))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	if m.Reservation != nil {
+		{
+			size, err := m.Reservation.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerRankUpdate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14136,32 +14520,39 @@ func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerRankUpdate) Marshal() (dAtA []byt
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerRankUpdate) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingGC2ServerRankUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
+	i--
+	dAtA[i] = 0x10
 	if len(m.Rankings) > 0 {
-		for _, msg := range m.Rankings {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Rankings) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Rankings[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientGCRankUpdate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14169,29 +14560,36 @@ func (m *CMsgGCCStrike15V2_ClientGCRankUpdate) Marshal() (dAtA []byte, err error
 }
 
 func (m *CMsgGCCStrike15V2_ClientGCRankUpdate) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientGCRankUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Rankings) > 0 {
-		for _, msg := range m.Rankings {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Rankings) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Rankings[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingOperator2GCBlogUpdate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14199,21 +14597,27 @@ func (m *CMsgGCCStrike15V2_MatchmakingOperator2GCBlogUpdate) Marshal() (dAtA []b
 }
 
 func (m *CMsgGCCStrike15V2_MatchmakingOperator2GCBlogUpdate) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchmakingOperator2GCBlogUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
+	i -= len(m.MainPostUrl)
+	copy(dAtA[i:], m.MainPostUrl)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.MainPostUrl)))
-	i += copy(dAtA[i:], m.MainPostUrl)
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ServerNotificationForUserPenalty) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14221,26 +14625,31 @@ func (m *CMsgGCCStrike15V2_ServerNotificationForUserPenalty) Marshal() (dAtA []b
 }
 
 func (m *CMsgGCCStrike15V2_ServerNotificationForUserPenalty) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ServerNotificationForUserPenalty) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reason))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Seconds))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reason))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientReportPlayer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14248,41 +14657,46 @@ func (m *CMsgGCCStrike15V2_ClientReportPlayer) Marshal() (dAtA []byte, err error
 }
 
 func (m *CMsgGCCStrike15V2_ClientReportPlayer) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientReportPlayer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptAimbot))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptWallhack))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptSpeedhack))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptTeamharm))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptTextabuse))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptVoiceabuse))
-	dAtA[i] = 0x40
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
-	return i, nil
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptVoiceabuse))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptTextabuse))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptTeamharm))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptSpeedhack))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptWallhack))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptAimbot))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientCommendPlayer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14290,36 +14704,43 @@ func (m *CMsgGCCStrike15V2_ClientCommendPlayer) Marshal() (dAtA []byte, err erro
 }
 
 func (m *CMsgGCCStrike15V2_ClientCommendPlayer) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientCommendPlayer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
-	if m.Commendation != nil {
-		dAtA[i] = 0x4a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Commendation.Size()))
-		n30, err30 := m.Commendation.MarshalTo(dAtA[i:])
-		if err30 != nil {
-			return 0, err30
-		}
-		i += n30
-	}
-	dAtA[i] = 0x50
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Tokens))
-	return i, nil
+	i--
+	dAtA[i] = 0x50
+	if m.Commendation != nil {
+		{
+			size, err := m.Commendation.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x4a
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientReportServer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14327,35 +14748,40 @@ func (m *CMsgGCCStrike15V2_ClientReportServer) Marshal() (dAtA []byte, err error
 }
 
 func (m *CMsgGCCStrike15V2_ClientReportServer) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientReportServer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptPoorperf))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptAbusivemodels))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptBadmotd))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptListingabuse))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptInventoryabuse))
-	dAtA[i] = 0x40
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
-	return i, nil
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptInventoryabuse))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptListingabuse))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptBadmotd))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptAbusivemodels))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptPoorperf))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientReportResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14363,35 +14789,40 @@ func (m *CMsgGCCStrike15V2_ClientReportResponse) Marshal() (dAtA []byte, err err
 }
 
 func (m *CMsgGCCStrike15V2_ClientReportResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientReportResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ConfirmationId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerIp))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ResponseType))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ResponseResult))
-	dAtA[i] = 0x30
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Tokens))
-	return i, nil
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ResponseResult))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ResponseType))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerIp))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ConfirmationId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestWatchInfoFriends) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14399,48 +14830,55 @@ func (m *CMsgGCCStrike15V2_ClientRequestWatchInfoFriends) Marshal() (dAtA []byte
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestWatchInfoFriends) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientRequestWatchInfoFriends) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequestId))
-	if len(m.AccountIds) > 0 {
-		for _, num := range m.AccountIds {
-			dAtA[i] = 0x10
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Serverid))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchid))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ClientLauncher))
 	if len(m.DataCenterPings) > 0 {
-		for _, msg := range m.DataCenterPings {
-			dAtA[i] = 0x32
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.DataCenterPings) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.DataCenterPings[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x32
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ClientLauncher))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchid))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Serverid))
+	i--
+	dAtA[i] = 0x18
+	if len(m.AccountIds) > 0 {
+		for iNdEx := len(m.AccountIds) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountIds[iNdEx]))
+			i--
+			dAtA[i] = 0x10
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequestId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *WatchableMatchInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14448,61 +14886,69 @@ func (m *WatchableMatchInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *WatchableMatchInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *WatchableMatchInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerIp))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvPort))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvSpectators))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvTime))
-	if m.TvWatchPassword != nil {
-		dAtA[i] = 0x2a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TvWatchPassword)))
-		i += copy(dAtA[i:], m.TvWatchPassword)
-	}
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ClDecryptdataKey))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ClDecryptdataKeyPub))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
-	dAtA[i] = 0x4a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.GameMapgroup)))
-	i += copy(dAtA[i:], m.GameMapgroup)
-	dAtA[i] = 0x52
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.GameMap)))
-	i += copy(dAtA[i:], m.GameMap)
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerId))
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
-	dAtA[i] = 0x68
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ReservationId))
-	return i, nil
+	i--
+	dAtA[i] = 0x68
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
+	i--
+	dAtA[i] = 0x60
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerId))
+	i--
+	dAtA[i] = 0x58
+	i -= len(m.GameMap)
+	copy(dAtA[i:], m.GameMap)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.GameMap)))
+	i--
+	dAtA[i] = 0x52
+	i -= len(m.GameMapgroup)
+	copy(dAtA[i:], m.GameMapgroup)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.GameMapgroup)))
+	i--
+	dAtA[i] = 0x4a
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ClDecryptdataKeyPub))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ClDecryptdataKey))
+	i--
+	dAtA[i] = 0x30
+	if m.TvWatchPassword != nil {
+		i -= len(m.TvWatchPassword)
+		copy(dAtA[i:], m.TvWatchPassword)
+		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.TvWatchPassword)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvTime))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvSpectators))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TvPort))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerIp))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestJoinFriendData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14510,43 +14956,51 @@ func (m *CMsgGCCStrike15V2_ClientRequestJoinFriendData) Marshal() (dAtA []byte, 
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestJoinFriendData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientRequestJoinFriendData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Version))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.JoinToken))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.JoinIpp))
-	if m.Res != nil {
-		dAtA[i] = 0x2a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Res.Size()))
-		n31, err31 := m.Res.MarshalTo(dAtA[i:])
-		if err31 != nil {
-			return 0, err31
-		}
-		i += n31
-	}
-	dAtA[i] = 0x32
-	i++
+	i -= len(m.Errormsg)
+	copy(dAtA[i:], m.Errormsg)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Errormsg)))
-	i += copy(dAtA[i:], m.Errormsg)
-	return i, nil
+	i--
+	dAtA[i] = 0x32
+	if m.Res != nil {
+		{
+			size, err := m.Res.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x2a
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.JoinIpp))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.JoinToken))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Version))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestJoinServerData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14554,46 +15008,54 @@ func (m *CMsgGCCStrike15V2_ClientRequestJoinServerData) Marshal() (dAtA []byte, 
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestJoinServerData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientRequestJoinServerData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Version))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Serverid))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerIp))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerPort))
-	if m.Res != nil {
-		dAtA[i] = 0x32
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Res.Size()))
-		n32, err32 := m.Res.MarshalTo(dAtA[i:])
-		if err32 != nil {
-			return 0, err32
-		}
-		i += n32
-	}
-	dAtA[i] = 0x3a
-	i++
+	i -= len(m.Errormsg)
+	copy(dAtA[i:], m.Errormsg)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Errormsg)))
-	i += copy(dAtA[i:], m.Errormsg)
-	return i, nil
+	i--
+	dAtA[i] = 0x3a
+	if m.Res != nil {
+		{
+			size, err := m.Res.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x32
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerPort))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerIp))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Serverid))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Version))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCstrike15V2_ClientRequestNewMission) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14601,23 +15063,28 @@ func (m *CMsgGCCstrike15V2_ClientRequestNewMission) Marshal() (dAtA []byte, err 
 }
 
 func (m *CMsgGCCstrike15V2_ClientRequestNewMission) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCstrike15V2_ClientRequestNewMission) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MissionId))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.CampaignId))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MissionId))
+	i--
+	dAtA[i] = 0x10
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCstrike15V2_GC2ServerNotifyXPRewarded) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14625,44 +15092,51 @@ func (m *CMsgGCCstrike15V2_GC2ServerNotifyXPRewarded) Marshal() (dAtA []byte, er
 }
 
 func (m *CMsgGCCstrike15V2_GC2ServerNotifyXPRewarded) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCstrike15V2_GC2ServerNotifyXPRewarded) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.OperationPointsAwarded))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.UpgradedDefidx))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.CurrentLevel))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.CurrentXp))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x10
 	if len(m.XpProgressData) > 0 {
-		for _, msg := range m.XpProgressData {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.XpProgressData) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.XpProgressData[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.CurrentXp))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.CurrentLevel))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.UpgradedDefidx))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.OperationPointsAwarded))
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_WatchInfoUsers) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14670,42 +15144,49 @@ func (m *CMsgGCCStrike15V2_WatchInfoUsers) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_WatchInfoUsers) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_WatchInfoUsers) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequestId))
-	if len(m.AccountIds) > 0 {
-		for _, num := range m.AccountIds {
-			dAtA[i] = 0x10
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	if len(m.WatchableMatchInfos) > 0 {
-		for _, msg := range m.WatchableMatchInfos {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	dAtA[i] = 0x28
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ExtendedTimeout))
-	return i, nil
+	i--
+	dAtA[i] = 0x28
+	if len(m.WatchableMatchInfos) > 0 {
+		for iNdEx := len(m.WatchableMatchInfos) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.WatchableMatchInfos[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.AccountIds) > 0 {
+		for iNdEx := len(m.AccountIds) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountIds[iNdEx]))
+			i--
+			dAtA[i] = 0x10
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequestId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestPlayersProfile) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14713,33 +15194,38 @@ func (m *CMsgGCCStrike15V2_ClientRequestPlayersProfile) Marshal() (dAtA []byte, 
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestPlayersProfile) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientRequestPlayersProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequestId_Deprecated))
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequestLevel))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x18
 	if len(m.AccountIds_Deprecated) > 0 {
-		for _, num := range m.AccountIds_Deprecated {
+		for iNdEx := len(m.AccountIds_Deprecated) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountIds_Deprecated[iNdEx]))
+			i--
 			dAtA[i] = 0x10
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
 		}
 	}
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequestLevel))
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequestId_Deprecated))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_PlayersProfile) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14747,32 +15233,39 @@ func (m *CMsgGCCStrike15V2_PlayersProfile) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_PlayersProfile) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_PlayersProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequestId))
 	if len(m.AccountProfiles) > 0 {
-		for _, msg := range m.AccountProfiles {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.AccountProfiles) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.AccountProfiles[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x12
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RequestId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseUpdate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14780,41 +15273,46 @@ func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseUpdate) Marshal() (dAtA []byte, er
 }
 
 func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseUpdate) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Caseid))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Suspectid))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Fractionid))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptAimbot))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptWallhack))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptSpeedhack))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptTeamharm))
-	dAtA[i] = 0x48
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reason))
-	return i, nil
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptTeamharm))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptSpeedhack))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptWallhack))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RptAimbot))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Fractionid))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Suspectid))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Caseid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseAssignment) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14822,51 +15320,57 @@ func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseAssignment) Marshal() (dAtA []byte
 }
 
 func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseAssignment) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseAssignment) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Caseid))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Caseurl)))
-	i += copy(dAtA[i:], m.Caseurl)
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Verdict))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Timestamp))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Throttleseconds))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Suspectid))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Fractionid))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Numrounds))
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Fractionrounds))
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Streakconvictions))
-	dAtA[i] = 0x58
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Reason))
-	return i, nil
+	i--
+	dAtA[i] = 0x58
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Streakconvictions))
+	i--
+	dAtA[i] = 0x50
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Fractionrounds))
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Numrounds))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Fractionid))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Suspectid))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Throttleseconds))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Timestamp))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Verdict))
+	i--
+	dAtA[i] = 0x18
+	i -= len(m.Caseurl)
+	copy(dAtA[i:], m.Caseurl)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Caseurl)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Caseid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseStatus) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14874,23 +15378,28 @@ func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseStatus) Marshal() (dAtA []byte, er
 }
 
 func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseStatus) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_PlayerOverwatchCaseStatus) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Caseid))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Statusid))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Caseid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CClientHeaderOverwatchEvidence) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14898,23 +15407,28 @@ func (m *CClientHeaderOverwatchEvidence) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CClientHeaderOverwatchEvidence) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CClientHeaderOverwatchEvidence) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Caseid))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_GC2ClientTextMsg) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14922,29 +15436,35 @@ func (m *CMsgGCCStrike15V2_GC2ClientTextMsg) Marshal() (dAtA []byte, err error) 
 }
 
 func (m *CMsgGCCStrike15V2_GC2ClientTextMsg) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_GC2ClientTextMsg) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Id))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Type))
 	if m.Payload != nil {
-		dAtA[i] = 0x1a
-		i++
+		i -= len(m.Payload)
+		copy(dAtA[i:], m.Payload)
 		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Payload)))
-		i += copy(dAtA[i:], m.Payload)
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Type))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Id))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Client2GCTextMsg) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14952,28 +15472,34 @@ func (m *CMsgGCCStrike15V2_Client2GCTextMsg) Marshal() (dAtA []byte, err error) 
 }
 
 func (m *CMsgGCCStrike15V2_Client2GCTextMsg) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Client2GCTextMsg) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Id))
 	if len(m.Args) > 0 {
-		for _, b := range m.Args {
+		for iNdEx := len(m.Args) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Args[iNdEx])
+			copy(dAtA[i:], m.Args[iNdEx])
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Args[iNdEx])))
+			i--
 			dAtA[i] = 0x12
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(b)))
-			i += copy(dAtA[i:], b)
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Id))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchEndRunRewardDrops) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -14981,37 +15507,46 @@ func (m *CMsgGCCStrike15V2_MatchEndRunRewardDrops) Marshal() (dAtA []byte, err e
 }
 
 func (m *CMsgGCCStrike15V2_MatchEndRunRewardDrops) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchEndRunRewardDrops) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Serverinfo != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Serverinfo.Size()))
-		n33, err33 := m.Serverinfo.MarshalTo(dAtA[i:])
-		if err33 != nil {
-			return 0, err33
-		}
-		i += n33
-	}
 	if m.MatchEndQuestData != nil {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchEndQuestData.Size()))
-		n34, err34 := m.MatchEndQuestData.MarshalTo(dAtA[i:])
-		if err34 != nil {
-			return 0, err34
+		{
+			size, err := m.MatchEndQuestData.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
-		i += n34
+		i--
+		dAtA[i] = 0x22
 	}
-	return i, nil
+	if m.Serverinfo != nil {
+		{
+			size, err := m.Serverinfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CEconItemPreviewDataBlock) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15019,87 +15554,95 @@ func (m *CEconItemPreviewDataBlock) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CEconItemPreviewDataBlock) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CEconItemPreviewDataBlock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Itemid))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Defindex))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Paintindex))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rarity))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Quality))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Paintwear))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Paintseed))
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Killeaterscoretype))
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Killeatervalue))
-	dAtA[i] = 0x5a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Customname)))
-	i += copy(dAtA[i:], m.Customname)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Entindex))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x90
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Musicindex))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x88
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Dropreason))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x80
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Questid))
+	i--
+	dAtA[i] = 0x78
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Origin))
+	i--
+	dAtA[i] = 0x70
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Inventory))
+	i--
+	dAtA[i] = 0x68
 	if len(m.Stickers) > 0 {
-		for _, msg := range m.Stickers {
-			dAtA[i] = 0x62
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Stickers) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Stickers[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x62
 		}
 	}
-	dAtA[i] = 0x68
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Inventory))
-	dAtA[i] = 0x70
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Origin))
-	dAtA[i] = 0x78
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Questid))
-	dAtA[i] = 0x80
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Dropreason))
-	dAtA[i] = 0x88
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Musicindex))
-	dAtA[i] = 0x90
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Entindex))
-	return i, nil
+	i -= len(m.Customname)
+	copy(dAtA[i:], m.Customname)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Customname)))
+	i--
+	dAtA[i] = 0x5a
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Killeatervalue))
+	i--
+	dAtA[i] = 0x50
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Killeaterscoretype))
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Paintseed))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Paintwear))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Quality))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rarity))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Paintindex))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Defindex))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Itemid))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CEconItemPreviewDataBlock_Sticker) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15107,38 +15650,43 @@ func (m *CEconItemPreviewDataBlock_Sticker) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CEconItemPreviewDataBlock_Sticker) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CEconItemPreviewDataBlock_Sticker) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Slot))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.StickerId))
-	dAtA[i] = 0x1d
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Wear))))
-	i += 4
-	dAtA[i] = 0x25
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Scale))))
-	i += 4
-	dAtA[i] = 0x2d
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Rotation))))
-	i += 4
-	dAtA[i] = 0x30
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TintId))
-	return i, nil
+	i--
+	dAtA[i] = 0x30
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Rotation))))
+	i--
+	dAtA[i] = 0x2d
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Scale))))
+	i--
+	dAtA[i] = 0x25
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Wear))))
+	i--
+	dAtA[i] = 0x1d
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.StickerId))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Slot))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchEndRewardDropsNotification) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15146,27 +15694,34 @@ func (m *CMsgGCCStrike15V2_MatchEndRewardDropsNotification) Marshal() (dAtA []by
 }
 
 func (m *CMsgGCCStrike15V2_MatchEndRewardDropsNotification) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchEndRewardDropsNotification) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Iteminfo != nil {
-		dAtA[i] = 0x32
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Iteminfo.Size()))
-		n35, err35 := m.Iteminfo.MarshalTo(dAtA[i:])
-		if err35 != nil {
-			return 0, err35
+		{
+			size, err := m.Iteminfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
-		i += n35
+		i--
+		dAtA[i] = 0x32
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgItemAcknowledged) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15174,27 +15729,34 @@ func (m *CMsgItemAcknowledged) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgItemAcknowledged) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgItemAcknowledged) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Iteminfo != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Iteminfo.Size()))
-		n36, err36 := m.Iteminfo.MarshalTo(dAtA[i:])
-		if err36 != nil {
-			return 0, err36
+		{
+			size, err := m.Iteminfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
-		i += n36
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15202,29 +15764,34 @@ func (m *CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockRequest) Marshal() (dAtA
 }
 
 func (m *CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ParamS))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ParamA))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ParamD))
-	dAtA[i] = 0x20
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ParamM))
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ParamD))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ParamA))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ParamS))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15232,27 +15799,34 @@ func (m *CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockResponse) Marshal() (dAt
 }
 
 func (m *CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Client2GCEconPreviewDataBlockResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Iteminfo != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Iteminfo.Size()))
-		n37, err37 := m.Iteminfo.MarshalTo(dAtA[i:])
-		if err37 != nil {
-			return 0, err37
+		{
+			size, err := m.Iteminfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
-		i += n37
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_TournamentMatchRewardDropsNotification) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15260,30 +15834,35 @@ func (m *CMsgGCCStrike15V2_TournamentMatchRewardDropsNotification) Marshal() (dA
 }
 
 func (m *CMsgGCCStrike15V2_TournamentMatchRewardDropsNotification) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_TournamentMatchRewardDropsNotification) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Defindex))
 	if len(m.Accountids) > 0 {
-		for _, num := range m.Accountids {
+		for iNdEx := len(m.Accountids) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountids[iNdEx]))
+			i--
 			dAtA[i] = 0x18
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Defindex))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchListRequestCurrentLiveGames) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15291,17 +15870,22 @@ func (m *CMsgGCCStrike15V2_MatchListRequestCurrentLiveGames) Marshal() (dAtA []b
 }
 
 func (m *CMsgGCCStrike15V2_MatchListRequestCurrentLiveGames) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchListRequestCurrentLiveGames) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchListRequestLiveGameForUser) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15309,20 +15893,25 @@ func (m *CMsgGCCStrike15V2_MatchListRequestLiveGameForUser) Marshal() (dAtA []by
 }
 
 func (m *CMsgGCCStrike15V2_MatchListRequestLiveGameForUser) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchListRequestLiveGameForUser) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchListRequestRecentUserGames) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15330,20 +15919,25 @@ func (m *CMsgGCCStrike15V2_MatchListRequestRecentUserGames) Marshal() (dAtA []by
 }
 
 func (m *CMsgGCCStrike15V2_MatchListRequestRecentUserGames) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchListRequestRecentUserGames) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchListRequestTournamentGames) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15351,20 +15945,25 @@ func (m *CMsgGCCStrike15V2_MatchListRequestTournamentGames) Marshal() (dAtA []by
 }
 
 func (m *CMsgGCCStrike15V2_MatchListRequestTournamentGames) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchListRequestTournamentGames) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Eventid))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchListRequestFullGameInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15372,26 +15971,31 @@ func (m *CMsgGCCStrike15V2_MatchListRequestFullGameInfo) Marshal() (dAtA []byte,
 }
 
 func (m *CMsgGCCStrike15V2_MatchListRequestFullGameInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchListRequestFullGameInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Outcomeid))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Token))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Outcomeid))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CDataGCCStrike15V2_MatchInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15399,55 +16003,66 @@ func (m *CDataGCCStrike15V2_MatchInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CDataGCCStrike15V2_MatchInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CDataGCCStrike15V2_MatchInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchtime))
-	if m.Watchablematchinfo != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Watchablematchinfo.Size()))
-		n38, err38 := m.Watchablematchinfo.MarshalTo(dAtA[i:])
-		if err38 != nil {
-			return 0, err38
+	if len(m.Roundstatsall) > 0 {
+		for iNdEx := len(m.Roundstatsall) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Roundstatsall[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x2a
 		}
-		i += n38
 	}
 	if m.RoundstatsLegacy != nil {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.RoundstatsLegacy.Size()))
-		n39, err39 := m.RoundstatsLegacy.MarshalTo(dAtA[i:])
-		if err39 != nil {
-			return 0, err39
-		}
-		i += n39
-	}
-	if len(m.Roundstatsall) > 0 {
-		for _, msg := range m.Roundstatsall {
-			dAtA[i] = 0x2a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+		{
+			size, err := m.RoundstatsLegacy.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
+		i--
+		dAtA[i] = 0x22
 	}
-	return i, nil
+	if m.Watchablematchinfo != nil {
+		{
+			size, err := m.Watchablematchinfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchtime))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CDataGCCStrike15V2_TournamentGroupTeam) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15455,31 +16070,36 @@ func (m *CDataGCCStrike15V2_TournamentGroupTeam) Marshal() (dAtA []byte, err err
 }
 
 func (m *CDataGCCStrike15V2_TournamentGroupTeam) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CDataGCCStrike15V2_TournamentGroupTeam) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamId))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Score))
-	dAtA[i] = 0x18
-	i++
+	i--
 	if m.Correctpick {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Score))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TeamId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CDataGCCStrike15V2_TournamentGroup) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15487,71 +16107,82 @@ func (m *CDataGCCStrike15V2_TournamentGroup) Marshal() (dAtA []byte, err error) 
 }
 
 func (m *CDataGCCStrike15V2_TournamentGroup) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CDataGCCStrike15V2_TournamentGroup) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Groupid))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Desc)))
-	i += copy(dAtA[i:], m.Desc)
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Picks_Deprecated))
-	if len(m.Teams) > 0 {
-		for _, msg := range m.Teams {
-			dAtA[i] = 0x2a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	if len(m.StageIds) > 0 {
-		for _, num := range m.StageIds {
-			dAtA[i] = 0x30
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
-		}
-	}
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Picklockuntiltime))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Pickableteams))
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PointsPerPick))
 	if len(m.Picks) > 0 {
-		for _, msg := range m.Picks {
-			dAtA[i] = 0x52
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Picks) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Picks[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x52
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PointsPerPick))
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Pickableteams))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Picklockuntiltime))
+	i--
+	dAtA[i] = 0x38
+	if len(m.StageIds) > 0 {
+		for iNdEx := len(m.StageIds) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.StageIds[iNdEx]))
+			i--
+			dAtA[i] = 0x30
+		}
+	}
+	if len(m.Teams) > 0 {
+		for iNdEx := len(m.Teams) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Teams[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Picks_Deprecated))
+	i--
+	dAtA[i] = 0x20
+	i -= len(m.Desc)
+	copy(dAtA[i:], m.Desc)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Desc)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Groupid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CDataGCCStrike15V2_TournamentGroup_Picks) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15559,24 +16190,29 @@ func (m *CDataGCCStrike15V2_TournamentGroup_Picks) Marshal() (dAtA []byte, err e
 }
 
 func (m *CDataGCCStrike15V2_TournamentGroup_Picks) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CDataGCCStrike15V2_TournamentGroup_Picks) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Pickids) > 0 {
-		for _, num := range m.Pickids {
+		for iNdEx := len(m.Pickids) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Pickids[iNdEx]))
+			i--
 			dAtA[i] = 0x8
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CDataGCCStrike15V2_TournamentSection) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15584,40 +16220,49 @@ func (m *CDataGCCStrike15V2_TournamentSection) Marshal() (dAtA []byte, err error
 }
 
 func (m *CDataGCCStrike15V2_TournamentSection) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CDataGCCStrike15V2_TournamentSection) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Sectionid))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Name)))
-	i += copy(dAtA[i:], m.Name)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Desc)))
-	i += copy(dAtA[i:], m.Desc)
 	if len(m.Groups) > 0 {
-		for _, msg := range m.Groups {
-			dAtA[i] = 0x22
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Groups) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Groups[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x22
 		}
 	}
-	return i, nil
+	i -= len(m.Desc)
+	copy(dAtA[i:], m.Desc)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Desc)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.Name)
+	copy(dAtA[i:], m.Name)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Name)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Sectionid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CDataGCCStrike15V2_TournamentInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15625,51 +16270,62 @@ func (m *CDataGCCStrike15V2_TournamentInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CDataGCCStrike15V2_TournamentInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CDataGCCStrike15V2_TournamentInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Sections) > 0 {
-		for _, msg := range m.Sections {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+	if len(m.TournamentTeams) > 0 {
+		for iNdEx := len(m.TournamentTeams) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.TournamentTeams[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x1a
 		}
 	}
 	if m.TournamentEvent != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TournamentEvent.Size()))
-		n40, err40 := m.TournamentEvent.MarshalTo(dAtA[i:])
-		if err40 != nil {
-			return 0, err40
-		}
-		i += n40
-	}
-	if len(m.TournamentTeams) > 0 {
-		for _, msg := range m.TournamentTeams {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+		{
+			size, err := m.TournamentEvent.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Sections) > 0 {
+		for iNdEx := len(m.Sections) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Sections[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_MatchList) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15677,60 +16333,71 @@ func (m *CMsgGCCStrike15V2_MatchList) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_MatchList) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_MatchList) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Msgrequestid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Servertime))
-	if len(m.Matches) > 0 {
-		for _, msg := range m.Matches {
-			dAtA[i] = 0x22
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+	if m.Tournamentinfo != nil {
+		{
+			size, err := m.Tournamentinfo.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
+		i--
+		dAtA[i] = 0x32
 	}
 	if len(m.Streams) > 0 {
-		for _, msg := range m.Streams {
-			dAtA[i] = 0x2a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Streams) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Streams[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x2a
 		}
 	}
-	if m.Tournamentinfo != nil {
-		dAtA[i] = 0x32
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Tournamentinfo.Size()))
-		n41, err41 := m.Tournamentinfo.MarshalTo(dAtA[i:])
-		if err41 != nil {
-			return 0, err41
+	if len(m.Matches) > 0 {
+		for iNdEx := len(m.Matches) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Matches[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
 		}
-		i += n41
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Servertime))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Msgrequestid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Predictions) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15738,32 +16405,39 @@ func (m *CMsgGCCStrike15V2_Predictions) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_Predictions) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Predictions) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventId))
 	if len(m.GroupMatchTeamPicks) > 0 {
-		for _, msg := range m.GroupMatchTeamPicks {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.GroupMatchTeamPicks) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.GroupMatchTeamPicks[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x12
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Predictions_GroupMatchTeamPick) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15771,32 +16445,37 @@ func (m *CMsgGCCStrike15V2_Predictions_GroupMatchTeamPick) Marshal() (dAtA []byt
 }
 
 func (m *CMsgGCCStrike15V2_Predictions_GroupMatchTeamPick) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Predictions_GroupMatchTeamPick) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Sectionid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Groupid))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Index))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Teamid))
-	dAtA[i] = 0x28
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Itemid))
-	return i, nil
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Teamid))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Index))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Groupid))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Sectionid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Fantasy) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15804,32 +16483,39 @@ func (m *CMsgGCCStrike15V2_Fantasy) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_Fantasy) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Fantasy) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventId))
 	if len(m.Teams) > 0 {
-		for _, msg := range m.Teams {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Teams) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Teams[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x12
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.EventId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Fantasy_FantasySlot) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15837,26 +16523,31 @@ func (m *CMsgGCCStrike15V2_Fantasy_FantasySlot) Marshal() (dAtA []byte, err erro
 }
 
 func (m *CMsgGCCStrike15V2_Fantasy_FantasySlot) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Fantasy_FantasySlot) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Type))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Pick))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Itemid))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Pick))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Type))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Fantasy_FantasyTeam) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15864,32 +16555,39 @@ func (m *CMsgGCCStrike15V2_Fantasy_FantasyTeam) Marshal() (dAtA []byte, err erro
 }
 
 func (m *CMsgGCCStrike15V2_Fantasy_FantasyTeam) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Fantasy_FantasyTeam) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Sectionid))
 	if len(m.Slots) > 0 {
-		for _, msg := range m.Slots {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Slots) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Slots[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x12
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Sectionid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CAttribute_String) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15897,21 +16595,27 @@ func (m *CAttribute_String) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CAttribute_String) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CAttribute_String) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
+	i -= len(m.Value)
+	copy(dAtA[i:], m.Value)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Value)))
-	i += copy(dAtA[i:], m.Value)
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCToGCReloadVersions) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15919,17 +16623,22 @@ func (m *CMsgGCToGCReloadVersions) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCToGCReloadVersions) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCToGCReloadVersions) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgCStrike15Welcome) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15937,42 +16646,47 @@ func (m *CMsgCStrike15Welcome) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgCStrike15Welcome) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgCStrike15Welcome) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.StoreItemHash))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Timeplayedconsecutively))
-	dAtA[i] = 0x50
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TimeFirstPlayed))
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.LastTimePlayed))
-	dAtA[i] = 0x68
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.LastIpAddress))
-	dAtA[i] = 0x90
-	i++
-	dAtA[i] = 0x1
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Gscookieid))
-	dAtA[i] = 0x98
-	i++
-	dAtA[i] = 0x1
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Uniqueid))
-	return i, nil
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x98
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Gscookieid))
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x90
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.LastIpAddress))
+	i--
+	dAtA[i] = 0x68
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.LastTimePlayed))
+	i--
+	dAtA[i] = 0x60
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TimeFirstPlayed))
+	i--
+	dAtA[i] = 0x50
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Timeplayedconsecutively))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.StoreItemHash))
+	i--
+	dAtA[i] = 0x28
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientVarValueNotificationInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -15980,45 +16694,45 @@ func (m *CMsgGCCStrike15V2_ClientVarValueNotificationInfo) Marshal() (dAtA []byt
 }
 
 func (m *CMsgGCCStrike15V2_ClientVarValueNotificationInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientVarValueNotificationInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.ValueName)))
-	i += copy(dAtA[i:], m.ValueName)
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ValueInt))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerAddr))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerPort))
 	if len(m.ChokedBlocks) > 0 {
-		for _, s := range m.ChokedBlocks {
+		for iNdEx := len(m.ChokedBlocks) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.ChokedBlocks[iNdEx])
+			copy(dAtA[i:], m.ChokedBlocks[iNdEx])
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.ChokedBlocks[iNdEx])))
+			i--
 			dAtA[i] = 0x2a
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerPort))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ServerAddr))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.ValueInt))
+	i--
+	dAtA[i] = 0x10
+	i -= len(m.ValueName)
+	copy(dAtA[i:], m.ValueName)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.ValueName)))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ServerVarValueNotificationInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16026,30 +16740,35 @@ func (m *CMsgGCCStrike15V2_ServerVarValueNotificationInfo) Marshal() (dAtA []byt
 }
 
 func (m *CMsgGCCStrike15V2_ServerVarValueNotificationInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ServerVarValueNotificationInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Type))
+	i--
+	dAtA[i] = 0x18
 	if len(m.Viewangles) > 0 {
-		for _, num := range m.Viewangles {
+		for iNdEx := len(m.Viewangles) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Viewangles[iNdEx]))
+			i--
 			dAtA[i] = 0x10
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
 		}
 	}
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Type))
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_GiftsLeaderboardRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16057,17 +16776,22 @@ func (m *CMsgGCCStrike15V2_GiftsLeaderboardRequest) Marshal() (dAtA []byte, err 
 }
 
 func (m *CMsgGCCStrike15V2_GiftsLeaderboardRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_GiftsLeaderboardRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_GiftsLeaderboardResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16075,41 +16799,48 @@ func (m *CMsgGCCStrike15V2_GiftsLeaderboardResponse) Marshal() (dAtA []byte, err
 }
 
 func (m *CMsgGCCStrike15V2_GiftsLeaderboardResponse) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_GiftsLeaderboardResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Servertime))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TimePeriodSeconds))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TotalGiftsGiven))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TotalGivers))
 	if len(m.Entries) > 0 {
-		for _, msg := range m.Entries {
-			dAtA[i] = 0x2a
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Entries) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Entries[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x2a
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TotalGivers))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TotalGiftsGiven))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TimePeriodSeconds))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Servertime))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_GiftsLeaderboardResponse_GiftLeaderboardEntry) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16117,23 +16848,28 @@ func (m *CMsgGCCStrike15V2_GiftsLeaderboardResponse_GiftLeaderboardEntry) Marsha
 }
 
 func (m *CMsgGCCStrike15V2_GiftsLeaderboardResponse_GiftLeaderboardEntry) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_GiftsLeaderboardResponse_GiftLeaderboardEntry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Gifts))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientSubmitSurveyVote) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16141,23 +16877,28 @@ func (m *CMsgGCCStrike15V2_ClientSubmitSurveyVote) Marshal() (dAtA []byte, err e
 }
 
 func (m *CMsgGCCStrike15V2_ClientSubmitSurveyVote) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientSubmitSurveyVote) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SurveyId))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Vote))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.SurveyId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Server2GCClientValidate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16165,20 +16906,25 @@ func (m *CMsgGCCStrike15V2_Server2GCClientValidate) Marshal() (dAtA []byte, err 
 }
 
 func (m *CMsgGCCStrike15V2_Server2GCClientValidate) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Server2GCClientValidate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Server2GCPureServerValidationFailure) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16186,43 +16932,50 @@ func (m *CMsgGCCStrike15V2_Server2GCPureServerValidationFailure) Marshal() (dAtA
 }
 
 func (m *CMsgGCCStrike15V2_Server2GCPureServerValidationFailure) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Server2GCPureServerValidationFailure) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Path)))
-	i += copy(dAtA[i:], m.Path)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.File)))
-	i += copy(dAtA[i:], m.File)
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Crc))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Hash))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Len))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PackNumber))
-	dAtA[i] = 0x40
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PackFileId))
-	return i, nil
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PackNumber))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Len))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Hash))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Crc))
+	i--
+	dAtA[i] = 0x20
+	i -= len(m.File)
+	copy(dAtA[i:], m.File)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.File)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.Path)
+	copy(dAtA[i:], m.Path)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Path)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_GC2ClientTournamentInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16230,33 +16983,38 @@ func (m *CMsgGCCStrike15V2_GC2ClientTournamentInfo) Marshal() (dAtA []byte, err 
 }
 
 func (m *CMsgGCCStrike15V2_GC2ClientTournamentInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_GC2ClientTournamentInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Eventid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Stageid))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
 	if len(m.Teamids) > 0 {
-		for _, num := range m.Teamids {
+		for iNdEx := len(m.Teamids) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Teamids[iNdEx]))
+			i--
 			dAtA[i] = 0x20
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
 		}
 	}
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Stageid))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Eventid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSOEconCoupon) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16264,27 +17022,32 @@ func (m *CSOEconCoupon) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSOEconCoupon) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSOEconCoupon) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Entryid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Defidx))
-	dAtA[i] = 0x1d
-	i++
+	i -= 4
 	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.ExpirationDate))
-	i += 4
-	return i, nil
+	i--
+	dAtA[i] = 0x1d
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Defidx))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Entryid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSOQuestProgress) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16292,26 +17055,31 @@ func (m *CSOQuestProgress) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSOQuestProgress) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSOQuestProgress) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Questid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PointsRemaining))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.BonusPoints))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PointsRemaining))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Questid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CSOPersonaDataPublic) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16319,38 +17087,45 @@ func (m *CSOPersonaDataPublic) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CSOPersonaDataPublic) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CSOPersonaDataPublic) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayerLevel))
-	if m.Commendation != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Commendation.Size()))
-		n42, err42 := m.Commendation.MarshalTo(dAtA[i:])
-		if err42 != nil {
-			return 0, err42
-		}
-		i += n42
-	}
-	dAtA[i] = 0x18
-	i++
+	i--
 	if m.ElevatedState {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	if m.Commendation != nil {
+		{
+			size, err := m.Commendation.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.PlayerLevel))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGC_GlobalGame_Subscribe) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16358,20 +17133,25 @@ func (m *CMsgGC_GlobalGame_Subscribe) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGC_GlobalGame_Subscribe) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGC_GlobalGame_Subscribe) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ticket))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGC_GlobalGame_Unsubscribe) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16379,20 +17159,25 @@ func (m *CMsgGC_GlobalGame_Unsubscribe) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGC_GlobalGame_Unsubscribe) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGC_GlobalGame_Unsubscribe) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Timeleft))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGC_GlobalGame_Play) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16400,26 +17185,31 @@ func (m *CMsgGC_GlobalGame_Play) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGC_GlobalGame_Play) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGC_GlobalGame_Play) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ticket))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Gametimems))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Msperpoint))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Gametimems))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ticket))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_AcknowledgePenalty) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16427,20 +17217,25 @@ func (m *CMsgGCCStrike15V2_AcknowledgePenalty) Marshal() (dAtA []byte, err error
 }
 
 func (m *CMsgGCCStrike15V2_AcknowledgePenalty) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_AcknowledgePenalty) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Acknowledged))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Client2GCRequestPrestigeCoin) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16448,29 +17243,34 @@ func (m *CMsgGCCStrike15V2_Client2GCRequestPrestigeCoin) Marshal() (dAtA []byte,
 }
 
 func (m *CMsgGCCStrike15V2_Client2GCRequestPrestigeCoin) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Client2GCRequestPrestigeCoin) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Defindex))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Upgradeid))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Hours))
-	dAtA[i] = 0x20
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Prestigetime))
-	return i, nil
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Hours))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Upgradeid))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Defindex))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Client2GCStreamUnlock) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16478,23 +17278,28 @@ func (m *CMsgGCCStrike15V2_Client2GCStreamUnlock) Marshal() (dAtA []byte, err er
 }
 
 func (m *CMsgGCCStrike15V2_Client2GCStreamUnlock) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Client2GCStreamUnlock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ticket))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Os))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ticket))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientToGCRequestElevate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16502,20 +17307,25 @@ func (m *CMsgGCCStrike15V2_ClientToGCRequestElevate) Marshal() (dAtA []byte, err
 }
 
 func (m *CMsgGCCStrike15V2_ClientToGCRequestElevate) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientToGCRequestElevate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Stage))
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientToGCChat) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16523,24 +17333,30 @@ func (m *CMsgGCCStrike15V2_ClientToGCChat) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_ClientToGCChat) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientToGCChat) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.Text)
+	copy(dAtA[i:], m.Text)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Text)))
-	i += copy(dAtA[i:], m.Text)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.MatchId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_GCToClientChat) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16548,24 +17364,30 @@ func (m *CMsgGCCStrike15V2_GCToClientChat) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_GCToClientChat) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_GCToClientChat) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.Text)
+	copy(dAtA[i:], m.Text)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Text)))
-	i += copy(dAtA[i:], m.Text)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.AccountId))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientAuthKeyCode) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16573,24 +17395,30 @@ func (m *CMsgGCCStrike15V2_ClientAuthKeyCode) Marshal() (dAtA []byte, err error)
 }
 
 func (m *CMsgGCCStrike15V2_ClientAuthKeyCode) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientAuthKeyCode) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Eventid))
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.Code)
+	copy(dAtA[i:], m.Code)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Code)))
-	i += copy(dAtA[i:], m.Code)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Eventid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15_GotvSyncPacket) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16598,27 +17426,34 @@ func (m *CMsgGCCStrike15_GotvSyncPacket) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15_GotvSyncPacket) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15_GotvSyncPacket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.Data != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Data.Size()))
-		n43, err43 := m.Data.MarshalTo(dAtA[i:])
-		if err43 != nil {
-			return 0, err43
+		{
+			size, err := m.Data.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 		}
-		i += n43
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *PlayerDecalDigitalSignature) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16626,87 +17461,93 @@ func (m *PlayerDecalDigitalSignature) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *PlayerDecalDigitalSignature) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PlayerDecalDigitalSignature) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Signature != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Signature)))
-		i += copy(dAtA[i:], m.Signature)
-	}
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rtime))
-	if len(m.Endpos) > 0 {
-		for _, num := range m.Endpos {
-			dAtA[i] = 0x25
-			i++
-			f44 := math.Float32bits(float32(num))
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TintId))
+	i--
+	dAtA[i] = 0x70
+	if len(m.Normal) > 0 {
+		for iNdEx := len(m.Normal) - 1; iNdEx >= 0; iNdEx-- {
+			f44 := math.Float32bits(float32(m.Normal[iNdEx]))
+			i -= 4
 			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(f44))
-			i += 4
+			i--
+			dAtA[i] = 0x6d
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TraceId))
+	i--
+	dAtA[i] = 0x60
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Equipslot))
+	i--
+	dAtA[i] = 0x58
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Creationtime))))
+	i--
+	dAtA[i] = 0x55
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Hitbox))
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Entindex))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TxDefidx))
+	i--
+	dAtA[i] = 0x38
+	if len(m.Right) > 0 {
+		for iNdEx := len(m.Right) - 1; iNdEx >= 0; iNdEx-- {
+			f45 := math.Float32bits(float32(m.Right[iNdEx]))
+			i -= 4
+			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(f45))
+			i--
+			dAtA[i] = 0x35
 		}
 	}
 	if len(m.Startpos) > 0 {
-		for _, num := range m.Startpos {
-			dAtA[i] = 0x2d
-			i++
-			f45 := math.Float32bits(float32(num))
-			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(f45))
-			i += 4
-		}
-	}
-	if len(m.Right) > 0 {
-		for _, num := range m.Right {
-			dAtA[i] = 0x35
-			i++
-			f46 := math.Float32bits(float32(num))
+		for iNdEx := len(m.Startpos) - 1; iNdEx >= 0; iNdEx-- {
+			f46 := math.Float32bits(float32(m.Startpos[iNdEx]))
+			i -= 4
 			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(f46))
-			i += 4
+			i--
+			dAtA[i] = 0x2d
 		}
 	}
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TxDefidx))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Entindex))
-	dAtA[i] = 0x48
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Hitbox))
-	dAtA[i] = 0x55
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(math.Float32bits(float32(m.Creationtime))))
-	i += 4
-	dAtA[i] = 0x58
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Equipslot))
-	dAtA[i] = 0x60
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TraceId))
-	if len(m.Normal) > 0 {
-		for _, num := range m.Normal {
-			dAtA[i] = 0x6d
-			i++
-			f47 := math.Float32bits(float32(num))
+	if len(m.Endpos) > 0 {
+		for iNdEx := len(m.Endpos) - 1; iNdEx >= 0; iNdEx-- {
+			f47 := math.Float32bits(float32(m.Endpos[iNdEx]))
+			i -= 4
 			encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(f47))
-			i += 4
+			i--
+			dAtA[i] = 0x25
 		}
 	}
-	dAtA[i] = 0x70
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.TintId))
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rtime))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x10
+	if m.Signature != nil {
+		i -= len(m.Signature)
+		copy(dAtA[i:], m.Signature)
+		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Signature)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientPlayerDecalSign) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16714,30 +17555,37 @@ func (m *CMsgGCCStrike15V2_ClientPlayerDecalSign) Marshal() (dAtA []byte, err er
 }
 
 func (m *CMsgGCCStrike15V2_ClientPlayerDecalSign) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientPlayerDecalSign) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Data != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Data.Size()))
-		n48, err48 := m.Data.MarshalTo(dAtA[i:])
-		if err48 != nil {
-			return 0, err48
-		}
-		i += n48
-	}
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Itemid))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	if m.Data != nil {
+		{
+			size, err := m.Data.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientLogonFatalError) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16745,28 +17593,35 @@ func (m *CMsgGCCStrike15V2_ClientLogonFatalError) Marshal() (dAtA []byte, err er
 }
 
 func (m *CMsgGCCStrike15V2_ClientLogonFatalError) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientLogonFatalError) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Errorcode))
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Message)))
-	i += copy(dAtA[i:], m.Message)
-	dAtA[i] = 0x1a
-	i++
+	i -= len(m.Country)
+	copy(dAtA[i:], m.Country)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Country)))
-	i += copy(dAtA[i:], m.Country)
-	return i, nil
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.Message)
+	copy(dAtA[i:], m.Message)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Message)))
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Errorcode))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientPollState) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16774,42 +17629,41 @@ func (m *CMsgGCCStrike15V2_ClientPollState) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_ClientPollState) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientPollState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Pollid))
-	if len(m.Names) > 0 {
-		for _, s := range m.Names {
-			dAtA[i] = 0x12
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
-		}
-	}
 	if len(m.Values) > 0 {
-		for _, num := range m.Values {
+		for iNdEx := len(m.Values) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Values[iNdEx]))
+			i--
 			dAtA[i] = 0x18
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
 		}
 	}
-	return i, nil
+	if len(m.Names) > 0 {
+		for iNdEx := len(m.Names) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Names[iNdEx])
+			copy(dAtA[i:], m.Names[iNdEx])
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Names[iNdEx])))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Pollid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Party_Register) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16817,44 +17671,49 @@ func (m *CMsgGCCStrike15V2_Party_Register) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_Party_Register) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Party_Register) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Id))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ver))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Apr))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ark))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Nby))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Grp))
-	dAtA[i] = 0x38
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Slots))
-	dAtA[i] = 0x40
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Launcher))
-	dAtA[i] = 0x48
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
-	return i, nil
+	i--
+	dAtA[i] = 0x48
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Launcher))
+	i--
+	dAtA[i] = 0x40
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Slots))
+	i--
+	dAtA[i] = 0x38
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Grp))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Nby))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ark))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Apr))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ver))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Id))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Party_Search) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16862,39 +17721,44 @@ func (m *CMsgGCCStrike15V2_Party_Search) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_Party_Search) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Party_Search) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ver))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Apr))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ark))
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Launcher))
+	i--
+	dAtA[i] = 0x28
 	if len(m.Grps) > 0 {
-		for _, num := range m.Grps {
+		for iNdEx := len(m.Grps) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Grps[iNdEx]))
+			i--
 			dAtA[i] = 0x20
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(num))
 		}
 	}
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Launcher))
-	dAtA[i] = 0x30
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
-	return i, nil
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ark))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Apr))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ver))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Party_SearchResults) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16902,29 +17766,36 @@ func (m *CMsgGCCStrike15V2_Party_SearchResults) Marshal() (dAtA []byte, err erro
 }
 
 func (m *CMsgGCCStrike15V2_Party_SearchResults) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Party_SearchResults) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Entries) > 0 {
-		for _, msg := range m.Entries {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Entries) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Entries[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Party_SearchResults_Entry) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16932,35 +17803,40 @@ func (m *CMsgGCCStrike15V2_Party_SearchResults_Entry) Marshal() (dAtA []byte, er
 }
 
 func (m *CMsgGCCStrike15V2_Party_SearchResults_Entry) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Party_SearchResults_Entry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Id))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Grp))
-	dAtA[i] = 0x18
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
-	dAtA[i] = 0x20
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Apr))
-	dAtA[i] = 0x28
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ark))
-	dAtA[i] = 0x30
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Loc))
-	return i, nil
+	i--
+	dAtA[i] = 0x30
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Ark))
+	i--
+	dAtA[i] = 0x28
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Apr))
+	i--
+	dAtA[i] = 0x20
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.GameType))
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Grp))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Id))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Party_Invite) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16968,23 +17844,28 @@ func (m *CMsgGCCStrike15V2_Party_Invite) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCCStrike15V2_Party_Invite) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Party_Invite) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Lobbyid))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Account_RequestCoPlays) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -16992,32 +17873,39 @@ func (m *CMsgGCCStrike15V2_Account_RequestCoPlays) Marshal() (dAtA []byte, err e
 }
 
 func (m *CMsgGCCStrike15V2_Account_RequestCoPlays) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Account_RequestCoPlays) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Servertime))
+	i--
+	dAtA[i] = 0x10
 	if len(m.Players) > 0 {
-		for _, msg := range m.Players {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Players) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Players[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Servertime))
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_Account_RequestCoPlays_Player) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17025,31 +17913,36 @@ func (m *CMsgGCCStrike15V2_Account_RequestCoPlays_Player) Marshal() (dAtA []byte
 }
 
 func (m *CMsgGCCStrike15V2_Account_RequestCoPlays_Player) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_Account_RequestCoPlays_Player) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rtcoplay))
-	dAtA[i] = 0x18
-	i++
+	i--
 	if m.Online {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Rtcoplay))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientToGCRequestTicket) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17057,33 +17950,39 @@ func (m *CMsgGCCStrike15V2_ClientToGCRequestTicket) Marshal() (dAtA []byte, err 
 }
 
 func (m *CMsgGCCStrike15V2_ClientToGCRequestTicket) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientToGCRequestTicket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x9
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.AuthorizedSteamId))
-	i += 8
-	dAtA[i] = 0x15
-	i++
-	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.AuthorizedPublicIp))
-	i += 4
-	dAtA[i] = 0x19
-	i++
-	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.GameserverSteamId))
-	i += 8
-	dAtA[i] = 0x2a
-	i++
+	i -= len(m.GameserverSdrRouting)
+	copy(dAtA[i:], m.GameserverSdrRouting)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.GameserverSdrRouting)))
-	i += copy(dAtA[i:], m.GameserverSdrRouting)
-	return i, nil
+	i--
+	dAtA[i] = 0x2a
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.GameserverSteamId))
+	i--
+	dAtA[i] = 0x19
+	i -= 4
+	encoding_binary.LittleEndian.PutUint32(dAtA[i:], uint32(m.AuthorizedPublicIp))
+	i--
+	dAtA[i] = 0x15
+	i -= 8
+	encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(m.AuthorizedSteamId))
+	i--
+	dAtA[i] = 0x9
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCToClientSteamDatagramTicket) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17091,25 +17990,31 @@ func (m *CMsgGCToClientSteamDatagramTicket) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CMsgGCToClientSteamDatagramTicket) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCToClientSteamDatagramTicket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.SerializedTicket != nil {
-		dAtA[i] = 0x82
-		i++
-		dAtA[i] = 0x1
-		i++
+		i -= len(m.SerializedTicket)
+		copy(dAtA[i:], m.SerializedTicket)
 		i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.SerializedTicket)))
-		i += copy(dAtA[i:], m.SerializedTicket)
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x82
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestOffers) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17117,17 +18022,22 @@ func (m *CMsgGCCStrike15V2_ClientRequestOffers) Marshal() (dAtA []byte, err erro
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestOffers) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientRequestOffers) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestSouvenir) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17135,26 +18045,31 @@ func (m *CMsgGCCStrike15V2_ClientRequestSouvenir) Marshal() (dAtA []byte, err er
 }
 
 func (m *CMsgGCCStrike15V2_ClientRequestSouvenir) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientRequestSouvenir) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Itemid))
-	dAtA[i] = 0x10
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchid))
-	dAtA[i] = 0x18
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Eventid))
-	return i, nil
+	i--
+	dAtA[i] = 0x18
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Matchid))
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Itemid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientAccountBalance) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17162,24 +18077,30 @@ func (m *CMsgGCCStrike15V2_ClientAccountBalance) Marshal() (dAtA []byte, err err
 }
 
 func (m *CMsgGCCStrike15V2_ClientAccountBalance) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientAccountBalance) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Amount))
-	dAtA[i] = 0x12
-	i++
+	i -= len(m.Url)
+	copy(dAtA[i:], m.Url)
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.Url)))
-	i += copy(dAtA[i:], m.Url)
-	return i, nil
+	i--
+	dAtA[i] = 0x12
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Amount))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientPartyJoinRelay) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17187,23 +18108,28 @@ func (m *CMsgGCCStrike15V2_ClientPartyJoinRelay) Marshal() (dAtA []byte, err err
 }
 
 func (m *CMsgGCCStrike15V2_ClientPartyJoinRelay) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientPartyJoinRelay) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Lobbyid))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientPartyWarning) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17211,29 +18137,36 @@ func (m *CMsgGCCStrike15V2_ClientPartyWarning) Marshal() (dAtA []byte, err error
 }
 
 func (m *CMsgGCCStrike15V2_ClientPartyWarning) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientPartyWarning) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Entries) > 0 {
-		for _, msg := range m.Entries {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Entries) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Entries[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_ClientPartyWarning_Entry) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17241,23 +18174,28 @@ func (m *CMsgGCCStrike15V2_ClientPartyWarning_Entry) Marshal() (dAtA []byte, err
 }
 
 func (m *CMsgGCCStrike15V2_ClientPartyWarning_Entry) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_ClientPartyWarning_Entry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
-	dAtA[i] = 0x10
-	i++
 	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Warntype))
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Accountid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_SetEventFavorite) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17265,28 +18203,33 @@ func (m *CMsgGCCStrike15V2_SetEventFavorite) Marshal() (dAtA []byte, err error) 
 }
 
 func (m *CMsgGCCStrike15V2_SetEventFavorite) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_SetEventFavorite) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Eventid))
-	dAtA[i] = 0x10
-	i++
+	i--
 	if m.IsFavorite {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x10
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(m.Eventid))
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_GetEventFavorites_Request) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17294,25 +18237,30 @@ func (m *CMsgGCCStrike15V2_GetEventFavorites_Request) Marshal() (dAtA []byte, er
 }
 
 func (m *CMsgGCCStrike15V2_GetEventFavorites_Request) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_GetEventFavorites_Request) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
+	i--
 	if m.AllEvents {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func (m *CMsgGCCStrike15V2_GetEventFavorites_Response) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -17320,37 +18268,46 @@ func (m *CMsgGCCStrike15V2_GetEventFavorites_Response) Marshal() (dAtA []byte, e
 }
 
 func (m *CMsgGCCStrike15V2_GetEventFavorites_Response) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CMsgGCCStrike15V2_GetEventFavorites_Response) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0x8
-	i++
+	i -= len(m.JsonFeatured)
+	copy(dAtA[i:], m.JsonFeatured)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.JsonFeatured)))
+	i--
+	dAtA[i] = 0x1a
+	i -= len(m.JsonFavorites)
+	copy(dAtA[i:], m.JsonFavorites)
+	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.JsonFavorites)))
+	i--
+	dAtA[i] = 0x12
+	i--
 	if m.AllEvents {
 		dAtA[i] = 1
 	} else {
 		dAtA[i] = 0
 	}
-	i++
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.JsonFavorites)))
-	i += copy(dAtA[i:], m.JsonFavorites)
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintCstrike15Gcmessages(dAtA, i, uint64(len(m.JsonFeatured)))
-	i += copy(dAtA[i:], m.JsonFeatured)
-	return i, nil
+	i--
+	dAtA[i] = 0x8
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintCstrike15Gcmessages(dAtA []byte, offset int, v uint64) int {
+	offset -= sovCstrike15Gcmessages(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func (m *GameServerPing) Size() (n int) {
 	if m == nil {
@@ -44195,6 +45152,7 @@ func (m *CMsgGCCStrike15V2_GetEventFavorites_Response) Unmarshal(dAtA []byte) er
 func skipCstrike15Gcmessages(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
+	depth := 0
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
@@ -44226,10 +45184,8 @@ func skipCstrike15Gcmessages(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			return iNdEx, nil
 		case 1:
 			iNdEx += 8
-			return iNdEx, nil
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
@@ -44250,55 +45206,30 @@ func skipCstrike15Gcmessages(dAtA []byte) (n int, err error) {
 				return 0, ErrInvalidLengthCstrike15Gcmessages
 			}
 			iNdEx += length
-			if iNdEx < 0 {
-				return 0, ErrInvalidLengthCstrike15Gcmessages
-			}
-			return iNdEx, nil
 		case 3:
-			for {
-				var innerWire uint64
-				var start int = iNdEx
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return 0, ErrIntOverflowCstrike15Gcmessages
-					}
-					if iNdEx >= l {
-						return 0, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					innerWire |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				innerWireType := int(innerWire & 0x7)
-				if innerWireType == 4 {
-					break
-				}
-				next, err := skipCstrike15Gcmessages(dAtA[start:])
-				if err != nil {
-					return 0, err
-				}
-				iNdEx = start + next
-				if iNdEx < 0 {
-					return 0, ErrInvalidLengthCstrike15Gcmessages
-				}
-			}
-			return iNdEx, nil
+			depth++
 		case 4:
-			return iNdEx, nil
+			if depth == 0 {
+				return 0, ErrUnexpectedEndOfGroupCstrike15Gcmessages
+			}
+			depth--
 		case 5:
 			iNdEx += 4
-			return iNdEx, nil
 		default:
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
+		if iNdEx < 0 {
+			return 0, ErrInvalidLengthCstrike15Gcmessages
+		}
+		if depth == 0 {
+			return iNdEx, nil
+		}
 	}
-	panic("unreachable")
+	return 0, io.ErrUnexpectedEOF
 }
 
 var (
-	ErrInvalidLengthCstrike15Gcmessages = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowCstrike15Gcmessages   = fmt.Errorf("proto: integer overflow")
+	ErrInvalidLengthCstrike15Gcmessages        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowCstrike15Gcmessages          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupCstrike15Gcmessages = fmt.Errorf("proto: unexpected end of group")
 )
