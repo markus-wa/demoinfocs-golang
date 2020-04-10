@@ -46,7 +46,7 @@ func main() {
 	var points []r2.Point
 	p.RegisterEventHandler(func(e events.WeaponFire) {
 		// Translate positions from in-game coordinates to radar overview image pixels
-		x, y := mapMetadata.TranslateScale(e.Shooter.Position.X, e.Shooter.Position.Y)
+		x, y := mapMetadata.TranslateScale(e.Shooter.Position().X, e.Shooter.Position().Y)
 
 		points = append(points, r2.Point{X: x, Y: y})
 	})

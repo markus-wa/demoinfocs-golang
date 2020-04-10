@@ -117,7 +117,7 @@ func (p *Parser) bindBomb() {
 
 func (p *Parser) bindTeamStates() {
 	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity *st.Entity) {
-		team := entity.FindProperty("m_szTeamname").Value().StringVal
+		team := entity.PropertyValueMust("m_szTeamname").StringVal
 
 		var s *common.TeamState
 
@@ -136,14 +136,13 @@ func (p *Parser) bindTeamStates() {
 		}
 
 		if s != nil {
-			// Register updates
-			entity.BindProperty("m_iTeamNum", &s.ID, st.ValTypeInt)
-			entity.BindProperty("m_szClanTeamname", &s.ClanName, st.ValTypeString)
-			entity.BindProperty("m_szTeamFlagImage", &s.Flag, st.ValTypeString)
+			s.Entity = entity
 
+			// Register updates
+			var score int
 			entity.FindProperty("m_scoreTotal").OnUpdate(func(val st.PropertyValue) {
-				oldScore := s.Score
-				s.Score = val.IntVal
+				oldScore := score
+				score = val.IntVal
 
 				p.eventDispatcher.Dispatch(events.ScoreUpdated{
 					OldScore:  oldScore,
@@ -187,9 +186,9 @@ func (p *Parser) bindPlayers() {
 			plInfo.BindProperty("m_iDeaths."+iStr, &p.additionalPlayerInfo[i2].Deaths, st.ValTypeInt)
 			plInfo.BindProperty("m_iAssists."+iStr, &p.additionalPlayerInfo[i2].Assists, st.ValTypeInt)
 			plInfo.BindProperty("m_iMVPs."+iStr, &p.additionalPlayerInfo[i2].MVPs, st.ValTypeInt)
-			plInfo.BindProperty("m_iTotalCashSpent."+iStr, &p.additionalPlayerInfo[i2].CashSpentTotal, st.ValTypeInt)
+			plInfo.BindProperty("m_iTotalCashSpent."+iStr, &p.additionalPlayerInfo[i2].MoneySpentTotal, st.ValTypeInt)
 			if prop := plInfo.FindProperty("m_iCashSpentThisRound." + iStr); prop != nil {
-				prop.Bind(&p.additionalPlayerInfo[i2].CashSpentThisRound, st.ValTypeInt)
+				prop.Bind(&p.additionalPlayerInfo[i2].MoneySpentThisRound, st.ValTypeInt)
 			}
 		}
 	})
@@ -249,7 +248,6 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 
 	// Position
 	playerEntity.OnPositionUpdate(func(pos r3.Vector) {
-		pl.Position = pos
 		if pl.IsAlive() {
 			pl.LastAlivePosition = pos
 		}
@@ -257,43 +255,25 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 
 	// General info
 	playerEntity.FindProperty("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
-		pl.Team = common.Team(val.IntVal) // Need to cast to team so we can't use BindProperty
+		pl.Team = common.Team(val.IntVal)
 		pl.TeamState = p.gameState.Team(pl.Team)
 	})
-	playerEntity.BindProperty("m_iHealth", &pl.Hp, st.ValTypeInt)
-	playerEntity.BindProperty("m_ArmorValue", &pl.Armor, st.ValTypeInt)
-	playerEntity.BindProperty("m_bHasDefuser", &pl.HasDefuseKit, st.ValTypeBoolInt)
-	playerEntity.BindProperty("m_bHasHelmet", &pl.HasHelmet, st.ValTypeBoolInt)
-	playerEntity.BindProperty("localdata.m_Local.m_bDucking", &pl.IsDucking, st.ValTypeBoolInt)
-	playerEntity.BindProperty("m_iAccount", &pl.Money, st.ValTypeInt)
 
-	playerEntity.BindProperty("m_angEyeAngles[1]", &pl.ViewDirectionX, st.ValTypeFloat32)
-	playerEntity.BindProperty("m_angEyeAngles[0]", &pl.ViewDirectionY, st.ValTypeFloat32)
 	playerEntity.FindProperty("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
 		if val.FloatVal == 0 {
 			pl.FlashTick = 0
 		} else {
 			pl.FlashTick = p.gameState.ingameTick
 		}
+
 		pl.FlashDuration = val.FloatVal
 	})
-
-	// Velocity
-	playerEntity.BindProperty("localdata.m_vecVelocity[0]", &pl.Velocity.X, st.ValTypeFloat64)
-	playerEntity.BindProperty("localdata.m_vecVelocity[1]", &pl.Velocity.Y, st.ValTypeFloat64)
-	playerEntity.BindProperty("localdata.m_vecVelocity[2]", &pl.Velocity.Z, st.ValTypeFloat64)
-
-	// Eq value
-	playerEntity.BindProperty("m_unCurrentEquipmentValue", &pl.CurrentEquipmentValue, st.ValTypeInt)
-	playerEntity.BindProperty("m_unRoundStartEquipmentValue", &pl.RoundStartEquipmentValue, st.ValTypeInt)
-	playerEntity.BindProperty("m_unFreezetimeEndEquipmentValue", &pl.FreezetimeEndEquipmentValue, st.ValTypeInt)
 
 	p.bindPlayerWeapons(playerEntity, pl)
 
 	// Active weapon
 	playerEntity.FindProperty("m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
 		pl.IsReloading = false
-		pl.ActiveWeaponID = val.IntVal & entityHandleIndexMask
 	})
 
 	for i := 0; i < 32; i++ {
@@ -306,6 +286,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 			p.eventDispatcher.Dispatch(events.BombDefuseAborted{Player: pl})
 			p.gameState.currentDefuser = nil
 		}
+
 		pl.IsDefusing = val.IntVal != 0
 	})
 
@@ -314,6 +295,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 		spottersChanged := func(val st.PropertyValue) {
 			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
 		}
+
 		spottedByMaskProp.OnUpdate(spottersChanged)
 		playerEntity.FindProperty("m_bSpottedByMask.001").OnUpdate(spottersChanged)
 	}

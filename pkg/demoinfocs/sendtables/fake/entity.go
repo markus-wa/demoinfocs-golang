@@ -8,6 +8,19 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
+func NewEntityWithProperty(name string, val st.PropertyValue) *Entity {
+	entity := new(Entity)
+
+	prop := new(Property)
+	prop.On("Value").Return(val)
+	entity.On("FindProperty", name).Return(prop)
+
+	entity.On("PropertyValue").Return(val, true)
+	entity.On("PropertyValueMust").Return(val)
+
+	return entity
+}
+
 var _ st.IEntity = new(Entity)
 
 // Entity is a mock for of sendtables.IEntity.

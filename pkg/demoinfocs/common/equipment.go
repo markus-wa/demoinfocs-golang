@@ -328,13 +328,17 @@ func (e Equipment) AmmoInMagazine() int {
 
 // AmmoType returns the weapon's ammo type, mostly (only?) relevant for grenades.
 func (e Equipment) AmmoType() int {
-	return e.Entity.PropertyValueMust("LocalWeaponData.m_iPrimaryAmmoType").IntVal
+	return getInt(e.Entity, "LocalWeaponData.m_iPrimaryAmmoType")
 }
 
 // ZoomLevel returns how far the player has zoomed in on the weapon.
 // Only weapons with scopes have a valid zoom level.
 func (e Equipment) ZoomLevel() ZoomLevel {
-	val, _ := e.Entity.PropertyValue("LocalWeaponData.m_iPrimaryAmmoType")
+	if e.Entity == nil {
+		return 0
+	}
+
+	val, _ := e.Entity.PropertyValue("m_zoomLevel")
 	return ZoomLevel(val.IntVal)
 }
 

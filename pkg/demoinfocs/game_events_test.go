@@ -9,14 +9,16 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
 )
 
 // See #90
 func TestRoundEnd_LoserState_Score(t *testing.T) {
 	p := NewParser(rand.Reader)
 
-	p.gameState.tState.Score = 1
-	p.gameState.ctState.Score = 2
+	p.gameState.tState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{IntVal: 1})
+	p.gameState.ctState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{IntVal: 2})
 	eventOccurred := 0
 
 	p.RegisterEventHandler(func(e events.RoundEnd) {

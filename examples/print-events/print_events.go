@@ -13,8 +13,9 @@ import (
 // Run like this: go run print_events.go -demo /path/to/demo.dem
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
-	defer f.Close()
 	checkError(err)
+
+	defer f.Close()
 
 	p := demoinfocs.NewParser(f)
 
@@ -42,9 +43,9 @@ func main() {
 		switch e.Winner {
 		case common.TeamTerrorists:
 			// Winner's score + 1 because it hasn't actually been updated yet
-			fmt.Printf("Round finished: winnerSide=T  ; score=%d:%d\n", gs.TeamTerrorists().Score+1, gs.TeamCounterTerrorists().Score)
+			fmt.Printf("Round finished: winnerSide=T  ; score=%d:%d\n", gs.TeamTerrorists().Score()+1, gs.TeamCounterTerrorists().Score())
 		case common.TeamCounterTerrorists:
-			fmt.Printf("Round finished: winnerSide=CT ; score=%d:%d\n", gs.TeamCounterTerrorists().Score+1, gs.TeamTerrorists().Score)
+			fmt.Printf("Round finished: winnerSide=CT ; score=%d:%d\n", gs.TeamCounterTerrorists().Score()+1, gs.TeamTerrorists().Score())
 		default:
 			// Probably match medic or something similar
 			fmt.Println("Round finished: No winner (tie)")

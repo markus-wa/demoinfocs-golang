@@ -7,7 +7,7 @@ import (
 
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
-	fake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
+	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
 )
 
 func TestNewGameState(t *testing.T) {
@@ -212,15 +212,15 @@ func TestParticipants_SpottersOf(t *testing.T) {
 	nonSpotter.EntityID = 5
 
 	spotted := newPlayer()
-	entity := new(fake.Entity)
-	prop0 := new(fake.Property)
+	entity := new(stfake.Entity)
+	entity.On("ID").Return(3)
+	prop0 := new(stfake.Property)
 	prop0.On("Value").Return(st.PropertyValue{IntVal: 1})
 	entity.On("FindProperty", "m_bSpottedByMask.000").Return(prop0)
-	prop1 := new(fake.Property)
+	prop1 := new(stfake.Property)
 	prop1.On("Value").Return(st.PropertyValue{IntVal: 1 << 2})
 	entity.On("FindProperty", "m_bSpottedByMask.001").Return(prop1)
 	spotted.Entity = entity
-	spotted.EntityID = 3
 
 	ptcps := Participants{
 		playersByUserID: map[int]*common.Player{
@@ -238,28 +238,34 @@ func TestParticipants_SpottersOf(t *testing.T) {
 
 func TestParticipants_SpottedBy(t *testing.T) {
 	spotted1 := newPlayer()
-	spotted1.EntityID = 1
+	spotted1.EntityID = 2
 	spotted2 := newPlayer()
 	spotted2.EntityID = 35
 
-	entity := new(fake.Entity)
-	prop0 := new(fake.Property)
+	prop0 := new(stfake.Property)
 	prop0.On("Value").Return(st.PropertyValue{IntVal: 1})
-	entity.On("FindProperty", "m_bSpottedByMask.000").Return(prop0)
-	spotted1.Entity = entity
-	spotted2.Entity = entity
+	spotted1Entity := new(stfake.Entity)
+	spotted1Entity.On("FindProperty", "m_bSpottedByMask.000").Return(prop0)
+	spotted1.Entity = spotted1Entity
+	spotted2Entity := new(stfake.Entity)
+	spotted2Entity.On("ID").Return(35)
+	spotted2Entity.On("FindProperty", "m_bSpottedByMask.000").Return(prop0)
+	spotted2.Entity = spotted2Entity
 
 	unSpotted := newPlayer()
 	unSpotted.EntityID = 5
 	spotter := newPlayer()
 	spotter.EntityID = 1
 
-	unSpottedEntity := new(fake.Entity)
-	unSpottedProp := new(fake.Property)
+	unSpottedProp := new(stfake.Property)
 	unSpottedProp.On("Value").Return(st.PropertyValue{IntVal: 0})
+	unSpottedEntity := new(stfake.Entity)
 	unSpottedEntity.On("FindProperty", "m_bSpottedByMask.000").Return(unSpottedProp)
 	unSpotted.Entity = unSpottedEntity
-	spotter.Entity = unSpottedEntity
+
+	spotterEntity := new(stfake.Entity)
+	spotterEntity.On("FindProperty", "m_bSpottedByMask.000").Return(unSpottedProp)
+	spotter.Entity = spotterEntity
 
 	ptcps := Participants{
 		playersByUserID: map[int]*common.Player{
@@ -276,8 +282,13 @@ func TestParticipants_SpottedBy(t *testing.T) {
 }
 
 func newPlayer() *common.Player {
+	pl := newPlayerWithEntityID(1)
+	return pl
+}
+
+func newPlayerWithEntityID(id int) *common.Player {
 	pl := common.NewPlayer(nil)
-	pl.Entity = new(st.Entity)
+	pl.Entity = fakePlayerEntity(id)
 	pl.IsConnected = true
 
 	return pl

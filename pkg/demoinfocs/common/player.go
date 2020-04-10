@@ -10,6 +10,7 @@ import (
 
 const (
 	maxEdictBits                 = 11
+	entityHandleIndexMask        = (1 << maxEdictBits) - 1
 	entityHandleSerialNumberBits = 10
 	entityHandleBits             = maxEdictBits + entityHandleSerialNumberBits
 	invalidEntityHandle          = (1 << entityHandleBits) - 1
@@ -19,39 +20,25 @@ const (
 type Player struct {
 	demoInfoProvider demoInfoProvider // provider for demo info such as tick-rate or current tick
 
-	SteamID                     int64     // int64 representation of the User's Steam ID
-	Position                    r3.Vector // In-game coordinates. Like the one you get from cl_showpos 1
-	LastAlivePosition           r3.Vector // The location where the player was last alive. Should be equal to Position if the player is still alive.
-	Velocity                    r3.Vector // Movement velocity
-	EntityID                    int       // The ID of the player-entity, see Entity field
-	UserID                      int       // Mostly used in game-events to address this player
-	Name                        string    // Steam / in-game user name
-	Hp                          int
-	Armor                       int
-	Money                       int
-	CurrentEquipmentValue       int
-	FreezetimeEndEquipmentValue int
-	RoundStartEquipmentValue    int
-	ActiveWeaponID              int                          // Used internally to set the active weapon, see ActiveWeapon()
-	Inventory                   map[int]*Equipment           // All weapons / equipment the player is currently carrying
-	AmmoLeft                    [32]int                      // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
-	Entity                      st.IEntity                   // May be nil between player-death and re-spawn
-	AdditionalInformation       *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
-	ViewDirectionX              float32                      // Yaw in degrees, 0 to 360
-	ViewDirectionY              float32                      // Pitch in degrees, 270 to 90 (270=-90)
-	FlashDuration               float32                      // Blindness duration from the flashbang currently affecting the player (seconds)
-	FlashTick                   int                          // In-game tick at which the player was last flashed
-	TeamState                   *TeamState                   // When keeping the reference make sure you notice when the player changes teams
-	Team                        Team
-	IsBot                       bool // True if this is a bot-entity. See also IsControllingBot and ControlledBot().
-	IsConnected                 bool
-	IsDucking                   bool
-	IsDefusing                  bool
-	IsPlanting                  bool
-	IsReloading                 bool
-	IsUnknown                   bool // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
-	HasDefuseKit                bool
-	HasHelmet                   bool
+	SteamID               int64                        // int64 representation of the User's Steam ID
+	LastAlivePosition     r3.Vector                    // The location where the player was last alive. Should be equal to Position if the player is still alive.
+	UserID                int                          // Mostly used in game-events to address this player
+	Name                  string                       // Steam / in-game user name
+	Inventory             map[int]*Equipment           // All weapons / equipment the player is currently carrying
+	AmmoLeft              [32]int                      // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
+	EntityID              int                          // Usually the same as Entity.ID() but may be different between player death and re-spawn.
+	Entity                st.IEntity                   // May be nil between player-death and re-spawn
+	AdditionalInformation *AdditionalPlayerInformation // Mostly scoreboard information such as kills, deaths, etc.
+	FlashDuration         float32                      // Blindness duration from the flashbang currently affecting the player (seconds)
+	FlashTick             int                          // In-game tick at which the player was last flashed
+	TeamState             *TeamState                   // When keeping the reference make sure you notice when the player changes teams
+	Team                  Team                         // Team identifier for the player (e.g. TeamTerrorists or TeamCounterTerrorists).
+	IsBot                 bool                         // True if this is a bot-entity. See also IsControllingBot and ControlledBot().
+	IsConnected           bool
+	IsDefusing            bool
+	IsPlanting            bool
+	IsReloading           bool
+	IsUnknown             bool // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 }
 
 // String returns the player's name.
@@ -66,7 +53,7 @@ func (p *Player) String() string {
 
 // IsAlive returns true if the Hp of the player are > 0.
 func (p *Player) IsAlive() bool {
-	return p.Hp > 0
+	return p.Health() > 0
 }
 
 // IsBlinded returns true if the player is currently flashed.
@@ -136,7 +123,7 @@ This isn't very conclusive but it looks like IsFlashed isn't super reliable curr
 
 // ActiveWeapon returns the currently active / equipped weapon of the player.
 func (p *Player) ActiveWeapon() *Equipment {
-	return p.Inventory[p.ActiveWeaponID]
+	return p.Inventory[p.activeWeaponID()]
 }
 
 // Weapons returns all weapons in the player's possession.
@@ -145,6 +132,7 @@ func (p *Player) Weapons() []*Equipment {
 	for _, w := range p.Inventory {
 		res = append(res, w)
 	}
+
 	return res
 }
 
@@ -176,32 +164,43 @@ func (p *Player) HasSpotted(other *Player) bool {
 
 // IsInBombZone returns whether the player is currently in the bomb zone or not.
 func (p *Player) IsInBombZone() bool {
-	return p.Entity.FindProperty("m_bInBombZone").Value().IntVal == 1
+	return getBool(p.Entity, "m_bInBombZone")
 }
 
 // IsInBuyZone returns whether the player is currently in the buy zone or not.
 func (p *Player) IsInBuyZone() bool {
-	return p.Entity.FindProperty("m_bInBuyZone").Value().IntVal == 1
+	return getBool(p.Entity, "m_bInBuyZone")
 }
 
 // IsWalking returns whether the player is currently walking (sneaking) in or not.
 func (p *Player) IsWalking() bool {
-	return p.Entity.FindProperty("m_bIsWalking").Value().IntVal == 1
+	return getBool(p.Entity, "m_bIsWalking")
 }
 
 // IsScoped returns whether the player is currently scoped in or not.
 func (p *Player) IsScoped() bool {
-	return p.Entity.FindProperty("m_bIsScoped").Value().IntVal == 1
+	return getBool(p.Entity, "m_bIsScoped")
+}
+
+// IsDucking returns true if the player is currently crouching.
+func (p *Player) IsDucking() bool {
+	return getBool(p.Entity, "localdata.m_Local.m_bDucking")
+}
+
+// HasDefuseKit returns true if the player currently has a defuse kit in his inventory.
+func (p *Player) HasDefuseKit() bool {
+	return getBool(p.Entity, "m_bHasDefuser")
+}
+
+// HasHelmet returns true if the player is currently wearing head armor.
+func (p *Player) HasHelmet() bool {
+	return getBool(p.Entity, "m_bHasHelmet")
 }
 
 // IsControllingBot returns true if the player is currently controlling a bot.
 // See also ControlledBot().
 func (p *Player) IsControllingBot() bool {
-	if p.Entity == nil {
-		return false
-	}
-
-	return p.Entity.FindProperty("m_bIsControllingBot").Value().IntVal != 0
+	return getBool(p.Entity, "m_bIsControllingBot")
 }
 
 // ControlledBot returns the player instance of the bot that the player is controlling, if any.
@@ -216,17 +215,87 @@ func (p *Player) ControlledBot() *Player {
 	return p.demoInfoProvider.FindPlayerByHandle(botHandle)
 }
 
+// Health returns the player's health points, normally 0-100.
+func (p *Player) Health() int {
+	return getInt(p.Entity, "m_iHealth")
+}
+
+// Armor returns the player's armor points, normally 0-100.
+func (p *Player) Armor() int {
+	return getInt(p.Entity, "m_ArmorValue")
+}
+
+// Money returns the amount of money in the player's bank.
+func (p *Player) Money() int {
+	return getInt(p.Entity, "m_iAccount")
+}
+
+// EquipmentValueCurrent returns the current value of equipment in the player's inventory.
+func (p *Player) EquipmentValueCurrent() int {
+	return getInt(p.Entity, "m_unCurrentEquipmentValue")
+}
+
+// EquipmentValueRoundStart returns the value of equipment in the player's inventory at the time of the round start.
+// This is before the player has bought any new items in the freeze time.
+// See also Player.EquipmentValueFreezetimeEnd().
+func (p *Player) EquipmentValueRoundStart() int {
+	return getInt(p.Entity, "m_unRoundStartEquipmentValue")
+}
+
+// EquipmentValueFreezeTimeEnd returns the value of equipment in the player's inventory at the end of the freeze time.
+func (p *Player) EquipmentValueFreezeTimeEnd() int {
+	return getInt(p.Entity, "m_unFreezetimeEndEquipmentValue")
+}
+
+// ViewDirectionX returns the Yaw value in degrees, 0 to 360.
+func (p *Player) ViewDirectionX() float32 {
+	return getFloat(p.Entity, "m_angEyeAngles[1]")
+}
+
+// ViewDirectionY returns the Pitch value in degrees, -90 to 90 (-90=270).
+func (p *Player) ViewDirectionY() float32 {
+	return getFloat(p.Entity, "m_angEyeAngles[0]")
+}
+
+// Position returns the in-game coordinates.
+//Like the ones you get from cl_showpos 1.
+func (p *Player) Position() r3.Vector {
+	if p.Entity == nil {
+		return r3.Vector{}
+	}
+
+	return p.Entity.Position()
+}
+
+// Velocity returns the player's velocity.
+func (p *Player) Velocity() r3.Vector {
+	if p.Entity == nil {
+		return r3.Vector{}
+	}
+
+	return r3.Vector{
+		X: p.Entity.PropertyValueMust("localdata.m_vecVelocity[0]").Float64Val(),
+		Y: p.Entity.PropertyValueMust("localdata.m_vecVelocity[1]").Float64Val(),
+		Z: p.Entity.PropertyValueMust("localdata.m_vecVelocity[2]").Float64Val(),
+	}
+}
+
+// Used internally to set the active weapon, see ActiveWeapon()
+func (p *Player) activeWeaponID() int {
+	return getInt(p.Entity, "m_hActiveWeapon") & entityHandleIndexMask
+}
+
 // AdditionalPlayerInformation contains mostly scoreboard information.
 type AdditionalPlayerInformation struct {
-	Kills              int
-	Deaths             int
-	Assists            int
-	Score              int
-	MVPs               int
-	Ping               int
-	ClanTag            string
-	CashSpentTotal     int
-	CashSpentThisRound int
+	Kills               int
+	Deaths              int
+	Assists             int
+	Score               int
+	MVPs                int
+	Ping                int
+	ClanTag             string
+	MoneySpentTotal     int
+	MoneySpentThisRound int
 }
 
 type demoInfoProvider interface {

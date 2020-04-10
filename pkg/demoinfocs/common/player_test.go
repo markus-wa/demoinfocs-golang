@@ -18,7 +18,7 @@ func TestPlayerActiveWeapon(t *testing.T) {
 	pl.Inventory[1] = knife
 	pl.Inventory[2] = glock
 	pl.Inventory[3] = ak47
-	pl.ActiveWeaponID = 3
+	pl.Entity = entityWithProperty("m_hActiveWeapon", st.PropertyValue{IntVal: 3})
 
 	assert.Equal(t, ak47, pl.ActiveWeapon(), "Should have AK-47 equipped")
 }
@@ -40,16 +40,16 @@ func TestPlayerWeapons(t *testing.T) {
 func TestPlayerAlive(t *testing.T) {
 	pl := newPlayer(0)
 
-	pl.Hp = 100
+	pl.Entity = entityWithProperty("m_iHealth", st.PropertyValue{IntVal: 100})
 	assert.Equal(t, true, pl.IsAlive(), "Should be alive")
 
-	pl.Hp = 1
+	pl.Entity = entityWithProperty("m_iHealth", st.PropertyValue{IntVal: 1})
 	assert.Equal(t, true, pl.IsAlive(), "Should be alive")
 
-	pl.Hp = 0
+	pl.Entity = entityWithProperty("m_iHealth", st.PropertyValue{IntVal: 0})
 	assert.Equal(t, false, pl.IsAlive(), "Should be dead")
 
-	pl.Hp = -10
+	pl.Entity = entityWithProperty("m_iHealth", st.PropertyValue{IntVal: -10})
 	assert.Equal(t, false, pl.IsAlive(), "Should be dead")
 }
 

@@ -79,6 +79,16 @@ type PropertyValue struct {
 	FloatVal  float32
 }
 
+// BoolVal returns true if IntVal == 1.
+func (v PropertyValue) BoolVal() bool {
+	return v.IntVal > 0
+}
+
+// Float64Val returns FloatVal converted from float32 to float64.
+func (v PropertyValue) Float64Val() float64 {
+	return float64(v.FloatVal)
+}
+
 type propertyDecoder struct{}
 
 func (propertyDecoder) decodeProp(prop *Property, reader *bit.BitReader) {

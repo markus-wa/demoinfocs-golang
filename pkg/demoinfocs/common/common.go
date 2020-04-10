@@ -104,7 +104,7 @@ type Bomb struct {
 // or LastOnGroundPosition if it's dropped or planted.
 func (b Bomb) Position() r3.Vector {
 	if b.Carrier != nil {
-		return b.Carrier.Position
+		return b.Carrier.Position()
 	}
 
 	return b.LastOnGroundPosition
@@ -115,16 +115,7 @@ type TeamState struct {
 	team            Team
 	membersCallback func(Team) []*Player
 
-	// ID stays the same even after switching sides.
-	ID int
-
-	Score    int
-	ClanName string
-
-	// Flag, e.g. DE, FR, etc.
-	//
-	// Watch out, in some demos this is upper-case and in some lower-case.
-	Flag string
+	Entity st.IEntity
 
 	// Terrorist TeamState for CTs, CT TeamState for Terrorists
 	Opponent *TeamState
@@ -135,7 +126,29 @@ func (ts TeamState) Team() Team {
 	return ts.team
 }
 
-// Members returns the members of the team.
+// ID returns the team ID, this stays the same even after switching sides.
+func (ts TeamState) ID() int {
+	return getInt(ts.Entity, "m_iTeamNum")
+}
+
+// Score returns the current score of the team (usually 0-16 without overtime).
+func (ts TeamState) Score() int {
+	return getInt(ts.Entity, "m_scoreTotal")
+}
+
+// ClanName returns the team name (e.g. Fnatic).
+func (ts TeamState) ClanName() string {
+	return getString(ts.Entity, "m_szClanTeamname")
+}
+
+// Flag returns the flag code (e.g. DE, FR, etc.).
+//
+// Watch out, in some demos this is upper-case and in some lower-case.
+func (ts TeamState) Flag() string {
+	return getString(ts.Entity, "m_szTeamFlagImage")
+}
+
+// Members returns the players that are members of the team.
 func (ts TeamState) Members() []*Player {
 	return ts.membersCallback(ts.team)
 }
@@ -143,7 +156,7 @@ func (ts TeamState) Members() []*Player {
 // CurrentEquipmentValue returns the cumulative value of all equipment currently owned by the members of the team.
 func (ts TeamState) CurrentEquipmentValue() (value int) {
 	for _, pl := range ts.Members() {
-		value += pl.CurrentEquipmentValue
+		value += pl.EquipmentValueCurrent()
 	}
 
 	return
@@ -152,7 +165,7 @@ func (ts TeamState) CurrentEquipmentValue() (value int) {
 // RoundStartEquipmentValue returns the cumulative value of all equipment owned by the members of the team at the start of the current round.
 func (ts TeamState) RoundStartEquipmentValue() (value int) {
 	for _, pl := range ts.Members() {
-		value += pl.RoundStartEquipmentValue
+		value += pl.EquipmentValueRoundStart()
 	}
 
 	return
@@ -161,25 +174,25 @@ func (ts TeamState) RoundStartEquipmentValue() (value int) {
 // FreezeTimeEndEquipmentValue returns the cumulative value of all equipment owned by the members of the team at the end of the freeze-time of the current round.
 func (ts TeamState) FreezeTimeEndEquipmentValue() (value int) {
 	for _, pl := range ts.Members() {
-		value += pl.FreezetimeEndEquipmentValue
+		value += pl.EquipmentValueFreezeTimeEnd()
 	}
 
 	return
 }
 
-// CashSpentThisRound returns the total amount of cash spent by the whole team in the current round.
-func (ts TeamState) CashSpentThisRound() (value int) {
+// MoneySpentThisRound returns the total amount of cash spent by the whole team in the current round.
+func (ts TeamState) MoneySpentThisRound() (value int) {
 	for _, pl := range ts.Members() {
-		value += pl.AdditionalInformation.CashSpentThisRound
+		value += pl.AdditionalInformation.MoneySpentThisRound
 	}
 
 	return
 }
 
-// CashSpentThisRound returns the total amount of cash spent by the whole team during the whole game up to the current point.
-func (ts TeamState) CashSpentTotal() (value int) {
+// MoneySpentThisRound returns the total amount of cash spent by the whole team during the whole game up to the current point.
+func (ts TeamState) MoneySpentTotal() (value int) {
 	for _, pl := range ts.Members() {
-		value += pl.AdditionalInformation.CashSpentTotal
+		value += pl.AdditionalInformation.MoneySpentTotal
 	}
 
 	return

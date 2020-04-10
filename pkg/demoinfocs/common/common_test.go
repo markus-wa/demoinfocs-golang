@@ -20,7 +20,11 @@ func TestBombPosition(t *testing.T) {
 	assert.Equal(t, groundPos, bomb.Position(), "Bomb position should be LastOnGroundPosition")
 
 	playerPos := r3.Vector{X: 4, Y: 5, Z: 6}
-	bomb.Carrier = &Player{Position: playerPos}
+
+	plEntity := entityWithID(1)
+	plEntity.On("Position").Return(playerPos)
+
+	bomb.Carrier = &Player{Entity: plEntity}
 	assert.Equal(t, playerPos, bomb.Position(), "Bomb position should be Player.Position")
 }
 
@@ -59,45 +63,54 @@ func TestTeamState_Members(t *testing.T) {
 	assert.Equal(t, members, state.Members())
 }
 
-func TestTeamState_CurrentEquipmentValue(t *testing.T) {
-	members := []*Player{{CurrentEquipmentValue: 100}, {CurrentEquipmentValue: 200}}
+func TestTeamState_EquipmentValueCurrent(t *testing.T) {
+	members := []*Player{
+		playerWithProperty("m_unCurrentEquipmentValue", st.PropertyValue{IntVal: 100}),
+		playerWithProperty("m_unCurrentEquipmentValue", st.PropertyValue{IntVal: 200}),
+	}
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
 
 	assert.Equal(t, 300, state.CurrentEquipmentValue())
 }
 
-func TestTeamState_RoundStartEquipmentValue(t *testing.T) {
-	members := []*Player{{RoundStartEquipmentValue: 100}, {RoundStartEquipmentValue: 200}}
+func TestTeamState_EquipmentValueRoundStart(t *testing.T) {
+	members := []*Player{
+		playerWithProperty("m_unRoundStartEquipmentValue", st.PropertyValue{IntVal: 100}),
+		playerWithProperty("m_unRoundStartEquipmentValue", st.PropertyValue{IntVal: 200}),
+	}
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
 
 	assert.Equal(t, 300, state.RoundStartEquipmentValue())
 }
 
-func TestTeamState_FreezeTimeEndEquipmentValue(t *testing.T) {
-	members := []*Player{{FreezetimeEndEquipmentValue: 100}, {FreezetimeEndEquipmentValue: 200}}
+func TestTeamState_EquipmentValueFreezeTimeEnd(t *testing.T) {
+	members := []*Player{
+		playerWithProperty("m_unFreezetimeEndEquipmentValue", st.PropertyValue{IntVal: 100}),
+		playerWithProperty("m_unFreezetimeEndEquipmentValue", st.PropertyValue{IntVal: 200}),
+	}
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
 
 	assert.Equal(t, 300, state.FreezeTimeEndEquipmentValue())
 }
 
-func TestTeamState_CashSpentThisRound(t *testing.T) {
+func TestTeamState_MoneySpentThisRound(t *testing.T) {
 	members := []*Player{
-		{AdditionalInformation: &AdditionalPlayerInformation{CashSpentThisRound: 100}},
-		{AdditionalInformation: &AdditionalPlayerInformation{CashSpentThisRound: 200}},
+		{AdditionalInformation: &AdditionalPlayerInformation{MoneySpentThisRound: 100}},
+		{AdditionalInformation: &AdditionalPlayerInformation{MoneySpentThisRound: 200}},
 	}
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
 
-	assert.Equal(t, 300, state.CashSpentThisRound())
+	assert.Equal(t, 300, state.MoneySpentThisRound())
 }
 
-func TestTeamState_CashSpentTotal(t *testing.T) {
+func TestTeamState_MoneySpentTotal(t *testing.T) {
 	members := []*Player{
-		{AdditionalInformation: &AdditionalPlayerInformation{CashSpentTotal: 100}},
-		{AdditionalInformation: &AdditionalPlayerInformation{CashSpentTotal: 200}},
+		{AdditionalInformation: &AdditionalPlayerInformation{MoneySpentTotal: 100}},
+		{AdditionalInformation: &AdditionalPlayerInformation{MoneySpentTotal: 200}},
 	}
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
 
-	assert.Equal(t, 300, state.CashSpentTotal())
+	assert.Equal(t, 300, state.MoneySpentTotal())
 }
 
 type demoInfoProviderMock struct {
@@ -125,9 +138,15 @@ func mockDemoInfoProvider(tickRate float64, tick int) demoInfoProvider {
 	}
 }
 
-func entityWithProperty(propName string, value st.PropertyValue) st.IEntity {
+func entityWithID(id int) *stfake.Entity {
 	entity := new(stfake.Entity)
-	entity.On("ID").Return(1)
+	entity.On("ID").Return(id)
+
+	return entity
+}
+
+func entityWithProperty(propName string, value st.PropertyValue) *stfake.Entity {
+	entity := entityWithID(1)
 
 	prop := new(stfake.Property)
 	prop.On("Value").Return(value)
