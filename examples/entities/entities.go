@@ -21,11 +21,11 @@ func main() {
 
 	p.RegisterEventHandler(func(events.DataTablesParsed) {
 		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent *st.Entity) {
-			ent.FindProperty("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+			ent.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 				x := p.GameState().Participants().FindByHandle(val.IntVal)
 				if x != nil {
 					var prev string
-					prevHandle := ent.FindProperty("m_hPrevOwner").Value().IntVal
+					prevHandle := ent.Property("m_hPrevOwner").Value().IntVal
 					prevPlayer := p.GameState().Participants().FindByHandle(prevHandle)
 					if prevPlayer != nil {
 						if prevHandle != val.IntVal {

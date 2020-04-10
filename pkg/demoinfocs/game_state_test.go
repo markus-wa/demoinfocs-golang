@@ -216,10 +216,10 @@ func TestParticipants_SpottersOf(t *testing.T) {
 	entity.On("ID").Return(3)
 	prop0 := new(stfake.Property)
 	prop0.On("Value").Return(st.PropertyValue{IntVal: 1})
-	entity.On("FindProperty", "m_bSpottedByMask.000").Return(prop0)
+	entity.On("Property", "m_bSpottedByMask.000").Return(prop0)
 	prop1 := new(stfake.Property)
 	prop1.On("Value").Return(st.PropertyValue{IntVal: 1 << 2})
-	entity.On("FindProperty", "m_bSpottedByMask.001").Return(prop1)
+	entity.On("Property", "m_bSpottedByMask.001").Return(prop1)
 	spotted.Entity = entity
 
 	ptcps := Participants{
@@ -245,11 +245,11 @@ func TestParticipants_SpottedBy(t *testing.T) {
 	prop0 := new(stfake.Property)
 	prop0.On("Value").Return(st.PropertyValue{IntVal: 1})
 	spotted1Entity := new(stfake.Entity)
-	spotted1Entity.On("FindProperty", "m_bSpottedByMask.000").Return(prop0)
+	spotted1Entity.On("Property", "m_bSpottedByMask.000").Return(prop0)
 	spotted1.Entity = spotted1Entity
 	spotted2Entity := new(stfake.Entity)
 	spotted2Entity.On("ID").Return(35)
-	spotted2Entity.On("FindProperty", "m_bSpottedByMask.000").Return(prop0)
+	spotted2Entity.On("Property", "m_bSpottedByMask.000").Return(prop0)
 	spotted2.Entity = spotted2Entity
 
 	unSpotted := newPlayer()
@@ -260,11 +260,11 @@ func TestParticipants_SpottedBy(t *testing.T) {
 	unSpottedProp := new(stfake.Property)
 	unSpottedProp.On("Value").Return(st.PropertyValue{IntVal: 0})
 	unSpottedEntity := new(stfake.Entity)
-	unSpottedEntity.On("FindProperty", "m_bSpottedByMask.000").Return(unSpottedProp)
+	unSpottedEntity.On("Property", "m_bSpottedByMask.000").Return(unSpottedProp)
 	unSpotted.Entity = unSpottedEntity
 
 	spotterEntity := new(stfake.Entity)
-	spotterEntity.On("FindProperty", "m_bSpottedByMask.000").Return(unSpottedProp)
+	spotterEntity.On("Property", "m_bSpottedByMask.000").Return(unSpottedProp)
 	spotter.Entity = spotterEntity
 
 	ptcps := Participants{

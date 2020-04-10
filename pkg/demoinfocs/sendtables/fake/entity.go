@@ -13,7 +13,7 @@ func NewEntityWithProperty(name string, val st.PropertyValue) *Entity {
 
 	prop := new(Property)
 	prop.On("Value").Return(val)
-	entity.On("FindProperty", name).Return(prop)
+	entity.On("Property", name).Return(prop)
 
 	entity.On("PropertyValue").Return(val, true)
 	entity.On("PropertyValueMust").Return(val)
@@ -43,8 +43,8 @@ func (e *Entity) Properties() []st.IProperty {
 	return e.Called().Get(0).([]st.IProperty)
 }
 
-// FindProperty is a mock-implementation of IEntity.FindProperty().
-func (e *Entity) FindProperty(name string) st.IProperty {
+// Property is a mock-implementation of IEntity.Property().
+func (e *Entity) Property(name string) st.IProperty {
 	return e.Called(name).Get(0).(st.IProperty)
 }
 

@@ -91,11 +91,11 @@ func (p *Parser) bindBomb() {
 			bomb.LastOnGroundPosition = pos
 		})
 
-		bombEntity.FindProperty("m_hOwner").OnUpdate(func(val st.PropertyValue) {
+		bombEntity.Property("m_hOwner").OnUpdate(func(val st.PropertyValue) {
 			bomb.Carrier = p.gameState.Participants().FindByHandle(val.IntVal)
 		})
 
-		bombEntity.FindProperty("m_bStartedArming").OnUpdate(func(val st.PropertyValue) {
+		bombEntity.Property("m_bStartedArming").OnUpdate(func(val st.PropertyValue) {
 			if val.IntVal != 0 {
 				p.gameState.currentPlanter = bomb.Carrier
 			} else if p.gameState.currentPlanter != nil {
@@ -140,7 +140,7 @@ func (p *Parser) bindTeamStates() {
 
 			// Register updates
 			var score int
-			entity.FindProperty("m_scoreTotal").OnUpdate(func(val st.PropertyValue) {
+			entity.Property("m_scoreTotal").OnUpdate(func(val st.PropertyValue) {
 				oldScore := score
 				score = val.IntVal
 
@@ -187,7 +187,7 @@ func (p *Parser) bindPlayers() {
 			plInfo.BindProperty("m_iAssists."+iStr, &p.additionalPlayerInfo[i2].Assists, st.ValTypeInt)
 			plInfo.BindProperty("m_iMVPs."+iStr, &p.additionalPlayerInfo[i2].MVPs, st.ValTypeInt)
 			plInfo.BindProperty("m_iTotalCashSpent."+iStr, &p.additionalPlayerInfo[i2].MoneySpentTotal, st.ValTypeInt)
-			if prop := plInfo.FindProperty("m_iCashSpentThisRound." + iStr); prop != nil {
+			if prop := plInfo.Property("m_iCashSpentThisRound." + iStr); prop != nil {
 				prop.Bind(&p.additionalPlayerInfo[i2].MoneySpentThisRound, st.ValTypeInt)
 			}
 		}
@@ -254,12 +254,12 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 	})
 
 	// General info
-	playerEntity.FindProperty("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
+	playerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
 		pl.Team = common.Team(val.IntVal)
 		pl.TeamState = p.gameState.Team(pl.Team)
 	})
 
-	playerEntity.FindProperty("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
+	playerEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
 		if val.FloatVal == 0 {
 			pl.FlashTick = 0
 		} else {
@@ -272,7 +272,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 	p.bindPlayerWeapons(playerEntity, pl)
 
 	// Active weapon
-	playerEntity.FindProperty("m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
+	playerEntity.Property("m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
 		pl.IsReloading = false
 	})
 
@@ -281,7 +281,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 		playerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
 	}
 
-	playerEntity.FindProperty("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
+	playerEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
 		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.IntVal == 0 {
 			p.eventDispatcher.Dispatch(events.BombDefuseAborted{Player: pl})
 			p.gameState.currentDefuser = nil
@@ -290,14 +290,14 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 		pl.IsDefusing = val.IntVal != 0
 	})
 
-	spottedByMaskProp := playerEntity.FindProperty("m_bSpottedByMask.000")
+	spottedByMaskProp := playerEntity.Property("m_bSpottedByMask.000")
 	if spottedByMaskProp != nil {
 		spottersChanged := func(val st.PropertyValue) {
 			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
 		}
 
 		spottedByMaskProp.OnUpdate(spottersChanged)
-		playerEntity.FindProperty("m_bSpottedByMask.001").OnUpdate(spottersChanged)
+		playerEntity.Property("m_bSpottedByMask.001").OnUpdate(spottersChanged)
 	}
 
 	if isNew && pl.SteamID != 0 {
@@ -308,7 +308,7 @@ func (p *Parser) bindNewPlayer(playerEntity st.IEntity) {
 func (p *Parser) bindPlayerWeapons(playerEntity st.IEntity, pl *common.Player) {
 	// Some demos have an additional prefix for player weapons weapon
 	var wepPrefix string
-	if playerEntity.FindProperty(playerWeaponPrefix+"000") != nil {
+	if playerEntity.Property(playerWeaponPrefix+"000") != nil {
 		wepPrefix = playerWeaponPrefix
 	} else {
 		wepPrefix = playerWeaponPrePrefix + playerWeaponPrefix
@@ -318,7 +318,7 @@ func (p *Parser) bindPlayerWeapons(playerEntity st.IEntity, pl *common.Player) {
 	var cache [maxWeapons]int
 	for i := range cache {
 		i2 := i // Copy for passing to handler
-		playerEntity.FindProperty(wepPrefix + fmt.Sprintf("%03d", i)).OnUpdate(func(val st.PropertyValue) {
+		playerEntity.Property(wepPrefix + fmt.Sprintf("%03d", i)).OnUpdate(func(val st.PropertyValue) {
 			entityID := val.IntVal & entityHandleIndexMask
 			if entityID != entityHandleIndexMask {
 				if cache[i2] != 0 {
@@ -405,16 +405,16 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 		p.nadeProjectileDestroyed(proj)
 	})
 
-	entity.FindProperty("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
+	entity.Property("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
 		wep = p.grenadeModelIndices[val.IntVal]
 	})
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
-	entity.FindProperty("m_hThrower").OnUpdate(func(val st.PropertyValue) {
+	entity.Property("m_hThrower").OnUpdate(func(val st.PropertyValue) {
 		proj.Thrower = p.gameState.Participants().FindByHandle(val.IntVal)
 	})
 
-	entity.FindProperty("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 		proj.Owner = p.gameState.Participants().FindByHandle(val.IntVal)
 	})
 
@@ -424,7 +424,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 
 	// Some demos don't have this property as it seems
 	// So we need to check for nil and can't send out bounce events if it's missing
-	if bounceProp := entity.FindProperty("m_nBounces"); bounceProp != nil {
+	if bounceProp := entity.Property("m_nBounces"); bounceProp != nil {
 		bounceProp.OnUpdate(func(val st.PropertyValue) {
 			if val.IntVal != 0 {
 				p.eventDispatcher.Dispatch(events.GrenadeProjectileBounce{
@@ -485,14 +485,14 @@ func (p *Parser) bindWeapon(entity *st.Entity, wepType common.EquipmentType) {
 		delete(p.gameState.weapons, entityID)
 	})
 
-	entity.FindProperty("m_iClip1").OnUpdate(func(val st.PropertyValue) {
+	entity.Property("m_iClip1").OnUpdate(func(val st.PropertyValue) {
 		if eq.Owner != nil {
 			eq.Owner.IsReloading = false
 		}
 	})
 
 	// Detect alternative weapons (P2k -> USP, M4A4 -> M4A1-S etc.)
-	modelIndex := entity.FindProperty("m_nModelIndex").Value().IntVal
+	modelIndex := entity.Property("m_nModelIndex").Value().IntVal
 	eq.OriginalString = p.modelPreCache[modelIndex]
 
 	wepFix := func(defaultName, altName string, alt common.EquipmentType) {
@@ -557,7 +557,7 @@ func (p *Parser) bindGameRules() {
 
 	gameRules := p.ServerClasses().FindByName("CCSGameRulesProxy")
 	gameRules.OnEntityCreated(func(entity *st.Entity) {
-		entity.FindProperty(grPrefix("m_gamePhase")).OnUpdate(func(val st.PropertyValue) {
+		entity.Property(grPrefix("m_gamePhase")).OnUpdate(func(val st.PropertyValue) {
 			oldGamePhase := p.gameState.gamePhase
 			p.gameState.gamePhase = common.GamePhase(val.IntVal)
 
@@ -575,7 +575,7 @@ func (p *Parser) bindGameRules() {
 		})
 
 		entity.BindProperty(grPrefix("m_totalRoundsPlayed"), &p.gameState.totalRoundsPlayed, st.ValTypeInt)
-		entity.FindProperty(grPrefix("m_bWarmupPeriod")).OnUpdate(func(val st.PropertyValue) {
+		entity.Property(grPrefix("m_bWarmupPeriod")).OnUpdate(func(val st.PropertyValue) {
 			oldIsWarmupPeriod := p.gameState.isWarmupPeriod
 			p.gameState.isWarmupPeriod = val.IntVal == 1
 
@@ -585,7 +585,7 @@ func (p *Parser) bindGameRules() {
 			})
 		})
 
-		entity.FindProperty(grPrefix("m_bHasMatchStarted")).OnUpdate(func(val st.PropertyValue) {
+		entity.Property(grPrefix("m_bHasMatchStarted")).OnUpdate(func(val st.PropertyValue) {
 			oldMatchStarted := p.gameState.isMatchStarted
 			p.gameState.isMatchStarted = val.IntVal == 1
 

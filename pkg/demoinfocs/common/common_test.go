@@ -151,7 +151,7 @@ func entityWithProperty(propName string, value st.PropertyValue) *stfake.Entity 
 	prop := new(stfake.Property)
 	prop.On("Value").Return(value)
 
-	entity.On("FindProperty", propName).Return(prop)
+	entity.On("Property", propName).Return(prop)
 	entity.On("PropertyValue", propName).Return(prop, true)
 	entity.On("PropertyValueMust", propName).Return(value)
 

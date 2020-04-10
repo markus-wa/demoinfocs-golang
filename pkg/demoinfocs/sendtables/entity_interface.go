@@ -16,27 +16,21 @@ type IEntity interface {
 	ID() int
 	// Properties returns all properties of the Entity.
 	Properties() (out []IProperty)
-	// FindProperty finds a property on the Entity by name.
+	// Property finds a property on the Entity by name.
 	//
 	// Returns nil if the property wasn't found.
-	//
-	// Panics if more than one property with the same name was found.
-	FindProperty(name string) IProperty
-	// BindProperty combines FindProperty() & Property.Bind() into one.
+	Property(name string) IProperty
+	// BindProperty combines Property() & Property.Bind() into one.
 	// Essentially binds a property's value to a pointer.
 	// See the docs of the two individual functions for more info.
 	BindProperty(name string, variable interface{}, valueType PropertyValueType)
 	// PropertyValue finds a property on the Entity by name and returns its value.
 	//
 	// Returns false as second value if the property was not found.
-	//
-	// Panics if more than one property with the same name were found.
 	PropertyValue(name string) (PropertyValue, bool)
 	// PropertyValueMust finds a property on the Entity by name and returns its value.
 	//
 	// Panics with nil pointer dereference error if the property was not found.
-	//
-	// Panics if more than one property with the same name were found.
 	PropertyValueMust(name string) PropertyValue
 	// ApplyUpdate reads an update to an Enitiy's properties and
 	// triggers registered PropertyUpdateHandlers if values changed.

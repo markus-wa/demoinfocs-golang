@@ -68,7 +68,7 @@ func (p *Player) IsAirborne() bool {
 		return false
 	}
 
-	groundEntityHandle := p.Entity.FindProperty("m_hGroundEntity").Value().IntVal
+	groundEntityHandle := p.Entity.Property("m_hGroundEntity").Value().IntVal
 
 	return groundEntityHandle == invalidEntityHandle
 }
@@ -148,10 +148,10 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 
 	var mask st.IProperty
 	if bit < 32 {
-		mask = p.Entity.FindProperty("m_bSpottedByMask.000")
+		mask = p.Entity.Property("m_bSpottedByMask.000")
 	} else {
 		bit -= 32
-		mask = p.Entity.FindProperty("m_bSpottedByMask.001")
+		mask = p.Entity.Property("m_bSpottedByMask.001")
 	}
 
 	return (mask.Value().IntVal & (1 << bit)) != 0
@@ -210,7 +210,7 @@ func (p *Player) ControlledBot() *Player {
 		return nil
 	}
 
-	botHandle := p.Entity.FindProperty("m_iControlledBotEntIndex").Value().IntVal
+	botHandle := p.Entity.Property("m_iControlledBotEntIndex").Value().IntVal
 
 	return p.demoInfoProvider.FindPlayerByHandle(botHandle)
 }

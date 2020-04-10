@@ -176,7 +176,7 @@ func (f Fires) ConvexHull3D() quickhull.ConvexHull {
 // Thrower returns the player who threw the fire grenade.
 // Could be nil if the player disconnected after throwing it.
 func (inf Inferno) Thrower() *Player {
-	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.FindProperty("m_hOwnerEntity").Value().IntVal)
+	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.Property("m_hOwnerEntity").Value().IntVal)
 }
 
 func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {

@@ -35,25 +35,26 @@ type sendTableProperty struct {
 	rawType          int
 }
 
-// ServerClass stores meta information about Entity types (e.g. palyers, teams etc.).
-type ServerClass struct {
-	id             int
-	name           string
-	dataTableID    int
-	dataTableName  string
-	baseClasses    []*ServerClass
-	flattenedProps []flattenedPropEntry
-
-	createdHandlers      []EntityCreatedHandler
-	instanceBaseline     []byte                // Raw baseline
-	preprocessedBaseline map[int]PropertyValue // Preprocessed baseline
-}
-
 // Stores meta information about a property of an Entity.
 type flattenedPropEntry struct {
 	prop             *sendTableProperty
 	arrayElementProp *sendTableProperty
 	name             string
+}
+
+// ServerClass stores meta information about Entity types (e.g. palyers, teams etc.).
+type ServerClass struct {
+	id              int
+	name            string
+	dataTableID     int
+	dataTableName   string
+	baseClasses     []*ServerClass
+	flattenedProps  []flattenedPropEntry
+	propNameToIndex map[string]int
+
+	createdHandlers      []EntityCreatedHandler
+	instanceBaseline     []byte                // Raw baseline
+	preprocessedBaseline map[int]PropertyValue // Preprocessed baseline
 }
 
 // ID returns the server-class's ID.
@@ -95,6 +96,7 @@ func (sc *ServerClass) PropertyEntries() []string {
 
 func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int) *Entity {
 	props := make([]Property, len(sc.flattenedProps))
+
 	for i := range sc.flattenedProps {
 		props[i] = Property{entry: &sc.flattenedProps[i]}
 	}

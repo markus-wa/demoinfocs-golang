@@ -182,6 +182,18 @@ func (p *SendTableParser) flattenDataTable(serverClassIndex int) {
 			}
 		}
 	}
+
+	p.serverClasses[serverClassIndex].propNameToIndex = buildPropertyLookupTable(p.serverClasses[serverClassIndex].flattenedProps)
+}
+
+func buildPropertyLookupTable(props []flattenedPropEntry) map[string]int {
+	lookupTable := make(map[string]int)
+	for i := range props {
+		propName := props[i].name
+		lookupTable[propName] = i
+	}
+
+	return lookupTable
 }
 
 func sortProperyPrios(fProps []flattenedPropEntry) []int {
@@ -293,7 +305,7 @@ func (p *SendTableParser) SetInstanceBaseline(scID int, data []byte) {
 // Intended for internal use only.
 func (p *SendTableParser) ReadEnterPVS(r *bit.BitReader, entityID int) *Entity {
 	scID := int(r.ReadInt(p.classBits()))
-	
+
 	const nSerialNumberBits = 10
 	r.Skip(nSerialNumberBits) // Serial Number
 

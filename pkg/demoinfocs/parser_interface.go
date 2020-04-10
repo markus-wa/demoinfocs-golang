@@ -48,8 +48,14 @@ type IParser interface {
 	// CurrentTime returns the time elapsed since the start of the demo
 	CurrentTime() time.Duration
 	// TickRate returns the tick-rate the server ran on during the game.
+	//
+	// Returns tick rate based on CSVCMsg_ServerInfo if possible.
+	// Otherwise returns tick rate based on demo header or -1 if the header info isn't available.
 	TickRate() float64
 	// TickTime returns the time a single tick takes in seconds.
+	//
+	// Returns tick time based on CSVCMsg_ServerInfo if possible.
+	// Otherwise returns tick time based on demo header or -1 if the header info isn't available.
 	TickTime() time.Duration
 	// Progress returns the parsing progress from 0 to 1.
 	// Where 0 means nothing has been parsed yet and 1 means the demo has been parsed to the end.
