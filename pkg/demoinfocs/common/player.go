@@ -258,7 +258,7 @@ func (p *Player) ViewDirectionX() float32 {
 	return getFloat(p.Entity, "m_angEyeAngles[1]")
 }
 
-// ViewDirectionY returns the Pitch value in degrees, -90 to 90 (-90=270).
+// ViewDirectionY returns the Pitch value in degrees, 270 to 90 (270=-90).
 func (p *Player) ViewDirectionY() float32 {
 	return getFloat(p.Entity, "m_angEyeAngles[0]")
 }
