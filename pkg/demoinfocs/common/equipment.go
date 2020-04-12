@@ -117,11 +117,6 @@ var eqNameToWeapon map[string]EquipmentType
 
 var eqElementToName map[EquipmentType]string
 
-// EquipmentElementNames returns all human readable equipment names as map[EquipmentType]string
-func EquipmentElementNames() map[EquipmentType]string {
-	return eqElementToName
-}
-
 func init() {
 	initEqNameToWeapon()
 	initEqElementToName()
@@ -285,7 +280,7 @@ const (
 // This also includes the skin and some additional data.
 type Equipment struct {
 	Type           EquipmentType // The type of weapon which the equipment instantiates.
-	Entity         st.Entity    // The game entity instance
+	Entity         st.Entity     // The game entity instance
 	Owner          *Player       // The player carrying the equipment, not necessarily the buyer.
 	OriginalString string        // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
 

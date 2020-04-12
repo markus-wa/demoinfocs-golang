@@ -55,11 +55,6 @@ var gamePhaseToString = map[GamePhase]string{
 	GamePhaseGameOver:       "GameOver",
 }
 
-// GamePhaseNames returns all human readable game phase names as map[GamePhase]string
-func GamePhaseNames() map[GamePhase]string {
-	return gamePhaseToString
-}
-
 func (r GamePhase) String() string {
 	return gamePhaseToString[r]
 }
