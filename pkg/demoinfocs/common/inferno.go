@@ -32,6 +32,7 @@ type Fire struct {
 }
 
 // Fires is a collection of fires that provides utility functions for things like calculation of 2D & 3D convex hulls.
+// See also Inferno.
 type Fires struct {
 	s []Fire
 }
