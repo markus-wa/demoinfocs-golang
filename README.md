@@ -15,18 +15,18 @@ You can use gitter to ask questions and discuss ideas about this project.
 
 [![Gitter chat](https://badges.gitter.im/csgodemos/demoinfo-lib.png)](https://gitter.im/csgodemos/demoinfo-lib)
 
+## v2.0.0 beta
+
+Would you like to be living in the future?
+
+Go check out [this README on the `v2` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v2) instead.
+
 ## Requirements
 
 This library is intended to be used with `go 1.11` or higher as it is built using Go modules.
 
 It's recommended to use modules for consumers as well if possible.
 If you are unfamiliar with Go modules there's a [list of recommended resources](https://github.com/markus-wa/demoinfocs-golang/wiki/Go-Modules#recommended-links--articles) in the wiki.
-
-## v2.0.0 beta
-
-Would you like to be living in the future?
-
-Go check out [this README on the `v2` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v2) instead.
 
 ## Go Get
 
