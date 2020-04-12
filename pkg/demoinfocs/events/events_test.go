@@ -8,7 +8,6 @@ import (
 
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
 )
 
 func TestPlayerFlashed_FlashDuration(t *testing.T) {
@@ -44,52 +43,6 @@ func TestBombEvents(t *testing.T) {
 	}
 }
 
-func TestItemPickup_WeaponTraceable_PlayerNil(t *testing.T) {
-	e := ItemPickup{
-		Weapon: common.Equipment{Type: common.EqAK47},
-		Player: nil,
-	}
-
-	assert.Equal(t, e.Weapon, *e.WeaponTraceable())
-}
-
-func TestItemPickup_WeaponTraceable_WeaponFound(t *testing.T) {
-	wep := &common.Equipment{
-		Entity: entity(),
-		Type:   common.EqAK47,
-	}
-	e := ItemPickup{
-		Weapon: common.Equipment{Type: common.EqAK47},
-		Player: &common.Player{Inventory: map[int]*common.Equipment{
-			1: wep,
-		}},
-	}
-
-	assert.Equal(t, wep, e.WeaponTraceable())
-}
-
-func entity() st.Entity {
-	entity := new(stfake.Entity)
-	entity.On("ID").Return(1)
-
-	return entity
-}
-
-func TestItemPickup_WeaponTraceable_WeaponNotFound(t *testing.T) {
-	wep := &common.Equipment{
-		Entity: entity(),
-		Type:   common.EqAK47,
-	}
-	e := ItemPickup{
-		Weapon: common.Equipment{Type: common.EqKnife},
-		Player: &common.Player{Inventory: map[int]*common.Equipment{
-			1: wep,
-		}},
-	}
-
-	assert.Equal(t, e.Weapon, *e.WeaponTraceable())
-}
-
 type demoInfoProviderMock struct {
 }
 
@@ -101,7 +54,7 @@ func (p demoInfoProviderMock) TickRate() float64 {
 	return 128
 }
 
-func (p demoInfoProviderMock) FindPlayerByHandle(handle int) *common.Player {
+func (p demoInfoProviderMock) FindPlayerByHandle(int) *common.Player {
 	return nil
 }
 func (p demoInfoProviderMock) PlayerResourceEntity() st.Entity {

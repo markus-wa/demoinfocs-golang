@@ -575,9 +575,8 @@ func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CSVCMsg_GameEve
 func (geh gameEventHandler) itemEquip(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	player, weapon := geh.itemEvent(data)
 	geh.dispatch(events.ItemEquip{
-		Player:    player,
-		Weapon:    *weapon,
-		WeaponPtr: weapon,
+		Player: player,
+		Weapon: weapon,
 	})
 }
 
@@ -585,16 +584,15 @@ func (geh gameEventHandler) itemPickup(data map[string]*msg.CSVCMsg_GameEventKey
 	player, weapon := geh.itemEvent(data)
 	geh.dispatch(events.ItemPickup{
 		Player: player,
-		Weapon: *weapon,
+		Weapon: weapon,
 	})
 }
 
 func (geh gameEventHandler) itemRemove(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	player, weapon := geh.itemEvent(data)
 	geh.dispatch(events.ItemDrop{
-		Player:    player,
-		Weapon:    *weapon,
-		WeaponPtr: weapon,
+		Player: player,
+		Weapon: weapon,
 	})
 }
 
