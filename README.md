@@ -103,6 +103,7 @@ Check out the [examples](examples) folder for more examples, like [how to genera
 * Access to entities, server-classes & data-tables - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables?tab=doc#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
 * Access to all net-messages - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
 * Chat & console messages <sup id="achat1">1</sup> - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events?tab=doc#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* Matchmaking ranks (official MM demos only) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events?tab=doc#RankUpdate)
 * POV demo support <sup id="achat1">2</sup>
 * JavaScript (browser / Node.js) support via WebAssembly - [example](https://github.com/markus-wa/demoinfocs-wasm)
 * [Easy debugging via build-flags](#debugging)
