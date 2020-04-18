@@ -51,8 +51,10 @@ func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 }
 
 type gameEventHandler struct {
-	parser                 *parser
-	gameEventNameToHandler map[string]gameEventHandlerFunc
+	parser                  *parser
+	gameEventNameToHandler  map[string]gameEventHandlerFunc
+	userIDToFallDamageFrame map[int32]int
+	frameToRoundEndReason   map[int]events.RoundEndReason
 }
 
 func (geh gameEventHandler) dispatch(event interface{}) {
@@ -75,7 +77,11 @@ type gameEventHandlerFunc func(map[string]*msg.CSVCMsg_GameEventKeyT)
 
 //nolint:funlen
 func newGameEventHandler(parser *parser) gameEventHandler {
-	geh := gameEventHandler{parser: parser}
+	geh := gameEventHandler{
+		parser:                  parser,
+		userIDToFallDamageFrame: make(map[int32]int),
+		frameToRoundEndReason:   make(map[int]events.RoundEndReason),
+	}
 
 	// some events need to be delayed until their data is available
 	// some events can't be delayed because the required state is lost by the end of the tick
@@ -147,7 +153,7 @@ func newGameEventHandler(parser *parser) gameEventHandler {
 		"player_connect_full":             nil,                                   // Connecting finished
 		"player_death":                    delayIfNoPlayers(geh.playerDeath),     // Player died
 		"player_disconnect":               geh.playerDisconnect,                  // Player disconnected (kicked, quit, timed out etc.)
-		"player_falldamage":               nil,                                   // Falldamage
+		"player_falldamage":               geh.playerFallDamage,                  // Falldamage
 		"player_footstep":                 delayIfNoPlayers(geh.playerFootstep),  // Footstep sound.- Delayed because otherwise Player might be nil
 		"player_hurt":                     geh.playerHurt,                        // Player got hurt
 		"player_jump":                     geh.playerJump,                        // Player jumped
@@ -216,9 +222,12 @@ func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT)
 		loserState = winnerState.Opponent
 	}
 
+	reason := events.RoundEndReason(data["reason"].GetValByte())
+	geh.frameToRoundEndReason[geh.parser.currentFrame] = reason
+
 	geh.dispatch(events.RoundEnd{
 		Message:     data["message"].GetValString(),
-		Reason:      events.RoundEndReason(data["reason"].GetValByte()),
+		Reason:      reason,
 		Winner:      winner,
 		WinnerState: winnerState,
 		LoserState:  loserState,
@@ -313,6 +322,8 @@ func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventK
 func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	killer := geh.playerByUserID32(data["attacker"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
+	victimUserID := data["userid"].GetValShort()
+	wepType = geh.attackerWeaponType(wepType, victimUserID)
 
 	geh.dispatch(events.Kill{
 		Victim:            geh.playerByUserID32(data["userid"].GetValShort()),
@@ -327,9 +338,11 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKe
 func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	attacker := geh.playerByUserID32(data["attacker"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
+	userID := data["userid"].GetValShort()
+	wepType = geh.attackerWeaponType(wepType, userID)
 
 	geh.dispatch(events.PlayerHurt{
-		Player:       geh.playerByUserID32(data["userid"].GetValShort()),
+		Player:       geh.playerByUserID32(userID),
 		Attacker:     attacker,
 		Health:       int(data["health"].GetValByte()),
 		Armor:        int(data["armor"].GetValByte()),
@@ -338,6 +351,10 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 		HitGroup:     events.HitGroup(data["hitgroup"].GetValByte()),
 		Weapon:       geh.getEquipmentInstance(attacker, wepType),
 	})
+}
+
+func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	geh.userIDToFallDamageFrame[data["userid"].GetValShort()] = geh.parser.currentFrame
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -692,6 +709,28 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 	// smokes might have duplicate smokegrenade_expired events, so it might already be deleted.
 	// besides that this code should never be reached
 	unassert.Samef(wepType, common.EqSmoke, "trying to delete non-existing grenade from gameState.thrownGrenades")
+}
+
+func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, victimUserID int32) common.EquipmentType {
+	// if the player took falldamage in this frame we set the weapon type to world damage
+	if wepType == common.EqUnknown && geh.userIDToFallDamageFrame[victimUserID] == geh.parser.currentFrame {
+		wepType = common.EqWorld
+	}
+
+	// if the round ended in the current frame with reason 1 or 0 we assume it was bomb damage
+	// unfortunately RoundEndReasonTargetBombed isn't enough and sometimes we need to check for 0 as well
+	if wepType == common.EqUnknown {
+		switch geh.frameToRoundEndReason[geh.parser.currentFrame] {
+		case 0:
+			fallthrough
+		case events.RoundEndReasonTargetBombed:
+			wepType = common.EqBomb
+		}
+	}
+
+	unassert.NotSame(wepType, common.EqUnknown)
+
+	return wepType
 }
 
 func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType common.EquipmentType) *common.Equipment {
