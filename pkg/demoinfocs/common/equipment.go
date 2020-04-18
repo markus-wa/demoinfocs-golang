@@ -122,6 +122,7 @@ func init() {
 	initEqElementToName()
 }
 
+//nolint:funlen
 func initEqNameToWeapon() {
 	eqNameToWeapon = make(map[string]EquipmentType)
 
@@ -198,6 +199,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["worldspawn"] = EqWorld
 }
 
+//nolint:funlen
 func initEqElementToName() {
 	eqElementToName = make(map[EquipmentType]string)
 	eqElementToName[EqAK47] = "AK-47"
@@ -333,7 +335,9 @@ func (e Equipment) ZoomLevel() ZoomLevel {
 		return 0
 	}
 
+	// if the property doesn't exist we return 0 by default
 	val, _ := e.Entity.PropertyValue("m_zoomLevel")
+
 	return ZoomLevel(val.IntVal)
 }
 
@@ -350,7 +354,9 @@ func (e Equipment) AmmoReserve() int {
 		return 0
 	}
 
+	// if the property doesn't exist we return 0 by default
 	val, _ := e.Entity.PropertyValue("m_iPrimaryReserveAmmoCount")
+
 	return val.IntVal
 }
 

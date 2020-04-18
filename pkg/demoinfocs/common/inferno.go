@@ -49,9 +49,8 @@ func (inf Inferno) UniqueID() int64 {
 func (inf Inferno) Fires() Fires {
 	entity := inf.Entity
 	origin := entity.Position()
-
-	var fires []Fire
 	nFires := entity.PropertyValueMust("m_fireCount").IntVal
+	fires := make([]Fire, 0, nFires)
 
 	for i := 0; i < nFires; i++ {
 		iStr := fmt.Sprintf("%03d", i)

@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
@@ -180,6 +181,7 @@ type participants struct {
 // Includes spectators.
 func (ptcp participants) ByUserID() map[int]*common.Player {
 	res := make(map[int]*common.Player)
+
 	for k, v := range ptcp.playersByUserID {
 		// We need to check if the player entity hasn't been destroyed yet
 		// See https://github.com/markus-wa/demoinfocs-golang/issues/98
@@ -269,11 +271,11 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 //
 // Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
 func (ptcp participants) FindByHandle(handle int) *common.Player {
-	if handle == invalidEntityHandle {
+	if handle == constants.InvalidEntityHandle {
 		return nil
 	}
 
-	entityID := handle & entityHandleIndexMask
+	entityID := handle & constants.EntityHandleIndexMask
 	player := ptcp.playersByEntityID[entityID]
 
 	if player == nil {

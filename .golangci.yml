@@ -14,6 +14,14 @@ linters:
     - gochecknoglobals
     - lll
     - typecheck
+    - gomnd
+issues:
+  exclude-rules:
+    # Exclude some linters from running on tests files.
+    - path: _test\.go
+      linters:
+        - wsl
+        - funlen
 linters-settings:
   gocritic:
     disabled-checks:

@@ -7,20 +7,10 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
 
+	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
-)
-
-const (
-	maxEdictBits                 = 11
-	entityHandleIndexMask        = (1 << maxEdictBits) - 1
-	entityHandleSerialNumberBits = 10
-	entityHandleBits             = maxEdictBits + entityHandleSerialNumberBits
-	invalidEntityHandle          = (1 << entityHandleBits) - 1
-	maxEntities                  = 1 << maxEdictBits
-	maxPlayers                   = 64
-	maxWeapons                   = 64
 )
 
 func (p *parser) mapEquipment() {
@@ -215,6 +205,7 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *playerInfo) (isNew bool, pl
 	return isNew, player
 }
 
+//nolint:funlen
 func (p *parser) bindNewPlayer(playerEntity st.Entity) {
 	entityID := playerEntity.ID()
 	rp := p.rawPlayers[entityID-1]
@@ -289,6 +280,8 @@ func (p *parser) bindNewPlayer(playerEntity st.Entity) {
 	}
 }
 
+const maxWeapons = 64
+
 func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 	// Some demos have an additional prefix for player weapons weapon
 	var wepPrefix string
@@ -303,8 +296,8 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 	for i := range cache {
 		i2 := i // Copy for passing to handler
 		playerEntity.Property(wepPrefix + fmt.Sprintf("%03d", i)).OnUpdate(func(val st.PropertyValue) {
-			entityID := val.IntVal & entityHandleIndexMask
-			if entityID != entityHandleIndexMask {
+			entityID := val.IntVal & constants.EntityHandleIndexMask
+			if entityID != constants.EntityHandleIndexMask {
 				if cache[i2] != 0 {
 					// Player already has a weapon in this slot.
 					delete(pl.Inventory, cache[i2])
@@ -351,7 +344,7 @@ func (p *parser) bindWeapons() {
 			case "CBaseCSGrenade":
 				// @micvbang TODO: handle grenades dropped by dead player.
 				// Grenades that were dropped by a dead player (and can be picked up by other players).
-			}
+			} //nolint:wsl
 		}
 	}
 
@@ -368,7 +361,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	p.gameState.grenadeProjectiles[entityID] = proj
 
 	var wep common.EquipmentType
-	entity.OnCreateFinished(func() {
+	entity.OnCreateFinished(func() { //nolint:wsl
 		// copy the weapon so it doesn't get overwritten by a new entity in parser.weapons
 		wepCopy := *(getPlayerWeapon(proj.Thrower, wep))
 		proj.WeaponInstance = &wepCopy

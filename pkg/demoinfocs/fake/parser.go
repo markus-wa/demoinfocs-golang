@@ -211,14 +211,12 @@ func (p *Parser) ParseNextFrame() (b bool, err error) {
 }
 
 func max(numbers map[int][]interface{}) (maxNumber int) {
-	for maxNumber = range numbers {
-		break
-	}
 	for n := range numbers {
 		if n > maxNumber {
 			maxNumber = n
 		}
 	}
+
 	return
 }
 

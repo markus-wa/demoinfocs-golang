@@ -233,11 +233,12 @@ func (p *parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 	p.msgDispatcher.UnregisterHandler(identifier)
 }
 
-func (p *parser) error() (err error) {
+func (p *parser) error() error {
 	p.errLock.Lock()
-	err = p.err
+	err := p.err
 	p.errLock.Unlock()
-	return
+
+	return err
 }
 
 func (p *parser) setError(err error) {
