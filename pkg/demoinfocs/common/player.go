@@ -148,7 +148,6 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 		return false
 	}
 
-	// TODO extract ClientSlot() function
 	clientSlot := other.EntityID - 1
 	bit := uint(clientSlot)
 

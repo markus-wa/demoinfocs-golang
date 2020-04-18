@@ -16,9 +16,7 @@ func TestInferno_UniqueID(t *testing.T) {
 	assert.NotEqual(t, NewInferno(nil, entity).UniqueID(), NewInferno(nil, entity).UniqueID(), "UniqueIDs of different infernos should be different")
 }
 
-// FIXME: Inferno.Fires test
-
-func TestInferno_Active(t *testing.T) {
+func TestFires_Active(t *testing.T) {
 	inf := Fires{
 		s: []Fire{
 			{
