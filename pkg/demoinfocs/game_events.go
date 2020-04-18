@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"errors"
 	"fmt"
+
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
 
@@ -22,6 +23,7 @@ func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	if p.gameEventDescs == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{Message: "received GameEvent but event descriptors are missing"})
 		unassert.Error("received GameEvent but event descriptors are missing")
+
 		return
 	}
 
@@ -71,6 +73,7 @@ func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
 
 type gameEventHandlerFunc func(map[string]*msg.CSVCMsg_GameEventKeyT)
 
+//nolint:funlen
 func newGameEventHandler(parser *parser) gameEventHandler {
 	geh := gameEventHandler{parser: parser}
 
@@ -192,15 +195,15 @@ func (geh gameEventHandler) roundStart(data map[string]*msg.CSVCMsg_GameEventKey
 	})
 }
 
-func (geh gameEventHandler) csWinPanelMatch(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+func (geh gameEventHandler) csWinPanelMatch(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.AnnouncementWinPanelMatch{})
 }
 
-func (geh gameEventHandler) roundAnnounceFinal(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+func (geh gameEventHandler) roundAnnounceFinal(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.AnnouncementFinalRound{})
 }
 
-func (geh gameEventHandler) roundAnnounceLastRoundHalf(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+func (geh gameEventHandler) roundAnnounceLastRoundHalf(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.AnnouncementLastRoundHalf{})
 }
 
@@ -222,7 +225,7 @@ func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT)
 	})
 }
 
-func (geh gameEventHandler) roundOfficiallyEnded(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+func (geh gameEventHandler) roundOfficiallyEnded(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	// Issue #42
 	// Sometimes grenades & infernos aren't deleted / destroyed via entity-updates at the end of the round,
 	// so we need to do it here for those that weren't.
@@ -263,11 +266,11 @@ func (geh gameEventHandler) botTakeover(data map[string]*msg.CSVCMsg_GameEventKe
 	})
 }
 
-func (geh gameEventHandler) beginNewMatch(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+func (geh gameEventHandler) beginNewMatch(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.MatchStart{})
 }
 
-func (geh gameEventHandler) roundFreezeEnd(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+func (geh gameEventHandler) roundFreezeEnd(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.RoundFreezetimeEnd{})
 }
 

@@ -6,15 +6,8 @@ import (
 
 	"github.com/golang/geo/r3"
 
+	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
-)
-
-const (
-	maxEdictBits                 = 11
-	entityHandleIndexMask        = (1 << maxEdictBits) - 1
-	entityHandleSerialNumberBits = 10
-	entityHandleBits             = maxEdictBits + entityHandleSerialNumberBits
-	invalidEntityHandle          = (1 << entityHandleBits) - 1
 )
 
 // Player contains mostly game-relevant player information.
@@ -76,7 +69,7 @@ func (p *Player) IsAirborne() bool {
 
 	groundEntityHandle := p.Entity.Property("m_hGroundEntity").Value().IntVal
 
-	return groundEntityHandle == invalidEntityHandle
+	return groundEntityHandle == constants.InvalidEntityHandle
 }
 
 // FlashDurationTime returns the duration of the blinding effect as time.Duration instead of float32 in seconds.
@@ -129,7 +122,7 @@ This isn't very conclusive but it looks like IsFlashed isn't super reliable curr
 
 // Used internally to set the active weapon, see ActiveWeapon()
 func (p *Player) activeWeaponID() int {
-	return getInt(p.Entity, "m_hActiveWeapon") & entityHandleIndexMask
+	return getInt(p.Entity, "m_hActiveWeapon") & constants.EntityHandleIndexMask
 }
 
 // ActiveWeapon returns the currently active / equipped weapon of the player.

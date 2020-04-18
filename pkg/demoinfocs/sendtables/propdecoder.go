@@ -1,3 +1,4 @@
+//nolint:varcheck,deadcode
 package sendtables
 
 import (
@@ -121,6 +122,7 @@ func (propertyDecoder) decodeInt(prop *sendTableProperty, reader *bit.BitReader)
 		if prop.flags.hasFlagSet(propFlagUnsigned) {
 			return int(reader.ReadVarInt32())
 		}
+
 		return int(reader.ReadSignedVarInt32())
 	}
 
@@ -137,6 +139,7 @@ func (propertyDecoder) decodeFloat(prop *sendTableProperty, reader *bit.BitReade
 	}
 
 	dwInterp := reader.ReadInt(prop.numberOfBits)
+
 	return prop.lowValue + ((prop.highValue - prop.lowValue) * (float32(dwInterp) / float32((int(1)<<uint(prop.numberOfBits))-1)))
 }
 
@@ -325,6 +328,7 @@ func (propertyDecoder) decodeString(reader *bit.BitReader) string {
 	if length > dataTableMaxStringLength {
 		length = dataTableMaxStringLength
 	}
+
 	return reader.ReadCString(length)
 }
 

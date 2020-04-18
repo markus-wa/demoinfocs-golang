@@ -38,6 +38,7 @@ func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_Gam
 	if debugGameEvents == yes {
 		// Map only the relevant data for each type
 		data := make(map[string]interface{})
+
 		for k, v := range mapGameEventData(d, ge) {
 			switch v.Type {
 			case typeStr:

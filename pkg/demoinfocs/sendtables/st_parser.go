@@ -8,6 +8,7 @@ import (
 	proto "github.com/gogo/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
+	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
@@ -188,6 +189,7 @@ func (p *SendTableParser) flattenDataTable(serverClassIndex int) {
 
 func buildPropertyLookupTable(props []flattenedPropEntry) map[string]int {
 	lookupTable := make(map[string]int)
+
 	for i := range props {
 		propName := props[i].name
 		lookupTable[propName] = i
@@ -207,7 +209,7 @@ func sortProperyPrios(fProps []flattenedPropEntry) []int {
 	prios := make([]int, len(prioSet))
 
 	i := 0
-	for k := range prioSet {
+	for k := range prioSet { //nolint:wsl
 		prios[i] = k
 		i++
 	}
@@ -238,7 +240,7 @@ func (p *SendTableParser) gatherExcludesAndBaseClasses(st *sendTable, collectBas
 
 func (p *SendTableParser) gatherProps(st *sendTable, serverClassIndex int, prefix string) {
 	var tmpFlattenedProps []flattenedPropEntry
-	p.gatherPropsIterate(st, serverClassIndex, prefix, &tmpFlattenedProps)
+	p.gatherPropsIterate(st, serverClassIndex, prefix, &tmpFlattenedProps) //nolint:wsl
 	p.serverClasses[serverClassIndex].flattenedProps = append(p.serverClasses[serverClassIndex].flattenedProps, tmpFlattenedProps...)
 }
 
@@ -277,6 +279,7 @@ func (p *SendTableParser) isPropertyExcluded(tab *sendTable, prop *sendTableProp
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -286,6 +289,7 @@ func (p *SendTableParser) getTableByName(name string) *sendTable {
 			return &p.sendTables[i]
 		}
 	}
+
 	return nil
 }
 
@@ -306,8 +310,7 @@ func (p *SendTableParser) SetInstanceBaseline(scID int, data []byte) {
 func (p *SendTableParser) ReadEnterPVS(r *bit.BitReader, entityID int) Entity {
 	scID := int(r.ReadInt(p.classBits()))
 
-	const nSerialNumberBits = 10
-	r.Skip(nSerialNumberBits) // Serial Number
+	r.Skip(constants.EntityHandleSerialNumberBits) // Serial Number
 
 	return p.serverClasses[scID].newEntity(r, entityID)
 }
@@ -322,7 +325,7 @@ func (p *SendTableParser) classBits() int {
 //
 // Intended for internal use only.
 func NewSendTableParser() *SendTableParser {
-	p := new(SendTableParser)
-	p.instanceBaselines = make(map[int][]byte)
-	return p
+	return &SendTableParser{
+		instanceBaselines: make(map[int][]byte),
+	}
 }

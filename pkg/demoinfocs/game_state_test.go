@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
@@ -146,7 +147,7 @@ func TestParticipants_FindByHandle(t *testing.T) {
 
 	ptcps := participants{
 		playersByEntityID: map[int]*common.Player{
-			3000 & entityHandleIndexMask: pl,
+			3000 & constants.EntityHandleIndexMask: pl,
 		},
 	}
 
@@ -160,11 +161,11 @@ func TestParticipants_FindByHandle_InvalidEntityHandle(t *testing.T) {
 	pl.Team = common.TeamTerrorists
 	ptcps := participants{
 		playersByEntityID: map[int]*common.Player{
-			invalidEntityHandle & entityHandleIndexMask: pl,
+			constants.InvalidEntityHandle & constants.EntityHandleIndexMask: pl,
 		},
 	}
 
-	found := ptcps.FindByHandle(invalidEntityHandle)
+	found := ptcps.FindByHandle(constants.InvalidEntityHandle)
 
 	assert.Nil(t, found)
 }

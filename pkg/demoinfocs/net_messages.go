@@ -42,13 +42,14 @@ func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 				existing.Destroy()
 			}
 			p.gameState.entities[currentEntity] = p.stParser.ReadEnterPVS(r, currentEntity)
-		} else {
+		} else { //nolint:gocritic
 			// Delta Update
 			if entity := p.gameState.entities[currentEntity]; entity != nil {
 				entity.ApplyUpdate(r)
 			}
 		}
 	}
+
 	r.Pool()
 }
 

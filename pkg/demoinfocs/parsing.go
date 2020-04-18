@@ -201,6 +201,7 @@ const (
 	dcStringTables   demoCommand = 9
 )
 
+//nolint:funlen
 func (p *parser) parseFrame() bool {
 	cmd := demoCommand(p.bitReader.ReadSingleByte())
 
@@ -209,7 +210,7 @@ func (p *parser) parseFrame() bool {
 
 	// Skip 'player slot'
 	const nSlotBits = 8
-	p.bitReader.Skip(nSlotBits)
+	p.bitReader.Skip(nSlotBits) //nolint:wsl
 
 	debugDemoCommand(cmd)
 
@@ -288,12 +289,13 @@ var defaultNetMessageCreators = map[int]NetMessageCreator{
 	int(msg.NET_Messages_net_SetConVar):         func() proto.Message { return new(msg.CNETMsg_SetConVar) },
 }
 
+//nolint:funlen
 func (p *parser) parsePacket() {
 	// Booooring
 	// 152 bytes CommandInfo, 4 bytes SeqNrIn, 4 bytes SeqNrOut
 	// See at the bottom of the file what the CommandInfo would contain if you are interested.
 	const nCommandInfoBits = (152 + 4 + 4) << 3
-	p.bitReader.Skip(nCommandInfoBits)
+	p.bitReader.Skip(nCommandInfoBits) //nolint:wsl
 
 	// Here we go
 	p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
@@ -363,6 +365,7 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 	for _, eventHandler := range p.delayedEventHandlers {
 		eventHandler()
 	}
+
 	p.delayedEventHandlers = p.delayedEventHandlers[:0]
 
 	p.currentFrame++

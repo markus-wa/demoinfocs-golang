@@ -10,7 +10,10 @@ import (
 )
 
 func (p *parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
-	p.userMessageHandler.handler(msg.ECstrike15UserMessages(um.MsgType))(um)
+	handler := p.userMessageHandler.handler(msg.ECstrike15UserMessages(um.MsgType))
+	if handler != nil {
+		handler(um)
+	}
 }
 
 type userMessageHandler struct {
@@ -22,7 +25,8 @@ func (umh userMessageHandler) handler(msgType msg.ECstrike15UserMessages) userMe
 	if handler, eventKnown := umh.msgTypeToHandler[msgType]; eventKnown {
 		return handler
 	}
-	return func(*msg.CSVCMsg_UserMessage) { /* NOP */ }
+
+	return nil
 }
 
 func (umh userMessageHandler) dispatch(event interface{}) {
