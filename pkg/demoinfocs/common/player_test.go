@@ -250,6 +250,12 @@ func TestPlayer_ControlledBot(t *testing.T) {
 	assert.Same(t, dave, pl.ControlledBot())
 }
 
+func TestPlayer_SteamID32(t *testing.T) {
+	pl := &Player{SteamID64: 76561198012952267}
+
+	assert.Equal(t, uint32(52686539), pl.SteamID32())
+}
+
 func newPlayer(tick int) *Player {
 	return NewPlayer(mockDemoInfoProvider(128, tick))
 }

@@ -43,6 +43,12 @@ func TestBombEvents(t *testing.T) {
 	}
 }
 
+func TestRankUpdate_SteamID64(t *testing.T) {
+	event := RankUpdate{SteamID32: 52686539}
+
+	assert.Equal(t, uint64(76561198012952267), event.SteamID64())
+}
+
 type demoInfoProviderMock struct {
 }
 

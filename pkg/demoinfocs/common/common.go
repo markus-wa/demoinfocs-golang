@@ -3,6 +3,8 @@ package common
 
 import (
 	"math/rand"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -204,4 +206,36 @@ func NewTeamState(team Team, membersCallback func(Team) []*Player) TeamState {
 		team:            team,
 		membersCallback: membersCallback,
 	}
+}
+
+// ConvertSteamIDTxtTo32 converts a Steam-ID in text format to a 32-bit variant.
+// See https://developer.valvesoftware.com/wiki/SteamID
+func ConvertSteamIDTxtTo32(steamID string) (uint32, error) {
+	arr := strings.Split(steamID, ":")
+
+	Y, err := strconv.ParseUint(arr[1], 10, 32)
+	if err != nil {
+		return 0, err
+	}
+
+	Z, err := strconv.ParseUint(arr[2], 10, 32)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint32((Z << 1) + Y), nil
+}
+
+const steamID64IndividualIdentifier = 0x0110000100000000
+
+// ConvertSteamID32To64 converts a Steam-ID in 32-bit format to a 64-bit variant.
+// See https://developer.valvesoftware.com/wiki/SteamID
+func ConvertSteamID32To64(steamID32 uint32) uint64 {
+	return steamID64IndividualIdentifier + uint64(steamID32)
+}
+
+// ConvertSteamID64To32 converts a Steam-ID in 64-bit format to a 32-bit variant.
+// See https://developer.valvesoftware.com/wiki/SteamID
+func ConvertSteamID64To32(steamID64 uint64) uint32 {
+	return uint32(steamID64 - steamID64IndividualIdentifier)
 }

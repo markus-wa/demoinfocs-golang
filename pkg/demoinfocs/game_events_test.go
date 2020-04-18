@@ -216,24 +216,19 @@ func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
 }
 
 func TestGetCommunityId(t *testing.T) {
-	xuid, err := getCommunityID("abcdefgh1:3")
+	xuid, err := guidToSteamID64("STEAM_0:1:26343269")
 	assert.Nil(t, err)
-	expected := int64(76561197960265728 + 6 + 1)
-	assert.Equal(t, expected, xuid)
+	assert.Equal(t, uint64(76561198012952267), xuid)
 }
 
 func TestGetCommunityId_BOT(t *testing.T) {
-	xuid, err := getCommunityID("BOT")
+	xuid, err := guidToSteamID64("BOT")
 	assert.Zero(t, xuid)
 	assert.Nil(t, err)
 }
 
-func TestGetCommunityId_Errors(t *testing.T) {
-	_, err := getCommunityID("12345678a90123")
+func TestGetCommunityId_Error(t *testing.T) {
+	_, err := guidToSteamID64("STEAM_0:1:abc")
 	assert.NotNil(t, err)
-	assert.Equal(t, "strconv.ParseInt: parsing \"a\": invalid syntax", err.Error())
-
-	_, err = getCommunityID("1234567890abc")
-	assert.NotNil(t, err)
-	assert.Equal(t, "strconv.ParseInt: parsing \"abc\": invalid syntax", err.Error())
+	assert.Equal(t, "strconv.ParseUint: parsing \"abc\": invalid syntax", err.Error())
 }
