@@ -191,7 +191,7 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *playerInfo) (isNew bool, pl
 
 				player = common.NewPlayer(p.demoInfoProvider)
 				player.Name = rp.name
-				player.SteamID = rp.xuid
+				player.SteamID64 = rp.xuid
 				player.IsBot = rp.isFakePlayer || rp.guid == "BOT"
 				player.UserID = rp.userID
 			}
@@ -284,7 +284,7 @@ func (p *parser) bindNewPlayer(playerEntity st.Entity) {
 		playerEntity.Property("m_bSpottedByMask.001").OnUpdate(spottersChanged)
 	}
 
-	if isNew && pl.SteamID != 0 {
+	if isNew && pl.SteamID64 != 0 {
 		p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 	}
 }
