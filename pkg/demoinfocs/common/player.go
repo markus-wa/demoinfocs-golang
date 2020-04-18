@@ -21,7 +21,7 @@ const (
 type Player struct {
 	demoInfoProvider demoInfoProvider // provider for demo info such as tick-rate or current tick
 
-	SteamID           int64              // int64 representation of the User's Steam ID
+	SteamID           uint64             // int64 representation of the User's Steam ID
 	LastAlivePosition r3.Vector          // The location where the player was last alive. Should be equal to Position if the player is still alive.
 	UserID            int                // Mostly used in game-events to address this player
 	Name              string             // Steam / in-game user name

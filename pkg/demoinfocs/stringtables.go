@@ -21,7 +21,7 @@ const (
 
 type playerInfo struct {
 	version     int64
-	xuid        int64
+	xuid        uint64
 	name        string
 	userID      int
 	guid        string
@@ -247,7 +247,7 @@ func parsePlayerInfo(reader io.Reader) *playerInfo {
 
 	res := &playerInfo{
 		version:     int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
-		xuid:        int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
+		xuid:        binary.BigEndian.Uint64(br.ReadBytes(8)),
 		name:        br.ReadCString(playerNameMaxLength),
 		userID:      int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
 		guid:        br.ReadCString(guidLength),

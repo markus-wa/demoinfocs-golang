@@ -3,8 +3,6 @@ package demoinfocs
 import (
 	"errors"
 	"fmt"
-	"strconv"
-
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
 
@@ -427,7 +425,7 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEvent
 	}
 
 	var err error
-	pl.xuid, err = getCommunityID(pl.guid)
+	pl.xuid, err = guidToSteamID64(pl.guid)
 
 	if err != nil {
 		geh.parser.setError(fmt.Errorf("failed to parse player XUID: %v", err.Error()))
@@ -734,24 +732,15 @@ func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_Ga
 	return data
 }
 
-// We're all better off not asking questions
-const valveMagicNumber = 76561197960265728
-
-func getCommunityID(guid string) (int64, error) {
+func guidToSteamID64(guid string) (uint64, error) {
 	if guid == "BOT" {
 		return 0, nil
 	}
 
-	authSrv, errSrv := strconv.ParseInt(guid[8:9], 10, 64)
-	if errSrv != nil {
-		return 0, errSrv
+	steamID32, err := common.ConvertSteamIDTxtTo32(guid)
+	if err != nil {
+		return 0, err
 	}
 
-	authID, errID := strconv.ParseInt(guid[10:], 10, 64)
-	if errID != nil {
-		return 0, errID
-	}
-
-	// WTF are we doing here?
-	return valveMagicNumber + authID*2 + authSrv, nil
+	return common.ConvertSteamID32To64(steamID32), nil
 }
