@@ -49,6 +49,12 @@ func TestRankUpdate_SteamID64(t *testing.T) {
 	assert.Equal(t, uint64(76561198012952267), event.SteamID64())
 }
 
+func TestKill_IsWallBang(t *testing.T) {
+	event := Kill{PenetratedObjects: 1}
+
+	assert.True(t, event.IsWallBang())
+}
+
 type demoInfoProviderMock struct {
 }
 

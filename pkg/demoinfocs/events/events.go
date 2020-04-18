@@ -142,6 +142,11 @@ type Kill struct {
 	IsHeadshot        bool
 }
 
+// IsWallBang returns true if PenetratedObjects is larger than 0.
+func (k Kill) IsWallBang() bool {
+	return k.PenetratedObjects > 0
+}
+
 // BotTakenOver signals that a player took over a bot.
 type BotTakenOver struct {
 	Taker *common.Player
