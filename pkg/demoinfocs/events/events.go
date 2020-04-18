@@ -420,6 +420,7 @@ type RankUpdate struct {
 	RankOld    int
 	RankNew    int
 	WinCount   int
+	Player     *common.Player // may be nil if the player has already disconnected
 }
 
 // SteamID64 converts SteamID32 to the 64-bit SteamID variant and returns the result.

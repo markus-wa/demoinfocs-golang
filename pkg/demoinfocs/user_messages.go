@@ -3,8 +3,9 @@ package demoinfocs
 import (
 	"fmt"
 
-	"github.com/markus-wa/go-unassert"
+	unassert "github.com/markus-wa/go-unassert"
 
+	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
@@ -123,12 +124,21 @@ func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 	}
 
 	for _, v := range st.RankUpdate {
+		// find player (if he hasn't disconnected already)
+		var player *common.Player
+		for _, pl := range umh.parser.gameState.playersByUserID { //nolint:wsl
+			if pl.SteamID32() == uint32(v.AccountId) {
+				player = pl
+			}
+		}
+
 		umh.dispatch(events.RankUpdate{
 			SteamID32:  v.AccountId,
 			RankOld:    int(v.RankOld),
 			RankNew:    int(v.RankNew),
 			WinCount:   int(v.NumWins),
 			RankChange: v.RankChange,
+			Player:     player,
 		})
 	}
 }
