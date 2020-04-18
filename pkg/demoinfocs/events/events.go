@@ -417,6 +417,11 @@ type RankUpdate struct {
 	WinCount   int
 }
 
+// SteamID64 converts SteamID32 from the 32-bit SteamID to a 64-bit variant
+func (ru RankUpdate) SteamID64() uint64 {
+	return common.ConvertSteamID32To64(uint32(ru.SteamID32))
+}
+
 // ItemEquip signals an item was equipped.
 // This event is not available in all demos.
 type ItemEquip struct {
