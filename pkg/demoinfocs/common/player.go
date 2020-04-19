@@ -278,9 +278,9 @@ func (p *Player) Velocity() r3.Vector {
 	}
 
 	return r3.Vector{
-		X: p.Entity.PropertyValueMust("localdata.m_vecVelocity[0]").Float64Val(),
-		Y: p.Entity.PropertyValueMust("localdata.m_vecVelocity[1]").Float64Val(),
-		Z: p.Entity.PropertyValueMust("localdata.m_vecVelocity[2]").Float64Val(),
+		X: float64(p.Entity.PropertyValueMust("localdata.m_vecVelocity[0]").FloatVal),
+		Y: float64(p.Entity.PropertyValueMust("localdata.m_vecVelocity[1]").FloatVal),
+		Z: float64(p.Entity.PropertyValueMust("localdata.m_vecVelocity[2]").FloatVal),
 	}
 }
 

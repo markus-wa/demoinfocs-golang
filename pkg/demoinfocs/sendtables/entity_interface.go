@@ -44,11 +44,6 @@ type Entity interface {
 	//
 	// See also Position()
 	OnPositionUpdate(h func(pos r3.Vector))
-	// BindPosition binds the entity's position to a pointer variable.
-	// The pointer is updated every time a position-relevant property is updated.
-	//
-	// See also OnPositionUpdate()
-	BindPosition(pos *r3.Vector)
 	// OnDestroy registers a function to be called on the entity's destruction.
 	OnDestroy(delegate func())
 	// Destroy triggers all via OnDestroy() registered functions.

@@ -271,16 +271,6 @@ func (e *entity) OnPositionUpdate(h func(pos r3.Vector)) {
 	}
 }
 
-// BindPosition binds the entity's position to a pointer variable.
-// The pointer is updated every time a position-relevant property is updated.
-//
-// See also OnPositionUpdate()
-func (e *entity) BindPosition(pos *r3.Vector) {
-	e.OnPositionUpdate(func(newPos r3.Vector) {
-		*pos = newPos
-	})
-}
-
 // Returns a coordinate from a cell + offset
 func coordFromCell(cell, cellWidth int, offset float64) float64 {
 	return float64(cell*cellWidth-maxCoordInt) + offset
