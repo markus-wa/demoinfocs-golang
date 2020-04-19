@@ -80,7 +80,7 @@ type PropertyValue struct {
 	FloatVal  float32
 }
 
-// BoolVal returns true if IntVal == 1.
+// BoolVal returns true if IntVal > 0.
 func (v PropertyValue) BoolVal() bool {
 	return v.IntVal > 0
 }

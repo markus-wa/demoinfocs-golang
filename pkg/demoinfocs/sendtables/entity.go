@@ -42,7 +42,12 @@ func (e *entity) Properties() (out []Property) {
 }
 
 func (e *entity) property(name string) *property {
-	return &e.props[e.serverClass.propNameToIndex[name]]
+	i, ok := e.serverClass.propNameToIndex[name]
+	if !ok {
+		return nil
+	}
+
+	return &e.props[i]
 }
 
 // Property finds a property on the entity by name.
