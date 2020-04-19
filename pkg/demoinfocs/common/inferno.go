@@ -40,13 +40,19 @@ type Fires struct {
 // UniqueID returns the unique id of the inferno.
 // The unique id is a random int generated internally by this library and can be used to differentiate
 // infernos from each other. This is needed because demo-files reuse entity ids.
-func (inf Inferno) UniqueID() int64 {
+func (inf *Inferno) UniqueID() int64 {
 	return inf.uniqueID
+}
+
+// Thrower returns the player who threw the fire grenade.
+// Could be nil if the player disconnected after throwing it.
+func (inf *Inferno) Thrower() *Player {
+	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.Property("m_hOwnerEntity").Value().IntVal)
 }
 
 // Fires returns all fires (past + present).
 // Some are currently active and some have extinguished (see Fire.IsBurning).
-func (inf Inferno) Fires() Fires {
+func (inf *Inferno) Fires() Fires {
 	entity := inf.Entity
 	origin := entity.Position()
 	nFires := entity.PropertyValueMust("m_fireCount").IntVal
@@ -171,12 +177,6 @@ func (f Fires) ConvexHull3D() quickhull.ConvexHull {
 	}
 
 	return convexHull(pointCloud)
-}
-
-// Thrower returns the player who threw the fire grenade.
-// Could be nil if the player disconnected after throwing it.
-func (inf Inferno) Thrower() *Player {
-	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.Property("m_hOwnerEntity").Value().IntVal)
 }
 
 func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {

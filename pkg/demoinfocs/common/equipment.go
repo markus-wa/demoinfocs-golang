@@ -291,26 +291,26 @@ type Equipment struct {
 
 // String returns a human readable name for the equipment.
 // E.g. 'AK-47', 'UMP-45', 'Smoke Grenade' etc.
-func (e Equipment) String() string {
+func (e *Equipment) String() string {
 	return e.Type.String()
 }
 
 // Class returns the class of the equipment.
 // E.g. pistol, smg, heavy etc.
-func (e Equipment) Class() EquipmentClass {
+func (e *Equipment) Class() EquipmentClass {
 	return e.Type.Class()
 }
 
 // UniqueID returns the unique id of the equipment element.
 // The unique id is a random int generated internally by this library and can be used to differentiate
 // equipment from each other. This is needed because demo-files reuse entity ids.
-func (e Equipment) UniqueID() int64 {
+func (e *Equipment) UniqueID() int64 {
 	return e.uniqueID
 }
 
 // AmmoInMagazine returns the ammo left in the magazine.
 // Returns CWeaponCSBase.m_iClip1 for most weapons and 1 for grenades.
-func (e Equipment) AmmoInMagazine() int {
+func (e *Equipment) AmmoInMagazine() int {
 	if e.Class() == EqClassGrenade {
 		return 1
 	}
@@ -329,13 +329,13 @@ func (e Equipment) AmmoInMagazine() int {
 }
 
 // AmmoType returns the weapon's ammo type, mostly (only?) relevant for grenades.
-func (e Equipment) AmmoType() int {
+func (e *Equipment) AmmoType() int {
 	return getInt(e.Entity, "LocalWeaponData.m_iPrimaryAmmoType")
 }
 
 // ZoomLevel returns how far the player has zoomed in on the weapon.
 // Only weapons with scopes have a valid zoom level.
-func (e Equipment) ZoomLevel() ZoomLevel {
+func (e *Equipment) ZoomLevel() ZoomLevel {
 	if e.Entity == nil {
 		return 0
 	}
@@ -349,7 +349,7 @@ func (e Equipment) ZoomLevel() ZoomLevel {
 // AmmoReserve returns the ammo left available for reloading.
 // Returns CWeaponCSBase.m_iPrimaryReserveAmmoCount for most weapons and 'Owner.AmmoLeft[AmmoType] - 1' for grenades.
 // Use AmmoInMagazine() + AmmoReserve() to quickly get the amount of grenades a player owns.
-func (e Equipment) AmmoReserve() int {
+func (e *Equipment) AmmoReserve() int {
 	if e.Class() == EqClassGrenade {
 		if e.Owner != nil {
 			// minus one for 'InMagazine'

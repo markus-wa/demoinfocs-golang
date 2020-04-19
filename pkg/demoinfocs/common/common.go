@@ -42,7 +42,7 @@ type DemoHeader struct {
 // Not necessarily the tick-rate the server ran on during the game.
 //
 // Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
-func (h DemoHeader) FrameRate() float64 {
+func (h *DemoHeader) FrameRate() float64 {
 	if h.PlaybackTime == 0 {
 		return 0
 	}
@@ -53,7 +53,7 @@ func (h DemoHeader) FrameRate() float64 {
 // FrameTime returns the time a frame / demo-tick takes in seconds.
 //
 // Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
-func (h DemoHeader) FrameTime() time.Duration {
+func (h *DemoHeader) FrameTime() time.Duration {
 	if h.PlaybackFrames == 0 {
 		return 0
 	}
@@ -75,14 +75,14 @@ type GrenadeProjectile struct {
 }
 
 // Position returns the current position of the grenade projectile in world coordinates.
-func (g GrenadeProjectile) Position() r3.Vector {
+func (g *GrenadeProjectile) Position() r3.Vector {
 	return g.Entity.Position()
 }
 
 // UniqueID returns the unique id of the grenade.
 // The unique id is a random int generated internally by this library and can be used to differentiate
 // grenades from each other. This is needed because demo-files reuse entity ids.
-func (g GrenadeProjectile) UniqueID() int64 {
+func (g *GrenadeProjectile) UniqueID() int64 {
 	return g.uniqueID
 }
 
@@ -104,7 +104,7 @@ type Bomb struct {
 // Position returns the current position of the bomb.
 // This is either the position of the player holding it
 // or LastOnGroundPosition if it's dropped or planted.
-func (b Bomb) Position() r3.Vector {
+func (b *Bomb) Position() r3.Vector {
 	if b.Carrier != nil {
 		return b.Carrier.Position()
 	}
@@ -124,39 +124,39 @@ type TeamState struct {
 }
 
 // Team returns the team for which the TeamState contains data.
-func (ts TeamState) Team() Team {
+func (ts *TeamState) Team() Team {
 	return ts.team
 }
 
 // ID returns the team ID, this stays the same even after switching sides.
-func (ts TeamState) ID() int {
+func (ts *TeamState) ID() int {
 	return getInt(ts.Entity, "m_iTeamNum")
 }
 
 // Score returns the current score of the team (usually 0-16 without overtime).
-func (ts TeamState) Score() int {
+func (ts *TeamState) Score() int {
 	return getInt(ts.Entity, "m_scoreTotal")
 }
 
 // ClanName returns the team name (e.g. Fnatic).
-func (ts TeamState) ClanName() string {
+func (ts *TeamState) ClanName() string {
 	return getString(ts.Entity, "m_szClanTeamname")
 }
 
 // Flag returns the flag code (e.g. DE, FR, etc.).
 //
 // Watch out, in some demos this is upper-case and in some lower-case.
-func (ts TeamState) Flag() string {
+func (ts *TeamState) Flag() string {
 	return getString(ts.Entity, "m_szTeamFlagImage")
 }
 
 // Members returns the players that are members of the team.
-func (ts TeamState) Members() []*Player {
+func (ts *TeamState) Members() []*Player {
 	return ts.membersCallback(ts.team)
 }
 
 // CurrentEquipmentValue returns the cumulative value of all equipment currently owned by the members of the team.
-func (ts TeamState) CurrentEquipmentValue() (value int) {
+func (ts *TeamState) CurrentEquipmentValue() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.EquipmentValueCurrent()
 	}
@@ -165,7 +165,7 @@ func (ts TeamState) CurrentEquipmentValue() (value int) {
 }
 
 // RoundStartEquipmentValue returns the cumulative value of all equipment owned by the members of the team at the start of the current round.
-func (ts TeamState) RoundStartEquipmentValue() (value int) {
+func (ts *TeamState) RoundStartEquipmentValue() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.EquipmentValueRoundStart()
 	}
@@ -174,7 +174,7 @@ func (ts TeamState) RoundStartEquipmentValue() (value int) {
 }
 
 // FreezeTimeEndEquipmentValue returns the cumulative value of all equipment owned by the members of the team at the end of the freeze-time of the current round.
-func (ts TeamState) FreezeTimeEndEquipmentValue() (value int) {
+func (ts *TeamState) FreezeTimeEndEquipmentValue() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.EquipmentValueFreezeTimeEnd()
 	}
@@ -183,7 +183,7 @@ func (ts TeamState) FreezeTimeEndEquipmentValue() (value int) {
 }
 
 // MoneySpentThisRound returns the total amount of cash spent by the whole team in the current round.
-func (ts TeamState) MoneySpentThisRound() (value int) {
+func (ts *TeamState) MoneySpentThisRound() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.MoneySpentThisRound()
 	}
@@ -192,7 +192,7 @@ func (ts TeamState) MoneySpentThisRound() (value int) {
 }
 
 // MoneySpentThisRound returns the total amount of cash spent by the whole team during the whole game up to the current point.
-func (ts TeamState) MoneySpentTotal() (value int) {
+func (ts *TeamState) MoneySpentTotal() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.MoneySpentTotal()
 	}
