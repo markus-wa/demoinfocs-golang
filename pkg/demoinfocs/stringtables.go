@@ -135,7 +135,7 @@ func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) { /
 	p.eventDispatcher.Dispatch(events.StringTableCreated{TableName: tab.Name})
 }
 
-//nolint:funlen
+//nolint:funlen,gocognit
 func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
