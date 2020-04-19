@@ -527,6 +527,7 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 	p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
 }
 
+//nolint:funlen
 func (p *parser) bindGameRules() {
 	grPrefix := func(s string) string {
 		return fmt.Sprintf("%s.%s", gameRulesPrefix, s)

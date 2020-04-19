@@ -4,9 +4,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
 
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
 )
 
 func TestPlayerActiveWeapon(t *testing.T) {
@@ -206,6 +208,36 @@ func TestPlayer_IsAirborne(t *testing.T) {
 	assert.True(t, pl.IsAirborne())
 }
 
+func TestPlayer_IsDucking(t *testing.T) {
+	pl := playerWithProperty("localdata.m_Local.m_bDucking", st.PropertyValue{IntVal: 0})
+
+	assert.False(t, pl.IsDucking())
+
+	pl = playerWithProperty("localdata.m_Local.m_bDucking", st.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.IsDucking())
+}
+
+func TestPlayer_HasDefuseKit(t *testing.T) {
+	pl := playerWithProperty("m_bHasDefuser", st.PropertyValue{IntVal: 0})
+
+	assert.False(t, pl.HasDefuseKit())
+
+	pl = playerWithProperty("m_bHasDefuser", st.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.HasDefuseKit())
+}
+
+func TestPlayer_HasHelmet(t *testing.T) {
+	pl := playerWithProperty("m_bHasHelmet", st.PropertyValue{IntVal: 0})
+
+	assert.False(t, pl.HasHelmet())
+
+	pl = playerWithProperty("m_bHasHelmet", st.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.HasHelmet())
+}
+
 func TestPlayer_IsControllingBot_NilEntity(t *testing.T) {
 	pl := new(Player)
 
@@ -250,6 +282,107 @@ func TestPlayer_ControlledBot(t *testing.T) {
 	assert.Same(t, dave, pl.ControlledBot())
 }
 
+func TestPlayer_Armor(t *testing.T) {
+	pl := playerWithProperty("m_ArmorValue", st.PropertyValue{IntVal: 95})
+
+	assert.Equal(t, 95, pl.Armor())
+}
+
+func TestPlayer_Money(t *testing.T) {
+	pl := playerWithProperty("m_iAccount", st.PropertyValue{IntVal: 800})
+
+	assert.Equal(t, 800, pl.Money())
+}
+
+func TestPlayer_ViewDirectionX(t *testing.T) {
+	pl := playerWithProperty("m_angEyeAngles[1]", st.PropertyValue{FloatVal: 180})
+
+	assert.Equal(t, float32(180), pl.ViewDirectionX())
+}
+
+func TestPlayer_ViewDirectionY(t *testing.T) {
+	pl := playerWithProperty("m_angEyeAngles[0]", st.PropertyValue{FloatVal: 15})
+
+	assert.Equal(t, float32(15), pl.ViewDirectionY())
+}
+
+func TestPlayer_Position(t *testing.T) {
+	entity := new(stfake.Entity)
+	pos := r3.Vector{X: 1, Y: 2, Z: 3}
+
+	entity.On("Position").Return(pos)
+
+	pl := &Player{Entity: entity}
+
+	assert.Equal(t, pos, pl.Position())
+}
+
+func TestPlayer_Position_EntityNil(t *testing.T) {
+	pl := new(Player)
+
+	assert.Empty(t, pl.Position())
+}
+
+func TestPlayer_Velocity(t *testing.T) {
+	entity := new(stfake.Entity)
+	entity.On("PropertyValueMust", "localdata.m_vecVelocity[0]").Return(st.PropertyValue{FloatVal: 1})
+	entity.On("PropertyValueMust", "localdata.m_vecVelocity[1]").Return(st.PropertyValue{FloatVal: 2})
+	entity.On("PropertyValueMust", "localdata.m_vecVelocity[2]").Return(st.PropertyValue{FloatVal: 3})
+
+	pl := &Player{Entity: entity}
+
+	expected := r3.Vector{X: 1, Y: 2, Z: 3}
+	assert.Equal(t, expected, pl.Velocity())
+}
+
+func TestPlayer_Velocity_EntityNil(t *testing.T) {
+	pl := new(Player)
+
+	assert.Empty(t, pl.Velocity())
+}
+
+func TestPlayer_ClanTag(t *testing.T) {
+	pl := playerWithResourceProperty("m_szClan", st.PropertyValue{StringVal: "SuperClan"})
+
+	assert.Equal(t, "SuperClan", pl.ClanTag())
+}
+
+func TestPlayer_Ping(t *testing.T) {
+	pl := playerWithResourceProperty("m_iPing", st.PropertyValue{IntVal: 45})
+
+	assert.Equal(t, 45, pl.Ping())
+}
+
+func TestPlayer_Score(t *testing.T) {
+	pl := playerWithResourceProperty("m_iScore", st.PropertyValue{IntVal: 10})
+
+	assert.Equal(t, 10, pl.Score())
+}
+
+func TestPlayer_Kills(t *testing.T) {
+	pl := playerWithResourceProperty("m_iKills", st.PropertyValue{IntVal: 5})
+
+	assert.Equal(t, 5, pl.Kills())
+}
+
+func TestPlayer_Deaths(t *testing.T) {
+	pl := playerWithResourceProperty("m_iDeaths", st.PropertyValue{IntVal: 2})
+
+	assert.Equal(t, 2, pl.Deaths())
+}
+
+func TestPlayer_Assists(t *testing.T) {
+	pl := playerWithResourceProperty("m_iAssists", st.PropertyValue{IntVal: 3})
+
+	assert.Equal(t, 3, pl.Assists())
+}
+
+func TestPlayer_MVPs(t *testing.T) {
+	pl := playerWithResourceProperty("m_iMVPs", st.PropertyValue{IntVal: 4})
+
+	assert.Equal(t, 4, pl.MVPs())
+}
+
 func TestPlayer_SteamID32(t *testing.T) {
 	pl := &Player{SteamID64: 76561198012952267}
 
@@ -262,4 +395,13 @@ func newPlayer(tick int) *Player {
 
 func playerWithProperty(propName string, value st.PropertyValue) *Player {
 	return &Player{Entity: entityWithProperty(propName, value)}
+}
+
+func playerWithResourceProperty(propName string, value st.PropertyValue) *Player {
+	return &Player{
+		EntityID: 1,
+		demoInfoProvider: demoInfoProviderMock{
+			playerResourceEntity: entityWithProperty(propName+".001", value),
+		},
+	}
 }

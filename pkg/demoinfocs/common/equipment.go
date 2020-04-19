@@ -273,9 +273,9 @@ func MapEquipment(eqName string) EquipmentType {
 type ZoomLevel int
 
 const (
-	ZoomNone = 0
-	ZoomHalf = 1
-	ZoomFull = 2
+	ZoomNone ZoomLevel = 0
+	ZoomHalf ZoomLevel = 1
+	ZoomFull ZoomLevel = 2
 )
 
 // Equipment is a weapon / piece of equipment belonging to a player.
@@ -315,12 +315,17 @@ func (e Equipment) AmmoInMagazine() int {
 		return 1
 	}
 
+	if e.Entity == nil {
+		return 0
+	}
+
 	val, ok := e.Entity.PropertyValue("m_iClip1")
 	if !ok {
 		return -1
 	}
 
-	return val.IntVal
+	// need to subtract 1 as m_iClip1 is nrOfBullets + 1
+	return val.IntVal - 1
 }
 
 // AmmoType returns the weapon's ammo type, mostly (only?) relevant for grenades.
@@ -351,6 +356,10 @@ func (e Equipment) AmmoReserve() int {
 			return e.Owner.AmmoLeft[e.AmmoType()] - 1
 		}
 
+		return 0
+	}
+
+	if e.Entity == nil {
 		return 0
 	}
 

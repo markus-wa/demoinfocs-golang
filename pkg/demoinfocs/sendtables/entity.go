@@ -42,7 +42,12 @@ func (e *entity) Properties() (out []Property) {
 }
 
 func (e *entity) property(name string) *property {
-	return &e.props[e.serverClass.propNameToIndex[name]]
+	i, ok := e.serverClass.propNameToIndex[name]
+	if !ok {
+		return nil
+	}
+
+	return &e.props[i]
 }
 
 // Property finds a property on the entity by name.
@@ -269,16 +274,6 @@ func (e *entity) OnPositionUpdate(h func(pos r3.Vector)) {
 		e.Property(propCellZ).OnUpdate(firePosUpdate)
 		e.Property(propVecOrigin).OnUpdate(firePosUpdate)
 	}
-}
-
-// BindPosition binds the entity's position to a pointer variable.
-// The pointer is updated every time a position-relevant property is updated.
-//
-// See also OnPositionUpdate()
-func (e *entity) BindPosition(pos *r3.Vector) {
-	e.OnPositionUpdate(func(newPos r3.Vector) {
-		*pos = newPos
-	})
 }
 
 // Returns a coordinate from a cell + offset
