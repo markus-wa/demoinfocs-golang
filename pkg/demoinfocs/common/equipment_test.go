@@ -38,12 +38,53 @@ func TestEquipment_UniqueID(t *testing.T) {
 	assert.NotEqual(t, NewEquipment(EqAK47).UniqueID(), NewEquipment(EqAK47).UniqueID(), "UniqueIDs of different equipment instances should be different")
 }
 
+func TestEquipment_AmmoInMagazine(t *testing.T) {
+	wep := &Equipment{
+		Type:   EqAK47,
+		Entity: entityWithProperty("m_iClip1", st.PropertyValue{IntVal: 31}),
+	}
+
+	// returned value should be minus 1, m_iClip1 is always 1 more than the actual number of bullets
+	assert.Equal(t, 30, wep.AmmoInMagazine())
+}
+
+func TestEquipment_AmmoInMagazine_NotFound(t *testing.T) {
+	entity := entityWithID(1)
+	entity.On("PropertyValue", "m_iClip1").Return(st.PropertyValue{}, false)
+
+	wep := &Equipment{
+		Type:   EqAK47,
+		Entity: entity,
+	}
+
+	// returned value should be minus 1, m_iClip1 is always 1 more than the actual number of bullets
+	assert.Equal(t, -1, wep.AmmoInMagazine())
+}
+
 func TestEquipment_AmmoInMagazine_Grenade(t *testing.T) {
 	wep := &Equipment{
 		Type: EqFlash,
 	}
 
 	assert.Equal(t, 1, wep.AmmoInMagazine())
+}
+
+func TestEquipment_AmmoInMagazine_EntityNil(t *testing.T) {
+	wep := &Equipment{
+		Type: EqAK47,
+	}
+
+	assert.Equal(t, 0, wep.AmmoInMagazine())
+}
+
+func TestEquipment_AmmoReserve(t *testing.T) {
+	entity := entityWithProperty("m_iPrimaryReserveAmmoCount", st.PropertyValue{IntVal: 60})
+	wep := &Equipment{
+		Type:   EqAK47,
+		Entity: entity,
+	}
+
+	assert.Equal(t, 60, wep.AmmoReserve())
 }
 
 func TestEquipment_AmmoReserve_Grenade(t *testing.T) {
@@ -60,12 +101,37 @@ func TestEquipment_AmmoReserve_Grenade(t *testing.T) {
 	assert.Equal(t, 1, wep.AmmoReserve())
 }
 
-func TestEquipment_AmmoReserve2_Grenade_OwnerNil(t *testing.T) {
+func TestEquipment_AmmoReserve_Grenade_OwnerNil(t *testing.T) {
 	wep := &Equipment{
 		Type: EqFlash,
 	}
 
 	assert.Equal(t, 0, wep.AmmoReserve())
+}
+
+func TestEquipment_AmmoReserve_EntityNil(t *testing.T) {
+	wep := &Equipment{
+		Type: EqAK47,
+	}
+
+	assert.Equal(t, 0, wep.AmmoReserve())
+}
+
+func TestEquipment_ZoomLevel(t *testing.T) {
+	wep := &Equipment{
+		Type:   EqAK47,
+		Entity: entityWithProperty("m_zoomLevel", st.PropertyValue{IntVal: 2}),
+	}
+
+	assert.Equal(t, ZoomFull, wep.ZoomLevel())
+}
+
+func TestEquipment_ZoomLevel_EntityNil(t *testing.T) {
+	wep := &Equipment{
+		Type: EqAK47,
+	}
+
+	assert.Equal(t, ZoomLevel(0), wep.ZoomLevel())
 }
 
 func TestEquipmentAlternative(t *testing.T) {

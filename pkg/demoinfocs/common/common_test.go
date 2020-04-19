@@ -188,7 +188,7 @@ func entityWithProperty(propName string, value st.PropertyValue) *stfake.Entity 
 	prop.On("Value").Return(value)
 
 	entity.On("Property", propName).Return(prop)
-	entity.On("PropertyValue", propName).Return(prop, true)
+	entity.On("PropertyValue", propName).Return(value, true)
 	entity.On("PropertyValueMust", propName).Return(value)
 
 	return entity
