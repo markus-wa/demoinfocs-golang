@@ -1,3 +1,4 @@
+// Package constants contains constants that are used internally across the demoinfocs library.
 package constants
 
 const (
