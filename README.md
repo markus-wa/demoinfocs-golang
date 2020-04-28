@@ -160,6 +160,7 @@ There is one caveat however: Beta features - which are marked as such via commen
 - [noesis.gg](https://www.noesis.gg/) - A suite of explorative tools to help you analyze and improve your CS:GO performance
 - [esportal.se](https://beta.esportal.se/) - An alternative Matchmaking service that aims to provide a friendly environment free from trolls and misbehaving individuals
 - [esportslab.gg](http://esportslab.gg/) - Building ML/AI tools for professional esports players
+- [scope.gg](https://scope.gg/) - Analytical and advisory service for advanced CS:GO players
 - [cs-demo-minifier](https://github.com/markus-wa/cs-demo-minifier) - Converts demos to JSON, MessagePack and more
 - [csgo_spray_pattern_plotter](https://github.com/o40/csgo_spray_pattern_plotter) - A tool to extract and plot spray patterns from CS:GO replays
 - [CS:GO Player Skill Prediction](https://drive.google.com/file/d/1JXIB57BA2XBTYVLSy6Xg_5nfL6dWyDmG/view) - Machine learning master thesis by [@quancore](https://github.com/quancore) about predicting player performance
