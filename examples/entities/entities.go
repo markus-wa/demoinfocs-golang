@@ -5,10 +5,10 @@ import (
 	_ "image/jpeg"
 	"os"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	"github.com/markus-wa/demoinfocs-golang/events"
-	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	st "github.com/markus-wa/demoinfocs-golang/sendtables"
+	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
 // Run like this: go run entities.go -demo /path/to/demo.dem
@@ -17,15 +17,15 @@ func main() {
 	checkError(err)
 	defer f.Close()
 
-	p := dem.NewParser(f)
+	p := demoinfocs.NewParser(f)
 
 	p.RegisterEventHandler(func(events.DataTablesParsed) {
-		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent *st.Entity) {
-			ent.FindPropertyI("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent st.Entity) {
+			ent.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 				x := p.GameState().Participants().FindByHandle(val.IntVal)
 				if x != nil {
 					var prev string
-					prevHandle := ent.FindPropertyI("m_hPrevOwner").Value().IntVal
+					prevHandle := ent.Property("m_hPrevOwner").Value().IntVal
 					prevPlayer := p.GameState().Participants().FindByHandle(prevHandle)
 					if prevPlayer != nil {
 						if prevHandle != val.IntVal {

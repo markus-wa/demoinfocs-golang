@@ -11,10 +11,10 @@ import (
 	schemes "github.com/dustin/go-heatmap/schemes"
 	r2 "github.com/golang/geo/r2"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	metadata "github.com/markus-wa/demoinfocs-golang/metadata"
+	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	metadata "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 )
 
 const (
@@ -33,7 +33,7 @@ func main() {
 	checkError(err)
 	defer f.Close()
 
-	p := dem.NewParser(f)
+	p := demoinfocs.NewParser(f)
 
 	// Parse header (contains map-name etc.)
 	header, err := p.ParseHeader()
@@ -46,7 +46,7 @@ func main() {
 	var points []r2.Point
 	p.RegisterEventHandler(func(e events.WeaponFire) {
 		// Translate positions from in-game coordinates to radar overview image pixels
-		x, y := mapMetadata.TranslateScale(e.Shooter.Position.X, e.Shooter.Position.Y)
+		x, y := mapMetadata.TranslateScale(e.Shooter.Position().X, e.Shooter.Position().Y)
 
 		points = append(points, r2.Point{X: x, Y: y})
 	})
@@ -78,7 +78,7 @@ func main() {
 	//
 
 	// Load map overview image
-	fMap, err := os.Open(fmt.Sprintf("../../metadata/maps/%s.jpg", header.MapName))
+	fMap, err := os.Open(fmt.Sprintf("../../assets/maps/%s.jpg", header.MapName))
 	checkError(err)
 	imgMap, _, err := image.Decode(fMap)
 	checkError(err)

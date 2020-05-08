@@ -4,19 +4,20 @@ import (
 	"fmt"
 	"os"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	common "github.com/markus-wa/demoinfocs-golang/common"
-	events "github.com/markus-wa/demoinfocs-golang/events"
-	ex "github.com/markus-wa/demoinfocs-golang/examples"
+	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 )
 
 // Run like this: go run print_events.go -demo /path/to/demo.dem
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
-	defer f.Close()
 	checkError(err)
 
-	p := dem.NewParser(f)
+	defer f.Close()
+
+	p := demoinfocs.NewParser(f)
 
 	// Parse header
 	header, err := p.ParseHeader()
@@ -33,7 +34,7 @@ func main() {
 		if e.PenetratedObjects > 0 {
 			wallBang = " (WB)"
 		}
-		fmt.Printf("%s <%v%s%s> %s\n", formatPlayer(e.Killer), e.Weapon.Weapon, hs, wallBang, formatPlayer(e.Victim))
+		fmt.Printf("%s <%v%s%s> %s\n", formatPlayer(e.Killer), e.Weapon.Type, hs, wallBang, formatPlayer(e.Victim))
 	})
 
 	// Register handler on round end to figure out who won
@@ -42,9 +43,9 @@ func main() {
 		switch e.Winner {
 		case common.TeamTerrorists:
 			// Winner's score + 1 because it hasn't actually been updated yet
-			fmt.Printf("Round finished: winnerSide=T  ; score=%d:%d\n", gs.TeamTerrorists().Score+1, gs.TeamCounterTerrorists().Score)
+			fmt.Printf("Round finished: winnerSide=T  ; score=%d:%d\n", gs.TeamTerrorists().Score()+1, gs.TeamCounterTerrorists().Score())
 		case common.TeamCounterTerrorists:
-			fmt.Printf("Round finished: winnerSide=CT ; score=%d:%d\n", gs.TeamCounterTerrorists().Score+1, gs.TeamTerrorists().Score)
+			fmt.Printf("Round finished: winnerSide=CT ; score=%d:%d\n", gs.TeamCounterTerrorists().Score()+1, gs.TeamTerrorists().Score())
 		default:
 			// Probably match medic or something similar
 			fmt.Println("Round finished: No winner (tie)")
@@ -57,7 +58,7 @@ func main() {
 	})
 
 	p.RegisterEventHandler(func(e events.RankUpdate) {
-		fmt.Printf("Rank Update: %d went from rank %d to rank %d, change: %f\n", e.SteamID, e.RankOld, e.RankNew, e.RankChange)
+		fmt.Printf("Rank Update: %d went from rank %d to rank %d, change: %f\n", e.SteamID32, e.RankOld, e.RankNew, e.RankChange)
 	})
 
 	// Parse to end

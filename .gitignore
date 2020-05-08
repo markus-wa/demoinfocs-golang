@@ -4,4 +4,7 @@ demoinfocs-golang.test.exe
 .vscode/
 .idea/
 *.log
+log.*
 coverage.*
+*.out
+demoinfocs.test

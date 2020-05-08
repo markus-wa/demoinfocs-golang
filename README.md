@@ -2,7 +2,7 @@
 
 Is a Go library for super fast parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). It is based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a>.
 
-[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang?tab=doc)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc)
 [![Build Status](https://travis-ci.org/markus-wa/demoinfocs-golang.svg?branch=master)](https://travis-ci.org/markus-wa/demoinfocs-golang)
 [![codecov](https://codecov.io/gh/markus-wa/demoinfocs-golang/branch/master/graph/badge.svg)](https://codecov.io/gh/markus-wa/demoinfocs-golang)
 [![Go Report](https://goreportcard.com/badge/github.com/markus-wa/demoinfocs-golang)](https://goreportcard.com/report/github.com/markus-wa/demoinfocs-golang)
@@ -23,14 +23,20 @@ Go check out [this README on the `v2` branch](https://github.com/markus-wa/demoi
 
 ## Requirements
 
-This library is intended to be used with `go 1.11` or higher as it is built using Go modules.
+This library should be used with `go 1.11` or higher as it is built using Go modules.
 
 It's recommended to use modules for consumers as well if possible.
 If you are unfamiliar with Go modules there's a [list of recommended resources](https://github.com/markus-wa/demoinfocs-golang/wiki/Go-Modules#recommended-links--articles) in the wiki.
 
 ## Go Get
 
-	go get -u github.com/markus-wa/demoinfocs-golang
+	go get -u github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs
+
+## Upgrading from v1.x to v2
+
+If you are currently using version 1.x of this library, check out [this wiki page](https://github.com/markus-wa/demoinfocs-golang/wiki/Upgrading-from-v1.x-to-v2.0.0) for an upgrade guide.
+
+The old code is also still available in the [`v1` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v1) if you need it.
 
 ## Example
 
@@ -46,8 +52,8 @@ import (
 	"fmt"
 	"os"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	events "github.com/markus-wa/demoinfocs-golang/events"
+	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 )
 
 func main() {
@@ -103,12 +109,13 @@ Check out the [examples](examples) folder for more examples, like [how to genera
 
 ## Features
 
-* Game events (kills, shots, round starts/ends, footsteps etc.) - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
-* Tracking of game-state (players, teams, grenades, ConVars etc.) - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState)
-* Grenade projectiles / trajectories - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/nade-trajectories)
-* Access to entities, server-classes & data-tables - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/sendtables#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
-* Access to all net-messages - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
-* Chat & console messages <sup id="achat1">1</sup> - [docs](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* Game events (kills, shots, round starts/ends, footsteps etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events?tab=doc) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* Tracking of game-state (players, teams, grenades, ConVars etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc#GameState)
+* Grenade projectiles / trajectories - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/nade-trajectories)
+* Access to entities, server-classes & data-tables - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables?tab=doc#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
+* Access to all net-messages - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
+* Chat & console messages <sup id="achat1">1</sup> - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events?tab=doc#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* Matchmaking ranks (official MM demos only) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events?tab=doc#RankUpdate)
 * POV demo support <sup id="achat1">2</sup>
 * JavaScript (browser / Node.js) support via WebAssembly - [example](https://github.com/markus-wa/demoinfocs-wasm)
 * [Easy debugging via build-flags](#debugging)
@@ -174,7 +181,7 @@ If your project is using this library feel free to submit a PR or send a message
 
 To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, you can run the following script.
 
-    bin/git-hooks/link-git-hooks.sh
+    scripts/git-hooks/link-git-hooks.sh
 
 #### `pre-commit`:
 - check if [interfaces have been updated](#generating-interfaces)
@@ -193,7 +200,7 @@ However, due to some design flaws in some parts of the code it's currently not a
 
 Running unit tests:
 
-    bin/unit-tests.sh
+    scripts/unit-tests.sh
     # or (identical)
     go test -short ./...
 
@@ -207,7 +214,7 @@ Prerequisites:
 
 Downloading demos + running regression tests:
 
-    bin/regression-tests.sh
+    scripts/regression-tests.sh
 
 #### Updating the `default.golden` file
 
@@ -231,11 +238,11 @@ Check out `debug_on.go` for any other settings that can be changed.
 
 ### Generating interfaces
 
-We generate interfaces such as `IGameState` from structs to make it easier to keep docs in synch over structs and interfaces.
+We generate interfaces such as `GameState` from structs to make it easier to keep docs in synch over structs and interfaces.
 For this we use [@vburenin](https://github.com/vburenin)'s [`ifacemaker`](https://github.com/vburenin/ifacemaker) tool.
 
 You can download the latest version [here](https://github.com/vburenin/ifacemaker/releases).
-After adding it to your `PATH` you can use `bin/generate-interfaces.sh` to update interfaces.
+After adding it to your `PATH` you can use `scripts/generate-interfaces.sh` to update interfaces.
 
 ### Generating protobuf code
 

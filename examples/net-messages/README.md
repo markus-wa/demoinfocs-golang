@@ -37,7 +37,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
-	"github.com/markus-wa/demoinfocs-golang/msg"
+	"github.com/markus-wa/demoinfocs-golang/v2/msg"
 )
 
 cfg := dem.DefaultParserConfig

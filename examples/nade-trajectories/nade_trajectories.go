@@ -13,15 +13,15 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/llgcode/draw2d/draw2dimg"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	"github.com/markus-wa/demoinfocs-golang/common"
-	"github.com/markus-wa/demoinfocs-golang/events"
-	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	"github.com/markus-wa/demoinfocs-golang/metadata"
+	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	metadata "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 )
 
 type nadePath struct {
-	wep  common.EquipmentElement
+	wep  common.EquipmentType
 	path []r3.Vector
 	team common.Team
 }
@@ -45,7 +45,7 @@ func main() {
 	checkError(err)
 	defer f.Close()
 
-	p := dem.NewParser(f)
+	p := demoinfocs.NewParser(f)
 
 	header, err := p.ParseHeader()
 	checkError(err)
@@ -65,7 +65,7 @@ func main() {
 
 		if nadeTrajectories[id] == nil {
 			nadeTrajectories[id] = &nadePath{
-				wep:  e.Projectile.Weapon,
+				wep:  e.Projectile.WeaponInstance.Type,
 				team: team,
 			}
 		}
@@ -103,7 +103,7 @@ func main() {
 	checkError(err)
 
 	// Use map overview as base image
-	fMap, err := os.Open(fmt.Sprintf("../../metadata/maps/%s.jpg", header.MapName))
+	fMap, err := os.Open(fmt.Sprintf("../../assets/maps/%s.jpg", header.MapName))
 	checkError(err)
 
 	imgMap, _, err := image.Decode(fMap)
@@ -138,7 +138,7 @@ func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
 	// Calculate hulls
 	hulls := make([][]r2.Point, len(infernos))
 	for i := range infernos {
-		hulls[i] = infernos[i].ConvexHull2D()
+		hulls[i] = infernos[i].Fires().ConvexHull2D()
 	}
 
 	for _, hull := range hulls {

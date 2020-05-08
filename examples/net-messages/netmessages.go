@@ -6,9 +6,9 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
-	ex "github.com/markus-wa/demoinfocs-golang/examples"
-	"github.com/markus-wa/demoinfocs-golang/msg"
+	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
+	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
 // Run like this: go run netmessages.go -demo /path/to/demo.dem > out.png
@@ -18,14 +18,14 @@ func main() {
 	defer f.Close()
 
 	// Configure parsing of BSPDecal net-message
-	cfg := dem.DefaultParserConfig
-	cfg.AdditionalNetMessageCreators = map[int]dem.NetMessageCreator{
+	cfg := demoinfocs.DefaultParserConfig
+	cfg.AdditionalNetMessageCreators = map[int]demoinfocs.NetMessageCreator{
 		int(msg.SVC_Messages_svc_BSPDecal): func() proto.Message {
 			return new(msg.CSVCMsg_BSPDecal)
 		},
 	}
 
-	p := dem.NewParserWithConfig(f, cfg)
+	p := demoinfocs.NewParserWithConfig(f, cfg)
 
 	// Register handler for BSPDecal messages
 	p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_BSPDecal) {

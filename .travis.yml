@@ -39,21 +39,21 @@ before_script:
 
 script:
   # Compile
-  - bin/build.sh
+  - scripts/build.sh
 
   # Make sure generated code is up-to-date
-  - bin/check-interfaces-generated.sh
+  - scripts/check-interfaces-generated.sh
 
   # Lint changed code
-  - bin/lint-changes.sh
+  - scripts/lint-changes.sh
 
   # Run race tests
-  - bin/race-tests.sh
+  - scripts/race-tests.sh
 
   # Coverage
   # Note: We run ALL tests again to get full coverage
   #       Race tests are too slow and skip the regression set
-  - bin/coverage.sh
+  - scripts/coverage.sh
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
