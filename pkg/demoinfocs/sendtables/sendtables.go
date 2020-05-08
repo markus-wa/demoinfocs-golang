@@ -1,4 +1,5 @@
-// Package sendtables contains sendtable specific magic and should really be better documented (TODO).
+// Package sendtables contains code related to decoding sendtables.
+// Mostly used internally but can be interesting for direct access to server-classes and entities.
 package sendtables
 
 import (
