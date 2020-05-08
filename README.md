@@ -23,7 +23,7 @@ Go check out [this README on the `v2` branch](https://github.com/markus-wa/demoi
 
 ## Requirements
 
-This library is intended to be used with `go 1.11` or higher as it is built using Go modules.
+This library should be used with `go 1.11` or higher as it is built using Go modules.
 
 It's recommended to use modules for consumers as well if possible.
 If you are unfamiliar with Go modules there's a [list of recommended resources](https://github.com/markus-wa/demoinfocs-golang/wiki/Go-Modules#recommended-links--articles) in the wiki.
@@ -31,6 +31,12 @@ If you are unfamiliar with Go modules there's a [list of recommended resources](
 ## Go Get
 
 	go get -u github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs
+
+## Upgrading from v1.x to v2
+
+If you are currently using version 1.x of this library, check out [this wiki page](https://github.com/markus-wa/demoinfocs-golang/wiki/Upgrading-from-v1.x-to-v2.0.0) for an upgrade guide.
+
+The old code is also still available in the [`v1` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v1) if you need it.
 
 ## Example
 
