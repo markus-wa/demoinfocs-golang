@@ -77,6 +77,7 @@ enum ECstrike15UserMessages {
 	CS_UM_SSUI = 72;
 	CS_UM_SurvivalStats = 73;
 	CS_UM_DisconnectToLobby2 = 74;
+	CS_UM_EndOfMatchAllPlayersData = 75;
 }
 
 enum ECSUsrMsg_DisconnectToLobby_Action {
@@ -164,6 +165,7 @@ message CCSUsrMsg_CloseCaption {
 	optional uint32 hash = 1;
 	optional int32 duration = 2;
 	optional bool from_player = 3;
+	optional string cctoken = 4;
 }
 
 message CCSUsrMsg_CloseCaptionDirect {
@@ -266,6 +268,7 @@ message CCSUsrMsg_UpdateScreenHealthBar {
 
 message CCSUsrMsg_EntityOutlineHighlight {
 	optional int32 entidx = 1;
+	optional bool removehighlight = 2;
 }
 
 message CCSUsrMsg_AdjustMoney {
@@ -485,6 +488,28 @@ message CCSUsrMsg_SurvivalStats {
 	optional int32 ticknumber = 4;
 }
 
+message CCSUsrMsg_EndOfMatchAllPlayersData {
+	message Accolade {
+		optional int32 eaccolade = 1;
+		optional float value = 2;
+		optional int32 position = 3;
+	}
+
+	message PlayerData {
+		optional int32 entindex = 1;
+		optional uint64 xuid = 2;
+		optional string name = 3;
+		optional int32 teamnumber = 4;
+		optional .CCSUsrMsg_EndOfMatchAllPlayersData.Accolade nomination = 5;
+		repeated .CEconItemPreviewDataBlock items = 6;
+		optional int32 playercolor = 7;
+		optional bool isbot = 8;
+	}
+
+	repeated .CCSUsrMsg_EndOfMatchAllPlayersData.PlayerData allplayerdata = 1;
+	optional int32 scene = 2;
+}
+
 message CCSUsrMsg_ResetHud {
 	optional bool reset = 1;
 }
@@ -516,4 +541,3 @@ message CCSUsrMsg_ClientInfo {
 message CCSUsrMsg_ServerRankRevealAll {
 	optional int32 seconds_till_shutdown = 1;
 }
-
