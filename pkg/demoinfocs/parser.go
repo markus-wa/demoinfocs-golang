@@ -1,9 +1,9 @@
 package demoinfocs
 
 import (
-	"errors"
 	"fmt"
 	"io"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -305,10 +305,12 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.demoInfoProvider = demoInfoProvider{parser: &p}
 
 	dispatcherCfg := dp.Config{
-		PanicHandler: func(v interface{}) { p.setError(errors.New(fmt.Sprint(v))) },
+		PanicHandler: func(v interface{}) {
+			p.setError(fmt.Errorf("%v\nstacktrace:\n%s", v, debug.Stack()))
+		},
 	}
 	p.msgDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
-	p.eventDispatcher = new(dp.Dispatcher)
+	p.eventDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)
