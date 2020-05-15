@@ -1,6 +1,8 @@
 package demoinfocs
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -47,10 +49,10 @@ type parser struct {
 	stParser                     *st.SendTableParser
 	additionalNetMessageCreators map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                     chan interface{}          // Queue of net-messages
-	msgDispatcher                dp.Dispatcher             // Net-message dispatcher
+	msgDispatcher                *dp.Dispatcher            // Net-message dispatcher
 	gameEventHandler             gameEventHandler
 	userMessageHandler           userMessageHandler
-	eventDispatcher              dp.Dispatcher
+	eventDispatcher              *dp.Dispatcher
 	currentFrame                 int                // Demo-frame, not ingame-tick
 	tickInterval                 float32            // Duration between ticks in seconds
 	header                       *common.DemoHeader // Pointer so we can check for nil
@@ -301,6 +303,12 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.gameEventHandler = newGameEventHandler(&p)
 	p.userMessageHandler = newUserMessageHandler(&p)
 	p.demoInfoProvider = demoInfoProvider{parser: &p}
+
+	dispatcherCfg := dp.Config{
+		PanicHandler: func(v interface{}) { p.setError(errors.New(fmt.Sprint(v))) },
+	}
+	p.msgDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
+	p.eventDispatcher = new(dp.Dispatcher)
 
 	// Attach proto msg handlers
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)
