@@ -292,49 +292,54 @@ func (p *Player) entityIDStr() string {
 	return fmt.Sprintf("%03d", p.EntityID)
 }
 
+// ResourceEntity returns the player's CCSPlayerResource entity.
+func (p *Player) ResourceEntity() st.Entity {
+	return p.demoInfoProvider.PlayerResourceEntity()
+}
+
 // ClanTag returns the player's individual clan tag (Steam Groups etc.).
 func (p *Player) ClanTag() string {
-	return getString(p.demoInfoProvider.PlayerResourceEntity(), "m_szClan."+p.entityIDStr())
+	return getString(p.ResourceEntity(), "m_szClan."+p.entityIDStr())
 }
 
 // Ping returns the players latency to the game server.
 func (p *Player) Ping() int {
-	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iPing."+p.entityIDStr())
+	return getInt(p.ResourceEntity(), "m_iPing."+p.entityIDStr())
 }
 
 // Score returns the players score as shown on the scoreboard.
 func (p *Player) Score() int {
-	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iScore."+p.entityIDStr())
+	return getInt(p.ResourceEntity(), "m_iScore."+p.entityIDStr())
 }
 
 // Kills returns the amount of kills the player has as shown on the scoreboard.
 func (p *Player) Kills() int {
-	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iKills."+p.entityIDStr())
+	return getInt(p.ResourceEntity(), "m_iKills."+p.entityIDStr())
 }
 
 // Deaths returns the amount of deaths the player has as shown on the scoreboard.
 func (p *Player) Deaths() int {
-	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iDeaths."+p.entityIDStr())
+	return getInt(p.ResourceEntity(), "m_iDeaths."+p.entityIDStr())
 }
 
 // Assists returns the amount of assists the player has as shown on the scoreboard.
 func (p *Player) Assists() int {
-	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iAssists."+p.entityIDStr())
+	return getInt(p.ResourceEntity(), "m_iAssists."+p.entityIDStr())
 }
 
 // MVPs returns the amount of Most-Valuable-Player awards the player has as shown on the scoreboard.
 func (p *Player) MVPs() int {
-	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iMVPs."+p.entityIDStr())
+	return getInt(p.ResourceEntity(), "m_iMVPs."+p.entityIDStr())
 }
 
 // MoneySpentTotal returns the total amount of money the player has spent in the current match.
 func (p *Player) MoneySpentTotal() int {
-	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iTotalCashSpent."+p.entityIDStr())
+	return getInt(p.ResourceEntity(), "m_iTotalCashSpent."+p.entityIDStr())
 }
 
 // MoneySpentThisRound returns the amount of money the player has spent in the current round.
 func (p *Player) MoneySpentThisRound() int {
-	return getInt(p.demoInfoProvider.PlayerResourceEntity(), "m_iCashSpentThisRound."+p.entityIDStr())
+	return getInt(p.ResourceEntity(), "m_iCashSpentThisRound."+p.entityIDStr())
 }
 
 type demoInfoProvider interface {
