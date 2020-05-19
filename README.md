@@ -32,7 +32,22 @@ If you are currently using version 1.x of this library, check out [this wiki pag
 
 The old code is also still available in the [`v1` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v1) if you need it.
 
-## Example
+## Getting started
+
+1. Download and install Go 1.11 or newer [from golang.org](https://golang.org/dl/) or via your favourite package manager.
+
+2. Create a new Go Modules project
+
+```terminal
+mkdir my-project
+cd my-project
+go mod init github.com/<YOUR_GITHUB_USER>/my-project
+# you can also put example.com/my-project or anything else if you don't have GitHub or don't plan to publish your project
+```
+
+3. Create a `main.go` file with the example below
+
+### Example
 
 This is a simple example on how to handle game events using this library.
 It prints all kills in a given demo (killer, weapon, victim, was it a wallbang/headshot?) by registering a handler for [`events.Kill`](https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#Kill).
