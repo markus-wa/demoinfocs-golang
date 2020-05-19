@@ -34,7 +34,7 @@ The old code is also still available in the [`v1` branch](https://github.com/mar
 
 ## Getting started
 
-1. Download and install Go 1.11 or newer [from golang.org](https://golang.org/dl/) or via your favourite package manager.
+1. Download and install Go 1.11 or newer [from golang.org](https://golang.org/dl/) or via your favourite package manager
 
 2. Create a new Go Modules project
 
@@ -42,7 +42,8 @@ The old code is also still available in the [`v1` branch](https://github.com/mar
 mkdir my-project
 cd my-project
 go mod init github.com/<YOUR_GITHUB_USER>/my-project
-# you can also put example.com/my-project or anything else if you don't have GitHub or don't plan to publish your project
+# the module name (github.com/<YOUR_GITHUB_USER>/my-project) can always be changed later
+# you can also put example.com/my-project or anything else if you don't plan to publish your project
 ```
 
 3. Create a `main.go` file with the example below
