@@ -48,6 +48,8 @@ go mod init github.com/<YOUR_GITHUB_USER>/my-project
 
 3. Create a `main.go` file with the example below
 
+4. Run `go run main.go`
+
 ### Example
 
 This is a simple example on how to handle game events using this library.
