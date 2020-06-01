@@ -45,7 +45,7 @@ jobs:
           base: master
           branch: ${{ env.BRANCH }}
           commit-message: |
-            protobuf: updated to ${{ COMMIT_SHA }}
+            protobuf: updated to ${{ env.COMMIT_SHA }}
 
             see https://github.com/SteamDatabase/GameTracking-CSGO
       - name: Print PR outputs
