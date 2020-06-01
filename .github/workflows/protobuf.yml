@@ -27,7 +27,8 @@ jobs:
           fi
 
           commit_sha=$(pushd $GameTracking_dir > /dev/null && git rev-parse HEAD && popd > /dev/null)
-          echo "::set-env name=BRANCH::update-protobufs/$commit_sha"
+          branch=update-protobufs/$commit_sha
+          echo "::set-env name=BRANCH::$branch"
           git checkout -b $branch
           git add .
           git config --local user.email "action@github.com"
