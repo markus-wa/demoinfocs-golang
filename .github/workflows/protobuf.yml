@@ -39,6 +39,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ env.BRANCH }}
+          base: master
           force: true
       - name: Create Pull Request
         id: pr
