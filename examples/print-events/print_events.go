@@ -18,6 +18,7 @@ func main() {
 	defer f.Close()
 
 	p := demoinfocs.NewParser(f)
+	defer p.Close()
 
 	// Parse header
 	header, err := p.ParseHeader()

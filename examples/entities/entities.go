@@ -18,6 +18,7 @@ func main() {
 	defer f.Close()
 
 	p := demoinfocs.NewParser(f)
+	defer p.Close()
 
 	p.RegisterEventHandler(func(events.DataTablesParsed) {
 		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent st.Entity) {
