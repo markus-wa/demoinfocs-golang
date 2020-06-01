@@ -2,7 +2,6 @@ import "google/protobuf/descriptor.proto";
 
 option optimize_for = SPEED;
 option cc_generic_services = false;
-option go_package = "msg";
 
 extend .google.protobuf.FieldOptions {
 	optional bool key_field = 60000 [default = false];
@@ -24,6 +23,7 @@ enum GCProtoBufMsgSrc {
 message CMsgProtoBufHeader {
 	option (msgpool_soft_limit) = 256;
 	option (msgpool_hard_limit) = 1024;
+
 	optional fixed64 client_steam_id = 1;
 	optional int32 client_session_id = 2;
 	optional uint32 source_app_id = 3;
@@ -323,6 +323,7 @@ message CMsgAMGrantGuestPasses2Response {
 message CGCSystemMsg_GetAccountDetails {
 	option (msgpool_soft_limit) = 128;
 	option (msgpool_hard_limit) = 512;
+
 	optional fixed64 steamid = 1;
 	optional uint32 appid = 2;
 }
@@ -330,6 +331,7 @@ message CGCSystemMsg_GetAccountDetails {
 message CGCSystemMsg_GetAccountDetails_Response {
 	option (msgpool_soft_limit) = 128;
 	option (msgpool_hard_limit) = 512;
+
 	optional uint32 eresult_deprecated = 1 [default = 2];
 	optional string account_name = 2;
 	optional string persona_name = 3;
@@ -581,4 +583,4 @@ message CMsgDPPartnerMicroTxnsResponse {
 	optional uint32 eresult = 1 [default = 2];
 	optional .CMsgDPPartnerMicroTxnsResponse.EErrorCode eerrorcode = 2 [default = k_MsgValid];
 }
-
+option go_package = "msg";

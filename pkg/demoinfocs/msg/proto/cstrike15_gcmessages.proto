@@ -3,7 +3,6 @@ import "engine_gcmessages.proto";
 
 option optimize_for = SPEED;
 option cc_generic_services = false;
-option go_package = "msg";
 
 enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_Base = 9100;
@@ -103,8 +102,18 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_MatchmakingServerMatchEndPartial = 9199;
 	k_EMsgGCCStrike15_v2_SetEventFavorite = 9200;
 	k_EMsgGCCStrike15_v2_GetEventFavorites_Request = 9201;
+	k_EMsgGCCStrike15_v2_ClientPerfReport = 9202;
 	k_EMsgGCCStrike15_v2_GetEventFavorites_Response = 9203;
 	k_EMsgGCCStrike15_v2_ClientRequestSouvenir = 9204;
+	k_EMsgGCCStrike15_v2_ClientReportValidation = 9205;
+	k_EMsgGCCStrike15_v2_GC2ClientRefuseSecureMode = 9206;
+	k_EMsgGCCStrike15_v2_GC2ClientRequestValidation = 9207;
+}
+
+enum ECsgoSteamUserStat {
+	k_ECsgoSteamUserStat_XpEarnedGames = 1;
+	k_ECsgoSteamUserStat_MatchWinsCompetitive = 2;
+	k_ECsgoSteamUserStat_SurvivedDangerZone = 3;
 }
 
 message GameServerPing {
@@ -253,6 +262,12 @@ message IpAddressMask {
 	optional uint32 token = 6;
 }
 
+message CMsgCsgoSteamUserStatChange {
+	optional int32 ecsgosteamuserstat = 1;
+	optional int32 delta = 2;
+	optional bool absolute = 3;
+}
+
 message XpProgressData {
 	optional uint32 xp_points = 1;
 	optional int32 xp_category = 2;
@@ -295,6 +310,7 @@ message PlayerQuestData {
 	optional uint32 mm_game_mode = 5;
 	repeated .MatchEndItemUpdates item_updates = 6;
 	optional bool operation_points_eligible = 7;
+	repeated .CMsgCsgoSteamUserStatChange userstatchanges = 8;
 }
 
 message CMsgGC_ServerQuestUpdateData {
@@ -566,6 +582,7 @@ message CMsgGCCStrike15_v2_ServerNotificationForUserPenalty {
 	optional uint32 account_id = 1;
 	optional uint32 reason = 2;
 	optional uint32 seconds = 3;
+	optional bool communication_cooldown = 4;
 }
 
 message CMsgGCCStrike15_v2_ClientReportPlayer {
@@ -577,6 +594,7 @@ message CMsgGCCStrike15_v2_ClientReportPlayer {
 	optional uint32 rpt_textabuse = 6;
 	optional uint32 rpt_voiceabuse = 7;
 	optional uint64 match_id = 8;
+	optional bool report_from_demo = 9;
 }
 
 message CMsgGCCStrike15_v2_ClientCommendPlayer {
@@ -976,6 +994,14 @@ message CSOQuestProgress {
 	optional uint32 bonus_points = 3;
 }
 
+message CSOAccountSeasonalOperation {
+	optional uint32 season_value = 1 [(key_field) = true];
+	optional uint32 tier_unlocked = 2;
+	optional uint32 premium_tiers = 3;
+	optional uint32 mission_id = 4;
+	optional uint32 missions_completed = 5;
+}
+
 message CSOPersonaDataPublic {
 	optional int32 player_level = 1;
 	optional .PlayerCommendationInfo commendation = 2;
@@ -1173,3 +1199,35 @@ message CMsgGCCStrike15_v2_GetEventFavorites_Response {
 	optional string json_featured = 3;
 }
 
+message CMsgGCCStrike15_v2_ClientPerfReport {
+	message Entry {
+		optional uint32 perfcounter = 1;
+		optional uint32 length = 2;
+		optional bytes reference = 3;
+		optional bytes actual = 4;
+		optional uint32 sourceid = 5;
+		optional uint32 status = 6;
+	}
+
+	repeated .CMsgGCCStrike15_v2_ClientPerfReport.Entry entries = 1;
+}
+
+message CMsgGCCStrike15_v2_ClientReportValidation {
+	optional string file_report = 1;
+	optional string command_line = 2;
+	optional uint32 total_files = 3;
+	optional uint32 internal_error = 4;
+	optional uint32 trust_time = 5;
+	optional uint32 count_pending = 6;
+	optional uint32 count_completed = 7;
+	optional uint32 process_id = 8;
+}
+
+message CMsgGCCStrike15_v2_GC2ClientRefuseSecureMode {
+	optional string file_report = 1;
+}
+
+message CMsgGCCStrike15_v2_GC2ClientRequestValidation {
+	optional bool full_report = 1;
+}
+option go_package = "msg";

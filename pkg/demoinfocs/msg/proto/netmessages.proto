@@ -1,7 +1,6 @@
 import "google/protobuf/descriptor.proto";
 
 option cc_generic_services = false;
-option go_package = "msg";
 
 enum NET_Messages {
 	net_NOP = 0;
@@ -490,4 +489,4 @@ message CCLCMsg_HltvReplay {
 message CSVCMsg_Broadcast_Command {
 	optional string cmd = 1;
 }
-
+option go_package = "msg";
