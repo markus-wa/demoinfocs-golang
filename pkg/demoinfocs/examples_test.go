@@ -22,6 +22,7 @@ func ExampleParser() {
 	defer f.Close()
 
 	p := demoinfocs.NewParser(f)
+	defer p.Close()
 
 	// Register handler on kill events
 	p.RegisterEventHandler(func(e events.Kill) {
