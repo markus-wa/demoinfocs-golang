@@ -12,7 +12,7 @@ jobs:
     env:
       GameTracking_dir: /tmp/GameTracking-CSGO
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Download latest Protobufs
         run: |
           git clone https://github.com/SteamDatabase/GameTracking-CSGO.git $GameTracking_dir
