@@ -41,5 +41,10 @@ jobs:
           branch: ${{ env.BRANCH }}
           force: true
       - name: Create Pull Request
+        id: pr
         if: env.PROTOBUFS_CHANGED == 'true'
         uses: peter-evans/create-pull-request@v2
+      - name: Print PR outputs
+        run: |
+          echo "Pull Request Number - ${{ env.PULL_REQUEST_NUMBER }}"
+          echo "Pull Request Number - ${{ steps.pr.outputs.pull-request-number }}"
