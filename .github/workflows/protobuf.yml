@@ -30,6 +30,8 @@ jobs:
           branch=update-protobufs/$commit_sha
           git checkout -b $branch
           git add .
+          git config --global user.email "m.walther97@gmail.com"
+          git config --global user.name "Markus Walther"
           git commit -m "protobuf: updated to $commit_sha\n\nsee https://github.com/SteamDatabase/GameTracking-CSGO"
           git push -u origin $branch
       - name: Create Pull Request
