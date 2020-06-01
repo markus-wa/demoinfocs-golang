@@ -41,7 +41,7 @@ jobs:
         if: env.PROTOBUFS_CHANGED == 'true'
         uses: peter-evans/create-pull-request@v2
         with:
-          title: protobuf: updated to ${{ env.COMMIT_SHA }}
+          title: "protobuf: updated to ${{ env.COMMIT_SHA }}"
           base: master
           branch: ${{ env.BRANCH }}
           commit-message: |
