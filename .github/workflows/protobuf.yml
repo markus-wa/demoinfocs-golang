@@ -2,6 +2,9 @@ name: Update Protobufs
 on:
   schedule:
     - cron: '0 0 * * *'
+  push:
+    branches:
+      - protobuf-bot
 jobs:
   protobuf:
     name: Update Protobufs
@@ -14,8 +17,7 @@ jobs:
         run: |
           git clone https://github.com/SteamDatabase/GameTracking-CSGO.git $GameTracking_dir
           cp $GameTracking_dir/Protobufs/{cstrike15_*.proto,engine_gcmessages.proto,netmessages.proto,steammessages.proto} pkg/demoinfocs/msg/proto
-      - name: Commit changes
-        run: |
+
           if [[ ! `git status --porcelain` ]]; then
               echo '::set-env name=PROTOBUFS_CHANGED::false'
               exit 0
@@ -23,16 +25,46 @@ jobs:
               echo '::set-env name=PROTOBUFS_CHANGED::true'
           fi
 
+      - name: Install Go
+        if: env.PROTOBUFS_CHANGED == 'true'
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14.x
+
+      - name: Install Protobuf tools
+        if: env.PROTOBUFS_CHANGED == 'true'
+        run: |
+            apt update
+            apt install unzip
+
+            wget -O /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.12.2/protoc-3.12.2-linux-x86_64.zip
+            unzip /tmp/protoc.zip -d /tmp/protoc
+            export PATH=/tmp/protoc/bin:$PATH
+
+            GO111MODULE=off go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
+
+      - name: Generate Go code
+        if: env.PROTOBUFS_CHANGED == 'true'
+        run: |
+            cd pkg/demoinfocs/msg
+            protoc -I=proto --gogofaster_out=Mgoogle/protobuf/descriptor.proto=github.com/gogo/protobuf/protoc-gen-gogo/descriptor:. proto/*.proto
+
+      - name: Commit changes
+        if: env.PROTOBUFS_CHANGED == 'true'
+        run: |
           commit_sha=$(pushd $GameTracking_dir > /dev/null && git rev-parse HEAD && popd > /dev/null)
           branch=update-protobufs/$commit_sha
           echo "::set-env name=BRANCH::$branch"
           echo "::set-env name=COMMIT_SHA::$commit_sha"
+
       - name: Push changes to new branch
+        if: env.PROTOBUFS_CHANGED == 'true'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ env.BRANCH }}
           force: true
+
       - name: Create Pull Request
         id: pr
         if: env.PROTOBUFS_CHANGED == 'true'
@@ -45,7 +77,9 @@ jobs:
             protobuf: updated to ${{ env.COMMIT_SHA }}
 
             see https://github.com/SteamDatabase/GameTracking-CSGO
+
       - name: Print PR outputs
+        if: env.PROTOBUFS_CHANGED == 'true'
         run: |
           echo "Pull Request Number - ${{ env.PULL_REQUEST_NUMBER }}"
           echo "Pull Request Number - ${{ steps.pr.outputs.pull-request-number }}"
