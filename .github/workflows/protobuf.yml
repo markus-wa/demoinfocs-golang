@@ -34,8 +34,8 @@ jobs:
       - name: Install Protobuf tools
         if: env.PROTOBUFS_CHANGED == 'true'
         run: |
-            apt update
-            apt install unzip
+            sudo apt-get update
+            sudo apt-get install unzip
 
             wget -O /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.12.2/protoc-3.12.2-linux-x86_64.zip
             unzip /tmp/protoc.zip -d /tmp/protoc
