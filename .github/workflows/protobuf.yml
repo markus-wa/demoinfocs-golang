@@ -42,7 +42,7 @@ jobs:
         uses: peter-evans/create-pull-request@v2
         with:
           title: "protobuf: updated to ${{ env.COMMIT_SHA }}"
-#          base: master
+          base: master
           branch: ${{ env.BRANCH }}
           commit-message: |
             protobuf: updated to ${{ env.COMMIT_SHA }}
