@@ -17,7 +17,7 @@ jobs:
         run: |
           git clone https://github.com/SteamDatabase/GameTracking-CSGO.git $GameTracking_dir
           cp $GameTracking_dir/Protobufs/{cstrike15_*.proto,engine_gcmessages.proto,netmessages.proto,steammessages.proto} pkg/demoinfocs/msg/proto
-      - name: Create Branch
+      - name: Commit changes
         run: |
           if [[ ! `git status --porcelain` ]]; then
               echo '::set-env name=PROTOBUFS_CHANGED::false'
@@ -27,13 +27,17 @@ jobs:
           fi
 
           commit_sha=$(pushd $GameTracking_dir > /dev/null && git rev-parse HEAD && popd > /dev/null)
-          branch=update-protobufs/$commit_sha
+          echo "::set-env name=BRANCH::update-protobufs/$commit_sha"
           git checkout -b $branch
           git add .
-          git config --global user.email "m.walther97@gmail.com"
-          git config --global user.name "Markus Walther"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git commit -m "protobuf: updated to $commit_sha\n\nsee https://github.com/SteamDatabase/GameTracking-CSGO"
-          git push -u origin $branch
+      - name: Push changes to new branch
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.BRANCH }}
       - name: Create Pull Request
         if: env.PROTOBUFS_CHANGED == 'true'
         uses: peter-evans/create-pull-request@v2
