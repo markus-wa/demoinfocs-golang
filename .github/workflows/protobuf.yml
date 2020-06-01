@@ -39,12 +39,13 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ env.BRANCH }}
-          base: master
           force: true
       - name: Create Pull Request
         id: pr
         if: env.PROTOBUFS_CHANGED == 'true'
         uses: peter-evans/create-pull-request@v2
+        with:
+          base: master
       - name: Print PR outputs
         run: |
           echo "Pull Request Number - ${{ env.PULL_REQUEST_NUMBER }}"
