@@ -1,7 +1,8 @@
+option go_package = "msg";
+
 import "google/protobuf/descriptor.proto";
 
 option cc_generic_services = false;
-option go_package = "msg";
 
 message CEngineGotvSyncPacket {
 	optional uint64 match_id = 1;
@@ -13,5 +14,5 @@ message CEngineGotvSyncPacket {
 	optional float rtdelay = 8;
 	optional float rcvage = 9;
 	optional float keyframe_interval = 10;
+	optional uint32 cdndelay = 11;
 }
-

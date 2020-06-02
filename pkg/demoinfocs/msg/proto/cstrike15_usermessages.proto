@@ -1,10 +1,11 @@
+option go_package = "msg";
+
 import "google/protobuf/descriptor.proto";
 import "netmessages.proto";
 import "cstrike15_gcmessages.proto";
 
 option optimize_for = SPEED;
 option cc_generic_services = false;
-option go_package = "msg";
 
 enum ECstrike15UserMessages {
 	CS_UM_VGUIMenu = 1;
