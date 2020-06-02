@@ -63,14 +63,6 @@ jobs:
           echo "::set-env name=BRANCH::$branch"
           echo "::set-env name=COMMIT_SHA::$commit_sha"
 
-      - name: Push changes to new branch
-        if: env.PROTOBUFS_CHANGED == 'true'
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ env.BRANCH }}
-          force: true
-
       - name: Create Pull Request
         id: pr
         if: env.PROTOBUFS_CHANGED == 'true'
@@ -82,6 +74,8 @@ jobs:
           commit-message: |
             protobuf: updated to ${{ env.COMMIT_SHA }}
 
+            see https://github.com/SteamDatabase/GameTracking-CSGO
+          body: |
             see https://github.com/SteamDatabase/GameTracking-CSGO
 
       - name: Print PR outputs
