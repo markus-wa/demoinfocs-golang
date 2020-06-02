@@ -226,3 +226,9 @@ func max(numbers map[int][]interface{}) (maxNumber int) {
 func (p *Parser) Cancel() {
 	p.Called()
 }
+
+// Close is a mock-implementation of Parser.Close().
+// NOP implementation.
+func (p *Parser) Close() {
+	p.Called()
+}

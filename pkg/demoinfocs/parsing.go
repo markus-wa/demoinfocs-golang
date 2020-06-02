@@ -91,6 +91,7 @@ func (p *parser) ParseToEnd() (err error) {
 	defer func() {
 		// Make sure all the messages of the demo are handled
 		p.msgDispatcher.SyncAllQueues()
+		p.msgDispatcher.RemoveAllQueues()
 
 		// Close msgQueue
 		if p.msgQueue != nil {
@@ -166,6 +167,7 @@ func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 
 		// Close msgQueue (only if we are done)
 		if p.msgQueue != nil && !moreFrames {
+			p.msgDispatcher.RemoveAllQueues()
 			close(p.msgQueue)
 		}
 
