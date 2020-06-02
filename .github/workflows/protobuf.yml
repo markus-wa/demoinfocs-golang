@@ -1,0 +1,85 @@
+name: Update Protobufs
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - protobuf-bot
+jobs:
+  protobuf:
+    name: Update Protobufs
+    runs-on: ubuntu-latest
+    env:
+      GameTracking_dir: /tmp/GameTracking-CSGO
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download latest Protobufs
+        run: |
+          git clone https://github.com/SteamDatabase/GameTracking-CSGO.git $GameTracking_dir
+          cp $GameTracking_dir/Protobufs/{cstrike15_*.proto,engine_gcmessages.proto,netmessages.proto,steammessages.proto} pkg/demoinfocs/msg/proto
+
+          if [[ ! `git status --porcelain` ]]; then
+              echo '::set-env name=PROTOBUFS_CHANGED::false'
+              exit 0
+          else
+              echo '::set-env name=PROTOBUFS_CHANGED::true'
+          fi
+
+      - name: Install Go
+        if: env.PROTOBUFS_CHANGED == 'true'
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14.x
+
+      - name: Install Protobuf tools
+        if: env.PROTOBUFS_CHANGED == 'true'
+        run: |
+            sudo apt-get update
+            sudo apt-get install unzip
+
+            wget -O /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.12.2/protoc-3.12.2-linux-x86_64.zip
+            unzip /tmp/protoc.zip -d /tmp/protoc
+
+            GO111MODULE=off go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
+
+      - name: Generate Go code
+        if: env.PROTOBUFS_CHANGED == 'true'
+        run: |
+            cd pkg/demoinfocs/msg
+            sed -i '1s/^/option go_package = "msg";\n\n/' proto/cstrike15_usermessages.proto
+            sed -i '1s/^/option go_package = "msg";\n\n/' proto/cstrike15_gcmessages.proto
+            sed -i '1s/^/option go_package = "msg";\n\n/' proto/engine_gcmessages.proto
+            sed -i '1s/^/option go_package = "msg";\n\n/' proto/netmessages.proto
+            sed -i '1s/^/option go_package = "msg";\n\n/' proto/steammessages.proto
+
+            export PATH=/tmp/protoc/bin:$PATH
+            protoc -I=proto --gogofaster_out=Mgoogle/protobuf/descriptor.proto=github.com/gogo/protobuf/protoc-gen-gogo/descriptor:. proto/*.proto
+
+      - name: Commit changes
+        if: env.PROTOBUFS_CHANGED == 'true'
+        run: |
+          commit_sha=$(pushd $GameTracking_dir > /dev/null && git rev-parse HEAD && popd > /dev/null)
+          branch=update-protobufs/$commit_sha
+          echo "::set-env name=BRANCH::$branch"
+          echo "::set-env name=COMMIT_SHA::$commit_sha"
+
+      - name: Create Pull Request
+        id: pr
+        if: env.PROTOBUFS_CHANGED == 'true'
+        uses: peter-evans/create-pull-request@v2
+        with:
+          title: "protobuf: updated to ${{ env.COMMIT_SHA }}"
+          base: master
+          branch: ${{ env.BRANCH }}
+          commit-message: |
+            protobuf: updated to ${{ env.COMMIT_SHA }}
+
+            see https://github.com/SteamDatabase/GameTracking-CSGO
+          body: |
+            see https://github.com/SteamDatabase/GameTracking-CSGO
+
+      - name: Print PR outputs
+        if: env.PROTOBUFS_CHANGED == 'true'
+        run: |
+          echo "Pull Request Number - ${{ env.PULL_REQUEST_NUMBER }}"
+          echo "Pull Request Number - ${{ steps.pr.outputs.pull-request-number }}"
