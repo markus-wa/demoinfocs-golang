@@ -441,6 +441,9 @@ message CMsgGCGetPartnerAccountLink {
 message CMsgGCGetPartnerAccountLink_Response {
 	optional uint32 pwid = 1;
 	optional uint32 nexonid = 2;
+	optional int32 ageclass = 3;
+	optional bool id_verified = 4 [default = true];
+	optional bool is_adult = 5;
 }
 
 message CMsgGCRoutingInfo {
