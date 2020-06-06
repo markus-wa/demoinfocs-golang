@@ -56,8 +56,6 @@ jobs:
         if: env.PROTOBUFS_CHANGED == 'true'
         run: |
           commit_sha=$(pushd $GameTracking_dir > /dev/null && git rev-parse HEAD && popd > /dev/null)
-          branch=update-protobufs/$commit_sha
-          echo "::set-env name=BRANCH::$branch"
           echo "::set-env name=COMMIT_SHA::$commit_sha"
 
       - name: Create Pull Request
@@ -67,7 +65,7 @@ jobs:
         with:
           title: "protobuf: updated to ${{ env.COMMIT_SHA }}"
           base: master
-          branch: ${{ env.BRANCH }}
+          branch: update-protobufs
           commit-message: |
             protobuf: updated to ${{ env.COMMIT_SHA }}
 
