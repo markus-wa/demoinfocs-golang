@@ -24,6 +24,7 @@ import (
 //
 // 	f, _ := os.Open("/path/to/demo.dem")
 // 	p := dem.NewParser(f)
+// 	defer p.Close()
 // 	header := p.ParseHeader()
 // 	fmt.Println("Map:", header.MapName)
 // 	p.RegisterEventHandler(func(e events.BombExplode) {
@@ -92,6 +93,9 @@ type IParser interface {
 	//
 	// The identifier is returned at registration by RegisterNetMessageHandler().
 	UnregisterNetMessageHandler(identifier dp.HandlerIdentifier)
+	// Close closes any open resources used by the Parser (go routines, file handles).
+	// This must be called before discarding the Parser to avoid memory leaks.
+	Close()
 	// ParseHeader attempts to parse the header of the demo and returns it.
 	// If not done manually this will be called by Parser.ParseNextFrame() or Parser.ParseToEnd().
 	//

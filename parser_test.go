@@ -114,3 +114,24 @@ func TestParser_SetError_Multiple(t *testing.T) {
 
 	assert.Same(t, err, p.error())
 }
+
+func TestParser_Close(t *testing.T) {
+	p := new(Parser)
+	q := make(chan interface{}, 1)
+
+	p.msgDispatcher.AddQueues(q)
+
+	called := false
+
+	p.msgDispatcher.RegisterHandler(func(interface{}) {
+		called = true
+	})
+
+	p.Close()
+
+	q <- "this should not trigger the handler"
+
+	p.msgDispatcher.SyncAllQueues()
+
+	assert.False(t, called)
+}

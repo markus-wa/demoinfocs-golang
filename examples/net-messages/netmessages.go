@@ -26,6 +26,7 @@ func main() {
 	}
 
 	p := dem.NewParserWithConfig(f, cfg)
+	defer p.Close()
 
 	// Register handler for BSPDecal messages
 	p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_BSPDecal) {

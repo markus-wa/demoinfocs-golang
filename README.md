@@ -52,6 +52,7 @@ func main() {
 	defer f.Close()
 
 	p := dem.NewParser(f)
+	defer p.Close()
 
 	// Register handler on kill events
 	p.RegisterEventHandler(func(e events.Kill) {
