@@ -13,10 +13,12 @@ import (
 // Run like this: go run print_events.go -demo /path/to/demo.dem
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
-	defer f.Close()
 	checkError(err)
 
+	defer f.Close()
+
 	p := dem.NewParser(f)
+	defer p.Close()
 
 	// Parse header
 	header, err := p.ParseHeader()

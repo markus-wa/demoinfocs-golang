@@ -18,9 +18,11 @@ func ExampleParser() {
 	if err != nil {
 		panic(err)
 	}
+
 	defer f.Close()
 
 	p := dem.NewParser(f)
+	defer p.Close()
 
 	// Register handler on kill events
 	p.RegisterEventHandler(func(e events.Kill) {
@@ -28,10 +30,12 @@ func ExampleParser() {
 		if e.IsHeadshot {
 			hs = " (HS)"
 		}
+
 		var wallBang string
 		if e.PenetratedObjects > 0 {
 			wallBang = " (WB)"
 		}
+
 		fmt.Printf("%s <%v%s%s> %s\n", e.Killer, e.Weapon, hs, wallBang, e.Victim)
 	})
 
@@ -46,5 +50,6 @@ func TestExamplesWithoutOutput(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping long running test")
 	}
+
 	ExampleParser()
 }

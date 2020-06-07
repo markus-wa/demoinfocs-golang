@@ -34,6 +34,7 @@ func main() {
 	defer f.Close()
 
 	p := dem.NewParser(f)
+	defer p.Close()
 
 	// Parse header (contains map-name etc.)
 	header, err := p.ParseHeader()

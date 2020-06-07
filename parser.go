@@ -31,6 +31,7 @@ Example (without error handling):
 
 	f, _ := os.Open("/path/to/demo.dem")
 	p := dem.NewParser(f)
+	defer p.Close()
 	header := p.ParseHeader()
 	fmt.Println("Map:", header.MapName)
 	p.RegisterEventHandler(func(e events.BombExplode) {
@@ -201,6 +202,12 @@ func (p *Parser) RegisterNetMessageHandler(handler interface{}) dp.HandlerIdenti
 // The identifier is returned at registration by RegisterNetMessageHandler().
 func (p *Parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 	p.msgDispatcher.UnregisterHandler(identifier)
+}
+
+// Close closes any open resources used by the Parser (go routines, file handles).
+// This must be called before discarding the Parser to avoid memory leaks.
+func (p *Parser) Close() {
+	p.msgDispatcher.RemoveAllQueues()
 }
 
 func (p *Parser) error() (err error) {
