@@ -12,7 +12,7 @@ require (
 	github.com/markus-wa/godispatch v1.3.0
 	github.com/markus-wa/quickhull-go/v2 v2.1.0
 	github.com/stretchr/objx v0.1.1 // indirect
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81 // indirect
 )
 
