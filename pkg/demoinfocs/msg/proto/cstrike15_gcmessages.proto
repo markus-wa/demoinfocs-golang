@@ -118,6 +118,11 @@ enum ECsgoSteamUserStat {
 	k_ECsgoSteamUserStat_SurvivedDangerZone = 3;
 }
 
+enum EClientReportingVersion {
+	k_EClientReportingVersion_OldVersion = 0;
+	k_EClientReportingVersion_SupportsSecureMode = 1;
+}
+
 message GameServerPing {
 	optional int32 ping = 2;
 	optional uint32 ip = 3;
@@ -384,6 +389,7 @@ message CMsgGCCStrike15_v2_MatchmakingGC2ClientUpdate {
 	repeated uint32 insufficientlevel_sessions = 15;
 	repeated uint32 vsncheck_account_id_sessions = 16;
 	repeated uint32 launcher_mismatch_sessions = 17;
+	repeated uint32 insecure_account_id_sessions = 18;
 }
 
 message CDataGCCStrike15_v2_TournamentMatchDraft {
@@ -1223,10 +1229,16 @@ message CMsgGCCStrike15_v2_ClientReportValidation {
 	optional uint32 count_pending = 6;
 	optional uint32 count_completed = 7;
 	optional uint32 process_id = 8;
+	optional int32 osversion = 9;
+	optional uint32 clientreportversion = 10;
 }
 
 message CMsgGCCStrike15_v2_GC2ClientRefuseSecureMode {
 	optional string file_report = 1;
+	optional bool offer_insecure_mode = 2;
+	optional bool offer_secure_mode = 3;
+	optional bool show_unsigned_ui = 4;
+	optional bool kick_user = 5;
 }
 
 message CMsgGCCStrike15_v2_GC2ClientRequestValidation {
