@@ -523,7 +523,11 @@ func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKe
 	}
 
 	event := events.BombPlanted{BombEvent: bombEvent}
-	event.Player.IsPlanting = false
+
+	if event.Player != nil { // if not nil check is necessary for POV demos
+		event.Player.IsPlanting = false
+	}
+
 	geh.parser.gameState.currentPlanter = nil
 	geh.dispatch(event)
 }

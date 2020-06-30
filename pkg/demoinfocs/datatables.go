@@ -477,7 +477,8 @@ func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 		if strings.Contains(eq.OriginalString, altName) {
 			eq.Type = alt
 		} else if !strings.Contains(eq.OriginalString, defaultName) {
-			p.setError(fmt.Errorf("unknown weapon model %q", eq.OriginalString))
+			// happens with POV demos, not sure why (model pre-cache not working right?)
+			//p.setError(fmt.Errorf("unknown weapon model %q", eq.OriginalString))
 		}
 	}
 
