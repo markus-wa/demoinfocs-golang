@@ -28,7 +28,7 @@ If you are unfamiliar with Go modules there's a [list of recommended resources](
 
 ## Upgrading from v1.x to v2
 
-If you are currently using version 1.x of this library, check out [this wiki page](https://github.com/markus-wa/demoinfocs-golang/wiki/Upgrading-from-v1.x-to-v2.0.0) for an upgrade guide.
+If you are currently using version 1.x of this library, check out [this wiki page](https://github.com/markus-wa/demoinfocs-golang/wiki/Upgrading-from-v1.x-to-v2.0.0) for an upgrade guide to v2.
 
 The old code is also still available in the [`v1` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v1) if you need it.
 
