@@ -22,7 +22,6 @@ func (p *parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	if p.gameEventDescs == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{Message: "received GameEvent but event descriptors are missing"})
-		unassert.Error("received GameEvent but event descriptors are missing")
 
 		return
 	}
@@ -690,10 +689,6 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 		}
 	}
 
-	// smokes might have duplicate smokegrenade_expired events, so it could have already been deleted.
-	// if it's not a smoke this should never be reached
-	unassert.Samef(wepType, common.EqSmoke, "tried to get non-existing grenade from gameState.thrownGrenades")
-
 	return nil
 }
 
@@ -714,10 +709,6 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 			return
 		}
 	}
-
-	// smokes might have duplicate smokegrenade_expired events, so it might already be deleted.
-	// besides that this code should never be reached
-	unassert.Samef(wepType, common.EqSmoke, "trying to delete non-existing grenade from gameState.thrownGrenades")
 }
 
 func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, victimUserID int32) common.EquipmentType {
