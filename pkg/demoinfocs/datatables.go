@@ -472,26 +472,24 @@ func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 	modelIndex := entity.Property("m_nModelIndex").Value().IntVal
 	eq.OriginalString = p.modelPreCache[modelIndex]
 
-	wepFix := func(defaultName, altName string, alt common.EquipmentType) {
+	wepFix := func(altName string, alt common.EquipmentType) {
 		// Check 'altName' first because otherwise the m4a1_s is recognized as m4a4
 		if strings.Contains(eq.OriginalString, altName) {
 			eq.Type = alt
-		} else if !strings.Contains(eq.OriginalString, defaultName) {
-			p.setError(fmt.Errorf("unknown weapon model %q", eq.OriginalString))
 		}
 	}
 
 	switch eq.Type {
 	case common.EqP2000:
-		wepFix("_pist_hkp2000", "_pist_223", common.EqUSP)
+		wepFix("_pist_223", common.EqUSP)
 	case common.EqM4A4:
-		wepFix("_rif_m4a1", "_rif_m4a1_s", common.EqM4A1)
+		wepFix("_rif_m4a1_s", common.EqM4A1)
 	case common.EqP250:
-		wepFix("_pist_p250", "_pist_cz_75", common.EqCZ)
+		wepFix("_pist_cz_75", common.EqCZ)
 	case common.EqDeagle:
-		wepFix("_pist_deagle", "_pist_revolver", common.EqRevolver)
+		wepFix("_pist_revolver", common.EqRevolver)
 	case common.EqMP7:
-		wepFix("_smg_mp7", "_smg_mp5sd", common.EqMP5)
+		wepFix("_smg_mp5sd", common.EqMP5)
 	}
 }
 

@@ -22,7 +22,6 @@ func (p *parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	if p.gameEventDescs == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{Message: "received GameEvent but event descriptors are missing"})
-		unassert.Error("received GameEvent but event descriptors are missing")
 
 		return
 	}
@@ -107,6 +106,7 @@ func newGameEventHandler(parser *parser) gameEventHandler {
 
 	geh.gameEventNameToHandler = map[string]gameEventHandlerFunc{
 		// sorted alphabetically
+		"ammo_pickup":                     nil,                                   // Dunno, only in locally recorded (POV) demo
 		"announce_phase_end":              nil,                                   // Dunno
 		"begin_new_match":                 geh.beginNewMatch,                     // Match started
 		"bomb_beep":                       nil,                                   // Bomb beep
@@ -119,6 +119,7 @@ func newGameEventHandler(parser *parser) gameEventHandler {
 		"bomb_planted":                    delayIfNoPlayers(geh.bombPlanted),     // Plant finished
 		"bot_takeover":                    delay(geh.botTakeover),                // Bot got taken over
 		"buytime_ended":                   nil,                                   // Not actually end of buy time, seems to only be sent once per game at the start
+		"cs_intermission":                 nil,                                   // Dunno, only in locally recorded (POV) demo
 		"cs_match_end_restart":            nil,                                   // Yawn
 		"cs_pre_restart":                  nil,                                   // Not sure, doesn't seem to be important
 		"cs_round_final_beep":             nil,                                   // Final beep
@@ -128,24 +129,26 @@ func newGameEventHandler(parser *parser) gameEventHandler {
 		"decoy_detonate":                  geh.decoyDetonate,                     // Decoy exploded/expired
 		"decoy_started":                   delay(geh.decoyStarted),               // Decoy started. Delayed because projectile entity is not yet created
 		"endmatch_cmm_start_reveal_items": nil,                                   // Drops
-		"entity_visible":                  nil,                                   // Dunno, only in locally recorded demo
-		"enter_bombzone":                  nil,                                   // Dunno, only in locally recorded demo
-		"exit_bombzone":                   nil,                                   // Dunno, only in locally recorded demo
-		"enter_buyzone":                   nil,                                   // Dunno, only in locally recorded demo
-		"exit_buyzone":                    nil,                                   // Dunno, only in locally recorded demo
+		"entity_visible":                  nil,                                   // Dunno, only in locally recorded (POV) demo
+		"enter_bombzone":                  nil,                                   // Dunno, only in locally recorded (POV) demo
+		"exit_bombzone":                   nil,                                   // Dunno, only in locally recorded (POV) demo
+		"enter_buyzone":                   nil,                                   // Dunno, only in locally recorded (POV) demo
+		"exit_buyzone":                    nil,                                   // Dunno, only in locally recorded (POV) demo
 		"flashbang_detonate":              geh.flashBangDetonate,                 // Flash exploded
 		"hegrenade_detonate":              geh.heGrenadeDetonate,                 // HE exploded
 		"hltv_chase":                      nil,                                   // Don't care
 		"hltv_fixed":                      nil,                                   // Dunno
 		"hltv_message":                    nil,                                   // No clue
 		"hltv_status":                     nil,                                   // Don't know
+		"hostname_changed":                nil,                                   // Only present in locally recorded (POV) demos
 		"inferno_expire":                  geh.infernoExpire,                     // Incendiary expired
 		"inferno_startburn":               delay(geh.infernoStartBurn),           // Incendiary exploded/started. Delayed because inferno entity is not yet created
-		"inspect_weapon":                  nil,                                   // Dunno, only in locally recorded demo
+		"inspect_weapon":                  nil,                                   // Dunno, only in locally recorded (POV) demos
 		"item_equip":                      delay(geh.itemEquip),                  // Equipped / weapon swap, I think. Delayed because of #142 - Bot entity possibly not yet created
 		"item_pickup":                     delay(geh.itemPickup),                 // Picked up or bought? Delayed because of #119 - Equipment.UniqueID()
+		"item_pickup_slerp":               nil,                                   // Not sure, only in locally recorded (POV) demos
 		"item_remove":                     geh.itemRemove,                        // Dropped?
-		"jointeam_failed":                 nil,                                   // Dunno, only in locally recorded demo
+		"jointeam_failed":                 nil,                                   // Dunno, only in locally recorded (POV) demos
 		"other_death":                     nil,                                   // Dunno
 		"player_blind":                    delay(geh.playerBlind),                // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
 		"player_changename":               nil,                                   // Name change
@@ -158,7 +161,8 @@ func newGameEventHandler(parser *parser) gameEventHandler {
 		"player_hurt":                     geh.playerHurt,                        // Player got hurt
 		"player_jump":                     geh.playerJump,                        // Player jumped
 		"player_spawn":                    nil,                                   // Player spawn
-		"player_given_c4":                 nil,                                   // Dunno, only present in POV demos
+		"player_spawned":                  nil,                                   // Only present in locally recorded (POV) demos
+		"player_given_c4":                 nil,                                   // Dunno, only present in locally recorded (POV) demos
 
 		// Player changed team. Delayed for two reasons
 		// - team IDs of other players changing teams in the same tick might not have changed yet
@@ -187,7 +191,7 @@ func newGameEventHandler(parser *parser) gameEventHandler {
 		"weapon_fire_on_empty":           nil,                              // Sounds boring
 		"weapon_reload":                  geh.weaponReload,                 // Weapon reloaded
 		"weapon_zoom":                    nil,                              // Zooming in
-		"weapon_zoom_rifle":              nil,                              // Dunno, only in locally recorded demo
+		"weapon_zoom_rifle":              nil,                              // Dunno, only in locally recorded (POV) demo
 	}
 
 	return geh
@@ -523,7 +527,11 @@ func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKe
 	}
 
 	event := events.BombPlanted{BombEvent: bombEvent}
-	event.Player.IsPlanting = false
+
+	if event.Player != nil { // if not nil check is necessary for POV demos
+		event.Player.IsPlanting = false
+	}
+
 	geh.parser.gameState.currentPlanter = nil
 	geh.dispatch(event)
 }
@@ -681,10 +689,6 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 		}
 	}
 
-	// smokes might have duplicate smokegrenade_expired events, so it could have already been deleted.
-	// if it's not a smoke this should never be reached
-	unassert.Samef(wepType, common.EqSmoke, "tried to get non-existing grenade from gameState.thrownGrenades")
-
 	return nil
 }
 
@@ -705,10 +709,6 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 			return
 		}
 	}
-
-	// smokes might have duplicate smokegrenade_expired events, so it might already be deleted.
-	// besides that this code should never be reached
-	unassert.Samef(wepType, common.EqSmoke, "trying to delete non-existing grenade from gameState.thrownGrenades")
 }
 
 func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, victimUserID int32) common.EquipmentType {

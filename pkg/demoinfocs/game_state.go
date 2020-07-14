@@ -276,18 +276,8 @@ func (ptcp participants) FindByHandle(handle int) *common.Player {
 	}
 
 	entityID := handle & constants.EntityHandleIndexMask
-	player := ptcp.playersByEntityID[entityID]
 
-	if player == nil {
-		for _, p := range ptcp.playersByUserID {
-			if p.EntityID == entityID {
-				player = p
-				break
-			}
-		}
-	}
-
-	return player
+	return ptcp.playersByEntityID[entityID]
 }
 
 func (ptcp participants) initializeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {
