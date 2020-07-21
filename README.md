@@ -41,9 +41,12 @@ The old code is also still available in the [`v1` branch](https://github.com/mar
 ```terminal
 mkdir my-project
 cd my-project
+
 go mod init github.com/<YOUR_GITHUB_USER>/my-project
 # the module name (github.com/<YOUR_GITHUB_USER>/my-project) can always be changed later
 # you can also put example.com/my-project or anything else if you don't plan to publish your project
+
+go get -u github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs
 ```
 
 3. Create a `main.go` file with the example below
