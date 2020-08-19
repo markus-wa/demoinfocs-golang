@@ -120,7 +120,8 @@ enum ECsgoSteamUserStat {
 
 enum EClientReportingVersion {
 	k_EClientReportingVersion_OldVersion = 0;
-	k_EClientReportingVersion_SupportsSecureMode = 1;
+	k_EClientReportingVersion_BetaVersion = 1;
+	k_EClientReportingVersion_SupportsTrustedMode = 2;
 }
 
 message GameServerPing {
@@ -1220,6 +1221,13 @@ message CMsgGCCStrike15_v2_ClientPerfReport {
 	repeated .CMsgGCCStrike15_v2_ClientPerfReport.Entry entries = 1;
 }
 
+message CVDiagnostic {
+	optional uint32 id = 1;
+	optional uint32 extended = 2;
+	optional uint64 value = 3;
+	optional string string_value = 4;
+}
+
 message CMsgGCCStrike15_v2_ClientReportValidation {
 	optional string file_report = 1;
 	optional string command_line = 2;
@@ -1231,6 +1239,16 @@ message CMsgGCCStrike15_v2_ClientReportValidation {
 	optional uint32 process_id = 8;
 	optional int32 osversion = 9;
 	optional uint32 clientreportversion = 10;
+	optional uint32 status_id = 11;
+	optional uint32 diagnostic1 = 12;
+	optional uint64 diagnostic2 = 13;
+	optional uint64 diagnostic3 = 14;
+	optional string last_launch_data = 15;
+	optional uint32 report_count = 16;
+	optional uint64 client_time = 17;
+	optional uint64 diagnostic4 = 18;
+	optional uint64 diagnostic5 = 19;
+	repeated .CVDiagnostic diagnostics = 20;
 }
 
 message CMsgGCCStrike15_v2_GC2ClientRefuseSecureMode {
@@ -1239,8 +1257,11 @@ message CMsgGCCStrike15_v2_GC2ClientRefuseSecureMode {
 	optional bool offer_secure_mode = 3;
 	optional bool show_unsigned_ui = 4;
 	optional bool kick_user = 5;
+	optional bool show_trusted_ui = 6;
+	optional bool show_warning_not_trusted = 7;
 }
 
 message CMsgGCCStrike15_v2_GC2ClientRequestValidation {
 	optional bool full_report = 1;
+	optional string module = 2;
 }
