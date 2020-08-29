@@ -541,4 +541,5 @@ message CCSUsrMsg_ClientInfo {
 
 message CCSUsrMsg_ServerRankRevealAll {
 	optional int32 seconds_till_shutdown = 1;
+	optional .CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve reservation = 2;
 }
