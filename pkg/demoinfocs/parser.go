@@ -174,6 +174,45 @@ func legayTickTime(h common.DemoHeader) time.Duration {
 	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackTicks))
 }
 
+// FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
+// Not necessarily the tick-rate the server ran on during the game.
+//
+// Returns frame rate based on GameState.IngameTick() if possible.
+// Otherwise returns tick rate based on demo header or -1 if the header info isn't available.
+// May also return 0 before parsing has started if DemoHeader.PlaybackTime or DemoHeader.PlaybackFrames are 0 (corrupt demo headers).
+func (p *parser) FrameRate() float64 {
+	if p.gameState.ingameTick > 0 && p.currentFrame > 0 && p.TickRate() > 0 {
+		return p.TickRate() / (float64(p.gameState.ingameTick) / float64(p.currentFrame))
+	}
+
+	if p.header != nil {
+		return legacyFrameRate(*p.header)
+	}
+
+	return -1
+}
+
+func legacyFrameRate(h common.DemoHeader) float64 {
+	if h.PlaybackTime == 0 {
+		return 0
+	}
+
+	return float64(h.PlaybackFrames) / h.PlaybackTime.Seconds()
+}
+
+// FrameTime returns the time a frame / demo-tick takes in seconds.
+//
+// Returns frame rate based on GameState.IngameTick() if possible.
+// Otherwise returns tick rate based on demo header or -1 if the header info isn't available.
+// May also return 0 before parsing has started if DemoHeader.PlaybackTime or DemoHeader.PlaybackFrames are 0 (corrupt demo headers).
+func (p *parser) FrameTime() time.Duration {
+	if frameRate := p.FrameRate(); frameRate >= 0 {
+		return time.Duration(float64(time.Second) / frameRate)
+	}
+
+	return -1
+}
+
 // Progress returns the parsing progress from 0 to 1.
 // Where 0 means nothing has been parsed yet and 1 means the demo has been parsed to the end.
 //

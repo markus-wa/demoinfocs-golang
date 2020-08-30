@@ -62,6 +62,72 @@ func TestParser_TickTime_FallbackToHeader(t *testing.T) {
 	assert.Equal(t, time.Duration(200)*time.Millisecond, p.TickTime())
 }
 
+func TestParser_FrameRate(t *testing.T) {
+	p := &parser{
+		header: &common.DemoHeader{
+			PlaybackTime:  time.Second,
+			PlaybackTicks: 128,
+		},
+		currentFrame: 1,
+		gameState: &gameState{
+			ingameTick: 1,
+		},
+	}
+
+	assert.Equal(t, float64(128), p.FrameRate())
+}
+
+func TestParser_FrameRate_FallbackToHeader(t *testing.T) {
+	p := &parser{
+		header: &common.DemoHeader{
+			PlaybackTime:   time.Second,
+			PlaybackFrames: 128,
+		},
+		gameState: new(gameState),
+	}
+
+	assert.Equal(t, float64(128), p.FrameRate())
+}
+
+func TestParser_FrameRate_Minus1(t *testing.T) {
+	p := &parser{gameState: new(gameState)}
+
+	assert.Equal(t, float64(-1), p.FrameRate())
+}
+
+func TestParser_FrameTime(t *testing.T) {
+	p := &parser{
+		header: &common.DemoHeader{
+			PlaybackTime:  time.Second,
+			PlaybackTicks: 5,
+		},
+		currentFrame: 1,
+		gameState: &gameState{
+			ingameTick: 1,
+		},
+	}
+
+	assert.Equal(t, 200*time.Millisecond, p.FrameTime())
+}
+
+func TestParser_FrameTime_FallbackToHeader(t *testing.T) {
+	p := &parser{
+		header: &common.DemoHeader{
+			PlaybackTime:   time.Second,
+			PlaybackFrames: 5,
+		},
+		gameState: new(gameState),
+	}
+
+	assert.Equal(t, 200*time.Millisecond, p.FrameTime())
+}
+
+func TestParser_FrameTime_Minus1(t *testing.T) {
+	p := &parser{gameState: new(gameState)}
+
+	assert.Equal(t, time.Duration(-1), p.FrameTime())
+}
+
 func TestParser_Progress_NoHeader(t *testing.T) {
 	assert.Zero(t, new(parser).Progress())
 	assert.Zero(t, (&parser{header: &common.DemoHeader{}}).Progress())
