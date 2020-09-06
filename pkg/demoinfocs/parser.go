@@ -177,36 +177,32 @@ func legayTickTime(h common.DemoHeader) time.Duration {
 // FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
 // Not necessarily the tick-rate the server ran on during the game.
 //
-// Returns frame rate based on GameState.IngameTick() if possible.
-// Otherwise returns tick rate based on demo header or -1 if the header info isn't available.
-// May also return 0 before parsing has started if DemoHeader.PlaybackTime or DemoHeader.PlaybackFrames are 0 (corrupt demo headers).
+// Returns frame rate from DemoHeader if it's not corrupt.
+// Otherwise returns frame rate based on the current frame, tick-rate and ingame-tick.
+// May also return -1 before parsing has started.
 func (p *parser) FrameRate() float64 {
-	if p.gameState.ingameTick > 0 && p.currentFrame > 0 && p.TickRate() > 0 {
-		return p.TickRate() / (float64(p.gameState.ingameTick) / float64(p.currentFrame))
+	if p.header != nil && p.header.PlaybackTime != 0 && p.header.PlaybackFrames != 0 {
+		return legacyFrameRate(*p.header)
 	}
 
-	if p.header != nil {
-		return legacyFrameRate(*p.header)
+	if p.gameState.ingameTick > 0 && p.currentFrame > 0 && p.TickRate() > 0 {
+		return float64(p.currentFrame) * p.TickRate() / float64(p.gameState.ingameTick)
 	}
 
 	return -1
 }
 
 func legacyFrameRate(h common.DemoHeader) float64 {
-	if h.PlaybackTime == 0 {
-		return 0
-	}
-
 	return float64(h.PlaybackFrames) / h.PlaybackTime.Seconds()
 }
 
 // FrameTime returns the time a frame / demo-tick takes in seconds.
 //
-// Returns frame rate based on GameState.IngameTick() if possible.
-// Otherwise returns tick rate based on demo header or -1 if the header info isn't available.
-// May also return 0 before parsing has started if DemoHeader.PlaybackTime or DemoHeader.PlaybackFrames are 0 (corrupt demo headers).
+// Returns frame time from DemoHeader if it's not corrupt.
+// Otherwise returns frame time based on the current frame, tick-rate and ingame-tick.
+// May also return -1 before parsing has started.
 func (p *parser) FrameTime() time.Duration {
-	if frameRate := p.FrameRate(); frameRate >= 0 {
+	if frameRate := p.FrameRate(); frameRate > 0 {
 		return time.Duration(float64(time.Second) / frameRate)
 	}
 
@@ -354,6 +350,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.gameEventHandler = newGameEventHandler(&p)
 	p.userMessageHandler = newUserMessageHandler(&p)
+	p.currentFrame = -1
 
 	dispatcherCfg := dp.Config{
 		PanicHandler: func(v interface{}) {

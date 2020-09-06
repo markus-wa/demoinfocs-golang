@@ -261,8 +261,10 @@ func (p *parser) parseFrame() bool {
 		panic(fmt.Sprintf("I haven't programmed that pathway yet (command %v unknown)", cmd))
 	}
 
-	// Queue up some post processing
-	p.msgQueue <- frameParsedToken
+	if cmd == dcPacket {
+		// Queue up some post processing, see parser.handleFrameParsed()
+		p.msgQueue <- &frameParsedTokenType{}
+	}
 
 	return true
 }
