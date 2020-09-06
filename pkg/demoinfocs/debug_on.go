@@ -16,7 +16,7 @@ const (
 	no  = "NO"
 )
 
-// Can be overridden via -ldflags '-X github.com/markus-wa/demoinfocs-golang.debugServerClasses=YES'
+// Can be overridden via -ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs.debugServerClasses=YES'"
 // Oh and btw we cant use bools for this, Go says 'cannot use -X with non-string symbol'
 var (
 	debugGameEvents        = yes
