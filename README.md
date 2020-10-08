@@ -219,19 +219,14 @@ If your project is using this library feel free to submit a PR or send a message
 
 ## Development
 
-### Git Hooks
+### Debugging
 
-To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, you can run the following script.
+You can use the build tag `debugdemoinfocs` (i.e. `go test -tags debugdemoinfocs -v`) to print out debugging information - such as game events or unhandled demo-messages - during the parsing process.<br>
+Side-note: The tag isn't called `debug` to avoid naming conflicts with other libs (and underscores in tags don't work, apparently).
 
-    scripts/git-hooks/link-git-hooks.sh
+To change the default debugging behavior, Go's `ldflags` parameter can be used. Example for additionally printing out all server-classes with their properties: `-ldflags '-X github.com/markus-wa/demoinfocs-golang.debugServerClasses=YES'`
 
-#### `pre-commit`:
-- check if [interfaces have been updated](#generating-interfaces)
-- build the code
-- run unit tests
-
-#### `pre-push`:
-- run regression tests
+Check out `debug_on.go` for any other settings that can be changed.
 
 ### Testing
 
@@ -269,15 +264,6 @@ To update it you can run the following command:
 
 Please don't update the `.golden` file if you are not sure it's required. Maybe the failing CI is just pointing out a regression.
 
-### Debugging
-
-You can use the build tag `debugdemoinfocs` (i.e. `go test -tags debugdemoinfocs -v`) to print out debugging information - such as game events or unhandled demo-messages - during the parsing process.<br>
-Side-note: The tag isn't called `debug` to avoid naming conflicts with other libs (and underscores in tags don't work, apparently).
-
-To change the default debugging behavior, Go's `ldflags` parameter can be used. Example for additionally printing out all server-classes with their properties: `-ldflags '-X github.com/markus-wa/demoinfocs-golang.debugServerClasses=YES'`
-
-Check out `debug_on.go` for any other settings that can be changed.
-
 ### Generating Interfaces
 
 We generate interfaces such as `GameState` from structs to make it easier to keep docs in synch over structs and interfaces.
@@ -302,6 +288,20 @@ Should you need to re-generate the protobuf generated code in the `msg` package,
 Make sure both are inside your `PATH` variable.
 
 After installing these use `go generate ./msg` to generate the protobuf code. If you're on Windows you'll need to run go generate from CMD, not Bash.
+
+### Git Hooks
+
+To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, you can run the following script.
+
+    scripts/git-hooks/link-git-hooks.sh
+
+#### `pre-commit`:
+- check if [interfaces have been updated](#generating-interfaces)
+- build the code
+- run unit tests
+
+#### `pre-push`:
+- run regression tests
 
 ## Acknowledgements
 
