@@ -15,13 +15,6 @@ You can use gitter to ask questions and discuss ideas about this project.
 
 [![Gitter chat](https://badges.gitter.im/csgodemos/demoinfo-lib.png)](https://gitter.im/csgodemos/demoinfo-lib)
 
-## Requirements
-
-This library should be used with `go 1.11` or higher as it is built using Go modules.
-
-It's recommended to use modules for consumers as well if possible.
-If you are unfamiliar with Go modules there's a [list of recommended resources](https://github.com/markus-wa/demoinfocs-golang/wiki/Go-Modules#recommended-links--articles) in the wiki.
-
 ## Go Get
 
 	go get -u github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs
@@ -32,7 +25,34 @@ If you are currently using version 1.x of this library, check out [this wiki pag
 
 The old code is also still available in the [`v1` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v1) if you need it.
 
-## Getting started
+## Table of Contents
+
+- [Requirements](https://github.com/markus-wa/demoinfocs-golang#requirements)
+- [Getting Started](https://github.com/markus-wa/demoinfocs-golang#getting-started)
+  - [Example](https://github.com/markus-wa/demoinfocs-golang#example)
+  - [More Examples](https://github.com/markus-wa/demoinfocs-golang#more-examples)
+  - [Documentation](https://github.com/markus-wa/demoinfocs-golang#documentation)
+- [Features](https://github.com/markus-wa/demoinfocs-golang#features)
+- [Performance / Benchmarks](https://github.com/markus-wa/demoinfocs-golang#performance--benchmarks)
+- [Versioning](https://github.com/markus-wa/demoinfocs-golang#versioning)
+- [Projects Using demoinfocs-golang](https://github.com/markus-wa/demoinfocs-golang#projects-using-demoinfocs-golang)
+- [Development](https://github.com/markus-wa/demoinfocs-golang#development)
+  - [Debugging](https://github.com/markus-wa/demoinfocs-golang#debugging)
+  - [Testing](https://github.com/markus-wa/demoinfocs-golang#testing)
+  - [Generating Interfaces](https://github.com/markus-wa/demoinfocs-golang#generating-interfaces)
+  - [Generating Protobuf Code](https://github.com/markus-wa/demoinfocs-golang#generating-protobuf-code)
+  - [Git Hooks](https://github.com/markus-wa/demoinfocs-golang#git-hooks)
+- [Acknowledgements](https://github.com/markus-wa/demoinfocs-golang#acknowledgements)
+- [License](https://github.com/markus-wa/demoinfocs-golang#license) (MIT)
+
+## Requirements
+
+This library should be used with `go 1.11` or higher as it is built using Go modules.
+
+It's recommended to use modules for consumers as well if possible.
+If you are unfamiliar with Go modules there's a [list of recommended resources](https://github.com/markus-wa/demoinfocs-golang/wiki/Go-Modules#recommended-links--articles) in the wiki.
+
+## Getting Started
 
 1. Download and install Go 1.11 or newer [from golang.org](https://golang.org/dl/) or via your favourite package manager
 
@@ -102,7 +122,7 @@ func main() {
 }
 ```
 
-### Sample output
+#### Sample Output
 
 Running the code above will print something like this:
 
@@ -117,11 +137,15 @@ keev <AWP (HS) (WB)> to1nou
 ...
 ```
 
-### More examples
+### More Examples
 
 Check out the [examples](examples) folder for more examples, like [how to generate heatmaps](examples/heatmap) like this one:
 
 <img alt="sample heatmap" src="https://raw.githubusercontent.com/markus-wa/demoinfocs-golang/master/examples/heatmap/heatmap.jpg" width="50%">
+
+### Documentation
+
+The full API documentation is available here on [pkg.go.dev](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs).
 
 ## Features
 
@@ -156,7 +180,7 @@ Here are some benchmark results from a system with an Intel i7 6700k CPU and a S
 
 *That's almost 1.5 hours of gameplay per second when parsing in parallel (recorded at 64 ticks per second) - or 25 minues per second when only parsing a single demo at a time.*
 
-### Raw output
+### Raw Output
 
 ```
 $ go test -run _NONE_ -bench . -benchtime 30s -benchmem -concurrentdemos 8
@@ -178,7 +202,7 @@ ok      github.com/markus-wa/demoinfocs-golang  134.244s
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/markus-wa/demoinfocs-golang/tags).
 There is one caveat however: Beta features - which are marked as such via comments and in release notes - may change in minor releases.
 
-## Projects using demoinfocs-golang
+## Projects Using demoinfocs-golang
 
 - [noesis.gg](https://www.noesis.gg/) - A suite of explorative tools to help you analyze and improve your CS:GO performance
 - [esportal.se](https://beta.esportal.se/) - An alternative Matchmaking service that aims to provide a friendly environment free from trolls and misbehaving individuals
@@ -195,7 +219,7 @@ If your project is using this library feel free to submit a PR or send a message
 
 ## Development
 
-### Git hooks
+### Git Hooks
 
 To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, you can run the following script.
 
@@ -211,7 +235,7 @@ To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, y
 
 ### Testing
 
-#### Unit tests
+#### Unit Tests
 
 For any new features, [Test Driven Development](https://medium.com/@pierreprinetti/test-driven-development-in-go-baeab5adb468) should be practiced where possible.
 However, due to some design flaws in some parts of the code it's currently not always practical to do so.
@@ -222,7 +246,7 @@ Running unit tests:
     # or (identical)
     go test -short ./...
 
-#### Regression tests
+#### Regression Tests
 
 For the full regression suite you will need to download the test demo-set.
 
@@ -234,7 +258,7 @@ Downloading demos + running regression tests:
 
     scripts/regression-tests.sh
 
-#### Updating the `default.golden` file
+#### Updating the `default.golden` File
 
 The file [`test/default.golden`](https://github.com/markus-wa/demoinfocs-golang/blob/master/test/default.golden) file contains a serialized output of all expected game events in `test/cs-demos/default.dem`.
 
@@ -254,7 +278,7 @@ To change the default debugging behavior, Go's `ldflags` parameter can be used. 
 
 Check out `debug_on.go` for any other settings that can be changed.
 
-### Generating interfaces
+### Generating Interfaces
 
 We generate interfaces such as `GameState` from structs to make it easier to keep docs in synch over structs and interfaces.
 For this we use [@vburenin](https://github.com/vburenin)'s [`ifacemaker`](https://github.com/vburenin/ifacemaker) tool.
@@ -262,7 +286,7 @@ For this we use [@vburenin](https://github.com/vburenin)'s [`ifacemaker`](https:
 You can download the latest version [here](https://github.com/vburenin/ifacemaker/releases).
 After adding it to your `PATH` you can use `scripts/generate-interfaces.sh` to update interfaces.
 
-### Generating protobuf code
+### Generating Protobuf Code
 
 Should you need to re-generate the protobuf generated code in the `msg` package, you will need the following tools:
 
