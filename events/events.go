@@ -144,6 +144,7 @@ type Kill struct {
 	Assister          *common.Player
 	PenetratedObjects int
 	IsHeadshot        bool
+	Tick              int64
 }
 
 // BotTakenOver signals that a player took over a bot.
