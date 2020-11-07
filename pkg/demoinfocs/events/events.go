@@ -359,15 +359,17 @@ const (
 
 // PlayerHurt signals that a player has been damaged.
 type PlayerHurt struct {
-	Player       *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
-	Attacker     *common.Player // May be nil if the player is taking world damage (e.g. fall damage) or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
-	Health       int
-	Armor        int
-	Weapon       *common.Equipment // May be EqUnknown for world-damage (falling / bomb).
-	WeaponString string            // Wrong for CZ, M4A1-S etc.
-	HealthDamage int
-	ArmorDamage  int
-	HitGroup     HitGroup
+	Player            *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Attacker          *common.Player // May be nil if the player is taking world damage (e.g. fall damage) or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Health            int
+	Armor             int
+	Weapon            *common.Equipment // May be EqUnknown for world-damage (falling / bomb).
+	WeaponString      string            // Wrong for CZ, M4A1-S etc.
+	HealthDamage      int
+	ArmorDamage       int
+	HealthDamageTaken int // HealthDamage excluding over-damage (e.g. if player has 5 health and is hit for 15 damage this would be 5 instead of 15)
+	ArmorDamageTaken  int // ArmorDamage excluding over-damage (e.g. if player has 5 armor and is hit for 15 armor damage this would be 5 instead of 15)
+	HitGroup          HitGroup
 }
 
 // PlayerConnect signals that a player has started connecting.

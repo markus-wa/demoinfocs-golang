@@ -340,20 +340,50 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	attacker := geh.playerByUserID32(data["attacker"].GetValShort())
-	wepType := common.MapEquipment(data["weapon"].GetValString())
 	userID := data["userid"].GetValShort()
+	player := geh.playerByUserID32(userID)
+	attacker := geh.playerByUserID32(data["attacker"].GetValShort())
+
+	wepType := common.MapEquipment(data["weapon"].GetValString())
 	wepType = geh.attackerWeaponType(wepType, userID)
 
+	health := int(data["health"].GetValByte())
+	armor := int(data["armor"].GetValByte())
+
+	healthDamage := int(data["dmg_health"].GetValShort())
+	armorDamage := int(data["dmg_armor"].GetValByte())
+	healthDamageTaken := healthDamage
+	armorDamageTaken := armorDamage
+
+	if healthDamageTaken > 100 {
+		healthDamageTaken = 100
+	}
+
+	if armorDamageTaken > 100 {
+		armorDamageTaken = 100
+	}
+
+	if player != nil {
+		if health == 0 {
+			healthDamageTaken = player.Health()
+		}
+
+		if armor == 0 {
+			armorDamageTaken = player.Armor()
+		}
+	}
+
 	geh.dispatch(events.PlayerHurt{
-		Player:       geh.playerByUserID32(userID),
-		Attacker:     attacker,
-		Health:       int(data["health"].GetValByte()),
-		Armor:        int(data["armor"].GetValByte()),
-		HealthDamage: int(data["dmg_health"].GetValShort()),
-		ArmorDamage:  int(data["dmg_armor"].GetValByte()),
-		HitGroup:     events.HitGroup(data["hitgroup"].GetValByte()),
-		Weapon:       geh.getEquipmentInstance(attacker, wepType),
+		Player:            player,
+		Attacker:          attacker,
+		Health:            health,
+		Armor:             armor,
+		HealthDamage:      healthDamage,
+		ArmorDamage:       armorDamage,
+		HealthDamageTaken: healthDamageTaken,
+		ArmorDamageTaken:  armorDamageTaken,
+		HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
+		Weapon:            geh.getEquipmentInstance(attacker, wepType),
 	})
 }
 
