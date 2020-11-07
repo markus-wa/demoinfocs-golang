@@ -367,7 +367,11 @@ type PlayerHurt struct {
 	WeaponString string            // Wrong for CZ, M4A1-S etc.
 	HealthDamage int
 	ArmorDamage  int
-	HitGroup     HitGroup
+	// damage taken are used to know the real value the player lost
+	// in example, if the player has been shot by an AWP with a HS and had 50 health left, this value would be 50, not ~420
+	HealthDamageTaken *int
+	ArmorDamageTaken  *int
+	HitGroup          HitGroup
 }
 
 // PlayerConnect signals that a player has started connecting.
