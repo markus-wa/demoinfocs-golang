@@ -186,10 +186,28 @@ func (p *Player) IsScoped() bool {
 	return getBool(p.Entity, "m_bIsScoped")
 }
 
-// IsDucking returns true if the player is currently crouching.
+// IsDucking returns true if the player is currently fully crouching.
 // See also: Flags().Ducking() & Flags().DuckingKeyPressed()
 func (p *Player) IsDucking() bool {
 	return p.Flags().Ducking() && p.Flags().DuckingKeyPressed()
+}
+
+// IsDuckingInProgress returns true if the player is currently in the progress of going from standing to crouched.
+// See also: Flags().Ducking() & Flags().DuckingKeyPressed()
+func (p *Player) IsDuckingInProgress() bool {
+	return !p.Flags().Ducking() && p.Flags().DuckingKeyPressed()
+}
+
+// IsUnDuckingInProgress returns true if the player is currently in the progress of going from crouched to standing.
+// See also: Flags().Ducking() & Flags().DuckingKeyPressed()
+func (p *Player) IsUnDuckingInProgress() bool {
+	return p.Flags().Ducking() && !p.Flags().DuckingKeyPressed()
+}
+
+// IsStaning returns true if the player is currently fully standing upright.
+// See also: Flags().Ducking() & Flags().DuckingKeyPressed()
+func (p *Player) IsStanding() bool {
+	return !p.Flags().Ducking() && !p.Flags().DuckingKeyPressed()
 }
 
 // HasDefuseKit returns true if the player currently has a defuse kit in his inventory.
