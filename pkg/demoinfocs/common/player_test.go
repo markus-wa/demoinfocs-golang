@@ -359,6 +359,12 @@ func TestPlayer_Score(t *testing.T) {
 	assert.Equal(t, 10, pl.Score())
 }
 
+func TestPlayer_Color(t *testing.T) {
+	pl := playerWithResourceProperty("m_iCompTeammateColor", st.PropertyValue{IntVal: int(Yellow)})
+
+	assert.Equal(t, Yellow, pl.Color())
+}
+
 func TestPlayer_Kills(t *testing.T) {
 	pl := playerWithResourceProperty("m_iKills", st.PropertyValue{IntVal: 5})
 

@@ -312,6 +312,11 @@ func (p *Player) Score() int {
 	return getInt(p.ResourceEntity(), "m_iScore."+p.entityIDStr())
 }
 
+// Color returns the players color as shown on the match.
+func (p *Player) Color() Color {
+	return Color(getInt(p.ResourceEntity(), "m_iCompTeammateColor."+p.entityIDStr()))
+}
+
 // Kills returns the amount of kills the player has as shown on the scoreboard.
 func (p *Player) Kills() int {
 	return getInt(p.ResourceEntity(), "m_iKills."+p.entityIDStr())
