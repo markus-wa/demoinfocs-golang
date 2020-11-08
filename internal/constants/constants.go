@@ -1,6 +1,7 @@
 // Package constants contains constants that are used internally across the demoinfocs library.
 package constants
 
+// Various constants tat are used internally.
 const (
 	MaxEdictBits                 = 11
 	EntityHandleIndexMask        = (1 << MaxEdictBits) - 1

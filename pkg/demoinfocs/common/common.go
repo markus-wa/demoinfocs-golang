@@ -191,7 +191,7 @@ func (ts *TeamState) MoneySpentThisRound() (value int) {
 	return
 }
 
-// MoneySpentThisRound returns the total amount of cash spent by the whole team during the whole game up to the current point.
+// MoneySpentTotal returns the total amount of cash spent by the whole team during the whole game up to the current point.
 func (ts *TeamState) MoneySpentTotal() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.MoneySpentTotal()
