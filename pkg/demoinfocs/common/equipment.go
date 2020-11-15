@@ -270,8 +270,10 @@ func MapEquipment(eqName string) EquipmentType {
 	return wep
 }
 
+// ZoomLevel contains how far a player is zoomed in.
 type ZoomLevel int
 
+// All currently known zoom levels.
 const (
 	ZoomNone ZoomLevel = 0
 	ZoomHalf ZoomLevel = 1

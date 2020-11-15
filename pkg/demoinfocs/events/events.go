@@ -289,7 +289,7 @@ type BombPlantBegin struct {
 	BombEvent
 }
 
-// BombPlantAbort signals the abortion of a plant.
+// BombPlantAborted signals the abortion of a plant.
 type BombPlantAborted struct {
 	Player *common.Player
 }

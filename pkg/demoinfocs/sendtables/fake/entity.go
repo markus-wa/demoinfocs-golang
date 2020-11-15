@@ -8,6 +8,7 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 
+// NewEntityWithProperty creates and returns an entity with a single mocked property.
 func NewEntityWithProperty(name string, val st.PropertyValue) *Entity {
 	entity := new(Entity)
 
