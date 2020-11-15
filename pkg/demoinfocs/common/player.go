@@ -186,9 +186,28 @@ func (p *Player) IsScoped() bool {
 	return getBool(p.Entity, "m_bIsScoped")
 }
 
-// IsDucking returns true if the player is currently crouching.
+// IsDucking returns true if the player is currently fully crouching.
+// See also: Flags().Ducking() & Flags().DuckingKeyPressed()
 func (p *Player) IsDucking() bool {
-	return getBool(p.Entity, "localdata.m_Local.m_bDucking")
+	return p.Flags().Ducking() && p.Flags().DuckingKeyPressed()
+}
+
+// IsDuckingInProgress returns true if the player is currently in the progress of going from standing to crouched.
+// See also: Flags().Ducking() & Flags().DuckingKeyPressed()
+func (p *Player) IsDuckingInProgress() bool {
+	return !p.Flags().Ducking() && p.Flags().DuckingKeyPressed()
+}
+
+// IsUnDuckingInProgress returns true if the player is currently in the progress of going from crouched to standing.
+// See also: Flags().Ducking() & Flags().DuckingKeyPressed()
+func (p *Player) IsUnDuckingInProgress() bool {
+	return p.Flags().Ducking() && !p.Flags().DuckingKeyPressed()
+}
+
+// IsStaning returns true if the player is currently fully standing upright.
+// See also: Flags().Ducking() & Flags().DuckingKeyPressed()
+func (p *Player) IsStanding() bool {
+	return !p.Flags().Ducking() && !p.Flags().DuckingKeyPressed()
 }
 
 // HasDefuseKit returns true if the player currently has a defuse kit in his inventory.
@@ -282,6 +301,51 @@ func (p *Player) Velocity() r3.Vector {
 		Y: float64(p.Entity.PropertyValueMust("localdata.m_vecVelocity[1]").FloatVal),
 		Z: float64(p.Entity.PropertyValueMust("localdata.m_vecVelocity[2]").FloatVal),
 	}
+}
+
+// see https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/public/const.h#L146-L188
+const (
+	flOnGround = 1 << iota
+	flDucking
+	flAnimDucking
+)
+
+// PlayerFlags wraps m_fFlags and provides accessors for the various known flags a player may have set.
+type PlayerFlags uint32
+
+func (pf PlayerFlags) Get(f PlayerFlags) bool {
+	return pf&f != 0
+}
+
+// OnGround returns true if the player is touching the ground.
+// See m_fFlags FL_ONGROUND https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/public/const.h#L146-L188
+func (pf PlayerFlags) OnGround() bool {
+	return pf.Get(flOnGround)
+}
+
+// Ducking returns true if the player is/was fully crouched.
+//   Fully ducked: Ducking() && DuckingKeyPressed()
+//   Previously fully ducked, unducking in progress: Ducking() && !DuckingKeyPressed()
+//   Fully unducked: !Ducking() && !DuckingKeyPressed()
+//   Previously fully unducked, ducking in progress: !Ducking() && DuckingKeyPressed()
+// See m_fFlags FL_DUCKING https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/public/const.h#L146-L188
+func (pf PlayerFlags) Ducking() bool {
+	return pf.Get(flDucking)
+}
+
+// DuckingKeyPressed returns true if the player is holding the crouch key pressed.
+//   Fully ducked: Ducking() && DuckingKeyPressed()
+//   Previously fully ducked, unducking in progress: Ducking() && !DuckingKeyPressed()
+//   Fully unducked: !Ducking() && !DuckingKeyPressed()
+//   Previously fully unducked, ducking in progress: !Ducking() && DuckingKeyPressed()
+// See m_fFlags FL_ANIMDUCKING https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/public/const.h#L146-L188
+func (pf PlayerFlags) DuckingKeyPressed() bool {
+	return pf.Get(flAnimDucking)
+}
+
+// Flags returns flags currently set on m_fFlags.
+func (p *Player) Flags() PlayerFlags {
+	return PlayerFlags(getInt(p.Entity, "m_fFlags"))
 }
 
 /////////////////////////////
