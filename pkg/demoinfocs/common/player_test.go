@@ -209,13 +209,43 @@ func TestPlayer_IsAirborne(t *testing.T) {
 }
 
 func TestPlayer_IsDucking(t *testing.T) {
-	pl := playerWithProperty("localdata.m_Local.m_bDucking", st.PropertyValue{IntVal: 0})
+	pl := playerWithProperty("m_fFlags", st.PropertyValue{IntVal: 0})
 
 	assert.False(t, pl.IsDucking())
+	assert.True(t, pl.IsStanding())
+	assert.False(t, pl.IsDuckingInProgress())
+	assert.False(t, pl.IsUnDuckingInProgress())
 
-	pl = playerWithProperty("localdata.m_Local.m_bDucking", st.PropertyValue{IntVal: 1})
+	pl = playerWithProperty("m_fFlags", st.PropertyValue{IntVal: 1 << 1})
+
+	assert.False(t, pl.IsDucking())
+	assert.False(t, pl.IsStanding())
+	assert.False(t, pl.IsDuckingInProgress())
+	assert.True(t, pl.IsUnDuckingInProgress())
+
+	pl = playerWithProperty("m_fFlags", st.PropertyValue{IntVal: 1 << 2})
+
+	assert.False(t, pl.IsDucking())
+	assert.False(t, pl.IsStanding())
+	assert.True(t, pl.IsDuckingInProgress())
+	assert.False(t, pl.IsUnDuckingInProgress())
+
+	pl = playerWithProperty("m_fFlags", st.PropertyValue{IntVal: 1<<1 | 1<<2})
 
 	assert.True(t, pl.IsDucking())
+	assert.False(t, pl.IsStanding())
+	assert.False(t, pl.IsDuckingInProgress())
+	assert.False(t, pl.IsUnDuckingInProgress())
+}
+
+func TestPlayerFlags_OnGround(t *testing.T) {
+	pl := playerWithProperty("m_fFlags", st.PropertyValue{IntVal: 0})
+
+	assert.False(t, pl.Flags().OnGround())
+
+	pl = playerWithProperty("m_fFlags", st.PropertyValue{IntVal: 1})
+
+	assert.True(t, pl.Flags().OnGround())
 }
 
 func TestPlayer_HasDefuseKit(t *testing.T) {
