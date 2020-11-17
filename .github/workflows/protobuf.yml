@@ -16,10 +16,10 @@ jobs:
           cp $GameTracking_dir/Protobufs/{cstrike15_*.proto,engine_gcmessages.proto,netmessages.proto,steammessages.proto} pkg/demoinfocs/msg/proto
 
           if [[ ! `git status --porcelain` ]]; then
-              echo '::set-env name=PROTOBUFS_CHANGED::false'
+              echo "PROTOBUFS_CHANGED=false" >> $GITHUB_ENV
               exit 0
           else
-              echo '::set-env name=PROTOBUFS_CHANGED::true'
+              echo "PROTOBUFS_CHANGED=true" >> $GITHUB_ENV
           fi
 
       - name: Install Go
