@@ -56,7 +56,7 @@ jobs:
         if: env.PROTOBUFS_CHANGED == 'true'
         run: |
           commit_sha=$(pushd $GameTracking_dir > /dev/null && git rev-parse HEAD && popd > /dev/null)
-          echo "::set-env name=COMMIT_SHA::$commit_sha"
+          echo "COMMIT_SHA=$commit_sha" >> $GITHUB_ENV
 
       - name: Create Pull Request
         id: pr
