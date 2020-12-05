@@ -72,6 +72,7 @@ func TestParser_BindNewPlayer_Issue98_Reconnect(t *testing.T) {
 func TestParser_BindNewPlayer_PlayerSpotted_Under32(t *testing.T) {
 	testPlayerSpotted(t, "m_bSpottedByMask.000")
 }
+
 func TestParser_BindNewPlayer_PlayerSpotted_Over32(t *testing.T) {
 	testPlayerSpotted(t, "m_bSpottedByMask.001")
 }

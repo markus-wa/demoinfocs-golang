@@ -281,7 +281,7 @@ func (p *Player) ViewDirectionY() float32 {
 }
 
 // Position returns the in-game coordinates.
-//Like the ones you get from cl_showpos 1.
+// Like the ones you get from cl_showpos 1.
 func (p *Player) Position() r3.Vector {
 	if p.Entity == nil {
 		return r3.Vector{}

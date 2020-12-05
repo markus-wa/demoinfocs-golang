@@ -69,6 +69,7 @@ func (p demoInfoProviderMock) TickRate() float64 {
 func (p demoInfoProviderMock) FindPlayerByHandle(int) *common.Player {
 	return nil
 }
+
 func (p demoInfoProviderMock) PlayerResourceEntity() st.Entity {
 	return nil
 }
