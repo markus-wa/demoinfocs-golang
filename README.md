@@ -1,6 +1,6 @@
-# demoinfocs-golang - A CS:GO Demo Parser
+# demoinfocs-golang - CS:GO Demo Parser
 
-This is a Go library for super fast parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). It is based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a>.
+A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). It is based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a> but provides many improvements.
 
 [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc)
 [![Build Status](https://travis-ci.com/markus-wa/demoinfocs-golang.svg?branch=master)](https://travis-ci.com/github/markus-wa/demoinfocs-golang)
@@ -11,7 +11,8 @@ This is a Go library for super fast parsing and analysing of Counter Strike: Glo
 
 ## Discussions / Chat
 
-You can use gitter to ask questions and discuss ideas about this project.
+You can use gitter to ask questions and discuss ideas about this project.<br>
+For business inquiries please use the contact information found on the [GitHub profile](https://github.com/markus-wa).
 
 [![Gitter chat](https://badges.gitter.im/csgodemos/demoinfo-lib.png)](https://gitter.im/csgodemos/demoinfo-lib)
 
@@ -19,16 +20,10 @@ You can use gitter to ask questions and discuss ideas about this project.
 
 	go get -u github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs
 
-## Upgrading from v1.x to v2
-
-If you are currently using version 1.x of this library, check out [this wiki page](https://github.com/markus-wa/demoinfocs-golang/wiki/Upgrading-from-v1.x-to-v2.0.0) for an upgrade guide to v2.
-
-The old code is also still available in the [`v1` branch](https://github.com/markus-wa/demoinfocs-golang/tree/v1) if you need it.
-
 ## Table of Contents
 
 - [Requirements](https://github.com/markus-wa/demoinfocs-golang#requirements)
-- [Getting Started](https://github.com/markus-wa/demoinfocs-golang#getting-started)
+- [Quickstart Guide](https://github.com/markus-wa/demoinfocs-golang#quickstart-guide)
   - [Example](https://github.com/markus-wa/demoinfocs-golang#example)
   - [More Examples](https://github.com/markus-wa/demoinfocs-golang#more-examples)
   - [Documentation](https://github.com/markus-wa/demoinfocs-golang#documentation)
@@ -52,7 +47,7 @@ This library should be used with `go 1.11` or higher as it is built using Go mod
 It's recommended to use modules for consumers as well if possible.
 If you are unfamiliar with Go modules there's a [list of recommended resources](https://github.com/markus-wa/demoinfocs-golang/wiki/Go-Modules#recommended-links--articles) in the wiki.
 
-## Getting Started
+## Quickstart Guide
 
 1. Download and install Go 1.11 or newer [from golang.org](https://golang.org/dl/) or via your favourite package manager
 
