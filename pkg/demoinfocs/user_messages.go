@@ -44,9 +44,10 @@ func newUserMessageHandler(parser *parser) userMessageHandler {
 	umh := userMessageHandler{parser: parser}
 
 	umh.msgTypeToHandler = map[msg.ECstrike15UserMessages]userMessageHandlerFunc{
-		msg.ECstrike15UserMessages_CS_UM_SayText:          umh.sayText,
-		msg.ECstrike15UserMessages_CS_UM_SayText2:         umh.sayText2,
-		msg.ECstrike15UserMessages_CS_UM_ServerRankUpdate: umh.rankUpdate,
+		msg.ECstrike15UserMessages_CS_UM_SayText:              umh.sayText,
+		msg.ECstrike15UserMessages_CS_UM_SayText2:             umh.sayText2,
+		msg.ECstrike15UserMessages_CS_UM_ServerRankUpdate:     umh.rankUpdate,
+		msg.ECstrike15UserMessages_CS_UM_RoundImpactScoreData: umh.roundImpactScoreData,
 		// TODO: handle more user messages (if they are interesting)
 		// Maybe msg.ECstrike15UserMessages_CS_UM_RadioText
 	}
@@ -141,4 +142,18 @@ func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 			Player:     player,
 		})
 	}
+}
+
+func (umh userMessageHandler) roundImpactScoreData(um *msg.CSVCMsg_UserMessage) {
+	impactData := new(msg.CCSUsrMsg_RoundImpactScoreData)
+	err := impactData.Unmarshal(um.MsgData)
+
+	if err != nil {
+		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("failed to decode RoundImpactScoreData message: %s", err.Error())})
+		unassert.Error("failed to decode RoundImpactScoreData message: %s", err.Error())
+	}
+
+	umh.dispatch(events.RoundImpactScoreData{
+		RawMessage: impactData,
+	})
 }
