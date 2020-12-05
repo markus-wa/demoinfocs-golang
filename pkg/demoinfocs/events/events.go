@@ -541,3 +541,8 @@ type PlayerSpottersChanged struct {
 type ConVarsUpdated struct {
 	UpdatedConVars map[string]string
 }
+
+// RoundImpactScoreData contains impact assessments of events that happened during the last round.
+type RoundImpactScoreData struct {
+	RawMessage *msg.CCSUsrMsg_RoundImpactScoreData
+}
