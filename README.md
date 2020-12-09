@@ -11,10 +11,10 @@ A blazing fast, feature complete and production ready Go library for parsing and
 
 ## Discussions / Chat
 
-You can use gitter to ask questions and discuss ideas about this project.<br>
+You can use [Gitter](https://gitter.im/csgodemos/demoinfo-lib) or [GitHub Discussions](https://github.com/markus-wa/demoinfocs-golang/discussions) to ask questions and discuss ideas about this project.<br>
 For business inquiries please use the contact information found on the [GitHub profile](https://github.com/markus-wa).
 
-[![Gitter chat](https://badges.gitter.im/csgodemos/demoinfo-lib.png)](https://gitter.im/csgodemos/demoinfo-lib)
+[![Gitter Chat](https://badges.gitter.im/csgodemos/demoinfo-lib.png)](https://gitter.im/csgodemos/demoinfo-lib)
 
 ## Go Get
 
