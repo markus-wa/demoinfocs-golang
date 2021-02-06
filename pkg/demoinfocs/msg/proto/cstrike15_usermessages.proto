@@ -79,8 +79,6 @@ enum ECstrike15UserMessages {
 	CS_UM_SurvivalStats = 73;
 	CS_UM_DisconnectToLobby2 = 74;
 	CS_UM_EndOfMatchAllPlayersData = 75;
-	CS_UM_RetakeUpdatePlayerCardList = 77;
-	CS_UM_RetakeUpdatePlayerCardSelection = 78;
 	CS_UM_RoundImpactScoreData = 79;
 	CS_UM_CurrentRoundOdds = 80;
 	CS_UM_DeepStats = 81;
@@ -246,25 +244,6 @@ message CCSUsrMsg_SendPlayerItemDrops {
 message CCSUsrMsg_SendPlayerItemFound {
 	optional .CEconItemPreviewDataBlock iteminfo = 1;
 	optional int32 entindex = 2;
-}
-
-message CCSUsrMsg_RetakeUpdatePlayerCardList {
-	optional bool defuse_kit = 1;
-	repeated int32 round_idx = 2;
-	repeated int32 loadout_idx = 3;
-	repeated int32 card_idx = 4;
-	repeated int32 type_idx = 5;
-	optional int32 mvp_boost_round_idx = 6;
-	optional int32 mvp_boost_loadout_idx = 7;
-	optional int32 mvp_boost_card_idx = 8;
-	optional int32 mvp_boost_extra_utility = 9;
-}
-
-message CCSUsrMsg_RetakeUpdatePlayerCardSelection {
-	optional int32 round_idx = 1;
-	optional int32 loadout_idx = 2;
-	optional int32 card_idx = 3;
-	optional int32 type_idx = 4;
 }
 
 message CCSUsrMsg_ReloadEffect {

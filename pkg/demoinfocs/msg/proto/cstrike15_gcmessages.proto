@@ -101,6 +101,7 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_GC2ClientRequestValidation = 9207;
 	k_EMsgGCCStrike15_v2_ClientRedeemMissionReward = 9209;
 	k_EMsgGCCStrike15_ClientDeepStats = 9210;
+	k_EMsgGCCStrike15_StartAgreementSessionInGame = 9211;
 }
 
 enum ECsgoSteamUserStat {
@@ -548,6 +549,8 @@ message CMsgGCCStrike15_v2_MatchmakingServerRoundStats {
 	optional .CMsgGCCStrike15_v2_MatchmakingServerRoundStats.DropInfo drop_info = 26;
 	optional bool b_switched_teams = 27;
 	repeated int32 enemy_2ks = 28;
+	repeated int32 player_spawned = 29;
+	repeated int32 team_spawn_count = 30;
 }
 
 message CMsgGCCStrike15_v2_MatchmakingClient2GCHello {
