@@ -1,0 +1,66 @@
+on: [push, pull_request]
+
+name: CI
+
+jobs:
+  ci:
+    strategy:
+      matrix:
+        go-version: [1.11.x, 1.15.x]
+
+    runs-on: ubuntu-latest
+
+    env:
+      REVIEWDOG_REPORTER: github-check
+      REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Install Reviewdog
+      uses: reviewdog/action-setup@v1
+      with:
+        reviewdog_version: v0.11.0
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Download Go Deps
+      run: go mod download
+
+    - name: Install Tools
+      run: |
+        # install 7zip for decompressing test demos
+        sudo apt-get install -y p7zip-full
+
+        # Install interface generator
+        GO111MODULE=off go get github.com/vburenin/ifacemaker
+
+        # Fetch refs for linter
+        git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+        git fetch
+
+        # Install golangci-lint
+        curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sudo sh -s -- -b $(go env GOPATH)/bin v1.32.2
+
+    - name: Build
+      run: scripts/build.sh
+
+    - name: Check Generated Code
+      run: scripts/check-interfaces-generated.sh
+
+    - name: Lint Changed Code
+      run: scripts/lint-changes.sh
+
+    - name: Race Tests
+      run: scripts/race-tests.sh
+
+    # Note: We run ALL tests again to get full coverage
+    #       Race tests are too slow and skip the regression set
+    - name: All Tests + Coverage
+      run: |
+        scripts/coverage.sh
+        bash <(curl -s https://codecov.io/bash)
