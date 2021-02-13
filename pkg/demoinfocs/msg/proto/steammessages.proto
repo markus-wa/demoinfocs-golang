@@ -368,6 +368,8 @@ message CGCSystemMsg_GetAccountDetails_Response {
 	optional uint32 rt_identity_linked = 35;
 	optional uint32 rt_birth_date = 36;
 	optional string txn_country_code = 37;
+	optional bool has_accepted_china_ssa = 38;
+	optional bool is_banned_steam_china = 39;
 }
 
 message CMsgGCGetPersonaNames {
@@ -587,4 +589,13 @@ message CMsgDPPartnerMicroTxnsResponse {
 
 	optional uint32 eresult = 1 [default = 2];
 	optional .CMsgDPPartnerMicroTxnsResponse.EErrorCode eerrorcode = 2 [default = k_MsgValid];
+}
+
+message CChinaAgreementSessions_StartAgreementSessionInGame_Request {
+	optional uint32 appid = 1;
+	optional fixed64 steamid = 2;
+}
+
+message CChinaAgreementSessions_StartAgreementSessionInGame_Response {
+	optional string agreement_url = 1;
 }

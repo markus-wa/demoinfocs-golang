@@ -8309,10 +8309,7 @@ func (m *CMsgVector) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8384,10 +8381,7 @@ func (m *CMsgVector2D) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8470,10 +8464,7 @@ func (m *CMsgQAngle) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8599,10 +8590,7 @@ func (m *CMsgRGBA) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8747,10 +8735,7 @@ func (m *CNETMsg_Tick) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -8832,10 +8817,7 @@ func (m *CNETMsg_StringCmd) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9006,10 +8988,7 @@ func (m *CNETMsg_SignonState) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9093,10 +9072,7 @@ func (m *CMsg_CVars) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9229,10 +9205,7 @@ func (m *CMsg_CVars_CVar) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9318,10 +9291,7 @@ func (m *CNETMsg_SetConVar) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9371,10 +9341,7 @@ func (m *CNETMsg_NOP) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9456,10 +9423,7 @@ func (m *CNETMsg_Disconnect) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9600,10 +9564,7 @@ func (m *CNETMsg_File) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9672,10 +9633,7 @@ func (m *CNETMsg_SplitScreenUser) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -9778,10 +9736,7 @@ func (m *CNETMsg_PlayerAvatarData) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10003,10 +9958,7 @@ func (m *CCLCMsg_ClientInfo) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10128,10 +10080,7 @@ func (m *CCLCMsg_Move) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10302,10 +10251,7 @@ func (m *CCLCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10393,10 +10339,7 @@ func (m *CCLCMsg_BaselineAck) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10498,10 +10441,7 @@ func (m *CCLCMsg_ListenEvents) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10653,10 +10593,7 @@ func (m *CCLCMsg_RespondCvarValue) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -10956,10 +10893,7 @@ func (m *CCLCMsg_FileCRCCheck) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11028,10 +10962,7 @@ func (m *CCLCMsg_LoadingProgress) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11117,10 +11048,7 @@ func (m *CCLCMsg_SplitPlayerConnect) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11204,10 +11132,7 @@ func (m *CCLCMsg_CmdKeyValues) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11710,10 +11635,7 @@ func (m *CSVCMsg_ServerInfo) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11817,10 +11739,7 @@ func (m *CSVCMsg_ClassInfo) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -11953,10 +11872,7 @@ func (m *CSVCMsg_ClassInfoClassT) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12112,10 +12028,7 @@ func (m *CSVCMsg_SendTable) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12346,10 +12259,7 @@ func (m *CSVCMsg_SendTableSendpropT) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12431,10 +12341,7 @@ func (m *CSVCMsg_Print) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12504,10 +12411,7 @@ func (m *CSVCMsg_SetPause) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12576,10 +12480,7 @@ func (m *CSVCMsg_SetView) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12810,10 +12711,7 @@ func (m *CSVCMsg_CreateStringTable) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -12935,10 +12833,7 @@ func (m *CSVCMsg_UpdateStringTable) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13059,10 +12954,7 @@ func (m *CSVCMsg_VoiceInit) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13311,10 +13203,7 @@ func (m *CSVCMsg_VoiceData) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13420,10 +13309,7 @@ func (m *CSVCMsg_FixAngle) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13509,10 +13395,7 @@ func (m *CSVCMsg_CrosshairAngle) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13581,10 +13464,7 @@ func (m *CSVCMsg_Prefetch) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13747,10 +13627,7 @@ func (m *CSVCMsg_BSPDecal) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13858,10 +13735,7 @@ func (m *CSVCMsg_SplitScreen) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -13962,10 +13836,7 @@ func (m *CSVCMsg_GetCvarValue) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14068,10 +13939,7 @@ func (m *CSVCMsg_Menu) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14193,10 +14061,7 @@ func (m *CSVCMsg_UserMessage) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14280,10 +14145,7 @@ func (m *CSVCMsg_PaintmapData) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14437,10 +14299,7 @@ func (m *CSVCMsg_GameEvent) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14682,10 +14541,7 @@ func (m *CSVCMsg_GameEventKeyT) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14769,10 +14625,7 @@ func (m *CSVCMsg_GameEventList) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -14873,10 +14726,7 @@ func (m *CSVCMsg_GameEventListKeyT) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15011,10 +14861,7 @@ func (m *CSVCMsg_GameEventListDescriptorT) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15137,10 +14984,7 @@ func (m *CSVCMsg_TempEntities) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15340,10 +15184,7 @@ func (m *CSVCMsg_PacketEntities) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15447,10 +15288,7 @@ func (m *CSVCMsg_Sounds) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15814,10 +15652,7 @@ func (m *CSVCMsg_SoundsSounddataT) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -15939,10 +15774,7 @@ func (m *CSVCMsg_EntityMsg) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -16026,10 +15858,7 @@ func (m *CSVCMsg_CmdKeyValues) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -16132,10 +15961,7 @@ func (m *CSVCMsg_EncryptedData) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -16310,10 +16136,7 @@ func (m *CSVCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -16434,10 +16257,7 @@ func (m *CCLCMsg_HltvReplay) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
@@ -16519,10 +16339,7 @@ func (m *CSVCMsg_Broadcast_Command) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthNetmessages
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthNetmessages
 			}
 			if (iNdEx + skippy) > l {
