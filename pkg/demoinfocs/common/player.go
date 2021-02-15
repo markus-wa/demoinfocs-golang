@@ -142,6 +142,8 @@ func (p *Player) Weapons() []*Equipment {
 }
 
 // IsSpottedBy returns true if the player has been spotted by the other player.
+// This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
+// May not behave as expected with multiple spotters.
 func (p *Player) IsSpottedBy(other *Player) bool {
 	if p.Entity == nil {
 		return false
@@ -162,6 +164,8 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 }
 
 // HasSpotted returns true if the player has spotted the other player.
+// This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
+// May not behave as expected with multiple spotters.
 func (p *Player) HasSpotted(other *Player) bool {
 	return other.IsSpottedBy(p)
 }
