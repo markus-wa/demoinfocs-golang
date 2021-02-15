@@ -46,7 +46,13 @@ func (e *Entity) Properties() []st.Property {
 
 // Property is a mock-implementation of Entity.Property().
 func (e *Entity) Property(name string) st.Property {
-	return e.Called(name).Get(0).(st.Property)
+	v := e.Called(name).Get(0)
+	if v == nil {
+		// see https://stackoverflow.com/questions/13476349/check-for-nil-and-nil-interface-in-go
+		return nil
+	}
+
+	return v.(st.Property)
 }
 
 // BindProperty is a mock-implementation of Entity.BindProperty().

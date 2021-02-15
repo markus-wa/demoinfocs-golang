@@ -533,6 +533,8 @@ func (p *parser) bindGameRules() {
 
 	gameRules := p.ServerClasses().FindByName("CCSGameRulesProxy")
 	gameRules.OnEntityCreated(func(entity st.Entity) {
+		p.gameState.rules.entity = entity
+
 		entity.Property(grPrefix("m_gamePhase")).OnUpdate(func(val st.PropertyValue) {
 			oldGamePhase := p.gameState.gamePhase
 			p.gameState.gamePhase = common.GamePhase(val.IntVal)

@@ -29,3 +29,5 @@ linters-settings:
   gocritic:
     disabled-checks:
       - ifElseChain
+  gci:
+    local-prefixes: github.com/markus-wa/demoinfocs-golang/v2

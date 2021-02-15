@@ -1,6 +1,10 @@
 package demoinfocs
 
 import (
+	"errors"
+	"strconv"
+	"time"
+
 	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
@@ -8,6 +12,7 @@ import (
 
 //go:generate ifacemaker -f game_state.go -s gameState -i GameState -p demoinfocs -D -y "GameState is an auto-generated interface for gameState." -c "DO NOT EDIT: Auto generated" -o game_state_interface.go
 //go:generate ifacemaker -f game_state.go -s participants -i Participants -p demoinfocs -D -y "Participants is an auto-generated interface for participants." -c "DO NOT EDIT: Auto generated" -o participants_interface.go
+//go:generate ifacemaker -f game_state.go -s gameRules -i GameRules -p demoinfocs -D -y "GameRules is an auto-generated interface for gameRules." -c "DO NOT EDIT: Auto generated" -o game_rules_interface.go
 
 // gameState contains all game-state relevant information.
 type gameState struct {
@@ -20,7 +25,6 @@ type gameState struct {
 	infernos           map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	weapons            map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
 	entities           map[int]st.Entity                 // Maps entity IDs to entities
-	conVars            map[string]string
 	bomb               common.Bomb
 	totalRoundsPlayed  int
 	gamePhase          common.GamePhase
@@ -30,6 +34,8 @@ type gameState struct {
 	currentDefuser     *common.Player                         // Player currently defusing the bomb, if any
 	currentPlanter     *common.Player                         // Player currently planting the bomb, if any
 	thrownGrenades     map[*common.Player][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
+	rules              gameRules
+	demoInfo           demoInfoProvider
 }
 
 type lastFlash struct {
@@ -88,6 +94,12 @@ func (gs gameState) Participants() Participants {
 	}
 }
 
+// Rules returns the GameRules for the current match.
+// Contains information like freeze time duration etc.
+func (gs gameState) Rules() GameRules {
+	return gs.rules
+}
+
 // GrenadeProjectiles returns a map from entity-IDs to all live grenade projectiles.
 //
 // Only constains projectiles currently in-flight or still active (smokes etc.),
@@ -140,11 +152,12 @@ func (gs gameState) IsMatchStarted() bool {
 // ConVars returns a map of CVar keys and values.
 // Not all values might be set.
 // See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
+// Deprecated: see GameRules().ConVars()
 func (gs *gameState) ConVars() map[string]string {
-	return gs.conVars
+	return gs.rules.ConVars()
 }
 
-func newGameState() *gameState {
+func newGameState(demoInfo demoInfoProvider) *gameState {
 	gs := &gameState{
 		playersByEntityID:  make(map[int]*common.Player),
 		playersByUserID:    make(map[int]*common.Player),
@@ -152,11 +165,14 @@ func newGameState() *gameState {
 		infernos:           make(map[int]*common.Inferno),
 		weapons:            make(map[int]*common.Equipment),
 		entities:           make(map[int]st.Entity),
-		conVars:            make(map[string]string),
 		thrownGrenades:     make(map[*common.Player][]*common.Equipment),
 		lastFlash: lastFlash{
 			projectileByPlayer: make(map[*common.Player]*common.GrenadeProjectile),
 		},
+		rules: gameRules{
+			conVars: make(map[string]string),
+		},
+		demoInfo: demoInfo,
 	}
 
 	gs.tState = common.NewTeamState(common.TeamTerrorists, gs.Participants().TeamMembers)
@@ -165,6 +181,57 @@ func newGameState() *gameState {
 	gs.ctState.Opponent = &gs.tState
 
 	return gs
+}
+
+type gameRules struct {
+	conVars map[string]string
+	entity  st.Entity
+}
+
+var ErrFailedToRetrieveGameRule = errors.New("failed to retrieve GameRule value, it's recommended to have a fallback to a default value for this scenario")
+
+// RoundTime returns how long rounds in the current match last for (excluding freeze time).
+// May return error if cs_gamerules_data.m_iRoundTime is not set.
+func (gr gameRules) RoundTime() (time.Duration, error) {
+	if gr.entity == nil {
+		return 0, ErrFailedToRetrieveGameRule
+	}
+
+	prop := gr.entity.Property("cs_gamerules_data.m_iRoundTime")
+	if prop == nil {
+		return 0, ErrFailedToRetrieveGameRule
+	}
+
+	return time.Duration(prop.Value().IntVal) * time.Second, nil
+}
+
+// FreezeTime returns how long freeze time lasts for in the current match (mp_freezetime).
+// May return error if mp_freezetime cannot be converted to a time duration.
+func (gr gameRules) FreezeTime() (time.Duration, error) {
+	t, err := strconv.Atoi(gr.conVars["mp_freezetime"])
+	if err != nil {
+		return 0, ErrFailedToRetrieveGameRule
+	}
+
+	return time.Duration(t) * time.Second, nil
+}
+
+// BombTime returns how long freeze time lasts for in the current match (mp_freezetime).
+// May return error if mp_c4timer cannot be converted to a time duration.
+func (gr gameRules) BombTime() (time.Duration, error) {
+	t, err := strconv.Atoi(gr.conVars["mp_c4timer"])
+	if err != nil {
+		return 0, ErrFailedToRetrieveGameRule
+	}
+
+	return time.Duration(t) * time.Second, nil
+}
+
+// ConVars returns a map of CVar keys and values.
+// Not all values might be set.
+// See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
+func (gr gameRules) ConVars() map[string]string {
+	return gr.conVars
 }
 
 // participants provides helper functions on top of the currently connected players.

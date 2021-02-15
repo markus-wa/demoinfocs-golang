@@ -89,3 +89,8 @@ func (gs *GameState) IsMatchStarted() bool {
 func (gs *GameState) ConVars() map[string]string {
 	return gs.Called().Get(0).(map[string]string)
 }
+
+// Rules is a mock-implementation of GameState.Rules().
+func (gs *GameState) Rules() demoinfocs.GameRules {
+	return gs.Called().Get(0).(demoinfocs.GameRules)
+}
