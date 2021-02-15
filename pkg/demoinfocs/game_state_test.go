@@ -21,6 +21,7 @@ func TestNewGameState(t *testing.T) {
 	assert.NotNil(t, gs.infernos)
 	assert.NotNil(t, gs.weapons)
 	assert.NotNil(t, gs.entities)
+	assert.NotNil(t, gs.rules.conVars)
 	assert.Equal(t, common.TeamTerrorists, gs.tState.Team())
 	assert.Equal(t, common.TeamCounterTerrorists, gs.ctState.Team())
 }
@@ -278,8 +279,11 @@ func TestParticipants_SpottedBy(t *testing.T) {
 
 func TestGameRules_ConVars(t *testing.T) {
 	cvars := make(map[string]string)
-	gs := gameRules{conVars: cvars}
+	gr := gameRules{conVars: cvars}
 
+	assert.Equal(t, cvars, gr.ConVars())
+
+	gs := gameState{rules: gr}
 	assert.Equal(t, cvars, gs.ConVars())
 }
 
@@ -306,9 +310,9 @@ func TestGameRules_RoundTime(t *testing.T) {
 	prop.On("Value").Return(st.PropertyValue{IntVal: 115})
 	ent := new(stfake.Entity)
 	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(prop)
-	gs := gameRules{entity: ent}
+	gr := gameRules{entity: ent}
 
-	rt, err := gs.RoundTime()
+	rt, err := gr.RoundTime()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 115*time.Second, rt)
@@ -326,6 +330,13 @@ func TestGameRules(t *testing.T) {
 	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
 
 	_, err = gr.FreezeTime()
+	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
+
+	ent := new(stfake.Entity)
+	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(nil)
+	gr = gameRules{entity: ent}
+
+	_, err = gr.RoundTime()
 	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
 }
 
