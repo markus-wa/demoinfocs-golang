@@ -43,7 +43,11 @@ type Participants interface {
 	// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
 	FindByHandle(handle int) *common.Player
 	// SpottersOf returns a list of all players who have spotted the passed player.
+	// This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
+	// May not behave as expected with multiple spotters.
 	SpottersOf(spotted *common.Player) (spotters []*common.Player)
 	// SpottedBy returns a list of all players that the passed player has spotted.
+	// This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
+	// May not behave as expected with multiple spotters.
 	SpottedBy(spotter *common.Player) (spotted []*common.Player)
 }
