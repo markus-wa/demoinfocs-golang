@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -12,7 +13,7 @@ import (
 )
 
 func TestNewGameState(t *testing.T) {
-	gs := newGameState()
+	gs := newGameState(demoInfoProvider{})
 
 	assert.NotNil(t, gs.playersByEntityID)
 	assert.NotNil(t, gs.playersByUserID)
@@ -25,21 +26,21 @@ func TestNewGameState(t *testing.T) {
 }
 
 func TestNewGameState_TeamState_Pointers(t *testing.T) {
-	gs := newGameState()
+	gs := newGameState(demoInfoProvider{})
 
 	assert.True(t, gs.TeamCounterTerrorists() == &gs.ctState)
 	assert.True(t, gs.TeamTerrorists() == &gs.tState)
 }
 
 func TestNewGameState_TeamState_Opponent(t *testing.T) {
-	gs := newGameState()
+	gs := newGameState(demoInfoProvider{})
 
 	assert.True(t, &gs.ctState == gs.tState.Opponent)
 	assert.True(t, &gs.tState == gs.ctState.Opponent)
 }
 
 func TestGameState_Participants(t *testing.T) {
-	gs := newGameState()
+	gs := newGameState(demoInfoProvider{})
 	ptcp := gs.Participants()
 	byEntity := ptcp.ByEntityID()
 	byUserID := ptcp.ByUserID()
@@ -68,13 +69,6 @@ func TestGameState_Participants(t *testing.T) {
 	// Should be equal since ByUserID() do not return disconnected users
 	assert.Equal(t, byUserID2, ptcp.ByUserID())
 	assert.NotEqual(t, allByUserID, ptcp.ByUserID())
-}
-
-func TestGameState_ConVars(t *testing.T) {
-	cvars := make(map[string]string)
-	gs := gameState{conVars: cvars}
-
-	assert.Equal(t, cvars, gs.ConVars())
 }
 
 func TestParticipants_All(t *testing.T) {
@@ -280,6 +274,59 @@ func TestParticipants_SpottedBy(t *testing.T) {
 	spotted := ptcps.SpottedBy(spotter)
 
 	assert.ElementsMatch(t, []*common.Player{spotted1, spotted2}, spotted)
+}
+
+func TestGameRules_ConVars(t *testing.T) {
+	cvars := make(map[string]string)
+	gs := gameRules{conVars: cvars}
+
+	assert.Equal(t, cvars, gs.ConVars())
+}
+
+func TestGameRules_BombTime(t *testing.T) {
+	gs := gameRules{conVars: map[string]string{"mp_c4timer": "5"}}
+
+	bt, err := gs.BombTime()
+
+	assert.Nil(t, err)
+	assert.Equal(t, 5*time.Second, bt)
+}
+
+func TestGameRules_FreezeTime(t *testing.T) {
+	gs := gameRules{conVars: map[string]string{"mp_freezetime": "5"}}
+
+	bt, err := gs.FreezeTime()
+
+	assert.Nil(t, err)
+	assert.Equal(t, 5*time.Second, bt)
+}
+
+func TestGameRules_RoundTime(t *testing.T) {
+	prop := new(stfake.Property)
+	prop.On("Value").Return(st.PropertyValue{IntVal: 115})
+	ent := new(stfake.Entity)
+	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(prop)
+	gs := gameRules{entity: ent}
+
+	rt, err := gs.RoundTime()
+
+	assert.Nil(t, err)
+	assert.Equal(t, 115*time.Second, rt)
+}
+
+func TestGameRules(t *testing.T) {
+	gr := gameRules{
+		conVars: map[string]string{},
+	}
+
+	_, err := gr.RoundTime()
+	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
+
+	_, err = gr.BombTime()
+	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
+
+	_, err = gr.FreezeTime()
+	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
 }
 
 func newPlayer() *common.Player {

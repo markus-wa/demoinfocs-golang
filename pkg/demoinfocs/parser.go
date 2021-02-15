@@ -305,11 +305,11 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.rawPlayers = make(map[int]*playerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.cancelChan = make(chan struct{}, 1)
-	p.gameState = newGameState()
+	p.demoInfoProvider = demoInfoProvider{parser: &p}
+	p.gameState = newGameState(p.demoInfoProvider)
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.gameEventHandler = newGameEventHandler(&p)
 	p.userMessageHandler = newUserMessageHandler(&p)
-	p.demoInfoProvider = demoInfoProvider{parser: &p}
 
 	dispatcherCfg := dp.Config{
 		PanicHandler: func(v interface{}) {

@@ -30,6 +30,9 @@ type GameState interface {
 	// Participants returns a struct with all currently connected players & spectators and utility functions.
 	// The struct contains references to the original maps so it's always up-to-date.
 	Participants() Participants
+	// Rules returns the GameRules for the current match.
+	// Contains information like freeze time duration etc.
+	Rules() GameRules
 	// GrenadeProjectiles returns a map from entity-IDs to all live grenade projectiles.
 	//
 	// Only constains projectiles currently in-flight or still active (smokes etc.),
@@ -55,5 +58,6 @@ type GameState interface {
 	// ConVars returns a map of CVar keys and values.
 	// Not all values might be set.
 	// See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
+	// Deprecated: see GameRules().ConVars()
 	ConVars() map[string]string
 }
