@@ -60,4 +60,7 @@ type GameState interface {
 	// See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
 	// Deprecated: see GameRules().ConVars()
 	ConVars() map[string]string
+	// PlayerResourceEntity returns the game's CCSPlayerResource entity.
+	// Contains scoreboard information and more.
+	PlayerResourceEntity() st.Entity
 }

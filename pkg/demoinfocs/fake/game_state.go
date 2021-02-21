@@ -94,3 +94,8 @@ func (gs *GameState) ConVars() map[string]string {
 func (gs *GameState) Rules() demoinfocs.GameRules {
 	return gs.Called().Get(0).(demoinfocs.GameRules)
 }
+
+// PlayerResorceEntity is a mock-implementation of GameState.PlayerResorceEntity().
+func (gs *GameState) PlayerResourceEntity() st.Entity {
+	return gs.Called().Get(0).(st.Entity)
+}

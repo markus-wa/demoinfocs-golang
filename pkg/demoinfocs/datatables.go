@@ -165,7 +165,7 @@ func (p *parser) bindPlayers() {
 	})
 
 	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(entity st.Entity) {
-		p.playerResourceEntity = entity
+		p.gameState.playerResourceEntity = entity
 	})
 }
 
