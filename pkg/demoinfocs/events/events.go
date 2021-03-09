@@ -140,6 +140,11 @@ type Kill struct {
 	Assister          *common.Player
 	PenetratedObjects int
 	IsHeadshot        bool
+	AssistedFlash     bool
+	AttackerBlind     bool
+	NoScope           bool
+	ThruSmoke         bool
+	Distance          float32
 }
 
 // IsWallBang returns true if PenetratedObjects is larger than 0.
