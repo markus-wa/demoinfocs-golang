@@ -66,6 +66,7 @@ func (p *parser) bindEntities() {
 	p.bindWeapons()
 	p.bindBomb()
 	p.bindGameRules()
+	p.bindHostages()
 }
 
 func (p *parser) bindBomb() {
@@ -593,5 +594,25 @@ func (p *parser) bindGameRules() {
 		// "m_flCTTimeOutRemaining"
 		// "m_nTerroristTimeOuts"
 		// "m_nCTTimeOuts"
+	})
+}
+
+func (p *parser) bindHostages() {
+	p.stParser.ServerClasses().FindByName("CHostage").OnEntityCreated(func(entity st.Entity) {
+		entityID := entity.ID()
+		p.gameState.hostages[entityID] = common.NewHostage(p.demoInfoProvider, entity)
+
+		entity.OnDestroy(func() {
+			delete(p.gameState.hostages, entityID)
+		})
+
+		var state common.HostageState
+		entity.Property("m_nHostageState").OnUpdate(func(val st.PropertyValue) {
+			oldState := state
+			state = common.HostageState(val.IntVal)
+			if oldState != state {
+				p.eventDispatcher.Dispatch(events.HostageStateChanged{State: state, Hostage: p.gameState.hostages[entityID]})
+			}
+		})
 	})
 }

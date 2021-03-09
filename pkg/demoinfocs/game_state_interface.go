@@ -33,6 +33,8 @@ type GameState interface {
 	// Rules returns the GameRules for the current match.
 	// Contains information like freeze time duration etc.
 	Rules() GameRules
+	// Hostages returns a map from entity-IDs to all hostages.
+	Hostages() map[int]*common.Hostage
 	// GrenadeProjectiles returns a map from entity-IDs to all live grenade projectiles.
 	//
 	// Only constains projectiles currently in-flight or still active (smokes etc.),

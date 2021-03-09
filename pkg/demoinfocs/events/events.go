@@ -338,6 +338,35 @@ type BombPickup struct {
 	Player *common.Player
 }
 
+// HostageRecued signals that a hostage has been rescued.
+type HostageRecued struct {
+	Player  *common.Player
+	Hostage *common.Hostage
+}
+
+// HostageRescuedAll signals that all hostages have been rescued.
+type HostageRescuedAll struct{}
+
+// HostageHurt signals that a hostage has been hurt.
+type HostageHurt struct {
+	Player  *common.Player
+	Hostage *common.Hostage
+}
+
+// HostageKilled signals that a hostage has been killed.
+type HostageKilled struct {
+	Killer  *common.Player
+	Hostage *common.Hostage
+}
+
+// HostageStateChanged signals that the state of a hostage has changed.
+// e.g. being untied, picked up, rescued etc.
+// See HostageState for all possible values.
+type HostageStateChanged struct {
+	State   common.HostageState
+	Hostage *common.Hostage
+}
+
 // HitGroup is the type for the various HitGroupXYZ constants.
 //
 // See PlayerHurt.

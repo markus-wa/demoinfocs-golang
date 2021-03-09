@@ -25,6 +25,7 @@ type gameState struct {
 	grenadeProjectiles   map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos             map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	weapons              map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
+	hostages             map[int]*common.Hostage           // Maps entity-IDs to hostages.
 	entities             map[int]st.Entity                 // Maps entity IDs to entities
 	bomb                 common.Bomb
 	totalRoundsPlayed    int
@@ -101,6 +102,11 @@ func (gs gameState) Rules() GameRules {
 	return gs.rules
 }
 
+// Hostages returns a map from entity-IDs to all hostages.
+func (gs gameState) Hostages() map[int]*common.Hostage {
+	return gs.hostages
+}
+
 // GrenadeProjectiles returns a map from entity-IDs to all live grenade projectiles.
 //
 // Only constains projectiles currently in-flight or still active (smokes etc.),
@@ -171,6 +177,7 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
 		infernos:           make(map[int]*common.Inferno),
 		weapons:            make(map[int]*common.Equipment),
+		hostages:           make(map[int]*common.Hostage),
 		entities:           make(map[int]st.Entity),
 		thrownGrenades:     make(map[*common.Player][]*common.Equipment),
 		lastFlash: lastFlash{
