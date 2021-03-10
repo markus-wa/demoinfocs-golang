@@ -136,6 +136,10 @@ func newGameEventHandler(parser *parser) gameEventHandler {
 		"exit_buyzone":                    nil,                                   // Dunno, only in locally recorded (POV) demo
 		"flashbang_detonate":              geh.flashBangDetonate,                 // Flash exploded
 		"hegrenade_detonate":              geh.heGrenadeDetonate,                 // HE exploded
+		"hostage_killed":                  geh.hostageKilled,                     // Hostage killed
+		"hostage_hurt":                    geh.hostageHurt,                       // Hostage hurt
+		"hostage_rescued":                 geh.hostageRescued,                    // Hostage rescued
+		"hostage_rescued_all":             geh.HostageRescuedAll,                 // All hostages rescued
 		"hltv_chase":                      nil,                                   // Don't care
 		"hltv_fixed":                      nil,                                   // Dunno
 		"hltv_message":                    nil,                                   // No clue
@@ -474,6 +478,37 @@ func (geh gameEventHandler) infernoExpire(data map[string]*msg.CSVCMsg_GameEvent
 	geh.dispatch(events.FireGrenadeExpired{
 		GrenadeEvent: geh.nadeEvent(data, common.EqIncendiary),
 	})
+}
+
+func (geh gameEventHandler) hostageHurt(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	event := events.HostageHurt{
+		Player:  geh.playerByUserID32(data["userid"].GetValShort()),
+		Hostage: geh.gameState().hostages[int(data["hostage"].GetValShort())],
+	}
+
+	geh.dispatch(event)
+}
+
+func (geh gameEventHandler) hostageKilled(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	event := events.HostageKilled{
+		Killer:  geh.playerByUserID32(data["userid"].GetValShort()),
+		Hostage: geh.gameState().hostages[int(data["hostage"].GetValShort())],
+	}
+
+	geh.dispatch(event)
+}
+
+func (geh gameEventHandler) hostageRescued(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	event := events.HostageRecued{
+		Player:  geh.playerByUserID32(data["userid"].GetValShort()),
+		Hostage: geh.gameState().hostages[int(data["hostage"].GetValShort())],
+	}
+
+	geh.dispatch(event)
+}
+
+func (geh gameEventHandler) HostageRescuedAll(map[string]*msg.CSVCMsg_GameEventKeyT) {
+	geh.dispatch(events.HostageRescuedAll{})
 }
 
 func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {

@@ -20,6 +20,7 @@ func TestNewGameState(t *testing.T) {
 	assert.NotNil(t, gs.grenadeProjectiles)
 	assert.NotNil(t, gs.infernos)
 	assert.NotNil(t, gs.weapons)
+	assert.NotNil(t, gs.hostages)
 	assert.NotNil(t, gs.entities)
 	assert.NotNil(t, gs.rules.conVars)
 	assert.Equal(t, common.TeamTerrorists, gs.tState.Team())
@@ -358,4 +359,14 @@ func newDisconnectedPlayer() *common.Player {
 	pl.Entity = new(stfake.Entity)
 
 	return pl
+}
+
+func TestGameState_Hostages(t *testing.T) {
+	hostageA := common.NewHostage(nil, new(stfake.Entity))
+	hostageB := common.NewHostage(nil, new(stfake.Entity))
+	hostages := map[int]*common.Hostage{0: hostageA, 1: hostageB}
+	gs := gameState{hostages: hostages}
+
+	expectedHostages := []*common.Hostage{hostageA, hostageB}
+	assert.Equal(t, expectedHostages, gs.Hostages())
 }
