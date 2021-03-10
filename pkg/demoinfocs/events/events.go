@@ -143,7 +143,7 @@ type Kill struct {
 	AssistedFlash     bool
 	AttackerBlind     bool
 	NoScope           bool
-	ThruSmoke         bool
+	ThroughSmoke      bool
 	Distance          float32
 }
 
