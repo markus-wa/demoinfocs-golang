@@ -363,8 +363,9 @@ type HostageKilled struct {
 // e.g. being untied, picked up, rescued etc.
 // See HostageState for all possible values.
 type HostageStateChanged struct {
-	State   common.HostageState
-	Hostage *common.Hostage
+	OldState common.HostageState
+	NewState common.HostageState
+	Hostage  *common.Hostage
 }
 
 // HitGroup is the type for the various HitGroupXYZ constants.

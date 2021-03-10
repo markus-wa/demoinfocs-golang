@@ -611,7 +611,7 @@ func (p *parser) bindHostages() {
 			oldState := state
 			state = common.HostageState(val.IntVal)
 			if oldState != state {
-				p.eventDispatcher.Dispatch(events.HostageStateChanged{State: state, Hostage: p.gameState.hostages[entityID]})
+				p.eventDispatcher.Dispatch(events.HostageStateChanged{OldState: oldState, NewState: state, Hostage: p.gameState.hostages[entityID]})
 			}
 		})
 	})
