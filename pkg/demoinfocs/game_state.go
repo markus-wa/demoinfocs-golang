@@ -102,9 +102,14 @@ func (gs gameState) Rules() GameRules {
 	return gs.rules
 }
 
-// Hostages returns a map from entity-IDs to all hostages.
-func (gs gameState) Hostages() map[int]*common.Hostage {
-	return gs.hostages
+// Hostages returns all current hostages.
+func (gs gameState) Hostages() []*common.Hostage {
+	hostages := make([]*common.Hostage, 0, len(gs.hostages))
+	for _, hostage := range gs.hostages {
+		hostages = append(hostages, hostage)
+	}
+
+	return hostages
 }
 
 // GrenadeProjectiles returns a map from entity-IDs to all live grenade projectiles.

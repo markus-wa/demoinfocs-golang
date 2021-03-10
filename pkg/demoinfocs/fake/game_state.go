@@ -101,6 +101,6 @@ func (gs *GameState) PlayerResourceEntity() st.Entity {
 }
 
 // Hostages is a mock-implementation of GameState.Hostages().
-func (gs *GameState) Hostages() map[int]*common.Hostage {
-	return gs.Called().Get(0).(map[int]*common.Hostage)
+func (gs *GameState) Hostages() []*common.Hostage {
+	return gs.Called().Get(0).([]*common.Hostage)
 }

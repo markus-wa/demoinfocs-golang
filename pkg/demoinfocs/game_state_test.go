@@ -362,8 +362,11 @@ func newDisconnectedPlayer() *common.Player {
 }
 
 func TestGameState_Hostages(t *testing.T) {
-	hostages := map[int]*common.Hostage{0: common.NewHostage(nil, new(stfake.Entity)), 1: common.NewHostage(nil, new(stfake.Entity))}
+	hostageA := common.NewHostage(nil, new(stfake.Entity))
+	hostageB := common.NewHostage(nil, new(stfake.Entity))
+	hostages := map[int]*common.Hostage{0: hostageA, 1: hostageB}
 	gs := gameState{hostages: hostages}
 
-	assert.Equal(t, hostages, gs.Hostages())
+	expectedHostages := []*common.Hostage{hostageA, hostageB}
+	assert.Equal(t, expectedHostages, gs.Hostages())
 }
