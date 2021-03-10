@@ -18,6 +18,7 @@ linters:
     - exhaustivestruct
     - godot
     - gofumpt
+    - testpackage
 issues:
   exclude-rules:
     # Exclude some linters from running on tests files.
