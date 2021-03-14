@@ -78,11 +78,18 @@ type PropertyValue struct {
 	ArrayVal  []PropertyValue
 	StringVal string
 	FloatVal  float32
+	isSet     bool
 }
 
 // BoolVal returns true if IntVal > 0.
 func (v PropertyValue) BoolVal() bool {
 	return v.IntVal > 0
+}
+
+// IsSet returns true if the property has been set at least once (even if the set value is equal to the default value).
+// This is a beta feature and may be changed without notice.
+func (v PropertyValue) IsSet() bool {
+	return v.isSet
 }
 
 type propertyDecoder struct{}
@@ -110,6 +117,8 @@ func (propertyDecoder) decodeProp(prop *property, reader *bit.BitReader) {
 	default:
 		panic(fmt.Sprintf("Unknown prop type %d", prop.entry.prop.rawType))
 	}
+
+	prop.value.isSet = true
 }
 
 func (propertyDecoder) decodeInt(prop *sendTableProperty, reader *bit.BitReader) int {
