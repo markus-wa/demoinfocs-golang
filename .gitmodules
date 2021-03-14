@@ -1,4 +1,4 @@
 [submodule "cs-demos"]
 	path = test/cs-demos
-	url = https://gitlab.com/markus-wa/cs-demos
+	url = https://gitlab.com/markus-wa/cs-demos-2
 	branch = master
