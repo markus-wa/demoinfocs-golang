@@ -152,6 +152,7 @@ type demoInfoProviderMock struct {
 	ingameTick           int
 	playersByHandle      map[int]*Player
 	playerResourceEntity st.Entity
+	equipment            *Equipment
 }
 
 func (p demoInfoProviderMock) TickRate() float64 {
@@ -168,6 +169,10 @@ func (p demoInfoProviderMock) FindPlayerByHandle(handle int) *Player {
 
 func (p demoInfoProviderMock) PlayerResourceEntity() st.Entity {
 	return p.playerResourceEntity
+}
+
+func (p demoInfoProviderMock) FindWeaponByEntityID(id int) *Equipment {
+	return p.equipment
 }
 
 func mockDemoInfoProvider(tickRate float64, tick int) demoInfoProvider {
