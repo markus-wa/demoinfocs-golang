@@ -17,9 +17,9 @@ func TestPlayerActiveWeapon(t *testing.T) {
 	ak47 := NewEquipment(EqAK47)
 
 	pl := newPlayer(0)
+	pl.demoInfoProvider = demoInfoProviderMock{equipment: ak47}
 	pl.Inventory[1] = knife
-	pl.Inventory[2] = glock
-	pl.Inventory[3] = ak47
+	pl.Inventory[3] = glock
 	pl.Entity = entityWithProperty("m_hActiveWeapon", st.PropertyValue{IntVal: 3})
 
 	assert.Equal(t, ak47, pl.ActiveWeapon(), "Should have AK-47 equipped")

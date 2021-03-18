@@ -127,7 +127,7 @@ func (p *Player) activeWeaponID() int {
 
 // ActiveWeapon returns the currently active / equipped weapon of the player.
 func (p *Player) ActiveWeapon() *Equipment {
-	return p.Inventory[p.activeWeaponID()]
+	return p.demoInfoProvider.FindWeaponByEntityID(p.activeWeaponID())
 }
 
 // Weapons returns all weapons in the player's possession.
@@ -425,6 +425,7 @@ type demoInfoProvider interface {
 	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
 	FindPlayerByHandle(handle int) *Player
 	PlayerResourceEntity() st.Entity
+	FindWeaponByEntityID(id int) *Equipment
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.

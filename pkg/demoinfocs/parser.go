@@ -363,3 +363,7 @@ func (p demoInfoProvider) FindPlayerByHandle(handle int) *common.Player {
 func (p demoInfoProvider) PlayerResourceEntity() st.Entity {
 	return p.parser.gameState.playerResourceEntity
 }
+
+func (p demoInfoProvider) FindWeaponByEntityID(entityID int) *common.Equipment {
+	return p.parser.gameState.weapons[entityID]
+}
