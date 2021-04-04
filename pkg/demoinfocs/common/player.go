@@ -375,6 +375,18 @@ func (p *Player) ClanTag() string {
 	return getString(p.resourceEntity(), "m_szClan."+p.entityIDStr())
 }
 
+// CrosshairCode returns the player's crosshair code or an empty string if there isn't one.
+func (p *Player) CrosshairCode() string {
+	if p.resourceEntity() == nil {
+		return ""
+	}
+
+	// if the property doesn't exist we return empty string by default
+	val, _ := p.resourceEntity().PropertyValue("m_szCrosshairCodes." + p.entityIDStr())
+
+	return val.StringVal
+}
+
 // Ping returns the players latency to the game server.
 func (p *Player) Ping() int {
 	return getInt(p.resourceEntity(), "m_iPing."+p.entityIDStr())
