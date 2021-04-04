@@ -376,11 +376,13 @@ func TestPlayer_ClanTag(t *testing.T) {
 
 	assert.Equal(t, "SuperClan", pl.ClanTag())
 }
+
 func TestPlayer_CrosshairCode(t *testing.T) {
 	pl := playerWithResourceProperty("m_szCrosshairCodes", st.PropertyValue{StringVal: "CSGO-jvnbx-S3xFK-iEJXD-Y27Nd-AO6FP"})
 
 	assert.Equal(t, "CSGO-jvnbx-S3xFK-iEJXD-Y27Nd-AO6FP", pl.CrosshairCode())
 }
+
 func TestPlayer_WithoutCrosshairCode(t *testing.T) {
 	pl := newPlayer(0)
 
