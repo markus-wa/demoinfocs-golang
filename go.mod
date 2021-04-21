@@ -10,6 +10,9 @@ require (
 	github.com/markus-wa/godispatch v1.3.0
 	github.com/markus-wa/quickhull-go/v2 v2.1.0
 	github.com/stretchr/testify v1.6.1
+	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
+	golang.org/x/text v0.3.6 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
 replace github.com/dustin/go-heatmap => github.com/markus-wa/go-heatmap v1.0.0
