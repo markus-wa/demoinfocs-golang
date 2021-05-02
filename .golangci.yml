@@ -7,18 +7,51 @@ run:
   skip-files:
     - parser_interface.go
     - game_state_interface.go
+  allow-parallel-runners: true
+
 linters:
-  enable-all: true
-  disable:
-    - gochecknoinits
-    - gochecknoglobals
-    - lll
-    - typecheck
-    - gomnd
-    - exhaustivestruct
-    - godot
-    - gofumpt
-    - testpackage
+  disable-all: true
+  enable:
+    - bodyclose
+    - deadcode
+    - depguard
+    - dogsled
+    - dupl
+    - exportloopref
+    - exhaustive
+    - funlen
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - nakedret
+    - noctx
+    - nolintlint
+    - rowserrcheck
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - whitespace
+    - asciicheck
+    - gocognit
+    - godox
+    - nestif
+    - prealloc
+    - revive
+    - wsl
+
 issues:
   exclude-rules:
     # Exclude some linters from running on tests files.
@@ -26,6 +59,7 @@ issues:
       linters:
         - wsl
         - funlen
+
 linters-settings:
   gocritic:
     disabled-checks:
