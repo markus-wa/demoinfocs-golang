@@ -111,14 +111,8 @@ func (p *parser) ParseToEnd() (err error) {
 	}
 
 	for {
-		select {
-		case <-p.cancelChan:
-			return ErrCancelled
-
-		default:
-			if !p.parseFrame() {
-				return p.error()
-			}
+		if !p.parseFrame() {
+			return p.error()
 		}
 
 		if err = p.error(); err != nil {
@@ -145,10 +139,12 @@ func recoverFromUnexpectedEOF(r interface{}) error {
 	}
 }
 
-// Cancel aborts ParseToEnd().
-// All information that was already read up to this point may still be used (and new events may still be sent out).
+// Cancel aborts ParseToEnd() and drains the internal event queues.
+// No further events will be sent to event or message handlers after this.
 func (p *parser) Cancel() {
-	p.cancelChan <- struct{}{}
+	p.setError(ErrCancelled)
+	p.eventDispatcher.UnregisterAllHandlers()
+	p.msgDispatcher.UnregisterAllHandlers()
 }
 
 /*

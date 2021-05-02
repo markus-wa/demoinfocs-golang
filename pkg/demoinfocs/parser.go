@@ -59,7 +59,6 @@ type parser struct {
 	header                       *common.DemoHeader // Pointer so we can check for nil
 	gameState                    *gameState
 	demoInfoProvider             demoInfoProvider // Provides demo infos to other packages that the core package depends on
-	cancelled                    bool             // Indicates if Parser.Cancel() has been called
 	err                          error            // Contains a error that occurred during parsing if any
 	errLock                      sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
 
@@ -250,12 +249,20 @@ func (p *parser) error() error {
 }
 
 func (p *parser) setError(err error) {
-	if err == nil || p.err != nil {
+	if err == nil {
 		return
 	}
 
 	p.errLock.Lock()
+
+	if p.err != nil {
+		p.errLock.Unlock()
+
+		return
+	}
+
 	p.err = err
+
 	p.errLock.Unlock()
 }
 
