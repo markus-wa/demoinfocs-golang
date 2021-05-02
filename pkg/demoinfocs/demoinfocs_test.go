@@ -240,6 +240,33 @@ func TestParseToEnd_Cancel(t *testing.T) {
 	assert.True(t, tix == maxTicks, "FrameDone handler was not triggered the correct amount of times")
 }
 
+// See https://github.com/markus-wa/demoinfocs-golang/issues/276
+func TestParseToEnd_MultiCancel(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
+	f := openFile(t, defaultDemPath)
+	defer mustClose(t, f)
+
+	p := demoinfocs.NewParser(f)
+
+	var handlerID dispatch.HandlerIdentifier
+	handlerID = p.RegisterEventHandler(func(events.FrameDone) {
+		p.Cancel()
+		p.Cancel()
+		p.Cancel()
+		p.Cancel()
+		p.Cancel()
+		p.UnregisterEventHandler(handlerID)
+	})
+
+	err := p.ParseToEnd()
+	assert.Equal(t, demoinfocs.ErrCancelled, err, "parsing cancelled but error was not ErrCancelled")
+}
+
 func TestInvalidFileType(t *testing.T) {
 	t.Parallel()
 

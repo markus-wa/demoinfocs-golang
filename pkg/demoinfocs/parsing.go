@@ -139,6 +139,7 @@ func recoverFromUnexpectedEOF(r interface{}) error {
 	switch err := r.(type) {
 	case dispatch.ConsumerCodePanic:
 		panic(err.Value())
+
 	default:
 		panic(err)
 	}
@@ -203,7 +204,7 @@ const (
 	dcStringTables   demoCommand = 9
 )
 
-//nolint:funlen
+//nolint:funlen,cyclop
 func (p *parser) parseFrame() bool {
 	cmd := demoCommand(p.bitReader.ReadSingleByte())
 
@@ -273,6 +274,7 @@ func (p *parser) parseFrame() bool {
 var byteSlicePool = sync.Pool{
 	New: func() interface{} {
 		s := make([]byte, 0, 256)
+
 		return &s
 	},
 }
@@ -338,6 +340,7 @@ func (p *parser) parsePacket() {
 		}
 
 		b := byteSlicePool.Get().(*[]byte)
+
 		p.bitReader.ReadBytesInto(b, size)
 
 		m := msgCreator()

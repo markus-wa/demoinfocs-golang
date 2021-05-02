@@ -59,7 +59,7 @@ type parser struct {
 	header                       *common.DemoHeader // Pointer so we can check for nil
 	gameState                    *gameState
 	demoInfoProvider             demoInfoProvider // Provides demo infos to other packages that the core package depends on
-	cancelChan                   chan struct{}    // Non-anime-related, used for aborting the parsing
+	cancelled                    bool             // Indicates if Parser.Cancel() has been called
 	err                          error            // Contains a error that occurred during parsing if any
 	errLock                      sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
 
@@ -303,7 +303,6 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*playerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
-	p.cancelChan = make(chan struct{}, 1)
 	p.demoInfoProvider = demoInfoProvider{parser: &p}
 	p.gameState = newGameState(p.demoInfoProvider)
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
