@@ -7,7 +7,7 @@ require (
 	github.com/llgcode/draw2d v0.0.0-20200930101115-bfaf5d914d1e
 	github.com/markus-wa/go-unassert v0.1.2
 	github.com/markus-wa/gobitread v0.2.2
-	github.com/markus-wa/godispatch v1.3.0
+	github.com/markus-wa/godispatch v1.4.1
 	github.com/markus-wa/quickhull-go/v2 v2.1.0
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect

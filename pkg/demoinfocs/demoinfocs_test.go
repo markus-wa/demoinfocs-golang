@@ -39,7 +39,10 @@ var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current de
 
 var update = flag.Bool("update", false, "update .golden files")
 
+//nolint:cyclop
 func TestDemoInfoCs(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping test due to -short flag")
 	}
@@ -62,13 +65,13 @@ func TestDemoInfoCs(t *testing.T) {
 		actual.WriteString(fmt.Sprintf("%#v\n", e))
 	})
 
-	fmt.Println("Parsing header")
+	t.Log("Parsing header")
 	h, err := p.ParseHeader()
 	assertions.NoError(err, "error returned by Parser.ParseHeader()")
 	assertions.Equal(h, p.Header(), "values returned by ParseHeader() and Header() don't match")
-	fmt.Printf("Header: %v - FrameRate()=%.2f frames/s ; FrameTime()=%s ; TickRate()=%.2f frames/s ; TickTime()=%s\n", h, h.FrameRate(), h.FrameTime(), p.TickRate(), p.TickTime())
+	t.Logf("Header: %v - FrameRate()=%.2f frames/s ; FrameTime()=%s ; TickRate()=%.2f frames/s ; TickTime()=%s\n", h, h.FrameRate(), h.FrameTime(), p.TickRate(), p.TickTime())
 
-	fmt.Println("Registering handlers")
+	t.Log("Registering handlers")
 	gs := p.GameState()
 	p.RegisterEventHandler(func(e events.RoundEnd) {
 		var (
@@ -76,7 +79,7 @@ func TestDemoInfoCs(t *testing.T) {
 			winnerSide    string
 		)
 
-		switch e.Winner {
+		switch e.Winner { //nolint:exhaustive
 		case common.TeamTerrorists:
 			winner = gs.TeamTerrorists()
 			loser = gs.TeamCounterTerrorists()
@@ -87,7 +90,8 @@ func TestDemoInfoCs(t *testing.T) {
 			winnerSide = "CT"
 		default:
 			// Probably match medic or something similar
-			fmt.Println("Round finished: No winner (tie)")
+			t.Log("Round finished: No winner (tie)")
+
 			return
 		}
 
@@ -100,7 +104,7 @@ func TestDemoInfoCs(t *testing.T) {
 		currentFrame := p.CurrentFrame()
 
 		// Score + 1 for winner because it hasn't actually been updated yet
-		fmt.Printf("Round finished: score=%d:%d ; winnerSide=%s ; clanName=%q ; teamId=%d ; teamFlag=%s ; ingameTime=%s ; progress=%.1f%% ; tick=%d ; frame=%d\n", winner.Score()+1, loser.Score(), winnerSide, winnerClan, winnerID, winnerFlag, ingameTime, progressPercent, ingameTick, currentFrame)
+		t.Logf("Round finished: score=%d:%d ; winnerSide=%s ; clanName=%q ; teamId=%d ; teamFlag=%s ; ingameTime=%s ; progress=%.1f%% ; tick=%d ; frame=%d\n", winner.Score()+1, loser.Score(), winnerSide, winnerClan, winnerID, winnerFlag, ingameTime, progressPercent, ingameTick, currentFrame)
 		if len(winnerClan) == 0 || winnerID == 0 || len(winnerFlag) == 0 || ingameTime == 0 || progressPercent == 0 || ingameTick == 0 || currentFrame == 0 {
 			t.Error("Unexprected default value, check output of last round")
 		}
@@ -165,14 +169,14 @@ func TestDemoInfoCs(t *testing.T) {
 	// Net-message stuff
 	var netTickHandlerID dispatch.HandlerIdentifier
 	netTickHandlerID = p.RegisterNetMessageHandler(func(tick *msg.CNETMsg_Tick) {
-		fmt.Println("Net-message tick handled, unregistering - tick:", tick.Tick)
+		t.Log("Net-message tick handled, unregistering - tick:", tick.Tick)
 		p.UnregisterNetMessageHandler(netTickHandlerID)
 	})
 
 	ts := time.Now()
 
 	frameByFrameCount := 1000
-	fmt.Printf("Parsing frame by frame (%d frames)\n", frameByFrameCount)
+	t.Logf("Parsing frame by frame (%d frames)\n", frameByFrameCount)
 
 	for i := 0; i < frameByFrameCount; i++ {
 		ok, err := p.ParseNextFrame()
@@ -180,16 +184,18 @@ func TestDemoInfoCs(t *testing.T) {
 		assertions.True(ok, "parser reported end of demo after less than %d frames", frameByFrameCount)
 	}
 
-	fmt.Println("Parsing to end")
+	t.Log("Parsing to end")
 	err = p.ParseToEnd()
 	assertions.NoError(err, "error occurred in ParseToEnd()")
 
-	fmt.Printf("Took %s\n", time.Since(ts))
+	t.Logf("Took %s\n", time.Since(ts))
 
 	assertGolden(t, assertions, "default", actual.Bytes())
 }
 
 func TestUnexpectedEndOfDemo(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping test due to -short flag")
 	}
@@ -203,7 +209,9 @@ func TestUnexpectedEndOfDemo(t *testing.T) {
 	assert.Equal(t, demoinfocs.ErrUnexpectedEndOfDemo, err, "parsing cancelled but error was not ErrUnexpectedEndOfDemo")
 }
 
-func TestCancelParseToEnd(t *testing.T) {
+func TestParseToEnd_Cancel(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping test")
 	}
@@ -232,7 +240,36 @@ func TestCancelParseToEnd(t *testing.T) {
 	assert.True(t, tix == maxTicks, "FrameDone handler was not triggered the correct amount of times")
 }
 
+// See https://github.com/markus-wa/demoinfocs-golang/issues/276
+func TestParseToEnd_MultiCancel(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
+	f := openFile(t, defaultDemPath)
+	defer mustClose(t, f)
+
+	p := demoinfocs.NewParser(f)
+
+	var handlerID dispatch.HandlerIdentifier
+	handlerID = p.RegisterEventHandler(func(events.FrameDone) {
+		p.Cancel()
+		p.Cancel()
+		p.Cancel()
+		p.Cancel()
+		p.Cancel()
+		p.UnregisterEventHandler(handlerID)
+	})
+
+	err := p.ParseToEnd()
+	assert.Equal(t, demoinfocs.ErrCancelled, err, "parsing cancelled but error was not ErrCancelled")
+}
+
 func TestInvalidFileType(t *testing.T) {
+	t.Parallel()
+
 	invalidDemoData := make([]byte, 2048)
 	_, err := rand.Read(invalidDemoData)
 	assert.NoError(t, err, "failed to create/read random data")
@@ -253,6 +290,8 @@ func TestInvalidFileType(t *testing.T) {
 }
 
 func TestConcurrent(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping test")
 	}
@@ -262,19 +301,21 @@ func TestConcurrent(t *testing.T) {
 	var i int64
 	runner := func() {
 		n := atomic.AddInt64(&i, 1)
-		fmt.Printf("Starting concurrent runner %d\n", n)
+		t.Logf("Starting concurrent runner %d\n", n)
 
 		ts := time.Now()
 
 		parseDefaultDemo(t)
 
-		fmt.Printf("Runner %d took %s\n", n, time.Since(ts))
+		t.Logf("Runner %d took %s\n", n, time.Since(ts))
 	}
 
 	runConcurrently(runner)
 }
 
 func parseDefaultDemo(tb testing.TB) {
+	tb.Helper()
+
 	f := openFile(tb, defaultDemPath)
 	defer mustClose(tb, f)
 
@@ -297,6 +338,8 @@ func runConcurrently(runner func()) {
 }
 
 func TestDemoSet(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping test due to -short flag")
 	}
@@ -307,7 +350,7 @@ func TestDemoSet(t *testing.T) {
 	for _, d := range dems {
 		name := d.Name()
 		if strings.HasSuffix(name, ".dem") {
-			fmt.Printf("Parsing '%s/%s'\n", demSetPath, name)
+			t.Logf("Parsing '%s/%s'\n", demSetPath, name)
 			func() {
 				f := openFile(t, fmt.Sprintf("%s/%s", demSetPath, name))
 				defer mustClose(t, f)
@@ -317,6 +360,12 @@ func TestDemoSet(t *testing.T) {
 				}()
 
 				p := demoinfocs.NewParser(f)
+
+				p.RegisterEventHandler(func(event events.GenericGameEvent) {
+					if event.Name == "bot_takeover" {
+						t.Log(event.Data)
+					}
+				})
 
 				err = p.ParseToEnd()
 				assert.Nil(t, err, "parsing of '%s/%s' failed", demSetPath, name)
@@ -362,6 +411,8 @@ func BenchmarkConcurrent(b *testing.B) {
 }
 
 func openFile(tb testing.TB, file string) *os.File {
+	tb.Helper()
+
 	f, err := os.Open(file)
 	assert.NoError(tb, err, "failed to open file %q", file)
 
@@ -369,6 +420,8 @@ func openFile(tb testing.TB, file string) *os.File {
 }
 
 func assertGolden(tb testing.TB, assertions *assert.Assertions, testCase string, actual []byte) {
+	tb.Helper()
+
 	const goldenVerificationGoVersionMin = "go1.12"
 	if ver := runtime.Version(); strings.Compare(ver, goldenVerificationGoVersionMin) < 0 {
 		tb.Logf("old go version %q detected, skipping golden file verification", ver)
@@ -417,15 +470,18 @@ func assertGolden(tb testing.TB, assertions *assert.Assertions, testCase string,
 
 func removePointers(s []byte) []byte {
 	r := regexp.MustCompile(`\(0x[\da-f]{10}\)`)
+
 	return r.ReplaceAll(s, []byte("(non-nil)"))
 }
 
 func writeFile(assertions *assert.Assertions, file string, data []byte) {
-	err := ioutil.WriteFile(file, data, 0755)
+	err := ioutil.WriteFile(file, data, 0600)
 	assertions.NoError(err, "failed to write to file %q", file)
 }
 
 func mustClose(tb testing.TB, closables ...io.Closer) {
+	tb.Helper()
+
 	mustCloseAssert(assert.New(tb), closables...)
 }
 

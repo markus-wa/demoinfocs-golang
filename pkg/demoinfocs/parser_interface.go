@@ -112,8 +112,8 @@ type Parser interface {
 	//
 	// See also: ParseNextFrame() for other possible errors.
 	ParseToEnd() (err error)
-	// Cancel aborts ParseToEnd().
-	// All information that was already read up to this point may still be used (and new events may still be sent out).
+	// Cancel aborts ParseToEnd() and drains the internal event queues.
+	// No further events will be sent to event or message handlers after this.
 	Cancel()
 	/*
 	   ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
