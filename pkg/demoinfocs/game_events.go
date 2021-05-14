@@ -1,7 +1,6 @@
 package demoinfocs
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/golang/geo/r3"
@@ -652,7 +651,12 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 			bombEvent.Site = events.BombsiteB
 			geh.parser.bombsiteB.index = site
 		} else {
-			return bombEvent, errors.New("bomb not planted on bombsite A or B")
+			// this may occur on de_grind for bombsite B, really makes you think
+			// see https://github.com/markus-wa/demoinfocs-golang/issues/280
+			geh.dispatch(events.ParserWarn{
+				Message: "bombsite unknown for bomb related event",
+				Type:    events.WarnTypeBombsiteUnknown,
+			})
 		}
 	}
 
