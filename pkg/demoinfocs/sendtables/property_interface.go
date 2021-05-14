@@ -8,8 +8,10 @@ package sendtables
 type Property interface {
 	// Name returns the property's name.
 	Name() string
-	// Value returns current value of the property.
+	// Value returns the current value of the property.
 	Value() PropertyValue
+	// Type returns the data type of the property.
+	Type() PropertyType
 	// OnUpdate registers a handler for updates of the property's value.
 	//
 	// The handler will be called with the current value upon registration.
