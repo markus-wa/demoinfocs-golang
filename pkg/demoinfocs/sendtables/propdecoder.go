@@ -21,6 +21,22 @@ const (
 	propTypeInt64
 )
 
+// PropertyType identifies the data type of a property.
+type PropertyType int
+
+// PropType constants are duplicated as publics so we don't have to convert ints to PropertyType for normal use.
+
+const (
+	PropTypeInt PropertyType = iota
+	PropTypeFloat
+	PropTypeVector
+	PropTypeVectorXY
+	PropTypeString
+	PropTypeArray
+	PropTypeDataTable
+	PropTypeInt64
+)
+
 const (
 	coordFractionalBitsMp             = 5
 	coordFractionalBitsMpLowPrecision = 3

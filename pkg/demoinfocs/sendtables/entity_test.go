@@ -68,3 +68,9 @@ func TestProperty_Name(t *testing.T) {
 
 	assert.Equal(t, "test", prop.Name())
 }
+
+func TestProperty_Type(t *testing.T) {
+	prop := property{entry: &flattenedPropEntry{prop: &sendTableProperty{rawType: 1}}}
+
+	assert.Equal(t, PropTypeFloat, prop.Type())
+}

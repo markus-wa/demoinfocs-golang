@@ -314,9 +314,14 @@ func (pe *property) Name() string {
 	return pe.entry.name
 }
 
-// Value returns current value of the property.
+// Value returns the current value of the property.
 func (pe *property) Value() PropertyValue {
 	return pe.value
+}
+
+// Type returns the data type of the property.
+func (pe *property) Type() PropertyType {
+	return PropertyType(pe.entry.prop.rawType)
 }
 
 // PropertyValueType specifies the type of a PropertyValue
