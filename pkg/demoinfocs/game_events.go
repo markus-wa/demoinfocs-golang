@@ -20,7 +20,10 @@ func (p *parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 
 func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	if p.gameEventDescs == nil {
-		p.eventDispatcher.Dispatch(events.ParserWarn{Message: "received GameEvent but event descriptors are missing"})
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "received GameEvent but event descriptors are missing",
+			Type:    events.WarnTypeGameEventBeforeDescriptors,
+		})
 
 		return
 	}
@@ -571,6 +574,7 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKey
 		// TODO: figure out why this happens and whether it's a bug or not
 		geh.dispatch(events.ParserWarn{
 			Message: "Player team swap game-event occurred but player is nil",
+			Type:    events.WarnTypeTeamSwapPlayerNil,
 		})
 	}
 }

@@ -361,9 +361,28 @@ func TestDemoSet(t *testing.T) {
 
 				p := demoinfocs.NewParser(f)
 
-				p.RegisterEventHandler(func(event events.GenericGameEvent) {
-					if event.Name == "bot_takeover" {
-						t.Log(event.Data)
+				p.RegisterEventHandler(func(warn events.ParserWarn) {
+					switch warn.Type {
+					case events.WarnTypeBombsiteUnknown:
+						if p.Header().MapName == "de_grind" {
+							t.Log("expected known issue with bomb sites on de_grind occurred:", warn.Message)
+
+							return
+						}
+
+					case events.WarnTypeTeamSwapPlayerNil:
+						t.Log("expected known issue with team swaps occurred", warn.Message)
+						return
+
+					case events.WarnTypeGameEventBeforeDescriptors:
+						if strings.Contains(name, "POV-orbit-skytten-vs-cloud9-gfinity15sm1-nuke.dem") {
+							t.Log("expected known issue for POV demos occurred:", warn.Message)
+
+							return
+						}
+
+					default:
+						t.Error("unexpected parser warning occurred:", warn.Message)
 					}
 				})
 
