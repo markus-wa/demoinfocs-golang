@@ -499,9 +499,18 @@ type StringTableCreated struct {
 	TableName string
 }
 
+// WarnType identifies a kind of warning for the ParserWarn event.
+type WarnType int
+
+const (
+	WarnTypeUndefined       = iota
+	WarnTypeBombsiteUnknown // may occur on de_grind for bombsite B as the bounding box of the bombsite is wrong
+)
+
 // ParserWarn signals that a non-fatal problem occurred during parsing.
 type ParserWarn struct {
 	Message string
+	Type    WarnType
 }
 
 // GenericGameEvent signals any game-event.
