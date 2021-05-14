@@ -503,8 +503,10 @@ type StringTableCreated struct {
 type WarnType int
 
 const (
-	WarnTypeUndefined       = iota
-	WarnTypeBombsiteUnknown // may occur on de_grind for bombsite B as the bounding box of the bombsite is wrong
+	WarnTypeUndefined                  = iota
+	WarnTypeBombsiteUnknown            // may occur on de_grind for bombsite B as the bounding box of the bombsite is wrong
+	WarnTypeTeamSwapPlayerNil          // TODO: figure out why this happens
+	WarnTypeGameEventBeforeDescriptors // may occur in POV demos
 )
 
 // ParserWarn signals that a non-fatal problem occurred during parsing.
