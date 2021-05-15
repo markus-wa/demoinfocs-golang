@@ -79,6 +79,11 @@ func (g *GrenadeProjectile) Position() r3.Vector {
 	return g.Entity.Position()
 }
 
+// Velocity returns the projectile's velocity.
+func (g *GrenadeProjectile) Velocity() r3.Vector {
+	return g.Entity.PropertyValueMust("m_vecVelocity").VectorVal
+}
+
 // UniqueID returns the unique id of the grenade.
 // The unique id is a random int generated internally by this library and can be used to differentiate
 // grenades from each other. This is needed because demo-files reuse entity ids.

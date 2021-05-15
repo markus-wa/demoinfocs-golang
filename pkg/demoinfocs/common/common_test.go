@@ -32,6 +32,20 @@ func TestGrenadeProjectileUniqueID(t *testing.T) {
 	assert.NotEqual(t, NewGrenadeProjectile().UniqueID(), NewGrenadeProjectile().UniqueID(), "UniqueIDs of different grenade projectiles should be different")
 }
 
+func TestGrenadeProjectile_Velocity(t *testing.T) {
+	expected := r3.Vector{
+		X: 1,
+		Y: 2,
+		Z: 3,
+	}
+
+	p := GrenadeProjectile{
+		Entity: entityWithProperty("m_vecVelocity", st.PropertyValue{VectorVal: expected}),
+	}
+
+	assert.Equal(t, expected, p.Velocity())
+}
+
 func TestDemoHeader(t *testing.T) {
 	header := DemoHeader{
 		PlaybackFrames: 256,
