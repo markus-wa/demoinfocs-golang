@@ -976,6 +976,7 @@ message CMsgGCCStrike15_v2_ServerVarValueNotificationInfo {
 	optional uint32 accountid = 1;
 	repeated uint32 viewangles = 2;
 	optional uint32 type = 3;
+	repeated uint32 userdata = 4;
 }
 
 message CMsgGCCStrike15_v2_GiftsLeaderboardRequest {
@@ -1030,6 +1031,11 @@ message CSOAccountSeasonalOperation {
 	optional uint32 missions_completed = 5;
 	optional uint32 redeemable_balance = 6;
 	optional uint32 season_pass_time = 7;
+}
+
+message CSOAccountRecurringSubscription {
+	optional uint32 time_next_cycle = 1;
+	optional uint32 time_initiated = 2;
 }
 
 message CSOPersonaDataPublic {
@@ -1280,6 +1286,8 @@ message CMsgGCCStrike15_v2_GC2ClientRefuseSecureMode {
 	optional bool kick_user = 5;
 	optional bool show_trusted_ui = 6;
 	optional bool show_warning_not_trusted = 7;
+	optional bool show_warning_not_trusted_2 = 8;
+	optional string files_prevented_trusted = 9;
 }
 
 message CMsgGCCStrike15_v2_GC2ClientRequestValidation {
