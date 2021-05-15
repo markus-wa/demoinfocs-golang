@@ -488,7 +488,7 @@ type ItemDrop struct {
 }
 
 // DataTablesParsed signals that the datatables were parsed.
-// You can use the Parser.SendTableParser() after this event to register update notification on entities & properties.
+// You can use the Parser.ServerClasses() after this event to register update notification on entities & properties.
 type DataTablesParsed struct{}
 
 // StringTableCreated signals that a string table was created via net message.
