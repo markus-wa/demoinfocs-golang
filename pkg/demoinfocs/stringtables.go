@@ -53,6 +53,29 @@ func (p *parser) parseStringTables() {
 	p.bitReader.EndChunk()
 }
 
+func (p *parser) updatePlayerFromRawIfExists(index int, raw *playerInfo) {
+	pl := p.gameState.playersByEntityID[index+1]
+	if pl == nil {
+		return
+	}
+
+	oldName := pl.Name
+	newName := raw.name
+	nameChanged := !pl.IsBot && !raw.isFakePlayer && raw.guid != "BOT" && oldName != newName
+
+	pl.Name = raw.name
+	pl.SteamID64 = raw.xuid
+	pl.IsBot = raw.isFakePlayer
+
+	if nameChanged {
+		p.eventDispatcher.Dispatch(events.PlayerNameChange{
+			Player:  pl,
+			OldName: oldName,
+			NewName: newName,
+		})
+	}
+}
+
 func (p *parser) parseSingleStringTable(name string) {
 	nStrings := p.bitReader.ReadSignedInt(16)
 	for i := 0; i < nStrings; i++ {
@@ -77,6 +100,8 @@ func (p *parser) parseSingleStringTable(name string) {
 				}
 
 				p.rawPlayers[int(playerIndex)] = player
+
+				p.updatePlayerFromRawIfExists(int(playerIndex), player)
 
 			case stNameInstanceBaseline:
 				classID, err := strconv.ParseInt(stringName, 10, 64)
@@ -217,7 +242,10 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 
 		switch tab.Name {
 		case stNameUserInfo:
-			p.rawPlayers[entryIndex] = parsePlayerInfo(bytes.NewReader(userdata))
+			player := parsePlayerInfo(bytes.NewReader(userdata))
+			p.rawPlayers[entryIndex] = player
+
+			p.updatePlayerFromRawIfExists(entryIndex, player)
 
 		case stNameInstanceBaseline:
 			classID, err := strconv.ParseInt(entry, 10, 64)

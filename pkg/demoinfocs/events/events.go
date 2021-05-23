@@ -417,6 +417,13 @@ type PlayerDisconnected struct {
 	Player *common.Player
 }
 
+// PlayerNameChange signals that a player's name has changed
+type PlayerNameChange struct {
+	Player  *common.Player
+	OldName string
+	NewName string
+}
+
 // SayText signals a chat message. It contains the raw
 // network message data for admin / console messages.
 // EntIdx will probably always be 0
