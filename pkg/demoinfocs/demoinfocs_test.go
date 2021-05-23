@@ -371,7 +371,7 @@ func TestDemoSet(t *testing.T) {
 						}
 
 					case events.WarnTypeTeamSwapPlayerNil:
-						t.Log("expected known issue with team swaps occurred", warn.Message)
+						t.Log("expected known issue with team swaps occurred:", warn.Message)
 						return
 
 					case events.WarnTypeGameEventBeforeDescriptors:
