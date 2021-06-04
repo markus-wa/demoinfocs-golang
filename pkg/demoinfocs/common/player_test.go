@@ -353,6 +353,23 @@ func TestPlayer_Position_EntityNil(t *testing.T) {
 	assert.Empty(t, pl.Position())
 }
 
+func TestPlayer_PositionEyes(t *testing.T) {
+	entity := entityWithProperty("localdata.m_vecViewOffset[2]", st.PropertyValue{FloatVal: 2})
+	pos := r3.Vector{X: 1, Y: 2, Z: 3}
+
+	entity.On("Position").Return(pos)
+
+	pl := &Player{Entity: entity}
+
+	assert.Equal(t, r3.Vector{X: 1, Y: 2, Z: 5}, pl.PositionEyes())
+}
+
+func TestPlayer_PositionEyes_EntityNil(t *testing.T) {
+	pl := new(Player)
+
+	assert.Empty(t, pl.PositionEyes())
+}
+
 func TestPlayer_Velocity(t *testing.T) {
 	entity := new(stfake.Entity)
 	entity.On("PropertyValueMust", "localdata.m_vecVelocity[0]").Return(st.PropertyValue{FloatVal: 1})

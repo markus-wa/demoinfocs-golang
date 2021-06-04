@@ -285,13 +285,28 @@ func (p *Player) ViewDirectionY() float32 {
 }
 
 // Position returns the in-game coordinates.
-// Like the ones you get from cl_showpos 1.
+// Note: the Z value is not on the player's eye height but instead at his feet.
+// See also PositionEyes().
 func (p *Player) Position() r3.Vector {
 	if p.Entity == nil {
 		return r3.Vector{}
 	}
 
 	return p.Entity.Position()
+}
+
+// PositionEyes returns the player's position with the Z value at eye height.
+// This is what you get from cl_showpos 1.
+// See lso Position().
+func (p *Player) PositionEyes() r3.Vector {
+	if p.Entity == nil {
+		return r3.Vector{}
+	}
+
+	pos := p.Position()
+	pos.Z += float64(p.Entity.PropertyValueMust("localdata.m_vecViewOffset[2]").FloatVal)
+
+	return pos
 }
 
 // Velocity returns the player's velocity.
