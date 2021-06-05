@@ -42,8 +42,8 @@ type DemoHeader struct {
 // Not necessarily the tick-rate the server ran on during the game.
 //
 // Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
-// Deprecated, see Parser.FrameRate() for a more resilient implementation that should work with corrupt demo headers.
-func (h *DemoHeader) FrameRate() float64 {
+// Deprecated, see Parser.FrameRatePow2() for a more resilient implementation that should work with corrupt demo headers.
+func (h DemoHeader) FrameRate() float64 {
 	if h.PlaybackTime == 0 {
 		return 0
 	}
@@ -54,8 +54,8 @@ func (h *DemoHeader) FrameRate() float64 {
 // FrameTime returns the time a frame / demo-tick takes in seconds.
 //
 // Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
-// Deprecated, see Parser.FrameTime() for a more resilient implementation that should work with corrupt demo headers.
-func (h *DemoHeader) FrameTime() time.Duration {
+// Deprecated, see Parser.FrameTimePow2() for a more resilient implementation that should work with corrupt demo headers.
+func (h DemoHeader) FrameTime() time.Duration {
 	if h.PlaybackFrames == 0 {
 		return 0
 	}

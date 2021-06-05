@@ -74,7 +74,7 @@ func TestParser_FrameRate(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, float64(128), p.FrameRate())
+	assert.Equal(t, float64(128), p.FrameRateCalculated())
 }
 
 func TestParser_FrameRate_FallbackToHeader(t *testing.T) {
@@ -86,13 +86,13 @@ func TestParser_FrameRate_FallbackToHeader(t *testing.T) {
 		gameState: new(gameState),
 	}
 
-	assert.Equal(t, float64(128), p.FrameRate())
+	assert.Equal(t, float64(128), p.FrameRateCalculated())
 }
 
 func TestParser_FrameRate_Minus1(t *testing.T) {
 	p := &parser{gameState: new(gameState)}
 
-	assert.Equal(t, float64(-1), p.FrameRate())
+	assert.Equal(t, float64(-1), p.FrameRateCalculated())
 }
 
 func TestParser_FrameTime(t *testing.T) {
@@ -107,7 +107,7 @@ func TestParser_FrameTime(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, 200*time.Millisecond, p.FrameTime())
+	assert.Equal(t, 200*time.Millisecond, p.FrameTimeCalculated())
 }
 
 func TestParser_FrameTime_FallbackToHeader(t *testing.T) {
@@ -119,13 +119,13 @@ func TestParser_FrameTime_FallbackToHeader(t *testing.T) {
 		gameState: new(gameState),
 	}
 
-	assert.Equal(t, 200*time.Millisecond, p.FrameTime())
+	assert.Equal(t, 200*time.Millisecond, p.FrameTimeCalculated())
 }
 
 func TestParser_FrameTime_Minus1(t *testing.T) {
 	p := &parser{gameState: new(gameState)}
 
-	assert.Equal(t, time.Duration(-1), p.FrameTime())
+	assert.Equal(t, time.Duration(-1), p.FrameTimeCalculated())
 }
 
 func TestParser_Progress_NoHeader(t *testing.T) {

@@ -454,6 +454,17 @@ type TickRateInfoAvailable struct {
 	TickTime time.Duration // See Parser.TickTime()
 }
 
+// FrameRateCalibrated signals that the demo's frame rate is available.
+// This can happen either by reading the demo header,
+// or if that is corrupt then once enough frames have passed to calibrate th frame-rate manually.
+// See also ParserConfig.FrameRateCalibrationFrames.
+type FrameRateCalibrated struct {
+	FrameRatePow2       float64       // The frame rate as a power of two, this is likely to be more accurate than FrameRateCalculated for most demos
+	FrameTimePow2       time.Duration // The frame time calculated with FrameRatePow2, this is likely to be more accurate than FrameTimeCalculated for most demos
+	FrameRateCalculated float64       // FrameRatePow2 might be more accurate
+	FrameTimeCalculated time.Duration // FrameTimePow2 might be more accurate
+}
+
 // ChatMessage signals a player generated chat message.
 // Since team chat is generally not recorded IsChatAll will probably always be false.
 // See SayText for admin / console messages and SayText2 for raw network package data.

@@ -58,19 +58,32 @@ type Parser interface {
 	// Returns tick time based on CSVCMsg_ServerInfo if possible.
 	// Otherwise returns tick time based on demo header or -1 if the header info isn't available.
 	TickTime() time.Duration
-	// FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
+	// FrameRateCalculated returns the frame rate of the demo (frames aka. demo-ticks per second).
 	// Not necessarily the tick-rate the server ran on during the game.
+	// See FrameRatePow2() for a possibly more accurate number.
 	//
-	// Returns frame rate based on GameState.IngameTick() if possible.
-	// Otherwise returns tick rate based on demo header or -1 if the header info isn't available.
-	// May also return 0 before parsing has started if DemoHeader.PlaybackTime or DemoHeader.PlaybackFrames are 0 (corrupt demo headers).
-	FrameRate() float64
-	// FrameTime returns the time a frame / demo-tick takes in seconds.
+	// Returns frame rate from DemoHeader if it's not corrupt.
+	// Otherwise returns frame rate that has automatically bee calibrated.
+	// May also return -1 before calibration has finished.
+	// See also events.FrameRateCalibrated.
+	FrameRateCalculated() float64
+	// FrameRatePow2 returns the frame rate of the demo (frames aka. demo-ticks per second) as a power of 2 (16, 32, 64 ...).
+	// Returns -1 before calibration has finished.
+	FrameRatePow2() float64
+	// FrameTimeCalculated returns the time a frame / demo-tick takes in seconds.
+	// See FrameTimePow2() for a possibly more accurate number.
 	//
-	// Returns frame rate based on GameState.IngameTick() if possible.
-	// Otherwise returns tick rate based on demo header or -1 if the header info isn't available.
-	// May also return 0 before parsing has started if DemoHeader.PlaybackTime or DemoHeader.PlaybackFrames are 0 (corrupt demo headers).
-	FrameTime() time.Duration
+	// Returns frame time from DemoHeader if it's not corrupt.
+	// Otherwise returns frame time that has automatically bee calibrated.
+	// May also return -1 before calibration has finished.
+	// See also events.FrameRateCalibrated.
+	FrameTimeCalculated() time.Duration
+	// FrameTimePow2 returns the time a frame / demo-tick takes in seconds.
+	//
+	// Returns -1 before calibration has finished.
+	// See also events.FrameRateCalibrated.
+	// See also FrameRatePow2().
+	FrameTimePow2() time.Duration
 	// Progress returns the parsing progress from 0 to 1.
 	// Where 0 means nothing has been parsed yet and 1 means the demo has been parsed to the end.
 	//

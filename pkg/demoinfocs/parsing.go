@@ -101,6 +101,10 @@ func (p *parser) ParseToEnd() (err error) {
 		if err == nil {
 			err = recoverFromUnexpectedEOF(recover())
 		}
+
+		if errors.Is(err, ErrUnexpectedEndOfDemo) && p.calibratedFrameRate == 0 {
+			p.calibrateFrameRate()
+		}
 	}()
 
 	if p.header == nil {
@@ -171,6 +175,10 @@ func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 		if err == nil {
 			err = recoverFromUnexpectedEOF(recover())
 		}
+
+		if errors.Is(err, ErrUnexpectedEndOfDemo) && p.calibratedFrameRate == 0 {
+			p.calibrateFrameRate()
+		}
 	}()
 
 	if p.header == nil {
@@ -218,6 +226,10 @@ func (p *parser) parseFrame() bool {
 		// Ignore
 
 	case dcStop:
+		if p.calibratedFrameRate == 0 {
+			p.calibrateFrameRate()
+		}
+
 		return false
 
 	case dcConsoleCommand:
@@ -358,6 +370,17 @@ func (p *parser) parsePacket() {
 	p.bitReader.EndChunk()
 }
 
+type ingameTickNumber int
+
+func (p *parser) handleIngameTickNumber(n ingameTickNumber) {
+	diff := int(n) - p.gameState.ingameTick
+
+	p.tickDiffs[diff]++
+
+	p.gameState.ingameTick = int(n)
+	debugIngameTick(p.gameState.ingameTick)
+}
+
 type frameParsedTokenType struct{}
 
 var frameParsedToken = new(frameParsedTokenType)
@@ -373,6 +396,55 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.FrameDone{})
+
+	if p.currentFrame >= p.frameRateCalibrationFrames && p.calibratedFrameRate == 0 && p.tickInterval > 0 {
+		p.calibrateFrameRate()
+	}
+}
+
+func (p *parser) calibrateFrameRate() {
+	p.calibratedFrameRate, p.calibratedFrameRatePow2 = calculateFrameRates(p.tickDiffs, p.tickInterval)
+
+	p.eventDispatcher.Dispatch(events.FrameRateCalibrated{
+		FrameRatePow2:       p.calibratedFrameRatePow2,
+		FrameTimePow2:       time.Duration(float64(time.Second) / p.calibratedFrameRatePow2),
+		FrameRateCalculated: p.calibratedFrameRate,
+		FrameTimeCalculated: time.Duration(float64(time.Second) / p.calibratedFrameRate),
+	})
+}
+
+func calculateFrameRates(tickDiffs map[int]int, tickInterval float32) (frameRate float64, frameRatePow2 float64) {
+	const maxTickDiff = 16
+
+	var (
+		countSum, diffSum, maxCount, highestCountDiff int
+	)
+
+	for diff, count := range tickDiffs {
+		if diff <= 0 || diff > maxTickDiff {
+			continue
+		}
+
+		countSum += count
+		diffSum += diff * count
+
+		if count > maxCount {
+			highestCountDiff = diff
+		}
+	}
+
+	avgTickDiff := float64(diffSum) / float64(countSum)
+	frameRate = calculateFrameRate(avgTickDiff, tickInterval)
+	frameRatePow2 = calculateFrameRate(float64(highestCountDiff), tickInterval)
+
+	return
+}
+
+func calculateFrameRate(diff float64, tickInterval float32) float64 {
+	frameInterval := diff * float64(tickInterval)
+
+	return 1.0 / frameInterval
+
 }
 
 /*
