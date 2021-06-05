@@ -447,6 +447,13 @@ type SayText2 struct {
 	IsChatAll bool     // Seems to always be false, team chat might not be recorded
 }
 
+// TickRateInfoAvailable signals that the tick-rate information has been received via CSVCMsg_ServerInfo.
+// This can be useful for corrupt demo headers where the tick-rate is missing in the beginning of the demo.
+type TickRateInfoAvailable struct {
+	TickRate float64       // See Parser.TickRate()
+	TickTime time.Duration // See Parser.TickTime()
+}
+
 // ChatMessage signals a player generated chat message.
 // Since team chat is generally not recorded IsChatAll will probably always be false.
 // See SayText for admin / console messages and SayText2 for raw network package data.

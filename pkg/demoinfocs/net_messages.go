@@ -65,4 +65,9 @@ func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
 	// srvInfo.MapCrc might be interesting as well
 	p.tickInterval = srvInfo.TickInterval
+
+	p.eventDispatcher.Dispatch(events.TickRateInfoAvailable{
+		TickRate: p.TickRate(),
+		TickTime: p.TickTime(),
+	})
 }
