@@ -55,8 +55,7 @@ type parser struct {
 	userMessageHandler           userMessageHandler
 	eventDispatcher              *dp.Dispatcher
 	currentFrame                 int                // Demo-frame, not ingame-tick
-	calibratedFrameRate          float64            // Calibrated frame-rate for corrupt demo headers, only available after calibration
-	calibratedFrameRatePow2      float64            // Calibrated frame-rate for corrupt demo headers as power of 2, only available after calibration
+	frameRate                    float64            // Calibrated frame-rate for corrupt demo headers, only available after calibration
 	tickInterval                 float32            // Duration between ticks in seconds
 	header                       *common.DemoHeader // Pointer so we can check for nil
 	gameState                    *gameState
@@ -180,29 +179,18 @@ func legayTickTime(h common.DemoHeader) time.Duration {
 
 // FrameRateCalculated returns the frame rate of the demo (frames aka. demo-ticks per second).
 // Not necessarily the tick-rate the server ran on during the game.
-// See FrameRatePow2() for a possibly more accurate number.
 //
 // Returns frame rate from DemoHeader if it's not corrupt.
-// Otherwise returns frame rate that has automatically bee calibrated.
+// Otherwise returns frame rate that has automatically bee calibrated or read from tv_snapshotrate.
 // May also return -1 before calibration has finished.
-// See also events.FrameRateCalibrated.
+// See also events.FrameRateInfo.
 func (p *parser) FrameRateCalculated() float64 {
 	if p.header != nil && p.header.PlaybackTime != 0 && p.header.PlaybackFrames != 0 {
 		return legacyFrameRate(*p.header)
 	}
 
-	if p.calibratedFrameRate > 0 {
-		return p.calibratedFrameRate
-	}
-
-	return -1
-}
-
-// FrameRatePow2 returns the frame rate of the demo (frames aka. demo-ticks per second) as a power of 2 (16, 32, 64 ...).
-// Returns -1 before calibration has finished.
-func (p *parser) FrameRatePow2() float64 {
-	if p.calibratedFrameRatePow2 > 0 {
-		return p.calibratedFrameRatePow2
+	if p.frameRate > 0 {
+		return p.frameRate
 	}
 
 	return -1
@@ -213,27 +201,13 @@ func legacyFrameRate(h common.DemoHeader) float64 {
 }
 
 // FrameTimeCalculated returns the time a frame / demo-tick takes in seconds.
-// See FrameTimePow2() for a possibly more accurate number.
 //
 // Returns frame time from DemoHeader if it's not corrupt.
-// Otherwise returns frame time that has automatically bee calibrated.
+// Otherwise returns frame time that has automatically bee calibrated or calculated from tv_snapshotrate.
 // May also return -1 before calibration has finished.
-// See also events.FrameRateCalibrated.
+// See also events.FrameRateInfo.
 func (p *parser) FrameTimeCalculated() time.Duration {
 	if frameRate := p.FrameRateCalculated(); frameRate > 0 {
-		return time.Duration(float64(time.Second) / frameRate)
-	}
-
-	return -1
-}
-
-// FrameTimePow2 returns the time a frame / demo-tick takes in seconds.
-//
-// Returns -1 before calibration has finished.
-// See also events.FrameRateCalibrated.
-// See also FrameRatePow2().
-func (p *parser) FrameTimePow2() time.Duration {
-	if frameRate := p.FrameRatePow2(); frameRate > 0 {
 		return time.Duration(float64(time.Second) / frameRate)
 	}
 

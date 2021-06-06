@@ -60,30 +60,19 @@ type Parser interface {
 	TickTime() time.Duration
 	// FrameRateCalculated returns the frame rate of the demo (frames aka. demo-ticks per second).
 	// Not necessarily the tick-rate the server ran on during the game.
-	// See FrameRatePow2() for a possibly more accurate number.
 	//
 	// Returns frame rate from DemoHeader if it's not corrupt.
-	// Otherwise returns frame rate that has automatically bee calibrated.
+	// Otherwise returns frame rate that has automatically bee calibrated or read from tv_snapshotrate.
 	// May also return -1 before calibration has finished.
-	// See also events.FrameRateCalibrated.
+	// See also events.FrameRateInfo.
 	FrameRateCalculated() float64
-	// FrameRatePow2 returns the frame rate of the demo (frames aka. demo-ticks per second) as a power of 2 (16, 32, 64 ...).
-	// Returns -1 before calibration has finished.
-	FrameRatePow2() float64
 	// FrameTimeCalculated returns the time a frame / demo-tick takes in seconds.
-	// See FrameTimePow2() for a possibly more accurate number.
 	//
 	// Returns frame time from DemoHeader if it's not corrupt.
-	// Otherwise returns frame time that has automatically bee calibrated.
+	// Otherwise returns frame time that has automatically bee calibrated or calculated from tv_snapshotrate.
 	// May also return -1 before calibration has finished.
-	// See also events.FrameRateCalibrated.
+	// See also events.FrameRateInfo.
 	FrameTimeCalculated() time.Duration
-	// FrameTimePow2 returns the time a frame / demo-tick takes in seconds.
-	//
-	// Returns -1 before calibration has finished.
-	// See also events.FrameRateCalibrated.
-	// See also FrameRatePow2().
-	FrameTimePow2() time.Duration
 	// Progress returns the parsing progress from 0 to 1.
 	// Where 0 means nothing has been parsed yet and 1 means the demo has been parsed to the end.
 	//

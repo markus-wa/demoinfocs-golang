@@ -447,22 +447,41 @@ type SayText2 struct {
 	IsChatAll bool     // Seems to always be false, team chat might not be recorded
 }
 
-// TickRateInfoAvailable signals that the tick-rate information has been received via CSVCMsg_ServerInfo.
+// TickRateSource is the type for TickRateInfo.Source.
+// Useful for when you have a preference of which tick-rate you'd like to use over others.
+type TickRateSource byte
+
+const (
+	TickRateSourceHeader TickRateSource = iota
+	TickRateSourceServerInfo
+)
+
+// TickRateInfo signals that the tick-rate information has been received via CSVCMsg_ServerInfo.
 // This can be useful for corrupt demo headers where the tick-rate is missing in the beginning of the demo.
-type TickRateInfoAvailable struct {
+type TickRateInfo struct {
+	Source   TickRateSource
 	TickRate float64       // See Parser.TickRate()
 	TickTime time.Duration // See Parser.TickTime()
 }
 
-// FrameRateCalibrated signals that the demo's frame rate is available.
+// FrameRateSource is the type for FrameRateInfo.Source.
+// Useful for when you have a preference of which frame-rate you'd like to use over others.
+type FrameRateSource byte
+
+const (
+	FrameRateSourceHeader FrameRateSource = iota
+	FrameRateSourceConVars
+	FrameRateSourceCalibration
+)
+
+// FrameRateInfo signals that the demo's frame rate is available.
 // This can happen either by reading the demo header,
 // or if that is corrupt then once enough frames have passed to calibrate th frame-rate manually.
 // See also ParserConfig.FrameRateCalibrationFrames.
-type FrameRateCalibrated struct {
-	FrameRatePow2       float64       // The frame rate as a power of two, this is likely to be more accurate than FrameRateCalculated for most demos
-	FrameTimePow2       time.Duration // The frame time calculated with FrameRatePow2, this is likely to be more accurate than FrameTimeCalculated for most demos
-	FrameRateCalculated float64       // FrameRatePow2 might be more accurate
-	FrameTimeCalculated time.Duration // FrameTimePow2 might be more accurate
+type FrameRateInfo struct {
+	Source    FrameRateSource // specifies from where the frame-rate (or the estimation of it) comes. see FrameRateSource.
+	FrameRate float64
+	FrameTime time.Duration
 }
 
 // ChatMessage signals a player generated chat message.

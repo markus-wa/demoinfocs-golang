@@ -68,6 +68,22 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 
 	p.header = &h
 
+	if h.PlaybackTime > 0 {
+		if h.PlaybackFrames > 0 {
+			frameRate := float64(h.PlaybackFrames) / h.PlaybackTime.Seconds()
+
+			p.setFrameRate(frameRate, events.FrameRateSourceHeader)
+		}
+
+		if h.PlaybackTicks > 0 {
+			p.msgDispatcher.Dispatch(events.TickRateInfo{
+				Source:   events.TickRateSourceHeader,
+				TickRate: p.TickRate(),
+				TickTime: p.TickTime(),
+			})
+		}
+	}
+
 	return h, nil
 }
 
@@ -102,7 +118,7 @@ func (p *parser) ParseToEnd() (err error) {
 			err = recoverFromUnexpectedEOF(recover())
 		}
 
-		if errors.Is(err, ErrUnexpectedEndOfDemo) && p.calibratedFrameRate == 0 {
+		if errors.Is(err, ErrUnexpectedEndOfDemo) && p.frameRate == 0 {
 			p.calibrateFrameRate()
 		}
 	}()
@@ -176,7 +192,7 @@ func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 			err = recoverFromUnexpectedEOF(recover())
 		}
 
-		if errors.Is(err, ErrUnexpectedEndOfDemo) && p.calibratedFrameRate == 0 {
+		if errors.Is(err, ErrUnexpectedEndOfDemo) && p.frameRate == 0 {
 			p.calibrateFrameRate()
 		}
 	}()
@@ -226,7 +242,7 @@ func (p *parser) parseFrame() bool {
 		// Ignore
 
 	case dcStop:
-		if p.calibratedFrameRate == 0 {
+		if p.frameRate == 0 {
 			p.calibrateFrameRate()
 		}
 
@@ -397,23 +413,24 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.FrameDone{})
 
-	if p.currentFrame >= p.frameRateCalibrationFrames && p.calibratedFrameRate == 0 && p.tickInterval > 0 {
+	if p.currentFrame >= p.frameRateCalibrationFrames && p.frameRate == 0 && p.tickInterval > 0 {
 		p.calibrateFrameRate()
 	}
 }
 
 func (p *parser) calibrateFrameRate() {
-	p.calibratedFrameRate, p.calibratedFrameRatePow2 = calculateFrameRates(p.tickDiffs, p.tickInterval)
+	rate := calculateFrameRateBestGuess(p.tickDiffs, p.tickInterval)
 
-	p.eventDispatcher.Dispatch(events.FrameRateCalibrated{
-		FrameRatePow2:       p.calibratedFrameRatePow2,
-		FrameTimePow2:       time.Duration(float64(time.Second) / p.calibratedFrameRatePow2),
-		FrameRateCalculated: p.calibratedFrameRate,
-		FrameTimeCalculated: time.Duration(float64(time.Second) / p.calibratedFrameRate),
-	})
+	p.setFrameRate(rate, events.FrameRateSourceCalibration)
 }
 
-func calculateFrameRates(tickDiffs map[int]int, tickInterval float32) (frameRate float64, frameRatePow2 float64) {
+func (p *parser) setFrameRate(rate float64, source events.FrameRateSource) {
+	p.frameRate = rate
+
+	p.eventDispatcher.Dispatch(frameRateInfoAvailableEvent(rate, source))
+}
+
+func calculateFrameRateBestGuess(tickDiffs map[int]int, tickInterval float32) float64 {
 	const maxTickDiff = 16
 
 	var (
@@ -434,17 +451,21 @@ func calculateFrameRates(tickDiffs map[int]int, tickInterval float32) (frameRate
 	}
 
 	avgTickDiff := float64(diffSum) / float64(countSum)
-	frameRate = calculateFrameRate(avgTickDiff, tickInterval)
-	frameRatePow2 = calculateFrameRate(float64(highestCountDiff), tickInterval)
+	frameRate := calculateFrameRate(avgTickDiff, tickInterval)
+	frameRatePow2 := calculateFrameRate(float64(highestCountDiff), tickInterval)
 
-	return
+	if float64(int(frameRatePow2)) == frameRatePow2 && uint(frameRatePow2)&uint(frameRatePow2-1) == 0 {
+		// chances are it's a power of 2 if that's the most frequent diff
+		return frameRatePow2
+	}
+
+	return frameRate
 }
 
 func calculateFrameRate(diff float64, tickInterval float32) float64 {
 	frameInterval := diff * float64(tickInterval)
 
 	return 1.0 / frameInterval
-
 }
 
 /*
