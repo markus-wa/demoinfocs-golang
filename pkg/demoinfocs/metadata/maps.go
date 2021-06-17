@@ -33,6 +33,7 @@ func makeMap(name string, x, y, scale float64) Map {
 
 // Pre-defined map translations.
 var (
+	MapDeAncient  = makeMap("de_ancient", -2953, 2164, 5)
 	MapDeCache    = makeMap("de_cache", -2000, 3250, 5.5)
 	MapDeCanals   = makeMap("de_canals", -2496, 1792, 4)
 	MapDeCbble    = makeMap("de_cbble", -3840, 3072, 6)
@@ -47,6 +48,7 @@ var (
 
 // MapNameToMap translates a map name to a Map.
 var MapNameToMap = map[string]Map{
+	"de_ancient":  MapDeAncient,
 	"de_cache":    MapDeCache,
 	"de_canals":   MapDeCanals,
 	"de_cbble":    MapDeCbble,
