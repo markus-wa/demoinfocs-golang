@@ -418,11 +418,16 @@ type PlayerDisconnected struct {
 	Player *common.Player
 }
 
-// PlayerNameChange signals that a player's name has changed
+// PlayerNameChange signals that a player's name has changed.
 type PlayerNameChange struct {
 	Player  *common.Player
 	OldName string
 	NewName string
+}
+
+// StringTablePlayerUpdateApplied signals that a player has been updated via stringtables.
+type StringTablePlayerUpdateApplied struct {
+	Player *common.Player
 }
 
 // SayText signals a chat message. It contains the raw
@@ -615,4 +620,10 @@ type ConVarsUpdated struct {
 // RoundImpactScoreData contains impact assessments of events that happened during the last round.
 type RoundImpactScoreData struct {
 	RawMessage *msg.CCSUsrMsg_RoundImpactScoreData
+}
+
+// PlayerInfo signals that basic player information was read via stringtables.
+type PlayerInfo struct {
+	Index int
+	Info  common.PlayerInfo
 }

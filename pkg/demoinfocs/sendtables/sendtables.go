@@ -95,6 +95,31 @@ func (sc *ServerClass) PropertyEntries() []string {
 	return names
 }
 
+type PropertyEntry struct {
+	Name    string
+	IsArray bool
+	Type    PropertyType
+}
+
+// PropertyEntryDefinitions returns all property-entries on this server-class.
+func (sc *ServerClass) PropertyEntryDefinitions() []PropertyEntry {
+	propEntryCount := len(sc.flattenedProps)
+	res := make([]PropertyEntry, propEntryCount)
+
+	for i := 0; i < propEntryCount; i++ {
+		res[i].Name = sc.flattenedProps[i].name
+		res[i].IsArray = sc.flattenedProps[i].prop.rawType == propTypeArray
+
+		if res[i].IsArray {
+			res[i].Type = PropertyType(sc.flattenedProps[i].arrayElementProp.rawType)
+		} else {
+			res[i].Type = PropertyType(sc.flattenedProps[i].prop.rawType)
+		}
+	}
+
+	return res
+}
+
 func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int) *entity {
 	props := make([]property, len(sc.flattenedProps))
 

@@ -37,3 +37,8 @@ func (p *Property) OnUpdate(handler st.PropertyUpdateHandler) {
 func (p *Property) Bind(variable interface{}, valueType st.PropertyValueType) {
 	p.Called(variable, valueType)
 }
+
+// ArrayElementType is a mock-implementation of Property.ArrayElementType().
+func (p *Property) ArrayElementType() st.PropertyType {
+	return p.Called().Get(0).(st.PropertyType)
+}

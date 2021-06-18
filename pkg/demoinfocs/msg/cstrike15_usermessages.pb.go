@@ -17433,7 +17433,7 @@ func (m *CCSUsrMsg_SurvivalStats) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Xuid", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field XUID", wireType)
 			}
 			m.Xuid = 0
 			for shift := uint(0); ; shift += 7 {
@@ -17741,7 +17741,7 @@ func (m *CCSUsrMsg_SurvivalStats_Placement) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Xuid", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field XUID", wireType)
 			}
 			m.Xuid = 0
 			for shift := uint(0); ; shift += 7 {

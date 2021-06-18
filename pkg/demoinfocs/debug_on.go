@@ -1,4 +1,5 @@
-//+build debugdemoinfocs
+//go:build debugdemoinfocs
+// +build debugdemoinfocs
 
 // Functions to print out debug information if the build tag is enabled
 
