@@ -39,6 +39,7 @@ func makeMap(name string, x, y, scale float64) Map {
 }
 
 // Pre-defined map translations.
+// see "steamapps/common/Counter-Strike Global Offensive/csgo/resource/overviews/*.txt"
 var (
 	MapDeAncient  = makeMap("de_ancient", -2953, 2164, 5)
 	MapDeCache    = makeMap("de_cache", -2000, 3250, 5.5)
