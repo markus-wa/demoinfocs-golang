@@ -62,9 +62,10 @@ func main() {
 
 	// Find bounding rectangle for points to get around the normalization done by the heatmap library
 	r2Bounds := r2.RectFromPoints(points...)
+	padding := float64(dotSize) / 2.0 // Calculating padding amount to avoid shrinkage by the heatmap library
 	bounds := image.Rectangle{
-		Min: image.Point{X: int(r2Bounds.X.Lo), Y: int(r2Bounds.Y.Lo)},
-		Max: image.Point{X: int(r2Bounds.X.Hi), Y: int(r2Bounds.Y.Hi)},
+		Min: image.Point{X: int(r2Bounds.X.Lo - padding), Y: int(r2Bounds.Y.Lo - padding)},
+		Max: image.Point{X: int(r2Bounds.X.Hi + padding), Y: int(r2Bounds.Y.Hi + padding)},
 	}
 
 	// Transform r2.Points into heatmap.DataPoints
@@ -86,11 +87,11 @@ func main() {
 
 	// Create output canvas and use map overview image as base
 	img := image.NewRGBA(imgMap.Bounds())
-	draw.Draw(img, imgMap.Bounds(), imgMap, image.ZP, draw.Over)
+	draw.Draw(img, imgMap.Bounds(), imgMap, image.Point{}, draw.Over)
 
 	// Generate and draw heatmap overlay on top of the overview
 	imgHeatmap := heatmap.Heatmap(image.Rect(0, 0, bounds.Dx(), bounds.Dy()), data, dotSize, opacity, schemes.AlphaFire)
-	draw.Draw(img, bounds, imgHeatmap, image.ZP, draw.Over)
+	draw.Draw(img, bounds, imgHeatmap, image.Point{}, draw.Over)
 
 	// Write to stdout
 	err = jpeg.Encode(os.Stdout, img, &jpeg.Options{Quality: jpegQuality})
