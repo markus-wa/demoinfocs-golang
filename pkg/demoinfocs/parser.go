@@ -10,6 +10,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/golang/geo/r3"
 	dp "github.com/markus-wa/godispatch"
+	"github.com/pkg/errors"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
@@ -236,8 +237,18 @@ func (p *parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 
 // Close closes any open resources used by the Parser (go routines, file handles).
 // This must be called before discarding the Parser to avoid memory leaks.
-func (p *parser) Close() {
+// Returns an error if closing of underlying resources fails.
+func (p *parser) Close() error {
 	p.msgDispatcher.RemoveAllQueues()
+
+	if p.bitReader != nil {
+		err := p.bitReader.Close()
+		if err != nil {
+			return errors.Wrap(err, "failed to close BitReader")
+		}
+	}
+
+	return nil
 }
 
 func (p *parser) error() error {

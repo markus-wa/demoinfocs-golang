@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	bitread "github.com/markus-wa/gobitread"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -96,8 +97,11 @@ var bitReaderPool = sync.Pool{
 
 // Pool puts the BitReader into a pool for future use.
 // Pooling BitReaders improves performance by minimizing the amount newly allocated readers.
-func (r *BitReader) Pool() {
-	r.Close()
+func (r *BitReader) Pool() error {
+	err := r.Close()
+	if err != nil {
+		return errors.Wrap(err, "failed to close BitReader before pooling")
+	}
 
 	if len(*r.buffer) == smallBuffer {
 		smallBufferPool.Put(r.buffer)
@@ -106,6 +110,8 @@ func (r *BitReader) Pool() {
 	r.buffer = nil
 
 	bitReaderPool.Put(r)
+
+	return nil
 }
 
 func newBitReader(underlying io.Reader, buffer *[]byte) *BitReader {

@@ -47,7 +47,12 @@ func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 		}
 	}
 
-	r.Pool()
+	err := r.Pool()
+	if err != nil {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: err.Error(),
+		})
+	}
 }
 
 func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {

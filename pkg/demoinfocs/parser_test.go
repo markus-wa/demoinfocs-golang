@@ -128,7 +128,8 @@ func TestParser_Close(t *testing.T) {
 		called = true
 	})
 
-	p.Close()
+	err := p.Close()
+	assert.NoError(t, err)
 
 	q <- "this should not trigger the handler"
 
