@@ -101,7 +101,8 @@ type Parser interface {
 	UnregisterNetMessageHandler(identifier dp.HandlerIdentifier)
 	// Close closes any open resources used by the Parser (go routines, file handles).
 	// This must be called before discarding the Parser to avoid memory leaks.
-	Close()
+	// Returns an error if closing of underlying resources fails.
+	Close() error
 	// ParseHeader attempts to parse the header of the demo and returns it.
 	// If not done manually this will be called by Parser.ParseNextFrame() or Parser.ParseToEnd().
 	//

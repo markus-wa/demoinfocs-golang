@@ -1,7 +1,6 @@
 package demoinfocs
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -11,6 +10,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/markus-wa/go-unassert"
 	dispatch "github.com/markus-wa/godispatch"
+	"github.com/pkg/errors"
 
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
@@ -340,10 +340,15 @@ func (p *parser) parsePacket() {
 		p.bitReader.ReadBytesInto(b, size)
 
 		m := msgCreator()
-		if proto.Unmarshal(*b, m) != nil {
+
+		err := proto.Unmarshal(*b, m)
+		if err != nil {
 			// TODO: Don't crash here, happens with demos that work in gotv
-			panic(fmt.Sprintf("Failed to unmarshal cmd %d", cmd))
+			p.setError(errors.Wrapf(err, "failed to unmarshal cmd %d", cmd))
+
+			return
 		}
+
 		p.msgQueue <- m
 
 		// Reset length to 0 and pool

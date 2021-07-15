@@ -229,6 +229,6 @@ func (p *Parser) Cancel() {
 
 // Close is a mock-implementation of Parser.Close().
 // NOP implementation.
-func (p *Parser) Close() {
-	p.Called()
+func (p *Parser) Close() error {
+	return p.Called().Error(0)
 }
