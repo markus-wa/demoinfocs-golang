@@ -264,7 +264,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		p.processModelPreCacheUpdate()
 	}
 
-	br.Pool()
+	p.poolBitReader(br)
 }
 
 func parsePlayerInfo(reader io.Reader) *playerInfo {

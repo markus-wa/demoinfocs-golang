@@ -14,6 +14,7 @@ import (
 
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
@@ -275,6 +276,15 @@ func (p *parser) setError(err error) {
 	p.err = err
 
 	p.errLock.Unlock()
+}
+
+func (p *parser) poolBitReader(r *bit.BitReader) {
+	err := r.Pool()
+	if err != nil {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: err.Error(),
+		})
+	}
 }
 
 // NewParser creates a new Parser with the default configuration.
