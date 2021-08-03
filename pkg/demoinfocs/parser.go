@@ -14,7 +14,7 @@ import (
 
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
