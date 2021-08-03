@@ -50,7 +50,7 @@ If you are unfamiliar with Go modules there's a [list of recommended resources](
 
 ## Quickstart Guide
 
-1. Download and install Go 1.11 or newer [from golang.org](https://golang.org/dl/) or via your favourite package manager
+1. Download and install the latest version of Go [from golang.org](https://golang.org/dl/) or via your favourite package manager
 
 2. Create a new Go Modules project
 
