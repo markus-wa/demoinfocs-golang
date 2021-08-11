@@ -17,6 +17,10 @@ For business inquiries please use the contact information found on the [GitHub p
 
 [![Gitter Chat](https://badges.gitter.im/csgodemos/demoinfo-lib.png)](https://gitter.im/csgodemos/demoinfo-lib)
 
+## Donations
+
+If you have been enjoying this library and are considering donating, please check out this wiki page [regarding donations](https://github.com/markus-wa/demoinfocs-golang/wiki/Regarding-Donations).
+
 ## Go Get
 
 	go get -u github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs
