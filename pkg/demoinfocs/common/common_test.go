@@ -147,6 +147,11 @@ func TestConvertSteamIDTxtTo32_Error(t *testing.T) {
 
 	assert.Equal(t, uint32(0), id)
 	assert.NotNil(t, err)
+
+	id, err = ConvertSteamIDTxtTo32("STEAM_0:b")
+
+	assert.Equal(t, uint32(0), id)
+	assert.NotNil(t, err)
 }
 
 func TestConvertSteamID32To64(t *testing.T) {

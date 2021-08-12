@@ -2,6 +2,7 @@
 package common
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -217,6 +218,10 @@ func NewTeamState(team Team, membersCallback func(Team) []*Player) TeamState {
 // See https://developer.valvesoftware.com/wiki/SteamID
 func ConvertSteamIDTxtTo32(steamID string) (uint32, error) {
 	arr := strings.Split(steamID, ":")
+
+	if len(arr) != 3 {
+		return 0, fmt.Errorf("SteamID '%s' not well formed", steamID)
+	}
 
 	Y, err := strconv.ParseUint(arr[1], 10, 32)
 	if err != nil {

@@ -520,11 +520,13 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEvent
 		guid:   data["networkid"].GetValString(),
 	}
 
-	var err error
-	pl.xuid, err = guidToSteamID64(pl.guid)
+	if pl.guid != "" {
+		var err error
+		pl.xuid, err = guidToSteamID64(pl.guid)
 
-	if err != nil {
-		geh.parser.setError(fmt.Errorf("failed to parse player XUID: %v", err.Error()))
+		if err != nil {
+			geh.parser.setError(fmt.Errorf("failed to parse player XUID: %v", err.Error()))
+		}
 	}
 
 	geh.parser.rawPlayers[int(data["index"].GetValByte())] = pl
