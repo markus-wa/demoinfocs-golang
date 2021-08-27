@@ -209,13 +209,13 @@ There is one caveat however: Beta features - which are marked as such via commen
 - [esportslab.gg](https://esportslab.gg/) - Building ML/AI tools for professional esports players
 - [scope.gg](https://scope.gg/) - Analytical and advisory service for advanced CS:GO players
 - [PureSkill.gg](https://pureskill.gg/) - An automated coach to help you get better at CS:GO.
+- [csgofacts.com](https://csgofacts.com/) - A set of open-source services for CSGO game analysis
 - [cs-demo-minifier](https://github.com/markus-wa/cs-demo-minifier) - Converts demos to JSON, MessagePack and more
 - [csgo_spray_pattern_plotter](https://github.com/o40/csgo_spray_pattern_plotter) - A tool to extract and plot spray patterns from CS:GO replays
 - [CS:GO Player Skill Prediction](https://drive.google.com/file/d/1JXIB57BA2XBTYVLSy6Xg_5nfL6dWyDmG/view) - Machine learning master thesis by [@quancore](https://github.com/quancore) about predicting player performance
 - [csgoverview](https://github.com/Linus4/csgoverview) - A 2D demo replay tool for CS:GO
 - [csgo-coach-bug-detector](https://github.com/softarn/csgo-coach-bug-detector) - Detects the abuse of an exploit used by some team coaches in professional matches
 - [megaclan3000](https://github.com/megaclan3000/megaclan3000) - A CS:GO stats page for clans with recent matches and player statistics
-- [csgofacts](https://gitlab.com/csgofacts) - A set of open-source services for CSGO game analysis
 
 If your project is using this library feel free to submit a PR or send a message in [Gitter](https://gitter.im/csgodemos/demoinfo-lib) to be included in the list.
 
