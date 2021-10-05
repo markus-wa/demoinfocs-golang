@@ -465,6 +465,12 @@ func TestPlayer_SteamID32(t *testing.T) {
 	assert.Equal(t, uint32(52686539), pl.SteamID32())
 }
 
+func TestPlayer_LastPlaceName(t *testing.T) {
+	pl := playerWithResourceProperty("m_szLastPlaceName", st.PropertyValue{StringVal: "TopofMid"})
+
+	assert.Equal(t, "TopofMid", pl.LastPlaceName())
+}
+
 func newPlayer(tick int) *Player {
 	return NewPlayer(mockDemoInfoProvider(128, tick))
 }
