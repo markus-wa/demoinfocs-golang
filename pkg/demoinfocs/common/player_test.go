@@ -466,7 +466,7 @@ func TestPlayer_SteamID32(t *testing.T) {
 }
 
 func TestPlayer_LastPlaceName(t *testing.T) {
-	pl := playerWithResourceProperty("m_szLastPlaceName", st.PropertyValue{StringVal: "TopofMid"})
+	pl := playerWithProperty("m_szLastPlaceName", st.PropertyValue{StringVal: "TopofMid"})
 
 	assert.Equal(t, "TopofMid", pl.LastPlaceName())
 }
