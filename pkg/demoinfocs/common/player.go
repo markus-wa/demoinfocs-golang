@@ -449,7 +449,7 @@ func (p *Player) MoneySpentThisRound() int {
 
 // LastPlaceName returns the string value of the player's position.
 func (p *Player) LastPlaceName() string {
-	getString(p.Entity, "m_szLastPlaceName")
+	return getString(p.Entity, "m_szLastPlaceName")
 }
 
 type demoInfoProvider interface {
