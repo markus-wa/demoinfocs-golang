@@ -447,6 +447,11 @@ func (p *Player) MoneySpentThisRound() int {
 	return getInt(p.resourceEntity(), "m_iCashSpentThisRound."+p.entityIDStr())
 }
 
+// LastPlaceName returns the string value of the player's position.
+func (p *Player) LastPlaceName() string {
+	return getString(p.Entity, "m_szLastPlaceName")
+}
+
 type demoInfoProvider interface {
 	IngameTick() int   // current in-game tick, used for IsBlinded()
 	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
