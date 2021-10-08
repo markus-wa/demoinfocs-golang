@@ -68,6 +68,22 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 
 	p.header = &h
 
+	if h.PlaybackTime > 0 {
+		if h.PlaybackFrames > 0 {
+			frameRate := float64(h.PlaybackFrames) / h.PlaybackTime.Seconds()
+
+			p.setFrameRate(frameRate, events.FrameRateSourceHeader)
+		}
+
+		if h.PlaybackTicks > 0 {
+			p.msgDispatcher.Dispatch(events.TickRateInfo{
+				Source:   events.TickRateSourceHeader,
+				TickRate: p.TickRate(),
+				TickTime: p.TickTime(),
+			})
+		}
+	}
+
 	return h, nil
 }
 
@@ -100,6 +116,10 @@ func (p *parser) ParseToEnd() (err error) {
 
 		if err == nil {
 			err = recoverFromUnexpectedEOF(recover())
+		}
+
+		if errors.Is(err, ErrUnexpectedEndOfDemo) && p.frameRate == 0 {
+			p.calibrateFrameRate()
 		}
 	}()
 
@@ -171,6 +191,10 @@ func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 		if err == nil {
 			err = recoverFromUnexpectedEOF(recover())
 		}
+
+		if errors.Is(err, ErrUnexpectedEndOfDemo) && p.frameRate == 0 {
+			p.calibrateFrameRate()
+		}
 	}()
 
 	if p.header == nil {
@@ -218,6 +242,10 @@ func (p *parser) parseFrame() bool {
 		// Ignore
 
 	case dcStop:
+		if p.frameRate == 0 {
+			p.calibrateFrameRate()
+		}
+
 		return false
 
 	case dcConsoleCommand:
@@ -261,8 +289,10 @@ func (p *parser) parseFrame() bool {
 		panic(fmt.Sprintf("I haven't programmed that pathway yet (command %v unknown)", cmd))
 	}
 
-	// Queue up some post processing
-	p.msgQueue <- frameParsedToken
+	if cmd == dcPacket {
+		// Queue up some post processing, see parser.handleFrameParsed()
+		p.msgQueue <- &frameParsedTokenType{}
+	}
 
 	return true
 }
@@ -361,6 +391,17 @@ func (p *parser) parsePacket() {
 	p.bitReader.EndChunk()
 }
 
+type ingameTickNumber int
+
+func (p *parser) handleIngameTickNumber(n ingameTickNumber) {
+	diff := int(n) - p.gameState.ingameTick
+
+	p.tickDiffs[diff]++
+
+	p.gameState.ingameTick = int(n)
+	debugIngameTick(p.gameState.ingameTick)
+}
+
 type frameParsedTokenType struct{}
 
 var frameParsedToken = new(frameParsedTokenType)
@@ -376,6 +417,60 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.FrameDone{})
+
+	if p.currentFrame >= p.frameRateCalibrationFrames && p.frameRate == 0 && p.tickInterval > 0 {
+		p.calibrateFrameRate()
+	}
+}
+
+func (p *parser) calibrateFrameRate() {
+	rate := calculateFrameRateBestGuess(p.tickDiffs, p.tickInterval)
+
+	p.setFrameRate(rate, events.FrameRateSourceCalibration)
+}
+
+func (p *parser) setFrameRate(rate float64, source events.FrameRateSource) {
+	p.frameRate = rate
+
+	p.eventDispatcher.Dispatch(frameRateInfoAvailableEvent(rate, source))
+}
+
+func calculateFrameRateBestGuess(tickDiffs map[int]int, tickInterval float32) float64 {
+	const maxTickDiff = 16
+
+	var (
+		countSum, diffSum, maxCount, highestCountDiff int
+	)
+
+	for diff, count := range tickDiffs {
+		if diff <= 0 || diff > maxTickDiff {
+			continue
+		}
+
+		countSum += count
+		diffSum += diff * count
+
+		if count > maxCount {
+			highestCountDiff = diff
+		}
+	}
+
+	avgTickDiff := float64(diffSum) / float64(countSum)
+	frameRate := calculateFrameRate(avgTickDiff, tickInterval)
+	frameRatePow2 := calculateFrameRate(float64(highestCountDiff), tickInterval)
+
+	if float64(int(frameRatePow2)) == frameRatePow2 && uint(frameRatePow2)&uint(frameRatePow2-1) == 0 {
+		// chances are it's a power of 2 if that's the most frequent diff
+		return frameRatePow2
+	}
+
+	return frameRate
+}
+
+func calculateFrameRate(diff float64, tickInterval float32) float64 {
+	frameInterval := diff * float64(tickInterval)
+
+	return 1.0 / frameInterval
 }
 
 /*

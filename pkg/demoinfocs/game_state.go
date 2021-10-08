@@ -45,13 +45,6 @@ type lastFlash struct {
 	projectileByPlayer map[*common.Player]*common.GrenadeProjectile
 }
 
-type ingameTickNumber int
-
-func (gs *gameState) handleIngameTickNumber(n ingameTickNumber) {
-	gs.ingameTick = int(n)
-	debugIngameTick(gs.ingameTick)
-}
-
 // IngameTick returns the latest actual tick number of the server during the game.
 //
 // Watch out, I've seen this return wonky negative numbers at the start of demos.

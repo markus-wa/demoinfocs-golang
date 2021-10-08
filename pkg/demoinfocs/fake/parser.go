@@ -120,6 +120,16 @@ func (p *Parser) TickTime() time.Duration {
 	return p.Called().Get(0).(time.Duration)
 }
 
+// FrameRateCalculated is a mock-implementation of Parser.FrameRateCalculated().
+func (p *Parser) FrameRateCalculated() float64 {
+	return p.Called().Get(0).(float64)
+}
+
+// FrameTimeCalculated is a mock-implementation of Parser.FrameTimeCalculated().
+func (p *Parser) FrameTimeCalculated() time.Duration {
+	return p.Called().Get(0).(time.Duration)
+}
+
 // Progress is a mock-implementation of Parser.Progress().
 func (p *Parser) Progress() float32 {
 	return p.Called().Get(0).(float32)

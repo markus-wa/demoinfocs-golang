@@ -58,6 +58,21 @@ type Parser interface {
 	// Returns tick time based on CSVCMsg_ServerInfo if possible.
 	// Otherwise returns tick time based on demo header or -1 if the header info isn't available.
 	TickTime() time.Duration
+	// FrameRateCalculated returns the frame rate of the demo (frames aka. demo-ticks per second).
+	// Not necessarily the tick-rate the server ran on during the game.
+	//
+	// Returns frame rate from DemoHeader if it's not corrupt.
+	// Otherwise returns frame rate that has automatically bee calibrated or read from tv_snapshotrate.
+	// May also return -1 before calibration has finished.
+	// See also events.FrameRateInfo.
+	FrameRateCalculated() float64
+	// FrameTimeCalculated returns the time a frame / demo-tick takes in seconds.
+	//
+	// Returns frame time from DemoHeader if it's not corrupt.
+	// Otherwise returns frame time that has automatically bee calibrated or calculated from tv_snapshotrate.
+	// May also return -1 before calibration has finished.
+	// See also events.FrameRateInfo.
+	FrameTimeCalculated() time.Duration
 	// Progress returns the parsing progress from 0 to 1.
 	// Where 0 means nothing has been parsed yet and 1 means the demo has been parsed to the end.
 	//

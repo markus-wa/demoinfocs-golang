@@ -57,6 +57,7 @@ type parser struct {
 	userMessageHandler           userMessageHandler
 	eventDispatcher              *dp.Dispatcher
 	currentFrame                 int                // Demo-frame, not ingame-tick
+	frameRate                    float64            // Calibrated frame-rate for corrupt demo headers, only available after calibration
 	tickInterval                 float32            // Duration between ticks in seconds
 	header                       *common.DemoHeader // Pointer so we can check for nil
 	gameState                    *gameState
@@ -66,16 +67,18 @@ type parser struct {
 
 	// Additional fields, mainly caching & tracking things
 
-	bombsiteA            bombsite
-	bombsiteB            bombsite
-	equipmentMapping     map[*st.ServerClass]common.EquipmentType        // Maps server classes to equipment-types
-	rawPlayers           map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
-	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
-	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
-	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
-	grenadeModelIndices  map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
-	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
-	delayedEventHandlers []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
+	bombsiteA                  bombsite
+	bombsiteB                  bombsite
+	equipmentMapping           map[*st.ServerClass]common.EquipmentType        // Maps server classes to equipment-types
+	rawPlayers                 map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
+	modelPreCache              []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
+	triggers                   map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
+	gameEventDescs             map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
+	grenadeModelIndices        map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
+	stringTables               []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
+	delayedEventHandlers       []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
+	tickDiffs                  map[int]int                                     // Used for frame rate calibration if the demo header is corrupt
+	frameRateCalibrationFrames int                                             // See ParserConfig.FrameRateCalibrationFrames
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
@@ -174,6 +177,43 @@ func legayTickTime(h common.DemoHeader) time.Duration {
 	}
 
 	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackTicks))
+}
+
+// FrameRateCalculated returns the frame rate of the demo (frames aka. demo-ticks per second).
+// Not necessarily the tick-rate the server ran on during the game.
+//
+// Returns frame rate from DemoHeader if it's not corrupt.
+// Otherwise returns frame rate that has automatically bee calibrated or read from tv_snapshotrate.
+// May also return -1 before calibration has finished.
+// See also events.FrameRateInfo.
+func (p *parser) FrameRateCalculated() float64 {
+	if p.header != nil && p.header.PlaybackTime != 0 && p.header.PlaybackFrames != 0 {
+		return legacyFrameRate(*p.header)
+	}
+
+	if p.frameRate > 0 {
+		return p.frameRate
+	}
+
+	return -1
+}
+
+func legacyFrameRate(h common.DemoHeader) float64 {
+	return float64(h.PlaybackFrames) / h.PlaybackTime.Seconds()
+}
+
+// FrameTimeCalculated returns the time a frame / demo-tick takes in seconds.
+//
+// Returns frame time from DemoHeader if it's not corrupt.
+// Otherwise returns frame time that has automatically bee calibrated or calculated from tv_snapshotrate.
+// May also return -1 before calibration has finished.
+// See also events.FrameRateInfo.
+func (p *parser) FrameTimeCalculated() time.Duration {
+	if frameRate := p.FrameRateCalculated(); frameRate > 0 {
+		return time.Duration(float64(time.Second) / frameRate)
+	}
+
+	return -1
 }
 
 // Progress returns the parsing progress from 0 to 1.
@@ -310,13 +350,28 @@ type ParserConfig struct {
 	// The creators should return a new instance of the correct protobuf-message type (from the msg package).
 	// Interesting net-message-IDs can easily be discovered with the build-tag 'debugdemoinfocs'; when looking for 'UnhandledMessage'.
 	// Check out parsing.go to see which net-messages are already being parsed by default.
-	// This is a beta feature and may be changed or replaced without notice.
 	AdditionalNetMessageCreators map[int]NetMessageCreator
+
+	// FrameRateCalibrationFrames defines the number of frames the parser should wait until determining the frame rate of the demo.
+	// This value is only used if the frame rate cannot be determined from the demo header.
+	// This determines at what point the FrameRateCalibrated event will be raised.
+	// Negative values will raise the event at the end of the demo.
+	// Values below demoinfocs.MinFrameRateCalibrationFrames will set the value to MinFrameRateCalibrationFrames (defaults to 1000).
+	// See also https://github.com/markus-wa/demoinfocs-golang/issues/235
+	FrameRateCalibrationFrames int
 }
+
+const (
+	minFrameRateCalibrationFramesDefault = 1000
+	frameRateCalibrationFramesDefault    = 1000
+)
+
+var MinFrameRateCalibrationFrames = minFrameRateCalibrationFramesDefault
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
 var DefaultParserConfig = ParserConfig{
-	MsgQueueBufferSize: -1,
+	MsgQueueBufferSize:         -1,
+	FrameRateCalibrationFrames: frameRateCalibrationFramesDefault,
 }
 
 // NewParserWithConfig returns a new Parser with a custom configuration.
@@ -336,6 +391,14 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.gameEventHandler = newGameEventHandler(&p)
 	p.userMessageHandler = newUserMessageHandler(&p)
+	p.currentFrame = -1
+	p.tickDiffs = make(map[int]int)
+
+	if config.FrameRateCalibrationFrames >= 0 && config.FrameRateCalibrationFrames < MinFrameRateCalibrationFrames {
+		p.frameRateCalibrationFrames = MinFrameRateCalibrationFrames
+	} else {
+		p.frameRateCalibrationFrames = config.FrameRateCalibrationFrames
+	}
 
 	dispatcherCfg := dp.Config{
 		PanicHandler: func(v interface{}) {
@@ -355,7 +418,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfo)
-	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
+	p.msgDispatcher.RegisterHandler(p.handleIngameTickNumber)
 
 	if config.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(config.MsgQueueBufferSize)
