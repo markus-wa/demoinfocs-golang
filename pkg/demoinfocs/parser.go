@@ -336,6 +336,8 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.gameEventHandler = newGameEventHandler(&p)
 	p.userMessageHandler = newUserMessageHandler(&p)
+	p.bombsiteA.index = -1
+	p.bombsiteB.index = -1
 
 	dispatcherCfg := dp.Config{
 		PanicHandler: func(v interface{}) {

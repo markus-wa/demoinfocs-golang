@@ -636,7 +636,14 @@ func (geh gameEventHandler) bombExploded(data map[string]*msg.CSVCMsg_GameEventK
 func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT) (events.BombEvent, error) {
 	bombEvent := events.BombEvent{Player: geh.playerByUserID32(data["userid"].GetValShort())}
 
-	site := int(data["site"].GetValShort())
+	const gameEventKeyTypeLong = 3
+
+	var site int
+	if data["site"].Type == gameEventKeyTypeLong {
+		site = int(data["site"].ValLong)
+	} else {
+		site = int(data["site"].ValShort)
+	}
 
 	switch site {
 	case geh.parser.bombsiteA.index:
