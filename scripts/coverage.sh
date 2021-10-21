@@ -3,7 +3,7 @@
 set -e
 
 scripts_dir=$(dirname "$0")
-$scripts_dir/download-test-data.sh default.7z unexpected_end_of_demo.7z regression-set.7z
+$scripts_dir/download-test-data.sh default.7z unexpected_end_of_demo.7z regression-set.7z retake_unknwon_bombsite_index.7z
 
 # don't cover mocks and generated protobuf code
 coverpkg_ignore='/(fake|msg)'

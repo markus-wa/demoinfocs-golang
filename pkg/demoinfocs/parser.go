@@ -312,6 +312,10 @@ type ParserConfig struct {
 	// Check out parsing.go to see which net-messages are already being parsed by default.
 	// This is a beta feature and may be changed or replaced without notice.
 	AdditionalNetMessageCreators map[int]NetMessageCreator
+
+	// IgnoreErrBombsiteIndexNotFound tells the parser to not return an error when a bombsite-index from a game-event is not found in the demo.
+	// See https://github.com/markus-wa/demoinfocs-golang/issues/314
+	IgnoreErrBombsiteIndexNotFound bool
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
@@ -334,7 +338,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.demoInfoProvider = demoInfoProvider{parser: &p}
 	p.gameState = newGameState(p.demoInfoProvider)
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
-	p.gameEventHandler = newGameEventHandler(&p)
+	p.gameEventHandler = newGameEventHandler(&p, config.IgnoreErrBombsiteIndexNotFound)
 	p.userMessageHandler = newUserMessageHandler(&p)
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1

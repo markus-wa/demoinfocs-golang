@@ -32,6 +32,7 @@ const (
 	csDemosPath             = testDataPath + "/cs-demos"
 	demSetPath              = csDemosPath + "/set"
 	defaultDemPath          = csDemosPath + "/default.dem"
+	retakeDemPath           = csDemosPath + "/retake_unknwon_bombsite_index.dem"
 	unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
 )
 
@@ -191,6 +192,41 @@ func TestDemoInfoCs(t *testing.T) {
 	t.Logf("Took %s\n", time.Since(ts))
 
 	assertGolden(t, assertions, "default", actual.Bytes())
+}
+
+func TestRetake_BadBombsiteIndex(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	f := openFile(t, retakeDemPath)
+	defer mustClose(t, f)
+
+	p := demoinfocs.NewParser(f)
+
+	err := p.ParseToEnd()
+	assert.Error(t, err, demoinfocs.ErrBombsiteIndexNotFound)
+}
+
+func TestRetake_IgnoreBombsiteIndexNotFound(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	f := openFile(t, retakeDemPath)
+	defer mustClose(t, f)
+
+	cfg := demoinfocs.DefaultParserConfig
+	cfg.IgnoreErrBombsiteIndexNotFound = true
+
+	p := demoinfocs.NewParserWithConfig(f, cfg)
+
+	err := p.ParseToEnd()
+	assert.NoError(t, err)
 }
 
 func TestUnexpectedEndOfDemo(t *testing.T) {
