@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
+	"github.com/pkg/errors"
 
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
@@ -52,10 +53,11 @@ func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 }
 
 type gameEventHandler struct {
-	parser                  *parser
-	gameEventNameToHandler  map[string]gameEventHandlerFunc
-	userIDToFallDamageFrame map[int32]int
-	frameToRoundEndReason   map[int]events.RoundEndReason
+	parser                      *parser
+	gameEventNameToHandler      map[string]gameEventHandlerFunc
+	userIDToFallDamageFrame     map[int32]int
+	frameToRoundEndReason       map[int]events.RoundEndReason
+	ignoreBombsiteIndexNotFound bool // see https://github.com/markus-wa/demoinfocs-golang/issues/314
 }
 
 func (geh gameEventHandler) dispatch(event interface{}) {
@@ -77,11 +79,12 @@ func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
 type gameEventHandlerFunc func(map[string]*msg.CSVCMsg_GameEventKeyT)
 
 //nolint:funlen
-func newGameEventHandler(parser *parser) gameEventHandler {
+func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameEventHandler {
 	geh := gameEventHandler{
-		parser:                  parser,
-		userIDToFallDamageFrame: make(map[int32]int),
-		frameToRoundEndReason:   make(map[int]events.RoundEndReason),
+		parser:                      parser,
+		userIDToFallDamageFrame:     make(map[int32]int),
+		frameToRoundEndReason:       make(map[int]events.RoundEndReason),
+		ignoreBombsiteIndexNotFound: ignoreBombsiteIndexNotFound,
 	}
 
 	// some events need to be delayed until their data is available
@@ -633,6 +636,11 @@ func (geh gameEventHandler) bombExploded(data map[string]*msg.CSVCMsg_GameEventK
 	geh.dispatch(events.BombExplode{BombEvent: bombEvent})
 }
 
+// ErrBombsiteIndexNotFound indicates that a game-event occurred that contained an unknown bombsite index.
+// This error can be disabled by setting ParserConfig.IgnoreErrBombsiteIndexNotFound = true.
+// See https://github.com/markus-wa/demoinfocs-golang/issues/314
+var ErrBombsiteIndexNotFound = errors.New("bombsite index not found - see https://github.com/markus-wa/demoinfocs-golang/issues/314")
+
 func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT) (events.BombEvent, error) {
 	bombEvent := events.BombEvent{Player: geh.playerByUserID32(data["userid"].GetValShort())}
 
@@ -653,17 +661,22 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 	default:
 		t := geh.parser.triggers[site]
 
+		// when not found, only error if site is not 0, for retake games it may be 0 => unknown
 		if t == nil {
-			return bombEvent, fmt.Errorf("bombsite with index %d not found", site)
+			if !geh.ignoreBombsiteIndexNotFound {
+				return bombEvent, errors.Wrapf(ErrBombsiteIndexNotFound, "bombsite with index %d not found", site)
+			}
+		} else {
+			if t.contains(geh.parser.bombsiteA.center) {
+				bombEvent.Site = events.BombsiteA
+				geh.parser.bombsiteA.index = site
+			} else if t.contains(geh.parser.bombsiteB.center) {
+				bombEvent.Site = events.BombsiteB
+				geh.parser.bombsiteB.index = site
+			}
 		}
 
-		if t.contains(geh.parser.bombsiteA.center) {
-			bombEvent.Site = events.BombsiteA
-			geh.parser.bombsiteA.index = site
-		} else if t.contains(geh.parser.bombsiteB.center) {
-			bombEvent.Site = events.BombsiteB
-			geh.parser.bombsiteB.index = site
-		} else {
+		if bombEvent.Site == events.BomsiteUnknown {
 			// this may occur on de_grind for bombsite B, really makes you think
 			// see https://github.com/markus-wa/demoinfocs-golang/issues/280
 			geh.dispatch(events.ParserWarn{
