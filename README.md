@@ -12,10 +12,10 @@ A blazing fast, feature complete and production ready Go library for parsing and
 
 ## Discussions / Chat
 
-You can use [Gitter](https://gitter.im/csgodemos/demoinfo-lib) or [GitHub Discussions](https://github.com/markus-wa/demoinfocs-golang/discussions) to ask questions and discuss ideas about this project.<br>
+You can use [Discord](https://discord.gg/69Y2MM7E) or [GitHub Discussions](https://github.com/markus-wa/demoinfocs-golang/discussions) to ask questions and discuss ideas about this project.<br>
 For business inquiries please use the contact information found on the [GitHub profile](https://github.com/markus-wa).
 
-[![Gitter Chat](https://badges.gitter.im/csgodemos/demoinfo-lib.png)](https://gitter.im/csgodemos/demoinfo-lib)
+[![Discord Chat](https://img.shields.io/discord/901824796302643281)](https://discord.gg/69Y2MM7E)
 
 ## Donations
 
