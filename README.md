@@ -47,10 +47,8 @@ If you have been enjoying this library and are considering donating, please chec
 
 ## Requirements
 
-This library should be used with `go 1.11` or higher as it is built using Go modules.
-
-It's recommended to use modules for consumers as well if possible.
-If you are unfamiliar with Go modules there's a [list of recommended resources](https://github.com/markus-wa/demoinfocs-golang/wiki/Go-Modules#recommended-links--articles) in the wiki.
+This library requires at least `go 1.11` to run.
+You can download the latest version of Go [here](https://golang.org/).
 
 ## Quickstart Guide
 
