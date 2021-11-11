@@ -2,20 +2,20 @@
 
 A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). It is based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a> but provides many improvements.
 
-[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc)
-[![Build Status](https://travis-ci.com/markus-wa/demoinfocs-golang.svg?branch=master)](https://travis-ci.com/github/markus-wa/demoinfocs-golang)
-[![codecov](https://codecov.io/gh/markus-wa/demoinfocs-golang/branch/master/graph/badge.svg)](https://codecov.io/gh/markus-wa/demoinfocs-golang)
-[![Go Report](https://goreportcard.com/badge/github.com/markus-wa/demoinfocs-golang)](https://goreportcard.com/report/github.com/markus-wa/demoinfocs-golang)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE.md)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc)
+[![Build Status](https://img.shields.io/github/workflow/status/markus-wa/demoinfocs-golang/CI/master?style=flat-square)](https://github.com/markus-wa/demoinfocs-golang/actions)
+[![codecov](https://img.shields.io/codecov/c/github/markus-wa/demoinfocs-golang?style=flat-square)](https://codecov.io/gh/markus-wa/demoinfocs-golang)
+[![Go Report](https://goreportcard.com/badge/github.com/markus-wa/demoinfocs-golang?style=flat-square)](https://goreportcard.com/report/github.com/markus-wa/demoinfocs-golang)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE.md)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmarkus-wa%2Fdemoinfocs-golang.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmarkus-wa%2Fdemoinfocs-golang?ref=badge_shield)
-[![Snyk Scan](https://img.shields.io/badge/security%20scan-snyk-blueviolet)](https://app.snyk.io/org/markus-wa/project/4103d506-a2ae-4d16-a93b-c31b069268e2)
+[![Snyk Scan](https://img.shields.io/badge/security%20scan-snyk-blueviolet?style=flat-square)](https://app.snyk.io/org/markus-wa/project/4103d506-a2ae-4d16-a93b-c31b069268e2)
 
 ## Discussions / Chat
 
 You can use [Discord](https://discord.gg/qtdPENty) or [GitHub Discussions](https://github.com/markus-wa/demoinfocs-golang/discussions) to ask questions and discuss ideas about this project.<br>
 For business inquiries please use the contact information found on the [GitHub profile](https://github.com/markus-wa).
 
-[![Discord Chat](https://img.shields.io/discord/901824796302643281)](https://discord.gg/eTVBgKeHnh)
+[![Discord Chat](https://img.shields.io/discord/901824796302643281?color=%235865F2&label=discord&style=for-the-badge)](https://discord.gg/eTVBgKeHnh)
 
 ## Donations
 
