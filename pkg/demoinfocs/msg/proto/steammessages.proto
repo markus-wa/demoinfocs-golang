@@ -411,6 +411,7 @@ message CMsgGCMsgMasterSetDirectory {
 
 message CMsgGCMsgMasterSetDirectory_Response {
 	optional int32 eresult = 1 [default = 2];
+	optional string message = 2;
 }
 
 message CMsgGCMsgWebAPIJobRequestForwardResponse {

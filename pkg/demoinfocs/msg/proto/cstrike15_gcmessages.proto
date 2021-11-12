@@ -102,6 +102,10 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_ClientRedeemMissionReward = 9209;
 	k_EMsgGCCStrike15_ClientDeepStats = 9210;
 	k_EMsgGCCStrike15_StartAgreementSessionInGame = 9211;
+	k_EMsgGCCStrike15_v2_GC2ClientInitSystem = 9212;
+	k_EMsgGCCStrike15_v2_GC2ClientInitSystem_Response = 9213;
+	k_EMsgGCCStrike15_v2_PrivateQueues = 9214;
+	k_EMsgGCCStrike15_v2_MatchListTournamentOperatorMgmt = 9215;
 }
 
 enum ECsgoSteamUserStat {
@@ -114,6 +118,18 @@ enum EClientReportingVersion {
 	k_EClientReportingVersion_OldVersion = 0;
 	k_EClientReportingVersion_BetaVersion = 1;
 	k_EClientReportingVersion_SupportsTrustedMode = 2;
+}
+
+enum EInitSystemResult {
+	k_EInitSystemResult_Invalid = 0;
+	k_EInitSystemResult_Success = 1;
+	k_EInitSystemResult_None = 2;
+	k_EInitSystemResult_NotFound = 3;
+	k_EInitSystemResult_Existing = 4;
+	k_EInitSystemResult_FailedOpen = 5;
+	k_EInitSystemResult_Mismatch = 6;
+	k_EInitSystemResult_FailedInit = 7;
+	k_EInitSystemResult_Max = 8;
 }
 
 message GameServerPing {
@@ -393,6 +409,7 @@ message CMsgGCCStrike15_v2_MatchmakingStart {
 	optional uint32 client_version = 4;
 	optional .TournamentMatchSetup tournament_match = 5;
 	optional bool prime_only = 6;
+	optional uint32 tv_control = 7;
 }
 
 message CMsgGCCStrike15_v2_MatchmakingStop {
@@ -551,6 +568,7 @@ message CMsgGCCStrike15_v2_MatchmakingServerRoundStats {
 	repeated int32 enemy_2ks = 28;
 	repeated int32 player_spawned = 29;
 	repeated int32 team_spawn_count = 30;
+	optional uint32 max_rounds = 31;
 }
 
 message CMsgGCCStrike15_v2_MatchmakingClient2GCHello {
@@ -921,6 +939,11 @@ message CMsgGCCStrike15_v2_MatchList {
 	optional .CDataGCCStrike15_v2_TournamentInfo tournamentinfo = 6;
 }
 
+message CMsgGCCStrike15_v2_MatchListTournamentOperatorMgmt {
+	optional int32 eventid = 1;
+	repeated .CDataGCCStrike15_v2_MatchInfo matches = 2;
+}
+
 message CMsgGCCStrike15_v2_Predictions {
 	message GroupMatchTeamPick {
 		optional int32 sectionid = 1;
@@ -1160,6 +1183,7 @@ message CMsgGCCStrike15_v2_Party_SearchResults {
 		optional uint32 apr = 4;
 		optional uint32 ark = 5;
 		optional uint32 loc = 6;
+		optional uint32 accountid = 7;
 	}
 
 	repeated .CMsgGCCStrike15_v2_Party_SearchResults.Entry entries = 1;
@@ -1293,4 +1317,29 @@ message CMsgGCCStrike15_v2_GC2ClientRefuseSecureMode {
 message CMsgGCCStrike15_v2_GC2ClientRequestValidation {
 	optional bool full_report = 1;
 	optional string module = 2;
+}
+
+message CMsgGCCStrike15_v2_GC2ClientInitSystem {
+	optional bool load = 1;
+	optional string name = 2;
+	optional string outputname = 3;
+	optional bytes key_data = 4;
+	optional bytes sha_hash = 5;
+	optional int32 cookie = 6;
+	optional string manifest = 7;
+	optional bytes system_package = 8;
+	optional bool load_system = 9;
+}
+
+message CMsgGCCStrike15_v2_GC2ClientInitSystem_Response {
+	optional bool success = 1;
+	optional string diagnostic = 2;
+	optional bytes sha_hash = 3;
+	optional int32 response = 4;
+	optional int32 error_code1 = 5;
+	optional int32 error_code2 = 6;
+	optional int64 handle = 7;
+	optional .EInitSystemResult einit_result = 8 [default = k_EInitSystemResult_Invalid];
+	optional int32 aux_system1 = 9;
+	optional int32 aux_system2 = 10;
 }
