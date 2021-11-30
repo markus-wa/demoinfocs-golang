@@ -12,7 +12,7 @@ A blazing fast, feature complete and production ready Go library for parsing and
 
 ## Discussions / Chat
 
-You can use [Discord](https://discord.gg/qtdPENty) or [GitHub Discussions](https://github.com/markus-wa/demoinfocs-golang/discussions) to ask questions and discuss ideas about this project.<br>
+You can use [Discord](https://discord.gg/eTVBgKeHnh) or [GitHub Discussions](https://github.com/markus-wa/demoinfocs-golang/discussions) to ask questions and discuss ideas about this project.<br>
 For business inquiries please use the contact information found on the [GitHub profile](https://github.com/markus-wa).
 
 [![Discord Chat](https://img.shields.io/discord/901824796302643281?color=%235865F2&label=discord&style=for-the-badge)](https://discord.gg/eTVBgKeHnh)
