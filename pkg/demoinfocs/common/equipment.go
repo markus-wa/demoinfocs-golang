@@ -229,7 +229,7 @@ func initEqElementToName() {
 	eqElementToName[EqMP9] = "MP9"
 	eqElementToName[EqNegev] = "Negev"
 	eqElementToName[EqNova] = "Nova"
-	eqElementToName[EqP250] = "p250"
+	eqElementToName[EqP250] = "P250"
 	eqElementToName[EqP90] = "P90"
 	eqElementToName[EqSawedOff] = "Sawed-Off"
 	eqElementToName[EqScar20] = "SCAR-20"
