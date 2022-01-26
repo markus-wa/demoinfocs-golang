@@ -101,6 +101,11 @@ func (p *parser) ParseToEnd() (err error) {
 		if err == nil {
 			err = recoverFromUnexpectedEOF(recover())
 		}
+
+		// any errors that happened during SyncAllQueues()
+		if err == nil {
+			err = p.error()
+		}
 	}()
 
 	if p.header == nil {
