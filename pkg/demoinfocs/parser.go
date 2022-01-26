@@ -63,6 +63,7 @@ type parser struct {
 	demoInfoProvider             demoInfoProvider // Provides demo infos to other packages that the core package depends on
 	err                          error            // Contains a error that occurred during parsing if any
 	errLock                      sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
+	decryptionKey                []byte           // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
 
 	// Additional fields, mainly caching & tracking things
 
@@ -316,6 +317,10 @@ type ParserConfig struct {
 	// IgnoreErrBombsiteIndexNotFound tells the parser to not return an error when a bombsite-index from a game-event is not found in the demo.
 	// See https://github.com/markus-wa/demoinfocs-golang/issues/314
 	IgnoreErrBombsiteIndexNotFound bool
+
+	// NetMessageDecryptionKey tells the parser how to decrypt certain encrypted net-messages.
+	// See MatchInfoDecryptionKey() on how to retrieve the key from
+	NetMessageDecryptionKey []byte
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
@@ -342,6 +347,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.userMessageHandler = newUserMessageHandler(&p)
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1
+	p.decryptionKey = config.NetMessageDecryptionKey
 
 	dispatcherCfg := dp.Config{
 		PanicHandler: func(v interface{}) {
@@ -361,6 +367,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfo)
+	p.msgDispatcher.RegisterHandler(p.handleEncryptedData)
 	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
 
 	if config.MsgQueueBufferSize >= 0 {
