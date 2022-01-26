@@ -22,8 +22,6 @@ github.com/markus-wa/go-heatmap v1.0.0 h1:UT3+9Re6Fr6h4Qs7y0QmVjlvbu+92E9tnuqKEh
 github.com/markus-wa/go-heatmap v1.0.0/go.mod h1:mUE6YBiMclq9MYXCb8fLbiWvyZtGglLrfMJ+LSHrlPA=
 github.com/markus-wa/go-unassert v0.1.2 h1:uXWlMDa8JVtc4RgNq4XJIjyRejv9MOVuy/E0VECPxxo=
 github.com/markus-wa/go-unassert v0.1.2/go.mod h1:XEvrxR+trvZeMDfXcZPvzqGo6eumEtdk5VjNRuvvzxQ=
-github.com/markus-wa/gobitread v0.2.3-0.20210710124713-58959e776f8b h1:iYFgASuNE8XtbTxjWq1AoO2uYJ4knR1AgsGfrW6byz4=
-github.com/markus-wa/gobitread v0.2.3-0.20210710124713-58959e776f8b/go.mod h1:PcWXMH4gx7o2CKslbkFkLyJB/aHW7JVRG3MRZe3PINg=
 github.com/markus-wa/gobitread v0.2.3 h1:COx7dtYQ7Q+77hgUmD+O4MvOcqG7y17RP3Z7BbjRvPs=
 github.com/markus-wa/gobitread v0.2.3/go.mod h1:PcWXMH4gx7o2CKslbkFkLyJB/aHW7JVRG3MRZe3PINg=
 github.com/markus-wa/godispatch v1.4.1 h1:Cdff5x33ShuX3sDmUbYWejk7tOuoHErFYMhUc2h7sLc=

@@ -67,6 +67,8 @@ func (p *parser) updatePlayerFromRawIfExists(index int, raw *playerInfo) {
 	pl.SteamID64 = raw.xuid
 	pl.IsBot = raw.isFakePlayer
 
+	p.gameState.indexPlayerBySteamID(pl)
+
 	if nameChanged {
 		p.eventDispatcher.Dispatch(events.PlayerNameChange{
 			Player:  pl,

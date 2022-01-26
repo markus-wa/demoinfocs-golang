@@ -5,7 +5,6 @@ import (
 
 	unassert "github.com/markus-wa/go-unassert"
 
-	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
@@ -60,8 +59,10 @@ func (umh userMessageHandler) sayText(um *msg.CSVCMsg_UserMessage) {
 	err := st.Unmarshal(um.MsgData)
 
 	if err != nil {
-		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("failed to decode SayText message: %s", err.Error())})
-		unassert.Error("failed to decode SayText message: %s", err.Error())
+		errMsg := fmt.Sprintf("failed to decode SayText message: %s", err.Error())
+
+		umh.dispatch(events.ParserWarn{Message: errMsg})
+		unassert.Error(errMsg)
 	}
 
 	umh.dispatch(events.SayText{
@@ -77,8 +78,10 @@ func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 	err := st.Unmarshal(um.MsgData)
 
 	if err != nil {
-		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("failed to decode SayText2 message: %s", err.Error())})
-		unassert.Error("failed to decode SayText2 message: %s", err.Error())
+		errMsg := fmt.Sprintf("failed to decode SayText2 message: %s", err.Error())
+
+		umh.dispatch(events.ParserWarn{Message: errMsg})
+		unassert.Error(errMsg)
 	}
 
 	umh.dispatch(events.SayText2{
@@ -110,8 +113,10 @@ func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 	case "Cstrike_Chat_CT_Dead":
 
 	default:
-		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)})
-		unassert.Error("skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)
+		errMsg := fmt.Sprintf("skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)
+
+		umh.dispatch(events.ParserWarn{Message: errMsg})
+		unassert.Error(errMsg)
 	}
 }
 
@@ -120,17 +125,21 @@ func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 	err := st.Unmarshal(um.MsgData)
 
 	if err != nil {
-		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("failed to decode ServerRankUpdate message: %s", err.Error())})
-		unassert.Error("failed to decode ServerRankUpdate message: %s", err.Error())
+		errMsg := fmt.Sprintf("failed to decode ServerRankUpdate message: %s", err.Error())
+
+		umh.dispatch(events.ParserWarn{Message: errMsg})
+		unassert.Error(errMsg)
 	}
 
 	for _, v := range st.RankUpdate {
-		// find player (if he hasn't disconnected already)
-		var player *common.Player
-		for _, pl := range umh.parser.gameState.playersByUserID { //nolint:wsl
-			if pl.SteamID32() == uint32(v.AccountId) {
-				player = pl
-			}
+		// find player (or old instance if he has disconnected already)
+		steamID32 := uint32(v.AccountId)
+		player, ok := umh.parser.gameState.playersBySteamID32[steamID32]
+		if !ok {
+			errMsg := fmt.Sprintf("rank update for unknown player with SteamID32=%d", steamID32)
+
+			umh.dispatch(events.ParserWarn{Message: errMsg})
+			unassert.Error(errMsg)
 		}
 
 		umh.dispatch(events.RankUpdate{
@@ -149,8 +158,10 @@ func (umh userMessageHandler) roundImpactScoreData(um *msg.CSVCMsg_UserMessage) 
 	err := impactData.Unmarshal(um.MsgData)
 
 	if err != nil {
-		umh.dispatch(events.ParserWarn{Message: fmt.Sprintf("failed to decode RoundImpactScoreData message: %s", err.Error())})
-		unassert.Error("failed to decode RoundImpactScoreData message: %s", err.Error())
+		errMsg := fmt.Sprintf("failed to decode RoundImpactScoreData message: %s", err.Error())
+
+		umh.dispatch(events.ParserWarn{Message: errMsg})
+		unassert.Error(errMsg)
 	}
 
 	umh.dispatch(events.RoundImpactScoreData{

@@ -185,6 +185,8 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *playerInfo) (isNew bool, pl
 				player.SteamID64 = rp.xuid
 				player.IsBot = rp.isFakePlayer || rp.guid == "BOT"
 				player.UserID = rp.userID
+
+				p.gameState.indexPlayerBySteamID(player)
 			}
 		} else {
 			// see #162.

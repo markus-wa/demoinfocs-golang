@@ -21,6 +21,7 @@ type gameState struct {
 	ctState              common.TeamState
 	playersByUserID      map[int]*common.Player            // Maps user-IDs to players
 	playersByEntityID    map[int]*common.Player            // Maps entity-IDs to players
+	playersBySteamID32   map[uint32]*common.Player         // Maps 32-bit-steam-IDs to players
 	playerResourceEntity st.Entity                         // CCSPlayerResource entity instance, contains scoreboard info and more
 	grenadeProjectiles   map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos             map[int]*common.Inferno           // Maps entity-IDs to active infernos.
@@ -50,6 +51,12 @@ type ingameTickNumber int
 func (gs *gameState) handleIngameTickNumber(n ingameTickNumber) {
 	gs.ingameTick = int(n)
 	debugIngameTick(gs.ingameTick)
+}
+
+func (gs *gameState) indexPlayerBySteamID(pl *common.Player) {
+	if !pl.IsBot && pl.SteamID64 > 0 {
+		gs.playersBySteamID32[common.ConvertSteamID64To32(pl.SteamID64)] = pl
+	}
 }
 
 // IngameTick returns the latest actual tick number of the server during the game.
@@ -179,6 +186,7 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 	gs := &gameState{
 		playersByEntityID:  make(map[int]*common.Player),
 		playersByUserID:    make(map[int]*common.Player),
+		playersBySteamID32: make(map[uint32]*common.Player),
 		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
 		infernos:           make(map[int]*common.Inferno),
 		weapons:            make(map[int]*common.Equipment),
