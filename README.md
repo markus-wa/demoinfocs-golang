@@ -203,7 +203,7 @@ There is one caveat however: Beta features - which are marked as such via commen
 ## Projects Using demoinfocs-golang
 
 - [noesis.gg](https://www.noesis.gg/) - A suite of explorative tools to help you analyze and improve your CS:GO performance
-- [esportal.se](https://esportal.se/) - An alternative Matchmaking service that aims to provide a friendly environment free from trolls and misbehaving individuals
+- [esportal.com](https://esportal.com/) - An alternative Matchmaking service that aims to provide a friendly environment free from trolls and misbehaving individuals
 - [esportslab.gg](https://esportslab.gg/) - Building ML/AI tools for professional esports players
 - [scope.gg](https://scope.gg/) - Analytical and advisory service for advanced CS:GO players
 - [PureSkill.gg](https://pureskill.gg/) - An automated coach to help you get better at CS:GO.
