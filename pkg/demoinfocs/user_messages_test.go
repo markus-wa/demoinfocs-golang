@@ -36,6 +36,11 @@ func Test_UserMessages_ServerRankUpdate(t *testing.T) {
 
 	p := NewParser(new(DevNullReader)).(*parser)
 
+	plA := newPlayer()
+	plB := newPlayer()
+	p.gameState.playersBySteamID32[123] = plA
+	p.gameState.playersBySteamID32[456] = plB
+
 	var evs []events.RankUpdate
 	p.RegisterEventHandler(func(update events.RankUpdate) {
 		evs = append(evs, update)
@@ -49,12 +54,14 @@ func Test_UserMessages_ServerRankUpdate(t *testing.T) {
 		RankNew:    2,
 		WinCount:   5,
 		RankChange: 1,
+		Player:     plA,
 	}, {
 		SteamID32:  456,
 		RankOld:    2,
 		RankNew:    3,
 		WinCount:   6,
 		RankChange: 2,
+		Player:     plB,
 	}}
 	assert.Equal(t, expected, evs)
 }
