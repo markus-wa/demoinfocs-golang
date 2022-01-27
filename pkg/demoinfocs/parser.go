@@ -319,7 +319,7 @@ type ParserConfig struct {
 	IgnoreErrBombsiteIndexNotFound bool
 
 	// NetMessageDecryptionKey tells the parser how to decrypt certain encrypted net-messages.
-	// See MatchInfoDecryptionKey() on how to retrieve the key from
+	// See MatchInfoDecryptionKey() on how to retrieve the key from `match730_*.dem.info` files.
 	NetMessageDecryptionKey []byte
 }
 
