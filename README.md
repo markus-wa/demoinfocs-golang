@@ -160,7 +160,7 @@ The full API documentation is available here on [pkg.go.dev](https://pkg.go.dev/
 * [Easy debugging via build-flags](#debugging)
 * Built with performance & concurrency in mind
 
-1. <small id="f1">In MM demos the chat is encrypted, see [`ParserConfig.NetMessageDecryptionKey`](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2@master/pkg/demoinfocs#ParserConfig) and [`MatchInfoDecryptionKey()`](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2@master/pkg/demoinfocs#MatchInfoDecryptionKey).</small>
+1. <small id="f1">In MM demos the chat is encrypted, so [`ParserConfig.NetMessageDecryptionKey`](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2@master/pkg/demoinfocs#ParserConfig) needs to be set - see also [`MatchInfoDecryptionKey()`](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2@master/pkg/demoinfocs#MatchInfoDecryptionKey).</small>
 2. <small id="f2">Better than some other parsers at the time of writing.</small>
 
 ## Performance / Benchmarks
