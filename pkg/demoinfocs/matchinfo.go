@@ -12,6 +12,7 @@ import (
 
 // MatchInfoDecryptionKey extracts the net-message decryption key stored in `match730_*.dem.info`.
 // Pass the whole contents of `match730_*.dem.info` to this function to get the key.
+// See also: ParserConfig.NetMessageDecryptionKey
 func MatchInfoDecryptionKey(b []byte) ([]byte, error) {
 	m := new(msg.CDataGCCStrike15V2_MatchInfo)
 
