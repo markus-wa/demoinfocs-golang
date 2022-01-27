@@ -2,6 +2,11 @@ package demoinfocs
 
 import (
 	"bytes"
+	"encoding/binary"
+
+	"github.com/gogo/protobuf/proto"
+	"github.com/markus-wa/go-unassert"
+	"github.com/markus-wa/ice-cipher-go/pkg/ice"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
@@ -70,4 +75,57 @@ func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
 		TickRate: p.TickRate(),
 		TickTime: p.TickTime(),
 	})
+}
+
+func (p *parser) handleEncryptedData(msg *msg.CSVCMsg_EncryptedData) {
+	if msg.KeyType != 2 {
+		return
+	}
+
+	if p.decryptionKey == nil {
+		p.msgDispatcher.Dispatch(events.ParserWarn{
+			Type:    events.WarnTypeMissingNetMessageDecryptionKey,
+			Message: "received encrypted net-message but no decryption key is set",
+		})
+
+		return
+	}
+
+	k := ice.NewKey(2, p.decryptionKey)
+	b := k.DecryptAll(msg.Encrypted)
+
+	r := bytes.NewReader(b)
+	br := bit.NewSmallBitReader(r)
+
+	paddingBytes := br.ReadSingleByte()
+	br.Skip(int(paddingBytes) << 3)
+
+	bBytesWritten := br.ReadBytes(4)
+	nBytesWritten := int(binary.BigEndian.Uint32(bBytesWritten))
+
+	unassert.Same(len(b), 5+int(paddingBytes)+nBytesWritten)
+
+	cmd := br.ReadVarInt32()
+	size := br.ReadVarInt32()
+
+	m := p.netMessageForCmd(int(cmd))
+
+	if m == nil {
+		err := br.Pool()
+		if err != nil {
+			p.setError(err)
+		}
+
+		return
+	}
+
+	msgB := br.ReadBytes(int(size))
+	err := proto.Unmarshal(msgB, m)
+	if err != nil {
+		p.setError(err)
+
+		return
+	}
+
+	p.msgDispatcher.Dispatch(m)
 }

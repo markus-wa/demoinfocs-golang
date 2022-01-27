@@ -292,6 +292,39 @@ var defaultNetMessageCreators = map[int]NetMessageCreator{
 	int(msg.SVC_Messages_svc_UserMessage):       func() proto.Message { return new(msg.CSVCMsg_UserMessage) },
 	int(msg.SVC_Messages_svc_ServerInfo):        func() proto.Message { return new(msg.CSVCMsg_ServerInfo) },
 	int(msg.NET_Messages_net_SetConVar):         func() proto.Message { return new(msg.CNETMsg_SetConVar) },
+	int(msg.SVC_Messages_svc_EncryptedData):     func() proto.Message { return new(msg.CSVCMsg_EncryptedData) },
+}
+
+func (p *parser) netMessageForCmd(cmd int) proto.Message {
+	msgCreator := defaultNetMessageCreators[cmd]
+
+	if msgCreator != nil {
+		return msgCreator()
+	}
+
+	var msgName string
+	if cmd < 8 || cmd >= 100 {
+		msgName = msg.NET_Messages_name[int32(cmd)]
+	} else {
+		msgName = msg.SVC_Messages_name[int32(cmd)]
+	}
+
+	if msgName == "" {
+		// Send a warning if the command is unknown
+		// This might mean our proto files are out of date
+		p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("unknown message command %q", cmd)})
+		unassert.Error("unknown message command %q", cmd)
+	}
+
+	// Handle additional net-messages as defined by the user
+	msgCreator = p.additionalNetMessageCreators[cmd]
+	if msgCreator != nil {
+		return msgCreator()
+	}
+
+	debugUnhandledMessage(cmd, msgName)
+
+	return nil
 }
 
 //nolint:funlen
@@ -311,40 +344,18 @@ func (p *parser) parsePacket() {
 
 		p.bitReader.BeginChunk(size << 3)
 
-		msgCreator := defaultNetMessageCreators[cmd]
+		m := p.netMessageForCmd(cmd)
 
-		if msgCreator == nil {
-			var msgName string
-			if cmd < 8 || cmd >= 100 {
-				msgName = msg.NET_Messages_name[int32(cmd)]
-			} else {
-				msgName = msg.SVC_Messages_name[int32(cmd)]
-			}
+		if m == nil {
+			// On to the next one
+			p.bitReader.EndChunk()
 
-			if msgName == "" {
-				// Send a warning if the command is unknown
-				// This might mean our proto files are out of date
-				p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("unknown message command %q", cmd)})
-				unassert.Error("unknown message command %q", cmd)
-			}
-
-			// Handle additional net-messages as defined by the user
-			msgCreator = p.additionalNetMessageCreators[cmd]
-			if msgCreator == nil {
-				debugUnhandledMessage(cmd, msgName)
-
-				// On to the next one
-				p.bitReader.EndChunk()
-
-				continue
-			}
+			continue
 		}
 
 		b := byteSlicePool.Get().(*[]byte)
 
 		p.bitReader.ReadBytesInto(b, size)
-
-		m := msgCreator()
 
 		err := proto.Unmarshal(*b, m)
 		if err != nil {

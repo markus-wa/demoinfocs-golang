@@ -194,6 +194,43 @@ func TestDemoInfoCs(t *testing.T) {
 	assertGolden(t, assertions, "default", actual.Bytes())
 }
 
+func TestEncryptedNetMessages(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	infoF, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem.info")
+
+	b, err := ioutil.ReadAll(infoF)
+	assert.NoError(t, err)
+
+	k, err := demoinfocs.MatchInfoDecryptionKey(b)
+	assert.NoError(t, err)
+
+	f, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem")
+	assert.NoError(t, err)
+	defer mustClose(t, f)
+
+	cfg := demoinfocs.DefaultParserConfig
+	cfg.NetMessageDecryptionKey = k
+
+	p := demoinfocs.NewParserWithConfig(f, cfg)
+
+	p.RegisterEventHandler(func(message events.ChatMessage) {
+		t.Log(message)
+	})
+
+	err = p.ParseToEnd()
+	assert.NoError(t, err)
+}
+
+func TestMatchInfoDecryptionKey_Error(t *testing.T) {
+	_, err := demoinfocs.MatchInfoDecryptionKey([]byte{0})
+	assert.Error(t, err)
+}
+
 func TestRetake_BadBombsiteIndex(t *testing.T) {
 	t.Parallel()
 

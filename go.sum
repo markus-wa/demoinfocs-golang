@@ -26,6 +26,8 @@ github.com/markus-wa/gobitread v0.2.3 h1:COx7dtYQ7Q+77hgUmD+O4MvOcqG7y17RP3Z7Bbj
 github.com/markus-wa/gobitread v0.2.3/go.mod h1:PcWXMH4gx7o2CKslbkFkLyJB/aHW7JVRG3MRZe3PINg=
 github.com/markus-wa/godispatch v1.4.1 h1:Cdff5x33ShuX3sDmUbYWejk7tOuoHErFYMhUc2h7sLc=
 github.com/markus-wa/godispatch v1.4.1/go.mod h1:tk8L0yzLO4oAcFwM2sABMge0HRDJMdE8E7xm4gK/+xM=
+github.com/markus-wa/ice-cipher-go v0.0.0-20220126215401-a6adadccc817 h1:VB4ANo078mbGQNBgauLOzJkoHpIqrMygbPHVW0jjql0=
+github.com/markus-wa/ice-cipher-go v0.0.0-20220126215401-a6adadccc817/go.mod h1:JIsht5Oa9P50VnGJTvH2a6nkOqDFJbUeU1YRZYvdplw=
 github.com/markus-wa/quickhull-go/v2 v2.1.0 h1:DA2pzEzH0k5CEnlUsouRqNdD+jzNFb4DBhrX4Hpa5So=
 github.com/markus-wa/quickhull-go/v2 v2.1.0/go.mod h1:bOlBUpIzGSMMhHX0f9N8CQs0VZD4nnPeta0OocH7m4o=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
@@ -34,7 +36,6 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0 h1:4G4v2dO3VZwixGIRoQ5Lfboy6nUhCyYzaqnIAPPhYs4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
-github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
@@ -68,6 +69,5 @@ golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8T
 golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
-gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie2QXMNeKRTHCNY2nXvo=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

@@ -522,6 +522,10 @@ const (
 	WarnTypeBombsiteUnknown            // may occur on de_grind for bombsite B as the bounding box of the bombsite is wrong
 	WarnTypeTeamSwapPlayerNil          // TODO: figure out why this happens
 	WarnTypeGameEventBeforeDescriptors // may occur in POV demos
+
+	// WarnTypeMissingNetMessageDecryptionKey occurs when encrypted net-messages are encountered and the decryption key is missing
+	// See ParserConfig.NetMessageDecryptionKey
+	WarnTypeMissingNetMessageDecryptionKey
 )
 
 // ParserWarn signals that a non-fatal problem occurred during parsing.
