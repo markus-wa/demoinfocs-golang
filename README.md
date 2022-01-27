@@ -155,7 +155,7 @@ The full API documentation is available here on [pkg.go.dev](https://pkg.go.dev/
 * Chat & console messages <sup id="achat1">1</sup> - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events?tab=doc#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
 * Matchmaking ranks (official MM demos only) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events?tab=doc#RankUpdate)
 * Full POV demo support <sup id="achat1">2</sup>
-* Support for encrypted net-messages (if the decryption key is provided via [`ParserConfig.NetMessageDecryptionKey`](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2@master/pkg/demoinfocs#ParserConfig))
+* Support for encrypted net-messages (if the [decryption key](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2@master/pkg/demoinfocs#ParserConfig))
 * JavaScript (browser / Node.js) support via WebAssembly - [example](https://github.com/markus-wa/demoinfocs-wasm)
 * [Easy debugging via build-flags](#debugging)
 * Built with performance & concurrency in mind
