@@ -280,14 +280,11 @@ After adding it to your `PATH` you can use `scripts/generate-interfaces.sh` to u
 
 Should you need to re-generate the protobuf generated code in the `msg` package, you will need the following tools:
 
-- The latest protobuf generator (`protoc`) from your package manager or https://github.com/google/protobuf/releases
-
-- And `protoc-gen-gogofaster` from [gogoprotobuf](https://github.com/gogo/protobuf) to generate code for go.
-
-		go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
-
-[//]: # "The go get above needs two tabs so it's displayed a) as part of the last list entry and b) as a code-block"
-[//]: # "Oh and don't try to move these comments above it either"
+```
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+go install github.com/planetscale/vtprotobuf/cmd/protoc-gen-go-vtproto@latest
+```
 
 Make sure both are inside your `PATH` variable.
 

@@ -1,4 +1,4 @@
-option go_package = "msg";
+option go_package = "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg";
 
 import "steammessages.proto";
 import "engine_gcmessages.proto";

@@ -10,7 +10,7 @@ import (
 )
 
 func (p *parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {
-	handler := p.userMessageHandler.handler(msg.ECstrike15UserMessages(um.MsgType))
+	handler := p.userMessageHandler.handler(msg.ECstrike15UserMessages(um.GetMsgType()))
 	if handler != nil {
 		handler(um)
 	}
@@ -56,7 +56,7 @@ func newUserMessageHandler(parser *parser) userMessageHandler {
 
 func (umh userMessageHandler) sayText(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_SayText)
-	err := st.Unmarshal(um.MsgData)
+	err := st.UnmarshalVT(um.GetMsgData())
 
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to decode SayText message: %s", err.Error())
@@ -66,16 +66,16 @@ func (umh userMessageHandler) sayText(um *msg.CSVCMsg_UserMessage) {
 	}
 
 	umh.dispatch(events.SayText{
-		EntIdx:    int(st.EntIdx),
-		IsChat:    st.Chat,
-		IsChatAll: st.Textallchat,
-		Text:      st.Text,
+		EntIdx:    int(st.GetEntIdx()),
+		IsChat:    st.GetChat(),
+		IsChatAll: st.GetTextallchat(),
+		Text:      st.GetText(),
 	})
 }
 
 func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_SayText2)
-	err := st.Unmarshal(um.MsgData)
+	err := st.UnmarshalVT(um.MsgData)
 
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to decode SayText2 message: %s", err.Error())
@@ -85,23 +85,23 @@ func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 	}
 
 	umh.dispatch(events.SayText2{
-		EntIdx:    int(st.EntIdx),
-		IsChat:    st.Chat,
-		IsChatAll: st.Textallchat,
-		MsgName:   st.MsgName,
+		EntIdx:    int(st.GetEntIdx()),
+		IsChat:    st.GetChat(),
+		IsChatAll: st.GetTextallchat(),
+		MsgName:   st.GetMsgName(),
 		Params:    st.Params,
 	})
 
-	switch st.MsgName {
+	switch st.GetMsgName() {
 	case "Cstrike_Chat_All":
 		fallthrough
 	case "Cstrike_Chat_AllDead":
-		sender := umh.gameState().playersByEntityID[int(st.EntIdx)]
+		sender := umh.gameState().playersByEntityID[int(st.GetEntIdx())]
 
 		umh.dispatch(events.ChatMessage{
 			Sender:    sender,
 			Text:      st.Params[1],
-			IsChatAll: st.Textallchat,
+			IsChatAll: st.GetTextallchat(),
 		})
 
 	case "#CSGO_Coach_Join_T": // Ignore these
@@ -113,7 +113,7 @@ func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 	case "Cstrike_Chat_CT_Dead":
 
 	default:
-		errMsg := fmt.Sprintf("skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.MsgName)
+		errMsg := fmt.Sprintf("skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", st.GetMsgName())
 
 		umh.dispatch(events.ParserWarn{Message: errMsg})
 		unassert.Error(errMsg)
@@ -122,7 +122,7 @@ func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 
 func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_ServerRankUpdate)
-	err := st.Unmarshal(um.MsgData)
+	err := st.UnmarshalVT(um.MsgData)
 
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to decode ServerRankUpdate message: %s", err.Error())
@@ -133,7 +133,7 @@ func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 
 	for _, v := range st.RankUpdate {
 		// find player (or old instance if he has disconnected already)
-		steamID32 := uint32(v.AccountId)
+		steamID32 := uint32(v.GetAccountId())
 		player, ok := umh.parser.gameState.playersBySteamID32[steamID32]
 		if !ok {
 			errMsg := fmt.Sprintf("rank update for unknown player with SteamID32=%d", steamID32)
@@ -143,11 +143,11 @@ func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 		}
 
 		umh.dispatch(events.RankUpdate{
-			SteamID32:  v.AccountId,
-			RankOld:    int(v.RankOld),
-			RankNew:    int(v.RankNew),
-			WinCount:   int(v.NumWins),
-			RankChange: v.RankChange,
+			SteamID32:  v.GetAccountId(),
+			RankOld:    int(v.GetRankOld()),
+			RankNew:    int(v.GetRankNew()),
+			WinCount:   int(v.GetNumWins()),
+			RankChange: v.GetRankChange(),
 			Player:     player,
 		})
 	}
@@ -155,7 +155,7 @@ func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 
 func (umh userMessageHandler) roundImpactScoreData(um *msg.CSVCMsg_UserMessage) {
 	impactData := new(msg.CCSUsrMsg_RoundImpactScoreData)
-	err := impactData.Unmarshal(um.MsgData)
+	err := impactData.UnmarshalVT(um.MsgData)
 
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to decode RoundImpactScoreData message: %s", err.Error())
