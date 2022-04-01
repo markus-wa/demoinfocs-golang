@@ -49,7 +49,7 @@ If you have been enjoying this library and are considering donating, please chec
 
 ## Requirements
 
-This library requires at least `go 1.11` to run.
+This library requires at least `go 1.18` to run.
 You can download the latest version of Go [here](https://golang.org/).
 
 ## Quickstart Guide
