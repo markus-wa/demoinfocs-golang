@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
@@ -96,19 +98,19 @@ func (p *parser) parseSingleStringTable(name string) {
 			case stNameUserInfo:
 				player := parsePlayerInfo(bytes.NewReader(data))
 
-				playerIndex, err := strconv.ParseInt(stringName, 10, 64)
+				playerIndex, err := strconv.Atoi(stringName)
 				if err != nil {
-					panic("Couldn't parse playerIndex from string")
+					panic(errors.Wrap(err, "couldn't parse playerIndex from string"))
 				}
 
 				p.rawPlayers[int(playerIndex)] = player
 
-				p.updatePlayerFromRawIfExists(int(playerIndex), player)
+				p.updatePlayerFromRawIfExists(playerIndex, player)
 
 			case stNameInstanceBaseline:
-				classID, err := strconv.ParseInt(stringName, 10, 64)
+				classID, err := strconv.Atoi(stringName)
 				if err != nil {
-					panic("Couldn't parse id from string")
+					panic(errors.Wrap(err, "couldn't parse serverClassID from string"))
 				}
 
 				p.stParser.SetInstanceBaseline(int(classID), data)
@@ -134,8 +136,10 @@ func (p *parser) parseSingleStringTable(name string) {
 	}
 }
 
-func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) { //nolint:wsl
-	// No need for recoverFromUnexpectedEOF here as we do that in processStringTable already
+func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
+	defer func() {
+		p.setError(recoverFromUnexpectedEOF(recover()))
+	}()
 
 	cTab := p.stringTables[tab.TableId]
 	switch cTab.Name {
@@ -152,8 +156,10 @@ func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) { /
 	}
 }
 
-func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) { //nolint:wsl
-	// No need for recoverFromUnexpectedEOF here as we do that in processStringTable already
+func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+	defer func() {
+		p.setError(recoverFromUnexpectedEOF(recover()))
+	}()
 
 	p.processStringTable(tab)
 
@@ -164,10 +170,6 @@ func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) { /
 
 //nolint:funlen,gocognit
 func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
 	if tab.Name == stNameModelPreCache {
 		for i := len(p.modelPreCache); i < int(tab.MaxEntries); i++ {
 			p.modelPreCache = append(p.modelPreCache, "")
@@ -250,12 +252,12 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 			p.updatePlayerFromRawIfExists(entryIndex, player)
 
 		case stNameInstanceBaseline:
-			classID, err := strconv.ParseInt(entry, 10, 64)
+			classID, err := strconv.Atoi(entry)
 			if err != nil {
-				panic("WTF VOLVO PLS")
+				panic(errors.Wrap(err, "failed to parse serverClassID"))
 			}
 
-			p.stParser.SetInstanceBaseline(int(classID), userdata)
+			p.stParser.SetInstanceBaseline(classID, userdata)
 
 		case stNameModelPreCache:
 			p.modelPreCache[entryIndex] = entry
