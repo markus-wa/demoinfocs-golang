@@ -34,7 +34,7 @@ Example: Bullet Decal (`BSPDecal`) messages
 
 ```go
 import (
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
 	"github.com/markus-wa/demoinfocs-golang/v2/msg"
@@ -42,7 +42,7 @@ import (
 
 cfg := dem.DefaultParserConfig
 cfg.AdditionalNetMessageCreators = map[int]dem.NetMessageCreator{
-	int(msg.SVC_Messages_svc_BSPDecal): func() proto.Message {
+	int(msg.SVC_Messages_svc_BSPDecal): func() dem.VTProtobufMessage {
 		return new(msg.CSVCMsg_BSPDecal)
 	},
 }

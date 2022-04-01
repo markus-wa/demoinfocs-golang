@@ -29,25 +29,25 @@ func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 		return
 	}
 
-	desc := p.gameEventDescs[ge.Eventid]
+	desc := p.gameEventDescs[ge.GetEventid()]
 
 	debugGameEvent(desc, ge)
 
 	data := mapGameEventData(desc, ge)
 
-	if handler, eventKnown := p.gameEventHandler.gameEventNameToHandler[desc.Name]; eventKnown {
+	if handler, eventKnown := p.gameEventHandler.gameEventNameToHandler[desc.GetName()]; eventKnown {
 		// some events are known but have no handler
 		// these will just be dispatched as GenericGameEvent
 		if handler != nil {
 			handler(data)
 		}
 	} else {
-		p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("unknown event %q", desc.Name)})
-		unassert.Error("unknown event %q", desc.Name)
+		p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("unknown event %q", desc.GetName())})
+		unassert.Error("unknown event %q", desc.GetName())
 	}
 
 	p.eventDispatcher.Dispatch(events.GenericGameEvent{
-		Name: desc.Name,
+		Name: desc.GetName(),
 		Data: data,
 	})
 }
@@ -227,7 +227,7 @@ func (geh gameEventHandler) roundAnnounceLastRoundHalf(map[string]*msg.CSVCMsg_G
 }
 
 func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	winner := common.Team(data["winner"].ValByte)
+	winner := common.Team(data["winner"].GetValByte())
 	winnerState := geh.gameState().Team(winner)
 
 	var loserState *common.TeamState
@@ -647,10 +647,10 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 	const gameEventKeyTypeLong = 3
 
 	var site int
-	if data["site"].Type == gameEventKeyTypeLong {
-		site = int(data["site"].ValLong)
+	if data["site"].GetType() == gameEventKeyTypeLong {
+		site = int(data["site"].GetValLong())
 	} else {
-		site = int(data["site"].ValShort)
+		site = int(data["site"].GetValShort())
 	}
 
 	switch site {
@@ -751,9 +751,9 @@ func (geh gameEventHandler) bombPickup(data map[string]*msg.CSVCMsg_GameEventKey
 func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT, nadeType common.EquipmentType) events.GrenadeEvent {
 	thrower := geh.playerByUserID32(data["userid"].GetValShort())
 	position := r3.Vector{
-		X: float64(data["x"].ValFloat),
-		Y: float64(data["y"].ValFloat),
-		Z: float64(data["z"].ValFloat),
+		X: float64(data["x"].GetValFloat()),
+		Y: float64(data["y"].GetValFloat()),
+		Z: float64(data["z"].GetValFloat()),
 	}
 	nadeEntityID := int(data["entityid"].GetValShort())
 
@@ -868,7 +868,7 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentType) *commo
 func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_GameEvent) map[string]*msg.CSVCMsg_GameEventKeyT {
 	data := make(map[string]*msg.CSVCMsg_GameEventKeyT, len(d.Keys))
 	for i, k := range d.Keys {
-		data[k.Name] = e.Keys[i]
+		data[k.GetName()] = e.Keys[i]
 	}
 
 	return data

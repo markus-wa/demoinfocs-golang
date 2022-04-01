@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
@@ -16,12 +15,12 @@ import (
 func MatchInfoDecryptionKey(b []byte) ([]byte, error) {
 	m := new(msg.CDataGCCStrike15V2_MatchInfo)
 
-	err := proto.Unmarshal(b, m)
+	err := m.UnmarshalVT(b)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal MatchInfo message")
 	}
 
-	k := []byte(strings.ToUpper(strconv.FormatUint(m.Watchablematchinfo.ClDecryptdataKeyPub, 16)))
+	k := []byte(strings.ToUpper(strconv.FormatUint(m.Watchablematchinfo.GetClDecryptdataKeyPub(), 16)))
 
 	return k, nil
 }

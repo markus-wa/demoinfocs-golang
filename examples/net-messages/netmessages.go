@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gogo/protobuf/proto"
-
 	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
@@ -20,7 +18,7 @@ func main() {
 	// Configure parsing of BSPDecal net-message
 	cfg := demoinfocs.DefaultParserConfig
 	cfg.AdditionalNetMessageCreators = map[int]demoinfocs.NetMessageCreator{
-		int(msg.SVC_Messages_svc_BSPDecal): func() proto.Message {
+		int(msg.SVC_Messages_svc_BSPDecal): func() demoinfocs.VTProtobufMessage {
 			return new(msg.CSVCMsg_BSPDecal)
 		},
 	}
@@ -30,7 +28,7 @@ func main() {
 
 	// Register handler for BSPDecal messages
 	p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_BSPDecal) {
-		fmt.Printf("bullet decal at x=%f y=%f z=%f\n", m.Pos.X, m.Pos.Y, m.Pos.Z)
+		fmt.Printf("bullet decal at x=%f y=%f z=%f\n", m.Pos.GetX(), m.Pos.GetY(), m.Pos.GetZ())
 	})
 
 	// Parse to end

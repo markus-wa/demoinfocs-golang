@@ -17,7 +17,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gogo/protobuf/proto"
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/stretchr/testify/assert"
 
@@ -57,7 +56,7 @@ func TestDemoInfoCs(t *testing.T) {
 	p := demoinfocs.NewParserWithConfig(f, demoinfocs.ParserConfig{
 		MsgQueueBufferSize: 1000,
 		AdditionalNetMessageCreators: map[int]demoinfocs.NetMessageCreator{
-			4: func() proto.Message { return new(msg.CNETMsg_Tick) },
+			4: func() demoinfocs.VTProtobufMessage { return new(msg.CNETMsg_Tick) },
 		},
 	})
 

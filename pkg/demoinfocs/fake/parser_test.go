@@ -5,6 +5,7 @@ import (
 	"time"
 
 	assert "github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/proto"
 
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
@@ -88,7 +89,7 @@ func TestParseNextFrameNetMessages(t *testing.T) {
 
 	p.MockNetMessages(expected...)
 	// Message on second frame that shouldn't be dispatched during the first frame
-	p.MockNetMessages(msg.CSVCMsg_Menu{DialogType: 1, MenuKeyValues: []byte{1, 55, 99}})
+	p.MockNetMessages(msg.CSVCMsg_Menu{DialogType: proto.Int32(1), MenuKeyValues: []byte{1, 55, 99}})
 
 	var actual []interface{}
 	p.RegisterNetMessageHandler(func(message interface{}) {
@@ -108,7 +109,7 @@ func TestParseToEndNetMessages(t *testing.T) {
 	expected := []interface{}{
 		cmdKey(1, 2, 3),
 		cmdKey(100, 255, 8),
-		msg.CSVCMsg_Menu{DialogType: 1, MenuKeyValues: []byte{1, 55, 99}},
+		msg.CSVCMsg_Menu{DialogType: proto.Int32(1), MenuKeyValues: []byte{1, 55, 99}},
 	}
 
 	p.MockNetMessages(expected[:1]...)

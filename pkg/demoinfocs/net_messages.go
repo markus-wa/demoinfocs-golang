@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/markus-wa/go-unassert"
 	"github.com/markus-wa/ice-cipher-go/pkg/ice"
 
@@ -21,7 +20,7 @@ func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 	r := bit.NewSmallBitReader(bytes.NewReader(pe.EntityData))
 
 	currentEntity := -1
-	for i := 0; i < int(pe.UpdatedEntries); i++ {
+	for i := 0; i < int(pe.GetUpdatedEntries()); i++ {
 		currentEntity += 1 + int(r.ReadUBitInt())
 
 		cmd := r.ReadBitsToByte(2)
@@ -58,8 +57,8 @@ func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 	updated := make(map[string]string)
 	for _, cvar := range setConVar.Convars.Cvars {
-		updated[cvar.Name] = cvar.Value
-		p.gameState.rules.conVars[cvar.Name] = cvar.Value
+		updated[cvar.GetName()] = cvar.GetValue()
+		p.gameState.rules.conVars[cvar.GetName()] = cvar.GetValue()
 	}
 
 	p.eventDispatcher.Dispatch(events.ConVarsUpdated{
@@ -69,7 +68,7 @@ func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 
 func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
 	// srvInfo.MapCrc might be interesting as well
-	p.tickInterval = srvInfo.TickInterval
+	p.tickInterval = srvInfo.GetTickInterval()
 
 	p.eventDispatcher.Dispatch(events.TickRateInfoAvailable{
 		TickRate: p.TickRate(),
@@ -78,7 +77,7 @@ func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
 }
 
 func (p *parser) handleEncryptedData(msg *msg.CSVCMsg_EncryptedData) {
-	if msg.KeyType != 2 {
+	if msg.GetKeyType() != 2 {
 		return
 	}
 
@@ -120,7 +119,7 @@ func (p *parser) handleEncryptedData(msg *msg.CSVCMsg_EncryptedData) {
 	}
 
 	msgB := br.ReadBytes(int(size))
-	err := proto.Unmarshal(msgB, m)
+	err := m.UnmarshalVT(msgB)
 	if err != nil {
 		p.setError(err)
 

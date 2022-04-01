@@ -5,8 +5,6 @@ import (
 	"math"
 	"sort"
 
-	proto "github.com/gogo/protobuf/proto"
-
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
@@ -115,7 +113,7 @@ func parseSendTable(r *bit.BitReader) sendTable {
 	r.BeginChunk(size << 3)
 
 	st := new(msg.CSVCMsg_SendTable)
-	if err := proto.Unmarshal(r.ReadBytes(size), st); err != nil {
+	if err := st.UnmarshalVT(r.ReadBytes(size)); err != nil {
 		panic(fmt.Sprintf("Failed to unmarshal SendTable: %s", err.Error()))
 	}
 
@@ -125,21 +123,21 @@ func parseSendTable(r *bit.BitReader) sendTable {
 
 	for _, v := range st.GetProps() {
 		var prop sendTableProperty
-		prop.dataTableName = v.DtName
-		prop.highValue = v.HighValue
-		prop.lowValue = v.LowValue
-		prop.name = v.VarName
-		prop.numberOfBits = int(v.NumBits)
-		prop.numberOfElements = int(v.NumElements)
-		prop.priority = int(v.Priority)
-		prop.flags = sendPropertyFlags(v.Flags)
-		prop.rawType = int(v.Type)
+		prop.dataTableName = v.GetDtName()
+		prop.highValue = v.GetHighValue()
+		prop.lowValue = v.GetLowValue()
+		prop.name = v.GetVarName()
+		prop.numberOfBits = int(v.GetNumBits())
+		prop.numberOfElements = int(v.GetNumElements())
+		prop.priority = int(v.GetPriority())
+		prop.flags = sendPropertyFlags(v.GetFlags())
+		prop.rawType = int(v.GetType())
 
 		res.properties = append(res.properties, prop)
 	}
 
-	res.name = st.NetTableName
-	res.isEnd = st.IsEnd
+	res.name = st.GetNetTableName()
+	res.isEnd = st.GetIsEnd()
 
 	return res
 }

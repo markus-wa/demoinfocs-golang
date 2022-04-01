@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/proto"
 
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
@@ -34,22 +35,22 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 
 	p.gameEventDescs = map[int32]*msg.CSVCMsg_GameEventListDescriptorT{
 		1: {
-			Name: "round_end",
+			Name: proto.String("round_end"),
 			Keys: []*msg.CSVCMsg_GameEventListKeyT{
-				{Name: "winner"},
-				{Name: "message"},
-				{Name: "reason"},
+				{Name: proto.String("winner")},
+				{Name: proto.String("message")},
+				{Name: proto.String("reason")},
 			},
 		},
 	}
 
 	ge := new(msg.CSVCMsg_GameEvent)
-	ge.Eventid = 1
-	ge.EventName = "round_end"
+	ge.Eventid = proto.Int32(1)
+	ge.EventName = proto.String("round_end")
 	ge.Keys = []*msg.CSVCMsg_GameEventKeyT{
-		{ValByte: 2},
-		{ValString: "test"},
-		{ValByte: 9},
+		{ValByte: proto.Int32(2)},
+		{ValString: proto.String("test")},
+		{ValByte: proto.Int32(9)},
 	}
 	p.handleGameEvent(ge)
 

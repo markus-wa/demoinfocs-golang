@@ -137,8 +137,8 @@ func (p *parser) parseSingleStringTable(name string) {
 func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) { //nolint:wsl
 	// No need for recoverFromUnexpectedEOF here as we do that in processStringTable already
 
-	cTab := p.stringTables[tab.TableId]
-	switch cTab.Name {
+	cTab := p.stringTables[tab.GetTableId()]
+	switch cTab.GetName() {
 	case stNameUserInfo:
 		fallthrough
 	case stNameModelPreCache:
@@ -159,7 +159,7 @@ func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) { /
 
 	p.stringTables = append(p.stringTables, tab)
 
-	p.eventDispatcher.Dispatch(events.StringTableCreated{TableName: tab.Name})
+	p.eventDispatcher.Dispatch(events.StringTableCreated{TableName: tab.GetName()})
 }
 
 //nolint:funlen,gocognit
@@ -168,8 +168,8 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
-	if tab.Name == stNameModelPreCache {
-		for i := len(p.modelPreCache); i < int(tab.MaxEntries); i++ {
+	if tab.GetName() == stNameModelPreCache {
+		for i := len(p.modelPreCache); i < int(tab.GetMaxEntries()); i++ {
 			p.modelPreCache = append(p.modelPreCache, "")
 		}
 	}
@@ -180,7 +180,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		panic("Can't decode")
 	}
 
-	nTmp := tab.MaxEntries
+	nTmp := tab.GetMaxEntries()
 	nEntryBits := 0
 
 	for nTmp != 0 {
@@ -195,7 +195,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	hist := make([]string, 0)
 	lastEntry := -1
 
-	for i := 0; i < int(tab.NumEntries); i++ {
+	for i := 0; i < int(tab.GetNumEntries()); i++ {
 		entryIndex := lastEntry + 1
 		if !br.ReadBit() {
 			entryIndex = int(br.ReadInt(nEntryBits))
@@ -203,7 +203,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 
 		lastEntry = entryIndex
 
-		if entryIndex < 0 || entryIndex >= int(tab.MaxEntries) {
+		if entryIndex < 0 || entryIndex >= int(tab.GetMaxEntries()) {
 			panic("Something went to shit")
 		}
 
@@ -229,9 +229,9 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 
 		var userdata []byte
 		if br.ReadBit() { //nolint:wsl
-			if tab.UserDataFixedSize {
+			if tab.GetUserDataFixedSize() {
 				// Should always be < 8 bits => use faster ReadBitsToByte() over ReadBits()
-				userdata = []byte{br.ReadBitsToByte(int(tab.UserDataSizeBits))}
+				userdata = []byte{br.ReadBitsToByte(int(tab.GetUserDataSizeBits()))}
 			} else {
 				const nUserdataBits = 14
 				userdata = br.ReadBytes(int(br.ReadInt(nUserdataBits)))
@@ -242,7 +242,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 			continue
 		}
 
-		switch tab.Name {
+		switch tab.GetName() {
 		case stNameUserInfo:
 			player := parsePlayerInfo(bytes.NewReader(userdata))
 			p.rawPlayers[entryIndex] = player
@@ -262,7 +262,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		}
 	}
 
-	if tab.Name == stNameModelPreCache {
+	if tab.GetName() == stNameModelPreCache {
 		p.processModelPreCacheUpdate()
 	}
 
