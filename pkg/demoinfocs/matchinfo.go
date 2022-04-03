@@ -1,7 +1,7 @@
 package demoinfocs
 
 import (
-	"strconv"
+	"fmt"
 	"strings"
 
 	"github.com/gogo/protobuf/proto"
@@ -21,7 +21,7 @@ func MatchInfoDecryptionKey(b []byte) ([]byte, error) {
 		return nil, errors.Wrap(err, "failed to unmarshal MatchInfo message")
 	}
 
-	k := []byte(strings.ToUpper(strconv.FormatUint(m.Watchablematchinfo.ClDecryptdataKeyPub, 16)))
+	k := []byte(strings.ToUpper(fmt.Sprintf("%016x", m.Watchablematchinfo.ClDecryptdataKeyPub)))
 
 	return k, nil
 }
