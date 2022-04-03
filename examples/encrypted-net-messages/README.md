@@ -1,6 +1,6 @@
 # Parsing & handling encrypted net-messages
 
-See also [../net-messages](net-messages) for regular net-messages.
+See also [net-messages](../net-messages) for regular net-messages.
 
 This example shows how to have the parser deal with encrypted net-messages.
 
