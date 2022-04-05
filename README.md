@@ -219,7 +219,7 @@ There is one caveat however: Beta features - which are marked as such via commen
 - [megaclan3000](https://github.com/megaclan3000/megaclan3000) - A CS:GO stats page for clans with recent matches and player statistics
 - [csgo Python library](https://github.com/pnxenopoulos/csgo) - A wrapper for the Golang parser in Python
 
-If your project is using this library feel free to submit a PR or send a message in [Gitter](https://gitter.im/csgodemos/demoinfo-lib) to be included in the list.
+If your project is using this library feel free to submit a PR or send a message via [Discord](https://discord.gg/eTVBgKeHnh) to be included in the list.
 
 ## Development
 
