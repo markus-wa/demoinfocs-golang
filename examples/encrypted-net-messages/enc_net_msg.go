@@ -47,6 +47,10 @@ func main() {
 
 	p := dem.NewParserWithConfig(f, cfg)
 
+	p.RegisterEventHandler(func(warn events.ParserWarn) {
+		log.Println("WARNING:", warn.Message)
+	})
+
 	p.RegisterEventHandler(func(message events.ChatMessage) {
 		log.Println(message)
 	})
