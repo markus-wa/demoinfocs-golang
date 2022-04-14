@@ -523,9 +523,14 @@ const (
 	WarnTypeTeamSwapPlayerNil          // TODO: figure out why this happens
 	WarnTypeGameEventBeforeDescriptors // may occur in POV demos
 
-	// WarnTypeMissingNetMessageDecryptionKey occurs when encrypted net-messages are encountered and the decryption key is missing
+	// WarnTypeMissingNetMessageDecryptionKey occurs when encrypted net-messages are encountered and the decryption key is missing.
 	// See ParserConfig.NetMessageDecryptionKey
 	WarnTypeMissingNetMessageDecryptionKey
+
+	// WarnTypeCantReadEncryptedNetMessage occurs when an encrypted net-messages can't be decrypted even though the decryption key is set.
+	// May occur because the decryption key used is incorrect.
+	// See ParserConfig.NetMessageDecryptionKey
+	WarnTypeCantReadEncryptedNetMessage
 )
 
 // ParserWarn signals that a non-fatal problem occurred during parsing.
