@@ -36,8 +36,9 @@ jobs:
         # install 7zip for decompressing test demos
         sudo apt-get install -y p7zip-full
 
-        # Install interface generator
-        GO111MODULE=off go get github.com/vburenin/ifacemaker
+        # Install interface generator - go 1.11 doesn't allow specifying a version with go get or go install, so we need to manually git clone
+        git clone https://github.com/vburenin/ifacemaker /tmp/ifacemaker
+        pushd /tmp/ifacemaker && git checkout v1.1.0 && go install . && popd
 
         # Fetch refs for linter
         git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
