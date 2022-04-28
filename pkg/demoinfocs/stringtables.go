@@ -21,27 +21,6 @@ const (
 	stNameModelPreCache    = "modelprecache"
 )
 
-type playerInfo struct {
-	version     int64
-	xuid        uint64
-	name        string
-	userID      int
-	guid        string
-	friendsID   int
-	friendsName string
-	// Custom files stuff (CRC)
-	customFiles0 int
-	customFiles1 int
-	customFiles2 int
-	customFiles3 int
-	// Amount of downloaded files from the server
-	filesDownloaded byte
-	// Bots
-	isFakePlayer bool
-	// HLTV Proxy
-	isHltv bool
-}
-
 func (p *parser) parseStringTables() {
 	p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
 
@@ -55,19 +34,19 @@ func (p *parser) parseStringTables() {
 	p.bitReader.EndChunk()
 }
 
-func (p *parser) updatePlayerFromRawIfExists(index int, raw *playerInfo) {
+func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
 	pl := p.gameState.playersByEntityID[index+1]
 	if pl == nil {
 		return
 	}
 
 	oldName := pl.Name
-	newName := raw.name
-	nameChanged := !pl.IsBot && !raw.isFakePlayer && raw.guid != "BOT" && oldName != newName
+	newName := raw.Name
+	nameChanged := !pl.IsBot && !raw.IsFakePlayer && raw.GUID != "BOT" && oldName != newName
 
-	pl.Name = raw.name
-	pl.SteamID64 = raw.xuid
-	pl.IsBot = raw.isFakePlayer
+	pl.Name = raw.Name
+	pl.SteamID64 = raw.XUID
+	pl.IsBot = raw.IsFakePlayer
 
 	p.gameState.indexPlayerBySteamID(pl)
 
@@ -78,6 +57,10 @@ func (p *parser) updatePlayerFromRawIfExists(index int, raw *playerInfo) {
 			NewName: newName,
 		})
 	}
+
+	p.eventDispatcher.Dispatch(events.StringTablePlayerUpdateApplied{
+		Player: pl,
+	})
 }
 
 func (p *parser) parseSingleStringTable(name string) {
@@ -103,9 +86,7 @@ func (p *parser) parseSingleStringTable(name string) {
 					panic(errors.Wrap(err, "couldn't parse playerIndex from string"))
 				}
 
-				p.rawPlayers[int(playerIndex)] = player
-
-				p.updatePlayerFromRawIfExists(playerIndex, player)
+				p.setRawPlayer(int(playerIndex), player)
 
 			case stNameInstanceBaseline:
 				classID, err := strconv.Atoi(stringName)
@@ -134,6 +115,16 @@ func (p *parser) parseSingleStringTable(name string) {
 			}
 		}
 	}
+}
+func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
+	p.rawPlayers[index] = &player
+
+	p.updatePlayerFromRawIfExists(index, player)
+
+	p.eventDispatcher.Dispatch(events.PlayerInfo{
+		Index: index,
+		Info:  player,
+	})
 }
 
 func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
@@ -247,9 +238,8 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		switch tab.Name {
 		case stNameUserInfo:
 			player := parsePlayerInfo(bytes.NewReader(userdata))
-			p.rawPlayers[entryIndex] = player
 
-			p.updatePlayerFromRawIfExists(entryIndex, player)
+			p.setRawPlayer(entryIndex, player)
 
 		case stNameInstanceBaseline:
 			classID, err := strconv.Atoi(entry)
@@ -271,7 +261,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	p.poolBitReader(br)
 }
 
-func parsePlayerInfo(reader io.Reader) *playerInfo {
+func parsePlayerInfo(reader io.Reader) common.PlayerInfo {
 	br := bit.NewSmallBitReader(reader)
 
 	const (
@@ -279,24 +269,24 @@ func parsePlayerInfo(reader io.Reader) *playerInfo {
 		guidLength          = 33
 	)
 
-	res := &playerInfo{
-		version:     int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
-		xuid:        binary.BigEndian.Uint64(br.ReadBytes(8)),
-		name:        br.ReadCString(playerNameMaxLength),
-		userID:      int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
-		guid:        br.ReadCString(guidLength),
-		friendsID:   int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
-		friendsName: br.ReadCString(playerNameMaxLength),
+	res := common.PlayerInfo{
+		Version:     int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
+		XUID:        binary.BigEndian.Uint64(br.ReadBytes(8)),
+		Name:        br.ReadCString(playerNameMaxLength),
+		UserID:      int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
+		GUID:        br.ReadCString(guidLength),
+		FriendsID:   int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
+		FriendsName: br.ReadCString(playerNameMaxLength),
 
-		isFakePlayer: br.ReadSingleByte() != 0,
-		isHltv:       br.ReadSingleByte() != 0,
+		IsFakePlayer: br.ReadSingleByte() != 0,
+		IsHltv:       br.ReadSingleByte() != 0,
 
-		customFiles0: int(br.ReadInt(32)),
-		customFiles1: int(br.ReadInt(32)),
-		customFiles2: int(br.ReadInt(32)),
-		customFiles3: int(br.ReadInt(32)),
+		CustomFiles0: int(br.ReadInt(32)),
+		CustomFiles1: int(br.ReadInt(32)),
+		CustomFiles2: int(br.ReadInt(32)),
+		CustomFiles3: int(br.ReadInt(32)),
 
-		filesDownloaded: br.ReadSingleByte(),
+		FilesDownloaded: br.ReadSingleByte(),
 	}
 
 	br.Pool()

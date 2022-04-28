@@ -12,6 +12,8 @@ type Property interface {
 	Value() PropertyValue
 	// Type returns the data type of the property.
 	Type() PropertyType
+	// ArrayElementType returns the data type of array entries, if Property.Type() is PropTypeArray.
+	ArrayElementType() PropertyType
 	// OnUpdate registers a handler for updates of the property's value.
 	//
 	// The handler will be called with the current value upon registration.

@@ -22,16 +22,16 @@ func (DevNullReader) Read(p []byte) (n int, err error) {
 func TestParser_BindNewPlayer_Issue98(t *testing.T) {
 	p := newParser()
 
-	p.rawPlayers = map[int]*playerInfo{
+	p.rawPlayers = map[int]*common.PlayerInfo{
 		0: {
-			userID: 1,
-			name:   "Zim",
-			guid:   "BOT",
+			UserID: 1,
+			Name:   "Zim",
+			GUID:   "BOT",
 		},
 		1: {
-			userID: 2,
-			name:   "The Suspect",
-			guid:   "123",
+			UserID: 2,
+			Name:   "The Suspect",
+			GUID:   "123",
 		},
 	}
 
@@ -48,12 +48,12 @@ func TestParser_BindNewPlayer_Issue98(t *testing.T) {
 func TestParser_BindNewPlayer_Issue98_Reconnect(t *testing.T) {
 	p := newParser()
 
-	p.rawPlayers = map[int]*playerInfo{
+	p.rawPlayers = map[int]*common.PlayerInfo{
 		0: {
-			userID: 2,
-			name:   "The Suspect",
-			guid:   "123",
-			xuid:   1,
+			UserID: 2,
+			Name:   "The Suspect",
+			GUID:   "123",
+			XUID:   1,
 		},
 	}
 
@@ -80,12 +80,12 @@ func TestParser_BindNewPlayer_PlayerSpotted_Over32(t *testing.T) {
 func testPlayerSpotted(t *testing.T, propName string) {
 	p := newParser()
 
-	p.rawPlayers = map[int]*playerInfo{
+	p.rawPlayers = map[int]*common.PlayerInfo{
 		0: {
-			userID: 2,
-			name:   "Spotter",
-			guid:   "123",
-			xuid:   1,
+			UserID: 2,
+			Name:   "Spotter",
+			GUID:   "123",
+			XUID:   1,
 		},
 	}
 

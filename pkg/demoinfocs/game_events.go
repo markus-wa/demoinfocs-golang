@@ -517,29 +517,29 @@ func (geh gameEventHandler) HostageRescuedAll(map[string]*msg.CSVCMsg_GameEventK
 }
 
 func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	pl := &playerInfo{
-		userID: int(data["userid"].GetValShort()),
-		name:   data["name"].GetValString(),
-		guid:   data["networkid"].GetValString(),
+	pl := common.PlayerInfo{
+		UserID: int(data["userid"].GetValShort()),
+		Name:   data["name"].GetValString(),
+		GUID:   data["networkid"].GetValString(),
 	}
 
-	if pl.guid != "" {
+	if pl.GUID != "" {
 		var err error
-		pl.xuid, err = guidToSteamID64(pl.guid)
+		pl.XUID, err = guidToSteamID64(pl.GUID)
 
 		if err != nil {
 			geh.parser.setError(fmt.Errorf("failed to parse player XUID: %v", err.Error()))
 		}
 	}
 
-	geh.parser.rawPlayers[int(data["index"].GetValByte())] = pl
+	geh.parser.setRawPlayer(int(data["index"].GetValByte()), pl)
 }
 
 func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	uid := int(data["userid"].GetValShort())
 
 	for k, v := range geh.parser.rawPlayers {
-		if v.userID == uid {
+		if v.UserID == uid {
 			delete(geh.parser.rawPlayers, k)
 		}
 	}

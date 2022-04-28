@@ -70,7 +70,7 @@ type parser struct {
 	bombsiteA            bombsite
 	bombsiteB            bombsite
 	equipmentMapping     map[*st.ServerClass]common.EquipmentType        // Maps server classes to equipment-types
-	rawPlayers           map[int]*playerInfo                             // Maps entity IDs to 'raw' player info
+	rawPlayers           map[int]*common.PlayerInfo                      // Maps entity IDs to 'raw' player info
 	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
 	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
 	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
@@ -338,7 +338,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.bitReader = bit.NewLargeBitReader(demostream)
 	p.stParser = st.NewSendTableParser()
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentType)
-	p.rawPlayers = make(map[int]*playerInfo)
+	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.demoInfoProvider = demoInfoProvider{parser: &p}
 	p.gameState = newGameState(p.demoInfoProvider)
