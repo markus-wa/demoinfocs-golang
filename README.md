@@ -1,6 +1,6 @@
 # demoinfocs-golang - CS:GO Demo Parser
 
-A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). It is based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a> but provides many improvements.
+A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). 
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://vshymanskyy.github.io/StandWithUkraine)
 
@@ -308,6 +308,8 @@ To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, y
 - run regression tests
 
 ## Acknowledgements
+
+This library was originally based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a> (although today it shares little resemblence with these two).
 
 Thanks to [@JetBrains](https://github.com/JetBrains) for sponsoring a license of their awesome [GoLand](https://www.jetbrains.com/go/) IDE for this project - go check it out!
 
