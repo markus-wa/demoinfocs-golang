@@ -85,6 +85,7 @@ package main
 
 import (
 	"fmt"
+    "log"
 	"os"
 
 	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
@@ -94,7 +95,7 @@ import (
 func main() {
 	f, err := os.Open("/path/to/demo.dem")
 	if err != nil {
-		panic(err)
+		log.Panic("failed to open demo file: ", err)
 	}
 	defer f.Close()
 
@@ -117,7 +118,7 @@ func main() {
 	// Parse to end
 	err = p.ParseToEnd()
 	if err != nil {
-		panic(err)
+		log.Panic("failed to parse demo: ", err)
 	}
 }
 ```
