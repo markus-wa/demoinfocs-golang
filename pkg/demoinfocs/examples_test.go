@@ -15,7 +15,7 @@ This will print all kills of a demo in the format '[[killer]] <[[weapon]] [(HS)]
 */
 //noinspection GoUnhandledErrorResult
 func ExampleParser() {
-	f, err := os.Open("../../test/cs-demos/default.demx")
+	f, err := os.Open("../../test/cs-demos/default.dem")
 	if err != nil {
 		log.Panic("failed to open demo file: ", err)
 	}
