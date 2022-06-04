@@ -6,7 +6,6 @@ import (
 	"image/color"
 	"image/draw"
 	"image/jpeg"
-	_ "image/jpeg"
 	"os"
 
 	"github.com/golang/geo/r2"
@@ -18,6 +17,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	metadata "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
 type nadePath struct {
@@ -43,6 +43,7 @@ var curMap metadata.Map
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
 	checkError(err)
+
 	defer f.Close()
 
 	p := demoinfocs.NewParser(f)
@@ -51,7 +52,17 @@ func main() {
 	header, err := p.ParseHeader()
 	checkError(err)
 
-	curMap = metadata.MapNameToMap[header.MapName]
+	var (
+		mapRadarImg image.Image
+	)
+
+	p.RegisterNetMessageHandler(func(msg *msg.CSVCMsg_ServerInfo) {
+		// Get metadata for the map that the game was played on for coordinate translations
+		curMap = ex.GetMapMetadata(header.MapName, msg.MapCrc)
+
+		// Load map overview image
+		mapRadarImg = ex.GetMapRadar(header.MapName, msg.MapCrc)
+	})
 
 	nadeTrajectories := make(map[int64]*nadePath) // Trajectories of all destroyed nades
 
@@ -103,18 +114,11 @@ func main() {
 	err = p.ParseToEnd()
 	checkError(err)
 
-	// Use map overview as base image
-	fMap, err := os.Open(fmt.Sprintf("../../assets/maps/%s.jpg", header.MapName))
-	checkError(err)
-
-	imgMap, _, err := image.Decode(fMap)
-	checkError(err)
-
 	// Create output canvas
-	dest := image.NewRGBA(imgMap.Bounds())
+	dest := image.NewRGBA(mapRadarImg.Bounds())
 
 	// Draw image
-	draw.Draw(dest, dest.Bounds(), imgMap, image.ZP, draw.Src)
+	draw.Draw(dest, dest.Bounds(), mapRadarImg, image.Point{}, draw.Src)
 
 	// Initialize the graphic context
 	gc := draw2dimg.NewGraphicContext(dest)

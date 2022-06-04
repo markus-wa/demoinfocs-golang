@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 	"testing"
-	
+
 	"github.com/markus-wa/demoinfocs-golang/v2/examples"
 )
 
