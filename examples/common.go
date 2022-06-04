@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/golang/geo/r2"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
@@ -60,6 +59,12 @@ func RedirectStdout(f func()) {
 	os.Stdout = old
 }
 
+type mapMetadata struct {
+	PosX  float64 `json:"pos_x,string"`
+	PosY  float64 `json:"pos_y,string"`
+	Scale float64 `json:"scale,string"`
+}
+
 // GetMapMetadata fetches metadata for a specific map version from
 // `https://radar-overviews.csgo.saiko.tech/<map>/<crc>/info.json`.
 // Panics if any error occurs.
@@ -71,32 +76,23 @@ func GetMapMetadata(name string, crc uint32) metadata.Map {
 
 	defer resp.Body.Close()
 
-	var data map[string]interface{}
+	var data map[string]mapMetadata
 
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	checkError(err)
 
-	mapInfo, ok := data[name].(map[string]interface{})
+	mapInfo, ok := data[name]
 	if !ok {
 		panic(fmt.Sprintf("failed to get map info.json entry for %q", name))
 	}
 
-	x, err := strconv.ParseFloat(mapInfo["pos_x"].(string), 64)
-	checkError(err)
-
-	y, err := strconv.ParseFloat(mapInfo["pos_y"].(string), 64)
-	checkError(err)
-
-	scale, err := strconv.ParseFloat(mapInfo["scale"].(string), 64)
-	checkError(err)
-
 	return metadata.Map{
 		Name: name,
 		PZero: r2.Point{
-			X: x,
-			Y: y,
+			X: mapInfo.PosX,
+			Y: mapInfo.PosY,
 		},
-		Scale: scale,
+		Scale: mapInfo.Scale,
 	}
 }
 
