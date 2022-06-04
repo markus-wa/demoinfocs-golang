@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 	"image/jpeg"
@@ -15,6 +14,7 @@ import (
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	metadata "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
 const (
@@ -31,6 +31,7 @@ func main() {
 
 	f, err := os.Open(ex.DemoPathFromArgs())
 	checkError(err)
+
 	defer f.Close()
 
 	p := demoinfocs.NewParser(f)
@@ -40,11 +41,24 @@ func main() {
 	header, err := p.ParseHeader()
 	checkError(err)
 
-	// Get metadata for the map that the game was played on for coordinate translations
-	mapMetadata := metadata.MapNameToMap[header.MapName]
+	var (
+		mapMetadata metadata.Map
+		mapRadarImg image.Image
+	)
+
+	p.RegisterNetMessageHandler(func(msg *msg.CSVCMsg_ServerInfo) {
+		// Get metadata for the map that the game was played on for coordinate translations
+		mapMetadata, err = ex.GetMapMetadata(header.MapName, msg.MapCrc)
+		checkError(err)
+
+		// Load map overview image
+		mapRadarImg, err = ex.GetMapRadar(header.MapName, msg.MapCrc)
+		checkError(err)
+	})
 
 	// Register handler for WeaponFire, triggered every time a shot is fired
 	var points []r2.Point
+
 	p.RegisterEventHandler(func(e events.WeaponFire) {
 		// Translate positions from in-game coordinates to radar overview image pixels
 		x, y := mapMetadata.TranslateScale(e.Shooter.Position().X, e.Shooter.Position().Y)
@@ -69,7 +83,8 @@ func main() {
 	}
 
 	// Transform r2.Points into heatmap.DataPoints
-	var data []heatmap.DataPoint
+	data := make([]heatmap.DataPoint, 0, len(points))
+
 	for _, p := range points[1:] {
 		// Invert Y since go-heatmap expects data to be ordered from bottom to top
 		data = append(data, heatmap.P(p.X, p.Y*-1))
@@ -79,15 +94,9 @@ func main() {
 	// Drawing the image
 	//
 
-	// Load map overview image
-	fMap, err := os.Open(fmt.Sprintf("../../assets/maps/%s.jpg", header.MapName))
-	checkError(err)
-	imgMap, _, err := image.Decode(fMap)
-	checkError(err)
-
 	// Create output canvas and use map overview image as base
-	img := image.NewRGBA(imgMap.Bounds())
-	draw.Draw(img, imgMap.Bounds(), imgMap, image.Point{}, draw.Over)
+	img := image.NewRGBA(mapRadarImg.Bounds())
+	draw.Draw(img, mapRadarImg.Bounds(), mapRadarImg, image.Point{}, draw.Over)
 
 	// Generate and draw heatmap overlay on top of the overview
 	imgHeatmap := heatmap.Heatmap(image.Rect(0, 0, bounds.Dx(), bounds.Dy()), data, dotSize, opacity, schemes.AlphaFire)

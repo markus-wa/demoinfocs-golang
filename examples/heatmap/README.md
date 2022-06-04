@@ -2,6 +2,8 @@
 
 This example shows how to create a heatmap from positions where players fired their weapons from.
 
+:information_source: Uses radar images from `https://radar-overviews.csgo.saiko.tech/<map>/<crc>/radar.png` - see https://github.com/saiko-tech/csgo-centrifuge for more info.
+
 See `heatmap.go` for the source code.
 
 ## Running the example
