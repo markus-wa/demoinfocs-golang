@@ -58,12 +58,10 @@ func main() {
 
 	p.RegisterNetMessageHandler(func(msg *msg.CSVCMsg_ServerInfo) {
 		// Get metadata for the map that the game was played on for coordinate translations
-		curMap, err = ex.GetMapMetadata(header.MapName, msg.MapCrc)
-		checkError(err)
+		curMap = ex.GetMapMetadata(header.MapName, msg.MapCrc)
 
 		// Load map overview image
-		mapRadarImg, err = ex.GetMapRadar(header.MapName, msg.MapCrc)
-		checkError(err)
+		mapRadarImg = ex.GetMapRadar(header.MapName, msg.MapCrc)
 	})
 
 	nadeTrajectories := make(map[int64]*nadePath) // Trajectories of all destroyed nades

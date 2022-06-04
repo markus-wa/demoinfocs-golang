@@ -2,6 +2,8 @@
 
 Here you can find a overview of examples on how to use demoinfocs-golang.
 
+:information_source: Example code may not be production ready - specifically error handling and such is done in a simplified way and should not be used in critical systems as-is.
+
 |Example|Description
 |-|-|
 |[heatmap](heatmap)|Creating a heatmap from positions where players fired shots from|

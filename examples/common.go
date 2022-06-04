@@ -32,15 +32,20 @@ func DemoPathFromArgs() string {
 	return demPath
 }
 
+func checkError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 // RedirectStdout redirects standard output to dev null.
 // Panics if an error occurs.
 func RedirectStdout(f func()) {
 	// Redirect stdout, the resulting image is written to this
 	old := os.Stdout
+
 	r, w, err := os.Pipe()
-	if err != nil {
-		panic(err)
-	}
+	checkError(err)
 
 	os.Stdout = w
 
@@ -55,42 +60,35 @@ func RedirectStdout(f func()) {
 	os.Stdout = old
 }
 
-func GetMapMetadata(name string, crc uint32) (metadata.Map, error) {
+// GetMapMetadata fetches metadata for a specific map version from
+// `https://radar-overviews.csgo.saiko.tech/<map>/<crc>/info.json`.
+// Panics if any error occurs.
+func GetMapMetadata(name string, crc uint32) metadata.Map {
 	url := fmt.Sprintf("https://radar-overviews.csgo.saiko.tech/%s/%d/info.json", name, crc)
 
 	resp, err := http.Get(url)
-	if err != nil {
-		return metadata.Map{}, fmt.Errorf("failed to get map info.json from %q: %v", url, err)
-	}
+	checkError(err)
 
 	defer resp.Body.Close()
 
 	var data map[string]interface{}
 
 	err = json.NewDecoder(resp.Body).Decode(&data)
-	if err != nil {
-		return metadata.Map{}, fmt.Errorf("failed to decode as JSON: %v", err)
-	}
+	checkError(err)
 
 	mapInfo, ok := data[name].(map[string]interface{})
 	if !ok {
-		return metadata.Map{}, fmt.Errorf("failed to get map info.json entry for %q", name)
+		panic(fmt.Sprintf("failed to get map info.json entry for %q", name))
 	}
 
 	x, err := strconv.ParseFloat(mapInfo["pos_x"].(string), 64)
-	if err != nil {
-		return metadata.Map{}, fmt.Errorf("failed to get origin for X coordinate: %v", err)
-	}
+	checkError(err)
 
 	y, err := strconv.ParseFloat(mapInfo["pos_y"].(string), 64)
-	if err != nil {
-		return metadata.Map{}, fmt.Errorf("failed to get origin for Y coordinate: %v", err)
-	}
+	checkError(err)
 
 	scale, err := strconv.ParseFloat(mapInfo["scale"].(string), 64)
-	if err != nil {
-		return metadata.Map{}, fmt.Errorf("failed to get scale: %v", err)
-	}
+	checkError(err)
 
 	return metadata.Map{
 		Name: name,
@@ -99,23 +97,22 @@ func GetMapMetadata(name string, crc uint32) (metadata.Map, error) {
 			Y: y,
 		},
 		Scale: scale,
-	}, nil
+	}
 }
 
-func GetMapRadar(name string, crc uint32) (image.Image, error) {
+// GetMapMetadata fetches metadata for a specific map version from
+// `https://radar-overviews.csgo.saiko.tech/<map>/<crc>/info.json`.
+// Panics if any error occurs.
+func GetMapRadar(name string, crc uint32) image.Image {
 	url := fmt.Sprintf("https://radar-overviews.csgo.saiko.tech/%s/%d/radar.png", name, crc)
 
 	resp, err := http.Get(url)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get map radar.png from %q: %v", url, err)
-	}
+	checkError(err)
 
 	defer resp.Body.Close()
 
 	img, _, err := image.Decode(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode as image: %v", err)
-	}
+	checkError(err)
 
-	return img, nil
+	return img
 }
