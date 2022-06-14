@@ -85,7 +85,7 @@ package main
 
 import (
 	"fmt"
-    "log"
+	"log"
 	"os"
 
 	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
