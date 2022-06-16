@@ -408,8 +408,13 @@ type PlayerHurt struct {
 	HitGroup          HitGroup
 }
 
-// PlayerConnect signals that a player has started connecting.
+// PlayerConnect signals that a player connected.
 type PlayerConnect struct {
+	Player *common.Player
+}
+
+// BotConnect signals that a bot has connected.
+type BotConnect struct {
 	Player *common.Player
 }
 

@@ -278,8 +278,12 @@ func (p *parser) bindNewPlayer(playerEntity st.Entity) {
 		playerEntity.Property("m_bSpottedByMask.001").OnUpdate(spottersChanged)
 	}
 
-	if isNew && pl.SteamID64 != 0 {
-		p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
+	if isNew {
+		if pl.SteamID64 != 0 {
+			p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})	
+		} else {
+			p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
+		}
 	}
 }
 
