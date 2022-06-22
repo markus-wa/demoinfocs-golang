@@ -6,7 +6,7 @@ import (
 
 	"github.com/golang/geo/r3"
 
-	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
 

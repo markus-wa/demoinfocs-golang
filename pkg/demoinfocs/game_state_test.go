@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
 )

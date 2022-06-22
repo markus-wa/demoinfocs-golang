@@ -8,7 +8,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
-	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/constants"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 

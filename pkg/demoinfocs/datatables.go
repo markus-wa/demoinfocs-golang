@@ -7,8 +7,8 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
 
-	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/constants"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
 )
@@ -280,7 +280,7 @@ func (p *parser) bindNewPlayer(playerEntity st.Entity) {
 
 	if isNew {
 		if pl.SteamID64 != 0 {
-			p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})	
+			p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 		} else {
 			p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
 		}
