@@ -17,8 +17,6 @@ github.com/llgcode/draw2d v0.0.0-20210904075650-80aa0a2a901d h1:4/ycg+VrwjGurTqi
 github.com/llgcode/draw2d v0.0.0-20210904075650-80aa0a2a901d/go.mod h1:mVa0dA29Db2S4LVqDYLlsePDzRJLDfdhVZiI15uY0FA=
 github.com/llgcode/ps v0.0.0-20150911083025-f1443b32eedb h1:61ndUreYSlWFeCY44JxDDkngVoI7/1MVhEl98Nm0KOk=
 github.com/llgcode/ps v0.0.0-20150911083025-f1443b32eedb/go.mod h1:1l8ky+Ew27CMX29uG+a2hNOKpeNYEQjjtiALiBlFQbY=
-github.com/markus-wa/go-heatmap/v2 v2.0.0-20220622211444-8aa29a2a0c44 h1:NTCvubgHv2N49/y6ImcWwqy6uOosYsHiL0vKZpc4ysg=
-github.com/markus-wa/go-heatmap/v2 v2.0.0-20220622211444-8aa29a2a0c44/go.mod h1:ETqmIODsmcKAjGPmXkkMS+sFMUk81Xcr7XINxWzNcBw=
 github.com/markus-wa/go-heatmap/v2 v2.0.0 h1:mskJwvbESraWLBly+XTv555PVla1e8C2iSrkmS/Gv+Y=
 github.com/markus-wa/go-heatmap/v2 v2.0.0/go.mod h1:ETqmIODsmcKAjGPmXkkMS+sFMUk81Xcr7XINxWzNcBw=
 github.com/markus-wa/go-unassert v0.1.2 h1:uXWlMDa8JVtc4RgNq4XJIjyRejv9MOVuy/E0VECPxxo=
