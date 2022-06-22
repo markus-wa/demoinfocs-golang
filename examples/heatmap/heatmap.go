@@ -13,7 +13,6 @@ import (
 	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	metadata "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
 
@@ -42,16 +41,16 @@ func main() {
 	checkError(err)
 
 	var (
-		mapMetadata metadata.Map
+		mapMetadata ex.Map
 		mapRadarImg image.Image
 	)
 
 	p.RegisterNetMessageHandler(func(msg *msg.CSVCMsg_ServerInfo) {
 		// Get metadata for the map that the game was played on for coordinate translations
-		mapMetadata = ex.GetMapMetadata(header.MapName, msg.MapCrc)
+		mapMetadata = ex.GetMapMetadata(header.MapName, msg.GetMapCrc())
 
 		// Load map overview image
-		mapRadarImg = ex.GetMapRadar(header.MapName, msg.MapCrc)
+		mapRadarImg = ex.GetMapRadar(header.MapName, msg.GetMapCrc())
 	})
 
 	// Register handler for WeaponFire, triggered every time a shot is fired
