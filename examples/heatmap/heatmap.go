@@ -6,9 +6,9 @@ import (
 	"image/jpeg"
 	"os"
 
-	heatmap "github.com/dustin/go-heatmap"
-	schemes "github.com/dustin/go-heatmap/schemes"
 	r2 "github.com/golang/geo/r2"
+	heatmap "github.com/markus-wa/go-heatmap/v2"
+	schemes "github.com/markus-wa/go-heatmap/v2/schemes"
 
 	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
