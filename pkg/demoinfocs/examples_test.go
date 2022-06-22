@@ -2,6 +2,7 @@ package demoinfocs_test
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"testing"
 
@@ -16,7 +17,7 @@ This will print all kills of a demo in the format '[[killer]] <[[weapon]] [(HS)]
 func ExampleParser() {
 	f, err := os.Open("../../test/cs-demos/default.dem")
 	if err != nil {
-		panic(err)
+		log.Panic("failed to open demo file: ", err)
 	}
 
 	defer f.Close()
@@ -42,7 +43,7 @@ func ExampleParser() {
 	// Parse to end
 	err = p.ParseToEnd()
 	if err != nil {
-		panic(err)
+		log.Panic("failed to parse demo: ", err)
 	}
 }
 

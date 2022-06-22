@@ -208,7 +208,7 @@ func (p *Player) IsUnDuckingInProgress() bool {
 	return p.Flags().Ducking() && !p.Flags().DuckingKeyPressed()
 }
 
-// IsStaning returns true if the player is currently fully standing upright.
+// IsStanding returns true if the player is currently fully standing upright.
 // See also: Flags().Ducking() & Flags().DuckingKeyPressed()
 func (p *Player) IsStanding() bool {
 	return !p.Flags().Ducking() && !p.Flags().DuckingKeyPressed()
@@ -468,4 +468,27 @@ func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 		Inventory:        make(map[int]*Equipment),
 		demoInfoProvider: demoInfoProvider,
 	}
+}
+
+// PlayerInfo contains information about a player such as their name and SteamID.
+// Primarily intended for internal use.
+type PlayerInfo struct {
+	Version     int64
+	XUID        uint64 // SteamID64
+	Name        string
+	UserID      int
+	GUID        string
+	FriendsID   int
+	FriendsName string
+	// Custom files stuff (CRC)
+	CustomFiles0 int
+	CustomFiles1 int
+	CustomFiles2 int
+	CustomFiles3 int
+	// Amount of downloaded files from the server
+	FilesDownloaded byte
+	// Bots
+	IsFakePlayer bool
+	// HLTV Proxy
+	IsHltv bool
 }

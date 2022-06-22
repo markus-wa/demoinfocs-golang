@@ -282,6 +282,51 @@ func TestUnexpectedEndOfDemo(t *testing.T) {
 	assert.Equal(t, demoinfocs.ErrUnexpectedEndOfDemo, err, "parsing cancelled but error was not ErrUnexpectedEndOfDemo")
 }
 
+func TestBadNetMessageDecryptionKey(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	const (
+		demPath  = csDemosPath + "/match730_003528806449641685104_1453182610_271.dem"
+		infoPath = csDemosPath + "/match730_003449478367177343081_1946274414_112.dem.info"
+	)
+
+	infoF, err := os.Open(infoPath)
+	assert.NoError(t, err)
+
+	b, err := ioutil.ReadAll(infoF)
+	assert.NoError(t, err)
+
+	k, err := demoinfocs.MatchInfoDecryptionKey(b)
+	assert.NoError(t, err)
+
+	f, err := os.Open(demPath)
+	assert.NoError(t, err)
+
+	defer f.Close()
+
+	cfg := demoinfocs.DefaultParserConfig
+	cfg.NetMessageDecryptionKey = k
+
+	p := demoinfocs.NewParserWithConfig(f, cfg)
+
+	var cantReadEncNetMsgWarns []events.ParserWarn
+
+	p.RegisterEventHandler(func(warn events.ParserWarn) {
+		if warn.Type == events.WarnTypeCantReadEncryptedNetMessage {
+			cantReadEncNetMsgWarns = append(cantReadEncNetMsgWarns, warn)
+		}
+	})
+
+	err = p.ParseToEnd()
+	assert.NoError(t, err)
+
+	assert.NotEmpty(t, cantReadEncNetMsgWarns)
+}
+
 func TestParseToEnd_Cancel(t *testing.T) {
 	t.Parallel()
 

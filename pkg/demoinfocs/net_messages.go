@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 
-	"github.com/markus-wa/go-unassert"
 	"github.com/markus-wa/ice-cipher-go/pkg/ice"
 	"google.golang.org/protobuf/proto"
 
@@ -97,13 +96,35 @@ func (p *parser) handleEncryptedData(msg *msg.CSVCMsg_EncryptedData) {
 	r := bytes.NewReader(b)
 	br := bit.NewSmallBitReader(r)
 
+	const (
+		byteLenPadding = 1
+		byteLenWritten = 4
+	)
+
 	paddingBytes := br.ReadSingleByte()
+
+	if int(paddingBytes) >= len(b)-byteLenPadding-byteLenWritten {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "encrypted net-message has invalid number of padding bytes",
+			Type:    events.WarnTypeCantReadEncryptedNetMessage,
+		})
+
+		return
+	}
+
 	br.Skip(int(paddingBytes) << 3)
 
 	bBytesWritten := br.ReadBytes(4)
 	nBytesWritten := int(binary.BigEndian.Uint32(bBytesWritten))
 
-	unassert.Same(len(b), 5+int(paddingBytes)+nBytesWritten)
+	if len(b) != byteLenPadding+byteLenWritten+int(paddingBytes)+nBytesWritten {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "encrypted net-message has invalid length",
+			Type:    events.WarnTypeCantReadEncryptedNetMessage,
+		})
+
+		return
+	}
 
 	cmd := br.ReadVarInt32()
 	size := br.ReadVarInt32()

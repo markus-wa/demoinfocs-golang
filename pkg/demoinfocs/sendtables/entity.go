@@ -324,6 +324,11 @@ func (pe *property) Type() PropertyType {
 	return PropertyType(pe.entry.prop.rawType)
 }
 
+// ArrayElementType returns the data type of array entries, if Property.Type() is PropTypeArray.
+func (pe *property) ArrayElementType() PropertyType {
+	return PropertyType(pe.entry.arrayElementProp.rawType)
+}
+
 // PropertyValueType specifies the type of a PropertyValue
 type PropertyValueType int
 

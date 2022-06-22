@@ -1,6 +1,6 @@
 # demoinfocs-golang - CS:GO Demo Parser
 
-A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). It is based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a> but provides many improvements.
+A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). 
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://vshymanskyy.github.io/StandWithUkraine)
 
@@ -85,6 +85,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
@@ -94,7 +95,7 @@ import (
 func main() {
 	f, err := os.Open("/path/to/demo.dem")
 	if err != nil {
-		panic(err)
+		log.Panic("failed to open demo file: ", err)
 	}
 	defer f.Close()
 
@@ -117,7 +118,7 @@ func main() {
 	// Parse to end
 	err = p.ParseToEnd()
 	if err != nil {
-		panic(err)
+		log.Panic("failed to parse demo: ", err)
 	}
 }
 ```
@@ -219,7 +220,7 @@ There is one caveat however: Beta features - which are marked as such via commen
 - [megaclan3000](https://github.com/megaclan3000/megaclan3000) - A CS:GO stats page for clans with recent matches and player statistics
 - [csgo Python library](https://github.com/pnxenopoulos/csgo) - A wrapper for the Golang parser in Python
 
-If your project is using this library feel free to submit a PR or send a message in [Gitter](https://gitter.im/csgodemos/demoinfo-lib) to be included in the list.
+If your project is using this library feel free to submit a PR or send a message via [Discord](https://discord.gg/eTVBgKeHnh) to be included in the list.
 
 ## Development
 
@@ -303,6 +304,8 @@ To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, y
 - run regression tests
 
 ## Acknowledgements
+
+This library was originally based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a> (although today it shares little resemblence with these two).
 
 Thanks to [@JetBrains](https://github.com/JetBrains) for sponsoring a license of their awesome [GoLand](https://www.jetbrains.com/go/) IDE for this project - go check it out!
 

@@ -2,6 +2,8 @@
 
 This example shows how to create a overview of grenade trajectories of a match.
 
+:information_source: Uses radar images from `https://radar-overviews.csgo.saiko.tech/<map>/<crc>/radar.png` - see https://github.com/saiko-tech/csgo-centrifuge for more info.
+
 ## Running the example
 
 `go run nade_trajectories.go -demo /path/to/demo > out.jpg`

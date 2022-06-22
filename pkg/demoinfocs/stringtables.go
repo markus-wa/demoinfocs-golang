@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
@@ -18,27 +20,6 @@ const (
 	stNameUserInfo         = "userinfo"
 	stNameModelPreCache    = "modelprecache"
 )
-
-type playerInfo struct {
-	version     int64
-	xuid        uint64
-	name        string
-	userID      int
-	guid        string
-	friendsID   int
-	friendsName string
-	// Custom files stuff (CRC)
-	customFiles0 int
-	customFiles1 int
-	customFiles2 int
-	customFiles3 int
-	// Amount of downloaded files from the server
-	filesDownloaded byte
-	// Bots
-	isFakePlayer bool
-	// HLTV Proxy
-	isHltv bool
-}
 
 func (p *parser) parseStringTables() {
 	p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
@@ -53,19 +34,19 @@ func (p *parser) parseStringTables() {
 	p.bitReader.EndChunk()
 }
 
-func (p *parser) updatePlayerFromRawIfExists(index int, raw *playerInfo) {
+func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
 	pl := p.gameState.playersByEntityID[index+1]
 	if pl == nil {
 		return
 	}
 
 	oldName := pl.Name
-	newName := raw.name
-	nameChanged := !pl.IsBot && !raw.isFakePlayer && raw.guid != "BOT" && oldName != newName
+	newName := raw.Name
+	nameChanged := !pl.IsBot && !raw.IsFakePlayer && raw.GUID != "BOT" && oldName != newName
 
-	pl.Name = raw.name
-	pl.SteamID64 = raw.xuid
-	pl.IsBot = raw.isFakePlayer
+	pl.Name = raw.Name
+	pl.SteamID64 = raw.XUID
+	pl.IsBot = raw.IsFakePlayer
 
 	p.gameState.indexPlayerBySteamID(pl)
 
@@ -76,6 +57,10 @@ func (p *parser) updatePlayerFromRawIfExists(index int, raw *playerInfo) {
 			NewName: newName,
 		})
 	}
+
+	p.eventDispatcher.Dispatch(events.StringTablePlayerUpdateApplied{
+		Player: pl,
+	})
 }
 
 func (p *parser) parseSingleStringTable(name string) {
@@ -96,19 +81,17 @@ func (p *parser) parseSingleStringTable(name string) {
 			case stNameUserInfo:
 				player := parsePlayerInfo(bytes.NewReader(data))
 
-				playerIndex, err := strconv.ParseInt(stringName, 10, 64)
+				playerIndex, err := strconv.Atoi(stringName)
 				if err != nil {
-					panic("Couldn't parse playerIndex from string")
+					panic(errors.Wrap(err, "couldn't parse playerIndex from string"))
 				}
 
-				p.rawPlayers[int(playerIndex)] = player
-
-				p.updatePlayerFromRawIfExists(int(playerIndex), player)
+				p.setRawPlayer(int(playerIndex), player)
 
 			case stNameInstanceBaseline:
-				classID, err := strconv.ParseInt(stringName, 10, 64)
+				classID, err := strconv.Atoi(stringName)
 				if err != nil {
-					panic("Couldn't parse id from string")
+					panic(errors.Wrap(err, "couldn't parse serverClassID from string"))
 				}
 
 				p.stParser.SetInstanceBaseline(int(classID), data)
@@ -133,9 +116,21 @@ func (p *parser) parseSingleStringTable(name string) {
 		}
 	}
 }
+func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
+	p.rawPlayers[index] = &player
 
-func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) { //nolint:wsl
-	// No need for recoverFromUnexpectedEOF here as we do that in processStringTable already
+	p.updatePlayerFromRawIfExists(index, player)
+
+	p.eventDispatcher.Dispatch(events.PlayerInfo{
+		Index: index,
+		Info:  player,
+	})
+}
+
+func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
+	defer func() {
+		p.setError(recoverFromUnexpectedEOF(recover()))
+	}()
 
 	cTab := p.stringTables[tab.GetTableId()]
 	switch cTab.GetName() {
@@ -152,8 +147,10 @@ func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) { /
 	}
 }
 
-func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) { //nolint:wsl
-	// No need for recoverFromUnexpectedEOF here as we do that in processStringTable already
+func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+	defer func() {
+		p.setError(recoverFromUnexpectedEOF(recover()))
+	}()
 
 	p.processStringTable(tab)
 
@@ -164,10 +161,6 @@ func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) { /
 
 //nolint:funlen,gocognit
 func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
 	if tab.GetName() == stNameModelPreCache {
 		for i := len(p.modelPreCache); i < int(tab.GetMaxEntries()); i++ {
 			p.modelPreCache = append(p.modelPreCache, "")
@@ -245,17 +238,16 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		switch tab.GetName() {
 		case stNameUserInfo:
 			player := parsePlayerInfo(bytes.NewReader(userdata))
-			p.rawPlayers[entryIndex] = player
 
-			p.updatePlayerFromRawIfExists(entryIndex, player)
+			p.setRawPlayer(entryIndex, player)
 
 		case stNameInstanceBaseline:
-			classID, err := strconv.ParseInt(entry, 10, 64)
+			classID, err := strconv.Atoi(entry)
 			if err != nil {
-				panic("WTF VOLVO PLS")
+				panic(errors.Wrap(err, "failed to parse serverClassID"))
 			}
 
-			p.stParser.SetInstanceBaseline(int(classID), userdata)
+			p.stParser.SetInstanceBaseline(classID, userdata)
 
 		case stNameModelPreCache:
 			p.modelPreCache[entryIndex] = entry
@@ -269,7 +261,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	p.poolBitReader(br)
 }
 
-func parsePlayerInfo(reader io.Reader) *playerInfo {
+func parsePlayerInfo(reader io.Reader) common.PlayerInfo {
 	br := bit.NewSmallBitReader(reader)
 
 	const (
@@ -277,24 +269,24 @@ func parsePlayerInfo(reader io.Reader) *playerInfo {
 		guidLength          = 33
 	)
 
-	res := &playerInfo{
-		version:     int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
-		xuid:        binary.BigEndian.Uint64(br.ReadBytes(8)),
-		name:        br.ReadCString(playerNameMaxLength),
-		userID:      int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
-		guid:        br.ReadCString(guidLength),
-		friendsID:   int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
-		friendsName: br.ReadCString(playerNameMaxLength),
+	res := common.PlayerInfo{
+		Version:     int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
+		XUID:        binary.BigEndian.Uint64(br.ReadBytes(8)),
+		Name:        br.ReadCString(playerNameMaxLength),
+		UserID:      int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
+		GUID:        br.ReadCString(guidLength),
+		FriendsID:   int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
+		FriendsName: br.ReadCString(playerNameMaxLength),
 
-		isFakePlayer: br.ReadSingleByte() != 0,
-		isHltv:       br.ReadSingleByte() != 0,
+		IsFakePlayer: br.ReadSingleByte() != 0,
+		IsHltv:       br.ReadSingleByte() != 0,
 
-		customFiles0: int(br.ReadInt(32)),
-		customFiles1: int(br.ReadInt(32)),
-		customFiles2: int(br.ReadInt(32)),
-		customFiles3: int(br.ReadInt(32)),
+		CustomFiles0: int(br.ReadInt(32)),
+		CustomFiles1: int(br.ReadInt(32)),
+		CustomFiles2: int(br.ReadInt(32)),
+		CustomFiles3: int(br.ReadInt(32)),
 
-		filesDownloaded: br.ReadSingleByte(),
+		FilesDownloaded: br.ReadSingleByte(),
 	}
 
 	br.Pool()

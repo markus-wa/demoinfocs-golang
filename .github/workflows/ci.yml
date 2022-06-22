@@ -37,14 +37,14 @@ jobs:
         sudo apt-get install -y p7zip-full
 
         # Install interface generator
-        GO111MODULE=off go get github.com/vburenin/ifacemaker
+        go install github.com/vburenin/ifacemaker@v1.1.0
 
         # Fetch refs for linter
         git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
         git fetch
 
         # Install golangci-lint
-        curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sudo sh -s -- -b $(go env GOPATH)/bin v1.32.2
+        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.45.2
 
     - name: Build
       run: scripts/build.sh
