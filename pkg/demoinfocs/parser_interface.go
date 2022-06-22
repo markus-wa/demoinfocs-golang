@@ -5,10 +5,9 @@ package demoinfocs
 import (
 	"time"
 
-	dp "github.com/markus-wa/godispatch"
-
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	dp "github.com/markus-wa/godispatch"
 )
 
 // Parser is an auto-generated interface for Parser, intended to be used when mockability is needed.
@@ -79,7 +78,7 @@ type Parser interface {
 
 	   Parameter handler has to be of type any because Go generics only work on functions, not methods.
 
-	   Returns a identifier with which the handler can be removed via UnregisterEventHandler().
+	   Returns an identifier with which the handler can be removed via UnregisterEventHandler().
 	*/
 	RegisterEventHandler(handler any) dp.HandlerIdentifier
 	// UnregisterEventHandler removes a game event handler via identifier.
@@ -91,7 +90,9 @@ type Parser interface {
 
 	   The handler must be of type func(*<MessageType>) where MessageType is the kind of net-message to be handled.
 
-	   Returns a identifier with which the handler can be removed via UnregisterNetMessageHandler().
+	   Parameter handler has to be of type any because Go generics only work on functions, not methods.
+
+	   Returns an identifier with which the handler can be removed via UnregisterNetMessageHandler().
 
 	   See also: RegisterEventHandler()
 	*/

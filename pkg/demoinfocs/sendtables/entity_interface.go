@@ -4,7 +4,6 @@ package sendtables
 
 import (
 	"github.com/golang/geo/r3"
-
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 )
 
