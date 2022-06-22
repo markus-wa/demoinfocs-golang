@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	unassert "github.com/markus-wa/go-unassert"
+	"google.golang.org/protobuf/proto"
 
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
@@ -56,7 +57,7 @@ func newUserMessageHandler(parser *parser) userMessageHandler {
 
 func (umh userMessageHandler) sayText(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_SayText)
-	err := st.UnmarshalVT(um.GetMsgData())
+	err := proto.Unmarshal(um.MsgData, st)
 
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to decode SayText message: %s", err.Error())
@@ -75,7 +76,7 @@ func (umh userMessageHandler) sayText(um *msg.CSVCMsg_UserMessage) {
 
 func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_SayText2)
-	err := st.UnmarshalVT(um.MsgData)
+	err := proto.Unmarshal(um.MsgData, st)
 
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to decode SayText2 message: %s", err.Error())
@@ -122,7 +123,7 @@ func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 
 func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 	st := new(msg.CCSUsrMsg_ServerRankUpdate)
-	err := st.UnmarshalVT(um.MsgData)
+	err := proto.Unmarshal(um.MsgData, st)
 
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to decode ServerRankUpdate message: %s", err.Error())
@@ -155,7 +156,7 @@ func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 
 func (umh userMessageHandler) roundImpactScoreData(um *msg.CSVCMsg_UserMessage) {
 	impactData := new(msg.CCSUsrMsg_RoundImpactScoreData)
-	err := impactData.UnmarshalVT(um.MsgData)
+	err := proto.Unmarshal(um.MsgData, impactData)
 
 	if err != nil {
 		errMsg := fmt.Sprintf("failed to decode RoundImpactScoreData message: %s", err.Error())

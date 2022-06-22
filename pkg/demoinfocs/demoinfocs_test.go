@@ -19,6 +19,7 @@ import (
 
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/proto"
 
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
@@ -56,7 +57,7 @@ func TestDemoInfoCs(t *testing.T) {
 	p := demoinfocs.NewParserWithConfig(f, demoinfocs.ParserConfig{
 		MsgQueueBufferSize: 1000,
 		AdditionalNetMessageCreators: map[int]demoinfocs.NetMessageCreator{
-			4: func() demoinfocs.VTProtobufMessage { return new(msg.CNETMsg_Tick) },
+			4: func() proto.Message { return new(msg.CNETMsg_Tick) },
 		},
 	})
 

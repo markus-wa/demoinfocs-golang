@@ -6,6 +6,7 @@ import (
 
 	"github.com/markus-wa/go-unassert"
 	"github.com/markus-wa/ice-cipher-go/pkg/ice"
+	"google.golang.org/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
@@ -119,7 +120,7 @@ func (p *parser) handleEncryptedData(msg *msg.CSVCMsg_EncryptedData) {
 	}
 
 	msgB := br.ReadBytes(int(size))
-	err := m.UnmarshalVT(msgB)
+	err := proto.Unmarshal(msgB, m)
 	if err != nil {
 		p.setError(err)
 

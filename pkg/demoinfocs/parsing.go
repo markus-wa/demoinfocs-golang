@@ -10,6 +10,7 @@ import (
 	"github.com/markus-wa/go-unassert"
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
@@ -283,18 +284,18 @@ var defaultNetMessageCreators = map[int]NetMessageCreator{
 	// We could pool CSVCMsg_PacketEntities as they take up A LOT of the allocations
 	// but unless we're on a system that's doing a lot of concurrent parsing there isn't really a point
 	// as handling packets is a lot slower than creating them and we can't pool until they are handled.
-	int(msg.SVC_Messages_svc_PacketEntities):    func() VTProtobufMessage { return new(msg.CSVCMsg_PacketEntities) },
-	int(msg.SVC_Messages_svc_GameEventList):     func() VTProtobufMessage { return new(msg.CSVCMsg_GameEventList) },
-	int(msg.SVC_Messages_svc_GameEvent):         func() VTProtobufMessage { return new(msg.CSVCMsg_GameEvent) },
-	int(msg.SVC_Messages_svc_CreateStringTable): func() VTProtobufMessage { return new(msg.CSVCMsg_CreateStringTable) },
-	int(msg.SVC_Messages_svc_UpdateStringTable): func() VTProtobufMessage { return new(msg.CSVCMsg_UpdateStringTable) },
-	int(msg.SVC_Messages_svc_UserMessage):       func() VTProtobufMessage { return new(msg.CSVCMsg_UserMessage) },
-	int(msg.SVC_Messages_svc_ServerInfo):        func() VTProtobufMessage { return new(msg.CSVCMsg_ServerInfo) },
-	int(msg.NET_Messages_net_SetConVar):         func() VTProtobufMessage { return new(msg.CNETMsg_SetConVar) },
-	int(msg.SVC_Messages_svc_EncryptedData):     func() VTProtobufMessage { return new(msg.CSVCMsg_EncryptedData) },
+	int(msg.SVC_Messages_svc_PacketEntities):    func() proto.Message { return new(msg.CSVCMsg_PacketEntities) },
+	int(msg.SVC_Messages_svc_GameEventList):     func() proto.Message { return new(msg.CSVCMsg_GameEventList) },
+	int(msg.SVC_Messages_svc_GameEvent):         func() proto.Message { return new(msg.CSVCMsg_GameEvent) },
+	int(msg.SVC_Messages_svc_CreateStringTable): func() proto.Message { return new(msg.CSVCMsg_CreateStringTable) },
+	int(msg.SVC_Messages_svc_UpdateStringTable): func() proto.Message { return new(msg.CSVCMsg_UpdateStringTable) },
+	int(msg.SVC_Messages_svc_UserMessage):       func() proto.Message { return new(msg.CSVCMsg_UserMessage) },
+	int(msg.SVC_Messages_svc_ServerInfo):        func() proto.Message { return new(msg.CSVCMsg_ServerInfo) },
+	int(msg.NET_Messages_net_SetConVar):         func() proto.Message { return new(msg.CNETMsg_SetConVar) },
+	int(msg.SVC_Messages_svc_EncryptedData):     func() proto.Message { return new(msg.CSVCMsg_EncryptedData) },
 }
 
-func (p *parser) netMessageForCmd(cmd int) VTProtobufMessage {
+func (p *parser) netMessageForCmd(cmd int) proto.Message {
 	msgCreator := defaultNetMessageCreators[cmd]
 
 	if msgCreator != nil {
@@ -356,7 +357,7 @@ func (p *parser) parsePacket() {
 
 		p.bitReader.ReadBytesInto(b, size)
 
-		err := m.UnmarshalVT(*b)
+		err := proto.Unmarshal(*b, m)
 		if err != nil {
 			// TODO: Don't crash here, happens with demos that work in gotv
 			p.setError(errors.Wrapf(err, "failed to unmarshal cmd %d", cmd))

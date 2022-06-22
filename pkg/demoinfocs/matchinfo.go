@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
 )
@@ -15,7 +16,7 @@ import (
 func MatchInfoDecryptionKey(b []byte) ([]byte, error) {
 	m := new(msg.CDataGCCStrike15V2_MatchInfo)
 
-	err := m.UnmarshalVT(b)
+	err := proto.Unmarshal(b, m)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal MatchInfo message")
 	}

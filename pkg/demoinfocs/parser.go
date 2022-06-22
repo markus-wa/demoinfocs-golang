@@ -79,15 +79,10 @@ type parser struct {
 	delayedEventHandlers []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 }
 
-type VTProtobufMessage interface {
-	proto.Message
-	UnmarshalVT(dAtA []byte) error
-}
-
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
 //
 // See also: ParserConfig.AdditionalNetMessageCreators & Parser.RegisterNetMessageHandler()
-type NetMessageCreator func() VTProtobufMessage
+type NetMessageCreator func() proto.Message
 
 type bombsite struct {
 	index  int

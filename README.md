@@ -282,8 +282,6 @@ Should you need to re-generate the protobuf generated code in the `msg` package,
 
 ```
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-go install github.com/planetscale/vtprotobuf/cmd/protoc-gen-go-vtproto@latest
 ```
 
 Make sure both are inside your `PATH` variable.

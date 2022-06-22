@@ -5,6 +5,8 @@ import (
 	"math"
 	"sort"
 
+	"google.golang.org/protobuf/proto"
+
 	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
 	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
@@ -113,7 +115,7 @@ func parseSendTable(r *bit.BitReader) sendTable {
 	r.BeginChunk(size << 3)
 
 	st := new(msg.CSVCMsg_SendTable)
-	if err := st.UnmarshalVT(r.ReadBytes(size)); err != nil {
+	if err := proto.Unmarshal(r.ReadBytes(size), st); err != nil {
 		panic(fmt.Sprintf("Failed to unmarshal SendTable: %s", err.Error()))
 	}
 

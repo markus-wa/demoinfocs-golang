@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"google.golang.org/protobuf/proto"
+
 	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
 	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
@@ -18,7 +20,7 @@ func main() {
 	// Configure parsing of BSPDecal net-message
 	cfg := demoinfocs.DefaultParserConfig
 	cfg.AdditionalNetMessageCreators = map[int]demoinfocs.NetMessageCreator{
-		int(msg.SVC_Messages_svc_BSPDecal): func() demoinfocs.VTProtobufMessage {
+		int(msg.SVC_Messages_svc_BSPDecal): func() proto.Message {
 			return new(msg.CSVCMsg_BSPDecal)
 		},
 	}

@@ -42,7 +42,7 @@ import (
 
 cfg := dem.DefaultParserConfig
 cfg.AdditionalNetMessageCreators = map[int]dem.NetMessageCreator{
-	int(msg.SVC_Messages_svc_BSPDecal): func() dem.VTProtobufMessage {
+	int(msg.SVC_Messages_svc_BSPDecal): func() proto.Message {
 		return new(msg.CSVCMsg_BSPDecal)
 	},
 }
