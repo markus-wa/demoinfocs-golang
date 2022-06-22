@@ -30,7 +30,7 @@ func (umh userMessageHandler) handler(msgType msg.ECstrike15UserMessages) userMe
 	return nil
 }
 
-func (umh userMessageHandler) dispatch(event interface{}) {
+func (umh userMessageHandler) dispatch(event any) {
 	umh.parser.eventDispatcher.Dispatch(event)
 }
 

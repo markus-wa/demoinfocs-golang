@@ -56,7 +56,7 @@ func (e *Entity) Property(name string) st.Property {
 }
 
 // BindProperty is a mock-implementation of Entity.BindProperty().
-func (e *Entity) BindProperty(name string, variable interface{}, valueType st.PropertyValueType) {
+func (e *Entity) BindProperty(name string, variable any, valueType st.PropertyValueType) {
 	e.Called(name, variable, valueType)
 }
 

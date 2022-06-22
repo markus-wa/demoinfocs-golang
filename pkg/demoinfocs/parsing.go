@@ -126,7 +126,7 @@ func (p *parser) ParseToEnd() (err error) {
 	}
 }
 
-func recoverFromUnexpectedEOF(r interface{}) error {
+func recoverFromUnexpectedEOF(r any) error {
 	if r == nil {
 		return nil
 	}
@@ -273,7 +273,7 @@ func (p *parser) parseFrame() bool {
 }
 
 var byteSlicePool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		s := make([]byte, 0, 256)
 
 		return &s

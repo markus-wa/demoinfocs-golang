@@ -51,7 +51,7 @@ type parser struct {
 	bitReader                    *bit.BitReader
 	stParser                     *st.SendTableParser
 	additionalNetMessageCreators map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
-	msgQueue                     chan interface{}          // Queue of net-messages
+	msgQueue                     chan any                  // Queue of net-messages
 	msgDispatcher                *dp.Dispatcher            // Net-message dispatcher
 	gameEventHandler             gameEventHandler
 	userMessageHandler           userMessageHandler
@@ -194,7 +194,7 @@ func (p *parser) Progress() float32 {
 RegisterEventHandler registers a handler for game events.
 
 The handler must be of type func(<EventType>) where EventType is the kind of event to be handled.
-To catch all events func(interface{}) can be used.
+To catch all events func(any) can be used.
 
 Example:
 
@@ -202,11 +202,11 @@ Example:
 		fmt.Printf("%s fired his %s\n", e.Shooter.Name, e.Weapon.Type)
 	})
 
-Parameter handler has to be of type interface{} because lolnogenerics.
+Parameter handler has to be of type any because Go generics only work on functions, not methods.
 
-Returns a identifier with which the handler can be removed via UnregisterEventHandler().
+Returns an identifier with which the handler can be removed via UnregisterEventHandler().
 */
-func (p *parser) RegisterEventHandler(handler interface{}) dp.HandlerIdentifier {
+func (p *parser) RegisterEventHandler(handler any) dp.HandlerIdentifier {
 	return p.eventDispatcher.RegisterHandler(handler)
 }
 
@@ -222,11 +222,13 @@ RegisterNetMessageHandler registers a handler for net-messages.
 
 The handler must be of type func(*<MessageType>) where MessageType is the kind of net-message to be handled.
 
-Returns a identifier with which the handler can be removed via UnregisterNetMessageHandler().
+Parameter handler has to be of type any because Go generics only work on functions, not methods.
+
+Returns an identifier with which the handler can be removed via UnregisterNetMessageHandler().
 
 See also: RegisterEventHandler()
 */
-func (p *parser) RegisterNetMessageHandler(handler interface{}) dp.HandlerIdentifier {
+func (p *parser) RegisterNetMessageHandler(handler any) dp.HandlerIdentifier {
 	return p.msgDispatcher.RegisterHandler(handler)
 }
 
@@ -350,7 +352,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.decryptionKey = config.NetMessageDecryptionKey
 
 	dispatcherCfg := dp.Config{
-		PanicHandler: func(v interface{}) {
+		PanicHandler: func(v any) {
 			p.setError(fmt.Errorf("%v\nstacktrace:\n%s", v, debug.Stack()))
 		},
 	}
@@ -380,7 +382,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 }
 
 func (p *parser) initMsgQueue(buf int) {
-	p.msgQueue = make(chan interface{}, buf)
+	p.msgQueue = make(chan any, buf)
 	p.msgDispatcher.AddQueues(p.msgQueue)
 }
 

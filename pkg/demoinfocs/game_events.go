@@ -60,7 +60,7 @@ type gameEventHandler struct {
 	ignoreBombsiteIndexNotFound bool // see https://github.com/markus-wa/demoinfocs-golang/issues/314
 }
 
-func (geh gameEventHandler) dispatch(event interface{}) {
+func (geh gameEventHandler) dispatch(event any) {
 	geh.parser.eventDispatcher.Dispatch(event)
 }
 

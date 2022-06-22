@@ -62,7 +62,7 @@ func TestDemoInfoCs(t *testing.T) {
 	})
 
 	var actual bytes.Buffer
-	p.RegisterEventHandler(func(e interface{}) {
+	p.RegisterEventHandler(func(e any) {
 		actual.WriteString(fmt.Sprintf("%#v\n", e))
 	})
 

@@ -66,7 +66,7 @@ func (e *entity) Property(name string) Property {
 // BindProperty combines Property() & Property.Bind() into one.
 // Essentially binds a property's value to a pointer.
 // See the docs of the two individual functions for more info.
-func (e *entity) BindProperty(name string, variable interface{}, valueType PropertyValueType) {
+func (e *entity) BindProperty(name string, variable any, valueType PropertyValueType) {
 	e.Property(name).Bind(variable, valueType)
 }
 
@@ -91,7 +91,7 @@ func (e *entity) PropertyValueMust(name string) PropertyValue {
 }
 
 var updatedPropIndicesPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		s := make([]int, 0, 8)
 		return &s
 	},
@@ -373,7 +373,7 @@ This will bind the property's value to i so every time it's updated i is updated
 
 The valueType indicates which field of the PropertyValue to use for the binding.
 */
-func (pe *property) Bind(variable interface{}, valueType PropertyValueType) {
+func (pe *property) Bind(variable any, valueType PropertyValueType) {
 	var binder PropertyUpdateHandler
 
 	switch valueType {

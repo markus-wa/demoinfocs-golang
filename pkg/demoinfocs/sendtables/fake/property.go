@@ -34,7 +34,7 @@ func (p *Property) OnUpdate(handler st.PropertyUpdateHandler) {
 }
 
 // Bind is a mock-implementation of Property.Bind().
-func (p *Property) Bind(variable interface{}, valueType st.PropertyValueType) {
+func (p *Property) Bind(variable any, valueType st.PropertyValueType) {
 	p.Called(variable, valueType)
 }
 

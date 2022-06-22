@@ -79,14 +79,14 @@ func TestRecoverFromUnexpectedEOF(t *testing.T) {
 }
 
 type consumerCodePanicMock struct {
-	value interface{}
+	value any
 }
 
 func (ucp consumerCodePanicMock) String() string {
 	return fmt.Sprint(ucp.value)
 }
 
-func (ucp consumerCodePanicMock) Value() interface{} {
+func (ucp consumerCodePanicMock) Value() any {
 	return ucp.value
 }
 
@@ -118,13 +118,13 @@ func TestParser_SetError_Multiple(t *testing.T) {
 
 func TestParser_Close(t *testing.T) {
 	p := new(parser)
-	q := make(chan interface{}, 1)
+	q := make(chan any, 1)
 
 	p.msgDispatcher = new(dispatch.Dispatcher)
 	p.msgDispatcher.AddQueues(q)
 
 	called := false
-	p.msgDispatcher.RegisterHandler(func(interface{}) {
+	p.msgDispatcher.RegisterHandler(func(any) {
 		called = true
 	})
 
