@@ -448,17 +448,6 @@ func TestPlayer_MVPs(t *testing.T) {
 	assert.Equal(t, 4, pl.MVPs())
 }
 
-func TestPlayer_ResourceEntity(t *testing.T) {
-	resourceEntity := entityWithID(1)
-	pl := &Player{
-		demoInfoProvider: demoInfoProviderMock{
-			playerResourceEntity: resourceEntity,
-		},
-	}
-
-	assert.Same(t, resourceEntity, pl.ResourceEntity())
-}
-
 func TestPlayer_SteamID32(t *testing.T) {
 	pl := &Player{SteamID64: 76561198012952267}
 
