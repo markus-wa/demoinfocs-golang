@@ -168,14 +168,6 @@ func (gs gameState) IsMatchStarted() bool {
 	return gs.isMatchStarted
 }
 
-// ConVars returns a map of CVar keys and values.
-// Not all values might be set.
-// See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
-// Deprecated: see GameRules().ConVars()
-func (gs *gameState) ConVars() map[string]string {
-	return gs.rules.ConVars()
-}
-
 // PlayerResourceEntity returns the game's CCSPlayerResource entity.
 // Contains scoreboard information and more.
 func (gs *gameState) PlayerResourceEntity() st.Entity {
@@ -259,6 +251,11 @@ func (gr gameRules) BombTime() (time.Duration, error) {
 // See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
 func (gr gameRules) ConVars() map[string]string {
 	return gr.conVars
+}
+
+// Entity returns the game's CCSGameRulesProxy entity.
+func (gr gameRules) Entity() st.Entity {
+	return gr.entity
 }
 
 // participants provides helper functions on top of the currently connected players.

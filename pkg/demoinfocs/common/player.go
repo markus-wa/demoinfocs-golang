@@ -375,12 +375,6 @@ func (p *Player) entityIDStr() string {
 	return fmt.Sprintf("%03d", p.EntityID)
 }
 
-// ResourceEntity returns the game's CCSPlayerResource entity.
-// Deprecated: use GameState.PlayerResourceEntity() instead.
-func (p *Player) ResourceEntity() st.Entity {
-	return p.resourceEntity()
-}
-
 func (p *Player) resourceEntity() st.Entity {
 	return p.demoInfoProvider.PlayerResourceEntity()
 }
