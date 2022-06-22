@@ -278,6 +278,13 @@ func TestParticipants_SpottedBy(t *testing.T) {
 	assert.ElementsMatch(t, []*common.Player{spotted1, spotted2}, spotted)
 }
 
+func TestGameRules_ConVars(t *testing.T) {
+	cvars := make(map[string]string)
+	gr := gameRules{conVars: cvars}
+
+	assert.Equal(t, cvars, gr.ConVars())
+}
+
 func TestGameRules_Entity(t *testing.T) {
 	ent := stfake.NewEntityWithProperty("m_iGameMode", st.PropertyValue{IntVal: 1})
 	gr := gameRules{
