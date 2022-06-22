@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/markus-wa/demoinfocs-golang/v2/examples"
+	"github.com/markus-wa/demoinfocs-golang/v3/examples"
 )
 
 // Just make sure the example runs

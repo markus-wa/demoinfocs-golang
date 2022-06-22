@@ -6,8 +6,8 @@ import (
 	unassert "github.com/markus-wa/go-unassert"
 	"google.golang.org/protobuf/proto"
 
-	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 )
 
 func (p *parser) handleUserMessage(um *msg.CSVCMsg_UserMessage) {

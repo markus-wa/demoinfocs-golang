@@ -1,6 +1,6 @@
 package common
 
-import st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+import st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 
 func getInt(entity st.Entity, propName string) int {
 	if entity == nil {

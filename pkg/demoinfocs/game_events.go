@@ -7,9 +7,9 @@ import (
 	"github.com/markus-wa/go-unassert"
 	"github.com/pkg/errors"
 
-	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 )
 
 func (p *parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {

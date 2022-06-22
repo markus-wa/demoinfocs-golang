@@ -64,4 +64,4 @@ linters-settings:
     disabled-checks:
       - ifElseChain
   gci:
-    local-prefixes: github.com/markus-wa/demoinfocs-golang/v2
+    local-prefixes: github.com/markus-wa/demoinfocs-golang/v3

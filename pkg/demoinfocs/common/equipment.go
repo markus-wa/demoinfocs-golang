@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"strings"
 
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 // EquipmentClass is the type for the various EqClassXYZ constants.

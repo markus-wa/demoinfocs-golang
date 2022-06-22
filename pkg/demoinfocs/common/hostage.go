@@ -3,7 +3,7 @@ package common
 import (
 	"github.com/golang/geo/r3"
 
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 // HostageState is the type for the various HostageStateXYZ constants.

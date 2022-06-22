@@ -3,9 +3,9 @@ package fake
 import (
 	"github.com/stretchr/testify/mock"
 
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 var _ demoinfocs.GameState = new(GameState)
