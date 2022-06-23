@@ -168,10 +168,9 @@ func (p *SendTableParser) flattenDataTable(serverClassIndex int) {
 				prop := fProps[cp].prop
 				if prop.priority == prio || (prio == 64 && prop.flags.hasFlagSet(propFlagChangesOften)) {
 					if start != cp {
-						tmp := fProps[start]
-						fProps[start] = fProps[cp]
-						fProps[cp] = tmp
+						fProps[start], fProps[cp] = fProps[cp], fProps[start]
 					}
+
 					start++
 
 					break

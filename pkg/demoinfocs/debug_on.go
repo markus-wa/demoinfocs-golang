@@ -43,7 +43,7 @@ func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_Gam
 		data := make(map[string]any)
 
 		for k, v := range mapGameEventData(d, ge) {
-			switch v.Type {
+			switch v.GetType() {
 			case typeStr:
 				data[k] = v.ValString
 			case typeFloat:

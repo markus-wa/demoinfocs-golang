@@ -86,7 +86,7 @@ func (p *parser) parseSingleStringTable(name string) {
 					panic(errors.Wrap(err, "couldn't parse playerIndex from string"))
 				}
 
-				p.setRawPlayer(int(playerIndex), player)
+				p.setRawPlayer(playerIndex, player)
 
 			case stNameInstanceBaseline:
 				classID, err := strconv.Atoi(stringName)
@@ -94,7 +94,7 @@ func (p *parser) parseSingleStringTable(name string) {
 					panic(errors.Wrap(err, "couldn't parse serverClassID from string"))
 				}
 
-				p.stParser.SetInstanceBaseline(int(classID), data)
+				p.stParser.SetInstanceBaseline(classID, data)
 
 			case stNameModelPreCache:
 				p.modelPreCache = append(p.modelPreCache, stringName)

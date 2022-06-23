@@ -135,6 +135,7 @@ func (umh userMessageHandler) rankUpdate(um *msg.CSVCMsg_UserMessage) {
 	for _, v := range st.RankUpdate {
 		// find player (or old instance if he has disconnected already)
 		steamID32 := uint32(v.GetAccountId())
+
 		player, ok := umh.parser.gameState.playersBySteamID32[steamID32]
 		if !ok {
 			errMsg := fmt.Sprintf("rank update for unknown player with SteamID32=%d", steamID32)

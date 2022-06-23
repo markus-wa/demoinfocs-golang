@@ -202,6 +202,7 @@ func TestEncryptedNetMessages(t *testing.T) {
 	}
 
 	infoF, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem.info")
+	assert.NoError(t, err)
 
 	b, err := ioutil.ReadAll(infoF)
 	assert.NoError(t, err)

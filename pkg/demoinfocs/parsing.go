@@ -327,7 +327,6 @@ func (p *parser) netMessageForCmd(cmd int) proto.Message {
 	return nil
 }
 
-//nolint:funlen
 func (p *parser) parsePacket() {
 	// Booooring
 	// 152 bytes CommandInfo, 4 bytes SeqNrIn, 4 bytes SeqNrOut

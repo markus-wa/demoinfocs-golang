@@ -96,7 +96,7 @@ func (g *GrenadeProjectile) UniqueID() int64 {
 //
 // Intended for internal use only.
 func NewGrenadeProjectile() *GrenadeProjectile {
-	return &GrenadeProjectile{uniqueID: rand.Int63()}
+	return &GrenadeProjectile{uniqueID: rand.Int63()} //nolint:gosec
 }
 
 // Bomb tracks the bomb's position, and the player carrying it, if any.

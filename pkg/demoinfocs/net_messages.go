@@ -34,7 +34,7 @@ func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 				}
 
 				p.gameState.entities[currentEntity] = p.stParser.ReadEnterPVS(r, currentEntity)
-			} else { //nolint:gocritic
+			} else {
 				// Delta Update
 				if entity := p.gameState.entities[currentEntity]; entity != nil {
 					entity.ApplyUpdate(r)
@@ -141,6 +141,7 @@ func (p *parser) handleEncryptedData(msg *msg.CSVCMsg_EncryptedData) {
 	}
 
 	msgB := br.ReadBytes(int(size))
+
 	err := proto.Unmarshal(msgB, m)
 	if err != nil {
 		p.setError(err)

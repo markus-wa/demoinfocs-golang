@@ -189,7 +189,7 @@ func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity) *Inferno {
 	return &Inferno{
 		Entity:           entity,
-		uniqueID:         rand.Int63(),
+		uniqueID:         rand.Int63(), //nolint:gosec
 		demoInfoProvider: demoInfoProvider,
 	}
 }
