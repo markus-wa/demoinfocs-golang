@@ -8,8 +8,8 @@ package demoinfocs
 import (
 	"fmt"
 
-	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 	no  = "NO"
 )
 
-// Can be overridden via -ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs.debugServerClasses=YES'"
+// Can be overridden via -ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs.debugServerClasses=YES'"
 // Oh and btw we cant use bools for this, Go says 'cannot use -X with non-string symbol'
 var (
 	debugGameEvents        = yes
@@ -40,10 +40,10 @@ func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_Gam
 
 	if debugGameEvents == yes {
 		// Map only the relevant data for each type
-		data := make(map[string]interface{})
+		data := make(map[string]any)
 
 		for k, v := range mapGameEventData(d, ge) {
-			switch v.Type {
+			switch v.GetType() {
 			case typeStr:
 				data[k] = v.ValString
 			case typeFloat:

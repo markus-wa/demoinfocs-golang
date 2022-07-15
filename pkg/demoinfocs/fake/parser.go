@@ -7,10 +7,11 @@ import (
 
 	dp "github.com/markus-wa/godispatch"
 	mock "github.com/stretchr/testify/mock"
+	"golang.org/x/exp/constraints"
 
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 var _ demoinfocs.Parser = new(Parser)
@@ -22,12 +23,12 @@ type Parser struct {
 	// List of events to be dispatched by frame.
 	// ParseToEnd() / ParseNextFrame() will dispatch them accordingly.
 	// See also: MockEvents() / MockEventsFrame()
-	Events map[int][]interface{}
+	Events map[int][]any
 
 	// List of net-messages to be dispatched by frame.
 	// ParseToEnd() / ParseNextFrame() will dispatch them accordingly.
 	// See also: MockNetMessages() / MockNetMessagesFrame()
-	NetMessages map[int][]interface{}
+	NetMessages map[int][]any
 
 	eventDispatcher dp.Dispatcher
 	msgDispatcher   dp.Dispatcher
@@ -40,7 +41,7 @@ type Parser struct {
 // in subsequent calls to this or MockNetMessages() is triggered on a separate frame.
 //
 // See also: MockEventsFrame()
-func (p *Parser) MockEvents(events ...interface{}) {
+func (p *Parser) MockEvents(events ...any) {
 	p.MockEventsFrame(p.mockFrame, events...)
 	p.mockFrame++
 }
@@ -48,7 +49,7 @@ func (p *Parser) MockEvents(events ...interface{}) {
 // MockEventsFrame adds entries to Events that will be dispatched at the frame indicated by the first parameter.
 //
 // See also: MockEvents()
-func (p *Parser) MockEventsFrame(frame int, events ...interface{}) {
+func (p *Parser) MockEventsFrame(frame int, events ...any) {
 	p.Events[frame] = append(p.Events[frame], events...)
 }
 
@@ -57,7 +58,7 @@ func (p *Parser) MockEventsFrame(frame int, events ...interface{}) {
 // in subsequent calls to this or MockEvents() is triggered on a separate frame.
 //
 // See also: MockNetMessagesFrame()
-func (p *Parser) MockNetMessages(messages ...interface{}) {
+func (p *Parser) MockNetMessages(messages ...any) {
 	p.MockNetMessagesFrame(p.mockFrame, messages...)
 	p.mockFrame++
 }
@@ -65,7 +66,7 @@ func (p *Parser) MockNetMessages(messages ...interface{}) {
 // MockNetMessagesFrame adds entries to NetMessages that will be dispatched at the frame indicated by the first parameter.
 //
 // See also: MockNetMessages()
-func (p *Parser) MockNetMessagesFrame(frame int, messages ...interface{}) {
+func (p *Parser) MockNetMessagesFrame(frame int, messages ...any) {
 	p.NetMessages[frame] = append(p.NetMessages[frame], messages...)
 }
 
@@ -73,8 +74,8 @@ func (p *Parser) MockNetMessagesFrame(frame int, messages ...interface{}) {
 // Pre-mocks RegisterEventHandler() and RegisterNetMessageHandler().
 func NewParser() *Parser {
 	p := &Parser{
-		Events:      make(map[int][]interface{}),
-		NetMessages: make(map[int][]interface{}),
+		Events:      make(map[int][]any),
+		NetMessages: make(map[int][]any),
 	}
 
 	p.On("RegisterEventHandler").Return()
@@ -127,7 +128,7 @@ func (p *Parser) Progress() float32 {
 
 // RegisterEventHandler is a mock-implementation of Parser.RegisterEventHandler().
 // Return HandlerIdentifier cannot be mocked (for now).
-func (p *Parser) RegisterEventHandler(handler interface{}) dp.HandlerIdentifier {
+func (p *Parser) RegisterEventHandler(handler any) dp.HandlerIdentifier {
 	p.Called()
 	return p.eventDispatcher.RegisterHandler(handler)
 }
@@ -140,7 +141,7 @@ func (p *Parser) UnregisterEventHandler(identifier dp.HandlerIdentifier) {
 
 // RegisterNetMessageHandler is a mock-implementation of Parser.RegisterNetMessageHandler().
 // Return HandlerIdentifier cannot be mocked (for now).
-func (p *Parser) RegisterNetMessageHandler(handler interface{}) dp.HandlerIdentifier {
+func (p *Parser) RegisterNetMessageHandler(handler any) dp.HandlerIdentifier {
 	p.Called()
 	return p.msgDispatcher.RegisterHandler(handler)
 }
@@ -165,8 +166,8 @@ func (p *Parser) ParseHeader() (common.DemoHeader, error) {
 func (p *Parser) ParseToEnd() (err error) {
 	args := p.Called()
 
-	maxFrame := max(p.Events)
-	maxNetMessageFrame := max(p.NetMessages)
+	maxFrame := maxKey(p.Events)
+	maxNetMessageFrame := maxKey(p.NetMessages)
 
 	if maxFrame < maxNetMessageFrame {
 		maxFrame = maxNetMessageFrame
@@ -210,7 +211,7 @@ func (p *Parser) ParseNextFrame() (b bool, err error) {
 	return args.Bool(0), args.Error(1)
 }
 
-func max(numbers map[int][]interface{}) (maxNumber int) {
+func maxKey[T any, N constraints.Ordered](numbers map[N]T) (maxNumber N) {
 	for n := range numbers {
 		if n > maxNumber {
 			maxNumber = n

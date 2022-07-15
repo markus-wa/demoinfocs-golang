@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 
-	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	ex "github.com/markus-wa/demoinfocs-golang/v3/examples"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 )
 
 // Run like this: go run netmessages.go -demo /path/to/demo.dem > out.png
@@ -30,7 +30,7 @@ func main() {
 
 	// Register handler for BSPDecal messages
 	p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_BSPDecal) {
-		fmt.Printf("bullet decal at x=%f y=%f z=%f\n", m.Pos.X, m.Pos.Y, m.Pos.Z)
+		fmt.Printf("bullet decal at x=%f y=%f z=%f\n", m.Pos.GetX(), m.Pos.GetY(), m.Pos.GetZ())
 	})
 
 	// Parse to end

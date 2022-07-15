@@ -9,7 +9,7 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/quickhull-go/v2"
 
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 // Inferno is a list of Fires with helper functions.
@@ -189,7 +189,7 @@ func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity) *Inferno {
 	return &Inferno{
 		Entity:           entity,
-		uniqueID:         rand.Int63(),
+		uniqueID:         rand.Int63(), //nolint:gosec
 		demoInfoProvider: demoInfoProvider,
 	}
 }

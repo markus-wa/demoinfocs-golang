@@ -5,11 +5,12 @@ import (
 	"time"
 
 	assert "github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/proto"
 
-	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	fake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/fake"
-	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
+	fake "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/fake"
+	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 )
 
 func TestParseHeader(t *testing.T) {
@@ -33,13 +34,13 @@ func TestParseNextFrameEvents(t *testing.T) {
 	p := fake.NewParser()
 	p.On("ParseNextFrame").Return(true, nil)
 
-	expected := []interface{}{kill(common.EqAK47), kill(common.EqScout)}
+	expected := []any{kill(common.EqAK47), kill(common.EqScout)}
 	p.MockEvents(expected...)
 
 	// Kill on second frame that shouldn't be dispatched during the first frame
 	p.MockEvents(kill(common.EqAUG))
 
-	var actual []interface{}
+	var actual []any
 	p.RegisterEventHandler(func(e events.Kill) {
 		actual = append(actual, e)
 	})
@@ -63,11 +64,11 @@ func kill(wepType common.EquipmentType) events.Kill {
 func TestParseToEndEvents(t *testing.T) {
 	p := fake.NewParser()
 	p.On("ParseToEnd").Return(nil)
-	expected := []interface{}{kill(common.EqAK47), kill(common.EqScout), kill(common.EqAUG)}
+	expected := []any{kill(common.EqAK47), kill(common.EqScout), kill(common.EqAUG)}
 	p.MockEvents(expected[:1]...)
 	p.MockEvents(expected[1:]...)
 
-	var actual []interface{}
+	var actual []any
 	p.RegisterEventHandler(func(e events.Kill) {
 		actual = append(actual, e)
 	})
@@ -81,17 +82,17 @@ func TestParseToEndEvents(t *testing.T) {
 func TestParseNextFrameNetMessages(t *testing.T) {
 	p := fake.NewParser()
 	p.On("ParseNextFrame").Return(true, nil)
-	expected := []interface{}{
+	expected := []any{
 		cmdKey(1, 2, 3),
 		cmdKey(100, 255, 8),
 	}
 
 	p.MockNetMessages(expected...)
 	// Message on second frame that shouldn't be dispatched during the first frame
-	p.MockNetMessages(msg.CSVCMsg_Menu{DialogType: 1, MenuKeyValues: []byte{1, 55, 99}})
+	p.MockNetMessages(msg.CSVCMsg_Menu{DialogType: proto.Int32(1), MenuKeyValues: []byte{1, 55, 99}})
 
-	var actual []interface{}
-	p.RegisterNetMessageHandler(func(message interface{}) {
+	var actual []any
+	p.RegisterNetMessageHandler(func(message any) {
 		actual = append(actual, message)
 	})
 
@@ -105,17 +106,17 @@ func TestParseNextFrameNetMessages(t *testing.T) {
 func TestParseToEndNetMessages(t *testing.T) {
 	p := fake.NewParser()
 	p.On("ParseToEnd").Return(nil)
-	expected := []interface{}{
+	expected := []any{
 		cmdKey(1, 2, 3),
 		cmdKey(100, 255, 8),
-		msg.CSVCMsg_Menu{DialogType: 1, MenuKeyValues: []byte{1, 55, 99}},
+		msg.CSVCMsg_Menu{DialogType: proto.Int32(1), MenuKeyValues: []byte{1, 55, 99}},
 	}
 
 	p.MockNetMessages(expected[:1]...)
 	p.MockNetMessages(expected[1:]...)
 
-	var actual []interface{}
-	p.RegisterNetMessageHandler(func(message interface{}) {
+	var actual []any
+	p.RegisterNetMessageHandler(func(message any) {
 		actual = append(actual, message)
 	})
 

@@ -5,8 +5,8 @@ package demoinfocs
 import (
 	"time"
 
-	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 	dp "github.com/markus-wa/godispatch"
 )
 
@@ -68,7 +68,7 @@ type Parser interface {
 	   RegisterEventHandler registers a handler for game events.
 
 	   The handler must be of type func(<EventType>) where EventType is the kind of event to be handled.
-	   To catch all events func(interface{}) can be used.
+	   To catch all events func(any) can be used.
 
 	   Example:
 
@@ -76,11 +76,11 @@ type Parser interface {
 	   		fmt.Printf("%s fired his %s\n", e.Shooter.Name, e.Weapon.Type)
 	   	})
 
-	   Parameter handler has to be of type interface{} because lolnogenerics.
+	   Parameter handler has to be of type any because Go generics only work on functions, not methods.
 
-	   Returns a identifier with which the handler can be removed via UnregisterEventHandler().
+	   Returns an identifier with which the handler can be removed via UnregisterEventHandler().
 	*/
-	RegisterEventHandler(handler interface{}) dp.HandlerIdentifier
+	RegisterEventHandler(handler any) dp.HandlerIdentifier
 	// UnregisterEventHandler removes a game event handler via identifier.
 	//
 	// The identifier is returned at registration by RegisterEventHandler().
@@ -90,11 +90,13 @@ type Parser interface {
 
 	   The handler must be of type func(*<MessageType>) where MessageType is the kind of net-message to be handled.
 
-	   Returns a identifier with which the handler can be removed via UnregisterNetMessageHandler().
+	   Parameter handler has to be of type any because Go generics only work on functions, not methods.
+
+	   Returns an identifier with which the handler can be removed via UnregisterNetMessageHandler().
 
 	   See also: RegisterEventHandler()
 	*/
-	RegisterNetMessageHandler(handler interface{}) dp.HandlerIdentifier
+	RegisterNetMessageHandler(handler any) dp.HandlerIdentifier
 	// UnregisterNetMessageHandler removes a net-message handler via identifier.
 	//
 	// The identifier is returned at registration by RegisterNetMessageHandler().

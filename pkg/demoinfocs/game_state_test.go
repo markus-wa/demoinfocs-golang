@@ -6,10 +6,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
-	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables/fake"
+	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/constants"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables/fake"
 )
 
 func TestNewGameState(t *testing.T) {
@@ -283,9 +283,15 @@ func TestGameRules_ConVars(t *testing.T) {
 	gr := gameRules{conVars: cvars}
 
 	assert.Equal(t, cvars, gr.ConVars())
+}
 
-	gs := gameState{rules: gr}
-	assert.Equal(t, cvars, gs.ConVars())
+func TestGameRules_Entity(t *testing.T) {
+	ent := stfake.NewEntityWithProperty("m_iGameMode", st.PropertyValue{IntVal: 1})
+	gr := gameRules{
+		entity: ent,
+	}
+
+	assert.Equal(t, ent, gr.Entity())
 }
 
 func TestGameRules_BombTime(t *testing.T) {

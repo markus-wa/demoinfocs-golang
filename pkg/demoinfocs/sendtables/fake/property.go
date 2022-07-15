@@ -3,7 +3,7 @@ package fake
 import (
 	"github.com/stretchr/testify/mock"
 
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 var _ st.Property = new(Property)
@@ -34,7 +34,7 @@ func (p *Property) OnUpdate(handler st.PropertyUpdateHandler) {
 }
 
 // Bind is a mock-implementation of Property.Bind().
-func (p *Property) Bind(variable interface{}, valueType st.PropertyValueType) {
+func (p *Property) Bind(variable any, valueType st.PropertyValueType) {
 	p.Called(variable, valueType)
 }
 

@@ -17,14 +17,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gogo/protobuf/proto"
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/proto"
 
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 )
 
 const (
@@ -62,7 +62,7 @@ func TestDemoInfoCs(t *testing.T) {
 	})
 
 	var actual bytes.Buffer
-	p.RegisterEventHandler(func(e interface{}) {
+	p.RegisterEventHandler(func(e any) {
 		actual.WriteString(fmt.Sprintf("%#v\n", e))
 	})
 
@@ -202,6 +202,7 @@ func TestEncryptedNetMessages(t *testing.T) {
 	}
 
 	infoF, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem.info")
+	assert.NoError(t, err)
 
 	b, err := ioutil.ReadAll(infoF)
 	assert.NoError(t, err)

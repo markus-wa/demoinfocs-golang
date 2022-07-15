@@ -26,7 +26,7 @@ jobs:
         if: env.PROTOBUFS_CHANGED == 'true'
         uses: actions/setup-go@v2
         with:
-          go-version: 1.14.x
+          go-version: 1.18.x
 
       - name: Install Protobuf tools
         if: env.PROTOBUFS_CHANGED == 'true'
@@ -43,14 +43,14 @@ jobs:
         if: env.PROTOBUFS_CHANGED == 'true'
         run: |
             cd pkg/demoinfocs/msg
-            sed -i '1s/^/option go_package = "msg";\n\n/' proto/cstrike15_usermessages.proto
-            sed -i '1s/^/option go_package = "msg";\n\n/' proto/cstrike15_gcmessages.proto
-            sed -i '1s/^/option go_package = "msg";\n\n/' proto/engine_gcmessages.proto
-            sed -i '1s/^/option go_package = "msg";\n\n/' proto/netmessages.proto
-            sed -i '1s/^/option go_package = "msg";\n\n/' proto/steammessages.proto
+            sed -i '1s/^/option go_package = "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg";\n\n/' proto/cstrike15_usermessages.proto
+            sed -i '1s/^/option go_package = "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg";\n\n/' proto/cstrike15_gcmessages.proto
+            sed -i '1s/^/option go_package = "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg";\n\n/' proto/engine_gcmessages.proto
+            sed -i '1s/^/option go_package = "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg";\n\n/' proto/netmessages.proto
+            sed -i '1s/^/option go_package = "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg";\n\n/' proto/steammessages.proto
 
             export PATH=/tmp/protoc/bin:$PATH
-            protoc -I=proto --gogofaster_out=Mgoogle/protobuf/descriptor.proto=github.com/gogo/protobuf/protoc-gen-gogo/descriptor:. proto/*.proto
+            ./generate.sh
 
       - name: Commit changes
         if: env.PROTOBUFS_CHANGED == 'true'

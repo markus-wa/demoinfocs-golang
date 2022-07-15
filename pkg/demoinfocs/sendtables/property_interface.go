@@ -29,5 +29,5 @@ type Property interface {
 
 	   The valueType indicates which field of the PropertyValue to use for the binding.
 	*/
-	Bind(variable interface{}, valueType PropertyValueType)
+	Bind(variable any, valueType PropertyValueType)
 }

@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"strings"
 
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 // EquipmentClass is the type for the various EqClassXYZ constants.
@@ -375,7 +375,7 @@ func (e *Equipment) AmmoReserve() int {
 //
 // Intended for internal use only.
 func NewEquipment(wep EquipmentType) *Equipment {
-	return &Equipment{Type: wep, uniqueID: rand.Int63()}
+	return &Equipment{Type: wep, uniqueID: rand.Int63()} //nolint:gosec
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{

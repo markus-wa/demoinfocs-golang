@@ -34,10 +34,10 @@ Example: Bullet Decal (`BSPDecal`) messages
 
 ```go
 import (
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 
 	dem "github.com/markus-wa/demoinfocs-golang"
-	"github.com/markus-wa/demoinfocs-golang/v2/msg"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 )
 
 cfg := dem.DefaultParserConfig

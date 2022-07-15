@@ -4,7 +4,7 @@ A blazing fast, feature complete and production ready Go library for parsing and
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://vshymanskyy.github.io/StandWithUkraine)
 
-[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs?tab=doc)
 [![Build Status](https://img.shields.io/github/workflow/status/markus-wa/demoinfocs-golang/CI/master?style=flat-square)](https://github.com/markus-wa/demoinfocs-golang/actions)
 [![codecov](https://img.shields.io/codecov/c/github/markus-wa/demoinfocs-golang?style=flat-square)](https://codecov.io/gh/markus-wa/demoinfocs-golang)
 [![Go Report](https://goreportcard.com/badge/github.com/markus-wa/demoinfocs-golang?style=flat-square)](https://goreportcard.com/report/github.com/markus-wa/demoinfocs-golang)
@@ -25,7 +25,7 @@ If you have been enjoying this library and are considering donating, please chec
 
 ## Go Get
 
-	go get -u github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs
+	go get -u github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs
 
 ## Table of Contents
 
@@ -49,7 +49,7 @@ If you have been enjoying this library and are considering donating, please chec
 
 ## Requirements
 
-This library requires at least `go 1.11` to run.
+This library requires at least `go 1.18` to run.
 You can download the latest version of Go [here](https://golang.org/).
 
 ## Quickstart Guide
@@ -66,7 +66,7 @@ go mod init github.com/<YOUR_GITHUB_USER>/my-project
 # the module name (github.com/<YOUR_GITHUB_USER>/my-project) can always be changed later
 # you can also put example.com/my-project or anything else if you don't plan to publish your project
 
-go get -u github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs
+go get -u github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs
 ```
 
 3. Create a `main.go` file with the example below
@@ -88,8 +88,8 @@ import (
 	"log"
 	"os"
 
-	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	dem "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
 )
 
 func main() {
@@ -146,24 +146,24 @@ Check out the [examples](examples) folder for more examples, like [how to genera
 
 ### Documentation
 
-The full API documentation is available here on [pkg.go.dev](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs).
+The full API documentation is available here on [pkg.go.dev](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs).
 
 ## Features
 
-* Game events (kills, shots, round starts/ends, footsteps etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events?tab=doc) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
-* Tracking of game-state (players, teams, grenades, ConVars etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc#GameState)
-* Grenade projectiles / trajectories - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/nade-trajectories)
-* Access to entities, server-classes & data-tables - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables?tab=doc#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
-* Access to all net-messages - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs?tab=doc#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
-* Chat & console messages <sup id="achat1">1</sup> - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events?tab=doc#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
-* Matchmaking ranks (official MM demos only) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events?tab=doc#RankUpdate)
+* Game events (kills, shots, round starts/ends, footsteps etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events?tab=doc) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* Tracking of game-state (players, teams, grenades, ConVars etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs?tab=doc#GameState)
+* Grenade projectiles / trajectories - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs?tab=doc#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/nade-trajectories)
+* Access to entities, server-classes & data-tables - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables?tab=doc#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/entities)
+* Access to all net-messages - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs?tab=doc#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/net-messages)
+* Chat & console messages <sup id="achat1">1</sup> - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events?tab=doc#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/print-events)
+* Matchmaking ranks (official MM demos only) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events?tab=doc#RankUpdate)
 * Full POV demo support <sup id="achat1">2</sup>
-* Support for encrypted net-messages (if the [decryption key](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2@master/pkg/demoinfocs#ParserConfig) is provided)
+* Support for encrypted net-messages (if the [decryption key](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3@master/pkg/demoinfocs#ParserConfig) is provided)
 * JavaScript (browser / Node.js) support via WebAssembly - [example](https://github.com/markus-wa/demoinfocs-wasm)
 * [Easy debugging via build-flags](#debugging)
 * Built with performance & concurrency in mind
 
-1. <small id="f1">In MM demos the chat is encrypted, so [`ParserConfig.NetMessageDecryptionKey`](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2@master/pkg/demoinfocs#ParserConfig) needs to be set - see also [`MatchInfoDecryptionKey()`](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v2@master/pkg/demoinfocs#MatchInfoDecryptionKey).</small>
+1. <small id="f1">In MM demos the chat is encrypted, so [`ParserConfig.NetMessageDecryptionKey`](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3@master/pkg/demoinfocs#ParserConfig) needs to be set - see also [`MatchInfoDecryptionKey()`](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v3@master/pkg/demoinfocs#MatchInfoDecryptionKey).</small>
 2. <small id="f2">Better than some other parsers at the time of writing.</small>
 
 ## Performance / Benchmarks
@@ -229,7 +229,7 @@ If your project is using this library feel free to submit a PR or send a message
 You can use the build tag `debugdemoinfocs` (i.e. `go test -tags debugdemoinfocs -v`) to print out debugging information - such as game events or unhandled demo-messages - during the parsing process.<br>
 Side-note: The tag isn't called `debug` to avoid naming conflicts with other libs (and underscores in tags don't work, apparently).
 
-To change the default debugging behavior, Go's `ldflags` parameter can be used. Example for additionally printing out all server-classes with their properties: `-ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs.debugServerClasses=YES'"`
+To change the default debugging behavior, Go's `ldflags` parameter can be used. Example for additionally printing out all server-classes with their properties: `-ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs.debugServerClasses=YES'"`
 
 Check out `debug_on.go` for any other settings that can be changed.
 
@@ -281,14 +281,9 @@ After adding it to your `PATH` you can use `scripts/generate-interfaces.sh` to u
 
 Should you need to re-generate the protobuf generated code in the `msg` package, you will need the following tools:
 
-- The latest protobuf generator (`protoc`) from your package manager or https://github.com/google/protobuf/releases
-
-- And `protoc-gen-gogofaster` from [gogoprotobuf](https://github.com/gogo/protobuf) to generate code for go.
-
-		go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
-
-[//]: # "The go get above needs two tabs so it's displayed a) as part of the last list entry and b) as a code-block"
-[//]: # "Oh and don't try to move these comments above it either"
+```
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+```
 
 Make sure both are inside your `PATH` variable.
 

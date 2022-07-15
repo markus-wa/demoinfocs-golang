@@ -6,8 +6,8 @@ import (
 
 	"github.com/golang/geo/r3"
 
-	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/constants"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 // Player contains mostly game-relevant player information.
@@ -373,12 +373,6 @@ func (p *Player) Flags() PlayerFlags {
 
 func (p *Player) entityIDStr() string {
 	return fmt.Sprintf("%03d", p.EntityID)
-}
-
-// ResourceEntity returns the game's CCSPlayerResource entity.
-// Deprecated: use GameState.PlayerResourceEntity() instead.
-func (p *Player) ResourceEntity() st.Entity {
-	return p.resourceEntity()
 }
 
 func (p *Player) resourceEntity() st.Entity {

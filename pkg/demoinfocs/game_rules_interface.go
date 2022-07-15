@@ -4,6 +4,8 @@ package demoinfocs
 
 import (
 	"time"
+
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 // GameRules is an auto-generated interface for gameRules.
@@ -21,4 +23,6 @@ type GameRules interface {
 	// Not all values might be set.
 	// See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
 	ConVars() map[string]string
+	// Entity returns the game's CCSGameRulesProxy entity.
+	Entity() st.Entity
 }

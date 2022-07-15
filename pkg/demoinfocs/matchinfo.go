@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 )
 
 // MatchInfoDecryptionKey extracts the net-message decryption key stored in `match730_*.dem.info`.
@@ -21,7 +21,7 @@ func MatchInfoDecryptionKey(b []byte) ([]byte, error) {
 		return nil, errors.Wrap(err, "failed to unmarshal MatchInfo message")
 	}
 
-	k := []byte(strings.ToUpper(fmt.Sprintf("%016x", m.Watchablematchinfo.ClDecryptdataKeyPub)))
+	k := []byte(strings.ToUpper(fmt.Sprintf("%016x", m.Watchablematchinfo.GetClDecryptdataKeyPub())))
 
 	return k, nil
 }

@@ -4,7 +4,7 @@ package sendtables
 
 import (
 	"github.com/golang/geo/r3"
-	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
+	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
 )
 
 // Entity is an auto-generated interface for entity, intended to be used when mockability is needed.
@@ -23,7 +23,7 @@ type Entity interface {
 	// BindProperty combines Property() & Property.Bind() into one.
 	// Essentially binds a property's value to a pointer.
 	// See the docs of the two individual functions for more info.
-	BindProperty(name string, variable interface{}, valueType PropertyValueType)
+	BindProperty(name string, variable any, valueType PropertyValueType)
 	// PropertyValue finds a property on the entity by name and returns its value.
 	//
 	// Returns false as second value if the property was not found.

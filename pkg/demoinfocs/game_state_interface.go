@@ -3,8 +3,8 @@
 package demoinfocs
 
 import (
-	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 // GameState is an auto-generated interface for gameState.
@@ -57,11 +57,6 @@ type GameState interface {
 	IsWarmupPeriod() bool
 	// IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.
 	IsMatchStarted() bool
-	// ConVars returns a map of CVar keys and values.
-	// Not all values might be set.
-	// See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
-	// Deprecated: see GameRules().ConVars()
-	ConVars() map[string]string
 	// PlayerResourceEntity returns the game's CCSPlayerResource entity.
 	// Contains scoreboard information and more.
 	PlayerResourceEntity() st.Entity

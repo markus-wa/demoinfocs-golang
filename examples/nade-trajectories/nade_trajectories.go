@@ -12,12 +12,11 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/llgcode/draw2d/draw2dimg"
 
-	ex "github.com/markus-wa/demoinfocs-golang/v2/examples"
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	metadata "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/metadata"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	ex "github.com/markus-wa/demoinfocs-golang/v3/examples"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 )
 
 type nadePath struct {
@@ -37,7 +36,7 @@ var (
 )
 
 // Store the curret map so we don't have to pass it to functions
-var curMap metadata.Map
+var curMap ex.Map
 
 // Run like this: go run nade_trajectories.go -demo /path/to/demo.dem > nade_trajectories.jpg
 func main() {
@@ -58,10 +57,10 @@ func main() {
 
 	p.RegisterNetMessageHandler(func(msg *msg.CSVCMsg_ServerInfo) {
 		// Get metadata for the map that the game was played on for coordinate translations
-		curMap = ex.GetMapMetadata(header.MapName, msg.MapCrc)
+		curMap = ex.GetMapMetadata(header.MapName, msg.GetMapCrc())
 
 		// Load map overview image
-		mapRadarImg = ex.GetMapRadar(header.MapName, msg.MapCrc)
+		mapRadarImg = ex.GetMapRadar(header.MapName, msg.GetMapCrc())
 	})
 
 	nadeTrajectories := make(map[int64]*nadePath) // Trajectories of all destroyed nades

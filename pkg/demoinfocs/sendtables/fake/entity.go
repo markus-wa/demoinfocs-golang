@@ -4,8 +4,8 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/mock"
 
-	bitread "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	bitread "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 // NewEntityWithProperty creates and returns an entity with a single mocked property.
@@ -56,7 +56,7 @@ func (e *Entity) Property(name string) st.Property {
 }
 
 // BindProperty is a mock-implementation of Entity.BindProperty().
-func (e *Entity) BindProperty(name string, variable interface{}, valueType st.PropertyValueType) {
+func (e *Entity) BindProperty(name string, variable any, valueType st.PropertyValueType) {
 	e.Called(name, variable, valueType)
 }
 

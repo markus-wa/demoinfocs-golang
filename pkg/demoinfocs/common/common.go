@@ -10,7 +10,7 @@ import (
 
 	"github.com/golang/geo/r3"
 
-	st "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 // Team is the type for the various TeamXYZ constants.
@@ -96,7 +96,7 @@ func (g *GrenadeProjectile) UniqueID() int64 {
 //
 // Intended for internal use only.
 func NewGrenadeProjectile() *GrenadeProjectile {
-	return &GrenadeProjectile{uniqueID: rand.Int63()}
+	return &GrenadeProjectile{uniqueID: rand.Int63()} //nolint:gosec
 }
 
 // Bomb tracks the bomb's position, and the player carrying it, if any.

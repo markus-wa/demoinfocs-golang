@@ -5,11 +5,11 @@ import (
 	"math"
 	"sort"
 
-	proto "github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
-	constants "github.com/markus-wa/demoinfocs-golang/v2/internal/constants"
-	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/constants"
+	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 )
 
 // SendTableParser provides functions for parsing send-tables.
@@ -125,21 +125,21 @@ func parseSendTable(r *bit.BitReader) sendTable {
 
 	for _, v := range st.GetProps() {
 		var prop sendTableProperty
-		prop.dataTableName = v.DtName
-		prop.highValue = v.HighValue
-		prop.lowValue = v.LowValue
-		prop.name = v.VarName
-		prop.numberOfBits = int(v.NumBits)
-		prop.numberOfElements = int(v.NumElements)
-		prop.priority = int(v.Priority)
-		prop.flags = sendPropertyFlags(v.Flags)
-		prop.rawType = int(v.Type)
+		prop.dataTableName = v.GetDtName()
+		prop.highValue = v.GetHighValue()
+		prop.lowValue = v.GetLowValue()
+		prop.name = v.GetVarName()
+		prop.numberOfBits = int(v.GetNumBits())
+		prop.numberOfElements = int(v.GetNumElements())
+		prop.priority = int(v.GetPriority())
+		prop.flags = sendPropertyFlags(v.GetFlags())
+		prop.rawType = int(v.GetType())
 
 		res.properties = append(res.properties, prop)
 	}
 
-	res.name = st.NetTableName
-	res.isEnd = st.IsEnd
+	res.name = st.GetNetTableName()
+	res.isEnd = st.GetIsEnd()
 
 	return res
 }
@@ -168,10 +168,9 @@ func (p *SendTableParser) flattenDataTable(serverClassIndex int) {
 				prop := fProps[cp].prop
 				if prop.priority == prio || (prio == 64 && prop.flags.hasFlagSet(propFlagChangesOften)) {
 					if start != cp {
-						tmp := fProps[start]
-						fProps[start] = fProps[cp]
-						fProps[cp] = tmp
+						fProps[start], fProps[cp] = fProps[cp], fProps[start]
 					}
+
 					start++
 
 					break

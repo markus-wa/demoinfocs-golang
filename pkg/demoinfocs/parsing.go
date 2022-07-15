@@ -7,14 +7,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/markus-wa/go-unassert"
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
-	common "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/msg"
+	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 )
 
 const maxOsPath = 260
@@ -126,7 +126,7 @@ func (p *parser) ParseToEnd() (err error) {
 	}
 }
 
-func recoverFromUnexpectedEOF(r interface{}) error {
+func recoverFromUnexpectedEOF(r any) error {
 	if r == nil {
 		return nil
 	}
@@ -273,7 +273,7 @@ func (p *parser) parseFrame() bool {
 }
 
 var byteSlicePool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		s := make([]byte, 0, 256)
 
 		return &s
@@ -327,7 +327,6 @@ func (p *parser) netMessageForCmd(cmd int) proto.Message {
 	return nil
 }
 
-//nolint:funlen
 func (p *parser) parsePacket() {
 	// Booooring
 	// 152 bytes CommandInfo, 4 bytes SeqNrIn, 4 bytes SeqNrOut

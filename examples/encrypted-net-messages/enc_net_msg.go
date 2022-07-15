@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	dem "github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs"
-	"github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs/events"
+	dem "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
 )
 
 func checkErr(err error) {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/golang/geo/r3"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v2/internal/bitread"
+	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
 )
 
 //go:generate ifacemaker -f entity.go -s entity -i Entity -p sendtables -D -y "Entity is an auto-generated interface for entity, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o entity_interface.go
@@ -66,7 +66,7 @@ func (e *entity) Property(name string) Property {
 // BindProperty combines Property() & Property.Bind() into one.
 // Essentially binds a property's value to a pointer.
 // See the docs of the two individual functions for more info.
-func (e *entity) BindProperty(name string, variable interface{}, valueType PropertyValueType) {
+func (e *entity) BindProperty(name string, variable any, valueType PropertyValueType) {
 	e.Property(name).Bind(variable, valueType)
 }
 
@@ -91,7 +91,7 @@ func (e *entity) PropertyValueMust(name string) PropertyValue {
 }
 
 var updatedPropIndicesPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		s := make([]int, 0, 8)
 		return &s
 	},
@@ -373,7 +373,7 @@ This will bind the property's value to i so every time it's updated i is updated
 
 The valueType indicates which field of the PropertyValue to use for the binding.
 */
-func (pe *property) Bind(variable interface{}, valueType PropertyValueType) {
+func (pe *property) Bind(variable any, valueType PropertyValueType) {
 	var binder PropertyUpdateHandler
 
 	switch valueType {
