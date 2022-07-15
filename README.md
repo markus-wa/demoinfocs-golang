@@ -19,10 +19,6 @@ For business inquiries please use the contact information found on the [GitHub p
 
 [![Discord Chat](https://img.shields.io/discord/901824796302643281?color=%235865F2&label=discord&style=for-the-badge)](https://discord.gg/eTVBgKeHnh)
 
-## Donations
-
-If you have been enjoying this library and are considering donating, please check out this wiki page [regarding donations](https://github.com/markus-wa/demoinfocs-golang/wiki/Regarding-Donations).
-
 ## Go Get
 
 	go get -u github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs
