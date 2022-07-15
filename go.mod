@@ -10,8 +10,8 @@ require (
 	github.com/markus-wa/ice-cipher-go v0.0.0-20220126215401-a6adadccc817
 	github.com/markus-wa/quickhull-go/v2 v2.1.0
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.7.4
-	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d
+	github.com/stretchr/testify v1.8.0
+	golang.org/x/exp v0.0.0-20220713135740-79cabaa25d75
 	google.golang.org/protobuf v1.28.0
 )
 
