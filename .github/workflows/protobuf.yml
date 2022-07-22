@@ -34,7 +34,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install unzip
 
-            wget -O /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.12.2/protoc-3.12.2-linux-x86_64.zip
+            wget -O /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v21.3/protoc-21.3-linux-x86_64.zip
             unzip /tmp/protoc.zip -d /tmp/protoc
 
             go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
