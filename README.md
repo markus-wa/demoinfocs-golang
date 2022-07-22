@@ -214,7 +214,7 @@ There is one caveat however: Beta features - which are marked as such via commen
 - [csgoverview](https://github.com/Linus4/csgoverview) - A 2D demo replay tool for CS:GO
 - [csgo-coach-bug-detector](https://github.com/softarn/csgo-coach-bug-detector) - Detects the abuse of an exploit used by some team coaches in professional matches
 - [megaclan3000](https://github.com/megaclan3000/megaclan3000) - A CS:GO stats page for clans with recent matches and player statistics
-- [csgo Python library](https://github.com/pnxenopoulos/csgo) - A wrapper for the Golang parser in Python
+- [awpy](https://github.com/pnxenopoulos/awpy) - A wrapper for the Golang parser in Python
 
 If your project is using this library feel free to submit a PR or send a message via [Discord](https://discord.gg/eTVBgKeHnh) to be included in the list.
 
