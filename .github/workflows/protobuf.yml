@@ -58,6 +58,7 @@ jobs:
         if: env.PROTOBUFS_CHANGED == 'true'
         uses: peter-evans/create-pull-request@v3
         with:
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
           title: "protobuf: updated to ${{ env.COMMIT_SHA }}"
           base: master
           branch: update-protobufs
