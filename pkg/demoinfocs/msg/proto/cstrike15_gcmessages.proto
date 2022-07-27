@@ -1,5 +1,3 @@
-
-
 import "steammessages.proto";
 import "engine_gcmessages.proto";
 
@@ -410,6 +408,7 @@ message CMsgGCCStrike15_v2_MatchmakingStart {
 	optional .TournamentMatchSetup tournament_match = 5;
 	optional bool prime_only = 6;
 	optional uint32 tv_control = 7;
+	optional uint64 lobby_id = 8;
 }
 
 message CMsgGCCStrike15_v2_MatchmakingStop {
