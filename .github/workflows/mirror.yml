@@ -11,5 +11,5 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         with:
-          source-repo: 'git@github.com:markus-wa/demoinfocs-golang.git'
+          source-repo: 'https://github.com/markus-wa/demoinfocs-golang.git'
           destination-repo: 'git@gitlab.com:markus-wa/demoinfocs-golang.git'
