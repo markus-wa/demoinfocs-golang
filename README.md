@@ -218,6 +218,11 @@ There is one caveat however: Beta features - which are marked as such via commen
 
 If your project is using this library feel free to submit a PR or send a message via [Discord](https://discord.gg/eTVBgKeHnh) to be included in the list.
 
+## Useful Tools & Libraries
+
+- [csgo-centrifuge](https://github.com/saiko-tech/csgo-centrifuge) - Get historic radar overview images to make 2D replays & heatmaps accurate on all map versions
+- [head-position-model](https://github.com/David-Durst/head-position-model) - Approximate the player's head position (rather than just the camera position)
+
 ## Development
 
 ### Debugging
