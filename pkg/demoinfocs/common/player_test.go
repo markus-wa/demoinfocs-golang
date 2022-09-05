@@ -422,6 +422,44 @@ func TestPlayer_Color(t *testing.T) {
 	pl := playerWithResourceProperty("m_iCompTeammateColor", st.PropertyValue{IntVal: int(Yellow)})
 
 	assert.Equal(t, Yellow, pl.Color())
+
+	pl = &Player{demoInfoProvider: demoInfoProviderMock{}}
+
+	assert.Equal(t, Grey, pl.Color())
+
+	pl = &Player{
+		EntityID: 1,
+		demoInfoProvider: demoInfoProviderMock{
+			playerResourceEntity: entityWithoutProperty("m_iCompTeammateColor.001"),
+		},
+	}
+
+	assert.Equal(t, Grey, pl.Color())
+}
+
+func TestPlayer_ColorOrErr(t *testing.T) {
+	pl := playerWithResourceProperty("m_iCompTeammateColor", st.PropertyValue{IntVal: int(Yellow)})
+
+	color, err := pl.ColorOrErr()
+	assert.NoError(t, err)
+	assert.Equal(t, Yellow, color)
+
+	pl = &Player{demoInfoProvider: demoInfoProviderMock{}}
+
+	color, err = pl.ColorOrErr()
+	assert.ErrorIs(t, err, ErrDataNotAvailable)
+	assert.EqualValues(t, Grey, color)
+
+	pl = &Player{
+		EntityID: 1,
+		demoInfoProvider: demoInfoProviderMock{
+			playerResourceEntity: entityWithoutProperty("m_iCompTeammateColor.001"),
+		},
+	}
+
+	color, err = pl.ColorOrErr()
+	assert.ErrorIs(t, err, ErrNotSupportedByDemo)
+	assert.Equal(t, Grey, color)
 }
 
 func TestPlayer_Kills(t *testing.T) {

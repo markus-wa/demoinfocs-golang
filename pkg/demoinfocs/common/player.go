@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/golang/geo/r3"
+	"github.com/pkg/errors"
 
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
@@ -343,20 +344,24 @@ func (pf PlayerFlags) OnGround() bool {
 }
 
 // Ducking returns true if the player is/was fully crouched.
-//   Fully ducked: Ducking() && DuckingKeyPressed()
-//   Previously fully ducked, unducking in progress: Ducking() && !DuckingKeyPressed()
-//   Fully unducked: !Ducking() && !DuckingKeyPressed()
-//   Previously fully unducked, ducking in progress: !Ducking() && DuckingKeyPressed()
+//
+//	Fully ducked: Ducking() && DuckingKeyPressed()
+//	Previously fully ducked, unducking in progress: Ducking() && !DuckingKeyPressed()
+//	Fully unducked: !Ducking() && !DuckingKeyPressed()
+//	Previously fully unducked, ducking in progress: !Ducking() && DuckingKeyPressed()
+//
 // See m_fFlags FL_DUCKING https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/public/const.h#L146-L188
 func (pf PlayerFlags) Ducking() bool {
 	return pf.Get(flDucking)
 }
 
 // DuckingKeyPressed returns true if the player is holding the crouch key pressed.
-//   Fully ducked: Ducking() && DuckingKeyPressed()
-//   Previously fully ducked, unducking in progress: Ducking() && !DuckingKeyPressed()
-//   Fully unducked: !Ducking() && !DuckingKeyPressed()
-//   Previously fully unducked, ducking in progress: !Ducking() && DuckingKeyPressed()
+//
+//	Fully ducked: Ducking() && DuckingKeyPressed()
+//	Previously fully ducked, unducking in progress: Ducking() && !DuckingKeyPressed()
+//	Fully unducked: !Ducking() && !DuckingKeyPressed()
+//	Previously fully unducked, ducking in progress: !Ducking() && DuckingKeyPressed()
+//
 // See m_fFlags FL_ANIMDUCKING https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/public/const.h#L146-L188
 func (pf PlayerFlags) DuckingKeyPressed() bool {
 	return pf.Get(flAnimDucking)
@@ -406,9 +411,43 @@ func (p *Player) Score() int {
 	return getInt(p.resourceEntity(), "m_iScore."+p.entityIDStr())
 }
 
-// Color returns the players color as shown on the match.
+// Color returns the players color as shown on the minimap.
+// It will return Grey (-1) if the resource entity does not exist when the function is called or when the demo does not support player colors.
+// Deprecated: Use ColorOrErr() instead.
 func (p *Player) Color() Color {
-	return Color(getInt(p.resourceEntity(), "m_iCompTeammateColor."+p.entityIDStr()))
+	resourceEnt := p.resourceEntity()
+	if resourceEnt == nil {
+		return Grey
+	}
+
+	n, ok := resourceEnt.PropertyValue("m_iCompTeammateColor." + p.entityIDStr())
+	if !ok {
+		return Grey
+	}
+
+	return Color(n.IntVal)
+}
+
+var (
+	ErrDataNotAvailable   = errors.New("some data is not (yet) available (reading the same data later during parsing may work)")
+	ErrNotSupportedByDemo = errors.New("this data is not supported by the demo (this may be because the demos is too old)")
+)
+
+// ColorOrErr returns the players color as shown on the minimap.
+// Returns ErrDataNotAvailable if the resource entity does not exist (it may exist later during parsing).
+// Returns ErrNotSupportedByDemo if the demo does not support player colors (e.g. very old demos).
+func (p *Player) ColorOrErr() (Color, error) {
+	resourceEnt := p.resourceEntity()
+	if resourceEnt == nil {
+		return Grey, errors.Wrap(ErrDataNotAvailable, "player resource entity is nil")
+	}
+
+	colorVal, ok := resourceEnt.PropertyValue("m_iCompTeammateColor." + p.entityIDStr())
+	if !ok {
+		return Grey, errors.Wrap(ErrNotSupportedByDemo, "failed to get player color from resource entity")
+	}
+
+	return Color(colorVal.IntVal), nil
 }
 
 // Kills returns the amount of kills the player has as shown on the scoreboard.

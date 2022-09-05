@@ -220,3 +220,13 @@ func entityWithProperty(propName string, value st.PropertyValue) *stfake.Entity 
 
 	return entity
 }
+
+func entityWithoutProperty(propName string) *stfake.Entity {
+	entity := entityWithID(1)
+
+	entity.On("Property", propName).Return(nil)
+	entity.On("PropertyValue", propName).Return(st.PropertyValue{}, false)
+	entity.On("PropertyValueMust", propName).Panic("property not found")
+
+	return entity
+}
