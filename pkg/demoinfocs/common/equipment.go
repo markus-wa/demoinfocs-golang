@@ -289,8 +289,8 @@ type Equipment struct {
 	Owner          *Player       // The player carrying the equipment, not necessarily the buyer.
 	OriginalString string        // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
 
-	uniqueID    int64 // Deprecated, see accessor functions for why
-	uniqueLexID ulid.ULID
+	uniqueID  int64 // Deprecated, use uniqueID2, see UniqueID() for why
+	uniqueID2 ulid.ULID
 }
 
 // String returns a human readable name for the equipment.
@@ -305,21 +305,21 @@ func (e *Equipment) Class() EquipmentClass {
 	return e.Type.Class()
 }
 
-// Deprecated: UniqueID returns a randomly generated unique id of the equipment element.
+// UniqueID returns a randomly generated unique id of the equipment element.
 // The unique id is a random int generated internally by this library and can be used to differentiate
 // equipment from each other. This is needed because demo-files reuse entity ids.
-// Since this is randomly generated, duplicate IDs are possible.
+// Deprecated: Use UniqueID2 instead. Since UniqueID is randomly generated, duplicate IDs are possible.
 // See the birthday problem for why repeatedly generating random 64 bit integers is likely to produce a collision.
 func (e *Equipment) UniqueID() int64 {
 	return e.uniqueID
 }
 
-// UniqueLexID returns the ULID of the equipment element.
-// The ULID is a value generated internally by this library and can be used to differentiate
+// UniqueID2 returns a unique id of the equipment element that can be sorted efficiently.
+// UniqueID2 is a value generated internally by this library and can be used to differentiate
 // equipment from each other. This is needed because demo-files reuse entity ids.
-// The ULID is guaranteed to be unique.
-func (e *Equipment) UniqueLexID() ulid.ULID {
-	return e.uniqueLexID
+// Unlike UniqueID, UniqueID2 is guaranteed to be unique.
+func (e *Equipment) UniqueID2() ulid.ULID {
+	return e.uniqueID2
 }
 
 // AmmoInMagazine returns the ammo left in the magazine.
@@ -387,7 +387,7 @@ func (e *Equipment) AmmoReserve() int {
 //
 // Intended for internal use only.
 func NewEquipment(wep EquipmentType) *Equipment {
-	return &Equipment{Type: wep, uniqueID: rand.Int63(), uniqueLexID: ulid.Make()} //nolint:gosec
+	return &Equipment{Type: wep, uniqueID: rand.Int63(), uniqueID2: ulid.Make()} //nolint:gosec
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{
