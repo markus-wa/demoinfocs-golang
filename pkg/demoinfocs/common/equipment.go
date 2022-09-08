@@ -1,9 +1,10 @@
 package common
 
 import (
-	"github.com/oklog/ulid/v2"
 	"math/rand"
 	"strings"
+
+	"github.com/oklog/ulid/v2"
 
 	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
