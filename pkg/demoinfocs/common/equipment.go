@@ -387,7 +387,7 @@ func (e *Equipment) AmmoReserve() int {
 //
 // Intended for internal use only.
 func NewEquipment(wep EquipmentType) *Equipment {
-	return &Equipment{Type: wep, uniqueID: rand.Int63(), uniqueLexId: ulid.Make()} //nolint:gosec
+	return &Equipment{Type: wep, uniqueID: rand.Int63(), uniqueLexID: ulid.Make()} //nolint:gosec
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{
