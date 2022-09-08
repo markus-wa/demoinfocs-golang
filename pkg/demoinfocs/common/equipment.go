@@ -4,6 +4,8 @@ import (
 	"math/rand"
 	"strings"
 
+	"github.com/oklog/ulid/v2"
+
 	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
@@ -288,7 +290,8 @@ type Equipment struct {
 	Owner          *Player       // The player carrying the equipment, not necessarily the buyer.
 	OriginalString string        // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
 
-	uniqueID int64
+	uniqueID  int64 // Deprecated, use uniqueID2, see UniqueID() for why
+	uniqueID2 ulid.ULID
 }
 
 // String returns a human readable name for the equipment.
@@ -303,11 +306,21 @@ func (e *Equipment) Class() EquipmentClass {
 	return e.Type.Class()
 }
 
-// UniqueID returns the unique id of the equipment element.
+// UniqueID returns a randomly generated unique id of the equipment element.
 // The unique id is a random int generated internally by this library and can be used to differentiate
 // equipment from each other. This is needed because demo-files reuse entity ids.
+// Deprecated: Use UniqueID2 instead. Since UniqueID is randomly generated, duplicate IDs are possible.
+// See the birthday problem for why repeatedly generating random 64 bit integers is likely to produce a collision.
 func (e *Equipment) UniqueID() int64 {
 	return e.uniqueID
+}
+
+// UniqueID2 returns a unique id of the equipment element that can be sorted efficiently.
+// UniqueID2 is a value generated internally by this library and can be used to differentiate
+// equipment from each other. This is needed because demo-files reuse entity ids.
+// Unlike UniqueID, UniqueID2 is guaranteed to be unique.
+func (e *Equipment) UniqueID2() ulid.ULID {
+	return e.uniqueID2
 }
 
 // AmmoInMagazine returns the ammo left in the magazine.
@@ -375,7 +388,7 @@ func (e *Equipment) AmmoReserve() int {
 //
 // Intended for internal use only.
 func NewEquipment(wep EquipmentType) *Equipment {
-	return &Equipment{Type: wep, uniqueID: rand.Int63()} //nolint:gosec
+	return &Equipment{Type: wep, uniqueID: rand.Int63(), uniqueID2: ulid.Make()} //nolint:gosec
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{
