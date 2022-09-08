@@ -290,7 +290,7 @@ type Equipment struct {
 	OriginalString string        // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
 
 	uniqueID    int64 // Deprecated, see accessor functions for why
-	uniqueLexId ulid.ULID
+	uniqueLexID ulid.ULID
 }
 
 // String returns a human readable name for the equipment.
@@ -319,7 +319,7 @@ func (e *Equipment) UniqueID() int64 {
 // equipment from each other. This is needed because demo-files reuse entity ids.
 // The ULID is guaranteed to be unique.
 func (e *Equipment) UniqueLexID() ulid.ULID {
-	return e.uniqueLexId
+	return e.uniqueLexID
 }
 
 // AmmoInMagazine returns the ammo left in the magazine.
