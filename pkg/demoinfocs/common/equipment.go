@@ -1,6 +1,7 @@
 package common
 
 import (
+	"github.com/oklog/ulid/v2"
 	"math/rand"
 	"strings"
 
@@ -288,7 +289,8 @@ type Equipment struct {
 	Owner          *Player       // The player carrying the equipment, not necessarily the buyer.
 	OriginalString string        // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
 
-	uniqueID int64
+	uniqueID    int64 // Deprecated, see accessor functions for why
+	uniqueLexId ulid.ULID
 }
 
 // String returns a human readable name for the equipment.
@@ -303,11 +305,21 @@ func (e *Equipment) Class() EquipmentClass {
 	return e.Type.Class()
 }
 
-// UniqueID returns the unique id of the equipment element.
+// Deprecated: UniqueID returns a randomly generated unique id of the equipment element.
 // The unique id is a random int generated internally by this library and can be used to differentiate
 // equipment from each other. This is needed because demo-files reuse entity ids.
+// Since this is randomly generated, duplicate IDs are possible.
+// See the birthday problem for why repeatedly generating random 64 bit integers is likely to produce a collision.
 func (e *Equipment) UniqueID() int64 {
 	return e.uniqueID
+}
+
+// UniqueLexID returns the ULID of the equipment element.
+// The ULID is a value generated internally by this library and can be used to differentiate
+// equipment from each other. This is needed because demo-files reuse entity ids.
+// The ULID is guaranteed to be unique.
+func (e *Equipment) UniqueLexID() ulid.ULID {
+	return e.uniqueLexId
 }
 
 // AmmoInMagazine returns the ammo left in the magazine.
@@ -375,7 +387,7 @@ func (e *Equipment) AmmoReserve() int {
 //
 // Intended for internal use only.
 func NewEquipment(wep EquipmentType) *Equipment {
-	return &Equipment{Type: wep, uniqueID: rand.Int63()} //nolint:gosec
+	return &Equipment{Type: wep, uniqueID: rand.Int63(), uniqueLexId: ulid.Make()} //nolint:gosec
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{
