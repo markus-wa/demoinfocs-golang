@@ -8,6 +8,7 @@ Here you can find a overview of examples on how to use demoinfocs-golang.
 |-|-|
 |[heatmap](heatmap)|Creating a heatmap from positions where players fired shots from|
 |[nade-trajectories](nade-trajectories)|Map overview with grenade trajectories|
+|[capture-voice](capture-voice)|Capturing voice data from demos (if available, not possible for Valve MatchMaking)|
 |[entities](entities)|Using unhandled data from entities (`Parser.ServerClasses()`)|
 |[net-messages](net-messages)|Parsing and handling custom net-messages|
 |[encrypted-net-messages](encrypted-net-messages)|Parsing and handling encrypted net-messages (e.g. text chat in MM demos)|
