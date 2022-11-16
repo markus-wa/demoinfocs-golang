@@ -384,6 +384,18 @@ func (e *Equipment) AmmoReserve() int {
 	return val.IntVal
 }
 
+// RecoilIndex returns the weapon's recoil index
+func (e *Equipment) RecoilIndex() float32 {
+	if e.Entity == nil {
+		return 0
+	}
+
+	// if the property doesn't exist we return 0 by default
+	val, _ := e.Entity.PropertyValue("m_flRecoilIndex")
+
+	return val.FloatVal
+}
+
 // NewEquipment creates a new Equipment and sets the UniqueID.
 //
 // Intended for internal use only.
