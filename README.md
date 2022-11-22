@@ -226,10 +226,11 @@ If your project is using this library feel free to submit a PR or send a message
 
 ### Debugging
 
-You can use the build tag `debugdemoinfocs` (i.e. `go test -tags debugdemoinfocs -v`) to print out debugging information - such as game events or unhandled demo-messages - during the parsing process.<br>
+You can use the build tag `debugdemoinfocs` (e.g. `go run -tags debugdemoinfocs examples/print-events/print_events.go -demo example.dem`) to print out debugging information - such as game events or unhandled demo-messages - during the parsing process.<br>
 Side-note: The tag isn't called `debug` to avoid naming conflicts with other libs (and underscores in tags don't work, apparently).
 
-To change the default debugging behavior, Go's `ldflags` parameter can be used. Example for additionally printing out all server-classes with their properties: `-ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs.debugServerClasses=YES'"`
+To change the default debugging behavior, Go's `ldflags` parameter can be used. Example for additionally printing out all server-classes with their properties: `-ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs.debugServerClasses=YES'"`.
+e.g. `go run -tags debugdemoinfocs -ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs.debugDemoCommands=YES'" examples/print-events/print_events.go -demo example.dem`
 
 Check out `debug_on.go` for any other settings that can be changed.
 
