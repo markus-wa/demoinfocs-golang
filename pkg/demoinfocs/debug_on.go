@@ -46,23 +46,23 @@ func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_Gam
 		for k, v := range mapGameEventData(d, ge) {
 			switch v.GetType() {
 			case typeStr:
-				data[k] = v.ValString
+				data[k] = v.GetValString()
 			case typeFloat:
-				data[k] = v.ValFloat
+				data[k] = v.GetValFloat()
 			case typeLong:
-				data[k] = v.ValLong
+				data[k] = v.GetValLong()
 			case typeShort:
-				data[k] = v.ValShort
+				data[k] = v.GetValShort()
 			case typeByte:
-				data[k] = v.ValByte
+				data[k] = v.GetValByte()
 			case typeBool:
-				data[k] = v.ValBool
+				data[k] = v.GetValBool()
 			case typeUint64:
-				data[k] = v.ValUint64
+				data[k] = v.GetValUint64()
 			}
 		}
 
-		fmt.Println("GameEvent:", d.Name, "Data:", data)
+		fmt.Println("GameEvent:", d.GetName(), "Data:", data)
 	}
 }
 
