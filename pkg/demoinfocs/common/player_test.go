@@ -486,6 +486,18 @@ func TestPlayer_MVPs(t *testing.T) {
 	assert.Equal(t, 4, pl.MVPs())
 }
 
+func TestPlayer_TotalDamage(t *testing.T) {
+	pl := playerWithResourceProperty("m_iMatchStats_Damage_Total", st.PropertyValue{IntVal: 2900})
+
+	assert.Equal(t, 2900, pl.TotalDamage())
+}
+
+func TestPlayer_UtilityDamage(t *testing.T) {
+	pl := playerWithResourceProperty("m_iMatchStats_UtilityDamage_Total", st.PropertyValue{IntVal: 420})
+
+	assert.Equal(t, 420, pl.UtilityDamage())
+}
+
 func TestPlayer_SteamID32(t *testing.T) {
 	pl := &Player{SteamID64: 76561198012952267}
 
