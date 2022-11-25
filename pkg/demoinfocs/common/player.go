@@ -470,6 +470,16 @@ func (p *Player) MVPs() int {
 	return getInt(p.resourceEntity(), "m_iMVPs."+p.entityIDStr())
 }
 
+// TotalDamage returns the total health damage done by the player.
+func (p *Player) TotalDamage() int {
+	return getInt(p.resourceEntity(), "m_iMatchStats_Damage_Total."+p.entityIDStr())
+}
+
+// UtilityDamage returns the total damage done by the player with grenades.
+func (p *Player) UtilityDamage() int {
+	return getInt(p.resourceEntity(), "m_iMatchStats_UtilityDamage_Total."+p.entityIDStr())
+}
+
 // MoneySpentTotal returns the total amount of money the player has spent in the current match.
 func (p *Player) MoneySpentTotal() int {
 	return getInt(p.resourceEntity(), "m_iTotalCashSpent."+p.entityIDStr())
