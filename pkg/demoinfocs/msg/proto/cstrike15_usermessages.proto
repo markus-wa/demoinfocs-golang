@@ -81,6 +81,7 @@ enum ECstrike15UserMessages {
 	CS_UM_CurrentRoundOdds = 80;
 	CS_UM_DeepStats = 81;
 	CS_UM_UtilMsg = 82;
+	CS_UM_UtilMsg_Response = 83;
 }
 
 enum ECSUsrMsg_DisconnectToLobby_Action {
@@ -604,4 +605,24 @@ message CCSUsrMsg_UtilMsg {
 	optional int32 util3 = 4;
 	optional int32 util4 = 5;
 	optional int32 util5 = 6;
+}
+
+message CCSUsrMsg_UtilMsg_Response {
+	message ItemDetail {
+		optional int32 index = 1;
+		optional int32 hash = 2;
+		optional int32 crc = 3;
+		optional string name = 4;
+	}
+
+	optional fixed32 crc = 1;
+	optional int32 item_count = 2;
+	optional fixed32 crc2 = 3;
+	optional int32 item_count2 = 4;
+	repeated int32 crc_part = 5;
+	repeated int32 crc_part2 = 6;
+	optional int32 client_timestamp = 7;
+	optional int32 platform = 8;
+	repeated .CCSUsrMsg_UtilMsg_Response.ItemDetail itemdetails = 9;
+	optional int32 itemgroup = 10;
 }
