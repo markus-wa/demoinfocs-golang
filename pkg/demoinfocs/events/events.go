@@ -390,6 +390,7 @@ const (
 	HitGroupRightArm HitGroup = 5
 	HitGroupLeftLeg  HitGroup = 6
 	HitGroupRightLeg HitGroup = 7
+	HitGroupNeck     HitGroup = 8
 	HitGroupGear     HitGroup = 10
 )
 
