@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Mirror to GitLab
-        uses: wearerequired/git-mirror-action@v1.0.0
+        uses: wearerequired/git-mirror-action@v1.2.0
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         with:
