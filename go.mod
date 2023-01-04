@@ -4,7 +4,7 @@ require (
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551
 	github.com/llgcode/draw2d v0.0.0-20210904075650-80aa0a2a901d
 	github.com/markus-wa/go-heatmap/v2 v2.0.0
-	github.com/markus-wa/go-unassert v0.1.2
+	github.com/markus-wa/go-unassert v0.1.3
 	github.com/markus-wa/gobitread v0.2.3
 	github.com/markus-wa/godispatch v1.4.1
 	github.com/markus-wa/ice-cipher-go v0.0.0-20220126215401-a6adadccc817
