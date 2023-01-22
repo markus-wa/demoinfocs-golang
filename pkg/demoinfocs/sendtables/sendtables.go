@@ -120,7 +120,7 @@ func (sc *ServerClass) PropertyEntryDefinitions() []PropertyEntry {
 	return res
 }
 
-func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int, classID int, serialNum int, recordingPlayerSlot int) *entity {
+func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int, serialNum int, recordingPlayerSlot int) *entity {
 	props := make([]property, len(sc.flattenedProps))
 
 	for i := range sc.flattenedProps {

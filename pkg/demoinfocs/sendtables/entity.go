@@ -218,6 +218,7 @@ func (e *entity) initialize(recordingPlayerSlot int) {
 	if e.isPlayer() {
 		isGOTV := recordingPlayerSlot == -1
 		isRecording := recordingPlayerSlot == e.id-1
+
 		if isGOTV || isRecording {
 			e.positionPropNameXY = propVecOriginPlayerXY
 			e.positionPropNameZ = propVecOriginPlayerZ
@@ -225,6 +226,7 @@ func (e *entity) initialize(recordingPlayerSlot int) {
 			e.positionPropNameXY = nonLocalPropVecOriginPlayerXY
 			e.positionPropNameZ = nonLocalPropVecOriginPlayerZ
 		}
+
 		xyProp := e.Property(e.positionPropNameXY)
 		zProp := e.Property(e.positionPropNameZ)
 

@@ -322,7 +322,7 @@ func (p *SendTableParser) ReadEnterPVS(r *bit.BitReader, entityID int, existingE
 		delete(existingEntities, entityID)
 	}
 
-	return p.serverClasses[classID].newEntity(r, entityID, classID, serialNum, recordingPlayerSlot)
+	return p.serverClasses[classID].newEntity(r, entityID, serialNum, recordingPlayerSlot)
 }
 
 // classBits seems to calculate how many bits must be read for the server-class ID.

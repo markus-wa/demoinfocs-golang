@@ -25,9 +25,9 @@ func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 	for i := 0; i < int(pe.GetUpdatedEntries()); i++ {
 		entityIndex += 1 + int(r.ReadUBitInt())
 
+		//nolint:nestif
 		if r.ReadBit() {
 			// FHDR_LEAVEPVS => LeavePVS
-
 			if r.ReadBit() {
 				// FHDR_LEAVEPVS | FHDR_DELETE => LeavePVS with force delete. Should never happen on full update
 				if existingEntity := p.gameState.entities[entityIndex]; existingEntity != nil {
