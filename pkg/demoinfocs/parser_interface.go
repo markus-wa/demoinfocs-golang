@@ -64,6 +64,8 @@ type Parser interface {
 	// Might not be 100% correct since it's just based on the reported tick count of the header.
 	// May always return 0 if the demo header is corrupt.
 	Progress() float32
+	// IsPOV indicates if the demo being parsed is a POV demo.
+	IsPOV() bool
 	/*
 	   RegisterEventHandler registers a handler for game events.
 

@@ -84,6 +84,11 @@ func NewParser() *Parser {
 	return p
 }
 
+// IsPOV is a mock-implementation of Parser.IsPOV().
+func (p *Parser) IsPOV() bool {
+	return p.Called().Bool(0)
+}
+
 // ServerClasses is a mock-implementation of Parser.ServerClasses().
 //
 // Unfortunately sendtables.ServerClasses currently isn't mockable.
