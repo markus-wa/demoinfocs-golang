@@ -39,6 +39,11 @@ func (e *Entity) ID() int {
 	return e.Called().Int(0)
 }
 
+// SerialNum is a mock-implementation of Entity.SerialNum().
+func (e *Entity) SerialNum() int {
+	return e.Called().Int(0)
+}
+
 // Properties is a mock-implementation of Entity.Properties().
 func (e *Entity) Properties() []st.Property {
 	return e.Called().Get(0).([]st.Property)

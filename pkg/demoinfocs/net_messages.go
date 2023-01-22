@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 
 	"github.com/markus-wa/ice-cipher-go/pkg/ice"
 	"google.golang.org/protobuf/proto"
@@ -19,34 +20,30 @@ func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 
 	r := bit.NewSmallBitReader(bytes.NewReader(pe.EntityData))
 
-	currentEntity := -1
+	entityIndex := -1
+
 	for i := 0; i < int(pe.GetUpdatedEntries()); i++ {
-		currentEntity += 1 + int(r.ReadUBitInt())
+		entityIndex += 1 + int(r.ReadUBitInt())
 
-		cmd := r.ReadBitsToByte(2)
-		if cmd&1 == 0 {
-			if cmd&2 != 0 {
-				// Enter PVS
-				if existing := p.gameState.entities[currentEntity]; existing != nil {
-					// Sometimes entities don't get destroyed when they should be
-					// For instance when a player is replaced by a BOT
-					existing.Destroy()
-				}
+		if r.ReadBit() {
+			// FHDR_LEAVEPVS => LeavePVS
 
-				p.gameState.entities[currentEntity] = p.stParser.ReadEnterPVS(r, currentEntity)
-			} else {
-				// Delta Update
-				if entity := p.gameState.entities[currentEntity]; entity != nil {
-					entity.ApplyUpdate(r)
+			if r.ReadBit() {
+				// FHDR_LEAVEPVS | FHDR_DELETE => LeavePVS with force delete. Should never happen on full update
+				if existingEntity := p.gameState.entities[entityIndex]; existingEntity != nil {
+					existingEntity.Destroy()
+					delete(p.gameState.entities, entityIndex)
 				}
 			}
+		} else if r.ReadBit() {
+			// FHDR_ENTERPVS => EnterPVS
+			p.gameState.entities[entityIndex] = p.stParser.ReadEnterPVS(r, entityIndex, p.gameState.entities, p.recordingPlayerSlot)
 		} else {
-			if cmd&2 != 0 {
-				// Leave PVS
-				if entity := p.gameState.entities[currentEntity]; entity != nil {
-					entity.Destroy()
-					delete(p.gameState.entities, currentEntity)
-				}
+			// Delta update
+			if p.gameState.entities[entityIndex] != nil {
+				p.gameState.entities[entityIndex].ApplyUpdate(r)
+			} else {
+				panic(fmt.Sprintf("Entity with index %d doesn't exist but got an update", entityIndex))
 			}
 		}
 	}

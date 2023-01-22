@@ -120,16 +120,16 @@ func (sc *ServerClass) PropertyEntryDefinitions() []PropertyEntry {
 	return res
 }
 
-func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int) *entity {
+func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int, classID int, serialNum int, recordingPlayerSlot int) *entity {
 	props := make([]property, len(sc.flattenedProps))
 
 	for i := range sc.flattenedProps {
 		props[i] = property{entry: &sc.flattenedProps[i]}
 	}
 
-	entity := &entity{serverClass: sc, id: entityID, props: props}
+	entity := &entity{serverClass: sc, id: entityID, serialNum: serialNum, props: props}
 
-	entity.initialize()
+	entity.initialize(recordingPlayerSlot)
 
 	if sc.preprocessedBaseline != nil {
 		entity.applyBaseline(sc.preprocessedBaseline)

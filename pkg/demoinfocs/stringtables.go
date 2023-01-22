@@ -239,6 +239,10 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 		case stNameUserInfo:
 			player := parsePlayerInfo(bytes.NewReader(userdata))
 
+			if p.header.ClientName == player.Name {
+				p.recordingPlayerSlot = entryIndex
+			}
+
 			p.setRawPlayer(entryIndex, player)
 
 		case stNameInstanceBaseline:

@@ -306,12 +306,23 @@ func (p *SendTableParser) SetInstanceBaseline(scID int, data []byte) {
 // ReadEnterPVS reads an entity entering the PVS (potentially visible system).
 //
 // Intended for internal use only.
-func (p *SendTableParser) ReadEnterPVS(r *bit.BitReader, entityID int) Entity {
-	scID := int(r.ReadInt(p.classBits()))
+func (p *SendTableParser) ReadEnterPVS(r *bit.BitReader, entityID int, existingEntities map[int]Entity, recordingPlayerSlot int) Entity {
+	classID := int(r.ReadInt(p.classBits()))
+	serialNum := int(r.ReadInt(constants.EntityHandleSerialNumberBits))
+	existingEntity := existingEntities[entityID]
 
-	r.Skip(constants.EntityHandleSerialNumberBits) // Serial Number
+	if existingEntity != nil && existingEntity.SerialNum() == serialNum {
+		existingEntity.ApplyUpdate(r)
+		return existingEntity
+	}
 
-	return p.serverClasses[scID].newEntity(r, entityID)
+	// Serial numbers are different, delete the entity
+	if existingEntity != nil {
+		existingEntity.Destroy()
+		delete(existingEntities, entityID)
+	}
+
+	return p.serverClasses[classID].newEntity(r, entityID, classID, serialNum, recordingPlayerSlot)
 }
 
 // classBits seems to calculate how many bits must be read for the server-class ID.

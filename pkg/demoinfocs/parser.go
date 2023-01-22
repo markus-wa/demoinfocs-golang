@@ -64,6 +64,11 @@ type parser struct {
 	err                          error            // Contains a error that occurred during parsing if any
 	errLock                      sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
 	decryptionKey                []byte           // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
+	/**
+	 * Set to the client slot of the recording player.
+	 * Always -1 for GOTV demos.
+	 */
+	recordingPlayerSlot int
 
 	// Additional fields, mainly caching & tracking things
 
@@ -188,6 +193,11 @@ func (p *parser) Progress() float32 {
 	}
 
 	return float32(p.currentFrame) / float32(p.header.PlaybackFrames)
+}
+
+// IsPOV indicates if the demo being parsed is a POV demo.
+func (p *parser) IsPOV() bool {
+	return p.recordingPlayerSlot != -1
 }
 
 /*
@@ -350,6 +360,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1
 	p.decryptionKey = config.NetMessageDecryptionKey
+	p.recordingPlayerSlot = -1
 
 	dispatcherCfg := dp.Config{
 		PanicHandler: func(v any) {

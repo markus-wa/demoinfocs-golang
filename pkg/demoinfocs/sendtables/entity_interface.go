@@ -14,6 +14,8 @@ type Entity interface {
 	ServerClass() *ServerClass
 	// ID returns the entity's ID.
 	ID() int
+	// SerialNum returns the entity's serial number.
+	SerialNum() int
 	// Properties returns all properties of the entity.
 	Properties() (out []Property)
 	// Property finds a property on the entity by name.
