@@ -15,6 +15,7 @@ var testData = struct {
 			{value: PropertyValue{IntVal: 20}},
 			{value: PropertyValue{IntVal: 30}},
 		},
+		serialNum: 1337,
 		serverClass: &ServerClass{propNameToIndex: map[string]int{
 			"myProp":     0,
 			"test":       1,
@@ -31,6 +32,10 @@ func TestEntity_Properties(t *testing.T) {
 
 func TestEntity_ServerClass(t *testing.T) {
 	assert.Equal(t, testData.entity.serverClass, testData.entity.ServerClass())
+}
+
+func TestEntity_SerialNum(t *testing.T) {
+	assert.Equal(t, testData.entity.serialNum, testData.entity.SerialNum())
 }
 
 func TestEntity_Property(t *testing.T) {
