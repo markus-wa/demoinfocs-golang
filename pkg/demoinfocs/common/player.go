@@ -51,9 +51,9 @@ func (p *Player) SteamID32() uint32 {
 	return ConvertSteamID64To32(p.SteamID64)
 }
 
-// IsAlive returns true if the Hp of the player are > 0.
+// IsAlive returns true if the player is alive.
 func (p *Player) IsAlive() bool {
-	return p.Health() > 0
+	return p.Health() > 0 || getInt(p.Entity, "m_lifeState") == 0
 }
 
 // IsBlinded returns true if the player is currently flashed.
@@ -298,7 +298,7 @@ func (p *Player) Position() r3.Vector {
 
 // PositionEyes returns the player's position with the Z value at eye height.
 // This is what you get from cl_showpos 1.
-// See lso Position().
+// See also Position().
 func (p *Player) PositionEyes() r3.Vector {
 	if p.Entity == nil {
 		return r3.Vector{}

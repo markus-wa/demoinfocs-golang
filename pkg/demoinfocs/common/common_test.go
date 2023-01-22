@@ -166,6 +166,11 @@ func TestConvertSteamID64To32(t *testing.T) {
 	assert.Equal(t, uint32(52686539), id)
 }
 
+type fakeProp struct {
+	propName string
+	value    st.PropertyValue
+}
+
 type demoInfoProviderMock struct {
 	tickRate             float64
 	ingameTick           int
@@ -217,6 +222,21 @@ func entityWithProperty(propName string, value st.PropertyValue) *stfake.Entity 
 	entity.On("Property", propName).Return(prop)
 	entity.On("PropertyValue", propName).Return(value, true)
 	entity.On("PropertyValueMust", propName).Return(value)
+
+	return entity
+}
+
+func entityWithProperties(properties []fakeProp) *stfake.Entity {
+	entity := entityWithID(1)
+
+	for _, prop := range properties {
+		property := new(stfake.Property)
+		property.On("Value").Return(prop.value)
+
+		entity.On("Property", prop.propName).Return(property)
+		entity.On("PropertyValue", prop.propName).Return(prop.value, true)
+		entity.On("PropertyValueMust", prop.propName).Return(prop.value)
+	}
 
 	return entity
 }
