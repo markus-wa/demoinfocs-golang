@@ -91,6 +91,7 @@ var propDecoder propertyDecoder
 type PropertyValue struct {
 	VectorVal r3.Vector
 	IntVal    int
+	Int64Val  int64
 	ArrayVal  []PropertyValue
 	StringVal string
 	FloatVal  float32
@@ -123,6 +124,9 @@ func (propertyDecoder) decodeProp(prop *property, reader *bit.BitReader) {
 	case propTypeString:
 		prop.value.StringVal = propDecoder.decodeString(reader)
 
+	case propTypeInt64:
+		prop.value.Int64Val = propDecoder.decodeInt64(prop.entry.prop, reader)
+
 	default:
 		panic(fmt.Sprintf("Unknown prop type %d", prop.entry.prop.rawType))
 	}
@@ -142,6 +146,36 @@ func (propertyDecoder) decodeInt(prop *sendTableProperty, reader *bit.BitReader)
 	}
 
 	return reader.ReadSignedInt(prop.numberOfBits)
+}
+
+func (propertyDecoder) decodeInt64(prop *sendTableProperty, reader *bit.BitReader) int64 {
+	if prop.flags.hasFlagSet(propFlagVarInt) {
+		if prop.flags.hasFlagSet(propFlagUnsigned) {
+			return int64(reader.ReadVarInt64())
+		}
+
+		return reader.ReadSignedVarInt64()
+	} else {
+		var high uint = 0
+		var low uint = 0
+		var isNegative bool = false
+		if prop.flags.hasFlagSet(propFlagUnsigned) {
+			low = reader.ReadInt(32)
+			high = reader.ReadInt(prop.numberOfBits - 32)
+		} else {
+			isNegative = reader.ReadBit()
+			low = reader.ReadInt(32)
+			high = reader.ReadInt(prop.numberOfBits - 32 - 1)
+		}
+
+		var result int64 = (int64(high) << 32) | int64(low)
+
+		if isNegative {
+			result = -result
+		}
+
+		return result
+	}
 }
 
 func (propertyDecoder) decodeFloat(prop *sendTableProperty, reader *bit.BitReader) float32 {
