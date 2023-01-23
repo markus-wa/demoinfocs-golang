@@ -195,11 +195,6 @@ func (p *parser) Progress() float32 {
 	return float32(p.currentFrame) / float32(p.header.PlaybackFrames)
 }
 
-// IsPOV indicates if the demo being parsed is a POV demo.
-func (p *parser) IsPOV() bool {
-	return p.recordingPlayerSlot != -1
-}
-
 /*
 RegisterEventHandler registers a handler for game events.
 

@@ -23,16 +23,6 @@ func TestParser_GameState(t *testing.T) {
 	assert.Equal(t, gs, (&parser{gameState: gs}).GameState())
 }
 
-func TestParser_IsPOV(t *testing.T) {
-	p := &parser{recordingPlayerSlot: -1}
-
-	assert.Equal(t, false, p.IsPOV())
-
-	p.recordingPlayerSlot = 3
-
-	assert.Equal(t, true, p.IsPOV())
-}
-
 func TestParser_CurrentTime(t *testing.T) {
 	p := &parser{
 		tickInterval: 2,

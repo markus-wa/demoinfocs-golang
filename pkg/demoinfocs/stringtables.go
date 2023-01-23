@@ -241,6 +241,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 
 			if p.header.ClientName == player.Name {
 				p.recordingPlayerSlot = entryIndex
+				p.eventDispatcher.Dispatch(events.RecordingPlayerDetected{PlayerSlot: entryIndex, PlayerInfo: player})
 			}
 
 			p.setRawPlayer(entryIndex, player)
