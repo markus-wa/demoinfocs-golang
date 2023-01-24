@@ -18,9 +18,9 @@ import (
 // A frame can contain multiple ticks (usually 2 or 4) if the tv_snapshotrate differs from the tick-rate the game was played at.
 type FrameDone struct{}
 
-// RecordingPlayerDetected signals that a player started recording the demo locally.
+// POVRecordingPlayerDetected signals that a player started recording the demo locally.
 // If this event is dispatched, it means it's a client-side (POV) demo.
-type RecordingPlayerDetected struct {
+type POVRecordingPlayerDetected struct {
 	PlayerSlot int
 	PlayerInfo common.PlayerInfo
 }
