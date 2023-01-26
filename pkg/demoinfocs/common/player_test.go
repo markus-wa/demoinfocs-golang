@@ -42,16 +42,28 @@ func TestPlayerWeapons(t *testing.T) {
 func TestPlayerAlive(t *testing.T) {
 	pl := newPlayer(0)
 
-	pl.Entity = entityWithProperty("m_iHealth", st.PropertyValue{IntVal: 100})
+	pl.Entity = entityWithProperties([]fakeProp{
+		{propName: "m_iHealth", value: st.PropertyValue{IntVal: 100}},
+		{propName: "m_lifeState", value: st.PropertyValue{IntVal: 0}},
+	})
 	assert.Equal(t, true, pl.IsAlive(), "Should be alive")
 
-	pl.Entity = entityWithProperty("m_iHealth", st.PropertyValue{IntVal: 1})
+	pl.Entity = entityWithProperties([]fakeProp{
+		{propName: "m_iHealth", value: st.PropertyValue{IntVal: 1}},
+		{propName: "m_lifeState", value: st.PropertyValue{IntVal: 0}},
+	})
 	assert.Equal(t, true, pl.IsAlive(), "Should be alive")
 
-	pl.Entity = entityWithProperty("m_iHealth", st.PropertyValue{IntVal: 0})
+	pl.Entity = entityWithProperties([]fakeProp{
+		{propName: "m_iHealth", value: st.PropertyValue{IntVal: 0}},
+		{propName: "m_lifeState", value: st.PropertyValue{IntVal: 2}},
+	})
 	assert.Equal(t, false, pl.IsAlive(), "Should be dead")
 
-	pl.Entity = entityWithProperty("m_iHealth", st.PropertyValue{IntVal: -10})
+	pl.Entity = entityWithProperties([]fakeProp{
+		{propName: "m_iHealth", value: st.PropertyValue{IntVal: -10}},
+		{propName: "m_lifeState", value: st.PropertyValue{IntVal: 2}},
+	})
 	assert.Equal(t, false, pl.IsAlive(), "Should be dead")
 }
 

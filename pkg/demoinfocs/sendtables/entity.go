@@ -15,11 +15,14 @@ import (
 type entity struct {
 	serverClass *ServerClass
 	id          int
+	serialNum   int
 	props       []property
 
-	onCreateFinished []func()
-	onDestroy        []func()
-	position         func() r3.Vector
+	onCreateFinished   []func()
+	onDestroy          []func()
+	position           func() r3.Vector
+	positionPropNameXY string
+	positionPropNameZ  string
 }
 
 // ServerClass returns the entity's server-class.
@@ -30,6 +33,11 @@ func (e *entity) ServerClass() *ServerClass {
 // ID returns the entity's ID.
 func (e *entity) ID() int {
 	return e.id
+}
+
+// SerialNum returns the entity's serial number.
+func (e *entity) SerialNum() int {
+	return e.serialNum
 }
 
 // Properties returns all properties of the entity.
@@ -189,13 +197,15 @@ func (e *entity) applyBaseline(baseline map[int]PropertyValue) {
 const (
 	maxCoordInt = 16384
 
-	propCellBits          = "m_cellbits"
-	propCellX             = "m_cellX"
-	propCellY             = "m_cellY"
-	propCellZ             = "m_cellZ"
-	propVecOrigin         = "m_vecOrigin"
-	propVecOriginPlayerXY = "cslocaldata.m_vecOrigin"
-	propVecOriginPlayerZ  = "cslocaldata.m_vecOrigin[2]"
+	propCellBits                  = "m_cellbits"
+	propCellX                     = "m_cellX"
+	propCellY                     = "m_cellY"
+	propCellZ                     = "m_cellZ"
+	propVecOrigin                 = "m_vecOrigin"
+	propVecOriginPlayerXY         = "cslocaldata.m_vecOrigin"
+	propVecOriginPlayerZ          = "cslocaldata.m_vecOrigin[2]"
+	nonLocalPropVecOriginPlayerXY = "csnonlocaldata.m_vecOrigin"
+	nonLocalPropVecOriginPlayerZ  = "csnonlocaldata.m_vecOrigin[2]"
 
 	serverClassPlayer = "CCSPlayer"
 )
@@ -203,11 +213,22 @@ const (
 // Sets up the entity.Position() function
 // Necessary because Property() is fairly slow
 // This way we only need to find the necessary properties once
-func (e *entity) initialize() {
+func (e *entity) initialize(recordingPlayerSlot int) {
 	// Player positions are calculated differently
 	if e.isPlayer() {
-		xyProp := e.Property(propVecOriginPlayerXY)
-		zProp := e.Property(propVecOriginPlayerZ)
+		isGOTV := recordingPlayerSlot == -1
+		isRecording := recordingPlayerSlot == e.id-1
+
+		if isGOTV || isRecording {
+			e.positionPropNameXY = propVecOriginPlayerXY
+			e.positionPropNameZ = propVecOriginPlayerZ
+		} else {
+			e.positionPropNameXY = nonLocalPropVecOriginPlayerXY
+			e.positionPropNameZ = nonLocalPropVecOriginPlayerZ
+		}
+
+		xyProp := e.Property(e.positionPropNameXY)
+		zProp := e.Property(e.positionPropNameZ)
 
 		e.position = func() r3.Vector {
 			xy := xyProp.Value().VectorVal
@@ -266,8 +287,8 @@ func (e *entity) OnPositionUpdate(h func(pos r3.Vector)) {
 	}
 
 	if e.isPlayer() {
-		e.Property(propVecOriginPlayerXY).OnUpdate(firePosUpdate)
-		e.Property(propVecOriginPlayerZ).OnUpdate(firePosUpdate)
+		e.Property(e.positionPropNameXY).OnUpdate(firePosUpdate)
+		e.Property(e.positionPropNameZ).OnUpdate(firePosUpdate)
 	} else {
 		e.Property(propCellX).OnUpdate(firePosUpdate)
 		e.Property(propCellY).OnUpdate(firePosUpdate)
@@ -366,6 +387,7 @@ func (pe *property) firePropertyUpdate() {
 Bind binds a property's value to a pointer.
 
 Example:
+
 	var i int
 	property.Bind(&i, ValTypeInt)
 

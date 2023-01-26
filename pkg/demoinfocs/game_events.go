@@ -124,6 +124,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"bomb_planted":                    delayIfNoPlayers(geh.bombPlanted),     // Plant finished
 		"bot_takeover":                    delay(geh.botTakeover),                // Bot got taken over
 		"buytime_ended":                   nil,                                   // Not actually end of buy time, seems to only be sent once per game at the start
+		"choppers_incoming_warning":       nil,                                   // Helicopters are coming (Danger zone mode)
 		"cs_intermission":                 nil,                                   // Dunno, only in locally recorded (POV) demo
 		"cs_match_end_restart":            nil,                                   // Yawn
 		"cs_pre_restart":                  nil,                                   // Not sure, doesn't seem to be important
@@ -140,6 +141,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"enter_buyzone":                   nil,                                   // Dunno, only in locally recorded (POV) demo
 		"exit_buyzone":                    nil,                                   // Dunno, only in locally recorded (POV) demo
 		"flashbang_detonate":              geh.flashBangDetonate,                 // Flash exploded
+		"firstbombs_incoming_warning":     nil,                                   // First wave artillery incoming (Danger zone mode)
 		"hegrenade_detonate":              geh.heGrenadeDetonate,                 // HE exploded
 		"hostage_killed":                  geh.hostageKilled,                     // Hostage killed
 		"hostage_hurt":                    geh.hostageHurt,                       // Hostage hurt
@@ -172,6 +174,8 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"player_spawn":                    nil,                                   // Player spawn
 		"player_spawned":                  nil,                                   // Only present in locally recorded (POV) demos
 		"player_given_c4":                 nil,                                   // Dunno, only present in locally recorded (POV) demos
+		"player_ping":                     nil,                                   // When a player uses the "ping system" added with the operation Broken Fang, only present in locally recorded (POV) demos
+		"player_ping_stop":                nil,                                   // When a player's ping expired, only present in locally recorded (POV) demos
 
 		// Player changed team. Delayed for two reasons
 		// - team IDs of other players changing teams in the same tick might not have changed yet
@@ -192,10 +196,13 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"round_start":                    geh.roundStart,                   // Round started
 		"round_time_warning":             nil,                              // Round time warning
 		"server_cvar":                    nil,                              // Dunno
+		"show_survival_respawn_status":   nil,                              // Dunno, (Danger zone mode)
+		"survival_paradrop_spawn":        nil,                              // A paradrop is coming (Danger zone mode)
 		"smokegrenade_detonate":          geh.smokeGrenadeDetonate,         // Smoke popped
 		"smokegrenade_expired":           geh.smokeGrenadeExpired,          // Smoke expired
 		"switch_team":                    nil,                              // Dunno, only present in POV demos
 		"tournament_reward":              nil,                              // Dunno
+		"vote_cast":                      nil,                              // Dunno, only present in POV demos
 		"weapon_fire":                    delayIfNoPlayers(geh.weaponFire), // Weapon was fired
 		"weapon_fire_on_empty":           nil,                              // Sounds boring
 		"weapon_reload":                  geh.weaponReload,                 // Weapon reloaded

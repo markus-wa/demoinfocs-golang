@@ -22,6 +22,7 @@ type Property interface {
 	   Bind binds a property's value to a pointer.
 
 	   Example:
+
 	   	var i int
 	   	property.Bind(&i, ValTypeInt)
 

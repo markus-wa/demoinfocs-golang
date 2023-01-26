@@ -16,6 +16,7 @@ const (
 	smallBuffer      = 512
 	largeBuffer      = 1024 * 128
 	maxVarInt32Bytes = 5
+	maxVarintBytes   = 10
 )
 
 // BitReader wraps github.com/markus-wa/gobitread.BitReader and provides additional functionality specific to CS:GO demos.
@@ -67,10 +68,31 @@ func (r *BitReader) ReadVarInt32() uint32 {
 	return res
 }
 
+// ReadVarInt64 reads a variable size unsigned int (max 64-bit).
+func (r *BitReader) ReadVarInt64() uint64 {
+	var (
+		res uint64
+		b   uint64 = 0x80
+	)
+
+	for count := uint(0); b&0x80 != 0 && count != maxVarintBytes; count++ {
+		b = uint64(r.ReadSingleByte())
+		res |= (b & 0x7f) << (7 * count)
+	}
+
+	return res
+}
+
 // ReadSignedVarInt32 reads a variable size signed int (max 32-bit).
 func (r *BitReader) ReadSignedVarInt32() int32 {
 	res := r.ReadVarInt32()
 	return int32((res >> 1) ^ -(res & 1))
+}
+
+// ReadSignedVarInt64 reads a variable size signed int (max 64-bit).
+func (r *BitReader) ReadSignedVarInt64() int64 {
+	res := r.ReadVarInt64()
+	return int64((res >> 1) ^ -(res & 1))
 }
 
 // ReadUBitInt reads some kind of variable size uint.

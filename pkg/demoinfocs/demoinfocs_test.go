@@ -607,7 +607,7 @@ func assertGolden(tb testing.TB, assertions *assert.Assertions, testCase string,
 }
 
 func removePointers(s []byte) []byte {
-	r := regexp.MustCompile(`\(0x[\da-f]{10}\)`)
+	r := regexp.MustCompile(`\(0x[\da-f]+\)`)
 
 	return r.ReplaceAll(s, []byte("(non-nil)"))
 }
