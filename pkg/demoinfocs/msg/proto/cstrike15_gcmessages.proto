@@ -1,6 +1,8 @@
 import "steammessages.proto";
 import "engine_gcmessages.proto";
-import "gcsdk_gcmessages.proto";
+
+option optimize_for = SPEED;
+option cc_generic_services = false;
 
 enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_Base = 9100;
@@ -191,7 +193,6 @@ message GlobalStatistics {
 	optional uint32 active_survey_id = 13;
 	optional uint32 rtime32_cur = 14;
 	optional uint32 rtime32_event_start = 15;
-	optional uint32 required_appid_version2 = 16;
 }
 
 message OperationalStatisticDescription {
@@ -848,6 +849,10 @@ message CMsgGCCStrike15_v2_MatchEndRewardDropsNotification {
 	optional .CEconItemPreviewDataBlock iteminfo = 6;
 }
 
+message CMsgItemAcknowledged {
+	optional .CEconItemPreviewDataBlock iteminfo = 1;
+}
+
 message CMsgGCCStrike15_v2_Client2GCEconPreviewDataBlockRequest {
 	optional uint64 param_s = 1;
 	optional uint64 param_a = 2;
@@ -967,24 +972,8 @@ message CMsgGCCStrike15_v2_Fantasy {
 	repeated .CMsgGCCStrike15_v2_Fantasy.FantasyTeam teams = 2;
 }
 
-message CMsgLegacySource1ClientWelcome {
-	message Location {
-		optional float latitude = 1;
-		optional float longitude = 2;
-		optional string country = 3;
-	}
-
-	optional uint32 version = 1;
-	optional bytes game_data = 2;
-	repeated .CMsgSOCacheSubscribed outofdate_subscribed_caches = 3;
-	repeated .CMsgSOCacheSubscriptionCheck uptodate_subscribed_caches = 4;
-	optional .CMsgLegacySource1ClientWelcome.Location location = 5;
-	optional bytes game_data2 = 6;
-	optional uint32 rtime32_gc_welcome_timestamp = 7;
-	optional uint32 currency = 8;
-	optional uint32 balance = 9;
-	optional string balance_url = 10;
-	optional string txn_country_code = 11;
+message CAttribute_String {
+	optional string value = 1;
 }
 
 message CMsgCStrike15Welcome {
@@ -1136,7 +1125,7 @@ message PlayerDecalDigitalSignature {
 	optional uint32 rtime = 3;
 	repeated float endpos = 4;
 	repeated float startpos = 5;
-	repeated float left = 6;
+	repeated float right = 6;
 	optional uint32 tx_defidx = 7;
 	optional int32 entindex = 8;
 	optional uint32 hitbox = 9;
