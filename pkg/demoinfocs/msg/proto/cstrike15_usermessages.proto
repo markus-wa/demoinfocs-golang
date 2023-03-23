@@ -1,87 +1,83 @@
-import "google/protobuf/descriptor.proto";
-import "netmessages.proto";
+import "networkbasetypes.proto";
 import "cstrike15_gcmessages.proto";
 
-option optimize_for = SPEED;
-option cc_generic_services = false;
-
 enum ECstrike15UserMessages {
-	CS_UM_VGUIMenu = 1;
-	CS_UM_Geiger = 2;
-	CS_UM_Train = 3;
-	CS_UM_HudText = 4;
-	CS_UM_SayText = 5;
-	CS_UM_SayText2 = 6;
-	CS_UM_TextMsg = 7;
-	CS_UM_HudMsg = 8;
-	CS_UM_ResetHud = 9;
-	CS_UM_GameTitle = 10;
-	CS_UM_Shake = 12;
-	CS_UM_Fade = 13;
-	CS_UM_Rumble = 14;
-	CS_UM_CloseCaption = 15;
-	CS_UM_CloseCaptionDirect = 16;
-	CS_UM_SendAudio = 17;
-	CS_UM_RawAudio = 18;
-	CS_UM_VoiceMask = 19;
-	CS_UM_RequestState = 20;
-	CS_UM_Damage = 21;
-	CS_UM_RadioText = 22;
-	CS_UM_HintText = 23;
-	CS_UM_KeyHintText = 24;
-	CS_UM_ProcessSpottedEntityUpdate = 25;
-	CS_UM_ReloadEffect = 26;
-	CS_UM_AdjustMoney = 27;
-	CS_UM_UpdateTeamMoney = 28;
-	CS_UM_StopSpectatorMode = 29;
-	CS_UM_KillCam = 30;
-	CS_UM_DesiredTimescale = 31;
-	CS_UM_CurrentTimescale = 32;
-	CS_UM_AchievementEvent = 33;
-	CS_UM_MatchEndConditions = 34;
-	CS_UM_DisconnectToLobby = 35;
-	CS_UM_PlayerStatsUpdate = 36;
-	CS_UM_DisplayInventory = 37;
-	CS_UM_WarmupHasEnded = 38;
-	CS_UM_ClientInfo = 39;
-	CS_UM_XRankGet = 40;
-	CS_UM_XRankUpd = 41;
-	CS_UM_CallVoteFailed = 45;
-	CS_UM_VoteStart = 46;
-	CS_UM_VotePass = 47;
-	CS_UM_VoteFailed = 48;
-	CS_UM_VoteSetup = 49;
-	CS_UM_ServerRankRevealAll = 50;
-	CS_UM_SendLastKillerDamageToClient = 51;
-	CS_UM_ServerRankUpdate = 52;
-	CS_UM_ItemPickup = 53;
-	CS_UM_ShowMenu = 54;
-	CS_UM_BarTime = 55;
-	CS_UM_AmmoDenied = 56;
-	CS_UM_MarkAchievement = 57;
-	CS_UM_MatchStatsUpdate = 58;
-	CS_UM_ItemDrop = 59;
-	CS_UM_GlowPropTurnOff = 60;
-	CS_UM_SendPlayerItemDrops = 61;
-	CS_UM_RoundBackupFilenames = 62;
-	CS_UM_SendPlayerItemFound = 63;
-	CS_UM_ReportHit = 64;
-	CS_UM_XpUpdate = 65;
-	CS_UM_QuestProgress = 66;
-	CS_UM_ScoreLeaderboardData = 67;
-	CS_UM_PlayerDecalDigitalSignature = 68;
-	CS_UM_WeaponSound = 69;
-	CS_UM_UpdateScreenHealthBar = 70;
-	CS_UM_EntityOutlineHighlight = 71;
-	CS_UM_SSUI = 72;
-	CS_UM_SurvivalStats = 73;
-	CS_UM_DisconnectToLobby2 = 74;
-	CS_UM_EndOfMatchAllPlayersData = 75;
-	CS_UM_RoundImpactScoreData = 79;
-	CS_UM_CurrentRoundOdds = 80;
-	CS_UM_DeepStats = 81;
-	CS_UM_UtilMsg = 82;
-	CS_UM_UtilMsg_Response = 83;
+	CS_UM_VGUIMenu = 301;
+	CS_UM_Geiger = 302;
+	CS_UM_Train = 303;
+	CS_UM_HudText = 304;
+	CS_UM_SayText = 305;
+	CS_UM_SayText2 = 306;
+	CS_UM_TextMsg = 307;
+	CS_UM_HudMsg = 308;
+	CS_UM_ResetHud = 309;
+	CS_UM_GameTitle = 310;
+	CS_UM_Shake = 312;
+	CS_UM_Fade = 313;
+	CS_UM_Rumble = 314;
+	CS_UM_CloseCaption = 315;
+	CS_UM_CloseCaptionDirect = 316;
+	CS_UM_SendAudio = 317;
+	CS_UM_RawAudio = 318;
+	CS_UM_VoiceMask = 319;
+	CS_UM_RequestState = 320;
+	CS_UM_Damage = 321;
+	CS_UM_RadioText = 322;
+	CS_UM_HintText = 323;
+	CS_UM_KeyHintText = 324;
+	CS_UM_ProcessSpottedEntityUpdate = 325;
+	CS_UM_ReloadEffect = 326;
+	CS_UM_AdjustMoney = 327;
+	CS_UM_UpdateTeamMoney = 328;
+	CS_UM_StopSpectatorMode = 329;
+	CS_UM_KillCam = 330;
+	CS_UM_DesiredTimescale = 331;
+	CS_UM_CurrentTimescale = 332;
+	CS_UM_AchievementEvent = 333;
+	CS_UM_MatchEndConditions = 334;
+	CS_UM_DisconnectToLobby = 335;
+	CS_UM_PlayerStatsUpdate = 336;
+	CS_UM_WarmupHasEnded = 338;
+	CS_UM_ClientInfo = 339;
+	CS_UM_XRankGet = 340;
+	CS_UM_XRankUpd = 341;
+	CS_UM_CallVoteFailed = 345;
+	CS_UM_VoteStart = 346;
+	CS_UM_VotePass = 347;
+	CS_UM_VoteFailed = 348;
+	CS_UM_VoteSetup = 349;
+	CS_UM_ServerRankRevealAll = 350;
+	CS_UM_SendLastKillerDamageToClient = 351;
+	CS_UM_ServerRankUpdate = 352;
+	CS_UM_ItemPickup = 353;
+	CS_UM_ShowMenu = 354;
+	CS_UM_BarTime = 355;
+	CS_UM_AmmoDenied = 356;
+	CS_UM_MarkAchievement = 357;
+	CS_UM_MatchStatsUpdate = 358;
+	CS_UM_ItemDrop = 359;
+	CS_UM_GlowPropTurnOff = 360;
+	CS_UM_SendPlayerItemDrops = 361;
+	CS_UM_RoundBackupFilenames = 362;
+	CS_UM_SendPlayerItemFound = 363;
+	CS_UM_ReportHit = 364;
+	CS_UM_XpUpdate = 365;
+	CS_UM_QuestProgress = 366;
+	CS_UM_ScoreLeaderboardData = 367;
+	CS_UM_PlayerDecalDigitalSignature = 368;
+	CS_UM_WeaponSound = 369;
+	CS_UM_UpdateScreenHealthBar = 370;
+	CS_UM_EntityOutlineHighlight = 371;
+	CS_UM_SSUI = 372;
+	CS_UM_SurvivalStats = 373;
+	CS_UM_DisconnectToLobby2 = 374;
+	CS_UM_EndOfMatchAllPlayersData = 375;
+	CS_UM_PostRoundDamageReport = 376;
+	CS_UM_RoundEndReportData = 379;
+	CS_UM_CurrentRoundOdds = 380;
+	CS_UM_DeepStats = 381;
+	CS_UM_UtilMsg = 382;
+	CS_UM_ShootInfo = 383;
 }
 
 enum ECSUsrMsg_DisconnectToLobby_Action {
@@ -90,14 +86,14 @@ enum ECSUsrMsg_DisconnectToLobby_Action {
 }
 
 message CCSUsrMsg_VGUIMenu {
-	message Subkey {
+	message Keys {
 		optional string name = 1;
-		optional string str = 2;
+		optional string value = 2;
 	}
 
 	optional string name = 1;
 	optional bool show = 2;
-	repeated .CCSUsrMsg_VGUIMenu.Subkey subkeys = 3;
+	repeated .CCSUsrMsg_VGUIMenu.Keys keys = 3;
 }
 
 message CCSUsrMsg_Geiger {
@@ -110,26 +106,6 @@ message CCSUsrMsg_Train {
 
 message CCSUsrMsg_HudText {
 	optional string text = 1;
-}
-
-message CCSUsrMsg_SayText {
-	optional int32 ent_idx = 1;
-	optional string text = 2;
-	optional bool chat = 3;
-	optional bool textallchat = 4;
-}
-
-message CCSUsrMsg_SayText2 {
-	optional int32 ent_idx = 1;
-	optional bool chat = 2;
-	optional string msg_name = 3;
-	repeated string params = 4;
-	optional bool textallchat = 5;
-}
-
-message CCSUsrMsg_TextMsg {
-	optional int32 msg_dst = 1;
-	repeated string params = 3;
 }
 
 message CCSUsrMsg_HudMsg {
@@ -184,7 +160,7 @@ message CCSUsrMsg_SendAudio {
 
 message CCSUsrMsg_RawAudio {
 	optional int32 pitch = 1;
-	optional int32 entidx = 2;
+	optional int32 entidx = 2 [default = -1];
 	optional float duration = 3;
 	optional string voice_filename = 4;
 }
@@ -202,27 +178,27 @@ message CCSUsrMsg_VoiceMask {
 message CCSUsrMsg_Damage {
 	optional int32 amount = 1;
 	optional .CMsgVector inflictor_world_pos = 2;
-	optional int32 victim_entindex = 3;
+	optional int32 victim_entindex = 3 [default = -1];
 }
 
 message CCSUsrMsg_RadioText {
 	optional int32 msg_dst = 1;
-	optional int32 client = 2;
+	optional int32 client = 2 [default = -1];
 	optional string msg_name = 3;
 	repeated string params = 4;
 }
 
 message CCSUsrMsg_HintText {
-	optional string text = 1;
+	optional string message = 1;
 }
 
 message CCSUsrMsg_KeyHintText {
-	repeated string hints = 1;
+	repeated string messages = 1;
 }
 
 message CCSUsrMsg_ProcessSpottedEntityUpdate {
 	message SpottedEntityUpdate {
-		optional int32 entity_idx = 1;
+		optional int32 entity_idx = 1 [default = -1];
 		optional int32 class_id = 2;
 		optional int32 origin_x = 3;
 		optional int32 origin_y = 4;
@@ -243,11 +219,11 @@ message CCSUsrMsg_SendPlayerItemDrops {
 
 message CCSUsrMsg_SendPlayerItemFound {
 	optional .CEconItemPreviewDataBlock iteminfo = 1;
-	optional int32 entindex = 2;
+	optional int32 playerslot = 2 [default = -1];
 }
 
 message CCSUsrMsg_ReloadEffect {
-	optional int32 entidx = 1;
+	optional int32 entidx = 1 [default = -1];
 	optional int32 actanim = 2;
 	optional float origin_x = 3;
 	optional float origin_y = 4;
@@ -255,23 +231,24 @@ message CCSUsrMsg_ReloadEffect {
 }
 
 message CCSUsrMsg_WeaponSound {
-	optional int32 entidx = 1;
+	optional int32 entidx = 1 [default = -1];
 	optional float origin_x = 2;
 	optional float origin_y = 3;
 	optional float origin_z = 4;
 	optional string sound = 5;
 	optional float timestamp = 6;
+	optional fixed32 source_soundscapeid = 7;
 }
 
 message CCSUsrMsg_UpdateScreenHealthBar {
-	optional int32 entidx = 1;
+	optional int32 entidx = 1 [default = -1];
 	optional float healthratio_old = 2;
 	optional float healthratio_new = 3;
 	optional int32 style = 4;
 }
 
 message CCSUsrMsg_EntityOutlineHighlight {
-	optional int32 entidx = 1;
+	optional int32 entidx = 1 [default = -1];
 	optional bool removehighlight = 2;
 }
 
@@ -288,8 +265,8 @@ message CCSUsrMsg_ReportHit {
 
 message CCSUsrMsg_KillCam {
 	optional int32 obs_mode = 1;
-	optional int32 first_target = 2;
-	optional int32 second_target = 3;
+	optional int32 first_target = 2 [default = -1];
+	optional int32 second_target = 3 [default = -1];
 }
 
 message CCSUsrMsg_DesiredTimescale {
@@ -313,7 +290,7 @@ message CCSUsrMsg_MatchEndConditions {
 	optional int32 fraglimit = 1;
 	optional int32 mp_maxrounds = 2;
 	optional int32 mp_winlimit = 3;
-	optional int32 mp_timelimit = 4;
+	optional float mp_timelimit = 4;
 }
 
 message CCSUsrMsg_PlayerStatsUpdate {
@@ -324,13 +301,8 @@ message CCSUsrMsg_PlayerStatsUpdate {
 
 	optional int32 version = 1;
 	repeated .CCSUsrMsg_PlayerStatsUpdate.Stat stats = 4;
-	optional int32 user_id = 5;
+	optional uint32 ehandle = 5;
 	optional int32 crc = 6;
-}
-
-message CCSUsrMsg_DisplayInventory {
-	optional bool display = 1;
-	optional int32 user_id = 2;
 }
 
 message CCSUsrMsg_QuestProgress {
@@ -366,13 +338,13 @@ message CCSUsrMsg_CallVoteFailed {
 
 message CCSUsrMsg_VoteStart {
 	optional int32 team = 1;
-	optional int32 ent_idx = 2;
+	optional int32 player_slot = 2 [default = -1];
 	optional int32 vote_type = 3;
 	optional string disp_str = 4;
 	optional string details_str = 5;
 	optional string other_team_str = 6;
 	optional bool is_yes_no_vote = 7;
-	optional int32 entidx_target = 8;
+	optional int32 player_slot_target = 8 [default = -1];
 }
 
 message CCSUsrMsg_VotePass {
@@ -396,6 +368,8 @@ message CCSUsrMsg_SendLastKillerDamageToClient {
 	optional int32 damage_given = 2;
 	optional int32 num_hits_taken = 3;
 	optional int32 damage_taken = 4;
+	optional int32 actual_damage_given = 5;
+	optional int32 actual_damage_taken = 6;
 }
 
 message CCSUsrMsg_ServerRankUpdate {
@@ -430,7 +404,7 @@ message CCSUsrMsg_BarTime {
 }
 
 message CCSUsrMsg_AmmoDenied {
-	optional int32 ammoIdx = 1;
+	optional int32 ammoidx = 1;
 }
 
 message CCSUsrMsg_MarkAchievement {
@@ -447,7 +421,7 @@ message CCSUsrMsg_ItemDrop {
 }
 
 message CCSUsrMsg_GlowPropTurnOff {
-	optional int32 entidx = 1;
+	optional int32 entidx = 1 [default = -1];
 }
 
 message CCSUsrMsg_RoundBackupFilenames {
@@ -500,7 +474,7 @@ message CCSUsrMsg_EndOfMatchAllPlayersData {
 	}
 
 	message PlayerData {
-		optional int32 entindex = 1;
+		optional int32 slot = 1 [default = -1];
 		optional uint64 xuid = 2;
 		optional string name = 3;
 		optional int32 teamnumber = 4;
@@ -514,11 +488,11 @@ message CCSUsrMsg_EndOfMatchAllPlayersData {
 	optional int32 scene = 2;
 }
 
-message CCSUsrMsg_RoundImpactScoreData {
-	message RisEvent {
+message CCSUsrMsg_RoundEndReportData {
+	message RerEvent {
 		message Victim {
 			optional int32 team_number = 1;
-			optional int32 entindex = 2;
+			optional int32 playerslot = 2 [default = -1];
 			optional uint64 xuid = 3;
 			optional int32 color = 4;
 			optional bool is_bot = 5;
@@ -530,21 +504,21 @@ message CCSUsrMsg_RoundImpactScoreData {
 		}
 
 		message Damage {
-			optional int32 target_entindex = 1;
-			optional uint64 target_xuid = 2;
+			optional int32 other_playerslot = 1 [default = -1];
+			optional uint64 other_xuid = 2;
 			optional int32 health_removed = 3;
 			optional int32 num_hits = 4;
 			optional int32 return_health_removed = 5;
-			optional int32 num_return_hits = 6;
+			optional int32 return_num_hits = 6;
 		}
 
 		optional float timestamp = 1;
 		optional int32 terrorist_odds = 2;
 		optional int32 ct_alive = 3;
 		optional int32 t_alive = 4;
-		optional .CCSUsrMsg_RoundImpactScoreData.RisEvent.Victim victim_data = 5;
-		optional .CCSUsrMsg_RoundImpactScoreData.RisEvent.Objective objective_data = 6;
-		repeated .CCSUsrMsg_RoundImpactScoreData.RisEvent.Damage all_damage_data = 7;
+		optional .CCSUsrMsg_RoundEndReportData.RerEvent.Victim victim_data = 5;
+		optional .CCSUsrMsg_RoundEndReportData.RerEvent.Objective objective_data = 6;
+		repeated .CCSUsrMsg_RoundEndReportData.RerEvent.Damage all_damage_data = 7;
 	}
 
 	message InitialConditions {
@@ -553,8 +527,18 @@ message CCSUsrMsg_RoundImpactScoreData {
 		optional int32 terrorist_odds = 3;
 	}
 
-	optional .CCSUsrMsg_RoundImpactScoreData.InitialConditions init_conditions = 1;
-	repeated .CCSUsrMsg_RoundImpactScoreData.RisEvent all_ris_event_data = 2;
+	optional .CCSUsrMsg_RoundEndReportData.InitialConditions init_conditions = 1;
+	repeated .CCSUsrMsg_RoundEndReportData.RerEvent all_rer_event_data = 2;
+}
+
+message CCSUsrMsg_PostRoundDamageReport {
+	optional uint64 other_xuid = 1;
+	optional int32 given_kill_type = 2;
+	optional int32 given_health_removed = 3;
+	optional int32 given_num_hits = 4;
+	optional int32 taken_kill_type = 5;
+	optional int32 taken_health_removed = 6;
+	optional int32 taken_num_hits = 7;
 }
 
 message CCSUsrMsg_CurrentRoundOdds {
@@ -563,6 +547,13 @@ message CCSUsrMsg_CurrentRoundOdds {
 
 message CCSUsrMsg_DeepStats {
 	optional .CMsgGCCStrike15_ClientDeepStats stats = 1;
+}
+
+message CCSUsrMsg_ShootInfo {
+	optional int32 frame_number = 1;
+	repeated .CMsgTransform hitbox_transforms = 2;
+	optional .CMsgVector shoot_pos = 3;
+	optional .CMsgQAngle shoot_dir = 4;
 }
 
 message CCSUsrMsg_ResetHud {
@@ -596,33 +587,4 @@ message CCSUsrMsg_ClientInfo {
 message CCSUsrMsg_ServerRankRevealAll {
 	optional int32 seconds_till_shutdown = 1;
 	optional .CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve reservation = 2;
-}
-
-message CCSUsrMsg_UtilMsg {
-	optional string util_action = 1;
-	optional int32 util1 = 2;
-	optional int32 util2 = 3;
-	optional int32 util3 = 4;
-	optional int32 util4 = 5;
-	optional int32 util5 = 6;
-}
-
-message CCSUsrMsg_UtilMsg_Response {
-	message ItemDetail {
-		optional int32 index = 1;
-		optional int32 hash = 2;
-		optional int32 crc = 3;
-		optional string name = 4;
-	}
-
-	optional fixed32 crc = 1;
-	optional int32 item_count = 2;
-	optional fixed32 crc2 = 3;
-	optional int32 item_count2 = 4;
-	repeated int32 crc_part = 5;
-	repeated int32 crc_part2 = 6;
-	optional int32 client_timestamp = 7;
-	optional int32 platform = 8;
-	repeated .CCSUsrMsg_UtilMsg_Response.ItemDetail itemdetails = 9;
-	optional int32 itemgroup = 10;
 }
