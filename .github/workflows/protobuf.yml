@@ -1,8 +1,5 @@
 name: Update Protobufs
 on:
-  push:
-    branches:
-      - cs2-protos
   workflow_dispatch: {}
   schedule:
     - cron: '0 0 * * *'
