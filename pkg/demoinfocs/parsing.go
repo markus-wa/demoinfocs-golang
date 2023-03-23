@@ -7,14 +7,17 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/snappy"
 	"github.com/markus-wa/go-unassert"
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
+
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 )
 
 const maxOsPath = 260
@@ -45,18 +48,24 @@ var (
 func (p *parser) ParseHeader() (common.DemoHeader, error) {
 	var h common.DemoHeader
 	h.Filestamp = p.bitReader.ReadCString(8)
-	h.Protocol = p.bitReader.ReadSignedInt(32)
-	h.NetworkProtocol = p.bitReader.ReadSignedInt(32)
-	h.ServerName = p.bitReader.ReadCString(maxOsPath)
-	h.ClientName = p.bitReader.ReadCString(maxOsPath)
-	h.MapName = p.bitReader.ReadCString(maxOsPath)
-	h.GameDirectory = p.bitReader.ReadCString(maxOsPath)
-	h.PlaybackTime = time.Duration(p.bitReader.ReadFloat() * float32(time.Second))
-	h.PlaybackTicks = p.bitReader.ReadSignedInt(32)
-	h.PlaybackFrames = p.bitReader.ReadSignedInt(32)
-	h.SignonLength = p.bitReader.ReadSignedInt(32)
 
-	if h.Filestamp != "HL2DEMO" {
+	switch h.Filestamp {
+	case "HL2DEMO":
+		h.Protocol = p.bitReader.ReadSignedInt(32)
+		h.NetworkProtocol = p.bitReader.ReadSignedInt(32)
+		h.ServerName = p.bitReader.ReadCString(maxOsPath)
+		h.ClientName = p.bitReader.ReadCString(maxOsPath)
+		h.MapName = p.bitReader.ReadCString(maxOsPath)
+		h.GameDirectory = p.bitReader.ReadCString(maxOsPath)
+		h.PlaybackTime = time.Duration(p.bitReader.ReadFloat() * float32(time.Second))
+		h.PlaybackTicks = p.bitReader.ReadSignedInt(32)
+		h.PlaybackFrames = p.bitReader.ReadSignedInt(32)
+		h.SignonLength = p.bitReader.ReadSignedInt(32)
+
+	case "PBDEMS2":
+		p.bitReader.Skip(8 << 3) // skip 8 bytes
+
+	default:
 		return h, ErrInvalidFileType
 	}
 
@@ -206,7 +215,7 @@ const (
 )
 
 //nolint:funlen,cyclop
-func (p *parser) parseFrame() bool {
+func (p *parser) parseFrameS1() bool {
 	cmd := demoCommand(p.bitReader.ReadSingleByte())
 
 	// Send ingame tick number update
@@ -270,6 +279,81 @@ func (p *parser) parseFrame() bool {
 	p.msgQueue <- frameParsedToken
 
 	return true
+}
+
+var demoCommandMsgs = map[msgs2.EDemoCommands]proto.Message{
+	msgs2.EDemoCommands_DEM_Stop:         &msgs2.CDemoStop{},
+	msgs2.EDemoCommands_DEM_FileHeader:   &msgs2.CDemoFileHeader{},
+	msgs2.EDemoCommands_DEM_FileInfo:     &msgs2.CDemoFileInfo{},
+	msgs2.EDemoCommands_DEM_SyncTick:     &msgs2.CDemoSyncTick{},
+	msgs2.EDemoCommands_DEM_SendTables:   &msgs2.CDemoSendTables{},
+	msgs2.EDemoCommands_DEM_ClassInfo:    &msgs2.CDemoClassInfo{},
+	msgs2.EDemoCommands_DEM_StringTables: &msgs2.CDemoStringTables{},
+	msgs2.EDemoCommands_DEM_Packet:       &msgs2.CDemoPacket{},
+	msgs2.EDemoCommands_DEM_SignonPacket: &msgs2.CDemoPacket{},
+	msgs2.EDemoCommands_DEM_ConsoleCmd:   &msgs2.CDemoConsoleCmd{},
+	msgs2.EDemoCommands_DEM_CustomData:   &msgs2.CDemoCustomData{},
+	msgs2.EDemoCommands_DEM_UserCmd:      &msgs2.CDemoUserCmd{},
+	msgs2.EDemoCommands_DEM_FullPacket:   &msgs2.CDemoFullPacket{},
+	msgs2.EDemoCommands_DEM_SaveGame:     &msgs2.CDemoSaveGame{},
+	msgs2.EDemoCommands_DEM_SpawnGroups:  &msgs2.CDemoSpawnGroups{}}
+
+func (p *parser) parseFrameS2() bool {
+	cmd := msgs2.EDemoCommands(p.bitReader.ReadVarInt32())
+
+	msgType := cmd & ^msgs2.EDemoCommands_DEM_IsCompressed
+	msgCompressed := (cmd & msgs2.EDemoCommands_DEM_IsCompressed) != 0
+
+	tick := p.bitReader.ReadVarInt32()
+
+	// This appears to actually be an int32, where a -1 means pre-game.
+	if tick == 4294967295 {
+		tick = 0
+	}
+
+	size := p.bitReader.ReadVarInt32()
+
+	buf := p.bitReader.ReadBytes(int(size))
+
+	if msgCompressed {
+		var err error
+
+		buf, err = snappy.Decode(nil, buf)
+		if err != nil {
+			panic(err) // FIXME: avoid panic
+		}
+	}
+
+	msg := demoCommandMsgs[msgType]
+
+	if msg == nil {
+		panic(fmt.Sprintf("Unknown demo command: %d", msgType))
+	}
+
+	err := proto.Unmarshal(buf, msg)
+	if err != nil {
+		panic(err) // FIXME: avoid panic
+	}
+
+	p.msgQueue <- msg
+
+	p.msgQueue <- ingameTickNumber(int32(tick))
+
+	return true
+}
+
+// FIXME: refactor to interface instead of switch
+func (p *parser) parseFrame() bool {
+	switch p.header.Filestamp {
+	case "HL2DEMO":
+		return p.parseFrameS1()
+
+	case "PBDEMS2":
+		return p.parseFrameS2()
+
+	default:
+		panic(fmt.Sprintf("Unknown demo version: %s", p.header.Filestamp))
+	}
 }
 
 var byteSlicePool = sync.Pool{

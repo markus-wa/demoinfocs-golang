@@ -23,7 +23,7 @@ message CMsgSOSingleObject {
 	optional int32 type_id = 2;
 	optional bytes object_data = 3;
 	optional fixed64 version = 4;
-	optional .CMsgSOIDOwner owner_soid = 5;
+	optional CMsgSOIDOwner owner_soid = 5;
 }
 
 message CMsgSOMultipleObjects {
@@ -35,9 +35,9 @@ message CMsgSOMultipleObjects {
 		optional bytes object_data = 2;
 	}
 
-	repeated .CMsgSOMultipleObjects.SingleObject objects_modified = 2;
+	repeated CMsgSOMultipleObjects.SingleObject objects_modified = 2;
 	optional fixed64 version = 3;
-	optional .CMsgSOIDOwner owner_soid = 6;
+	optional CMsgSOIDOwner owner_soid = 6;
 }
 
 message CMsgSOCacheSubscribed {
@@ -46,22 +46,22 @@ message CMsgSOCacheSubscribed {
 		repeated bytes object_data = 2;
 	}
 
-	repeated .CMsgSOCacheSubscribed.SubscribedType objects = 2;
+	repeated CMsgSOCacheSubscribed.SubscribedType objects = 2;
 	optional fixed64 version = 3;
-	optional .CMsgSOIDOwner owner_soid = 4;
+	optional CMsgSOIDOwner owner_soid = 4;
 }
 
 message CMsgSOCacheUnsubscribed {
-	optional .CMsgSOIDOwner owner_soid = 2;
+	optional CMsgSOIDOwner owner_soid = 2;
 }
 
 message CMsgSOCacheSubscriptionCheck {
 	optional fixed64 version = 2;
-	optional .CMsgSOIDOwner owner_soid = 3;
+	optional CMsgSOIDOwner owner_soid = 3;
 }
 
 message CMsgSOCacheSubscriptionRefresh {
-	optional .CMsgSOIDOwner owner_soid = 2;
+	optional CMsgSOIDOwner owner_soid = 2;
 }
 
 message CMsgSOCacheVersion {
@@ -138,13 +138,13 @@ message CMsgGCRequestSessionIPResponse {
 }
 
 message CMsgSOCacheHaveVersion {
-	optional .CMsgSOIDOwner soid = 1;
+	optional CMsgSOIDOwner soid = 1;
 	optional fixed64 version = 2;
 }
 
 message CMsgClientHello {
 	optional uint32 version = 1;
-	repeated .CMsgSOCacheHaveVersion socache_have_versions = 2;
+	repeated CMsgSOCacheHaveVersion socache_have_versions = 2;
 	optional uint32 client_session_need = 3;
 	optional uint32 client_launcher = 4;
 	optional uint32 partner_srcid = 5;
@@ -156,7 +156,7 @@ message CMsgClientHello {
 
 message CMsgServerHello {
 	optional uint32 version = 1;
-	repeated .CMsgSOCacheHaveVersion socache_have_versions = 2;
+	repeated CMsgSOCacheHaveVersion socache_have_versions = 2;
 	optional uint32 legacy_client_session_need = 3;
 	optional uint32 client_launcher = 4;
 	optional bytes legacy_steamdatagram_routing = 6;
@@ -173,9 +173,9 @@ message CMsgClientWelcome {
 
 	optional uint32 version = 1;
 	optional bytes game_data = 2;
-	repeated .CMsgSOCacheSubscribed outofdate_subscribed_caches = 3;
-	repeated .CMsgSOCacheSubscriptionCheck uptodate_subscribed_caches = 4;
-	optional .CMsgClientWelcome.Location location = 5;
+	repeated CMsgSOCacheSubscribed outofdate_subscribed_caches = 3;
+	repeated CMsgSOCacheSubscriptionCheck uptodate_subscribed_caches = 4;
+	optional CMsgClientWelcome.Location location = 5;
 	optional bytes game_data2 = 6;
 	optional uint32 rtime32_gc_welcome_timestamp = 7;
 	optional uint32 currency = 8;
@@ -185,7 +185,7 @@ message CMsgClientWelcome {
 }
 
 message CMsgConnectionStatus {
-	optional .GCConnectionStatus status = 1 [default = GCConnectionStatus_HAVE_SESSION];
+	optional GCConnectionStatus status = 1 [default = GCConnectionStatus_HAVE_SESSION];
 	optional uint32 client_session_need = 2;
 	optional int32 queue_position = 3;
 	optional int32 queue_size = 4;
@@ -202,11 +202,11 @@ message CWorkshop_PopulateItemDescriptions_Request {
 
 	message ItemDescriptionsLanguageBlock {
 		optional string language = 1;
-		repeated .CWorkshop_PopulateItemDescriptions_Request.SingleItemDescription descriptions = 2;
+		repeated CWorkshop_PopulateItemDescriptions_Request.SingleItemDescription descriptions = 2;
 	}
 
 	optional uint32 appid = 1;
-	repeated .CWorkshop_PopulateItemDescriptions_Request.ItemDescriptionsLanguageBlock languages = 2;
+	repeated CWorkshop_PopulateItemDescriptions_Request.ItemDescriptionsLanguageBlock languages = 2;
 }
 
 message CWorkshop_GetContributors_Request {
@@ -239,11 +239,11 @@ message CWorkshop_SetItemPaymentRules_Request {
 
 	optional uint32 appid = 1;
 	optional uint32 gameitemid = 2;
-	repeated .CWorkshop_SetItemPaymentRules_Request.WorkshopItemPaymentRule associated_workshop_files = 3;
-	repeated .CWorkshop_SetItemPaymentRules_Request.PartnerItemPaymentRule partner_accounts = 4;
+	repeated CWorkshop_SetItemPaymentRules_Request.WorkshopItemPaymentRule associated_workshop_files = 3;
+	repeated CWorkshop_SetItemPaymentRules_Request.PartnerItemPaymentRule partner_accounts = 4;
 	optional bool validate_only = 5;
 	optional bool make_workshop_files_subscribable = 6;
-	optional .CWorkshop_SetItemPaymentRules_Request.WorkshopDirectPaymentRule associated_workshop_file_for_direct_payments = 7;
+	optional CWorkshop_SetItemPaymentRules_Request.WorkshopDirectPaymentRule associated_workshop_file_for_direct_payments = 7;
 }
 
 message CWorkshop_SetItemPaymentRules_Response {
@@ -265,7 +265,7 @@ message CGameServers_AggregationQuery_Response {
 		optional uint32 player_capacity = 7;
 	}
 
-	repeated .CGameServers_AggregationQuery_Response.Group groups = 1;
+	repeated CGameServers_AggregationQuery_Response.Group groups = 1;
 }
 
 message CWorkshop_AddSpecialPayment_Request {
@@ -287,11 +287,11 @@ message CProductInfo_SetRichPresenceLocalization_Request {
 
 	message LanguageSection {
 		optional string language = 1;
-		repeated .CProductInfo_SetRichPresenceLocalization_Request.Token tokens = 2;
+		repeated CProductInfo_SetRichPresenceLocalization_Request.Token tokens = 2;
 	}
 
 	optional uint32 appid = 1;
-	repeated .CProductInfo_SetRichPresenceLocalization_Request.LanguageSection languages = 2;
+	repeated CProductInfo_SetRichPresenceLocalization_Request.LanguageSection languages = 2;
 	optional uint64 steamid = 3;
 }
 
@@ -313,11 +313,11 @@ message CMsgSerializedSOCache {
 
 		optional uint32 type = 1;
 		optional uint64 id = 2;
-		repeated .CMsgSerializedSOCache.Cache.Version versions = 3;
-		repeated .CMsgSerializedSOCache.TypeCache type_caches = 4;
+		repeated CMsgSerializedSOCache.Cache.Version versions = 3;
+		repeated CMsgSerializedSOCache.TypeCache type_caches = 4;
 	}
 
 	optional uint32 file_version = 1;
-	repeated .CMsgSerializedSOCache.Cache caches = 2;
+	repeated CMsgSerializedSOCache.Cache caches = 2;
 	optional uint32 gc_socache_file_version = 3;
 }

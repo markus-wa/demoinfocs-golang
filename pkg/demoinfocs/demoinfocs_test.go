@@ -32,6 +32,7 @@ const (
 	csDemosPath             = testDataPath + "/cs-demos"
 	demSetPath              = csDemosPath + "/set"
 	defaultDemPath          = csDemosPath + "/default.dem"
+	s2DemPath               = csDemosPath + "/s2-gotv.dem"
 	retakeDemPath           = csDemosPath + "/retake_unknwon_bombsite_index.dem"
 	unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
 )
@@ -192,6 +193,30 @@ func TestDemoInfoCs(t *testing.T) {
 	t.Logf("Took %s\n", time.Since(ts))
 
 	assertGolden(t, assertions, "default", actual.Bytes())
+}
+
+func TestS2(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	f, err := os.Open(s2DemPath)
+	assertions := assert.New(t)
+	assertions.NoError(err, "error opening demo %q", s2DemPath)
+
+	defer mustClose(t, f)
+
+	p := demoinfocs.NewParser(f)
+
+	t.Log("Parsing header")
+	_, err = p.ParseHeader()
+	assertions.NoError(err, "error returned by Parser.ParseHeader()")
+
+	t.Log("Parsing to end")
+	err = p.ParseToEnd()
+	assertions.NoError(err, "error occurred in ParseToEnd()")
 }
 
 func TestEncryptedNetMessages(t *testing.T) {
