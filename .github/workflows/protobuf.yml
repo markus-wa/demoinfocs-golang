@@ -13,7 +13,7 @@ jobs:
       - name: Download latest Protobufs
         run: |
           git clone https://github.com/SteamDatabase/GameTracking-CSGO.git $GameTracking_dir
-          cp $GameTracking_dir/Protobufs/{cstrike15_*.proto,engine_gcmessages.proto,netmessages.proto,steammessages.proto} pkg/demoinfocs/msg/proto
+          cp $GameTracking_dir/Protobufs/{cstrike15_*.proto,engine_gcmessages.proto,netmessages.proto,steammessages.proto,gcsdk_gcmessages.proto} pkg/demoinfocs/msg/proto
 
           if [[ ! `git status --porcelain` ]]; then
               echo "PROTOBUFS_CHANGED=false" >> $GITHUB_ENV
