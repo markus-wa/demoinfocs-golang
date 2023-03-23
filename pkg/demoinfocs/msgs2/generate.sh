@@ -11,5 +11,9 @@ protoc -Iproto \
        --go_opt=Mnetworkbasetypes.proto=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2 \
        --go_opt=Mnetwork_connection.proto=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2 \
        --go_opt=Mdemo.proto=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2 \
+       --go_opt=Mgameevents.proto=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2 \
+       --go_opt=Musermessages.proto=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2 \
+       --go_opt=Mcs_gameevents.proto=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2 \
+       --go_opt=Mte.proto=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2 \
        --go_opt=module=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2 \
-       cstrike15_gcmessages.proto cstrike15_usermessages.proto engine_gcmessages.proto netmessages.proto steammessages.proto gcsdk_gcmessages.proto networkbasetypes.proto network_connection.proto demo.proto
+       cstrike15_gcmessages.proto cstrike15_usermessages.proto engine_gcmessages.proto netmessages.proto steammessages.proto gcsdk_gcmessages.proto networkbasetypes.proto network_connection.proto demo.proto gameevents.proto usermessages.proto cs_gameevents.proto te.proto

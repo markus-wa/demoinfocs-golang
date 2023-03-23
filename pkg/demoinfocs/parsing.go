@@ -281,22 +281,23 @@ func (p *parser) parseFrameS1() bool {
 	return true
 }
 
-var demoCommandMsgs = map[msgs2.EDemoCommands]proto.Message{
-	msgs2.EDemoCommands_DEM_Stop:         &msgs2.CDemoStop{},
-	msgs2.EDemoCommands_DEM_FileHeader:   &msgs2.CDemoFileHeader{},
-	msgs2.EDemoCommands_DEM_FileInfo:     &msgs2.CDemoFileInfo{},
-	msgs2.EDemoCommands_DEM_SyncTick:     &msgs2.CDemoSyncTick{},
-	msgs2.EDemoCommands_DEM_SendTables:   &msgs2.CDemoSendTables{},
-	msgs2.EDemoCommands_DEM_ClassInfo:    &msgs2.CDemoClassInfo{},
-	msgs2.EDemoCommands_DEM_StringTables: &msgs2.CDemoStringTables{},
-	msgs2.EDemoCommands_DEM_Packet:       &msgs2.CDemoPacket{},
-	msgs2.EDemoCommands_DEM_SignonPacket: &msgs2.CDemoPacket{},
-	msgs2.EDemoCommands_DEM_ConsoleCmd:   &msgs2.CDemoConsoleCmd{},
-	msgs2.EDemoCommands_DEM_CustomData:   &msgs2.CDemoCustomData{},
-	msgs2.EDemoCommands_DEM_UserCmd:      &msgs2.CDemoUserCmd{},
-	msgs2.EDemoCommands_DEM_FullPacket:   &msgs2.CDemoFullPacket{},
-	msgs2.EDemoCommands_DEM_SaveGame:     &msgs2.CDemoSaveGame{},
-	msgs2.EDemoCommands_DEM_SpawnGroups:  &msgs2.CDemoSpawnGroups{}}
+var demoCommandMsgsCreators = map[msgs2.EDemoCommands]NetMessageCreator{
+	msgs2.EDemoCommands_DEM_Stop:         func() proto.Message { return &msgs2.CDemoStop{} },
+	msgs2.EDemoCommands_DEM_FileHeader:   func() proto.Message { return &msgs2.CDemoFileHeader{} },
+	msgs2.EDemoCommands_DEM_FileInfo:     func() proto.Message { return &msgs2.CDemoFileInfo{} },
+	msgs2.EDemoCommands_DEM_SyncTick:     func() proto.Message { return &msgs2.CDemoSyncTick{} },
+	msgs2.EDemoCommands_DEM_SendTables:   func() proto.Message { return &msgs2.CDemoSendTables{} },
+	msgs2.EDemoCommands_DEM_ClassInfo:    func() proto.Message { return &msgs2.CDemoClassInfo{} },
+	msgs2.EDemoCommands_DEM_StringTables: func() proto.Message { return &msgs2.CDemoStringTables{} },
+	msgs2.EDemoCommands_DEM_Packet:       func() proto.Message { return &msgs2.CDemoPacket{} },
+	msgs2.EDemoCommands_DEM_SignonPacket: func() proto.Message { return &msgs2.CDemoPacket{} },
+	msgs2.EDemoCommands_DEM_ConsoleCmd:   func() proto.Message { return &msgs2.CDemoConsoleCmd{} },
+	msgs2.EDemoCommands_DEM_CustomData:   func() proto.Message { return &msgs2.CDemoCustomData{} },
+	msgs2.EDemoCommands_DEM_UserCmd:      func() proto.Message { return &msgs2.CDemoUserCmd{} },
+	msgs2.EDemoCommands_DEM_FullPacket:   func() proto.Message { return &msgs2.CDemoFullPacket{} },
+	msgs2.EDemoCommands_DEM_SaveGame:     func() proto.Message { return &msgs2.CDemoSaveGame{} },
+	msgs2.EDemoCommands_DEM_SpawnGroups:  func() proto.Message { return &msgs2.CDemoSpawnGroups{} },
+}
 
 func (p *parser) parseFrameS2() bool {
 	cmd := msgs2.EDemoCommands(p.bitReader.ReadVarInt32())
@@ -324,7 +325,7 @@ func (p *parser) parseFrameS2() bool {
 		}
 	}
 
-	msg := demoCommandMsgs[msgType]
+	msg := demoCommandMsgsCreators[msgType]()
 
 	if msg == nil {
 		panic(fmt.Sprintf("Unknown demo command: %d", msgType))
@@ -335,7 +336,22 @@ func (p *parser) parseFrameS2() bool {
 		panic(err) // FIXME: avoid panic
 	}
 
-	p.msgQueue <- msg
+	switch m := msg.(type) {
+	case *msgs2.CDemoPacket:
+		p.handleDemoPacket(m)
+
+	case *msgs2.CDemoFullPacket:
+		p.handleFullPacket(m)
+
+	case *msgs2.CDemoSendTables:
+		p.handleSendTables(m)
+
+	case *msgs2.CDemoClassInfo:
+		p.handleClassInfo(m)
+
+	case *msgs2.CDemoStringTables:
+		p.handleStringTables(m)
+	}
 
 	p.msgQueue <- ingameTickNumber(int32(tick))
 
