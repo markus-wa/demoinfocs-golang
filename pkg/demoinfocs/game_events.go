@@ -10,6 +10,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
 )
 
 func (p *parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
@@ -17,6 +18,31 @@ func (p *parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
 	for _, d := range gel.GetDescriptors() {
 		p.gameEventDescs[d.GetEventid()] = d
 	}
+}
+
+func (p *parser) handleGameEventListS2(gel *msgs2.CMsgSource1LegacyGameEventList) {
+	s1desc := make([]*msg.CSVCMsg_GameEventListDescriptorT, 0, len(gel.GetDescriptors()))
+
+	for _, d := range gel.GetDescriptors() {
+		s1keys := make([]*msg.CSVCMsg_GameEventListKeyT, 0, len(d.Keys))
+
+		for _, k := range d.Keys {
+			s1keys = append(s1keys, &msg.CSVCMsg_GameEventListKeyT{
+				Type: k.Type,
+				Name: k.Name,
+			})
+		}
+
+		s1desc = append(s1desc, &msg.CSVCMsg_GameEventListDescriptorT{
+			Eventid: d.Eventid,
+			Name:    d.Name,
+			Keys:    s1keys,
+		})
+	}
+
+	p.handleGameEventList(&msg.CSVCMsg_GameEventList{
+		Descriptors: s1desc,
+	})
 }
 
 func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
@@ -49,6 +75,30 @@ func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	p.eventDispatcher.Dispatch(events.GenericGameEvent{
 		Name: desc.GetName(),
 		Data: data,
+	})
+}
+
+func (p *parser) handleGameEventS2(ge *msgs2.CMsgSource1LegacyGameEvent) {
+	keys := make([]*msg.CSVCMsg_GameEventKeyT, 0, len(ge.Keys))
+
+	for _, k := range ge.Keys {
+		keys = append(keys, &msg.CSVCMsg_GameEventKeyT{
+			Type:      k.Type,
+			ValString: k.ValString,
+			ValFloat:  k.ValFloat,
+			ValLong:   k.ValLong,
+			ValShort:  k.ValShort,
+			ValByte:   k.ValByte,
+			ValBool:   k.ValBool,
+			ValUint64: k.ValUint64,
+		})
+	}
+
+	p.handleGameEvent(&msg.CSVCMsg_GameEvent{
+		EventName:   ge.EventName,
+		Eventid:     ge.Eventid,
+		Keys:        keys,
+		Passthrough: ge.Passthrough,
 	})
 }
 

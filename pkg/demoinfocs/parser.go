@@ -381,6 +381,8 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 
 	// Source 2
 	p.msgDispatcher.RegisterHandler(p.handlePacketEntitiesS2)
+	p.msgDispatcher.RegisterHandler(p.handleGameEventListS2)
+	p.msgDispatcher.RegisterHandler(p.handleGameEventS2)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfoS2)
 	p.msgDispatcher.RegisterHandler(p.handleCreateStringTableS2)
 	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTableS2)
