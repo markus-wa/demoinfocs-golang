@@ -5,25 +5,31 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
 )
 
 func (p *parser) handleSendTables(msg *msgs2.CDemoSendTables) {
-	//p.msgDispatcher.SyncAllQueues()
-	//
-	//p.mapEquipment()
-	//p.bindEntities()
-	//
-	//p.eventDispatcher.Dispatch(events.DataTablesParsed{})
+	p.msgDispatcher.SyncAllQueues()
+
+	r := bitread.NewSmallBitReader(bytes.NewReader(msg.GetData()))
+	b := r.ReadBytes(int(r.ReadVarInt32()))
+
+	st := new(msgs2.CSVCMsg_FlattenedSerializer)
+
+	err := proto.Unmarshal(b, st)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to unmarshal flattened serializer"))
+	}
+
+	p.eventDispatcher.Dispatch(events.DataTablesParsed{})
 }
 
 func (p *parser) handleClassInfo(msg *msgs2.CDemoClassInfo) {
-}
-
-func (p *parser) handleStringTables(msg *msgs2.CDemoStringTables) {
 }
 
 var netMsgCreators = map[msgs2.NET_Messages]NetMessageCreator{
@@ -285,11 +291,12 @@ func (m *pendingMessage) priority() int {
 }
 
 func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
-	r := bitread.NewSmallBitReader(bytes.NewReader(pack.Data))
+	b := pack.GetData()
+	r := bitread.NewSmallBitReader(bytes.NewReader(b))
 
 	ms := make([]pendingMessage, 0)
 
-	for r.ActualPosition() < len(pack.Data) {
+	for r.ActualPosition() < len(b) {
 		t := int32(r.ReadUBitInt())
 		size := r.ReadVarInt32()
 		buf := r.ReadBytes(int(size))
@@ -298,7 +305,7 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 	}
 
 	sort.Slice(ms, func(i, j int) bool {
-		return ms[i].priority() < ms[j].priority()
+		return ms[i].priority() < ms[j].priority() // TODO: taken from dotabuff/manta. do we really need this?
 	})
 
 	for _, m := range ms {
@@ -341,5 +348,8 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 
 func (p *parser) handleFullPacket(msg *msgs2.CDemoFullPacket) {
 	p.handleStringTables(msg.StringTable)
-	p.handleDemoPacket(msg.Packet)
+
+	if msg.Packet.GetData() != nil {
+		p.handleDemoPacket(msg.Packet)
+	}
 }

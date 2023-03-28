@@ -16,6 +16,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
 	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
@@ -80,7 +81,7 @@ type parser struct {
 	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
 	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
 	grenadeModelIndices  map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
-	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
+	stringTables         []*msgs2.CSVCMsg_CreateStringTable              // Contains all created sendtables, needed when updating them
 	delayedEventHandlers []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 }
 
@@ -366,17 +367,23 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.eventDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 
 	// Attach proto msg handlers
-	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)
+	p.msgDispatcher.RegisterHandler(p.handlePacketEntitiesS1)
 	p.msgDispatcher.RegisterHandler(p.handleGameEventList)
 	p.msgDispatcher.RegisterHandler(p.handleGameEvent)
-	p.msgDispatcher.RegisterHandler(p.handleCreateStringTable)
-	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTable)
+	p.msgDispatcher.RegisterHandler(p.handleCreateStringTableS1)
+	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTableS1)
 	p.msgDispatcher.RegisterHandler(p.handleUserMessage)
 	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfo)
 	p.msgDispatcher.RegisterHandler(p.handleEncryptedData)
 	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
+
+	// Source 2
+	p.msgDispatcher.RegisterHandler(p.handlePacketEntitiesS2)
+	p.msgDispatcher.RegisterHandler(p.handleServerInfoS2)
+	p.msgDispatcher.RegisterHandler(p.handleCreateStringTableS2)
+	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTableS2)
 
 	if config.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(config.MsgQueueBufferSize)

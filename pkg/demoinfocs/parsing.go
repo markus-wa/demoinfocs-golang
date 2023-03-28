@@ -336,6 +336,8 @@ func (p *parser) parseFrameS2() bool {
 		panic(err) // FIXME: avoid panic
 	}
 
+	p.msgQueue <- msg
+
 	switch m := msg.(type) {
 	case *msgs2.CDemoPacket:
 		p.handleDemoPacket(m)

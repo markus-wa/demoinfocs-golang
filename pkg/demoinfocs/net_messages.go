@@ -11,9 +11,18 @@ import (
 	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
 	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
 )
 
-func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
+func (p *parser) handlePacketEntitiesS2(pe *msgs2.CSVCMsg_PacketEntities) {
+}
+
+func (p *parser) handlePacketEntitiesS1(pe *msg.CSVCMsg_PacketEntities) {
+	p.handlePacketEntitiesS2(&msgs2.CSVCMsg_PacketEntities{
+		UpdatedEntries: pe.UpdatedEntries,
+		EntityData:     pe.EntityData,
+	})
+
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -64,6 +73,17 @@ func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 }
 
 func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
+	// srvInfo.MapCrc might be interesting as well
+	p.tickInterval = srvInfo.GetTickInterval()
+
+	p.eventDispatcher.Dispatch(events.TickRateInfoAvailable{
+		TickRate: p.TickRate(),
+		TickTime: p.TickTime(),
+	})
+}
+
+// FIXME: combine with above
+func (p *parser) handleServerInfoS2(srvInfo *msgs2.CSVCMsg_ServerInfo) {
 	// srvInfo.MapCrc might be interesting as well
 	p.tickInterval = srvInfo.GetTickInterval()
 

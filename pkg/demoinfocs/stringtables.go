@@ -3,16 +3,21 @@ package demoinfocs
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io"
+	"log"
+	"math"
 	"strconv"
 	"strings"
 
+	"github.com/golang/snappy"
 	"github.com/pkg/errors"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
 	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
 )
 
 const (
@@ -116,6 +121,7 @@ func (p *parser) parseSingleStringTable(name string) {
 		}
 	}
 }
+
 func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
 	p.rawPlayers[index] = &player
 
@@ -127,7 +133,7 @@ func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
 	})
 }
 
-func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
+func (p *parser) handleUpdateStringTable(tab *msgs2.CSVCMsg_UpdateStringTable, s2 bool) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -141,66 +147,64 @@ func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 	case stNameInstanceBaseline:
 		// Only handle updates for the above types
 		// Create fake CreateStringTable and handle it like one of those
-		cTab.NumEntries = tab.NumChangedEntries
-		cTab.StringData = tab.StringData
-		p.processStringTable(cTab)
+		p.processStringTable(&msgs2.CSVCMsg_CreateStringTable{
+			Name:              cTab.Name,
+			NumEntries:        tab.NumChangedEntries,
+			UserDataFixedSize: cTab.UserDataFixedSize,
+			UserDataSize:      cTab.UserDataSize,
+			UserDataSizeBits:  cTab.UserDataSizeBits,
+			Flags:             cTab.Flags,
+			StringData:        tab.StringData,
+		}, s2)
 	}
 }
 
-func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+func (p *parser) handleUpdateStringTableS2(tab *msgs2.CSVCMsg_UpdateStringTable) {
+	p.handleUpdateStringTable(tab, true)
+}
+
+func (p *parser) handleCreateStringTable(tab *msgs2.CSVCMsg_CreateStringTable, s2 bool) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
-	p.processStringTable(tab)
+	switch tab.GetName() {
+	case stNameUserInfo:
+		fallthrough
+	case stNameModelPreCache:
+		fallthrough
+	case stNameInstanceBaseline:
+		p.processStringTable(tab, s2)
+	}
 
 	p.stringTables = append(p.stringTables, tab)
 
 	p.eventDispatcher.Dispatch(events.StringTableCreated{TableName: tab.GetName()})
 }
 
-//nolint:funlen,gocognit
-func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
-	if tab.GetName() == stNameModelPreCache {
-		for i := len(p.modelPreCache); i < int(tab.GetMaxEntries()); i++ {
-			p.modelPreCache = append(p.modelPreCache, "")
-		}
-	}
+func (p *parser) handleCreateStringTableS2(tab *msgs2.CSVCMsg_CreateStringTable) {
+	p.handleCreateStringTable(tab, true)
+}
 
-	br := bit.NewSmallBitReader(bytes.NewReader(tab.StringData))
-
-	if br.ReadBit() {
-		panic("Can't decode")
-	}
-
-	nTmp := tab.GetMaxEntries()
-	nEntryBits := 0
-
-	for nTmp != 0 {
-		nTmp >>= 1
-		nEntryBits++
-	}
-
-	if nEntryBits > 0 {
-		nEntryBits--
-	}
-
+func (p *parser) processStringTableS1(tab *msgs2.CSVCMsg_CreateStringTable, br *bit.BitReader) {
 	hist := make([]string, 0)
-	lastEntry := -1
+	idx := -1
+
+	entryBits := int(math.Ceil(math.Log2(float64(tab.GetNumEntries()))))
 
 	for i := 0; i < int(tab.GetNumEntries()); i++ {
-		entryIndex := lastEntry + 1
-		if !br.ReadBit() {
-			entryIndex = int(br.ReadInt(nEntryBits))
+		if br.ReadBit() {
+			idx++
+		} else {
+			idx = int(br.ReadInt(entryBits))
 		}
 
-		lastEntry = entryIndex
-
-		if entryIndex < 0 || entryIndex >= int(tab.GetMaxEntries()) {
+		if idx < 0 || idx >= int(tab.GetNumEntries()) {
 			panic("Something went to shit")
 		}
 
 		var entry string
+
 		if br.ReadBit() { //nolint:wsl
 			if br.ReadBit() {
 				idx := br.ReadInt(5)
@@ -240,11 +244,11 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 			player := parsePlayerInfo(bytes.NewReader(userdata))
 
 			if p.header.ClientName == player.Name {
-				p.recordingPlayerSlot = entryIndex
-				p.eventDispatcher.Dispatch(events.POVRecordingPlayerDetected{PlayerSlot: entryIndex, PlayerInfo: player})
+				p.recordingPlayerSlot = idx
+				p.eventDispatcher.Dispatch(events.POVRecordingPlayerDetected{PlayerSlot: idx, PlayerInfo: player})
 			}
 
-			p.setRawPlayer(entryIndex, player)
+			p.setRawPlayer(idx, player)
 
 		case stNameInstanceBaseline:
 			classID, err := strconv.Atoi(entry)
@@ -255,8 +259,179 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 			p.stParser.SetInstanceBaseline(classID, userdata)
 
 		case stNameModelPreCache:
-			p.modelPreCache[entryIndex] = entry
+			p.modelPreCache[idx] = entry
 		}
+	}
+}
+
+// Holds and maintains a single entry in a string table.
+type stringTableItem struct {
+	Index int32
+	Key   string
+	Value []byte
+}
+
+const (
+	stringtableKeyHistorySize = 32
+)
+
+// Parse a string table data blob, returning a list of item updates.
+func parseStringTable(buf []byte, numUpdates int32, name string, userDataFixed bool, userDataSize int32, flags int32) (items []*stringTableItem) {
+	items = make([]*stringTableItem, 0)
+
+	// Create a reader for the buffer
+	r := bit.NewSmallBitReader(bytes.NewReader(buf))
+
+	// Start with an index of -1.
+	// If the first item is at index 0 it will use a incr operation.
+	index := int32(-1)
+
+	// Maintain a list of key history
+	keys := make([]string, 0, stringtableKeyHistorySize)
+
+	// Some tables have no data
+	if len(buf) == 0 {
+		return items
+	}
+
+	// Loop through entries in the data structure
+	//
+	// Each entry is a tuple consisting of {index, key, value}
+	//
+	// Index can either be incremented from the previous position or
+	// overwritten with a given entry.
+	//
+	// Key may be omitted (will be represented here as "")
+	//
+	// Value may be omitted
+	for i := 0; i < int(numUpdates); i++ {
+		key := ""
+		value := []byte{}
+
+		// Read a boolean to determine whether the operation is an increment or
+		// has a fixed index position. A fixed index position of zero should be
+		// the last data in the buffer, and indicates that all data has been read.
+		incr := r.ReadBit()
+		if incr {
+			index++
+		} else {
+			index = int32(r.ReadVarInt32()) + 1
+		}
+
+		// Some values have keys, some don't.
+		hasKey := r.ReadBit()
+		if hasKey {
+			// Some entries use reference a position in the key history for
+			// part of the key. If referencing the history, read the position
+			// and size from the buffer, then use those to build the string
+			// combined with an extra string read (null terminated).
+			// Alternatively, just read the string.
+			useHistory := r.ReadBit()
+			if useHistory {
+				pos := r.ReadInt(5)
+				size := r.ReadInt(5)
+
+				if int(pos) >= len(keys) {
+					key += r.ReadString()
+				} else {
+					s := keys[pos]
+					if int(size) > len(s) {
+						key += s + r.ReadString()
+					} else {
+						key += s[0:size] + r.ReadString()
+					}
+				}
+			} else {
+				key = r.ReadString()
+			}
+
+			if len(keys) >= stringtableKeyHistorySize {
+				copy(keys[0:], keys[1:])
+				keys[len(keys)-1] = ""
+				keys = keys[:len(keys)-1]
+			}
+			keys = append(keys, key)
+		}
+
+		// Some entries have a value.
+		hasValue := r.ReadBit()
+		if hasValue {
+			bitSize := uint(0)
+			isCompressed := false
+			if userDataFixed {
+				bitSize = uint(userDataSize)
+			} else {
+				if (flags & 0x1) != 0 {
+					isCompressed = r.ReadBit()
+				}
+				bitSize = r.ReadInt(17) * 8
+			}
+			value = r.ReadBits(int(bitSize))
+
+			if isCompressed {
+				tmp, err := snappy.Decode(nil, value)
+				if err != nil {
+					panic(fmt.Sprintf("unable to decode snappy compressed stringtable item (%s, %d, %s): %s", name, index, key, err))
+				}
+				value = tmp
+			}
+		}
+
+		items = append(items, &stringTableItem{index, key, value})
+	}
+
+	return items
+}
+
+func (p *parser) processStringTableS2(tab *msgs2.CSVCMsg_CreateStringTable, br *bit.BitReader) {
+	items := parseStringTable(tab.StringData, tab.GetNumEntries(), tab.GetName(), tab.GetUserDataFixedSize(), tab.GetUserDataSize(), tab.GetFlags())
+
+	for _, item := range items {
+		switch tab.GetName() {
+		case stNameInstanceBaseline:
+			classID, err := strconv.Atoi(item.Key)
+			if err != nil {
+				log.Println("failed to parse serverClassID - this is a known issue of the parser, but it's unclear if it's causing any issues", err)
+
+				continue
+			}
+
+			p.stParser.SetInstanceBaseline(classID, item.Value)
+
+		case stNameModelPreCache:
+			p.modelPreCache[item.Index] = item.Key
+		}
+	}
+}
+
+//nolint:funlen,gocognit
+func (p *parser) processStringTable(tab *msgs2.CSVCMsg_CreateStringTable, s2 bool) {
+	if tab.GetName() == stNameModelPreCache {
+		for i := len(p.modelPreCache); i < int(tab.GetNumEntries()); i++ {
+			p.modelPreCache = append(p.modelPreCache, "")
+		}
+	}
+
+	if tab.GetDataCompressed() {
+		tmp := make([]byte, tab.GetUncompressedSize())
+		b, err := snappy.Decode(tmp, tab.StringData)
+		if err != nil {
+			panic(err)
+		}
+
+		tab.StringData = b
+	}
+
+	br := bit.NewSmallBitReader(bytes.NewReader(tab.StringData))
+
+	if s2 {
+		p.processStringTableS2(tab, br)
+	} else {
+		if br.ReadBit() {
+			panic("unknown stringtable format")
+		}
+
+		p.processStringTableS1(tab, br)
 	}
 
 	if tab.GetName() == stNameModelPreCache {
@@ -317,4 +492,71 @@ func (p *parser) processModelPreCacheUpdate() {
 			}
 		}
 	}
+}
+
+// Manta says:
+// These appear to be periodic state dumps and appear every 1800 outer ticks.
+// XXX TODO: decide if we want to at all integrate these updates,
+// or trust create/update entirely. Let's ignore them for now.
+func (p *parser) handleStringTables(msg *msgs2.CDemoStringTables) {
+	return
+
+	for _, tab := range msg.GetTables() {
+		for i := len(p.modelPreCache); i < len(tab.GetItems()); i++ {
+			p.modelPreCache = append(p.modelPreCache, "")
+		}
+
+		for i, item := range tab.GetItems() {
+			if tab.GetTableName() == stNameUserInfo {
+				player := parsePlayerInfo(bytes.NewReader(item.GetData()))
+
+				playerIndex, err := strconv.Atoi(item.GetStr())
+				if err != nil {
+					panic(errors.Wrap(err, "couldn't parse playerIndex from string"))
+				}
+
+				p.setRawPlayer(playerIndex, player)
+			}
+
+			if tab.GetTableName() == stNameInstanceBaseline {
+				classID, err := strconv.Atoi(item.GetStr())
+				if err != nil {
+					panic(errors.Wrap(err, "couldn't parse serverClassID from string"))
+				}
+
+				p.stParser.SetInstanceBaseline(classID, item.GetData())
+			}
+
+			if tab.GetTableName() == stNameModelPreCache {
+				p.modelPreCache[i] = item.GetStr()
+			}
+		}
+	}
+
+	p.processModelPreCacheUpdate()
+}
+
+func (p *parser) handleUpdateStringTableS1(tab *msg.CSVCMsg_UpdateStringTable) {
+	p.handleUpdateStringTable(&msgs2.CSVCMsg_UpdateStringTable{
+		TableId:           tab.TableId,
+		NumChangedEntries: tab.NumChangedEntries,
+		StringData:        tab.StringData,
+	}, false)
+}
+
+func (p *parser) handleCreateStringTableS1(tab *msg.CSVCMsg_CreateStringTable) {
+	size := int32(len(tab.StringData))
+	compressed := false
+
+	p.handleCreateStringTable(&msgs2.CSVCMsg_CreateStringTable{
+		Name:              tab.Name,
+		NumEntries:        tab.NumEntries,
+		UserDataFixedSize: tab.UserDataFixedSize,
+		UserDataSize:      tab.UserDataSize,
+		UserDataSizeBits:  tab.UserDataSizeBits,
+		Flags:             tab.Flags,
+		StringData:        tab.StringData,
+		UncompressedSize:  &size,
+		DataCompressed:    &compressed,
+	}, false)
 }
