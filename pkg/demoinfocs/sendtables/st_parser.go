@@ -1,6 +1,7 @@
 package sendtables
 
 import (
+	"bytes"
 	"fmt"
 	"math"
 	"sort"
@@ -10,6 +11,7 @@ import (
 	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/constants"
 	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
 )
 
 // SendTableParser provides functions for parsing send-tables.
@@ -22,6 +24,21 @@ type SendTableParser struct {
 	currentBaseclasses []*ServerClass
 
 	instanceBaselines map[int][]byte // Maps server-class IDs to raw instance baselines, needed for when we don't have the server-class when setting the baseline
+}
+
+func (p *SendTableParser) OnDemoClassInfo(m *msgs2.CDemoClassInfo) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *SendTableParser) OnServerInfo(m *msgs2.CSVCMsg_ServerInfo) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *SendTableParser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
+	//TODO implement me
+	panic("implement me")
 }
 
 // ServerClasses is a searchable list of ServerClasses.
@@ -66,7 +83,9 @@ func (p *SendTableParser) ServerClasses() ServerClasses {
 // ParsePacket parses a send-table packet.
 //
 // Intended for internal use only.
-func (p *SendTableParser) ParsePacket(r *bit.BitReader) {
+func (p *SendTableParser) ParsePacket(b []byte) error {
+	r := bit.NewSmallBitReader(bytes.NewReader(b))
+
 	for {
 		t := msg.SVC_Messages(r.ReadVarInt32())
 		if t != msg.SVC_Messages_svc_SendTable {
@@ -108,6 +127,8 @@ func (p *SendTableParser) ParsePacket(r *bit.BitReader) {
 	for i := 0; i < serverClassCount; i++ {
 		p.flattenDataTable(i)
 	}
+
+	return nil
 }
 
 func parseSendTable(r *bit.BitReader) sendTable {

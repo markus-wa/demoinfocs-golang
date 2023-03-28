@@ -16,12 +16,7 @@ import (
 func (p *parser) handleSendTables(msg *msgs2.CDemoSendTables) {
 	p.msgDispatcher.SyncAllQueues()
 
-	r := bitread.NewSmallBitReader(bytes.NewReader(msg.GetData()))
-	b := r.ReadBytes(int(r.ReadVarInt32()))
-
-	st := new(msgs2.CSVCMsg_FlattenedSerializer)
-
-	err := proto.Unmarshal(b, st)
+	err := p.stParser.ParsePacket(msg.Data)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to unmarshal flattened serializer"))
 	}

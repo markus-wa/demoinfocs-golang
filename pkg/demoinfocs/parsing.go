@@ -14,6 +14,8 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables2"
 
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
@@ -62,8 +64,16 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 		h.PlaybackFrames = p.bitReader.ReadSignedInt(32)
 		h.SignonLength = p.bitReader.ReadSignedInt(32)
 
+		p.stParser = st.NewSendTableParser()
+
 	case "PBDEMS2":
 		p.bitReader.Skip(8 << 3) // skip 8 bytes
+
+		p.stParser = sendtables2.NewParser()
+
+		p.RegisterNetMessageHandler(p.stParser.OnServerInfo)
+		p.RegisterNetMessageHandler(p.stParser.OnDemoClassInfo)
+		p.RegisterNetMessageHandler(p.stParser.OnPacketEntities)
 
 	default:
 		return h, ErrInvalidFileType
@@ -241,9 +251,12 @@ func (p *parser) parseFrameS1() bool {
 	case dcDataTables:
 		p.msgDispatcher.SyncAllQueues()
 
-		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
-		p.stParser.ParsePacket(p.bitReader)
-		p.bitReader.EndChunk()
+		b := p.bitReader.ReadBytes(p.bitReader.ReadSignedInt(32))
+
+		err := p.stParser.ParsePacket(b)
+		if err != nil {
+			panic(err)
+		}
 
 		debugAllServerClasses(p.ServerClasses())
 
