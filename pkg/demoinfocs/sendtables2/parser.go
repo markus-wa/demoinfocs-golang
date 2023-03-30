@@ -1,9 +1,7 @@
 package sendtables2
 
 import (
-	"fmt"
 	"math"
-	"strconv"
 
 	"google.golang.org/protobuf/proto"
 
@@ -58,7 +56,6 @@ type Parser struct {
 	classesById       map[int32]*class
 	classesByName     map[string]*class
 	entityFullPackets int
-	gameBuild         uint32
 	entities          map[int32]*Entity
 	entityHandlers    []EntityHandler
 }
@@ -87,17 +84,6 @@ func NewParser() *Parser {
 func (p *Parser) OnServerInfo(m *msgs2.CSVCMsg_ServerInfo) error {
 	// This may be needed to parse PacketEntities.
 	p.classIdSize = uint32(math.Log(float64(m.GetMaxClasses()))/math.Log(2)) + 1
-
-	// Extract the build from the game dir.
-	matches := gameBuildRegexp.FindStringSubmatch(m.GetGameDir())
-	if len(matches) < 2 {
-		return fmt.Errorf("unable to determine game build from '%s'", m.GetGameDir())
-	}
-	build, err := strconv.ParseUint(matches[1], 10, 32)
-	if err != nil {
-		return err
-	}
-	p.gameBuild = uint32(build)
 
 	return nil
 }
@@ -135,13 +121,6 @@ func (p *Parser) ParsePacket(b []byte) error {
 		return err
 	}
 
-	patches := []fieldPatch{}
-	for _, h := range fieldPatches {
-		if h.shouldApply(p.gameBuild) {
-			patches = append(patches, h)
-		}
-	}
-
 	fields := map[int32]*field{}
 	fieldTypes := map[string]*fieldType{}
 
@@ -157,10 +136,10 @@ func (p *Parser) ParsePacket(b []byte) error {
 				// create a new field
 				field := newField(msg, msg.GetFields()[i])
 
-				// patch parent name in builds <= 990
-				if p.gameBuild <= 990 {
-					field.parentName = serializer.name
-				}
+				// dotabuff/manta patches parent name in builds <= 990
+				//if p.gameBuild <= 990 {
+				//	field.parentName = serializer.name
+				//}
 
 				// find or create a field type
 				if _, ok := fieldTypes[field.varType]; !ok {
@@ -174,7 +153,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 				}
 
 				// apply any build-specific patches to the field
-				for _, h := range patches {
+				for _, h := range fieldPatches {
 					h.patch(field)
 				}
 

@@ -38,37 +38,13 @@ var fieldTypeFactories = map[string]fieldFactory{
 
 var fieldNameDecoders = map[string]fieldDecoder{}
 
-/*
-<!-- schema text {2CC83121-F14F-4A36-ABB8-62F4C2799689} generic {198980D8-3A93-4919-B4C6-DD1FB07A3A4B} -->
-DemoEncodingInfo_t
-
-	{
-		m_BasicEncodings =
-		[
-		]
-
-		// these were all pulled from grep'ing the code on 1/14/2021 and fixing up, probably will add more over time. This should be in a config file...
-		m_Aliases =
-		[
-			DemoTypeAlias_t { m_TypeAlias = "CBaseVRHandAttachmentHandle"			m_UnderlyingType = "CHandle< CBaseVRHandAttachment >" },
-			DemoTypeAlias_t { m_TypeAlias = "CAI_AbilityServices"					m_UnderlyingType = "CAI_AbilityServices*" },
-			DemoTypeAlias_t { m_TypeAlias = "m_SpeechBubbles"						m_UnderlyingType = "CUtlVector< CSpeechBubbleInfo >" },
-			DemoTypeAlias_t { m_TypeAlias = "DOTA_CombatLogQueryProgress"			m_UnderlyingType = "CUtlVector< CDOTA_CombatLogQueryProgress >" },
-			// found these by trying out some replays
-			// this was renamed in CL#4586922 on 6/26/2018
-			DemoTypeAlias_t { m_TypeAlias = "DOTATurboHeroPickRulesPhase_t"			m_UnderlyingType = "DOTACustomHeroPickRulesPhase_t" },
-			 // this was renamed from fixed array CL#2110239 on 2/10/2014
-			DemoTypeAlias_t { m_TypeAlias = "CDOTA_AbilityDraftAbilityState[MAX_ABILITY_DRAFT_ABILITIES]" m_UnderlyingType = "CUtlVector< CDOTA_AbilityDraftAbilityState >" },
-		]
-	}
-*/
 var fieldTypeDecoders = map[string]fieldDecoder{
 	/*
 		FIXME: dotabuff/manta doesn't have these?
 				DemoSimpleEncoders_t { m_Name = "float32"								m_VarType = "NET_DATA_TYPE_FLOAT32" },
 				DemoSimpleEncoders_t { m_Name = "float64"								m_VarType = "NET_DATA_TYPE_FLOAT64" },
 	*/
-	"float32": noscaleDecoder,
+	//"float32": noscaleDecoder,
 
 	/*
 		DemoSimpleEncoders_t { m_Name = "bool"									m_VarType = "NET_DATA_TYPE_BOOL" },
@@ -89,24 +65,21 @@ var fieldTypeDecoders = map[string]fieldDecoder{
 	*/
 	"bool": booleanDecoder,
 
-	"char":  stringDecoder, // FIXME: is this right??? dotabuff/manta says string
 	"int8":  signedDecoder,
 	"int16": signedDecoder,
 	"int32": signedDecoder,
-	"int64": signedDecoder,
 
 	"uint8":  unsignedDecoder,
 	"uint16": unsignedDecoder,
 	"uint32": unsignedDecoder,
 
+	"char":            stringDecoder,
 	"CUtlString":      stringDecoder,
 	"CUtlSymbolLarge": stringDecoder,
 
 	// some dotabuff/manta stuff
 	"GameTime_t": noscaleDecoder,
 	"CHandle":    unsignedDecoder,
-
-	//"color32": unsignedDecoder, FIXME: dotabuff/manta had this
 
 	/*
 		// some commmon stufff
@@ -223,7 +196,6 @@ var fieldTypeDecoders = map[string]fieldDecoder{
 	"TakeDamageFlags_t":        signedDecoder,
 
 	/*
-
 		// csgo
 		DemoSimpleEncoders_t { m_Name = "CSWeaponMode"							m_VarType = "NET_DATA_TYPE_UINT64" },
 		DemoSimpleEncoders_t { m_Name = "ESurvivalSpawnTileState"				m_VarType = "NET_DATA_TYPE_UINT64" },
