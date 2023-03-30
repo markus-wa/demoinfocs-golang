@@ -299,6 +299,10 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		tuples = append(tuples, tuple{e, op})
 	}
 
+	if int(r.pos)+1 < len(r.buf) {
+		panic("didn't consume all data")
+	}
+
 	for _, h := range p.entityHandlers {
 		for _, t := range tuples {
 			if err := h(t.e, t.op); err != nil {

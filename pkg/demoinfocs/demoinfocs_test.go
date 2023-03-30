@@ -211,7 +211,10 @@ func TestS2(t *testing.T) {
 
 	defer mustClose(t, f)
 
-	p := demoinfocs.NewParser(f)
+	cfg := demoinfocs.DefaultParserConfig
+	cfg.MsgQueueBufferSize = 0
+
+	p := demoinfocs.NewParserWithConfig(f, cfg)
 
 	t.Log("Parsing header")
 	_, err = p.ParseHeader()

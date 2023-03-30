@@ -138,7 +138,12 @@ func (p *parser) handleUpdateStringTable(tab *msgs2.CSVCMsg_UpdateStringTable, s
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
 
+	if len(p.stringTables) <= int(tab.GetTableId()) {
+		return // FIXME: We never got a proper CreateStringTable for this table ...
+	}
+
 	cTab := p.stringTables[tab.GetTableId()]
+
 	switch cTab.GetName() {
 	case stNameUserInfo:
 		fallthrough
@@ -499,6 +504,20 @@ func (p *parser) processModelPreCacheUpdate() {
 // XXX TODO: decide if we want to at all integrate these updates,
 // or trust create/update entirely. Let's ignore them for now.
 func (p *parser) handleStringTables(msg *msgs2.CDemoStringTables) {
+	for _, tab := range msg.GetTables() {
+		if tab.GetTableName() == stNameInstanceBaseline {
+			for _, item := range tab.GetItems() {
+				classID, err := strconv.Atoi(item.GetStr())
+				if err != nil {
+					log.Println("failed to parse serverClassID - this is a known issue of the parser, but it's unclear if it's causing any issues", err)
+					continue
+				}
+
+				p.stParser.SetInstanceBaseline(classID, item.GetData())
+			}
+		}
+	}
+
 	return
 
 	for _, tab := range msg.GetTables() {
