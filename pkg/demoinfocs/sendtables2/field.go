@@ -98,7 +98,7 @@ func (f *field) setModel(model int) {
 			_panicf("no generic type for variable array field %#v", f)
 		}
 		f.baseDecoder = unsignedDecoder
-		f.childDecoder = findDecoderByBaseType(f.fieldType.genericType.baseType)
+		f.childDecoder = findDecoderByBaseType(f)
 
 	case fieldModelVariableTable:
 		f.baseDecoder = unsignedDecoder

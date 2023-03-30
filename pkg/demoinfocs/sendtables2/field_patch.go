@@ -68,12 +68,19 @@ var fieldPatches = []fieldPatch{
 			f.encoder = "fixed64"
 		}
 	}},
+	/*
+		m_FieldEncoderOverrides =
+		[
+			DemoSimpleEncoders_t { m_Name =  "m_flSimulationTime"					m_VarType = "NET_DATA_TYPE_UINT64" },
+			DemoSimpleEncoders_t { m_Name =  "m_flAnimTime"							m_VarType = "NET_DATA_TYPE_UINT64" },
+		]
+	*/
 	fieldPatch{0, 0, func(f *field) {
 		switch f.varName {
 		case "m_flSimulationTime", "m_flAnimTime":
 			f.encoder = "simtime"
-		case "m_flRuneTime":
-			f.encoder = "runetime"
+			//case "m_flRuneTime":
+			//	f.encoder = "runetime"
 		}
 	}},
 }

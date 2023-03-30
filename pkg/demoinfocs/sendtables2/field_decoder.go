@@ -8,42 +8,251 @@ type fieldDecoder func(*reader) interface{}
 type fieldFactory func(*field) fieldDecoder
 
 var fieldTypeFactories = map[string]fieldFactory{
+	/*
+		DemoSimpleEncoders_t { m_Name = "float32"								m_VarType = "NET_DATA_TYPE_FLOAT32" },
+		DemoSimpleEncoders_t { m_Name = "CNetworkedQuantizedFloat"				m_VarType = "NET_DATA_TYPE_FLOAT32" },
+	*/
 	"float32":                  floatFactory,
 	"CNetworkedQuantizedFloat": quantizedFactory,
-	"Vector":                   vectorFactory(3),
-	"Vector2D":                 vectorFactory(2),
-	"Vector4D":                 vectorFactory(4),
-	"uint64":                   unsigned64Factory,
-	"QAngle":                   qangleFactory,
-	"CHandle":                  unsignedFactory,
-	"CStrongHandle":            unsigned64Factory,
-	"CEntityHandle":            unsignedFactory,
+
+	"uint64": unsigned64Factory,
+
+	/*
+		// some things with > 1 component
+		DemoSimpleEncoders_t { m_Name = "Vector"								m_VarType = "NET_DATA_TYPE_FLOAT32"		m_nComponents="3" },
+		DemoSimpleEncoders_t { m_Name = "QAngle"								m_VarType = "NET_DATA_TYPE_FLOAT32"		m_nComponents="3" },
+		DemoSimpleEncoders_t { m_Name = "Vector2D"								m_VarType = "NET_DATA_TYPE_FLOAT32"		m_nComponents="2" },
+		DemoSimpleEncoders_t { m_Name = "Vector4D"								m_VarType = "NET_DATA_TYPE_FLOAT32"		m_nComponents="4" },
+		DemoSimpleEncoders_t { m_Name = "Quaternion"							m_VarType = "NET_DATA_TYPE_FLOAT32"		m_nComponents="4" },
+		DemoSimpleEncoders_t { m_Name = "CTransform"							m_VarType = "NET_DATA_TYPE_FLOAT32"		m_nComponents="6" },
+	*/
+	"Vector":     vectorFactory(3),
+	"Vector2D":   vectorFactory(2),
+	"Vector4D":   vectorFactory(4),
+	"Quaternion": vectorFactory(4),
+	"CTransform": vectorFactory(6),
+
+	"CStrongHandle": unsigned64Factory,
+	"QAngle":        qangleFactory,
 }
 
 var fieldNameDecoders = map[string]fieldDecoder{}
 
+/*
+<!-- schema text {2CC83121-F14F-4A36-ABB8-62F4C2799689} generic {198980D8-3A93-4919-B4C6-DD1FB07A3A4B} -->
+DemoEncodingInfo_t
+
+	{
+		m_BasicEncodings =
+		[
+		]
+
+		// these were all pulled from grep'ing the code on 1/14/2021 and fixing up, probably will add more over time. This should be in a config file...
+		m_Aliases =
+		[
+			DemoTypeAlias_t { m_TypeAlias = "CBaseVRHandAttachmentHandle"			m_UnderlyingType = "CHandle< CBaseVRHandAttachment >" },
+			DemoTypeAlias_t { m_TypeAlias = "CAI_AbilityServices"					m_UnderlyingType = "CAI_AbilityServices*" },
+			DemoTypeAlias_t { m_TypeAlias = "m_SpeechBubbles"						m_UnderlyingType = "CUtlVector< CSpeechBubbleInfo >" },
+			DemoTypeAlias_t { m_TypeAlias = "DOTA_CombatLogQueryProgress"			m_UnderlyingType = "CUtlVector< CDOTA_CombatLogQueryProgress >" },
+			// found these by trying out some replays
+			// this was renamed in CL#4586922 on 6/26/2018
+			DemoTypeAlias_t { m_TypeAlias = "DOTATurboHeroPickRulesPhase_t"			m_UnderlyingType = "DOTACustomHeroPickRulesPhase_t" },
+			 // this was renamed from fixed array CL#2110239 on 2/10/2014
+			DemoTypeAlias_t { m_TypeAlias = "CDOTA_AbilityDraftAbilityState[MAX_ABILITY_DRAFT_ABILITIES]" m_UnderlyingType = "CUtlVector< CDOTA_AbilityDraftAbilityState >" },
+		]
+	}
+*/
 var fieldTypeDecoders = map[string]fieldDecoder{
-	"bool":    booleanDecoder,
-	"char":    stringDecoder,
-	"color32": unsignedDecoder,
-	"int16":   signedDecoder,
-	"int32":   signedDecoder,
-	"int64":   signedDecoder,
-	"int8":    signedDecoder,
-	"uint16":  unsignedDecoder,
-	"uint32":  unsignedDecoder,
-	"uint8":   unsignedDecoder,
+	/*
+		FIXME: dotabuff/manta doesn't have these?
+				DemoSimpleEncoders_t { m_Name = "float32"								m_VarType = "NET_DATA_TYPE_FLOAT32" },
+				DemoSimpleEncoders_t { m_Name = "float64"								m_VarType = "NET_DATA_TYPE_FLOAT64" },
+	*/
+	"float32": noscaleDecoder,
 
+	/*
+		DemoSimpleEncoders_t { m_Name = "bool"									m_VarType = "NET_DATA_TYPE_BOOL" },
+
+		DemoSimpleEncoders_t { m_Name = "char"									m_VarType = "NET_DATA_TYPE_INT64" },
+		DemoSimpleEncoders_t { m_Name = "int8"									m_VarType = "NET_DATA_TYPE_INT64" },
+		DemoSimpleEncoders_t { m_Name = "int16"									m_VarType = "NET_DATA_TYPE_INT64" },
+		DemoSimpleEncoders_t { m_Name = "int32"									m_VarType = "NET_DATA_TYPE_INT64" },
+		DemoSimpleEncoders_t { m_Name = "int64"									m_VarType = "NET_DATA_TYPE_INT64" },
+
+		DemoSimpleEncoders_t { m_Name = "uint8"									m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "uint16"								m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "uint32"								m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "uint64"								m_VarType = "NET_DATA_TYPE_UINT64" },
+
+		DemoSimpleEncoders_t { m_Name = "CUtlString"							m_VarType = "NET_DATA_TYPE_STRING" },
+		DemoSimpleEncoders_t { m_Name = "CUtlSymbolLarge"						m_VarType = "NET_DATA_TYPE_STRING" },
+	*/
+	"bool": booleanDecoder,
+
+	"char":  stringDecoder, // FIXME: is this right??? dotabuff/manta says string
+	"int8":  signedDecoder,
+	"int16": signedDecoder,
+	"int32": signedDecoder,
+	"int64": signedDecoder,
+
+	"uint8":  unsignedDecoder,
+	"uint16": unsignedDecoder,
+	"uint32": unsignedDecoder,
+
+	"CUtlString":      stringDecoder,
+	"CUtlSymbolLarge": stringDecoder,
+
+	// some dotabuff/manta stuff
 	"GameTime_t": noscaleDecoder,
+	"CHandle":    unsignedDecoder,
 
-	"CBodyComponent":       componentDecoder,
-	"CGameSceneNodeHandle": unsignedDecoder,
+	//"color32": unsignedDecoder, FIXME: dotabuff/manta had this
+
+	/*
+		// some commmon stufff
+		DemoSimpleEncoders_t { m_Name = "Color"									m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "CUtlStringToken"						m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "EHandle"								m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "CEntityHandle"							m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "CGameSceneNodeHandle"					m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "CStrongHandle"							m_VarType = "NET_DATA_TYPE_UINT64" },
+	*/
 	"Color":                unsignedDecoder,
-	"CPhysicsComponent":    componentDecoder,
-	"CRenderComponent":     componentDecoder,
-	"CUtlString":           stringDecoder,
 	"CUtlStringToken":      unsignedDecoder,
-	"CUtlSymbolLarge":      stringDecoder,
+	"EHandle":              unsignedDecoder,
+	"CEntityHandle":        unsignedDecoder,
+	"CGameSceneNodeHandle": unsignedDecoder,
+	"CStrongHandle":        unsignedDecoder,
+
+	/*
+		/// some commmon stufff
+		DemoSimpleEncoders_t { m_Name = "HSequence"								m_VarType = "NET_DATA_TYPE_INT64" },
+		DemoSimpleEncoders_t { m_Name = "AttachmentHandle_t"					m_VarType = "NET_DATA_TYPE_UINT64" }, // uint8
+		DemoSimpleEncoders_t { m_Name = "CEntityIndex"							m_VarType = "NET_DATA_TYPE_INT64" },
+	*/
+	"HSequence":          signedDecoder,
+	"AttachmentHandle_t": unsignedDecoder,
+	"CEntityIndex":       signedDecoder,
+
+	/*
+		// bunch of enum types, too
+		DemoSimpleEncoders_t { m_Name = "MoveCollide_t"							m_VarType = "NET_DATA_TYPE_UINT64" },	// uint8
+		DemoSimpleEncoders_t { m_Name = "MoveType_t"							m_VarType = "NET_DATA_TYPE_UINT64" },	// uint8
+		DemoSimpleEncoders_t { m_Name = "RenderMode_t"							m_VarType = "NET_DATA_TYPE_UINT64" },	// uint8
+		DemoSimpleEncoders_t { m_Name = "RenderFx_t"							m_VarType = "NET_DATA_TYPE_UINT64" },	// uint8
+		DemoSimpleEncoders_t { m_Name = "SolidType_t"							m_VarType = "NET_DATA_TYPE_UINT64" },	// uint8
+		DemoSimpleEncoders_t { m_Name = "SurroundingBoundsType_t"				m_VarType = "NET_DATA_TYPE_UINT64" },	// uint8
+		DemoSimpleEncoders_t { m_Name = "ModelConfigHandle_t"					m_VarType = "NET_DATA_TYPE_UINT64" },	// uint8
+		DemoSimpleEncoders_t { m_Name = "NPC_STATE"								m_VarType = "NET_DATA_TYPE_INT64" },	// int32
+		DemoSimpleEncoders_t { m_Name = "StanceType_t"							m_VarType = "NET_DATA_TYPE_INT64" },	// int32  ?
+		DemoSimpleEncoders_t { m_Name = "AbilityPathType_t"						m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32 ? no neg values
+		DemoSimpleEncoders_t { m_Name = "WeaponState_t"							m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32 ? no neg values
+		DemoSimpleEncoders_t { m_Name = "DoorState_t"							m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32 ? no neg values
+		DemoSimpleEncoders_t { m_Name = "RagdollBlendDirection"					m_VarType = "NET_DATA_TYPE_INT64" },	// int32  ?
+		DemoSimpleEncoders_t { m_Name = "BeamType_t"							m_VarType = "NET_DATA_TYPE_INT64" },	// int32  ?
+		DemoSimpleEncoders_t { m_Name = "BeamClipStyle_t"						m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+		DemoSimpleEncoders_t { m_Name = "EntityDisolveType_t"					m_VarType = "NET_DATA_TYPE_INT64" },	// int32  ?
+	*/
+	"MoveCollide_t":           unsignedDecoder,
+	"MoveType_t":              unsignedDecoder,
+	"RenderMode_t":            unsignedDecoder,
+	"RenderFx_t":              unsignedDecoder,
+	"SolidType_t":             unsignedDecoder,
+	"SurroundingBoundsType_t": unsignedDecoder,
+	"ModelConfigHandle_t":     unsignedDecoder,
+	"NPC_STATE":               signedDecoder,
+	"StanceType_t":            signedDecoder,
+	"WeaponState_t":           unsignedDecoder,
+	"DoorState_t":             unsignedDecoder,
+	"RagdollBlendDirection":   signedDecoder,
+	"BeamType_t":              signedDecoder,
+	"BeamClipStyle_t":         unsignedDecoder,
+	"EntityDisolveType_t":     signedDecoder,
+
+	/*
+		DemoSimpleEncoders_t { m_Name = "ValueRemapperInputType_t"				m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+		DemoSimpleEncoders_t { m_Name = "ValueRemapperOutputType_t"				m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+		DemoSimpleEncoders_t { m_Name = "ValueRemapperHapticsType_t"			m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+		DemoSimpleEncoders_t { m_Name = "ValueRemapperMomentumType_t"			m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+		DemoSimpleEncoders_t { m_Name = "ValueRemapperRatchetType_t"			m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+
+		DemoSimpleEncoders_t { m_Name = "PointWorldTextJustifyHorizontal_t"		m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+		DemoSimpleEncoders_t { m_Name = "PointWorldTextJustifyVertical_t"		m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+		DemoSimpleEncoders_t { m_Name = "PointWorldTextReorientMode_t"			m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+
+		DemoSimpleEncoders_t { m_Name = "PoseController_FModType_t"				m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+		DemoSimpleEncoders_t { m_Name = "PrecipitationType_t"					m_VarType = "NET_DATA_TYPE_INT64" },	// int32  ?
+		DemoSimpleEncoders_t { m_Name = "ShardSolid_t"							m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+		DemoSimpleEncoders_t { m_Name = "ShatterPanelMode"						m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32  ?
+	*/
+	"ValueRemapperInputType_t":          unsignedDecoder,
+	"ValueRemapperOutputType_t":         unsignedDecoder,
+	"ValueRemapperHapticsType_t":        unsignedDecoder,
+	"ValueRemapperMomentumType_t":       unsignedDecoder,
+	"ValueRemapperRatchetType_t":        unsignedDecoder,
+	"PointWorldTextJustifyHorizontal_t": unsignedDecoder,
+	"PointWorldTextJustifyVertical_t":   unsignedDecoder,
+	"PointWorldTextReorientMode_t":      unsignedDecoder,
+	"PoseController_FModType_t":         unsignedDecoder,
+	"PrecipitationType_t":               signedDecoder,
+	"ShardSolid_t":                      unsignedDecoder,
+	"ShatterPanelMode":                  unsignedDecoder,
+
+	/*
+		DemoSimpleEncoders_t{ m_Name = "gender_t"								m_VarType = "NET_DATA_TYPE_UINT64" },	// uint8, deprecated enum type in S2 ?
+
+		DemoSimpleEncoders_t { m_Name = "item_definition_index_t"				m_VarType = "NET_DATA_TYPE_UINT64" },	// uint16/32 depending on game
+		DemoSimpleEncoders_t { m_Name = "itemid_t"								m_VarType = "NET_DATA_TYPE_UINT64" },	// uint64
+		DemoSimpleEncoders_t { m_Name = "style_index_t"							m_VarType = "NET_DATA_TYPE_UINT64" },	// uint8
+		DemoSimpleEncoders_t { m_Name = "attributeprovidertypes_t"				m_VarType = "NET_DATA_TYPE_UINT64" },	// uint32 ?
+		DemoSimpleEncoders_t { m_Name = "DamageOptions_t"						m_VarType = "NET_DATA_TYPE_UINT64" },	// uint8
+		DemoSimpleEncoders_t { m_Name = "ScreenEffectType_t"					m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "MaterialModifyMode_t"					m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "AmmoIndex_t"							m_VarType = "NET_DATA_TYPE_INT64" },	// int8
+		DemoSimpleEncoders_t { m_Name = "TakeDamageFlags_t"						m_VarType = "NET_DATA_TYPE_INT64" },	// uint16
+	*/
+	"gender_t":                 unsignedDecoder,
+	"item_definition_index_t":  unsignedDecoder,
+	"itemid_t":                 unsignedDecoder,
+	"style_index_t":            unsignedDecoder,
+	"attributeprovidertypes_t": unsignedDecoder,
+	"DamageOptions_t":          unsignedDecoder,
+	"ScreenEffectType_t":       unsignedDecoder,
+	"MaterialModifyMode_t":     unsignedDecoder,
+	"AmmoIndex_t":              signedDecoder,
+	"TakeDamageFlags_t":        signedDecoder,
+
+	/*
+
+		// csgo
+		DemoSimpleEncoders_t { m_Name = "CSWeaponMode"							m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "ESurvivalSpawnTileState"				m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "SpawnStage_t"							m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "ESurvivalGameRuleDecision_t"			m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "RelativeDamagedDirection_t"			m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "CSPlayerState"							m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "MedalRank_t"							m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "CSPlayerBlockingUseAction_t"			m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "MoveMountingAmount_t"					m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "QuestProgress::Reason"					m_VarType = "NET_DATA_TYPE_UINT64" },
+		DemoSimpleEncoders_t { m_Name = "tablet_skin_state_t"					m_VarType = "NET_DATA_TYPE_UINT64" },
+	*/
+	"CSWeaponMode":                unsignedDecoder,
+	"ESurvivalSpawnTileState":     unsignedDecoder,
+	"SpawnStage_t":                unsignedDecoder,
+	"ESurvivalGameRuleDecision_t": unsignedDecoder,
+	"RelativeDamagedDirection_t":  unsignedDecoder,
+	"CSPlayerState":               unsignedDecoder,
+	"MedalRank_t":                 unsignedDecoder,
+	"CSPlayerBlockingUseAction_t": unsignedDecoder,
+	"MoveMountingAmount_t":        unsignedDecoder,
+	"QuestProgress::Reason":       unsignedDecoder,
+	"tablet_skin_state_t":         unsignedDecoder,
+
+	"CBodyComponent":    componentDecoder,
+	"CPhysicsComponent": componentDecoder,
+	"CLightComponent":   componentDecoder,
+	"CRenderComponent":  componentDecoder,
 }
 
 func unsignedFactory(f *field) fieldDecoder {
@@ -216,8 +425,12 @@ func findDecoder(f *field) fieldDecoder {
 	return defaultDecoder
 }
 
-func findDecoderByBaseType(baseType string) fieldDecoder {
-	if v, ok := fieldTypeDecoders[baseType]; ok {
+func findDecoderByBaseType(f *field) fieldDecoder {
+	if v, ok := fieldTypeFactories[f.fieldType.genericType.baseType]; ok {
+		return v(f)
+	}
+
+	if v, ok := fieldTypeDecoders[f.fieldType.genericType.baseType]; ok {
 		return v
 	}
 

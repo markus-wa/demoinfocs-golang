@@ -12,18 +12,38 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
+/*
+from demoinfo2.txt:
+
+// referenced components require pointer indirection
+DemoTypeAlias_t { m_TypeAlias = "CBodyComponentDCGBaseAnimating" 		m_UnderlyingType = "CBodyComponentDCGBaseAnimating*" },
+DemoTypeAlias_t { m_TypeAlias = "CBodyComponentBaseAnimating"			m_UnderlyingType = "CBodyComponentBaseAnimating*" },
+DemoTypeAlias_t { m_TypeAlias = "CBodyComponentBaseAnimatingOverlay"	m_UnderlyingType = "CBodyComponentBaseAnimatingOverlay*" },
+DemoTypeAlias_t { m_TypeAlias = "CBodyComponentBaseModelEntity"			m_UnderlyingType = "CBodyComponentBaseModelEntity*" },
+DemoTypeAlias_t { m_TypeAlias = "CBodyComponent"						m_UnderlyingType = "CBodyComponent*" },
+DemoTypeAlias_t { m_TypeAlias = "CBodyComponentSkeletonInstance"		m_UnderlyingType = "CBodyComponentSkeletonInstance*" },
+DemoTypeAlias_t { m_TypeAlias = "CBodyComponentPoint"					m_UnderlyingType = "CBodyComponentPoint*" },
+DemoTypeAlias_t { m_TypeAlias = "CLightComponent"						m_UnderlyingType = "CLightComponent*" },
+DemoTypeAlias_t { m_TypeAlias = "CRenderComponent"						m_UnderlyingType = "CRenderComponent*" },
+
+// this is legacy, would be good candidate to use demo file upconversion to remove?
+DemoTypeAlias_t { m_TypeAlias = "CPhysicsComponent"						m_UnderlyingType = "CPhysicsComponent*" },
+*/
 var pointerTypes = map[string]bool{
-	"PhysicsRagdollPose_t":       true,
-	"CBodyComponent":             true,
-	"CEntityIdentity":            true,
-	"CPhysicsComponent":          true,
-	"CRenderComponent":           true,
-	"CDOTAGamerules":             true,
-	"CDOTAGameManager":           true,
-	"CDOTASpectatorGraphManager": true,
-	"CPlayerLocalData":           true,
-	"CPlayer_CameraServices":     true,
-	"CDOTAGameRules":             true,
+	//"PhysicsRagdollPose_t":   true,
+	//"CEntityIdentity":        true,
+	//"CPlayerLocalData":       true,
+	//"CPlayer_CameraServices": true,
+	"CBodyComponentDCGBaseAnimating":     true,
+	"CBodyComponentBaseAnimating":        true,
+	"CBodyComponentBaseAnimatingOverlay": true,
+	"CBodyComponentBaseModelEntity":      true,
+	"CBodyComponent":                     true,
+	"CBodyComponentSkeletonInstance":     true,
+	"CBodyComponentPoint":                true,
+	"CLightComponent":                    true,
+	"CRenderComponent":                   true,
+	"CPhysicsComponent":                  true,
 }
 
 var itemCounts = map[string]int{
