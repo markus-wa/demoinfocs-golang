@@ -291,7 +291,7 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 
 	ms := make([]pendingMessage, 0)
 
-	for r.ActualPosition() < len(b) {
+	for len(b)*8-r.ActualPosition() > 7 {
 		t := int32(r.ReadUBitInt())
 		size := r.ReadVarInt32()
 		buf := r.ReadBytes(int(size))

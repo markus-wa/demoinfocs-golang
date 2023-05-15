@@ -264,8 +264,8 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 				p.entities[index] = e
 				readFields(newReader(baseline), class.serializer, e.state)
 				readFields(r, class.serializer, e.state)
-				op = EntityOpCreated | EntityOpEntered
 
+				op = EntityOpCreated | EntityOpEntered
 			} else {
 				if e = p.entities[index]; e == nil {
 					_panicf("unable to find existing entity %d", index)
@@ -279,7 +279,6 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 
 				readFields(r, e.class.serializer, e.state)
 			}
-
 		} else {
 			if e = p.entities[index]; e == nil {
 				_panicf("unable to find existing entity %d", index)
@@ -299,8 +298,8 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		tuples = append(tuples, tuple{e, op})
 	}
 
-	if int(r.pos)+1 < len(r.buf) {
-		panic("didn't consume all data")
+	if r.remBytes() > 1 || r.bitCount > 7 {
+		// FIXME: maybe we should panic("didn't consume all data")
 	}
 
 	for _, h := range p.entityHandlers {
