@@ -14,15 +14,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
 )
 
-func (p *parser) handlePacketEntitiesS2(pe *msgs2.CSVCMsg_PacketEntities) {
-}
-
 func (p *parser) handlePacketEntitiesS1(pe *msg.CSVCMsg_PacketEntities) {
-	p.handlePacketEntitiesS2(&msgs2.CSVCMsg_PacketEntities{
-		UpdatedEntries: pe.UpdatedEntries,
-		EntityData:     pe.EntityData,
-	})
-
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
