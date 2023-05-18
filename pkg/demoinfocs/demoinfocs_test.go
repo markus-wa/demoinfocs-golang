@@ -34,6 +34,7 @@ const (
 	defaultDemPath          = csDemosPath + "/default.dem"
 	retakeDemPath           = csDemosPath + "/retake_unknwon_bombsite_index.dem"
 	unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
+	s2DemPath               = csDemosPath + "/s2.dem"
 )
 
 var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current demos")
@@ -194,16 +195,12 @@ func TestDemoInfoCs(t *testing.T) {
 	assertGolden(t, assertions, "default", actual.Bytes())
 }
 
-var s2Dem = flag.String("s2dem", "", "source 2 demo to parse")
-
 func TestS2(t *testing.T) {
 	t.Parallel()
 
 	if testing.Short() {
 		t.Skip("skipping test due to -short flag")
 	}
-
-	s2DemPath := *s2Dem
 
 	f, err := os.Open(s2DemPath)
 	assertions := assert.New(t)
