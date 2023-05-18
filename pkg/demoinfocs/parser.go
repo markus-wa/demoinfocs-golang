@@ -22,6 +22,16 @@ import (
 
 //go:generate ifacemaker -f parser.go -f parsing.go -s parser -i Parser -p demoinfocs -D -y "Parser is an auto-generated interface for Parser, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o parser_interface.go
 
+type sendTableParser interface {
+	ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity
+	ServerClasses() st.ServerClasses
+	ParsePacket(b []byte) error
+	SetInstanceBaseline(classID int, data []byte)
+	OnDemoClassInfo(m *msgs2.CDemoClassInfo) error
+	OnServerInfo(m *msgs2.CSVCMsg_ServerInfo) error
+	OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error
+}
+
 /*
 Parser can parse a CS:GO demo.
 Creating a new instance is done via NewParser().
@@ -50,7 +60,7 @@ type parser struct {
 	// Important fields
 
 	bitReader                    *bit.BitReader
-	stParser                     *st.SendTableParser
+	stParser                     sendTableParser
 	additionalNetMessageCreators map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                     chan any                  // Queue of net-messages
 	msgDispatcher                *dp.Dispatcher            // Net-message dispatcher
@@ -344,7 +354,6 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 
 	// Init parser
 	p.bitReader = bit.NewLargeBitReader(demostream)
-	p.stParser = st.NewSendTableParser()
 	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)

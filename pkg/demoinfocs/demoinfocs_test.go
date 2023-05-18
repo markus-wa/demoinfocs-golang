@@ -32,7 +32,6 @@ const (
 	csDemosPath             = testDataPath + "/cs-demos"
 	demSetPath              = csDemosPath + "/set"
 	defaultDemPath          = csDemosPath + "/default.dem"
-	s2DemPath               = csDemosPath + "/s2-gotv.dem"
 	retakeDemPath           = csDemosPath + "/retake_unknwon_bombsite_index.dem"
 	unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
 )
@@ -195,6 +194,8 @@ func TestDemoInfoCs(t *testing.T) {
 	assertGolden(t, assertions, "default", actual.Bytes())
 }
 
+var s2Dem = flag.String("s2dem", "", "source 2 demo to parse")
+
 func TestS2(t *testing.T) {
 	t.Parallel()
 
@@ -202,13 +203,18 @@ func TestS2(t *testing.T) {
 		t.Skip("skipping test due to -short flag")
 	}
 
+	s2DemPath := *s2Dem
+
 	f, err := os.Open(s2DemPath)
 	assertions := assert.New(t)
 	assertions.NoError(err, "error opening demo %q", s2DemPath)
 
 	defer mustClose(t, f)
 
-	p := demoinfocs.NewParser(f)
+	cfg := demoinfocs.DefaultParserConfig
+	cfg.MsgQueueBufferSize = 0
+
+	p := demoinfocs.NewParserWithConfig(f, cfg)
 
 	t.Log("Parsing header")
 	_, err = p.ParseHeader()
