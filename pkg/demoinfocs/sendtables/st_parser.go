@@ -19,9 +19,9 @@ import (
 // Intended for internal use only.
 type SendTableParser struct {
 	sendTables         []sendTable
-	serverClasses      ServerClasses
+	serverClasses      serverClasses
 	currentExcludes    []*excludeEntry
-	currentBaseclasses []*ServerClass
+	currentBaseclasses []*serverClass
 
 	instanceBaselines map[int][]byte // Maps server-class IDs to raw instance baselines, needed for when we don't have the server-class when setting the baseline
 }
@@ -41,11 +41,16 @@ func (p *SendTableParser) OnPacketEntities(*msgs2.CSVCMsg_PacketEntities) error 
 }
 
 // ServerClasses is a searchable list of ServerClasses.
-type ServerClasses []*ServerClass
+type ServerClasses interface {
+	All() []ServerClass
+	FindByName(name string) ServerClass
+}
 
-func (sc ServerClasses) findByDataTableName(name string) *ServerClass {
+type serverClasses []*serverClass
+
+func (sc serverClasses) findByDataTableName(name string) *serverClass {
 	for _, v := range sc {
-		if v.dataTableName == name {
+		if v.DataTableName() == name {
 			return v
 		}
 	}
@@ -56,14 +61,23 @@ func (sc ServerClasses) findByDataTableName(name string) *ServerClass {
 // FindByName finds and returns a server-class by it's name.
 //
 // Returns nil if the server-class wasn't found.
-func (sc ServerClasses) FindByName(name string) *ServerClass {
+func (sc serverClasses) FindByName(name string) ServerClass {
 	for _, v := range sc {
-		if v.name == name {
+		if v.Name() == name {
 			return v
 		}
 	}
 
 	return nil
+}
+
+// All returns all server-classes.
+func (sc serverClasses) All() (res []ServerClass) {
+	for _, v := range sc {
+		res = append(res, v)
+	}
+
+	return
 }
 
 type excludeEntry struct {
@@ -102,7 +116,7 @@ func (p *SendTableParser) ParsePacket(b []byte) error {
 	serverClassCount := int(r.ReadInt(16))
 
 	for i := 0; i < serverClassCount; i++ {
-		class := new(ServerClass)
+		class := new(serverClass)
 		class.id = int(r.ReadInt(16))
 
 		if class.id > serverClassCount {

@@ -35,6 +35,7 @@ const (
 	PropTypeArray
 	PropTypeDataTable
 	PropTypeInt64
+	PropTypeAny
 )
 
 const (
@@ -95,6 +96,7 @@ type PropertyValue struct {
 	ArrayVal  []PropertyValue
 	StringVal string
 	FloatVal  float32
+	Any       any
 }
 
 // BoolVal returns true if IntVal > 0.

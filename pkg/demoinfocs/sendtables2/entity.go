@@ -2,8 +2,13 @@ package sendtables2
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/golang/geo/r3"
+
+	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 // EntityOp is a bitmask representing the type of operation performed on an Entity
@@ -56,24 +61,159 @@ type Entity struct {
 	state   *fieldState
 	fpCache map[string]*fieldPath
 	fpNoop  map[string]bool
+
+	onCreateFinished []func()
+	onDestroy        []func()
+	updateHandlers   map[string][]st.PropertyUpdateHandler
+}
+
+func (e *Entity) ServerClass() st.ServerClass {
+	return e.class
+}
+
+func (e *Entity) ID() int {
+	return int(e.index)
+}
+
+func (e *Entity) SerialNum() int {
+	return int(e.serial)
+}
+
+func (e *Entity) Properties() (out []st.Property) {
+	for _, fp := range e.class.getFieldPaths(newFieldPath(), e.state) {
+		out = append(out, e.Property(e.class.getNameForFieldPath(fp)))
+	}
+
+	return
+}
+
+type property struct {
+	entity *Entity
+	name   string
+}
+
+func (p property) Name() string {
+	return p.name
+}
+
+func (p property) Value() st.PropertyValue {
+	return st.PropertyValue{
+		VectorVal: r3.Vector{},
+		IntVal:    0,
+		Int64Val:  0,
+		ArrayVal:  nil,
+		StringVal: "",
+		FloatVal:  0,
+		Any:       p.entity.Get(p.name),
+	}
+}
+
+func (p property) Type() st.PropertyType {
+	panic("not implemented")
+}
+
+func (p property) ArrayElementType() st.PropertyType {
+	panic("not implemented")
+}
+
+func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
+	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], handler)
+}
+
+func (p property) Bind(variable any, valueType st.PropertyValueType) {
+	panic("not implemented")
+}
+
+func (e *Entity) Property(name string) st.Property {
+	ok := e.class.serializer.getFieldPathForName(newFieldPath(), name)
+	if !ok {
+		return nil
+	}
+
+	return property{
+		entity: e,
+		name:   name,
+	}
+}
+
+func (e *Entity) BindProperty(name string, variable any, valueType st.PropertyValueType) {
+	panic("not implemented")
+}
+
+func (e *Entity) PropertyValue(name string) (st.PropertyValue, bool) {
+	prop := e.Property(name)
+	if prop == nil {
+		return st.PropertyValue{}, false
+	}
+
+	v := prop.Value()
+
+	return v, true
+}
+
+func (e *Entity) PropertyValueMust(name string) st.PropertyValue {
+	val, ok := e.PropertyValue(name)
+	if !ok {
+		panic(fmt.Sprintf("property '%s' not found", name))
+	}
+
+	return val
+}
+
+func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
+	panic("not implemented")
+}
+
+func (e *Entity) Position() r3.Vector {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (e *Entity) OnDestroy(delegate func()) {
+	e.onDestroy = append(e.onDestroy, delegate)
+}
+
+func (e *Entity) Destroy() {
+	for _, delegate := range e.onDestroy {
+		delegate()
+	}
+}
+
+func (e *Entity) OnCreateFinished(delegate func()) {
+	e.onCreateFinished = append(e.onCreateFinished, delegate)
 }
 
 // newEntity returns a new entity for the given index, serial and class
 func newEntity(index, serial int32, class *class) *Entity {
 	return &Entity{
-		index:   index,
-		serial:  serial,
-		class:   class,
-		active:  true,
-		state:   newFieldState(),
-		fpCache: make(map[string]*fieldPath),
-		fpNoop:  make(map[string]bool),
+		index:            index,
+		serial:           serial,
+		class:            class,
+		active:           true,
+		state:            newFieldState(),
+		fpCache:          make(map[string]*fieldPath),
+		fpNoop:           make(map[string]bool),
+		onCreateFinished: nil,
+		onDestroy:        nil,
+		updateHandlers:   make(map[string][]st.PropertyUpdateHandler),
 	}
 }
 
 // String returns a human identifiable string for the Entity
 func (e *Entity) String() string {
-	return fmt.Sprintf("%d <%s>", e.index, e.class.name)
+	paths := e.class.getFieldPaths(newFieldPath(), e.state)
+	props := make([]string, len(paths))
+
+	for _, fp := range paths {
+		props = append(props, fmt.Sprintf("%s: %v", e.class.getNameForFieldPath(fp), e.state.get(fp)))
+	}
+
+	return fmt.Sprintf("%d <%s>\n %s", e.index, e.class.name, strings.Join(props, "\n "))
 }
 
 // Map returns a map of current entity state as key-value pairs
@@ -213,6 +353,34 @@ func (p *Parser) FilterEntity(fb func(*Entity) bool) []*Entity {
 	return entities
 }
 
+func (e *Entity) readFields(r *reader) {
+	fps := readFieldPaths(r)
+
+	for _, fp := range fps {
+		decoder := e.class.serializer.getDecoderForFieldPath(fp, 0)
+
+		val := decoder(r)
+		e.state.set(fp, val)
+
+		upd := e.updateHandlers[e.class.getNameForFieldPath(fp)]
+		if upd != nil {
+			for _, h := range upd {
+				h(st.PropertyValue{
+					VectorVal: r3.Vector{},
+					IntVal:    0,
+					Int64Val:  0,
+					ArrayVal:  nil,
+					StringVal: "",
+					FloatVal:  0,
+					Any:       val,
+				})
+			}
+		}
+
+		fp.release()
+	}
+}
+
 // Internal Callback for OnCSVCMsg_PacketEntities.
 func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 	r := newReader(m.GetEntityData())
@@ -264,8 +432,19 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 
 				e = newEntity(index, serial, class)
 				p.entities[index] = e
-				readFields(newReader(baseline), class.serializer, e.state)
-				readFields(r, class.serializer, e.state)
+
+				e.readFields(newReader(baseline))
+				e.readFields(r)
+
+				// Fire created-handlers so update-handlers can be registered
+				for _, h := range class.createdHandlers {
+					h(e)
+				}
+
+				// Fire all post-creation actions
+				for _, f := range e.onCreateFinished {
+					f()
+				}
 
 				op = EntityOpCreated | EntityOpEntered
 			} else {
@@ -279,7 +458,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 					op |= EntityOpEntered
 				}
 
-				readFields(r, e.class.serializer, e.state)
+				e.readFields(r)
 			}
 		} else {
 			if e = p.entities[index]; e == nil {

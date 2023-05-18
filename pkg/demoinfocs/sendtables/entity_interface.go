@@ -4,6 +4,7 @@ package sendtables
 
 import (
 	"github.com/golang/geo/r3"
+
 	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
 )
 
@@ -11,7 +12,7 @@ import (
 // entity stores a entity in the game (e.g. players etc.) with its properties.
 type Entity interface {
 	// ServerClass returns the entity's server-class.
-	ServerClass() *ServerClass
+	ServerClass() ServerClass
 	// ID returns the entity's ID.
 	ID() int
 	// SerialNum returns the entity's serial number.

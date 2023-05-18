@@ -30,8 +30,8 @@ type Entity struct {
 }
 
 // ServerClass is a mock-implementation of Entity.ServerClass().
-func (e *Entity) ServerClass() *st.ServerClass {
-	return e.Called().Get(0).(*st.ServerClass)
+func (e *Entity) ServerClass() st.ServerClass {
+	return e.Called().Get(0).(st.ServerClass)
 }
 
 // ID is a mock-implementation of Entity.ID().

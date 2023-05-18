@@ -14,7 +14,7 @@ import (
 )
 
 func (p *parser) mapEquipment() {
-	for _, sc := range p.stParser.ServerClasses() {
+	for _, sc := range p.stParser.ServerClasses().All() {
 		switch sc.Name() {
 		case "CC4":
 			p.equipmentMapping[sc] = common.EqBomb
@@ -107,8 +107,15 @@ func (p *parser) bindBomb() {
 }
 
 func (p *parser) bindTeamStates() {
+	fmt.Println(p.stParser.ServerClasses().FindByName("CCSTeam"))
 	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity st.Entity) {
-		team := entity.PropertyValueMust("m_szTeamname").StringVal
+		teamVal := entity.PropertyValueMust("m_szTeamname")
+		team := teamVal.StringVal
+
+		// FIXME: S2 fix
+		if team == "" {
+			team = teamVal.Any.(string)
+		}
 
 		var s *common.TeamState
 
@@ -131,13 +138,21 @@ func (p *parser) bindTeamStates() {
 
 			// Register updates
 			var score int
-			entity.Property("m_scoreTotal").OnUpdate(func(val st.PropertyValue) {
+
+			scoreProp := entity.Property("m_scoreTotal")
+
+			// FIXME: S2 fix
+			if scoreProp == nil {
+				scoreProp = entity.Property("m_iScore")
+			}
+
+			scoreProp.OnUpdate(func(val st.PropertyValue) {
 				oldScore := score
-				score = val.IntVal
+				score = val.IntVal // FIXME: fix for S2
 
 				p.eventDispatcher.Dispatch(events.ScoreUpdated{
 					OldScore:  oldScore,
-					NewScore:  val.IntVal,
+					NewScore:  val.IntVal, // FIXME: fix for S2
 					TeamState: s,
 				})
 			})
@@ -161,7 +176,8 @@ func (p *parser) bindBombSites() {
 }
 
 func (p *parser) bindPlayers() {
-	p.stParser.ServerClasses().FindByName("CCSPlayer").OnEntityCreated(func(player st.Entity) {
+	fmt.Println(p.stParser.ServerClasses().FindByName("CCSPlayerPawn"))
+	p.stParser.ServerClasses().FindByName("CCSPlayerPawn").OnEntityCreated(func(player st.Entity) {
 		p.bindNewPlayer(player)
 	})
 
@@ -340,7 +356,7 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 }
 
 func (p *parser) bindWeapons() {
-	for _, sc := range p.stParser.ServerClasses() {
+	for _, sc := range p.stParser.ServerClasses().All() {
 		for _, bc := range sc.BaseClasses() {
 			switch bc.Name() {
 			case "CWeaponCSBase":
