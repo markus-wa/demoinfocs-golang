@@ -279,7 +279,6 @@ func (m *pendingMessage) priority() int {
 		// provide context in terms of delta updates.
 		int32(msgs2.SVC_Messages_svc_PacketEntities):
 		return 5
-
 	}
 
 	return 0

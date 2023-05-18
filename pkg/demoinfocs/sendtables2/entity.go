@@ -217,13 +217,14 @@ func (p *Parser) FilterEntity(fb func(*Entity) bool) []*Entity {
 func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 	r := newReader(m.GetEntityData())
 
-	var index = int32(-1)
-	var updates = int(m.GetUpdatedEntries())
-	var cmd uint32
-	var classId int32
-	var serial int32
-	var e *Entity
-	var op EntityOp
+	var (
+		index   = int32(-1)
+		updates = int(m.GetUpdatedEntries())
+		cmd     uint32
+		classId int32
+		serial  int32
+		e       *Entity
+	)
 
 	if !m.GetIsDelta() {
 		if p.entityFullPackets > 0 {
@@ -240,8 +241,9 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 
 	for ; updates > 0; updates-- {
 		next := index + int32(r.readUBitVar()) + 1
-		op = EntityOpNone
 		index = next
+
+		var op EntityOp
 
 		cmd = r.readBits(2)
 		if cmd&0x01 == 0 {

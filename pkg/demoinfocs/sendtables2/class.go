@@ -1,11 +1,8 @@
 package sendtables2
 
 import (
-	"regexp"
 	"strings"
 )
-
-var gameBuildRegexp = regexp.MustCompile(`/dota_v(\d+)/`)
 
 type class struct {
 	classId    int32

@@ -2,7 +2,6 @@ package sendtables2
 
 import (
 	"container/heap"
-	"fmt"
 )
 
 // Interface for the tree, only implements Weight
@@ -112,6 +111,7 @@ func (th treeHeap) Swap(i, j int) {
 // Construct a tree from a map of weight -> item
 func buildHuffmanTree(symFreqs []int) huffmanTree {
 	var trees treeHeap
+
 	for v, w := range symFreqs {
 		if w == 0 {
 			w = 1
@@ -123,6 +123,7 @@ func buildHuffmanTree(symFreqs []int) huffmanTree {
 	n := 40
 
 	heap.Init(&trees)
+
 	for trees.Len() > 1 {
 		a := heap.Pop(&trees).(huffmanTree)
 		b := heap.Pop(&trees).(huffmanTree)
@@ -132,96 +133,4 @@ func buildHuffmanTree(symFreqs []int) huffmanTree {
 	}
 
 	return heap.Pop(&trees).(huffmanTree)
-}
-
-// Swap two nodes based on the given path
-func swapNodes(tree huffmanTree, path uint32, len uint32) {
-	for len > 0 {
-		// get current bit
-		len--
-		one := path & 1
-		path = path >> 1
-
-		// check if we are correct
-		if tree.IsLeaf() {
-			_panicf("Touching leaf in node swap, %d left in path", len)
-		}
-
-		// switch on the type
-		if one == 1 {
-			tree = tree.Right()
-		} else {
-			tree = tree.Left()
-		}
-	}
-
-	node := tree.(*huffmanNode)
-	node.left, node.right = node.right, node.left
-}
-
-// Print computed tree order
-func printCodes(tree huffmanTree, prefix []byte) {
-	if tree == nil {
-		return
-	}
-
-	if tree.IsLeaf() {
-		node := tree.(*huffmanLeaf)
-		fmt.Printf("%v\t%d\t%d\t%s\n", node.Value(), node.Weight(), len(prefix), string(prefix))
-	} else {
-		prefix = append(prefix, '0')
-		printCodes(tree.Left(), prefix)
-		prefix = prefix[:len(prefix)-1]
-
-		prefix = append(prefix, '1')
-		printCodes(tree.Right(), prefix)
-		prefix = prefix[:len(prefix)-1]
-	}
-}
-
-// Used to create a huffman tree by hand
-// path: Numeric representation of path to follow
-// value: Value for given path
-// value_default: Default value set for empty branches / leafs
-func addNode(tree huffmanTree, path int, path_len int, value int) huffmanTree {
-	root := tree
-	for path_len > 1 {
-		if tree.IsLeaf() {
-			_panicf("Trying to add node to leaf")
-		}
-
-		// get the current bit
-		path_len--
-		one := path & 1
-		path = path >> 1
-
-		// add node / leaf
-		if one == 1 {
-			if tree.Right() != nil {
-				tree = tree.Right()
-			} else {
-				tree.(*huffmanNode).right = &huffmanNode{0, 0, nil, nil}
-				tree = tree.Right()
-			}
-		} else {
-			if tree.Left() != nil {
-				tree = tree.Left()
-			} else {
-				tree.(*huffmanNode).left = &huffmanNode{0, 0, nil, nil}
-				tree = tree.Left()
-			}
-		}
-	}
-
-	// set value
-	one := path & 1
-	path = path >> 1
-
-	if one == 1 {
-		tree.(*huffmanNode).right = huffmanLeaf{0, value}
-	} else {
-		tree.(*huffmanNode).left = huffmanLeaf{0, value}
-	}
-
-	return root
 }

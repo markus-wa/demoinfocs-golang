@@ -578,12 +578,14 @@ func (geh gameEventHandler) HostageRescuedAll(map[string]*msg.CSVCMsg_GameEventK
 
 func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	pl := common.PlayerInfo{
-		UserID: int(data["userid"].GetValShort()),
-		Name:   data["name"].GetValString(),
-		GUID:   data["networkid"].GetValString(),
+		UserID:       int(data["userid"].GetValShort()),
+		Name:         data["name"].GetValString(),
+		GUID:         data["networkid"].GetValString(),
+		XUID:         data["xuid"].GetValUint64(),
+		IsFakePlayer: data["bot"].GetValBool(),
 	}
 
-	if pl.GUID != "" {
+	if pl.GUID != "" && pl.XUID == 0 {
 		var err error
 		pl.XUID, err = guidToSteamID64(pl.GUID)
 

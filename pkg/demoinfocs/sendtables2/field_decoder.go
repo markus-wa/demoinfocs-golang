@@ -44,7 +44,7 @@ var fieldTypeDecoders = map[string]fieldDecoder{
 				DemoSimpleEncoders_t { m_Name = "float32"								m_VarType = "NET_DATA_TYPE_FLOAT32" },
 				DemoSimpleEncoders_t { m_Name = "float64"								m_VarType = "NET_DATA_TYPE_FLOAT64" },
 	*/
-	//"float32": noscaleDecoder,
+	// "float32": noscaleDecoder,
 
 	/*
 		DemoSimpleEncoders_t { m_Name = "bool"									m_VarType = "NET_DATA_TYPE_BOOL" },
@@ -227,10 +227,6 @@ var fieldTypeDecoders = map[string]fieldDecoder{
 	"CRenderComponent":  componentDecoder,
 }
 
-func unsignedFactory(f *field) fieldDecoder {
-	return unsignedDecoder
-}
-
 func unsigned64Factory(f *field) fieldDecoder {
 	switch f.encoder {
 	case "fixed64":
@@ -363,10 +359,6 @@ func qangleFactory(f *field) fieldDecoder {
 		}
 		return ret
 	}
-}
-
-func vector2Decoder(r *reader) interface{} {
-	return []float32{r.readFloat(), r.readFloat()}
 }
 
 func unsignedDecoder(r *reader) interface{} {

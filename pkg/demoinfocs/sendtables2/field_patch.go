@@ -14,7 +14,7 @@ var fieldPatches = []fieldPatch{
 			DemoSimpleEncoders_t { m_Name =  "m_flAnimTime"							m_VarType = "NET_DATA_TYPE_UINT64" },
 		]
 	*/
-	fieldPatch{0, 0, func(f *field) {
+	{0, 0, func(f *field) {
 		switch f.varName {
 		case "m_flSimulationTime", "m_flAnimTime":
 			f.encoder = "simtime"

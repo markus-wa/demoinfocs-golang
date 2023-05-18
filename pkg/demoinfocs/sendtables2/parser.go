@@ -28,10 +28,10 @@ DemoTypeAlias_t { m_TypeAlias = "CRenderComponent"						m_UnderlyingType = "CRen
 DemoTypeAlias_t { m_TypeAlias = "CPhysicsComponent"						m_UnderlyingType = "CPhysicsComponent*" },
 */
 var pointerTypes = map[string]bool{
-	//"PhysicsRagdollPose_t":   true,
-	//"CEntityIdentity":        true,
-	//"CPlayerLocalData":       true,
-	//"CPlayer_CameraServices": true,
+	// "PhysicsRagdollPose_t":   true,
+	// "CEntityIdentity":        true,
+	// "CPlayerLocalData":       true,
+	// "CPlayer_CameraServices": true,
 	"CBodyComponentDCGBaseAnimating":     true,
 	"CBodyComponentBaseAnimating":        true,
 	"CBodyComponentBaseAnimatingOverlay": true,
@@ -61,12 +61,12 @@ type Parser struct {
 }
 
 func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (p *Parser) ServerClasses() st.ServerClasses {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
@@ -137,7 +137,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 				field := newField(msg, msg.GetFields()[i])
 
 				// dotabuff/manta patches parent name in builds <= 990
-				//if p.gameBuild <= 990 {
+				// if p.gameBuild <= 990 {
 				//	field.parentName = serializer.name
 				//}
 

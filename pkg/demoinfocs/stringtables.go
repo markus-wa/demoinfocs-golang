@@ -5,13 +5,14 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"log"
 	"math"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/golang/snappy"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
 	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
@@ -123,6 +124,10 @@ func (p *parser) parseSingleStringTable(name string) {
 }
 
 func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
+	if player.UserID == math.MaxUint16 && p.rawPlayers[index] != nil {
+		player.UserID = p.rawPlayers[index].UserID
+	}
+
 	p.rawPlayers[index] = &player
 
 	p.updatePlayerFromRawIfExists(index, player)
@@ -395,17 +400,21 @@ func parseStringTable(buf []byte, numUpdates int32, name string, userDataFixed b
 	return items
 }
 
+var instanceBaselineKeyRegex = regexp.MustCompile(`^\d+:\d+$`)
+
 func (p *parser) processStringTableS2(tab createStringTable, br *bit.BitReader) {
 	items := parseStringTable(tab.StringData, tab.GetNumEntries(), tab.GetName(), tab.GetUserDataFixedSize(), tab.GetUserDataSize(), tab.GetFlags())
 
 	for _, item := range items {
 		switch tab.GetName() {
 		case stNameInstanceBaseline:
+			if instanceBaselineKeyRegex.MatchString(item.Key) {
+				continue
+			}
+
 			classID, err := strconv.Atoi(item.Key)
 			if err != nil {
-				log.Println("failed to parse serverClassID - this is a known issue of the parser, but it's unclear if it's causing any issues", err)
-
-				continue
+				panic(errors.Wrap(err, "failed to parse serverClassID"))
 			}
 
 			p.stParser.SetInstanceBaseline(classID, item.Value)
@@ -486,6 +495,24 @@ func parsePlayerInfo(reader io.Reader) common.PlayerInfo {
 	return res
 }
 
+func parsePlayerInfoS2(reader io.Reader) common.PlayerInfo {
+	br := bit.NewSmallBitReader(reader)
+
+	var res common.PlayerInfo
+
+	br.ReadSingleByte() // unknown, always 10?
+	res.Name = string(br.ReadBytes(int(br.ReadSingleByte())))
+	br.ReadSingleByte() // unknown, always 17?
+	res.XUID = binary.LittleEndian.Uint64(br.ReadBytes(8))
+
+	// TODO: parse remaining data
+	// IsFakePlayer & UserID (& maybe GUID?)
+
+	br.Pool()
+
+	return res
+}
+
 var modelPreCacheSubstringToEq = map[string]common.EquipmentType{
 	"flashbang":         common.EqFlash,
 	"fraggrenade":       common.EqHE,
@@ -514,52 +541,43 @@ func (p *parser) handleStringTables(msg *msgs2.CDemoStringTables) {
 	for _, tab := range msg.GetTables() {
 		if tab.GetTableName() == stNameInstanceBaseline {
 			for _, item := range tab.GetItems() {
-				classID, err := strconv.Atoi(item.GetStr())
-				if err != nil {
-					log.Println("failed to parse serverClassID - this is a known issue of the parser, but it's unclear if it's causing any issues", err)
+				key := item.GetStr()
+
+				if instanceBaselineKeyRegex.MatchString(key) {
 					continue
 				}
 
+				classID, err := strconv.Atoi(key)
+				if err != nil {
+					panic(errors.Wrap(err, "failed to parse serverClassID"))
+				}
+
 				p.stParser.SetInstanceBaseline(classID, item.GetData())
 			}
-		}
-	}
-
-	return
-
-	for _, tab := range msg.GetTables() {
-		for i := len(p.modelPreCache); i < len(tab.GetItems()); i++ {
-			p.modelPreCache = append(p.modelPreCache, "")
-		}
-
-		for i, item := range tab.GetItems() {
-			if tab.GetTableName() == stNameUserInfo {
-				player := parsePlayerInfo(bytes.NewReader(item.GetData()))
-
+		} else if tab.GetTableName() == stNameUserInfo {
+			for _, item := range tab.GetItems() {
 				playerIndex, err := strconv.Atoi(item.GetStr())
 				if err != nil {
-					panic(errors.Wrap(err, "couldn't parse playerIndex from string"))
+					panic(errors.Wrap(err, "failed to parse serverClassID"))
 				}
 
-				p.setRawPlayer(playerIndex, player)
-			}
+				var userInfo msgs2.CMsgPlayerInfo
 
-			if tab.GetTableName() == stNameInstanceBaseline {
-				classID, err := strconv.Atoi(item.GetStr())
+				err = proto.Unmarshal(item.Data, &userInfo)
 				if err != nil {
-					panic(errors.Wrap(err, "couldn't parse serverClassID from string"))
+					panic(errors.Wrap(err, "failed to parse player info"))
 				}
 
-				p.stParser.SetInstanceBaseline(classID, item.GetData())
-			}
-
-			if tab.GetTableName() == stNameModelPreCache {
-				p.modelPreCache[i] = item.GetStr()
+				p.setRawPlayer(playerIndex, common.PlayerInfo{
+					XUID:         userInfo.GetXuid(), // TODO: what to do with userInfo.GetSteamid()? (seems to be the same, but maybe not in China?)
+					Name:         userInfo.GetName(),
+					UserID:       int(userInfo.GetUserid()),
+					IsFakePlayer: userInfo.GetFakeplayer(),
+					IsHltv:       userInfo.GetIshltv(),
+				})
 			}
 		}
 	}
-
-	p.processModelPreCacheUpdate()
 }
 
 func (p *parser) handleUpdateStringTableS1(tab *msg.CSVCMsg_UpdateStringTable) {

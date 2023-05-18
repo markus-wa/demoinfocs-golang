@@ -204,7 +204,7 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 		Range2 := (1 << uint(deltaLog2))
 		bc := qfd.Bitcount
 
-		for 1 == 1 {
+		for {
 			if (1 << uint(bc)) > Range2 {
 				break
 			} else {

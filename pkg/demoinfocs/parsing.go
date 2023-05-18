@@ -370,11 +370,7 @@ func (p *parser) parseFrameS2() bool {
 
 	p.msgQueue <- ingameTickNumber(int32(tick))
 
-	if msgType == msgs2.EDemoCommands_DEM_Stop {
-		return false
-	}
-
-	return true
+	return msgType != msgs2.EDemoCommands_DEM_Stop
 }
 
 // FIXME: refactor to interface instead of switch

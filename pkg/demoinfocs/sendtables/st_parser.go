@@ -26,19 +26,18 @@ type SendTableParser struct {
 	instanceBaselines map[int][]byte // Maps server-class IDs to raw instance baselines, needed for when we don't have the server-class when setting the baseline
 }
 
-func (p *SendTableParser) OnDemoClassInfo(m *msgs2.CDemoClassInfo) error {
-	//TODO implement me
-	panic("implement me")
+// the following funcs are S2 only
+
+func (p *SendTableParser) OnDemoClassInfo(*msgs2.CDemoClassInfo) error {
+	panic("not implemented")
 }
 
-func (p *SendTableParser) OnServerInfo(m *msgs2.CSVCMsg_ServerInfo) error {
-	//TODO implement me
-	panic("implement me")
+func (p *SendTableParser) OnServerInfo(*msgs2.CSVCMsg_ServerInfo) error {
+	panic("not implemented")
 }
 
-func (p *SendTableParser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
-	//TODO implement me
-	panic("implement me")
+func (p *SendTableParser) OnPacketEntities(*msgs2.CSVCMsg_PacketEntities) error {
+	panic("not implemented")
 }
 
 // ServerClasses is a searchable list of ServerClasses.
@@ -132,10 +131,11 @@ func (p *SendTableParser) ParsePacket(b []byte) error {
 }
 
 func parseSendTable(r *bit.BitReader) sendTable {
+	var st msg.CSVCMsg_SendTable
+
 	size := int(r.ReadVarInt32())
 
-	st := new(msg.CSVCMsg_SendTable)
-	err := proto.Unmarshal(r.ReadBytes(size), st)
+	err := proto.Unmarshal(r.ReadBytes(size), &st)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to unmarshal SendTable: %s", err.Error()))
 	}
