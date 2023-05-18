@@ -1,6 +1,6 @@
 #!/bin/bash
 
-protoc --proto_path=proto \
+protoc -Iproto \
        --go_out=. \
        --go_opt=Mcstrike15_usermessages.proto=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg \
        --go_opt=Mcstrike15_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg \
@@ -11,4 +11,8 @@ protoc --proto_path=proto \
        --go_opt=Mnetworkbasetypes.proto=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg \
        --go_opt=Mnetwork_connection.proto=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg \
        --go_opt=module=github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg \
-       cstrike15_gcmessages.proto cstrike15_usermessages.proto engine_gcmessages.proto netmessages.proto steammessages.proto
+       cstrike15_gcmessages.proto \
+       cstrike15_usermessages.proto \
+       engine_gcmessages.proto \
+       netmessages.proto \
+       steammessages.proto

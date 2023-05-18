@@ -1,6 +1,8 @@
-import "steammessages.proto";
-import "engine_gcmessages.proto";
-import "gcsdk_gcmessages.proto";
+package com.github.markus_wa.demoinfocs_golang.s2;
+
+import "s2/steammessages.proto";
+import "s2/engine_gcmessages.proto";
+import "s2/gcsdk_gcmessages.proto";
 
 enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_Base = 9100;

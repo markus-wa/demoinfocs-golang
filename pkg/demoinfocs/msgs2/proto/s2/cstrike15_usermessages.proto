@@ -1,5 +1,7 @@
-import "networkbasetypes.proto";
-import "cstrike15_gcmessages.proto";
+package com.github.markus_wa.demoinfocs_golang.s2;
+
+import "s2/networkbasetypes.proto";
+import "s2/cstrike15_gcmessages.proto";
 
 enum ECstrike15UserMessages {
 	CS_UM_VGUIMenu = 301;

@@ -1,4 +1,6 @@
-import "network_connection.proto";
+package com.github.markus_wa.demoinfocs_golang.s2;
+
+import "s2/network_connection.proto";
 
 enum SignonState_t {
 	SIGNONSTATE_NONE = 0;

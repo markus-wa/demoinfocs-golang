@@ -1,4 +1,6 @@
-import "steammessages.proto";
+package com.github.markus_wa.demoinfocs_golang.s2;
+
+import "s2/steammessages.proto";
 
 enum GCClientLauncherType {
 	GCClientLauncherType_DEFAULT = 0;

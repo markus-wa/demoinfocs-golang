@@ -1,4 +1,6 @@
-import "networkbasetypes.proto";
+package com.github.markus_wa.demoinfocs_golang.s2;
+
+import "s2/networkbasetypes.proto";
 
 enum CLC_Messages {
 	clc_ClientInfo = 20;
