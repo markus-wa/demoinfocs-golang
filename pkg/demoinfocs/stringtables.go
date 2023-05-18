@@ -152,15 +152,19 @@ func (p *parser) handleUpdateStringTable(tab *msgs2.CSVCMsg_UpdateStringTable, s
 	case stNameInstanceBaseline:
 		// Only handle updates for the above types
 		// Create fake CreateStringTable and handle it like one of those
-		p.processStringTable(&msgs2.CSVCMsg_CreateStringTable{
-			Name:              cTab.Name,
-			NumEntries:        tab.NumChangedEntries,
-			UserDataFixedSize: cTab.UserDataFixedSize,
-			UserDataSize:      cTab.UserDataSize,
-			UserDataSizeBits:  cTab.UserDataSizeBits,
-			Flags:             cTab.Flags,
-			StringData:        tab.StringData,
-		}, s2)
+		p.processStringTable(createStringTable{
+			CSVCMsg_CreateStringTable: &msgs2.CSVCMsg_CreateStringTable{
+				Name:              cTab.Name,
+				NumEntries:        tab.NumChangedEntries,
+				UserDataFixedSize: cTab.UserDataFixedSize,
+				UserDataSize:      cTab.UserDataSize,
+				UserDataSizeBits:  cTab.UserDataSizeBits,
+				Flags:             cTab.Flags,
+				StringData:        tab.StringData,
+			},
+			isS2:         s2,
+			s1MaxEntries: cTab.s1MaxEntries,
+		})
 	}
 }
 
@@ -168,7 +172,7 @@ func (p *parser) handleUpdateStringTableS2(tab *msgs2.CSVCMsg_UpdateStringTable)
 	p.handleUpdateStringTable(tab, true)
 }
 
-func (p *parser) handleCreateStringTable(tab *msgs2.CSVCMsg_CreateStringTable, s2 bool) {
+func (p *parser) handleCreateStringTable(tab createStringTable) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -179,7 +183,7 @@ func (p *parser) handleCreateStringTable(tab *msgs2.CSVCMsg_CreateStringTable, s
 	case stNameModelPreCache:
 		fallthrough
 	case stNameInstanceBaseline:
-		p.processStringTable(tab, s2)
+		p.processStringTable(tab)
 	}
 
 	p.stringTables = append(p.stringTables, tab)
@@ -188,23 +192,26 @@ func (p *parser) handleCreateStringTable(tab *msgs2.CSVCMsg_CreateStringTable, s
 }
 
 func (p *parser) handleCreateStringTableS2(tab *msgs2.CSVCMsg_CreateStringTable) {
-	p.handleCreateStringTable(tab, true)
+	p.handleCreateStringTable(createStringTable{
+		CSVCMsg_CreateStringTable: tab,
+		isS2:                      true,
+	})
 }
 
-func (p *parser) processStringTableS1(tab *msgs2.CSVCMsg_CreateStringTable, br *bit.BitReader) {
+func (p *parser) processStringTableS1(tab createStringTable, br *bit.BitReader) {
 	hist := make([]string, 0)
 	idx := -1
 
-	entryBits := int(math.Ceil(math.Log2(float64(tab.GetNumEntries()))))
+	nEntryBits := int(math.Ceil(math.Log2(float64(*tab.s1MaxEntries))))
 
 	for i := 0; i < int(tab.GetNumEntries()); i++ {
 		if br.ReadBit() {
 			idx++
 		} else {
-			idx = int(br.ReadInt(entryBits))
+			idx = int(br.ReadInt(nEntryBits))
 		}
 
-		if idx < 0 || idx >= int(tab.GetNumEntries()) {
+		if idx < 0 || idx >= int(*tab.s1MaxEntries) {
 			panic("Something went to shit")
 		}
 
@@ -388,7 +395,7 @@ func parseStringTable(buf []byte, numUpdates int32, name string, userDataFixed b
 	return items
 }
 
-func (p *parser) processStringTableS2(tab *msgs2.CSVCMsg_CreateStringTable, br *bit.BitReader) {
+func (p *parser) processStringTableS2(tab createStringTable, br *bit.BitReader) {
 	items := parseStringTable(tab.StringData, tab.GetNumEntries(), tab.GetName(), tab.GetUserDataFixedSize(), tab.GetUserDataSize(), tab.GetFlags())
 
 	for _, item := range items {
@@ -409,8 +416,7 @@ func (p *parser) processStringTableS2(tab *msgs2.CSVCMsg_CreateStringTable, br *
 	}
 }
 
-//nolint:funlen,gocognit
-func (p *parser) processStringTable(tab *msgs2.CSVCMsg_CreateStringTable, s2 bool) {
+func (p *parser) processStringTable(tab createStringTable) {
 	if tab.GetName() == stNameModelPreCache {
 		for i := len(p.modelPreCache); i < int(tab.GetNumEntries()); i++ {
 			p.modelPreCache = append(p.modelPreCache, "")
@@ -419,6 +425,7 @@ func (p *parser) processStringTable(tab *msgs2.CSVCMsg_CreateStringTable, s2 boo
 
 	if tab.GetDataCompressed() {
 		tmp := make([]byte, tab.GetUncompressedSize())
+
 		b, err := snappy.Decode(tmp, tab.StringData)
 		if err != nil {
 			panic(err)
@@ -429,7 +436,7 @@ func (p *parser) processStringTable(tab *msgs2.CSVCMsg_CreateStringTable, s2 boo
 
 	br := bit.NewSmallBitReader(bytes.NewReader(tab.StringData))
 
-	if s2 {
+	if tab.isS2 {
 		p.processStringTableS2(tab, br)
 	} else {
 		if br.ReadBit() {
@@ -567,15 +574,18 @@ func (p *parser) handleCreateStringTableS1(tab *msg.CSVCMsg_CreateStringTable) {
 	size := int32(len(tab.StringData))
 	compressed := false
 
-	p.handleCreateStringTable(&msgs2.CSVCMsg_CreateStringTable{
-		Name:              tab.Name,
-		NumEntries:        tab.NumEntries,
-		UserDataFixedSize: tab.UserDataFixedSize,
-		UserDataSize:      tab.UserDataSize,
-		UserDataSizeBits:  tab.UserDataSizeBits,
-		Flags:             tab.Flags,
-		StringData:        tab.StringData,
-		UncompressedSize:  &size,
-		DataCompressed:    &compressed,
-	}, false)
+	p.handleCreateStringTable(createStringTable{
+		CSVCMsg_CreateStringTable: &msgs2.CSVCMsg_CreateStringTable{
+			Name:              tab.Name,
+			NumEntries:        tab.NumEntries,
+			UserDataFixedSize: tab.UserDataFixedSize,
+			UserDataSize:      tab.UserDataSize,
+			UserDataSizeBits:  tab.UserDataSizeBits,
+			Flags:             tab.Flags,
+			StringData:        tab.StringData,
+			UncompressedSize:  &size,
+			DataCompressed:    &compressed,
+		},
+		s1MaxEntries: tab.MaxEntries,
+	})
 }

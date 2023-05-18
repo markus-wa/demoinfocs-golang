@@ -32,6 +32,12 @@ type sendTableParser interface {
 	OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error
 }
 
+type createStringTable struct {
+	*msgs2.CSVCMsg_CreateStringTable
+	isS2         bool
+	s1MaxEntries *int32
+}
+
 /*
 Parser can parse a CS:GO demo.
 Creating a new instance is done via NewParser().
@@ -91,7 +97,7 @@ type parser struct {
 	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
 	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
 	grenadeModelIndices  map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
-	stringTables         []*msgs2.CSVCMsg_CreateStringTable              // Contains all created sendtables, needed when updating them
+	stringTables         []createStringTable                             // Contains all created sendtables, needed when updating them
 	delayedEventHandlers []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 }
 
