@@ -361,6 +361,8 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 // The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
 //
 // Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
+//
+// Deprecated: Use FindByHandle64 instead.
 func (ptcp participants) FindByHandle(handle int) *common.Player {
 	if handle == constants.InvalidEntityHandle {
 		return nil
@@ -369,6 +371,20 @@ func (ptcp participants) FindByHandle(handle int) *common.Player {
 	entityID := handle & constants.EntityHandleIndexMask
 
 	return ptcp.playersByEntityID[entityID]
+}
+
+// FindByHandle64 attempts to find a player by his entity-handle.
+// The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
+//
+// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
+func (ptcp participants) FindByHandle64(handle uint64) *common.Player {
+	if handle == constants.InvalidEntityHandle {
+		return nil
+	}
+
+	entityID := handle & constants.EntityHandleIndexMask
+
+	return ptcp.playersByEntityID[int(entityID)]
 }
 
 func (ptcp participants) initializeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {

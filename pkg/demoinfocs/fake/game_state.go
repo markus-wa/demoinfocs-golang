@@ -90,7 +90,7 @@ func (gs *GameState) Rules() demoinfocs.GameRules {
 	return gs.Called().Get(0).(demoinfocs.GameRules)
 }
 
-// PlayerResourceEntity is a mock-implementation of GameState.PlayerResorceEntity().
+// PlayerResourceEntity is a mock-implementation of GameState.PlayerResourceEntity().
 func (gs *GameState) PlayerResourceEntity() st.Entity {
 	return gs.Called().Get(0).(st.Entity)
 }

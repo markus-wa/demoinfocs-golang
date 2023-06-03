@@ -76,6 +76,11 @@ func (sc *serverClasses) All() (res []st.ServerClass) {
 }
 
 func (sc *serverClasses) FindByName(name string) st.ServerClass {
+	class := sc.classesByName[name]
+	if class == nil {
+		return nil
+	}
+
 	return sc.classesByName[name]
 }
 

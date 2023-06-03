@@ -415,6 +415,10 @@ func (p *parser) initMsgQueue(buf int) {
 	p.msgDispatcher.AddQueues(p.msgQueue)
 }
 
+func (p *parser) isSource2() bool {
+	return true
+}
+
 type demoInfoProvider struct {
 	parser *parser
 }

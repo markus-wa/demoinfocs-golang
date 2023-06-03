@@ -217,8 +217,8 @@ func TestS2(t *testing.T) {
 	_, err = p.ParseHeader()
 	assertions.NoError(err, "error returned by Parser.ParseHeader()")
 
-	p.RegisterEventHandler(func(event events.GenericGameEvent) {
-		//fmt.Println(event.Name, event)
+	p.RegisterEventHandler(func(e any) {
+		fmt.Printf("%#v\n", e)
 	})
 
 	t.Log("Parsing to end")

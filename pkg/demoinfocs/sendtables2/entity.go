@@ -105,6 +105,7 @@ func (p property) Value() st.PropertyValue {
 		StringVal: "",
 		FloatVal:  0,
 		Any:       p.entity.Get(p.name),
+		S2:        true,
 	}
 }
 
@@ -120,8 +121,48 @@ func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
 	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], handler)
 }
 
-func (p property) Bind(variable any, valueType st.PropertyValueType) {
-	panic("not implemented")
+type bindFactory func(variable any) st.PropertyUpdateHandler
+
+var bindFactoryByType = map[st.PropertyValueType]bindFactory{
+	st.ValTypeVector: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*r3.Vector) = v.VectorVal // FIXME this won't work
+		}
+	},
+	st.ValTypeInt: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*int) = v.IntVal
+		}
+	},
+	st.ValTypeArray: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*[]st.PropertyValue) = v.ArrayVal
+		}
+	},
+	st.ValTypeString: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*string) = v.StringVal
+		}
+	},
+	st.ValTypeBoolInt: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*bool) = v.IntVal != 0
+		}
+	},
+	st.ValTypeFloat32: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*float32) = v.FloatVal
+		}
+	},
+	st.ValTypeFloat64: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*float64) = float64(v.FloatVal)
+		}
+	},
+}
+
+func (p property) Bind(variable any, t st.PropertyValueType) {
+	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], bindFactoryByType[t](variable))
 }
 
 func (e *Entity) Property(name string) st.Property {
@@ -136,14 +177,14 @@ func (e *Entity) Property(name string) st.Property {
 	}
 }
 
-func (e *Entity) BindProperty(name string, variable any, valueType st.PropertyValueType) {
-	panic("not implemented")
+func (e *Entity) BindProperty(prop string, variable any, t st.PropertyValueType) {
+	e.Property(prop).Bind(variable, t)
 }
 
 func (e *Entity) PropertyValue(name string) (st.PropertyValue, bool) {
 	prop := e.Property(name)
 	if prop == nil {
-		return st.PropertyValue{}, false
+		return st.PropertyValue{S2: true}, false
 	}
 
 	v := prop.Value()
@@ -164,14 +205,87 @@ func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
 	panic("not implemented")
 }
 
+const (
+	serverClassPlayer = "CCSPlayerPawn"
+
+	maxCoordInt = 16384
+
+	propCellBits          = "m_cellbits"
+	propCellX             = "CBodyComponent.m_cellX"
+	propCellY             = "CBodyComponent.m_cellY"
+	propCellZ             = "CBodyComponent.m_cellZ"
+	propVecOrigin         = "m_vecOrigin"
+	propVecOriginPlayerXY = "cslocaldata.m_vecOrigin"
+	propVecOriginPlayerZ  = "cslocaldata.m_vecOrigin[2]"
+)
+
+func (e *Entity) isPlayer() bool {
+	return e.class.name == serverClassPlayer
+}
+
+// Returns a coordinate from a cell + offset
+func coordFromCell(cell, cellWidth int, offset float64) float64 {
+	return float64(cell*cellWidth-maxCoordInt) + offset
+}
+
 func (e *Entity) Position() r3.Vector {
-	//TODO implement me
-	panic("implement me")
+	return r3.Vector{} // FIXME: implement
+
+	if e.isPlayer() {
+		// FIXME: POV demo support
+		xyProp := e.Property(propVecOriginPlayerXY)
+		zProp := e.Property(propVecOriginPlayerZ)
+
+		xy := xyProp.Value().VectorVal
+		z := float64(zProp.Value().FloatVal)
+
+		return r3.Vector{
+			X: xy.X,
+			Y: xy.Y,
+			Z: z,
+		}
+	}
+
+	cellBitsProp := e.Property(propCellBits)
+	cellXProp := e.Property(propCellX)
+	cellYProp := e.Property(propCellY)
+	cellZProp := e.Property(propCellZ)
+	offsetProp := e.Property(propVecOrigin)
+
+	cellWidth := 1 << uint(cellBitsProp.Value().IntVal)
+	cellX := cellXProp.Value().IntVal
+	cellY := cellYProp.Value().IntVal
+	cellZ := cellZProp.Value().IntVal
+	offset := offsetProp.Value().VectorVal
+
+	return r3.Vector{
+		X: coordFromCell(cellX, cellWidth, offset.X),
+		Y: coordFromCell(cellY, cellWidth, offset.Y),
+		Z: coordFromCell(cellZ, cellWidth, offset.Z),
+	}
 }
 
 func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
-	//TODO implement me
-	panic("implement me")
+	return // FIXME: implement
+
+	pos := new(r3.Vector)
+	firePosUpdate := func(st.PropertyValue) {
+		newPos := e.Position()
+		if *pos != newPos {
+			h(newPos)
+			*pos = newPos
+		}
+	}
+
+	if e.isPlayer() {
+		e.Property(propVecOriginPlayerXY).OnUpdate(firePosUpdate) // FIXME: POV demos use different property names
+		e.Property(propVecOriginPlayerZ).OnUpdate(firePosUpdate)
+	} else {
+		e.Property(propCellX).OnUpdate(firePosUpdate)
+		e.Property(propCellY).OnUpdate(firePosUpdate)
+		e.Property(propCellZ).OnUpdate(firePosUpdate)
+		e.Property(propVecOrigin).OnUpdate(firePosUpdate)
+	}
 }
 
 func (e *Entity) OnDestroy(delegate func()) {
@@ -373,6 +487,7 @@ func (e *Entity) readFields(r *reader) {
 					StringVal: "",
 					FloatVal:  0,
 					Any:       val,
+					S2:        true,
 				})
 			}
 		}

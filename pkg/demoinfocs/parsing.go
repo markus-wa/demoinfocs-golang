@@ -28,6 +28,7 @@ const (
 	playerWeaponPrefix    = "m_hMyWeapons."
 	playerWeaponPrePrefix = "bcc_nonlocaldata."
 	gameRulesPrefix       = "cs_gamerules_data"
+	gameRulesPrefixS2     = "m_pGameRules"
 )
 
 // Parsing errors
@@ -324,6 +325,8 @@ func (p *parser) parseFrameS2() bool {
 		tick = 0
 	}
 
+	p.msgQueue <- ingameTickNumber(int32(tick))
+
 	size := p.bitReader.ReadVarInt32()
 
 	buf := p.bitReader.ReadBytes(int(size))
@@ -367,7 +370,8 @@ func (p *parser) parseFrameS2() bool {
 		p.handleStringTables(m)
 	}
 
-	p.msgQueue <- ingameTickNumber(int32(tick))
+	// Queue up some post processing
+	p.msgQueue <- frameParsedToken
 
 	return msgType != msgs2.EDemoCommands_DEM_Stop
 }
