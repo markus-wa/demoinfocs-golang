@@ -417,7 +417,7 @@ func (p *parser) initMsgQueue(buf int) {
 }
 
 func (p *parser) isSource2() bool {
-	return true
+	return p.header.Filestamp == "PBDEMS2"
 }
 
 type demoInfoProvider struct {
