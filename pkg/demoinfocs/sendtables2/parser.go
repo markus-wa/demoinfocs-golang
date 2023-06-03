@@ -58,7 +58,7 @@ type Parser struct {
 	classesByName     map[string]*class
 	entityFullPackets int
 	entities          map[int32]*Entity
-	entityHandlers    []EntityHandler
+	entityHandlers    []st.EntityHandler
 }
 
 func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity {

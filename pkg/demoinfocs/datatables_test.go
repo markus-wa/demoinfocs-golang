@@ -36,11 +36,11 @@ func TestParser_BindNewPlayer_Issue98(t *testing.T) {
 	}
 
 	bot := fakePlayerEntity(1)
-	p.bindNewPlayer(bot)
+	p.bindNewPlayerS1(bot)
 	bot.Destroy()
 
 	player := fakePlayerEntity(2)
-	p.bindNewPlayer(player)
+	p.bindNewPlayerS1(player)
 
 	assert.Len(t, p.GameState().Participants().Connected(), 1)
 }
@@ -58,13 +58,13 @@ func TestParser_BindNewPlayer_Issue98_Reconnect(t *testing.T) {
 	}
 
 	player := fakePlayerEntity(1)
-	p.bindNewPlayer(player)
+	p.bindNewPlayerS1(player)
 	player.Destroy()
 
 	p.RegisterEventHandler(func(events.PlayerConnect) {
 		t.Error("expected no more PlayerConnect events but got one")
 	})
-	p.bindNewPlayer(player)
+	p.bindNewPlayerS1(player)
 
 	assert.Len(t, p.GameState().Participants().All(), 1)
 }
@@ -100,7 +100,7 @@ func testPlayerSpotted(t *testing.T, propName string) {
 
 	spotted.On("Property", propName).Return(spottedByProp0)
 	configurePlayerEntityMock(1, spotted)
-	p.bindNewPlayer(spotted)
+	p.bindNewPlayerS1(spotted)
 
 	var actual events.PlayerSpottersChanged
 	p.RegisterEventHandler(func(e events.PlayerSpottersChanged) {

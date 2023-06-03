@@ -170,8 +170,22 @@ func (gs gameState) IsMatchStarted() bool {
 
 // PlayerResourceEntity returns the game's CCSPlayerResource entity.
 // Contains scoreboard information and more.
-func (gs *gameState) PlayerResourceEntity() st.Entity {
+func (gs gameState) PlayerResourceEntity() st.Entity {
 	return gs.playerResourceEntity
+}
+
+func entityIDFromHandle(handle uint64) int {
+	if handle == constants.InvalidEntityHandle {
+		return -1
+	}
+
+	return int(handle & constants.EntityHandleIndexMask)
+}
+
+// EntityByHandle returns the entity corresponding to the given handle.
+// Returns nil if the handle is invalid.
+func (gs gameState) EntityByHandle(handle uint64) st.Entity {
+	return gs.entities[entityIDFromHandle(handle)]
 }
 
 func newGameState(demoInfo demoInfoProvider) *gameState {
@@ -357,6 +371,14 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 	return res
 }
 
+// FindByHandle64 attempts to find a player by his entity-handle.
+// The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
+//
+// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
+func (ptcp participants) FindByHandle64(handle uint64) *common.Player {
+	return ptcp.playersByEntityID[entityIDFromHandle(handle)]
+}
+
 // FindByHandle attempts to find a player by his entity-handle.
 // The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
 //
@@ -364,27 +386,7 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 //
 // Deprecated: Use FindByHandle64 instead.
 func (ptcp participants) FindByHandle(handle int) *common.Player {
-	if handle == constants.InvalidEntityHandle {
-		return nil
-	}
-
-	entityID := handle & constants.EntityHandleIndexMask
-
-	return ptcp.playersByEntityID[entityID]
-}
-
-// FindByHandle64 attempts to find a player by his entity-handle.
-// The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
-//
-// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
-func (ptcp participants) FindByHandle64(handle uint64) *common.Player {
-	if handle == constants.InvalidEntityHandle {
-		return nil
-	}
-
-	entityID := handle & constants.EntityHandleIndexMask
-
-	return ptcp.playersByEntityID[int(entityID)]
+	return ptcp.FindByHandle64(uint64(handle))
 }
 
 func (ptcp participants) initializeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {

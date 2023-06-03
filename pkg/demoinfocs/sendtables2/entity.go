@@ -11,47 +11,6 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
-// EntityOp is a bitmask representing the type of operation performed on an Entity
-type EntityOp int
-
-const (
-	EntityOpNone           EntityOp = 0x00
-	EntityOpCreated        EntityOp = 0x01
-	EntityOpUpdated        EntityOp = 0x02
-	EntityOpDeleted        EntityOp = 0x04
-	EntityOpEntered        EntityOp = 0x08
-	EntityOpLeft           EntityOp = 0x10
-	EntityOpCreatedEntered EntityOp = EntityOpCreated | EntityOpEntered
-	EntityOpUpdatedEntered EntityOp = EntityOpUpdated | EntityOpEntered
-	EntityOpDeletedLeft    EntityOp = EntityOpDeleted | EntityOpLeft
-)
-
-var entityOpNames = map[EntityOp]string{
-	EntityOpNone:           "None",
-	EntityOpCreated:        "Created",
-	EntityOpUpdated:        "Updated",
-	EntityOpDeleted:        "Deleted",
-	EntityOpEntered:        "Entered",
-	EntityOpLeft:           "Left",
-	EntityOpCreatedEntered: "Created+Entered",
-	EntityOpUpdatedEntered: "Updated+Entered",
-	EntityOpDeletedLeft:    "Deleted+Left",
-}
-
-// Flag determines whether an EntityOp includes another. This is primarily
-// offered to prevent bit flag errors in downstream clients.
-func (o EntityOp) Flag(p EntityOp) bool {
-	return o&p != 0
-}
-
-// String returns a human identifiable string for the EntityOp
-func (o EntityOp) String() string {
-	return entityOpNames[o]
-}
-
-// EntityHandler is a function that receives Entity updates
-type EntityHandler func(*Entity, EntityOp) error
-
 // Entity represents a single game entity in the replay
 type Entity struct {
 	index   int32
@@ -516,17 +475,11 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		p.entityFullPackets++
 	}
 
-	type tuple struct {
-		e  *Entity
-		op EntityOp
-	}
-	tuples := make([]tuple, 0, updates)
-
 	for ; updates > 0; updates-- {
 		next := index + int32(r.readUBitVar()) + 1
 		index = next
 
-		var op EntityOp
+		var op st.EntityOp
 
 		cmd = r.readBits(2)
 		if cmd&0x01 == 0 {
@@ -561,16 +514,16 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 					f()
 				}
 
-				op = EntityOpCreated | EntityOpEntered
+				op = st.EntityOpCreated | st.EntityOpEntered
 			} else {
 				if e = p.entities[index]; e == nil {
 					_panicf("unable to find existing entity %d", index)
 				}
 
-				op = EntityOpUpdated
+				op = st.EntityOpUpdated
 				if !e.active {
 					e.active = true
-					op |= EntityOpEntered
+					op |= st.EntityOpEntered
 				}
 
 				e.readFields(r)
@@ -584,26 +537,22 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 				_panicf("entity %d (%s) ordered to leave, already inactive", e.class.classId, e.class.name)
 			}
 
-			op = EntityOpLeft
+			op = st.EntityOpLeft
 			if cmd&0x02 != 0 {
-				op |= EntityOpDeleted
-				p.entities[index] = nil
+				op |= st.EntityOpDeleted
+				delete(p.entities, index)
 			}
 		}
 
-		tuples = append(tuples, tuple{e, op})
+		for _, h := range p.entityHandlers {
+			if err := h(e, op); err != nil {
+				return err
+			}
+		}
 	}
 
 	if r.remBytes() > 1 || r.bitCount > 7 {
 		// FIXME: maybe we should panic("didn't consume all data")
-	}
-
-	for _, h := range p.entityHandlers {
-		for _, t := range tuples {
-			if err := h(t.e, t.op); err != nil {
-				return err
-			}
-		}
 	}
 
 	return nil
@@ -611,6 +560,6 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 
 // OnEntity registers an EntityHandler that will be called when an entity
 // is created, updated, deleted, etc.
-func (p *Parser) OnEntity(h EntityHandler) {
+func (p *Parser) OnEntity(h st.EntityHandler) {
 	p.entityHandlers = append(p.entityHandlers, h)
 }

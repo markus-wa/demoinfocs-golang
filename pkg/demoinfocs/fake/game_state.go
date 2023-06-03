@@ -99,3 +99,8 @@ func (gs *GameState) PlayerResourceEntity() st.Entity {
 func (gs *GameState) Hostages() []*common.Hostage {
 	return gs.Called().Get(0).([]*common.Hostage)
 }
+
+// EntityByHandle is a mock-implementation of GameState.EntityByHandle().
+func (gs *GameState) EntityByHandle(handle uint64) st.Entity {
+	return gs.Called(handle).Get(0).(st.Entity)
+}

@@ -72,6 +72,8 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 
 		p.stParser = sendtables2.NewParser()
 
+		p.stParser.OnEntity(p.onEntity)
+
 		p.RegisterNetMessageHandler(p.stParser.OnServerInfo)
 		p.RegisterNetMessageHandler(p.stParser.OnPacketEntities)
 
