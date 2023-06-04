@@ -436,6 +436,10 @@ func (p demoInfoProvider) FindPlayerByHandle(handle int) *common.Player {
 	return p.parser.gameState.Participants().FindByHandle(handle)
 }
 
+func (p demoInfoProvider) FindEntityByHandle(handle uint64) st.Entity {
+	return p.parser.gameState.EntityByHandle(handle)
+}
+
 func (p demoInfoProvider) PlayerResourceEntity() st.Entity {
 	return p.parser.gameState.playerResourceEntity
 }

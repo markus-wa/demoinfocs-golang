@@ -35,6 +35,18 @@ type Player struct {
 	IsUnknown         bool // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 }
 
+func (p *Player) PlayerPawnEntity() st.Entity {
+	return p.demoInfoProvider.FindEntityByHandle(p.Entity.PropertyValueMust("m_hPlayerPawn").Handle())
+}
+
+func (p *Player) GetTeam() Team {
+	return Team(p.PlayerPawnEntity().PropertyValueMust("m_iTeamNum").S2UInt64())
+}
+
+func (p *Player) GetFlashDuration() float32 {
+	return p.PlayerPawnEntity().PropertyValueMust("m_flFlashDuration").Float()
+}
+
 // String returns the player's name.
 // Implements fmt.Stringer.
 func (p *Player) String() string {
@@ -501,6 +513,7 @@ type demoInfoProvider interface {
 	FindPlayerByHandle(handle int) *Player
 	PlayerResourceEntity() st.Entity
 	FindWeaponByEntityID(id int) *Equipment
+	FindEntityByHandle(handle uint64) st.Entity
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.

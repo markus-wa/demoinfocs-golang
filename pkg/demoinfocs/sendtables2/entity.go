@@ -465,7 +465,6 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		cmd     uint32
 		classId int32
 		serial  int32
-		e       *Entity
 	)
 
 	if !m.GetIsDelta() {
@@ -475,11 +474,21 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		p.entityFullPackets++
 	}
 
+	type tuple struct {
+		ent *Entity
+		op  st.EntityOp
+	}
+
+	var tuples []tuple
+
 	for ; updates > 0; updates-- {
+		var (
+			e  *Entity
+			op st.EntityOp
+		)
+
 		next := index + int32(r.readUBitVar()) + 1
 		index = next
-
-		var op st.EntityOp
 
 		cmd = r.readBits(2)
 		if cmd&0x01 == 0 {
@@ -544,9 +553,25 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 			}
 		}
 
+		tuples = append(tuples, tuple{e, op})
+	}
+
+	for _, t := range tuples {
+		e := t.ent
+
 		for _, h := range p.entityHandlers {
-			if err := h(e, op); err != nil {
+			if err := h(e, t.op); err != nil {
 				return err
+			}
+		}
+
+		if t.op&st.EntityOpCreated != 0 {
+			for prop, hs := range e.updateHandlers {
+				v := e.PropertyValueMust(prop)
+
+				for _, h := range hs {
+					h(v)
+				}
 			}
 		}
 	}

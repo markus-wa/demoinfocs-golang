@@ -191,6 +191,9 @@ func (p *parser) bindBombSites() {
 
 func (p *parser) bindPlayers() {
 	if p.isSource2() {
+		p.stParser.ServerClasses().FindByName("CCSPlayerController").OnEntityCreated(func(player st.Entity) {
+			p.bindNewPlayerControllerS2(player)
+		})
 		p.stParser.ServerClasses().FindByName("CCSPlayerPawn").OnEntityCreated(func(player st.Entity) {
 			p.bindNewPlayerPawnS2(player)
 		})
@@ -323,11 +326,7 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 	}
 }
 
-func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
-	controllerHandle := pawnEntity.Property("m_hController").Value().Handle()
-
-	controllerEntity := p.gameState.EntityByHandle(controllerHandle)
-
+func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	controllerEntityID := controllerEntity.ID()
 
 	rp := p.rawPlayers[controllerEntityID-1]
@@ -350,73 +349,78 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		}
 	})
 
-	// General info
-	pawnEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
-		pl.Team = common.Team(val.IntVal)
-		pl.TeamState = p.gameState.Team(pl.Team)
-	})
-
-	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
-		if val.FloatVal == 0 {
-			pl.FlashTick = 0
-		} else {
-			pl.FlashTick = p.gameState.ingameTick
-		}
-
-		pl.FlashDuration = val.FloatVal
-	})
-
-	if !p.isSource2() {
-		p.bindPlayerWeapons(controllerEntity, pl) // FIXME: make weapons work for S2
-
-		for i := 0; i < 32; i++ {
-			i2 := i // Copy so it stays the same
-			controllerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
-		}
-	}
-
-	var (
-		activeWep       st.Property
-		spottedByPrefix string
-	)
-
-	if p.isSource2() {
-		activeWep = pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon")
-		spottedByPrefix = "m_bSpottedByMask.000"
-	} else {
-		activeWep = pawnEntity.Property("m_hActiveWeapon")
-		spottedByPrefix = "m_bSpottedByMask.00"
-	}
-
-	activeWep.OnUpdate(func(val st.PropertyValue) {
-		pl.IsReloading = false
-	})
-
-	pawnEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
-		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.IntVal == 0 {
-			p.eventDispatcher.Dispatch(events.BombDefuseAborted{Player: pl})
-			p.gameState.currentDefuser = nil
-		}
-
-		pl.IsDefusing = val.IntVal != 0
-	})
-
-	spottedByMaskProp := pawnEntity.Property(spottedByPrefix + "0")
-	if spottedByMaskProp != nil {
-		spottersChanged := func(val st.PropertyValue) {
-			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
-		}
-
-		spottedByMaskProp.OnUpdate(spottersChanged)
-		pawnEntity.Property(spottedByPrefix + "1").OnUpdate(spottersChanged)
-	}
-
 	if isNew {
 		if pl.SteamID64 != 0 {
 			p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 		} else {
 			p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
 		}
+	}
+}
+
+func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
+	player := func() *common.Player {
+		return p.gameState.Participants().FindByHandle64(pawnEntity.PropertyValueMust("m_hController").Handle())
+	}
+
+	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
+		pl := player()
+		if pl == nil {
+			return
+		}
+
+		if val.Float() == 0 {
+			pl.FlashTick = 0
+		} else {
+			pl.FlashTick = p.gameState.ingameTick
+		}
+
+		pl.FlashDuration = val.Float()
+	})
+
+	//p.bindPlayerWeapons(controllerEntity, pl) // FIXME: make weapons work for S2
+	//
+	//for i := 0; i < 32; i++ {
+	//	i2 := i // Copy so it stays the same
+	//	controllerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
+	//}
+
+	pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
+		pl := player()
+		if pl == nil {
+			return
+		}
+
+		pl.IsReloading = false
+	})
+
+	pawnEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
+		pl := player()
+		if pl == nil {
+			return
+		}
+
+		if p.gameState.currentDefuser == pl && pl.IsDefusing && !val.BoolVal() {
+			p.eventDispatcher.Dispatch(events.BombDefuseAborted{Player: pl})
+			p.gameState.currentDefuser = nil
+		}
+
+		pl.IsDefusing = val.BoolVal()
+	})
+
+	spottedByMaskProp := pawnEntity.Property("m_bSpottedByMask.0000")
+	if spottedByMaskProp != nil {
+		pl := player()
+		if pl == nil {
+			return
+		}
+
+		spottersChanged := func(val st.PropertyValue) {
+			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
+		}
+
+		spottedByMaskProp.OnUpdate(spottersChanged)
+		pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
 	}
 }
 
