@@ -25,6 +25,15 @@ func (p *parser) handleSendTables(msg *msgs2.CDemoSendTables) {
 }
 
 func (p *parser) handleClassInfo(msg *msgs2.CDemoClassInfo) {
+	p.msgDispatcher.SyncAllQueues()
+
+	err := p.stParser.OnDemoClassInfo(msg)
+	if err != nil {
+		panic(err)
+	}
+
+	p.mapEquipment()
+	p.bindEntities()
 }
 
 var netMsgCreators = map[msgs2.NET_Messages]NetMessageCreator{

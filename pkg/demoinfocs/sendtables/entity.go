@@ -13,7 +13,7 @@ import (
 
 // entity stores a entity in the game (e.g. players etc.) with its properties.
 type entity struct {
-	serverClass *ServerClass
+	serverClass *serverClass
 	id          int
 	serialNum   int
 	props       []property
@@ -26,7 +26,7 @@ type entity struct {
 }
 
 // ServerClass returns the entity's server-class.
-func (e *entity) ServerClass() *ServerClass {
+func (e *entity) ServerClass() ServerClass {
 	return e.serverClass
 }
 

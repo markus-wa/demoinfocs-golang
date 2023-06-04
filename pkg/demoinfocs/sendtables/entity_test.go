@@ -16,7 +16,7 @@ var testData = struct {
 			{value: PropertyValue{IntVal: 30}},
 		},
 		serialNum: 1337,
-		serverClass: &ServerClass{propNameToIndex: map[string]int{
+		serverClass: &serverClass{propNameToIndex: map[string]int{
 			"myProp":     0,
 			"test":       1,
 			"anotherOne": 2,

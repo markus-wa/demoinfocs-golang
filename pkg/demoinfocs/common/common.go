@@ -217,9 +217,7 @@ func NewTeamState(team Team, membersCallback func(Team) []*Player) TeamState {
 // ConvertSteamIDTxtTo32 converts a Steam-ID in text format to a 32-bit variant.
 // See https://developer.valvesoftware.com/wiki/SteamID
 func ConvertSteamIDTxtTo32(steamID string) (uint32, error) {
-	if strings.HasSuffix(steamID, "]") {
-		steamID = strings.TrimSuffix(steamID, "]") // Source 2 has [U:1:397560266] instead of STEAM_0:1:198780133
-	}
+	steamID = strings.TrimSuffix(steamID, "]") // Source 2 has [U:1:397560266] instead of STEAM_0:1:198780133
 
 	arr := strings.Split(steamID, ":")
 

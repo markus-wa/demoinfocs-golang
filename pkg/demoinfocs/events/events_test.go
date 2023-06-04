@@ -58,6 +58,10 @@ func TestKill_IsWallBang(t *testing.T) {
 type demoInfoProviderMock struct {
 }
 
+func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
+	panic("implement me")
+}
+
 func (p demoInfoProviderMock) IngameTick() int {
 	return 0
 }

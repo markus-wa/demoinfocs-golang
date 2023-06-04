@@ -12,6 +12,7 @@ import (
 	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 func (p *parser) handlePacketEntitiesS1(pe *msg.CSVCMsg_PacketEntities) {
@@ -50,6 +51,16 @@ func (p *parser) handlePacketEntitiesS1(pe *msg.CSVCMsg_PacketEntities) {
 	}
 
 	p.poolBitReader(r)
+}
+
+func (p *parser) onEntity(e sendtables.Entity, op sendtables.EntityOp) error {
+	if op&sendtables.EntityOpCreated > 0 {
+		p.gameState.entities[e.ID()] = e
+	} else if op&sendtables.EntityOpDeleted > 0 {
+		delete(p.gameState.entities, e.ID())
+	}
+
+	return nil
 }
 
 func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {

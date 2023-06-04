@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
 	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 	stfake "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables/fake"
@@ -179,6 +180,10 @@ type demoInfoProviderMock struct {
 	equipment            *Equipment
 }
 
+func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
+	panic("implement me")
+}
+
 func (p demoInfoProviderMock) TickRate() float64 {
 	return p.tickRate
 }
@@ -228,6 +233,8 @@ func entityWithProperty(propName string, value st.PropertyValue) *stfake.Entity 
 
 func entityWithProperties(properties []fakeProp) *stfake.Entity {
 	entity := entityWithID(1)
+
+	entity.On("Property", mock.Anything).Return(nil)
 
 	for _, prop := range properties {
 		property := new(stfake.Property)

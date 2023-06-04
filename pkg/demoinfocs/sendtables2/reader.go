@@ -39,10 +39,12 @@ func (r *reader) remBytes() uint32 {
 
 // nextByte reads the next byte from the buffer
 func (r *reader) nextByte() byte {
-	r.pos += 1
+	r.pos++
+
 	if r.pos > r.size {
 		_panicf("nextByte: insufficient buffer (%d of %d)", r.pos, r.size)
 	}
+
 	return r.buf[r.pos-1]
 }
 
@@ -166,13 +168,13 @@ func (r *reader) readUBitVar() uint32 {
 	switch ret & 0x30 {
 	case 16:
 		ret = (ret & 15) | (r.readBits(4) << 4)
-		break
+
 	case 32:
 		ret = (ret & 15) | (r.readBits(8) << 4)
-		break
+
 	case 48:
 		ret = (ret & 15) | (r.readBits(28) << 4)
-		break
+
 	}
 
 	return ret

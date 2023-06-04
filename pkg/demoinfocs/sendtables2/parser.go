@@ -2,6 +2,7 @@ package sendtables2
 
 import (
 	"math"
+	"strings"
 
 	"google.golang.org/protobuf/proto"
 
@@ -57,17 +58,44 @@ type Parser struct {
 	classesByName     map[string]*class
 	entityFullPackets int
 	entities          map[int32]*Entity
-	entityHandlers    []EntityHandler
+	entityHandlers    []st.EntityHandler
 }
 
 func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity {
-	// TODO implement me
 	panic("implement me")
 }
 
+type serverClasses Parser
+
+func (sc *serverClasses) All() (res []st.ServerClass) {
+	for _, c := range sc.classesById {
+		res = append(res, c)
+	}
+
+	return
+}
+
+func (sc *serverClasses) FindByName(name string) st.ServerClass {
+	class := sc.classesByName[name]
+	if class == nil {
+		return nil
+	}
+
+	return sc.classesByName[name]
+}
+
+func (sc *serverClasses) String() string {
+	names := make([]string, 0, len(sc.classesById))
+
+	for _, c := range sc.classesById {
+		names = append(names, c.name)
+	}
+
+	return strings.Join(names, "\n")
+}
+
 func (p *Parser) ServerClasses() st.ServerClasses {
-	// TODO implement me
-	panic("implement me")
+	return (*serverClasses)(p)
 }
 
 func NewParser() *Parser {

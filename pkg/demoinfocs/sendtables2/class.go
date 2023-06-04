@@ -1,13 +1,59 @@
 package sendtables2
 
 import (
+	"fmt"
 	"strings"
+
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
 type class struct {
-	classId    int32
-	name       string
-	serializer *serializer
+	classId         int32
+	name            string
+	serializer      *serializer
+	createdHandlers []st.EntityCreatedHandler
+}
+
+func (c *class) ID() int {
+	return int(c.classId)
+}
+
+func (c *class) Name() string {
+	return c.name
+}
+
+func (c *class) DataTableID() int {
+	panic("not implemented")
+}
+
+func (c *class) DataTableName() string {
+	panic("not implemented")
+}
+
+func (c *class) BaseClasses() (res []st.ServerClass) {
+	return nil
+}
+
+func (c *class) PropertyEntries() []string {
+	panic("not implemented")
+}
+
+func (c *class) PropertyEntryDefinitions() []st.PropertyEntry {
+	panic("not implemented")
+}
+
+func (c *class) OnEntityCreated(handler st.EntityCreatedHandler) {
+	c.createdHandlers = append(c.createdHandlers, handler)
+}
+
+func (c *class) String() string {
+	props := make([]string, 0, len(c.serializer.fields))
+
+	for _, f := range c.serializer.fields {
+		props = append(props, fmt.Sprintf("%s: %s", f.varName, f.varType))
+	}
+
+	return fmt.Sprintf("%d %s\n %s", c.classId, c.name, strings.Join(props, "\n "))
 }
 
 func (c *class) getNameForFieldPath(fp *fieldPath) string {

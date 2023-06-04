@@ -30,6 +30,7 @@ type sendTableParser interface {
 	OnDemoClassInfo(m *msgs2.CDemoClassInfo) error
 	OnServerInfo(m *msgs2.CSVCMsg_ServerInfo) error
 	OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error
+	OnEntity(h st.EntityHandler)
 }
 
 type createStringTable struct {
@@ -91,7 +92,7 @@ type parser struct {
 
 	bombsiteA            bombsite
 	bombsiteB            bombsite
-	equipmentMapping     map[*st.ServerClass]common.EquipmentType        // Maps server classes to equipment-types
+	equipmentMapping     map[st.ServerClass]common.EquipmentType         // Maps server classes to equipment-types
 	rawPlayers           map[int]*common.PlayerInfo                      // Maps entity IDs to 'raw' player info
 	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
 	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
@@ -360,7 +361,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 
 	// Init parser
 	p.bitReader = bit.NewLargeBitReader(demostream)
-	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentType)
+	p.equipmentMapping = make(map[st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.demoInfoProvider = demoInfoProvider{parser: &p}
@@ -415,6 +416,10 @@ func (p *parser) initMsgQueue(buf int) {
 	p.msgDispatcher.AddQueues(p.msgQueue)
 }
 
+func (p *parser) isSource2() bool {
+	return p.header.Filestamp == "PBDEMS2"
+}
+
 type demoInfoProvider struct {
 	parser *parser
 }
@@ -429,6 +434,10 @@ func (p demoInfoProvider) TickRate() float64 {
 
 func (p demoInfoProvider) FindPlayerByHandle(handle int) *common.Player {
 	return p.parser.gameState.Participants().FindByHandle(handle)
+}
+
+func (p demoInfoProvider) FindEntityByHandle(handle uint64) st.Entity {
+	return p.parser.gameState.EntityByHandle(handle)
 }
 
 func (p demoInfoProvider) PlayerResourceEntity() st.Entity {

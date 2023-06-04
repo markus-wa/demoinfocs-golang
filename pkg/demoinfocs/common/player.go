@@ -35,6 +35,18 @@ type Player struct {
 	IsUnknown         bool // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 }
 
+func (p *Player) PlayerPawnEntity() st.Entity {
+	return p.demoInfoProvider.FindEntityByHandle(p.Entity.PropertyValueMust("m_hPlayerPawn").Handle())
+}
+
+func (p *Player) GetTeam() Team {
+	return Team(p.PlayerPawnEntity().PropertyValueMust("m_iTeamNum").S2UInt64())
+}
+
+func (p *Player) GetFlashDuration() float32 {
+	return p.PlayerPawnEntity().PropertyValueMust("m_flFlashDuration").Float()
+}
+
 // String returns the player's name.
 // Implements fmt.Stringer.
 func (p *Player) String() string {
@@ -53,6 +65,12 @@ func (p *Player) SteamID32() uint32 {
 
 // IsAlive returns true if the player is alive.
 func (p *Player) IsAlive() bool {
+	s2IsAlive := p.Entity.Property("m_bPawnIsAlive")
+
+	if s2IsAlive != nil {
+		return s2IsAlive.Value().BoolVal()
+	}
+
 	return p.Health() > 0 || getInt(p.Entity, "m_lifeState") == 0
 }
 
@@ -245,6 +263,12 @@ func (p *Player) ControlledBot() *Player {
 
 // Health returns the player's health points, normally 0-100.
 func (p *Player) Health() int {
+	s2Prop := p.Entity.Property("m_iPawnHealth")
+
+	if s2Prop != nil {
+		return int(s2Prop.Value().S2UInt64())
+	}
+
 	return getInt(p.Entity, "m_iHealth")
 }
 
@@ -501,6 +525,7 @@ type demoInfoProvider interface {
 	FindPlayerByHandle(handle int) *Player
 	PlayerResourceEntity() st.Entity
 	FindWeaponByEntityID(id int) *Equipment
+	FindEntityByHandle(handle uint64) st.Entity
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.

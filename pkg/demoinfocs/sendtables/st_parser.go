@@ -19,9 +19,9 @@ import (
 // Intended for internal use only.
 type SendTableParser struct {
 	sendTables         []sendTable
-	serverClasses      ServerClasses
+	serverClasses      serverClasses
 	currentExcludes    []*excludeEntry
-	currentBaseclasses []*ServerClass
+	currentBaseclasses []*serverClass
 
 	instanceBaselines map[int][]byte // Maps server-class IDs to raw instance baselines, needed for when we don't have the server-class when setting the baseline
 }
@@ -40,12 +40,62 @@ func (p *SendTableParser) OnPacketEntities(*msgs2.CSVCMsg_PacketEntities) error 
 	panic("not implemented")
 }
 
-// ServerClasses is a searchable list of ServerClasses.
-type ServerClasses []*ServerClass
+// EntityOp is a bitmask representing the type of operation performed on an Entity
+type EntityOp int
 
-func (sc ServerClasses) findByDataTableName(name string) *ServerClass {
+const (
+	EntityOpNone           EntityOp = 0x00
+	EntityOpCreated        EntityOp = 0x01
+	EntityOpUpdated        EntityOp = 0x02
+	EntityOpDeleted        EntityOp = 0x04
+	EntityOpEntered        EntityOp = 0x08
+	EntityOpLeft           EntityOp = 0x10
+	EntityOpCreatedEntered EntityOp = EntityOpCreated | EntityOpEntered
+	EntityOpUpdatedEntered EntityOp = EntityOpUpdated | EntityOpEntered
+	EntityOpDeletedLeft    EntityOp = EntityOpDeleted | EntityOpLeft
+)
+
+var entityOpNames = map[EntityOp]string{
+	EntityOpNone:           "None",
+	EntityOpCreated:        "Created",
+	EntityOpUpdated:        "Updated",
+	EntityOpDeleted:        "Deleted",
+	EntityOpEntered:        "Entered",
+	EntityOpLeft:           "Left",
+	EntityOpCreatedEntered: "Created+Entered",
+	EntityOpUpdatedEntered: "Updated+Entered",
+	EntityOpDeletedLeft:    "Deleted+Left",
+}
+
+// Flag determines whether an EntityOp includes another. This is primarily
+// offered to prevent bit flag errors in downstream clients.
+func (o EntityOp) Flag(p EntityOp) bool {
+	return o&p != 0
+}
+
+// String returns a human identifiable string for the EntityOp
+func (o EntityOp) String() string {
+	return entityOpNames[o]
+}
+
+// EntityHandler is a function that receives Entity updates
+type EntityHandler func(Entity, EntityOp) error
+
+func (p *SendTableParser) OnEntity(h EntityHandler) {
+	panic("not implemented")
+}
+
+// ServerClasses is a searchable list of ServerClasses.
+type ServerClasses interface {
+	All() []ServerClass
+	FindByName(name string) ServerClass
+}
+
+type serverClasses []*serverClass
+
+func (sc serverClasses) findByDataTableName(name string) *serverClass {
 	for _, v := range sc {
-		if v.dataTableName == name {
+		if v.DataTableName() == name {
 			return v
 		}
 	}
@@ -56,14 +106,23 @@ func (sc ServerClasses) findByDataTableName(name string) *ServerClass {
 // FindByName finds and returns a server-class by it's name.
 //
 // Returns nil if the server-class wasn't found.
-func (sc ServerClasses) FindByName(name string) *ServerClass {
+func (sc serverClasses) FindByName(name string) ServerClass {
 	for _, v := range sc {
-		if v.name == name {
+		if v.Name() == name {
 			return v
 		}
 	}
 
 	return nil
+}
+
+// All returns all server-classes.
+func (sc serverClasses) All() (res []ServerClass) {
+	for _, v := range sc {
+		res = append(res, v)
+	}
+
+	return
 }
 
 type excludeEntry struct {
@@ -102,7 +161,7 @@ func (p *SendTableParser) ParsePacket(b []byte) error {
 	serverClassCount := int(r.ReadInt(16))
 
 	for i := 0; i < serverClassCount; i++ {
-		class := new(ServerClass)
+		class := new(serverClass)
 		class.id = int(r.ReadInt(16))
 
 		if class.id > serverClassCount {

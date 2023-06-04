@@ -2,50 +2,14 @@ package sendtables2
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/golang/geo/r3"
+
+	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
+	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
-
-// EntityOp is a bitmask representing the type of operation performed on an Entity
-type EntityOp int
-
-const (
-	EntityOpNone           EntityOp = 0x00
-	EntityOpCreated        EntityOp = 0x01
-	EntityOpUpdated        EntityOp = 0x02
-	EntityOpDeleted        EntityOp = 0x04
-	EntityOpEntered        EntityOp = 0x08
-	EntityOpLeft           EntityOp = 0x10
-	EntityOpCreatedEntered EntityOp = EntityOpCreated | EntityOpEntered
-	EntityOpUpdatedEntered EntityOp = EntityOpUpdated | EntityOpEntered
-	EntityOpDeletedLeft    EntityOp = EntityOpDeleted | EntityOpLeft
-)
-
-var entityOpNames = map[EntityOp]string{
-	EntityOpNone:           "None",
-	EntityOpCreated:        "Created",
-	EntityOpUpdated:        "Updated",
-	EntityOpDeleted:        "Deleted",
-	EntityOpEntered:        "Entered",
-	EntityOpLeft:           "Left",
-	EntityOpCreatedEntered: "Created+Entered",
-	EntityOpUpdatedEntered: "Updated+Entered",
-	EntityOpDeletedLeft:    "Deleted+Left",
-}
-
-// Flag determines whether an EntityOp includes another. This is primarily
-// offered to prevent bit flag errors in downstream clients.
-func (o EntityOp) Flag(p EntityOp) bool {
-	return o&p != 0
-}
-
-// String returns a human identifiable string for the EntityOp
-func (o EntityOp) String() string {
-	return entityOpNames[o]
-}
-
-// EntityHandler is a function that receives Entity updates
-type EntityHandler func(*Entity, EntityOp) error
 
 // Entity represents a single game entity in the replay
 type Entity struct {
@@ -56,24 +20,255 @@ type Entity struct {
 	state   *fieldState
 	fpCache map[string]*fieldPath
 	fpNoop  map[string]bool
+
+	onCreateFinished []func()
+	onDestroy        []func()
+	updateHandlers   map[string][]st.PropertyUpdateHandler
+}
+
+func (e *Entity) ServerClass() st.ServerClass {
+	return e.class
+}
+
+func (e *Entity) ID() int {
+	return int(e.index)
+}
+
+func (e *Entity) SerialNum() int {
+	return int(e.serial)
+}
+
+func (e *Entity) Properties() (out []st.Property) {
+	for _, fp := range e.class.getFieldPaths(newFieldPath(), e.state) {
+		out = append(out, e.Property(e.class.getNameForFieldPath(fp)))
+	}
+
+	return
+}
+
+type property struct {
+	entity *Entity
+	name   string
+}
+
+func (p property) Name() string {
+	return p.name
+}
+
+func (p property) Value() st.PropertyValue {
+	return st.PropertyValue{
+		VectorVal: r3.Vector{},
+		IntVal:    0,
+		Int64Val:  0,
+		ArrayVal:  nil,
+		StringVal: "",
+		FloatVal:  0,
+		Any:       p.entity.Get(p.name),
+		S2:        true,
+	}
+}
+
+func (p property) Type() st.PropertyType {
+	panic("not implemented")
+}
+
+func (p property) ArrayElementType() st.PropertyType {
+	panic("not implemented")
+}
+
+func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
+	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], handler)
+}
+
+type bindFactory func(variable any) st.PropertyUpdateHandler
+
+var bindFactoryByType = map[st.PropertyValueType]bindFactory{
+	st.ValTypeVector: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*r3.Vector) = v.VectorVal // FIXME this won't work
+		}
+	},
+	st.ValTypeInt: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*int) = v.IntVal
+		}
+	},
+	st.ValTypeArray: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*[]st.PropertyValue) = v.ArrayVal
+		}
+	},
+	st.ValTypeString: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*string) = v.StringVal
+		}
+	},
+	st.ValTypeBoolInt: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*bool) = v.IntVal != 0
+		}
+	},
+	st.ValTypeFloat32: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*float32) = v.FloatVal
+		}
+	},
+	st.ValTypeFloat64: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*float64) = float64(v.FloatVal)
+		}
+	},
+}
+
+func (p property) Bind(variable any, t st.PropertyValueType) {
+	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], bindFactoryByType[t](variable))
+}
+
+func (e *Entity) Property(name string) st.Property {
+	ok := e.class.serializer.getFieldPathForName(newFieldPath(), name)
+	if !ok {
+		return nil
+	}
+
+	return property{
+		entity: e,
+		name:   name,
+	}
+}
+
+func (e *Entity) BindProperty(prop string, variable any, t st.PropertyValueType) {
+	e.Property(prop).Bind(variable, t)
+}
+
+func (e *Entity) PropertyValue(name string) (st.PropertyValue, bool) {
+	prop := e.Property(name)
+	if prop == nil {
+		return st.PropertyValue{S2: true}, false
+	}
+
+	v := prop.Value()
+
+	return v, true
+}
+
+func (e *Entity) PropertyValueMust(name string) st.PropertyValue {
+	val, ok := e.PropertyValue(name)
+	if !ok {
+		panic(fmt.Sprintf("property '%s' not found", name))
+	}
+
+	return val
+}
+
+func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
+	panic("not implemented")
+}
+
+const (
+	serverClassPlayer = "CCSPlayerPawn"
+
+	propCellX = "CBodyComponent.m_cellX"
+	propCellY = "CBodyComponent.m_cellY"
+	propCellZ = "CBodyComponent.m_cellZ"
+	propVecX  = "CBodyComponent.m_vecX"
+	propVecY  = "CBodyComponent.m_vecY"
+	propVecZ  = "CBodyComponent.m_vecZ"
+)
+
+func (e *Entity) isPlayer() bool {
+	return e.class.name == serverClassPlayer
+}
+
+// Returns a coordinate from a cell + offset
+func coordFromCell(cell uint64, offset float32) float64 {
+	const (
+		cellBits    = 9
+		maxCoordInt = 16384
+	)
+
+	return float64(cell*(1<<cellBits)-maxCoordInt) + float64(offset)
+}
+
+func (e *Entity) Position() r3.Vector {
+	cellXProp := e.Property(propCellX)
+	cellYProp := e.Property(propCellY)
+	cellZProp := e.Property(propCellZ)
+	offsetXProp := e.Property(propVecX)
+	offsetYProp := e.Property(propVecY)
+	offsetZProp := e.Property(propVecZ)
+
+	cellX := cellXProp.Value().S2UInt64()
+	cellY := cellYProp.Value().S2UInt64()
+	cellZ := cellZProp.Value().S2UInt64()
+	offsetX := offsetXProp.Value().Float()
+	offsetY := offsetYProp.Value().Float()
+	offsetZ := offsetZProp.Value().Float()
+
+	return r3.Vector{
+		X: coordFromCell(cellX, offsetX),
+		Y: coordFromCell(cellY, offsetY),
+		Z: coordFromCell(cellZ, offsetZ),
+	}
+}
+
+func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
+	pos := new(r3.Vector)
+	firePosUpdate := func(st.PropertyValue) {
+		newPos := e.Position()
+		if *pos != newPos {
+			h(newPos)
+			*pos = newPos
+		}
+	}
+
+	e.Property(propCellX).OnUpdate(firePosUpdate)
+	e.Property(propCellY).OnUpdate(firePosUpdate)
+	e.Property(propCellZ).OnUpdate(firePosUpdate)
+	e.Property(propVecX).OnUpdate(firePosUpdate)
+	e.Property(propVecY).OnUpdate(firePosUpdate)
+	e.Property(propVecZ).OnUpdate(firePosUpdate)
+}
+
+func (e *Entity) OnDestroy(delegate func()) {
+	e.onDestroy = append(e.onDestroy, delegate)
+}
+
+func (e *Entity) Destroy() {
+	for _, delegate := range e.onDestroy {
+		delegate()
+	}
+}
+
+func (e *Entity) OnCreateFinished(delegate func()) {
+	e.onCreateFinished = append(e.onCreateFinished, delegate)
 }
 
 // newEntity returns a new entity for the given index, serial and class
 func newEntity(index, serial int32, class *class) *Entity {
 	return &Entity{
-		index:   index,
-		serial:  serial,
-		class:   class,
-		active:  true,
-		state:   newFieldState(),
-		fpCache: make(map[string]*fieldPath),
-		fpNoop:  make(map[string]bool),
+		index:            index,
+		serial:           serial,
+		class:            class,
+		active:           true,
+		state:            newFieldState(),
+		fpCache:          make(map[string]*fieldPath),
+		fpNoop:           make(map[string]bool),
+		onCreateFinished: nil,
+		onDestroy:        nil,
+		updateHandlers:   make(map[string][]st.PropertyUpdateHandler),
 	}
 }
 
 // String returns a human identifiable string for the Entity
 func (e *Entity) String() string {
-	return fmt.Sprintf("%d <%s>", e.index, e.class.name)
+	paths := e.class.getFieldPaths(newFieldPath(), e.state)
+	props := make([]string, len(paths))
+
+	for _, fp := range paths {
+		props = append(props, fmt.Sprintf("%s: %v", e.class.getNameForFieldPath(fp), e.state.get(fp)))
+	}
+
+	return fmt.Sprintf("%d <%s>\n %s", e.index, e.class.name, strings.Join(props, "\n "))
 }
 
 // Map returns a map of current entity state as key-value pairs
@@ -204,13 +399,41 @@ func (p *Parser) FindEntityByHandle(handle uint64) *Entity {
 
 // FilterEntity finds entities by callback
 func (p *Parser) FilterEntity(fb func(*Entity) bool) []*Entity {
-	entities := make([]*Entity, 0, 0)
+	entities := make([]*Entity, 0)
+
 	for _, et := range p.entities {
 		if fb(et) {
 			entities = append(entities, et)
 		}
 	}
+
 	return entities
+}
+
+func (e *Entity) readFields(r *reader) {
+	fps := readFieldPaths(r)
+
+	for _, fp := range fps {
+		decoder := e.class.serializer.getDecoderForFieldPath(fp, 0)
+
+		val := decoder(r)
+		e.state.set(fp, val)
+
+		for _, h := range e.updateHandlers[e.class.getNameForFieldPath(fp)] {
+			h(st.PropertyValue{
+				VectorVal: r3.Vector{},
+				IntVal:    0,
+				Int64Val:  0,
+				ArrayVal:  nil,
+				StringVal: "",
+				FloatVal:  0,
+				Any:       val,
+				S2:        true,
+			})
+		}
+
+		fp.release()
+	}
 }
 
 // Internal Callback for OnCSVCMsg_PacketEntities.
@@ -223,7 +446,6 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		cmd     uint32
 		classId int32
 		serial  int32
-		e       *Entity
 	)
 
 	if !m.GetIsDelta() {
@@ -234,16 +456,20 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 	}
 
 	type tuple struct {
-		e  *Entity
-		op EntityOp
+		ent *Entity
+		op  st.EntityOp
 	}
-	tuples := make([]tuple, 0, updates)
+
+	var tuples []tuple
 
 	for ; updates > 0; updates-- {
+		var (
+			e  *Entity
+			op st.EntityOp
+		)
+
 		next := index + int32(r.readUBitVar()) + 1
 		index = next
-
-		var op EntityOp
 
 		cmd = r.readBits(2)
 		if cmd&0x01 == 0 {
@@ -264,22 +490,33 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 
 				e = newEntity(index, serial, class)
 				p.entities[index] = e
-				readFields(newReader(baseline), class.serializer, e.state)
-				readFields(r, class.serializer, e.state)
 
-				op = EntityOpCreated | EntityOpEntered
+				e.readFields(newReader(baseline))
+				e.readFields(r)
+
+				// Fire created-handlers so update-handlers can be registered
+				for _, h := range class.createdHandlers {
+					h(e)
+				}
+
+				// Fire all post-creation actions
+				for _, f := range e.onCreateFinished {
+					f()
+				}
+
+				op = st.EntityOpCreated | st.EntityOpEntered
 			} else {
 				if e = p.entities[index]; e == nil {
 					_panicf("unable to find existing entity %d", index)
 				}
 
-				op = EntityOpUpdated
+				op = st.EntityOpUpdated
 				if !e.active {
 					e.active = true
-					op |= EntityOpEntered
+					op |= st.EntityOpEntered
 				}
 
-				readFields(r, e.class.serializer, e.state)
+				e.readFields(r)
 			}
 		} else {
 			if e = p.entities[index]; e == nil {
@@ -290,26 +527,38 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 				_panicf("entity %d (%s) ordered to leave, already inactive", e.class.classId, e.class.name)
 			}
 
-			op = EntityOpLeft
+			op = st.EntityOpLeft
 			if cmd&0x02 != 0 {
-				op |= EntityOpDeleted
-				p.entities[index] = nil
+				op |= st.EntityOpDeleted
+				delete(p.entities, index)
 			}
 		}
 
 		tuples = append(tuples, tuple{e, op})
 	}
 
-	if r.remBytes() > 1 || r.bitCount > 7 {
-		// FIXME: maybe we should panic("didn't consume all data")
-	}
+	for _, t := range tuples {
+		e := t.ent
 
-	for _, h := range p.entityHandlers {
-		for _, t := range tuples {
-			if err := h(t.e, t.op); err != nil {
+		for _, h := range p.entityHandlers {
+			if err := h(e, t.op); err != nil {
 				return err
 			}
 		}
+
+		if t.op&st.EntityOpCreated != 0 {
+			for prop, hs := range e.updateHandlers {
+				v := e.PropertyValueMust(prop)
+
+				for _, h := range hs {
+					h(v)
+				}
+			}
+		}
+	}
+
+	if r.remBytes() > 1 || r.bitCount > 7 {
+		// FIXME: maybe we should panic("didn't consume all data")
 	}
 
 	return nil
@@ -317,6 +566,6 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 
 // OnEntity registers an EntityHandler that will be called when an entity
 // is created, updated, deleted, etc.
-func (p *Parser) OnEntity(h EntityHandler) {
+func (p *Parser) OnEntity(h st.EntityHandler) {
 	p.entityHandlers = append(p.entityHandlers, h)
 }
