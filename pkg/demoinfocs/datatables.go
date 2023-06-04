@@ -119,12 +119,7 @@ func (p *parser) bindBomb() {
 func (p *parser) bindTeamStates() {
 	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity st.Entity) {
 		teamVal := entity.PropertyValueMust("m_szTeamname")
-		team := teamVal.StringVal
-
-		// FIXME: S2 fix
-		if team == "" {
-			team = teamVal.Any.(string)
-		}
+		team := teamVal.String()
 
 		var s *common.TeamState
 
@@ -146,22 +141,24 @@ func (p *parser) bindTeamStates() {
 			s.Entity = entity
 
 			// Register updates
-			var score int
+			var (
+				scoreProp st.Property
+				score     int
+			)
 
-			scoreProp := entity.Property("m_scoreTotal")
-
-			// FIXME: S2 fix
-			if scoreProp == nil {
+			if p.isSource2() {
 				scoreProp = entity.Property("m_iScore")
+			} else {
+				scoreProp = entity.Property("m_scoreTotal")
 			}
 
 			scoreProp.OnUpdate(func(val st.PropertyValue) {
 				oldScore := score
-				score = val.IntVal // FIXME: fix for S2
+				score = val.Int()
 
 				p.eventDispatcher.Dispatch(events.ScoreUpdated{
 					OldScore:  oldScore,
-					NewScore:  val.IntVal, // FIXME: fix for S2
+					NewScore:  val.Int(),
 					TeamState: s,
 				})
 			})
