@@ -179,6 +179,10 @@ type demoInfoProviderMock struct {
 	equipment            *Equipment
 }
 
+func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
+	panic("implement me")
+}
+
 func (p demoInfoProviderMock) TickRate() float64 {
 	return p.tickRate
 }
