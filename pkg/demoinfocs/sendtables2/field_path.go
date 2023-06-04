@@ -22,7 +22,7 @@ type fieldPathOp struct {
 
 var fieldPathTable = []fieldPathOp{
 	{"PlusOne", 36271, func(r *reader, fp *fieldPath) {
-		fp.path[fp.last] += 1
+		fp.path[fp.last]++
 	}},
 	{"PlusTwo", 10334, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last] += 2
@@ -45,12 +45,12 @@ var fieldPathTable = []fieldPathOp{
 		fp.path[fp.last] = r.readUBitVarFieldPath()
 	}},
 	{"PushOneLeftDeltaOneRightZero", 521, func(r *reader, fp *fieldPath) {
-		fp.path[fp.last] += 1
+		fp.path[fp.last]++
 		fp.last++
 		fp.path[fp.last] = 0
 	}},
 	{"PushOneLeftDeltaOneRightNonZero", 2942, func(r *reader, fp *fieldPath) {
-		fp.path[fp.last] += 1
+		fp.path[fp.last]++
 		fp.last++
 		fp.path[fp.last] = r.readUBitVarFieldPath()
 	}},
@@ -103,21 +103,21 @@ var fieldPathTable = []fieldPathOp{
 		fp.path[fp.last] = int(r.readBits(5))
 	}},
 	{"PushTwoLeftDeltaOne", 0, func(r *reader, fp *fieldPath) {
-		fp.path[fp.last] += 1
+		fp.path[fp.last]++
 		fp.last++
 		fp.path[fp.last] += r.readUBitVarFieldPath()
 		fp.last++
 		fp.path[fp.last] += r.readUBitVarFieldPath()
 	}},
 	{"PushTwoPack5LeftDeltaOne", 0, func(r *reader, fp *fieldPath) {
-		fp.path[fp.last] += 1
+		fp.path[fp.last]++
 		fp.last++
 		fp.path[fp.last] += int(r.readBits(5))
 		fp.last++
 		fp.path[fp.last] += int(r.readBits(5))
 	}},
 	{"PushThreeLeftDeltaOne", 0, func(r *reader, fp *fieldPath) {
-		fp.path[fp.last] += 1
+		fp.path[fp.last]++
 		fp.last++
 		fp.path[fp.last] += r.readUBitVarFieldPath()
 		fp.last++
@@ -126,7 +126,7 @@ var fieldPathTable = []fieldPathOp{
 		fp.path[fp.last] += r.readUBitVarFieldPath()
 	}},
 	{"PushThreePack5LeftDeltaOne", 0, func(r *reader, fp *fieldPath) {
-		fp.path[fp.last] += 1
+		fp.path[fp.last]++
 		fp.last++
 		fp.path[fp.last] += int(r.readBits(5))
 		fp.last++
@@ -188,7 +188,7 @@ var fieldPathTable = []fieldPathOp{
 	}},
 	{"PopOnePlusOne", 2, func(r *reader, fp *fieldPath) {
 		fp.pop(1)
-		fp.path[fp.last] += 1
+		fp.path[fp.last]++
 	}},
 	{"PopOnePlusN", 0, func(r *reader, fp *fieldPath) {
 		fp.pop(1)
@@ -196,7 +196,7 @@ var fieldPathTable = []fieldPathOp{
 	}},
 	{"PopAllButOnePlusOne", 1837, func(r *reader, fp *fieldPath) {
 		fp.pop(fp.last)
-		fp.path[0] += 1
+		fp.path[0]++
 	}},
 	{"PopAllButOnePlusN", 149, func(r *reader, fp *fieldPath) {
 		fp.pop(fp.last)
@@ -212,7 +212,7 @@ var fieldPathTable = []fieldPathOp{
 	}},
 	{"PopNPlusOne", 0, func(r *reader, fp *fieldPath) {
 		fp.pop(r.readUBitVarFieldPath())
-		fp.path[fp.last] += 1
+		fp.path[fp.last]++
 	}},
 	{"PopNPlusN", 0, func(r *reader, fp *fieldPath) {
 		fp.pop(r.readUBitVarFieldPath())
@@ -234,7 +234,7 @@ var fieldPathTable = []fieldPathOp{
 		}
 	}},
 	{"NonTopoPenultimatePlusOne", 271, func(r *reader, fp *fieldPath) {
-		fp.path[fp.last-1] += 1
+		fp.path[fp.last-1]++
 	}},
 	{"NonTopoComplexPack4Bits", 99, func(r *reader, fp *fieldPath) {
 		for i := 0; i <= fp.last; i++ {
