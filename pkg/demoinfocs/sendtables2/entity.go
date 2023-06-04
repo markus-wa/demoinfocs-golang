@@ -167,15 +167,12 @@ func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
 const (
 	serverClassPlayer = "CCSPlayerPawn"
 
-	maxCoordInt = 16384
-
-	propCellBits          = "m_cellbits"
-	propCellX             = "CBodyComponent.m_cellX"
-	propCellY             = "CBodyComponent.m_cellY"
-	propCellZ             = "CBodyComponent.m_cellZ"
-	propVecOrigin         = "m_vecOrigin"
-	propVecOriginPlayerXY = "cslocaldata.m_vecOrigin"
-	propVecOriginPlayerZ  = "cslocaldata.m_vecOrigin[2]"
+	propCellX = "CBodyComponent.m_cellX"
+	propCellY = "CBodyComponent.m_cellY"
+	propCellZ = "CBodyComponent.m_cellZ"
+	propVecX  = "CBodyComponent.m_vecX"
+	propVecY  = "CBodyComponent.m_vecY"
+	propVecZ  = "CBodyComponent.m_vecZ"
 )
 
 func (e *Entity) isPlayer() bool {
@@ -183,50 +180,38 @@ func (e *Entity) isPlayer() bool {
 }
 
 // Returns a coordinate from a cell + offset
-func coordFromCell(cell, cellWidth int, offset float64) float64 {
-	return float64(cell*cellWidth-maxCoordInt) + offset
+func coordFromCell(cell uint64, offset float32) float64 {
+	const (
+		cellBits    = 9
+		maxCoordInt = 16384
+	)
+
+	return float64(cell*(1<<cellBits)-maxCoordInt) + float64(offset)
 }
 
 func (e *Entity) Position() r3.Vector {
-	return r3.Vector{} // FIXME: implement
-
-	if e.isPlayer() {
-		// FIXME: POV demo support
-		xyProp := e.Property(propVecOriginPlayerXY)
-		zProp := e.Property(propVecOriginPlayerZ)
-
-		xy := xyProp.Value().VectorVal
-		z := float64(zProp.Value().FloatVal)
-
-		return r3.Vector{
-			X: xy.X,
-			Y: xy.Y,
-			Z: z,
-		}
-	}
-
-	cellBitsProp := e.Property(propCellBits)
 	cellXProp := e.Property(propCellX)
 	cellYProp := e.Property(propCellY)
 	cellZProp := e.Property(propCellZ)
-	offsetProp := e.Property(propVecOrigin)
+	offsetXProp := e.Property(propVecX)
+	offsetYProp := e.Property(propVecY)
+	offsetZProp := e.Property(propVecZ)
 
-	cellWidth := 1 << uint(cellBitsProp.Value().IntVal)
-	cellX := cellXProp.Value().IntVal
-	cellY := cellYProp.Value().IntVal
-	cellZ := cellZProp.Value().IntVal
-	offset := offsetProp.Value().VectorVal
+	cellX := cellXProp.Value().S2UInt64()
+	cellY := cellYProp.Value().S2UInt64()
+	cellZ := cellZProp.Value().S2UInt64()
+	offsetX := offsetXProp.Value().Float()
+	offsetY := offsetYProp.Value().Float()
+	offsetZ := offsetZProp.Value().Float()
 
 	return r3.Vector{
-		X: coordFromCell(cellX, cellWidth, offset.X),
-		Y: coordFromCell(cellY, cellWidth, offset.Y),
-		Z: coordFromCell(cellZ, cellWidth, offset.Z),
+		X: coordFromCell(cellX, offsetX),
+		Y: coordFromCell(cellY, offsetY),
+		Z: coordFromCell(cellZ, offsetZ),
 	}
 }
 
 func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
-	return // FIXME: implement
-
 	pos := new(r3.Vector)
 	firePosUpdate := func(st.PropertyValue) {
 		newPos := e.Position()
@@ -236,15 +221,12 @@ func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 		}
 	}
 
-	if e.isPlayer() {
-		e.Property(propVecOriginPlayerXY).OnUpdate(firePosUpdate) // FIXME: POV demos use different property names
-		e.Property(propVecOriginPlayerZ).OnUpdate(firePosUpdate)
-	} else {
-		e.Property(propCellX).OnUpdate(firePosUpdate)
-		e.Property(propCellY).OnUpdate(firePosUpdate)
-		e.Property(propCellZ).OnUpdate(firePosUpdate)
-		e.Property(propVecOrigin).OnUpdate(firePosUpdate)
-	}
+	e.Property(propCellX).OnUpdate(firePosUpdate)
+	e.Property(propCellY).OnUpdate(firePosUpdate)
+	e.Property(propCellZ).OnUpdate(firePosUpdate)
+	e.Property(propVecX).OnUpdate(firePosUpdate)
+	e.Property(propVecY).OnUpdate(firePosUpdate)
+	e.Property(propVecZ).OnUpdate(firePosUpdate)
 }
 
 func (e *Entity) OnDestroy(delegate func()) {
@@ -417,12 +399,14 @@ func (p *Parser) FindEntityByHandle(handle uint64) *Entity {
 
 // FilterEntity finds entities by callback
 func (p *Parser) FilterEntity(fb func(*Entity) bool) []*Entity {
-	entities := make([]*Entity, 0, 0)
+	entities := make([]*Entity, 0)
+
 	for _, et := range p.entities {
 		if fb(et) {
 			entities = append(entities, et)
 		}
 	}
+
 	return entities
 }
 
@@ -435,20 +419,17 @@ func (e *Entity) readFields(r *reader) {
 		val := decoder(r)
 		e.state.set(fp, val)
 
-		upd := e.updateHandlers[e.class.getNameForFieldPath(fp)]
-		if upd != nil {
-			for _, h := range upd {
-				h(st.PropertyValue{
-					VectorVal: r3.Vector{},
-					IntVal:    0,
-					Int64Val:  0,
-					ArrayVal:  nil,
-					StringVal: "",
-					FloatVal:  0,
-					Any:       val,
-					S2:        true,
-				})
-			}
+		for _, h := range e.updateHandlers[e.class.getNameForFieldPath(fp)] {
+			h(st.PropertyValue{
+				VectorVal: r3.Vector{},
+				IntVal:    0,
+				Int64Val:  0,
+				ArrayVal:  nil,
+				StringVal: "",
+				FloatVal:  0,
+				Any:       val,
+				S2:        true,
+			})
 		}
 
 		fp.release()

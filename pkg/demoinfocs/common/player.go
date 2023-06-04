@@ -65,7 +65,9 @@ func (p *Player) SteamID32() uint32 {
 
 // IsAlive returns true if the player is alive.
 func (p *Player) IsAlive() bool {
-	return p.Health() > 0 || getInt(p.Entity, "m_lifeState") == 0
+	s1LifeState := p.Entity.Property("m_lifeState")
+
+	return p.Health() > 0 || (s1LifeState != nil && s1LifeState.Value().Int() == 0)
 }
 
 // IsBlinded returns true if the player is currently flashed.
@@ -257,6 +259,12 @@ func (p *Player) ControlledBot() *Player {
 
 // Health returns the player's health points, normally 0-100.
 func (p *Player) Health() int {
+	s2Prop := p.Entity.Property("m_iPawnHealth")
+
+	if s2Prop != nil {
+		return int(s2Prop.Value().S2UInt64())
+	}
+
 	return getInt(p.Entity, "m_iHealth")
 }
 

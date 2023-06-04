@@ -309,11 +309,13 @@ func (fp *fieldPath) release() {
 func readFieldPaths(r *reader) []*fieldPath {
 	fp := newFieldPath()
 
-	node, next := huffTree, huffTree
+	node := huffTree
 
 	paths := []*fieldPath{}
 
 	for !fp.done {
+		var next huffmanTree
+
 		if r.readBits(1) == 1 {
 			next = node.Right()
 		} else {

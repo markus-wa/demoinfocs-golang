@@ -339,13 +339,6 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 		pl.Entity = nil
 	})
 
-	// Position
-	controllerEntity.OnPositionUpdate(func(pos r3.Vector) {
-		if pl.IsAlive() {
-			pl.LastAlivePosition = pos
-		}
-	})
-
 	if isNew {
 		if pl.SteamID64 != 0 {
 			p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
@@ -359,6 +352,18 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 	player := func() *common.Player {
 		return p.gameState.Participants().FindByHandle64(pawnEntity.PropertyValueMust("m_hController").Handle())
 	}
+
+	// Position
+	pawnEntity.OnPositionUpdate(func(pos r3.Vector) {
+		pl := player()
+		if pl == nil {
+			return
+		}
+
+		if pl.IsAlive() {
+			pl.LastAlivePosition = pos
+		}
+	})
 
 	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
 		pl := player()
