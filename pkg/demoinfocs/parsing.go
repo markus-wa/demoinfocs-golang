@@ -153,7 +153,7 @@ func recoverFromUnexpectedEOF(r any) error {
 	}
 
 	if r == io.ErrUnexpectedEOF || r == io.EOF {
-		return ErrUnexpectedEndOfDemo
+		return errors.Wrap(ErrUnexpectedEndOfDemo, "unexpected EOF")
 	}
 
 	switch err := r.(type) {

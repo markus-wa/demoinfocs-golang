@@ -48,6 +48,8 @@ enum EBaseUserMessages {
 	UM_DllStatusResponse = 159;
 	UM_RequestInventory = 160;
 	UM_InventoryResponse = 161;
+	UM_RequestDiagnostic = 162;
+	UM_DiagnosticResponse = 163;
 	UM_MAX_BASE = 200;
 }
 
@@ -157,14 +159,14 @@ message CUserMessageShake {
 }
 
 message CUserMessageShakeDir {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMessageShake shake = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector direction = 2;
+	optional CUserMessageShake shake = 1;
+	optional CMsgVector direction = 2;
 }
 
 message CUserMessageScreenTilt {
 	optional uint32 command = 1;
 	optional bool ease_in_out = 2;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector angle = 3;
+	optional CMsgVector angle = 3;
 	optional float duration = 4;
 	optional float time = 5;
 }
@@ -268,44 +270,44 @@ message CUserMessageShowMenu {
 }
 
 message CUserMessageCreditsMsg {
-	optional com.github.markus_wa.demoinfocs_golang.s2.eRollType rolltype = 1 [default = ROLL_NONE];
+	optional eRollType rolltype = 1 [default = ROLL_NONE];
 	optional float logo_length = 2;
 }
 
 message CEntityMessagePlayJingle {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg entity_msg = 1;
+	optional CEntityMsg entity_msg = 1;
 }
 
 message CEntityMessageScreenOverlay {
 	optional bool start_effect = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg entity_msg = 2;
+	optional CEntityMsg entity_msg = 2;
 }
 
 message CEntityMessageRemoveAllDecals {
 	optional bool remove_decals = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg entity_msg = 2;
+	optional CEntityMsg entity_msg = 2;
 }
 
 message CEntityMessagePropagateForce {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector impulse = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg entity_msg = 2;
+	optional CMsgVector impulse = 1;
+	optional CEntityMsg entity_msg = 2;
 }
 
 message CEntityMessageDoSpark {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
+	optional CMsgVector origin = 1;
 	optional int32 entityindex = 2 [default = -1];
 	optional float radius = 3;
 	optional fixed32 color = 4;
 	optional uint32 beams = 5;
 	optional float thick = 6;
 	optional float duration = 7;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg entity_msg = 8;
+	optional CEntityMsg entity_msg = 8;
 }
 
 message CEntityMessageFixAngle {
 	optional bool relative = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle angle = 2;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg entity_msg = 3;
+	optional CMsgQAngle angle = 2;
+	optional CEntityMsg entity_msg = 3;
 }
 
 message CUserMessageCameraTransition {
@@ -317,7 +319,7 @@ message CUserMessageCameraTransition {
 
 	optional uint32 camera_type = 1;
 	optional float duration = 2;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMessageCameraTransition.Transition_DataDriven params_data_driven = 3;
+	optional CUserMessageCameraTransition.Transition_DataDriven params_data_driven = 3;
 }
 
 message CUserMsg_ParticleManager {
@@ -352,38 +354,38 @@ message CUserMsg_ParticleManager {
 
 	message UpdateParticle_OBSOLETE {
 		optional int32 control_point = 1;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector position = 2;
+		optional CMsgVector position = 2;
 	}
 
 	message UpdateParticleFwd_OBSOLETE {
 		optional int32 control_point = 1;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector forward = 2;
+		optional CMsgVector forward = 2;
 	}
 
 	message UpdateParticleOrient_OBSOLETE {
 		optional int32 control_point = 1;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector forward = 2;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector deprecated_right = 3;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector up = 4;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector left = 5;
+		optional CMsgVector forward = 2;
+		optional CMsgVector deprecated_right = 3;
+		optional CMsgVector up = 4;
+		optional CMsgVector left = 5;
 	}
 
 	message UpdateParticleTransform {
 		optional int32 control_point = 1;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector position = 2;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQuaternion orientation = 3;
+		optional CMsgVector position = 2;
+		optional CMsgQuaternion orientation = 3;
 		optional float interpolation_interval = 4;
 	}
 
 	message UpdateParticleFallback {
 		optional int32 control_point = 1;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector position = 2;
+		optional CMsgVector position = 2;
 	}
 
 	message UpdateParticleOffset {
 		optional int32 control_point = 1;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin_offset = 2;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle angle_offset = 3;
+		optional CMsgVector origin_offset = 2;
+		optional CMsgQAngle angle_offset = 3;
 	}
 
 	message UpdateParticleEnt {
@@ -391,10 +393,10 @@ message CUserMsg_ParticleManager {
 		optional uint32 entity_handle = 2 [default = 16777215];
 		optional int32 attach_type = 3;
 		optional int32 attachment = 4;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector fallback_position = 5;
+		optional CMsgVector fallback_position = 5;
 		optional bool include_wearables = 6;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector offset_position = 7;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle offset_angles = 8;
+		optional CMsgVector offset_position = 7;
+		optional CMsgQAngle offset_angles = 8;
 	}
 
 	message UpdateParticleSetFrozen {
@@ -414,7 +416,7 @@ message CUserMsg_ParticleManager {
 
 	message UpdateEntityPosition {
 		optional uint32 entity_handle = 1 [default = 16777215];
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector position = 2;
+		optional CMsgVector position = 2;
 	}
 
 	message SetParticleFoWProperties {
@@ -469,60 +471,62 @@ message CUserMsg_ParticleManager {
 
 	message SetParticleNamedValueContext {
 		message FloatContextValue {
-			optional string value_name = 1;
+			optional uint32 value_name_hash = 1;
 			optional float value = 2;
 		}
 
 		message VectorContextValue {
-			optional string value_name = 1;
-			optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector value = 2;
-			optional uint32 ent_index = 3 [default = 16777215];
-			optional string attachment_name = 4;
+			optional uint32 value_name_hash = 1;
+			optional CMsgVector value = 2;
 		}
 
 		message TransformContextValue {
-			optional string value_name = 1;
-			optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle angles = 2;
-			optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector translation = 3;
-			optional uint32 ent_index = 4 [default = 16777215];
-			optional string attachment_name = 5;
+			optional uint32 value_name_hash = 1;
+			optional CMsgQAngle angles = 2;
+			optional CMsgVector translation = 3;
 		}
 
-		repeated com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.FloatContextValue float_values = 1;
-		repeated com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.VectorContextValue vector_values = 2;
-		repeated com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.TransformContextValue transform_values = 3;
+		message EHandleContext {
+			optional uint32 value_name_hash = 1;
+			optional uint32 ent_index = 2 [default = 16777215];
+		}
+
+		repeated CUserMsg_ParticleManager.SetParticleNamedValueContext.FloatContextValue float_values = 1;
+		repeated CUserMsg_ParticleManager.SetParticleNamedValueContext.VectorContextValue vector_values = 2;
+		repeated CUserMsg_ParticleManager.SetParticleNamedValueContext.TransformContextValue transform_values = 3;
+		repeated CUserMsg_ParticleManager.SetParticleNamedValueContext.EHandleContext ehandle_values = 4;
 	}
 
-	required com.github.markus_wa.demoinfocs_golang.s2.PARTICLE_MESSAGE type = 1 [default = GAME_PARTICLE_MANAGER_EVENT_CREATE];
+	required PARTICLE_MESSAGE type = 1 [default = GAME_PARTICLE_MANAGER_EVENT_CREATE];
 	required uint32 index = 2;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.ReleaseParticleIndex release_particle_index = 3;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.CreateParticle create_particle = 4;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.DestroyParticle destroy_particle = 5;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.DestroyParticleInvolving destroy_particle_involving = 6;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticle_OBSOLETE update_particle = 7;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleFwd_OBSOLETE update_particle_fwd = 8;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOrient_OBSOLETE update_particle_orient = 9;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleFallback update_particle_fallback = 10;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOffset update_particle_offset = 11;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleEnt update_particle_ent = 12;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleShouldDraw update_particle_should_draw = 14;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleSetFrozen update_particle_set_frozen = 15;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.ChangeControlPointAttachment change_control_point_attachment = 16;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateEntityPosition update_entity_position = 17;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleFoWProperties set_particle_fow_properties = 18;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleText set_particle_text = 19;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleShouldCheckFoW set_particle_should_check_fow = 20;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetControlPointModel set_control_point_model = 21;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetControlPointSnapshot set_control_point_snapshot = 22;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetTextureAttribute set_texture_attribute = 23;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetSceneObjectGenericFlag set_scene_object_generic_flag = 24;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetSceneObjectTintAndDesat set_scene_object_tint_and_desat = 25;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.DestroyParticleNamed destroy_particle_named = 26;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.ParticleSkipToTime particle_skip_to_time = 27;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.ParticleCanFreeze particle_can_freeze = 28;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext set_named_value_context = 29;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleTransform update_particle_transform = 30;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.ParticleFreezeTransitionOverride particle_freeze_transition_override = 31;
+	optional CUserMsg_ParticleManager.ReleaseParticleIndex release_particle_index = 3;
+	optional CUserMsg_ParticleManager.CreateParticle create_particle = 4;
+	optional CUserMsg_ParticleManager.DestroyParticle destroy_particle = 5;
+	optional CUserMsg_ParticleManager.DestroyParticleInvolving destroy_particle_involving = 6;
+	optional CUserMsg_ParticleManager.UpdateParticle_OBSOLETE update_particle = 7;
+	optional CUserMsg_ParticleManager.UpdateParticleFwd_OBSOLETE update_particle_fwd = 8;
+	optional CUserMsg_ParticleManager.UpdateParticleOrient_OBSOLETE update_particle_orient = 9;
+	optional CUserMsg_ParticleManager.UpdateParticleFallback update_particle_fallback = 10;
+	optional CUserMsg_ParticleManager.UpdateParticleOffset update_particle_offset = 11;
+	optional CUserMsg_ParticleManager.UpdateParticleEnt update_particle_ent = 12;
+	optional CUserMsg_ParticleManager.UpdateParticleShouldDraw update_particle_should_draw = 14;
+	optional CUserMsg_ParticleManager.UpdateParticleSetFrozen update_particle_set_frozen = 15;
+	optional CUserMsg_ParticleManager.ChangeControlPointAttachment change_control_point_attachment = 16;
+	optional CUserMsg_ParticleManager.UpdateEntityPosition update_entity_position = 17;
+	optional CUserMsg_ParticleManager.SetParticleFoWProperties set_particle_fow_properties = 18;
+	optional CUserMsg_ParticleManager.SetParticleText set_particle_text = 19;
+	optional CUserMsg_ParticleManager.SetParticleShouldCheckFoW set_particle_should_check_fow = 20;
+	optional CUserMsg_ParticleManager.SetControlPointModel set_control_point_model = 21;
+	optional CUserMsg_ParticleManager.SetControlPointSnapshot set_control_point_snapshot = 22;
+	optional CUserMsg_ParticleManager.SetTextureAttribute set_texture_attribute = 23;
+	optional CUserMsg_ParticleManager.SetSceneObjectGenericFlag set_scene_object_generic_flag = 24;
+	optional CUserMsg_ParticleManager.SetSceneObjectTintAndDesat set_scene_object_tint_and_desat = 25;
+	optional CUserMsg_ParticleManager.DestroyParticleNamed destroy_particle_named = 26;
+	optional CUserMsg_ParticleManager.ParticleSkipToTime particle_skip_to_time = 27;
+	optional CUserMsg_ParticleManager.ParticleCanFreeze particle_can_freeze = 28;
+	optional CUserMsg_ParticleManager.SetParticleNamedValueContext set_named_value_context = 29;
+	optional CUserMsg_ParticleManager.UpdateParticleTransform update_particle_transform = 30;
+	optional CUserMsg_ParticleManager.ParticleFreezeTransitionOverride particle_freeze_transition_override = 31;
 
 	extensions 100 to 201;
 }
@@ -563,7 +567,7 @@ message CUserMessageCommandQueueState {
 	}
 
 	optional int32 player_slot = 1 [default = -1];
-	optional com.github.markus_wa.demoinfocs_golang.s2.CUserMessageCommandQueueState.command_queue_info_t command_queue_info = 2;
+	optional CUserMessageCommandQueueState.command_queue_info_t command_queue_info = 2;
 }
 
 message CUserMessageUpdateCssClasses {
@@ -609,8 +613,10 @@ message CUserMessage_UtilMsg_Response {
 	repeated int32 crc_part2 = 6;
 	optional int32 client_timestamp = 7;
 	optional int32 platform = 8;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_UtilMsg_Response.ItemDetail itemdetails = 9;
+	repeated CUserMessage_UtilMsg_Response.ItemDetail itemdetails = 9;
 	optional int32 itemgroup = 10;
+	optional int32 total_count = 11;
+	optional int32 total_count2 = 12;
 }
 
 message CUserMessage_DllStatus {
@@ -627,7 +633,7 @@ message CUserMessage_DllStatus {
 	optional uint32 process_id = 4;
 	optional int32 osversion = 5;
 	optional uint64 client_time = 6;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.CVDiagnostic diagnostics = 7;
+	repeated CUserMessage_DllStatus.CVDiagnostic diagnostics = 7;
 }
 
 message CUserMessageRequestInventory {
@@ -656,9 +662,39 @@ message CUserMessage_Inventory_Response {
 	optional int32 perf_time = 6;
 	optional int32 client_timestamp = 7;
 	optional int32 platform = 8;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.InventoryDetail inventories = 9;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.InventoryDetail inventories2 = 10;
+	repeated CUserMessage_Inventory_Response.InventoryDetail inventories = 9;
+	repeated CUserMessage_Inventory_Response.InventoryDetail inventories2 = 10;
+	repeated CUserMessage_Inventory_Response.InventoryDetail inventories3 = 14;
 	optional int32 inv_type = 11;
 	optional int32 build_version = 12;
 	optional int32 instance = 13;
+}
+
+message CUserMessageRequestDiagnostic {
+	message Diagnostic {
+		optional int32 index = 1;
+		optional int64 offset = 2;
+		optional int32 param = 3;
+		optional int32 length = 4;
+		optional int32 type = 5;
+	}
+
+	repeated CUserMessageRequestDiagnostic.Diagnostic diagnostics = 1;
+}
+
+message CUserMessage_Diagnostic_Response {
+	message Diagnostic {
+		optional int32 index = 1;
+		optional int64 offset = 2;
+		optional int32 param = 3;
+		optional int32 length = 4;
+		repeated bytes detail = 5;
+		optional int64 base = 6;
+		optional int64 range = 7;
+		optional int32 type = 8;
+	}
+
+	repeated CUserMessage_Diagnostic_Response.Diagnostic diagnostics = 1;
+	optional int32 build_version = 2;
+	optional int32 instance = 3;
 }

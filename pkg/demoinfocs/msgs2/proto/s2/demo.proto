@@ -18,7 +18,8 @@ enum EDemoCommands {
 	DEM_FullPacket = 13;
 	DEM_SaveGame = 14;
 	DEM_SpawnGroups = 15;
-	DEM_Max = 16;
+	DEM_AnimationData = 16;
+	DEM_Max = 17;
 	DEM_IsCompressed = 64;
 }
 
@@ -122,6 +123,13 @@ message CDemoCustomData {
 
 message CDemoCustomDataCallbacks {
 	repeated string save_id = 1;
+}
+
+message CDemoAnimationData {
+	optional sint32 entity_id = 1;
+	optional int32 start_tick = 2;
+	optional int32 end_tick = 3;
+	optional bytes data = 4;
 }
 
 message CDemoStringTables {

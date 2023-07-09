@@ -225,7 +225,6 @@ message CSVCMsg_ServerInfo {
 message CSVCMsg_ClassInfo {
 	message class_t {
 		optional int32 class_id = 1;
-		optional string data_table_name = 2;
 		optional string class_name = 3;
 	}
 
@@ -404,6 +403,7 @@ message CSVCMsg_CreateStringTable {
 	optional bytes string_data = 7;
 	optional int32 uncompressed_size = 8;
 	optional bool data_compressed = 9;
+	optional bool using_varint_bitcounts = 10;
 }
 
 message CSVCMsg_UpdateStringTable {
@@ -419,6 +419,7 @@ message CSVCMsg_VoiceData {
 	optional fixed64 xuid = 4;
 	optional int32 audible_mask = 5;
 	optional uint32 tick = 6;
+	optional int32 passthrough = 7;
 }
 
 message CSVCMsg_PacketReliable {
@@ -477,6 +478,11 @@ message CSVCMsg_ClearAllStringTables {
 }
 
 message ProtoFlattenedSerializerField_t {
+	message polymorphic_field_t {
+		optional int32 polymorphic_field_serializer_name_sym = 1;
+		optional int32 polymorphic_field_serializer_version = 2;
+	}
+
 	optional int32 var_type_sym = 1;
 	optional int32 var_name_sym = 2;
 	optional int32 bit_count = 3;
@@ -487,6 +493,7 @@ message ProtoFlattenedSerializerField_t {
 	optional int32 field_serializer_version = 8;
 	optional int32 send_node_sym = 9;
 	optional int32 var_encoder_sym = 10;
+	repeated ProtoFlattenedSerializerField_t.polymorphic_field_t polymorphic_types = 11;
 }
 
 message ProtoFlattenedSerializer_t {

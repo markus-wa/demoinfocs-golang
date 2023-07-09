@@ -19,8 +19,8 @@ message CMsgTERadioIcon {
 }
 
 message CMsgTEFireBullets {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle angles = 2;
+	optional CMsgVector origin = 1;
+	optional CMsgQAngle angles = 2;
 	optional uint32 weapon_id = 3 [default = 16777215];
 	optional uint32 mode = 4;
 	optional uint32 seed = 5;

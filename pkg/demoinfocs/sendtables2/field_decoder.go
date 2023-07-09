@@ -320,6 +320,41 @@ func simulationTimeDecoder(r *reader) interface{} {
 	return float32(r.readVarUint32()) * (1.0 / 30)
 }
 
+func readBitCoordPres(r *reader) float32 {
+	sign := r.readBoolean()
+	intVal := r.readBits(14)
+	fracVal := r.readBits(5)
+
+	resol := 1.0 / float64(1<<5)
+	result := float32(float64(intVal) + float64(fracVal)*resol)
+	if sign {
+		return -result
+	}
+
+	return result
+}
+
+func qanglePreciseDecoder(r *reader) interface{} {
+	v := make([]float32, 3)
+	hasX := r.readBoolean()
+	hasY := r.readBoolean()
+	hasZ := r.readBoolean()
+
+	if hasX {
+		v[0] = readBitCoordPres(r)
+	}
+
+	if hasY {
+		v[1] = readBitCoordPres(r)
+	}
+
+	if hasZ {
+		v[2] = readBitCoordPres(r)
+	}
+
+	return v
+}
+
 func qangleFactory(f *field) fieldDecoder {
 	if f.encoder == "qangle_pitch_yaw" {
 		n := uint32(*f.bitCount)
@@ -330,6 +365,10 @@ func qangleFactory(f *field) fieldDecoder {
 				0.0,
 			}
 		}
+	}
+
+	if f.encoder == "qangle_precise" {
+		return qanglePreciseDecoder
 	}
 
 	if f.bitCount != nil && *f.bitCount != 0 {

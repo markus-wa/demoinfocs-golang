@@ -238,7 +238,7 @@ message CCSUsrMsg_WeaponSound {
 	optional float origin_y = 3;
 	optional float origin_z = 4;
 	optional string sound = 5;
-	optional float timestamp = 6;
+	optional float game_timestamp = 6;
 	optional fixed32 source_soundscapeid = 7;
 }
 

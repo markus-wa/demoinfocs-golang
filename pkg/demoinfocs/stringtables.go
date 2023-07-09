@@ -159,13 +159,14 @@ func (p *parser) handleUpdateStringTable(tab *msgs2.CSVCMsg_UpdateStringTable, s
 		// Create fake CreateStringTable and handle it like one of those
 		p.processStringTable(createStringTable{
 			CSVCMsg_CreateStringTable: &msgs2.CSVCMsg_CreateStringTable{
-				Name:              cTab.Name,
-				NumEntries:        tab.NumChangedEntries,
-				UserDataFixedSize: cTab.UserDataFixedSize,
-				UserDataSize:      cTab.UserDataSize,
-				UserDataSizeBits:  cTab.UserDataSizeBits,
-				Flags:             cTab.Flags,
-				StringData:        tab.StringData,
+				Name:                 cTab.Name,
+				NumEntries:           tab.NumChangedEntries,
+				UserDataFixedSize:    cTab.UserDataFixedSize,
+				UserDataSize:         cTab.UserDataSize,
+				UserDataSizeBits:     cTab.UserDataSizeBits,
+				Flags:                cTab.Flags,
+				StringData:           tab.StringData,
+				UsingVarintBitcounts: cTab.UsingVarintBitcounts,
 			},
 			isS2:         s2,
 			s1MaxEntries: cTab.s1MaxEntries,
@@ -293,7 +294,14 @@ const (
 )
 
 // Parse a string table data blob, returning a list of item updates.
-func parseStringTable(buf []byte, numUpdates int32, name string, userDataFixed bool, userDataSize int32, flags int32) (items []*stringTableItem) {
+func parseStringTable(
+	buf []byte,
+	numUpdates int32,
+	name string,
+	userDataFixed bool,
+	userDataSize int32,
+	flags int32,
+	variantBitCount bool) (items []*stringTableItem) {
 	items = make([]*stringTableItem, 0)
 
 	// Create a reader for the buffer
@@ -302,9 +310,7 @@ func parseStringTable(buf []byte, numUpdates int32, name string, userDataFixed b
 	// Start with an index of -1.
 	// If the first item is at index 0 it will use a incr operation.
 	index := int32(-1)
-
-	// Maintain a list of key history
-	keys := make([]string, 0, stringtableKeyHistorySize)
+	keys := make([]string, 0, stringtableKeyHistorySize+1)
 
 	// Some tables have no data
 	if len(buf) == 0 {
@@ -323,7 +329,7 @@ func parseStringTable(buf []byte, numUpdates int32, name string, userDataFixed b
 	// Value may be omitted
 	for i := 0; i < int(numUpdates); i++ {
 		key := ""
-		value := []byte{}
+		var value []byte
 
 		// Read a boolean to determine whether the operation is an increment or
 		// has a fixed index position. A fixed index position of zero should be
@@ -362,12 +368,11 @@ func parseStringTable(buf []byte, numUpdates int32, name string, userDataFixed b
 				key = r.ReadString()
 			}
 
-			if len(keys) >= stringtableKeyHistorySize {
-				copy(keys[0:], keys[1:])
-				keys[len(keys)-1] = ""
-				keys = keys[:len(keys)-1]
-			}
 			keys = append(keys, key)
+
+			if len(keys) > stringtableKeyHistorySize {
+				keys = keys[1:]
+			}
 		}
 
 		// Some entries have a value.
@@ -381,7 +386,12 @@ func parseStringTable(buf []byte, numUpdates int32, name string, userDataFixed b
 				if (flags & 0x1) != 0 {
 					isCompressed = r.ReadBit()
 				}
-				bitSize = r.ReadInt(17) * 8
+
+				if variantBitCount {
+					bitSize = r.ReadUBitInt() * 8
+				} else {
+					bitSize = r.ReadInt(17) * 8
+				}
 			}
 			value = r.ReadBits(int(bitSize))
 
@@ -403,7 +413,7 @@ func parseStringTable(buf []byte, numUpdates int32, name string, userDataFixed b
 var instanceBaselineKeyRegex = regexp.MustCompile(`^\d+:\d+$`)
 
 func (p *parser) processStringTableS2(tab createStringTable, br *bit.BitReader) {
-	items := parseStringTable(tab.StringData, tab.GetNumEntries(), tab.GetName(), tab.GetUserDataFixedSize(), tab.GetUserDataSize(), tab.GetFlags())
+	items := parseStringTable(tab.StringData, tab.GetNumEntries(), tab.GetName(), tab.GetUserDataFixedSize(), tab.GetUserDataSize(), tab.GetFlags(), tab.GetUsingVarintBitcounts())
 
 	for _, item := range items {
 		switch tab.GetName() {

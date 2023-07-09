@@ -125,6 +125,7 @@ message CNETMsg_Tick {
 
 message CNETMsg_StringCmd {
 	optional string command = 1;
+	optional uint32 prediction_sync = 2;
 }
 
 message CNETMsg_SetConVar {
