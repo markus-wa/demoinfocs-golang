@@ -520,6 +520,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 			}
 		} else {
 			if e = p.entities[index]; e == nil {
+				continue
 				_panicf("unable to find existing entity %d", index)
 			}
 

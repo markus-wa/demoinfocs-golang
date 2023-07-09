@@ -324,7 +324,7 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 			if msgCreator == nil {
 				msgCreator = emCreators[msgs2.EBaseEntityMessages(m.t)]
 			}
-		} else if m.t < int32(msgs2.ECstrike15UserMessages_CS_UM_RadioText) {
+		} else if m.t < int32(msgs2.ECstrike15UserMessages_CS_UM_VGUIMenu) {
 			msgCreator = gameEventCreators[msgs2.EBaseGameEvents(m.t)]
 		} else if m.t < int32(msgs2.ETEProtobufIds_TE_EffectDispatchId) {
 			msgCreator = csUsrMsgCreators[msgs2.ECstrike15UserMessages(m.t)]

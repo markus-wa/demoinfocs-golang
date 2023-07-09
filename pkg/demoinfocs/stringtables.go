@@ -408,7 +408,7 @@ func (p *parser) processStringTableS2(tab createStringTable, br *bit.BitReader) 
 	for _, item := range items {
 		switch tab.GetName() {
 		case stNameInstanceBaseline:
-			if instanceBaselineKeyRegex.MatchString(item.Key) {
+			if item.Key == "" || instanceBaselineKeyRegex.MatchString(item.Key) {
 				continue
 			}
 
