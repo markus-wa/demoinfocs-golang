@@ -274,6 +274,12 @@ func (p *Player) Health() int {
 
 // Armor returns the player's armor points, normally 0-100.
 func (p *Player) Armor() int {
+	s2Prop := p.Entity.Property("m_iPawnArmor")
+
+	if s2Prop != nil {
+		return s2Prop.Value().Int()
+	}
+
 	return getInt(p.Entity, "m_ArmorValue")
 }
 
