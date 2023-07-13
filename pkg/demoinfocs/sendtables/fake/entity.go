@@ -16,8 +16,8 @@ func NewEntityWithProperty(name string, val st.PropertyValue) *Entity {
 	prop.On("Value").Return(val)
 	entity.On("Property", name).Return(prop)
 
-	entity.On("PropertyValue").Return(val, true)
-	entity.On("PropertyValueMust").Return(val)
+	entity.On("PropertyValue", name).Return(val, true)
+	entity.On("PropertyValueMust", name).Return(val)
 
 	return entity
 }
