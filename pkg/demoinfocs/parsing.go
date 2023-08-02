@@ -371,6 +371,9 @@ func (p *parser) parseFrameS2() bool {
 
 	case *msgs2.CDemoStringTables:
 		p.handleStringTables(m)
+
+	case *msgs2.CDemoFileInfo:
+		p.handleFileInfo(m)
 	}
 
 	// Queue up some post processing
