@@ -123,7 +123,8 @@ func (qfd *quantizedFloatDecoder) quantize(val float32) float32 {
 	}
 
 	i := uint32((val - qfd.Low) * qfd.HighLowMul)
-	return qfd.Low + (qfd.High-qfd.Low)*(float32(i)*qfd.DecMul)
+	//nolint:unconvert
+	return qfd.Low + float32((qfd.High-qfd.Low)*float32(float32(i)*qfd.DecMul))
 }
 
 // Actual float decoding
