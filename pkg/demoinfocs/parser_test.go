@@ -69,8 +69,8 @@ func TestParser_Progress_NoHeader(t *testing.T) {
 
 func TestRecoverFromUnexpectedEOF(t *testing.T) {
 	assert.Nil(t, recoverFromUnexpectedEOF(nil))
-	assert.Equal(t, ErrUnexpectedEndOfDemo, recoverFromUnexpectedEOF(io.ErrUnexpectedEOF))
-	assert.Equal(t, ErrUnexpectedEndOfDemo, recoverFromUnexpectedEOF(io.EOF))
+	assert.ErrorIs(t, recoverFromUnexpectedEOF(io.ErrUnexpectedEOF), ErrUnexpectedEndOfDemo)
+	assert.ErrorIs(t, recoverFromUnexpectedEOF(io.EOF), ErrUnexpectedEndOfDemo)
 
 	assert.Panics(t, func() {
 		r := recoverFromUnexpectedEOF(errors.New("test"))
