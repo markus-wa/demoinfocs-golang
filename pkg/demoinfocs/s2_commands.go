@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
+	"time"
 
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
@@ -20,8 +21,6 @@ func (p *parser) handleSendTables(msg *msgs2.CDemoSendTables) {
 	if err != nil {
 		panic(errors.Wrap(err, "failed to unmarshal flattened serializer"))
 	}
-
-	p.eventDispatcher.Dispatch(events.DataTablesParsed{})
 }
 
 func (p *parser) handleClassInfo(msg *msgs2.CDemoClassInfo) {
@@ -34,6 +33,8 @@ func (p *parser) handleClassInfo(msg *msgs2.CDemoClassInfo) {
 
 	p.mapEquipment()
 	p.bindEntities()
+
+	p.eventDispatcher.Dispatch(events.DataTablesParsed{})
 }
 
 var netMsgCreators = map[msgs2.NET_Messages]NetMessageCreator{
@@ -355,4 +356,10 @@ func (p *parser) handleFullPacket(msg *msgs2.CDemoFullPacket) {
 	if msg.Packet.GetData() != nil {
 		p.handleDemoPacket(msg.Packet)
 	}
+}
+
+func (p *parser) handleFileInfo(msg *msgs2.CDemoFileInfo) {
+	p.header.PlaybackTicks = int(*msg.PlaybackTicks)
+	p.header.PlaybackFrames = int(*msg.PlaybackFrames)
+	p.header.PlaybackTime = time.Duration(*msg.PlaybackTime) * time.Second
 }

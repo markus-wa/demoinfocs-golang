@@ -687,7 +687,7 @@ func (p *parser) bindGameRules() {
 
 		entity.Property(grPrefix("m_gamePhase")).OnUpdate(func(val st.PropertyValue) {
 			oldGamePhase := p.gameState.gamePhase
-			p.gameState.gamePhase = common.GamePhase(val.IntVal)
+			p.gameState.gamePhase = common.GamePhase(val.Int())
 
 			p.eventDispatcher.Dispatch(events.GamePhaseChanged{
 				OldGamePhase: oldGamePhase,
@@ -705,7 +705,7 @@ func (p *parser) bindGameRules() {
 		entity.BindProperty(grPrefix("m_totalRoundsPlayed"), &p.gameState.totalRoundsPlayed, st.ValTypeInt)
 		entity.Property(grPrefix("m_bWarmupPeriod")).OnUpdate(func(val st.PropertyValue) {
 			oldIsWarmupPeriod := p.gameState.isWarmupPeriod
-			p.gameState.isWarmupPeriod = val.IntVal == 1
+			p.gameState.isWarmupPeriod = val.BoolVal()
 
 			p.eventDispatcher.Dispatch(events.IsWarmupPeriodChanged{
 				OldIsWarmupPeriod: oldIsWarmupPeriod,
@@ -715,7 +715,7 @@ func (p *parser) bindGameRules() {
 
 		entity.Property(grPrefix("m_bHasMatchStarted")).OnUpdate(func(val st.PropertyValue) {
 			oldMatchStarted := p.gameState.isMatchStarted
-			p.gameState.isMatchStarted = val.IntVal == 1
+			p.gameState.isMatchStarted = val.BoolVal()
 
 			p.eventDispatcher.Dispatch(events.MatchStartedChanged{
 				OldIsStarted: oldMatchStarted,
@@ -758,7 +758,7 @@ func (p *parser) bindHostages() {
 		var state common.HostageState
 		entity.Property("m_nHostageState").OnUpdate(func(val st.PropertyValue) {
 			oldState := state
-			state = common.HostageState(val.IntVal)
+			state = common.HostageState(val.Int())
 			if oldState != state {
 				p.eventDispatcher.Dispatch(events.HostageStateChanged{OldState: oldState, NewState: state, Hostage: p.gameState.hostages[entityID]})
 			}

@@ -90,7 +90,7 @@ var bindFactoryByType = map[st.PropertyValueType]bindFactory{
 	},
 	st.ValTypeInt: func(variable any) st.PropertyUpdateHandler {
 		return func(v st.PropertyValue) {
-			*variable.(*int) = v.IntVal
+			*variable.(*int) = v.Int()
 		}
 	},
 	st.ValTypeArray: func(variable any) st.PropertyUpdateHandler {
@@ -100,22 +100,22 @@ var bindFactoryByType = map[st.PropertyValueType]bindFactory{
 	},
 	st.ValTypeString: func(variable any) st.PropertyUpdateHandler {
 		return func(v st.PropertyValue) {
-			*variable.(*string) = v.StringVal
+			*variable.(*string) = v.String()
 		}
 	},
 	st.ValTypeBoolInt: func(variable any) st.PropertyUpdateHandler {
 		return func(v st.PropertyValue) {
-			*variable.(*bool) = v.IntVal != 0
+			*variable.(*bool) = v.BoolVal()
 		}
 	},
 	st.ValTypeFloat32: func(variable any) st.PropertyUpdateHandler {
 		return func(v st.PropertyValue) {
-			*variable.(*float32) = v.FloatVal
+			*variable.(*float32) = v.Float()
 		}
 	},
 	st.ValTypeFloat64: func(variable any) st.PropertyUpdateHandler {
 		return func(v st.PropertyValue) {
-			*variable.(*float64) = float64(v.FloatVal)
+			*variable.(*float64) = float64(v.Float())
 		}
 	},
 }
