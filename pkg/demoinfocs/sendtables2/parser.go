@@ -1,6 +1,7 @@
 package sendtables2
 
 import (
+	"fmt"
 	"math"
 	"strings"
 
@@ -137,6 +138,10 @@ func (p *Parser) OnDemoClassInfo(m *msgs2.CDemoClassInfo) error {
 //
 // Intended for internal use only.
 func (p *Parser) SetInstanceBaseline(scID int, data []byte) {
+	if scID < 0 || scID > math.MaxInt32 {
+		panic(fmt.Sprintf("scID %d is out of bounds", scID))
+	}
+
 	p.classBaselines[int32(scID)] = data
 }
 
