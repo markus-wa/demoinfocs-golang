@@ -431,6 +431,8 @@ func (p *parser) processStringTableS2(tab createStringTable, br *bit.BitReader) 
 
 		case stNameModelPreCache:
 			p.modelPreCache[item.Index] = item.Key
+		case stNameUserInfo:
+			p.parseUserInfo(item.Value, int(item.Index))
 		}
 	}
 }
@@ -505,24 +507,6 @@ func parsePlayerInfo(reader io.Reader) common.PlayerInfo {
 	return res
 }
 
-func parsePlayerInfoS2(reader io.Reader) common.PlayerInfo {
-	br := bit.NewSmallBitReader(reader)
-
-	var res common.PlayerInfo
-
-	br.ReadSingleByte() // unknown, always 10?
-	res.Name = string(br.ReadBytes(int(br.ReadSingleByte())))
-	br.ReadSingleByte() // unknown, always 17?
-	res.XUID = binary.LittleEndian.Uint64(br.ReadBytes(8))
-
-	// TODO: parse remaining data
-	// IsFakePlayer & UserID (& maybe GUID?)
-
-	br.Pool()
-
-	return res
-}
-
 var modelPreCacheSubstringToEq = map[string]common.EquipmentType{
 	"flashbang":         common.EqFlash,
 	"fraggrenade":       common.EqHE,
@@ -570,23 +554,10 @@ func (p *parser) handleStringTables(msg *msgs2.CDemoStringTables) {
 			for _, item := range tab.GetItems() {
 				playerIndex, err := strconv.Atoi(item.GetStr())
 				if err != nil {
-					panic(errors.Wrap(err, "failed to parse serverClassID"))
+					panic(errors.Wrap(err, "failed to parse playerIndex"))
 				}
 
-				var userInfo msgs2.CMsgPlayerInfo
-
-				err = proto.Unmarshal(item.Data, &userInfo)
-				if err != nil {
-					panic(errors.Wrap(err, "failed to parse player info"))
-				}
-
-				p.setRawPlayer(playerIndex, common.PlayerInfo{
-					XUID:         userInfo.GetXuid(), // TODO: what to do with userInfo.GetSteamid()? (seems to be the same, but maybe not in China?)
-					Name:         userInfo.GetName(),
-					UserID:       int(userInfo.GetUserid()),
-					IsFakePlayer: userInfo.GetFakeplayer(),
-					IsHltv:       userInfo.GetIshltv(),
-				})
+				p.parseUserInfo(item.GetData(), playerIndex)
 			}
 		}
 	}
@@ -618,4 +589,45 @@ func (p *parser) handleCreateStringTableS1(tab *msg.CSVCMsg_CreateStringTable) {
 		},
 		s1MaxEntries: tab.MaxEntries,
 	})
+}
+
+func (p *parser) parseUserInfo(data []byte, playerIndex int) {
+	var userInfo msgs2.CMsgPlayerInfo
+	err := proto.Unmarshal(data, &userInfo)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to parse CMsgPlayerInfo msg"))
+	}
+
+	xuid := userInfo.GetXuid() // TODO: what to do with userInfo.GetSteamid()? (seems to be the same, but maybe not in China?)
+	name := userInfo.GetName()
+	// When the userinfo ST is created its data contains 1 message for each possible player slot (up to 64).
+	// We ignore messages that empty, i.e. not related to a real player, a BOT or GOTV.
+	if xuid == 0 && name == "" {
+		return
+	}
+
+	playerInfo := common.PlayerInfo{
+		XUID:         xuid,
+		Name:         name,
+		UserID:       int(userInfo.GetUserid()),
+		IsFakePlayer: userInfo.GetFakeplayer(),
+		IsHltv:       userInfo.GetIshltv(),
+		// Fields not available with CS2 demos
+		Version:         0,
+		GUID:            "",
+		FriendsID:       0,
+		FriendsName:     "",
+		CustomFiles0:    0,
+		CustomFiles1:    0,
+		CustomFiles2:    0,
+		CustomFiles3:    0,
+		FilesDownloaded: 0,
+	}
+	p.setRawPlayer(playerIndex, playerInfo)
+
+	povDemoDetected := p.recordingPlayerSlot == -1 && p.header.ClientName == playerInfo.Name
+	if povDemoDetected {
+		p.recordingPlayerSlot = playerIndex
+		p.eventDispatcher.Dispatch(events.POVRecordingPlayerDetected{PlayerSlot: playerIndex, PlayerInfo: playerInfo})
+	}
 }

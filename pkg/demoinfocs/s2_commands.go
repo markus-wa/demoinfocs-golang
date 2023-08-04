@@ -363,3 +363,11 @@ func (p *parser) handleFileInfo(msg *msgs2.CDemoFileInfo) {
 	p.header.PlaybackFrames = int(*msg.PlaybackFrames)
 	p.header.PlaybackTime = time.Duration(*msg.PlaybackTime) * time.Second
 }
+
+func (p *parser) handleDemoFileHeader(msg *msgs2.CDemoFileHeader) {
+	p.header.ClientName = msg.GetClientName()
+	p.header.ServerName = msg.GetServerName()
+	p.header.GameDirectory = msg.GetGameDirectory()
+	p.header.MapName = msg.GetMapName()
+	p.header.NetworkProtocol = int(msg.GetNetworkProtocol())
+}
