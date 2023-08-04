@@ -285,6 +285,12 @@ func (p *Player) Armor() int {
 
 // Money returns the amount of money in the player's bank.
 func (p *Player) Money() int {
+	s2Prop := p.Entity.Property("m_pInGameMoneyServices.m_iAccount")
+
+	if s2Prop != nil {
+		return s2Prop.Value().Int()
+	}
+
 	return getInt(p.Entity, "m_iAccount")
 }
 
@@ -438,11 +444,22 @@ func (p *Player) CrosshairCode() string {
 
 // Ping returns the players latency to the game server.
 func (p *Player) Ping() int {
+	s2Prop := p.Entity.Property("m_iPing")
+	if s2Prop != nil {
+		// TODO change this func return type to uint64? (small BC)
+		return int(s2Prop.Value().S2UInt64())
+	}
+
 	return getInt(p.resourceEntity(), "m_iPing."+p.entityIDStr())
 }
 
 // Score returns the players score as shown on the scoreboard.
 func (p *Player) Score() int {
+	s2Prop := p.Entity.Property("m_iScore")
+	if s2Prop != nil {
+		return s2Prop.Value().Int()
+	}
+
 	return getInt(p.resourceEntity(), "m_iScore."+p.entityIDStr())
 }
 
@@ -472,6 +489,11 @@ var (
 // Returns ErrDataNotAvailable if the resource entity does not exist (it may exist later during parsing).
 // Returns ErrNotSupportedByDemo if the demo does not support player colors (e.g. very old demos).
 func (p *Player) ColorOrErr() (Color, error) {
+	s2Prop := p.Entity.Property("m_iCompTeammateColor")
+	if s2Prop != nil {
+		return Color(s2Prop.Value().Int()), nil
+	}
+
 	resourceEnt := p.resourceEntity()
 	if resourceEnt == nil {
 		return Grey, errors.Wrap(ErrDataNotAvailable, "player resource entity is nil")
@@ -487,21 +509,41 @@ func (p *Player) ColorOrErr() (Color, error) {
 
 // Kills returns the amount of kills the player has as shown on the scoreboard.
 func (p *Player) Kills() int {
+	s2Prop := p.Entity.Property("m_pActionTrackingServices.m_iKills")
+	if s2Prop != nil {
+		return s2Prop.Value().Int()
+	}
+
 	return getInt(p.resourceEntity(), "m_iKills."+p.entityIDStr())
 }
 
 // Deaths returns the amount of deaths the player has as shown on the scoreboard.
 func (p *Player) Deaths() int {
+	s2Prop := p.Entity.Property("m_pActionTrackingServices.m_iDeaths")
+	if s2Prop != nil {
+		return s2Prop.Value().Int()
+	}
+
 	return getInt(p.resourceEntity(), "m_iDeaths."+p.entityIDStr())
 }
 
 // Assists returns the amount of assists the player has as shown on the scoreboard.
 func (p *Player) Assists() int {
+	s2Prop := p.Entity.Property("m_pActionTrackingServices.m_iAssists")
+	if s2Prop != nil {
+		return s2Prop.Value().Int()
+	}
+
 	return getInt(p.resourceEntity(), "m_iAssists."+p.entityIDStr())
 }
 
 // MVPs returns the amount of Most-Valuable-Player awards the player has as shown on the scoreboard.
 func (p *Player) MVPs() int {
+	s2Prop := p.Entity.Property("m_iMVPs")
+	if s2Prop != nil {
+		return s2Prop.Value().Int()
+	}
+
 	return getInt(p.resourceEntity(), "m_iMVPs."+p.entityIDStr())
 }
 
