@@ -11,7 +11,7 @@ import (
 //go:generate ifacemaker -f entity.go -s entity -i Entity -p sendtables -D -y "Entity is an auto-generated interface for entity, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o entity_interface.go
 //go:generate ifacemaker -f entity.go -s property -i Property -p sendtables -D -y "Property is an auto-generated interface for property, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o property_interface.go
 
-// entity stores a entity in the game (e.g. players etc.) with its properties.
+// entity stores an entity in the game (e.g. players etc.) with its properties.
 type entity struct {
 	serverClass *serverClass
 	id          int
@@ -23,6 +23,11 @@ type entity struct {
 	position           func() r3.Vector
 	positionPropNameXY string
 	positionPropNameZ  string
+}
+
+// S2 returns whether this is a Source 2 entity.
+func (e *entity) S2() bool {
+	return false
 }
 
 // ServerClass returns the entity's server-class.

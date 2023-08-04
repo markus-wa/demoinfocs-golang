@@ -8,8 +8,10 @@ import (
 )
 
 // Entity is an auto-generated interface for entity, intended to be used when mockability is needed.
-// entity stores a entity in the game (e.g. players etc.) with its properties.
+// entity stores an entity in the game (e.g. players etc.) with its properties.
 type Entity interface {
+	// S2 returns whether this is a Source 2 entity.
+	S2() bool
 	// ServerClass returns the entity's server-class.
 	ServerClass() ServerClass
 	// ID returns the entity's ID.

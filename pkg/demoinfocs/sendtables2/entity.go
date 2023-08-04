@@ -26,6 +26,11 @@ type Entity struct {
 	updateHandlers   map[string][]st.PropertyUpdateHandler
 }
 
+// S2 returns whether this is a Source 2 entity.
+func (e *Entity) S2() bool {
+	return true
+}
+
 func (e *Entity) ServerClass() st.ServerClass {
 	return e.class
 }

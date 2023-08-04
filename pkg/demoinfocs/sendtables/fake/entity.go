@@ -19,6 +19,8 @@ func NewEntityWithProperty(name string, val st.PropertyValue) *Entity {
 	entity.On("PropertyValue").Return(val, true)
 	entity.On("PropertyValueMust").Return(val)
 
+	entity.On("S2", name).Return(false)
+
 	return entity
 }
 
@@ -27,6 +29,11 @@ var _ st.Entity = new(Entity)
 // Entity is a mock for of sendtables.Entity.
 type Entity struct {
 	mock.Mock
+}
+
+// S2 returns whether this is a Source 2 entity.
+func (e *Entity) S2() bool {
+	return e.Called().Bool(0)
 }
 
 // ServerClass is a mock-implementation of Entity.ServerClass().
