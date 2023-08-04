@@ -319,6 +319,11 @@ func (p *Player) ViewDirectionY() float32 {
 // Note: the Z value is not on the player's eye height but instead at his feet.
 // See also PositionEyes().
 func (p *Player) Position() r3.Vector {
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity != nil {
+		return pawnEntity.Position()
+	}
+
 	if p.Entity == nil {
 		return r3.Vector{}
 	}

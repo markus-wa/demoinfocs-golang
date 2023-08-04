@@ -85,7 +85,7 @@ type bindFactory func(variable any) st.PropertyUpdateHandler
 var bindFactoryByType = map[st.PropertyValueType]bindFactory{
 	st.ValTypeVector: func(variable any) st.PropertyUpdateHandler {
 		return func(v st.PropertyValue) {
-			*variable.(*r3.Vector) = v.VectorVal // FIXME this won't work
+			*variable.(*r3.Vector) = v.R3Vec()
 		}
 	},
 	st.ValTypeInt: func(variable any) st.PropertyUpdateHandler {
@@ -185,8 +185,9 @@ func coordFromCell(cell uint64, offset float32) float64 {
 		cellBits    = 9
 		maxCoordInt = 16384
 	)
+	cellCoord := float64(cell)*float64(1<<cellBits) - maxCoordInt
 
-	return float64(cell*(1<<cellBits)-maxCoordInt) + float64(offset)
+	return cellCoord + float64(offset)
 }
 
 func (e *Entity) Position() r3.Vector {
