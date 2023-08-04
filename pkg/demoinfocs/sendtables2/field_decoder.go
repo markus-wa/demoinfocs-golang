@@ -253,6 +253,10 @@ func floatFactory(f *field) fieldDecoder {
 }
 
 func quantizedFactory(f *field) fieldDecoder {
+	if f.bitCount == nil || (*f.bitCount <= 0 || *f.bitCount >= 32) {
+		return noscaleDecoder
+	}
+
 	qfd := newQuantizedFloatDecoder(f.bitCount, f.encodeFlags, f.lowValue, f.highValue)
 	return func(r *reader) interface{} {
 		return qfd.decode(r)
