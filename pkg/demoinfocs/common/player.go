@@ -323,11 +323,23 @@ func (p *Player) EquipmentValueFreezeTimeEnd() int {
 
 // ViewDirectionX returns the Yaw value in degrees, 0 to 360.
 func (p *Player) ViewDirectionX() float32 {
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity != nil {
+		d := pawnEntity.Property("m_angEyeAngles").Value().R3Vec()
+		return float32(d.Y)
+	}
+
 	return getFloat(p.Entity, "m_angEyeAngles[1]")
 }
 
 // ViewDirectionY returns the Pitch value in degrees, 270 to 90 (270=-90).
 func (p *Player) ViewDirectionY() float32 {
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity != nil {
+		d := pawnEntity.Property("m_angEyeAngles").Value().R3Vec()
+		return float32(d.X)
+	}
+
 	return getFloat(p.Entity, "m_angEyeAngles[0]")
 }
 

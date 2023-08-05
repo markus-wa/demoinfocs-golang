@@ -2,7 +2,6 @@ package common
 
 import (
 	"math/rand"
-	"reflect"
 	"strings"
 
 	"github.com/oklog/ulid/v2"
@@ -344,26 +343,25 @@ func (e *Equipment) UniqueID2() ulid.ULID {
 // AmmoInMagazine returns the ammo left in the magazine.
 // Returns 1 for grenades and equipments (Knife, C4...).
 func (e *Equipment) AmmoInMagazine() int {
-	if e.Class() == EqClassGrenade || e.Class() == EqClassEquipment {
+	switch true {
+	case e.Class() == EqClassGrenade || e.Class() == EqClassEquipment:
 		return 1
-	}
-
-	if e.Entity == nil {
+	case e.Entity == nil:
 		return 0
-	}
+	default:
+		val, ok := e.Entity.PropertyValue("m_iClip1")
+		if !ok {
+			return -1
+		}
 
-	val, ok := e.Entity.PropertyValue("m_iClip1")
-	if !ok {
-		return -1
-	}
+		s1Ammo, isSource1 := val.Any.(int)
+		if isSource1 {
+			// need to subtract 1 as m_iClip1 is nrOfBullets + 1
+			return s1Ammo - 1
+		}
 
-	isSource1 := reflect.TypeOf(val.Any).Kind() == reflect.Int
-	if isSource1 {
-		// need to subtract 1 as m_iClip1 is nrOfBullets + 1
-		return val.Int() - 1
+		return int(val.S2UInt32())
 	}
-
-	return int(val.S2UInt32())
 }
 
 // AmmoType returns the weapon's ammo type, mostly (only?) relevant for grenades.
