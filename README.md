@@ -27,7 +27,7 @@ For business inquiries please use the contact information found on the [GitHub p
 
 	go get -u github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs
 
-### CS2
+### CS2 - ⚠️ Experimental
 
 	go get -u github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs@s2
 
