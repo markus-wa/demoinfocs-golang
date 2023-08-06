@@ -94,7 +94,7 @@ type PropertyValue struct {
 	IntVal    int             // Deprecated, use Int() instead
 	Int64Val  int64           // Deprecated, use Int64() instead
 	ArrayVal  []PropertyValue // Deprecated.
-	StringVal string          // Deprecated, use String() instead
+	StringVal string          // Deprecated, use Str() instead
 	FloatVal  float32         // Deprecated, use Float() instead
 	Any       any
 	S2        bool
@@ -154,12 +154,16 @@ func (v PropertyValue) Float() float32 {
 	return v.FloatVal
 }
 
-func (v PropertyValue) String() string {
+func (v PropertyValue) Str() string {
 	if v.S2 {
 		return v.Any.(string)
 	}
 
 	return v.StringVal
+}
+
+func (v PropertyValue) String() string {
+	return fmt.Sprint(v.Any)
 }
 
 // BoolVal returns true if IntVal > 0.
@@ -177,24 +181,31 @@ func (propertyDecoder) decodeProp(prop *property, reader *bit.BitReader) {
 	switch prop.entry.prop.rawType {
 	case propTypeFloat:
 		prop.value.FloatVal = propDecoder.decodeFloat(prop.entry.prop, reader)
+		prop.value.Any = prop.value.FloatVal
 
 	case propTypeInt:
 		prop.value.IntVal = propDecoder.decodeInt(prop.entry.prop, reader)
+		prop.value.Any = prop.value.IntVal
 
 	case propTypeVectorXY:
 		prop.value.VectorVal = propDecoder.decodeVectorXY(prop.entry.prop, reader)
+		prop.value.Any = prop.value.VectorVal
 
 	case propTypeVector:
 		prop.value.VectorVal = propDecoder.decodeVector(prop.entry.prop, reader)
+		prop.value.Any = prop.value.VectorVal
 
 	case propTypeArray:
 		prop.value.ArrayVal = propDecoder.decodeArray(prop.entry, reader)
+		prop.value.Any = prop.value.ArrayVal
 
 	case propTypeString:
 		prop.value.StringVal = propDecoder.decodeString(reader)
+		prop.value.Any = prop.value.StringVal
 
 	case propTypeInt64:
 		prop.value.Int64Val = propDecoder.decodeInt64(prop.entry.prop, reader)
+		prop.value.Any = prop.value.Int64Val
 
 	default:
 		panic(fmt.Sprintf("Unknown prop type %d", prop.entry.prop.rawType))
