@@ -103,7 +103,8 @@ func (f *field) setModel(model int) {
 		if len(f.polyTypes) > 0 {
 			f.baseDecoder = func(r *reader) interface{} {
 				b := r.readBoolean()
-				f.serializer = f.polyTypes[r.readUBitVar()]
+				polyTypeIndex := r.readUBitVar()
+				f.serializer = f.polyTypes[polyTypeIndex]
 
 				return b
 			}
