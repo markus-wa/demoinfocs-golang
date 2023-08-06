@@ -136,8 +136,10 @@ func (p *parser) ParseToEnd() (err error) {
 		}
 	}
 
+	parseFrame := p.parseFrameFn()
+
 	for {
-		if !p.parseFrame() {
+		if !parseFrame() {
 			return p.error()
 		}
 
@@ -206,7 +208,7 @@ func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 		}
 	}
 
-	moreFrames = p.parseFrame()
+	moreFrames = p.parseFrameFn()()
 
 	return moreFrames, p.error()
 }
@@ -386,13 +388,13 @@ func (p *parser) parseFrameS2() bool {
 }
 
 // FIXME: refactor to interface instead of switch
-func (p *parser) parseFrame() bool {
+func (p *parser) parseFrameFn() func() bool {
 	switch p.header.Filestamp {
 	case "HL2DEMO":
-		return p.parseFrameS1()
+		return p.parseFrameS1
 
 	case "PBDEMS2":
-		return p.parseFrameS2()
+		return p.parseFrameS2
 
 	default:
 		panic(fmt.Sprintf("Unknown demo version: %s", p.header.Filestamp))
