@@ -2,7 +2,7 @@
 
 A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter-Strike: Global Offensive (CS:GO) demos (aka replays).
 
-Counter-Strike 2 Work In Progress.
+Counter-Strike 2 support is experimental.
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://vshymanskyy.github.io/StandWithUkraine)
 
