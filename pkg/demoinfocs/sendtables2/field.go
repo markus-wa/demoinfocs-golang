@@ -31,7 +31,7 @@ type field struct {
 	serializer        *serializer
 	value             interface{}
 	model             int
-	polyTypes         map[uint32]string
+	polyTypes         map[uint32]*serializer
 
 	decoder      fieldDecoder
 	baseDecoder  fieldDecoder
@@ -55,7 +55,7 @@ func (f *field) modelString() string {
 	}
 }
 
-func newField(ser *msgs2.CSVCMsg_FlattenedSerializer, f *msgs2.ProtoFlattenedSerializerFieldT) *field {
+func newField(serializers map[string]*serializer, ser *msgs2.CSVCMsg_FlattenedSerializer, f *msgs2.ProtoFlattenedSerializerFieldT) *field {
 	resolve := func(p *int32) string {
 		if p == nil {
 			return ""
@@ -78,10 +78,10 @@ func newField(ser *msgs2.CSVCMsg_FlattenedSerializer, f *msgs2.ProtoFlattenedSer
 	}
 
 	if len(f.PolymorphicTypes) > 0 {
-		x.polyTypes = make(map[uint32]string, len(f.PolymorphicTypes))
+		x.polyTypes = make(map[uint32]*serializer, len(f.PolymorphicTypes))
 
 		for i, t := range f.PolymorphicTypes {
-			x.polyTypes[uint32(i+1)] = resolve(t.PolymorphicFieldSerializerNameSym)
+			x.polyTypes[uint32(i+1)] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)]
 		}
 	}
 
@@ -103,12 +103,7 @@ func (f *field) setModel(model int) {
 		if len(f.polyTypes) > 0 {
 			f.baseDecoder = func(r *reader) interface{} {
 				b := r.readBoolean()
-
-				polyTypeIndex := r.readUBitVar()
-
-				if f.polyTypes[polyTypeIndex] != "CCSGameModeRules_Noop" {
-					panic("not implemented: polyType is not CCSGameModeRules_Noop")
-				}
+				f.serializer = f.polyTypes[r.readUBitVar()]
 
 				return b
 			}

@@ -167,7 +167,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 		for _, i := range s.GetFieldsIndex() {
 			if _, ok := fields[i]; !ok {
 				// create a new field
-				field := newField(msg, msg.GetFields()[i])
+				field := newField(p.serializers, msg, msg.GetFields()[i])
 
 				// dotabuff/manta patches parent name in builds <= 990
 				// if p.gameBuild <= 990 {
