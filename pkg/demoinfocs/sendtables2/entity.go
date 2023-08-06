@@ -520,7 +520,8 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 				e.readFields(r)
 			}
 		} else {
-			if e = p.entities[index]; e == nil {
+			e = p.entities[index]
+			if e == nil {
 				continue
 				_panicf("unable to find existing entity %d", index)
 			}
@@ -532,6 +533,9 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 			op = st.EntityOpLeft
 			if cmd&0x02 != 0 {
 				op |= st.EntityOpDeleted
+
+				e.Destroy()
+
 				delete(p.entities, index)
 			}
 		}
