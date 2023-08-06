@@ -357,6 +357,9 @@ func (p *parser) parseFrameS2() bool {
 	p.msgQueue <- msg
 
 	switch m := msg.(type) {
+	case *msgs2.CDemoFileHeader:
+		p.handleDemoFileHeader(m)
+
 	case *msgs2.CDemoPacket:
 		p.handleDemoPacket(m)
 

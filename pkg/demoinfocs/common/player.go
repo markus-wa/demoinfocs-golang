@@ -594,20 +594,20 @@ func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 // PlayerInfo contains information about a player such as their name and SteamID.
 // Primarily intended for internal use.
 type PlayerInfo struct {
-	Version     int64
+	Version     int64  // Not available with CS2 demos
 	XUID        uint64 // SteamID64
 	Name        string
-	UserID      int
-	GUID        string
-	FriendsID   int
-	FriendsName string
-	// Custom files stuff (CRC)
+	UserID      int    // Not available with CS2 demos
+	GUID        string // Not available with CS2 demos
+	FriendsID   int    // Not available with CS2 demos
+	FriendsName string // Not available with CS2 demos
+	// Custom files stuff (CRC). Not available with CS2 demos
 	CustomFiles0 int
 	CustomFiles1 int
 	CustomFiles2 int
 	CustomFiles3 int
 	// Amount of downloaded files from the server
-	FilesDownloaded byte
+	FilesDownloaded byte // Not available with CS2 demos
 	// Bots
 	IsFakePlayer bool
 	// HLTV Proxy
