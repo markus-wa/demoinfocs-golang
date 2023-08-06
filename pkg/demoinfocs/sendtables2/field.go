@@ -31,6 +31,7 @@ type field struct {
 	serializer        *serializer
 	value             interface{}
 	model             int
+	polyTypes         map[uint32]string
 
 	decoder      fieldDecoder
 	baseDecoder  fieldDecoder
@@ -76,6 +77,14 @@ func newField(ser *msgs2.CSVCMsg_FlattenedSerializer, f *msgs2.ProtoFlattenedSer
 		model:             fieldModelSimple,
 	}
 
+	if len(f.PolymorphicTypes) > 0 {
+		x.polyTypes = make(map[uint32]string, len(f.PolymorphicTypes))
+
+		for i, t := range f.PolymorphicTypes {
+			x.polyTypes[uint32(i+1)] = resolve(t.PolymorphicFieldSerializerNameSym)
+		}
+	}
+
 	if x.sendNode == "(root)" {
 		x.sendNode = ""
 	}
@@ -91,7 +100,21 @@ func (f *field) setModel(model int) {
 		f.decoder = findDecoder(f)
 
 	case fieldModelFixedTable:
-		f.baseDecoder = booleanDecoder
+		if len(f.polyTypes) > 0 {
+			f.baseDecoder = func(r *reader) interface{} {
+				b := r.readBoolean()
+
+				polyTypeIndex := r.readUBitVar()
+
+				if f.polyTypes[polyTypeIndex] != "CCSGameModeRules_Noop" {
+					panic("not implemented: polyType is not CCSGameModeRules_Noop")
+				}
+
+				return b
+			}
+		} else {
+			f.baseDecoder = booleanDecoder
+		}
 
 	case fieldModelVariableArray:
 		if f.fieldType.genericType == nil {
