@@ -36,7 +36,9 @@ var fieldTypeFactories = map[string]fieldFactory{
 	"QAngle":        qangleFactory,
 }
 
-var fieldNameDecoders = map[string]fieldDecoder{}
+var fieldNameDecoders = map[string]fieldDecoder{
+	"m_iClip1": ammoDecoder,
+}
 
 var fieldTypeDecoders = map[string]fieldDecoder{
 	/*
@@ -312,6 +314,10 @@ func floatCoordDecoder(r *reader) interface{} {
 	return r.readCoord()
 }
 
+func ammoDecoder(r *reader) interface{} {
+	return r.readVarUint32() - 1
+}
+
 func noscaleDecoder(r *reader) interface{} {
 	return math.Float32frombits(r.readBits(32))
 }
@@ -325,17 +331,7 @@ func simulationTimeDecoder(r *reader) interface{} {
 }
 
 func readBitCoordPres(r *reader) float32 {
-	sign := r.readBoolean()
-	intVal := r.readBits(14)
-	fracVal := r.readBits(5)
-
-	resol := 1.0 / float64(1<<5)
-	result := float32(float64(intVal) + float64(fracVal)*resol)
-	if sign {
-		return -result
-	}
-
-	return result
+	return r.readAngle(20) - 180.0
 }
 
 func qanglePreciseDecoder(r *reader) interface{} {
@@ -360,17 +356,6 @@ func qanglePreciseDecoder(r *reader) interface{} {
 }
 
 func qangleFactory(f *field) fieldDecoder {
-	if f.encoder == "qangle_pitch_yaw" {
-		n := uint32(*f.bitCount)
-		return func(r *reader) interface{} {
-			return []float32{
-				r.readAngle(n),
-				r.readAngle(n),
-				0.0,
-			}
-		}
-	}
-
 	if f.encoder == "qangle_precise" {
 		return qanglePreciseDecoder
 	}

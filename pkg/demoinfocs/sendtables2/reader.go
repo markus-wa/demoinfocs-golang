@@ -252,7 +252,7 @@ func (r *reader) readCoord() float32 {
 
 // readAngle reads a bit angle of the given size
 func (r *reader) readAngle(n uint32) float32 {
-	return float32(r.readBits(n)) * 360.0 / float32(int(1<<n))
+	return float32(r.readBits(n)) * float32(360.0) / float32(int(1<<n))
 }
 
 // readNormal reads a normalized float vector

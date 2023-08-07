@@ -94,7 +94,7 @@ type parser struct {
 	bombsiteB            bombsite
 	equipmentMapping     map[st.ServerClass]common.EquipmentType         // Maps server classes to equipment-types
 	rawPlayers           map[int]*common.PlayerInfo                      // Maps entity IDs to 'raw' player info
-	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
+	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id) for Source 1 demos only
 	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
 	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
 	grenadeModelIndices  map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)

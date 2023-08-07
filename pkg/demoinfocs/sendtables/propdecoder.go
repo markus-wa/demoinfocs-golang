@@ -134,6 +134,10 @@ func (v PropertyValue) S2UInt64() uint64 {
 	return v.Any.(uint64)
 }
 
+func (v PropertyValue) S2UInt32() uint32 {
+	return v.Any.(uint32)
+}
+
 func (v PropertyValue) Handle() uint64 {
 	if v.S2 {
 		return v.S2UInt64()

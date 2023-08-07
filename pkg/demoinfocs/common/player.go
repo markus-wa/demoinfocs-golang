@@ -36,7 +36,11 @@ type Player struct {
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
-	return p.demoInfoProvider.FindEntityByHandle(p.Entity.PropertyValueMust("m_hPlayerPawn").Handle())
+	playerPawn, exists := p.Entity.PropertyValue("m_hPlayerPawn")
+	if !exists {
+		return nil
+	}
+	return p.demoInfoProvider.FindEntityByHandle(playerPawn.Handle())
 }
 
 func (p *Player) GetTeam() Team {
@@ -141,10 +145,16 @@ This isn't very conclusive but it looks like IsFlashed isn't super reliable curr
 
 // Used internally to set the active weapon, see ActiveWeapon()
 func (p *Player) activeWeaponID() int {
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity != nil {
+		return int(pawnEntity.PropertyValueMust("m_pWeaponServices.m_hActiveWeapon").S2UInt64() & constants.EntityHandleIndexMaskSource2)
+	}
+
 	return getInt(p.Entity, "m_hActiveWeapon") & constants.EntityHandleIndexMask
 }
 
 // ActiveWeapon returns the currently active / equipped weapon of the player.
+// ! Can be nil
 func (p *Player) ActiveWeapon() *Equipment {
 	return p.demoInfoProvider.FindWeaponByEntityID(p.activeWeaponID())
 }
@@ -313,11 +323,23 @@ func (p *Player) EquipmentValueFreezeTimeEnd() int {
 
 // ViewDirectionX returns the Yaw value in degrees, 0 to 360.
 func (p *Player) ViewDirectionX() float32 {
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity != nil {
+		d := pawnEntity.Property("m_angEyeAngles").Value().R3Vec()
+		return float32(d.Y)
+	}
+
 	return getFloat(p.Entity, "m_angEyeAngles[1]")
 }
 
 // ViewDirectionY returns the Pitch value in degrees, 270 to 90 (270=-90).
 func (p *Player) ViewDirectionY() float32 {
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity != nil {
+		d := pawnEntity.Property("m_angEyeAngles").Value().R3Vec()
+		return float32(d.X)
+	}
+
 	return getFloat(p.Entity, "m_angEyeAngles[0]")
 }
 

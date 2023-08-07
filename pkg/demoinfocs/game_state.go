@@ -100,6 +100,7 @@ func (gs gameState) Participants() Participants {
 	return participants{
 		playersByEntityID: gs.playersByEntityID,
 		playersByUserID:   gs.playersByUserID,
+		getIsSource2:      gs.demoInfo.parser.isSource2,
 	}
 }
 
@@ -174,7 +175,15 @@ func (gs gameState) PlayerResourceEntity() st.Entity {
 	return gs.playerResourceEntity
 }
 
-func entityIDFromHandle(handle uint64) int {
+func entityIDFromHandle(handle uint64, isS2 bool) int {
+	if isS2 {
+		if handle == constants.InvalidEntityHandleSource2 {
+			return -1
+		}
+
+		return int(handle & constants.EntityHandleIndexMaskSource2)
+	}
+
 	if handle == constants.InvalidEntityHandle {
 		return -1
 	}
@@ -185,7 +194,7 @@ func entityIDFromHandle(handle uint64) int {
 // EntityByHandle returns the entity corresponding to the given handle.
 // Returns nil if the handle is invalid.
 func (gs gameState) EntityByHandle(handle uint64) st.Entity {
-	return gs.entities[entityIDFromHandle(handle)]
+	return gs.entities[entityIDFromHandle(handle, gs.demoInfo.parser.isSource2())]
 }
 
 func newGameState(demoInfo demoInfoProvider) *gameState {
@@ -279,6 +288,7 @@ func (gr gameRules) Entity() st.Entity {
 type participants struct {
 	playersByUserID   map[int]*common.Player // Maps user-IDs to players
 	playersByEntityID map[int]*common.Player // Maps entity-IDs to players
+	getIsSource2      func() bool
 }
 
 // ByUserID returns all currently connected players in a map where the key is the user-ID.
@@ -376,7 +386,7 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 //
 // Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
 func (ptcp participants) FindByHandle64(handle uint64) *common.Player {
-	return ptcp.playersByEntityID[entityIDFromHandle(handle)]
+	return ptcp.playersByEntityID[entityIDFromHandle(handle, ptcp.getIsSource2())]
 }
 
 // FindByHandle attempts to find a player by his entity-handle.
