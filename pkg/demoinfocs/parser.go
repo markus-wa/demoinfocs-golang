@@ -424,6 +424,10 @@ type demoInfoProvider struct {
 	parser *parser
 }
 
+func (p demoInfoProvider) IsSource2() bool {
+	return p.parser.isSource2()
+}
+
 func (p demoInfoProvider) IngameTick() int {
 	return p.parser.gameState.IngameTick()
 }

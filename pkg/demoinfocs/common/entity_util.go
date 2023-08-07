@@ -10,6 +10,14 @@ func getInt(entity st.Entity, propName string) int {
 	return entity.PropertyValueMust(propName).Int()
 }
 
+func getUInt64(entity st.Entity, propName string) uint64 {
+	if entity == nil {
+		return 0
+	}
+
+	return entity.PropertyValueMust(propName).S2UInt64()
+}
+
 func getFloat(entity st.Entity, propName string) float32 {
 	if entity == nil {
 		return 0

@@ -217,8 +217,8 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		demoInfo: demoInfo,
 	}
 
-	gs.tState = common.NewTeamState(common.TeamTerrorists, gs.Participants().TeamMembers)
-	gs.ctState = common.NewTeamState(common.TeamCounterTerrorists, gs.Participants().TeamMembers)
+	gs.tState = common.NewTeamState(common.TeamTerrorists, gs.Participants().TeamMembers, gs.demoInfo)
+	gs.ctState = common.NewTeamState(common.TeamCounterTerrorists, gs.Participants().TeamMembers, gs.demoInfo)
 	gs.tState.Opponent = &gs.ctState
 	gs.ctState.Opponent = &gs.tState
 

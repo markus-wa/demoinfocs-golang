@@ -273,10 +273,8 @@ func (p *Player) ControlledBot() *Player {
 
 // Health returns the player's health points, normally 0-100.
 func (p *Player) Health() int {
-	s2Prop := p.Entity.Property("m_iPawnHealth")
-
-	if s2Prop != nil {
-		return int(s2Prop.Value().S2UInt64())
+	if p.demoInfoProvider.IsSource2() {
+		return int(getUInt64(p.Entity, "m_iPawnHealth"))
 	}
 
 	return getInt(p.Entity, "m_iHealth")
@@ -284,10 +282,8 @@ func (p *Player) Health() int {
 
 // Armor returns the player's armor points, normally 0-100.
 func (p *Player) Armor() int {
-	s2Prop := p.Entity.Property("m_iPawnArmor")
-
-	if s2Prop != nil {
-		return s2Prop.Value().Int()
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_iPawnArmor")
 	}
 
 	return getInt(p.Entity, "m_ArmorValue")
@@ -295,10 +291,8 @@ func (p *Player) Armor() int {
 
 // Money returns the amount of money in the player's bank.
 func (p *Player) Money() int {
-	s2Prop := p.Entity.Property("m_pInGameMoneyServices.m_iAccount")
-
-	if s2Prop != nil {
-		return s2Prop.Value().Int()
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pInGameMoneyServices.m_iAccount")
 	}
 
 	return getInt(p.Entity, "m_iAccount")
@@ -347,9 +341,12 @@ func (p *Player) ViewDirectionY() float32 {
 // Note: the Z value is not on the player's eye height but instead at his feet.
 // See also PositionEyes().
 func (p *Player) Position() r3.Vector {
-	pawnEntity := p.PlayerPawnEntity()
-	if pawnEntity != nil {
-		return pawnEntity.Position()
+	if p.demoInfoProvider.IsSource2() {
+		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			return pawnEntity.Position()
+		}
+
+		return r3.Vector{}
 	}
 
 	if p.Entity == nil {
@@ -466,10 +463,9 @@ func (p *Player) CrosshairCode() string {
 
 // Ping returns the players latency to the game server.
 func (p *Player) Ping() int {
-	s2Prop := p.Entity.Property("m_iPing")
-	if s2Prop != nil {
-		// TODO change this func return type to uint64? (small BC)
-		return int(s2Prop.Value().S2UInt64())
+	// TODO change this func return type to uint64? (small BC)
+	if p.demoInfoProvider.IsSource2() {
+		return int(getUInt64(p.Entity, "m_iPing"))
 	}
 
 	return getInt(p.resourceEntity(), "m_iPing."+p.entityIDStr())
@@ -477,9 +473,8 @@ func (p *Player) Ping() int {
 
 // Score returns the players score as shown on the scoreboard.
 func (p *Player) Score() int {
-	s2Prop := p.Entity.Property("m_iScore")
-	if s2Prop != nil {
-		return s2Prop.Value().Int()
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_iScore")
 	}
 
 	return getInt(p.resourceEntity(), "m_iScore."+p.entityIDStr())
@@ -511,9 +506,8 @@ var (
 // Returns ErrDataNotAvailable if the resource entity does not exist (it may exist later during parsing).
 // Returns ErrNotSupportedByDemo if the demo does not support player colors (e.g. very old demos).
 func (p *Player) ColorOrErr() (Color, error) {
-	s2Prop := p.Entity.Property("m_iCompTeammateColor")
-	if s2Prop != nil {
-		return Color(s2Prop.Value().Int()), nil
+	if p.demoInfoProvider.IsSource2() {
+		return Color(getInt(p.Entity, "m_iCompTeammateColor")), nil
 	}
 
 	resourceEnt := p.resourceEntity()
@@ -531,9 +525,8 @@ func (p *Player) ColorOrErr() (Color, error) {
 
 // Kills returns the amount of kills the player has as shown on the scoreboard.
 func (p *Player) Kills() int {
-	s2Prop := p.Entity.Property("m_pActionTrackingServices.m_iKills")
-	if s2Prop != nil {
-		return s2Prop.Value().Int()
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pActionTrackingServices.m_iKills")
 	}
 
 	return getInt(p.resourceEntity(), "m_iKills."+p.entityIDStr())
@@ -541,9 +534,8 @@ func (p *Player) Kills() int {
 
 // Deaths returns the amount of deaths the player has as shown on the scoreboard.
 func (p *Player) Deaths() int {
-	s2Prop := p.Entity.Property("m_pActionTrackingServices.m_iDeaths")
-	if s2Prop != nil {
-		return s2Prop.Value().Int()
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pActionTrackingServices.m_iDeaths")
 	}
 
 	return getInt(p.resourceEntity(), "m_iDeaths."+p.entityIDStr())
@@ -551,9 +543,8 @@ func (p *Player) Deaths() int {
 
 // Assists returns the amount of assists the player has as shown on the scoreboard.
 func (p *Player) Assists() int {
-	s2Prop := p.Entity.Property("m_pActionTrackingServices.m_iAssists")
-	if s2Prop != nil {
-		return s2Prop.Value().Int()
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pActionTrackingServices.m_iAssists")
 	}
 
 	return getInt(p.resourceEntity(), "m_iAssists."+p.entityIDStr())
@@ -561,9 +552,8 @@ func (p *Player) Assists() int {
 
 // MVPs returns the amount of Most-Valuable-Player awards the player has as shown on the scoreboard.
 func (p *Player) MVPs() int {
-	s2Prop := p.Entity.Property("m_iMVPs")
-	if s2Prop != nil {
-		return s2Prop.Value().Int()
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_iMVPs")
 	}
 
 	return getInt(p.resourceEntity(), "m_iMVPs."+p.entityIDStr())
@@ -601,6 +591,7 @@ type demoInfoProvider interface {
 	PlayerResourceEntity() st.Entity
 	FindWeaponByEntityID(id int) *Equipment
 	FindEntityByHandle(handle uint64) st.Entity
+	IsSource2() bool
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.
