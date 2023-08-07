@@ -7,6 +7,7 @@ import (
 	"github.com/golang/geo/r3"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/constants"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
 	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
@@ -374,18 +375,12 @@ func (p *Parser) FindEntity(index int32) *Entity {
 	return p.entities[index]
 }
 
-const (
-	// SOURCE2
-	indexBits  uint64 = 14
-	handleMask uint64 = (1 << indexBits) - 1
-)
-
 func handle2idx(handle uint64) int32 {
-	return int32(handle & handleMask)
+	return int32(handle & constants.EntityHandleIndexMaskSource2)
 }
 
 func serialForHandle(handle uint64) int32 {
-	return int32(handle >> indexBits)
+	return int32(handle >> constants.MaxEdictBitsSource2)
 }
 
 // FindEntityByHandle finds a given Entity by handle

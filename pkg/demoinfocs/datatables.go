@@ -282,7 +282,7 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 		pl.FlashDuration = val.FloatVal
 	})
 
-	p.bindPlayerWeapons(playerEntity, pl) // FIXME: make weapons work for S2
+	p.bindPlayerWeapons(playerEntity, pl)
 
 	for i := 0; i < 32; i++ {
 		i2 := i // Copy so it stays the same
@@ -380,12 +380,7 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		pl.FlashDuration = val.Float()
 	})
 
-	//p.bindPlayerWeapons(controllerEntity, pl) // FIXME: make weapons work for S2
-	//
-	//for i := 0; i < 32; i++ {
-	//	i2 := i // Copy so it stays the same
-	//	controllerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
-	//}
+	p.bindPlayerWeaponsS2(pawnEntity, player)
 
 	pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
 		pl := player()
@@ -478,7 +473,82 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 	}
 }
 
+func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, getPlayer func() *common.Player) {
+	pl := getPlayer()
+	if pl == nil {
+		return
+	}
+
+	var cache [maxWeapons]uint64
+	for i := range cache {
+		i2 := i // Copy for passing to handler
+		pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i)).OnUpdate(func(val st.PropertyValue) {
+			if val.Any == nil {
+				return
+			}
+			entityID := val.S2UInt64() & constants.EntityHandleIndexMaskSource2
+			if entityID != constants.EntityHandleIndexMaskSource2 {
+				if cache[i2] != 0 {
+					// Player already has a weapon in this slot.
+					delete(pl.Inventory, int(cache[i2]))
+				}
+				cache[i2] = entityID
+
+				wep := p.gameState.weapons[int(entityID)]
+
+				if wep == nil {
+					// sometimes a weapon is assigned to a player before the weapon entity is created
+					wep = common.NewEquipment(common.EqUnknown)
+					p.gameState.weapons[int(entityID)] = wep
+				}
+
+				// Clear previous owner
+				if wep.Owner != nil && wep.Entity != nil {
+					delete(wep.Owner.Inventory, wep.Entity.ID())
+				}
+
+				// Attribute weapon to player
+				wep.Owner = pl
+				pl.Inventory[int(entityID)] = wep
+			} else {
+				if cache[i2] != 0 && pl.Inventory[int(cache[i2])] != nil {
+					pl.Inventory[int(cache[i2])].Owner = nil
+				}
+				delete(pl.Inventory, int(cache[i2]))
+
+				cache[i2] = 0
+			}
+		})
+	}
+}
+
 func (p *parser) bindWeapons() {
+	if p.isSource2() {
+		for _, sc := range p.stParser.ServerClasses().All() {
+			hasIndexProp := false
+			hasClipProp := false
+			isEquipmentClass := false
+
+			for _, prop := range sc.PropertyEntries() {
+				if prop == "m_iItemDefinitionIndex" {
+					hasIndexProp = true
+				}
+				if prop == "m_iClip1" {
+					hasClipProp = true
+				}
+				isEquipmentClass = hasClipProp && hasIndexProp
+				if isEquipmentClass {
+					break
+				}
+			}
+			if isEquipmentClass {
+				sc.OnEntityCreated(p.bindWeaponS2)
+			}
+		}
+
+		return
+	}
+
 	for _, sc := range p.stParser.ServerClasses().All() {
 		for _, bc := range sc.BaseClasses() {
 			switch bc.Name() {
@@ -585,6 +655,39 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	if !isInferno && !isSmoke && !isDecoy {
 		p.gameEventHandler.deleteThrownGrenade(proj.Thrower, proj.WeaponInstance.Type)
 	}
+}
+
+func (p *parser) bindWeaponS2(entity st.Entity) {
+	entityID := entity.ID()
+	itemIndex := entity.Property("m_iItemDefinitionIndex").Value().S2UInt64()
+	wepType := common.EquipmentIndexMapping[itemIndex]
+	if wepType == common.EqUnknown {
+		fmt.Println("unknown equipment with index", itemIndex)
+		p.msgDispatcher.Dispatch(events.ParserWarn{
+			Message: fmt.Sprintf("unknown equipment with index %d", itemIndex),
+			Type:    events.WarnTypeUnknownEquipmentIndex,
+		})
+	}
+
+	equipment, exists := p.gameState.weapons[entityID]
+	if !exists {
+		equipment = common.NewEquipment(wepType)
+		p.gameState.weapons[entityID] = equipment
+	} else {
+		equipment.Type = wepType
+	}
+
+	equipment.Entity = entity
+
+	entity.OnDestroy(func() {
+		delete(p.gameState.weapons, entityID)
+	})
+
+	entity.Property("m_iClip1").OnUpdate(func(val st.PropertyValue) {
+		if equipment.Owner != nil {
+			equipment.Owner.IsReloading = false
+		}
+	})
 }
 
 func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {

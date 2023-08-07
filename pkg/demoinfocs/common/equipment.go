@@ -2,6 +2,7 @@ package common
 
 import (
 	"math/rand"
+	"reflect"
 	"strings"
 
 	"github.com/oklog/ulid/v2"
@@ -97,13 +98,27 @@ const (
 
 	// Equipment
 
-	EqZeus      EquipmentType = 401
-	EqKevlar    EquipmentType = 402
-	EqHelmet    EquipmentType = 403
-	EqBomb      EquipmentType = 404
-	EqKnife     EquipmentType = 405
-	EqDefuseKit EquipmentType = 406
-	EqWorld     EquipmentType = 407
+	EqZeus                     EquipmentType = 401
+	EqKevlar                   EquipmentType = 402
+	EqHelmet                   EquipmentType = 403
+	EqBomb                     EquipmentType = 404
+	EqKnife                    EquipmentType = 405
+	EqDefuseKit                EquipmentType = 406
+	EqWorld                    EquipmentType = 407
+	EqZoneRepulsor             EquipmentType = 408
+	EqShield                   EquipmentType = 409
+	EqHeavyAssaultSuit         EquipmentType = 410
+	EqNightVision              EquipmentType = 411
+	EqHealthShot               EquipmentType = 412
+	EqTacticalAwarenessGrenade EquipmentType = 413
+	EqFists                    EquipmentType = 414
+	EqBreachCharge             EquipmentType = 415
+	EqTablet                   EquipmentType = 416
+	EqAxe                      EquipmentType = 417
+	EqHammer                   EquipmentType = 418
+	EqWrench                   EquipmentType = 419
+	EqSnowball                 EquipmentType = 420
+	EqBumpMine                 EquipmentType = 421
 
 	// Grenades
 
@@ -285,10 +300,13 @@ const (
 // Equipment is a weapon / piece of equipment belonging to a player.
 // This also includes the skin and some additional data.
 type Equipment struct {
-	Type           EquipmentType // The type of weapon which the equipment instantiates.
-	Entity         st.Entity     // The game entity instance
-	Owner          *Player       // The player carrying the equipment, not necessarily the buyer.
-	OriginalString string        // E.g. 'models/weapons/w_rif_m4a1_s.mdl'. Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.).
+	Type   EquipmentType // The type of weapon which the equipment instantiates.
+	Entity st.Entity     // The game entity instance
+	Owner  *Player       // The player carrying the equipment, not necessarily the buyer.
+	// E.g. 'models/weapons/w_rif_m4a1_s.mdl'.
+	// Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.) for Source 1 demos.
+	// It's always an empty string with Source 2 demos, you should use Type to know which weapon it is.
+	OriginalString string
 
 	uniqueID  int64 // Deprecated, use uniqueID2, see UniqueID() for why
 	uniqueID2 ulid.ULID
@@ -324,9 +342,9 @@ func (e *Equipment) UniqueID2() ulid.ULID {
 }
 
 // AmmoInMagazine returns the ammo left in the magazine.
-// Returns CWeaponCSBase.m_iClip1 for most weapons and 1 for grenades.
+// Returns 1 for grenades and equipments (Knife, C4...).
 func (e *Equipment) AmmoInMagazine() int {
-	if e.Class() == EqClassGrenade {
+	if e.Class() == EqClassGrenade || e.Class() == EqClassEquipment {
 		return 1
 	}
 
@@ -339,13 +357,30 @@ func (e *Equipment) AmmoInMagazine() int {
 		return -1
 	}
 
-	// need to subtract 1 as m_iClip1 is nrOfBullets + 1
-	return val.IntVal - 1
+	isSource1 := reflect.TypeOf(val.Any).Kind() == reflect.Int
+	if isSource1 {
+		// need to subtract 1 as m_iClip1 is nrOfBullets + 1
+		return val.Int() - 1
+	}
+
+	return int(val.S2UInt32())
 }
 
 // AmmoType returns the weapon's ammo type, mostly (only?) relevant for grenades.
+// Works with Source 1 demos only, it's always 0 with Source 2 demos.
+// It looks like the prop is not present with Source 2 and we don't need it anymore to retrieve the ammo reserve as
+// there is a new dedicated prop "m_pReserveAmmo".
 func (e *Equipment) AmmoType() int {
-	return getInt(e.Entity, "LocalWeaponData.m_iPrimaryAmmoType")
+	if e.Entity == nil {
+		return 0
+	}
+
+	value, ok := e.Entity.PropertyValue("LocalWeaponData.m_iPrimaryAmmoType")
+	if !ok {
+		return 0
+	}
+
+	return value.Int()
 }
 
 // ZoomLevel returns how far the player has zoomed in on the weapon.
@@ -355,16 +390,30 @@ func (e *Equipment) ZoomLevel() ZoomLevel {
 		return 0
 	}
 
-	// if the property doesn't exist we return 0 by default
-	val, _ := e.Entity.PropertyValue("m_zoomLevel")
+	value, ok := e.Entity.PropertyValue("m_zoomLevel")
+	if !ok {
+		return 0
+	}
 
-	return ZoomLevel(val.IntVal)
+	return ZoomLevel(value.Int())
 }
 
 // AmmoReserve returns the ammo left available for reloading.
 // Returns CWeaponCSBase.m_iPrimaryReserveAmmoCount for most weapons and 'Owner.AmmoLeft[AmmoType] - 1' for grenades.
 // Use AmmoInMagazine() + AmmoReserve() to quickly get the amount of grenades a player owns.
 func (e *Equipment) AmmoReserve() int {
+	if e.Class() == EqClassGrenade {
+		s2Prop := e.Entity.Property("m_pReserveAmmo.0001")
+		if s2Prop != nil {
+			return s2Prop.Value().Int()
+		}
+	}
+
+	s2Prop := e.Entity.Property("m_pReserveAmmo.0000")
+	if s2Prop != nil {
+		return s2Prop.Value().Int()
+	}
+
 	if e.Class() == EqClassGrenade {
 		if e.Owner != nil {
 			// minus one for 'InMagazine'
@@ -393,7 +442,7 @@ func (e *Equipment) RecoilIndex() float32 {
 	// if the property doesn't exist we return 0 by default
 	val, _ := e.Entity.PropertyValue("m_flRecoilIndex")
 
-	return val.FloatVal
+	return val.Float()
 }
 
 // NewEquipment creates a new Equipment and sets the UniqueID.
@@ -418,4 +467,95 @@ var equipmentToAlternative = map[EquipmentType]EquipmentType{
 // Only works one way (default-to-alternative) as the Five-Seven and Tec-9 both map to the CZ-75.
 func EquipmentAlternative(eq EquipmentType) EquipmentType {
 	return equipmentToAlternative[eq]
+}
+
+// Indexes are available in the game file located at 'scripts/items/items_game.txt'.
+var EquipmentIndexMapping = map[uint64]EquipmentType{
+	1:   EqDeagle,                   // weapon_deagle
+	2:   EqDualBerettas,             // weapon_elite
+	3:   EqFiveSeven,                // weapon_fiveseven
+	4:   EqGlock,                    // weapon_glock
+	7:   EqAK47,                     // weapon_ak47
+	8:   EqAUG,                      // weapon_aug
+	9:   EqAWP,                      // weapon_awp
+	10:  EqFamas,                    // weapon_famas
+	11:  EqG3SG1,                    // weapon_g3sg1
+	13:  EqGalil,                    // weapon_galilar
+	14:  EqM249,                     // weapon_m249
+	16:  EqM4A4,                     // weapon_m4a1
+	17:  EqMac10,                    // weapon_mac10
+	19:  EqP90,                      // weapon_p90
+	20:  EqZoneRepulsor,             // weapon_zone_repulsor
+	23:  EqMP5,                      // weapon_mp5sd
+	24:  EqUMP,                      // weapon_ump45
+	25:  EqXM1014,                   // weapon_xm1014
+	26:  EqBizon,                    // weapon_bizon
+	27:  EqMag7,                     // weapon_mag7
+	28:  EqNegev,                    // weapon_negev
+	29:  EqSawedOff,                 // weapon_sawedoff
+	30:  EqTec9,                     // weapon_tec9
+	31:  EqZeus,                     // weapon_taser
+	32:  EqP2000,                    // weapon_hkp2000
+	33:  EqMP7,                      // weapon_mp7
+	34:  EqMP9,                      // weapon_mp9
+	35:  EqNova,                     // weapon_nova
+	36:  EqP250,                     // weapon_p250
+	37:  EqShield,                   // weapon_shield
+	38:  EqScar20,                   // weapon_scar20
+	39:  EqSG556,                    // weapon_sg556
+	40:  EqSSG08,                    // weapon_ssg08
+	41:  EqKnife,                    // weapon_knifegg
+	42:  EqKnife,                    // weapon_knife
+	43:  EqFlash,                    // weapon_flashbang
+	44:  EqHE,                       // weapon_hegrenade
+	45:  EqSmoke,                    // weapon_smokegrenade
+	46:  EqMolotov,                  // weapon_molotov
+	47:  EqDecoy,                    // weapon_decoy
+	48:  EqIncendiary,               // weapon_incgrenade
+	49:  EqBomb,                     // weapon_c4
+	50:  EqKevlar,                   // item_kevlar
+	51:  EqHelmet,                   // item_assaultsuit
+	52:  EqHeavyAssaultSuit,         // item_heavyassaultsuit
+	54:  EqNightVision,              // item_nvg
+	55:  EqDefuseKit,                // item_defuser
+	56:  EqDefuseKit,                // item_cutters https://developer.valvesoftware.com/wiki/Item_cutters
+	57:  EqHealthShot,               // weapon_healthshot (Medi-Shot)
+	59:  EqKnife,                    // weapon_knife_t
+	60:  EqM4A1,                     // weapon_m4a1_silencer
+	61:  EqUSP,                      // weapon_usp_silencer
+	63:  EqCZ,                       // weapon_cz75a
+	64:  EqRevolver,                 // weapon_revolver
+	68:  EqTacticalAwarenessGrenade, // weapon_tagrenade
+	69:  EqFists,                    // weapon_fists
+	70:  EqBreachCharge,             // weapon_breachcharge
+	72:  EqTablet,                   // weapon_tablet
+	74:  EqFists,                    // weapon_melee
+	75:  EqAxe,                      // weapon_axe
+	76:  EqHammer,                   // weapon_hammer
+	78:  EqWrench,                   // weapon_spanner
+	80:  EqKnife,                    // weapon_knife_ghost
+	81:  EqBomb,                     // weapon_firebomb
+	82:  EqDecoy,                    // weapon_diversion
+	83:  EqHE,                       // weapon_frag_grenade
+	84:  EqSnowball,                 // weapon_snowball
+	85:  EqBumpMine,                 // weapon_bumpmine
+	500: EqKnife,                    // weapon_bayonet
+	503: EqKnife,                    // weapon_knife_css
+	505: EqKnife,                    // weapon_knife_flip
+	506: EqKnife,                    // weapon_knife_gut
+	507: EqKnife,                    // weapon_knife_karambit
+	508: EqKnife,                    // weapon_knife_m9_bayonet
+	509: EqKnife,                    // weapon_knife_tactical
+	512: EqKnife,                    // weapon_knife_falchion
+	514: EqKnife,                    // weapon_knife_survival_bowie
+	515: EqKnife,                    // weapon_knife_butterfly
+	516: EqKnife,                    // weapon_knife_push
+	517: EqKnife,                    // weapon_knife_cord
+	518: EqKnife,                    // weapon_knife_canis
+	519: EqKnife,                    // weapon_knife_ursus
+	520: EqKnife,                    // weapon_knife_gypsy_jackknife
+	521: EqKnife,                    // weapon_knife_outdoor
+	522: EqKnife,                    // weapon_knife_stiletto
+	523: EqKnife,                    // weapon_knife_widowmaker
+	525: EqKnife,                    // weapon_knife_skeleton
 }

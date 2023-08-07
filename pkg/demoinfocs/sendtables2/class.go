@@ -35,7 +35,7 @@ func (c *class) BaseClasses() (res []st.ServerClass) {
 }
 
 func (c *class) PropertyEntries() []string {
-	panic("not implemented")
+	return c.collectFieldsEntries(c.serializer.fields, "")
 }
 
 func (c *class) PropertyEntryDefinitions() []st.PropertyEntry {
@@ -54,6 +54,21 @@ func (c *class) String() string {
 	}
 
 	return fmt.Sprintf("%d %s\n %s", c.classId, c.name, strings.Join(props, "\n "))
+}
+
+func (c *class) collectFieldsEntries(fields []*field, prefix string) []string {
+	paths := make([]string, 0)
+
+	for _, field := range fields {
+		if field.serializer != nil {
+			subPaths := c.collectFieldsEntries(field.serializer.fields, prefix+field.serializer.name+".")
+			paths = append(paths, subPaths...)
+		} else {
+			paths = append(paths, prefix+field.varName)
+		}
+	}
+
+	return paths
 }
 
 func (c *class) getNameForFieldPath(fp *fieldPath) string {

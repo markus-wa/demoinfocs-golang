@@ -549,6 +549,8 @@ const (
 	// May occur because the decryption key used is incorrect.
 	// See ParserConfig.NetMessageDecryptionKey
 	WarnTypeCantReadEncryptedNetMessage
+
+	WarnTypeUnknownEquipmentIndex
 )
 
 // ParserWarn signals that a non-fatal problem occurred during parsing.

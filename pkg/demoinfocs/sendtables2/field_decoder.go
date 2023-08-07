@@ -36,7 +36,9 @@ var fieldTypeFactories = map[string]fieldFactory{
 	"QAngle":        qangleFactory,
 }
 
-var fieldNameDecoders = map[string]fieldDecoder{}
+var fieldNameDecoders = map[string]fieldDecoder{
+	"m_iClip1": ammoDecoder,
+}
 
 var fieldTypeDecoders = map[string]fieldDecoder{
 	/*
@@ -310,6 +312,10 @@ func signedDecoder(r *reader) interface{} {
 
 func floatCoordDecoder(r *reader) interface{} {
 	return r.readCoord()
+}
+
+func ammoDecoder(r *reader) interface{} {
+	return r.readVarUint32() - 1
 }
 
 func noscaleDecoder(r *reader) interface{} {

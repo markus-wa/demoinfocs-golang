@@ -36,7 +36,11 @@ type Player struct {
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
-	return p.demoInfoProvider.FindEntityByHandle(p.Entity.PropertyValueMust("m_hPlayerPawn").Handle())
+	playerPawn, exists := p.Entity.PropertyValue("m_hPlayerPawn")
+	if !exists {
+		return nil
+	}
+	return p.demoInfoProvider.FindEntityByHandle(playerPawn.Handle())
 }
 
 func (p *Player) GetTeam() Team {
@@ -141,10 +145,16 @@ This isn't very conclusive but it looks like IsFlashed isn't super reliable curr
 
 // Used internally to set the active weapon, see ActiveWeapon()
 func (p *Player) activeWeaponID() int {
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity != nil {
+		return int(pawnEntity.PropertyValueMust("m_pWeaponServices.m_hActiveWeapon").S2UInt64() & constants.EntityHandleIndexMaskSource2)
+	}
+
 	return getInt(p.Entity, "m_hActiveWeapon") & constants.EntityHandleIndexMask
 }
 
 // ActiveWeapon returns the currently active / equipped weapon of the player.
+// ! Can be nil
 func (p *Player) ActiveWeapon() *Equipment {
 	return p.demoInfoProvider.FindWeaponByEntityID(p.activeWeaponID())
 }

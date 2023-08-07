@@ -428,9 +428,6 @@ func (p *parser) processStringTableS2(tab createStringTable, br *bit.BitReader) 
 			}
 
 			p.stParser.SetInstanceBaseline(classID, item.Value)
-
-		case stNameModelPreCache:
-			p.modelPreCache[item.Index] = item.Key
 		case stNameUserInfo:
 			p.parseUserInfo(item.Value, int(item.Index))
 		}
@@ -601,7 +598,7 @@ func (p *parser) parseUserInfo(data []byte, playerIndex int) {
 	xuid := userInfo.GetXuid() // TODO: what to do with userInfo.GetSteamid()? (seems to be the same, but maybe not in China?)
 	name := userInfo.GetName()
 	// When the userinfo ST is created its data contains 1 message for each possible player slot (up to 64).
-	// We ignore messages that empty, i.e. not related to a real player, a BOT or GOTV.
+	// We ignore messages that are empty, i.e. not related to a real player, a BOT or GOTV.
 	if xuid == 0 && name == "" {
 		return
 	}
