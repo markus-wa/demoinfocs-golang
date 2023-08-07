@@ -334,6 +334,11 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	pl.Entity = controllerEntity
 	pl.IsConnected = true
 
+	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
+		pl.Team = common.Team(val.S2UInt64())
+		pl.TeamState = p.gameState.Team(pl.Team)
+	})
+
 	controllerEntity.OnDestroy(func() {
 		delete(p.gameState.playersByEntityID, controllerEntityID)
 		pl.Entity = nil
@@ -826,12 +831,21 @@ func (p *parser) bindGameRules() {
 			})
 		})
 
+		// Incremented at the beginning of a new overtime.
+		entity.Property(grPrefix("m_nOvertimePlaying")).OnUpdate(func(val st.PropertyValue) {
+			overtimeCount := val.Int()
+			p.eventDispatcher.Dispatch(events.OvertimeNumberChanged{
+				OldCount: p.gameState.overtimeCount,
+				NewCount: overtimeCount,
+			})
+			p.gameState.overtimeCount = overtimeCount
+		})
+
 		// TODO: seems like this is more reliable than RoundEnd events
 		// "m_eRoundWinReason"
 
 		// TODO: future fields to use
 		// "m_iRoundWinStatus"
-		// "m_nOvertimePlaying"
 		// "m_bGameRestart"
 		// "m_MatchDevice"
 		// "m_bHasMatchStarted"

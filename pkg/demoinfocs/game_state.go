@@ -33,6 +33,7 @@ type gameState struct {
 	gamePhase            common.GamePhase
 	isWarmupPeriod       bool
 	isMatchStarted       bool
+	overtimeCount        int
 	lastFlash            lastFlash                              // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
 	currentDefuser       *common.Player                         // Player currently defusing the bomb, if any
 	currentPlanter       *common.Player                         // Player currently planting the bomb, if any
@@ -167,6 +168,11 @@ func (gs gameState) IsWarmupPeriod() bool {
 // IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.
 func (gs gameState) IsMatchStarted() bool {
 	return gs.isMatchStarted
+}
+
+// OvertimeCount returns the number of overtime according to CCSGameRulesProxy.
+func (gs gameState) OvertimeCount() int {
+	return gs.overtimeCount
 }
 
 // PlayerResourceEntity returns the game's CCSPlayerResource entity.
