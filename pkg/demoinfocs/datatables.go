@@ -334,6 +334,11 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	pl.Entity = controllerEntity
 	pl.IsConnected = true
 
+	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
+		pl.Team = common.Team(val.S2UInt64())
+		pl.TeamState = p.gameState.Team(pl.Team)
+	})
+
 	controllerEntity.OnDestroy(func() {
 		delete(p.gameState.playersByEntityID, controllerEntityID)
 		pl.Entity = nil
