@@ -320,10 +320,11 @@ func (p *Player) ViewDirectionY() float32 {
 // See also PositionEyes().
 func (p *Player) Position() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
-		pawnEntity := p.PlayerPawnEntity()
-		if pawnEntity != nil {
+		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
 			return pawnEntity.Position()
 		}
+
+		return r3.Vector{}
 	}
 
 	if p.Entity == nil {
