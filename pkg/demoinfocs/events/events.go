@@ -642,3 +642,9 @@ type PlayerInfo struct {
 	Index int
 	Info  common.PlayerInfo
 }
+
+// OvertimeNumberChanged signals that the number of overtime periods has changed.
+type OvertimeNumberChanged struct {
+	OldCount int
+	NewCount int
+}

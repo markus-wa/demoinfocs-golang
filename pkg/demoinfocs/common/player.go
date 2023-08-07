@@ -410,7 +410,7 @@ func (p *Player) PositionEyes() r3.Vector {
 // Velocity returns the player's velocity.
 func (p *Player) Velocity() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
-		// TODO Find out where the velocity is stored in Source 2 demos
+		// TODO Find out where we can find the velocity in Source 2 demos
 		return r3.Vector{}
 	}
 
