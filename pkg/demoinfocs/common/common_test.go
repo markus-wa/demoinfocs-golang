@@ -67,8 +67,8 @@ func TestDemoHeader_FrameTime_PlaybackFrames_Zero(t *testing.T) {
 }
 
 func TestTeamState_Team(t *testing.T) {
-	tState := NewTeamState(TeamTerrorists, nil)
-	ctState := NewTeamState(TeamCounterTerrorists, nil)
+	tState := NewTeamState(TeamTerrorists, nil, demoInfoProviderMock{})
+	ctState := NewTeamState(TeamCounterTerrorists, nil, demoInfoProviderMock{})
 
 	assert.Equal(t, TeamTerrorists, tState.Team())
 	assert.Equal(t, TeamCounterTerrorists, ctState.Team())
@@ -76,7 +76,7 @@ func TestTeamState_Team(t *testing.T) {
 
 func TestTeamState_Members(t *testing.T) {
 	members := []*Player{new(Player), new(Player)}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, demoInfoProviderMock{})
 
 	assert.Equal(t, members, state.Members())
 }
@@ -86,7 +86,7 @@ func TestTeamState_EquipmentValueCurrent(t *testing.T) {
 		playerWithProperty("m_unCurrentEquipmentValue", st.PropertyValue{IntVal: 100}),
 		playerWithProperty("m_unCurrentEquipmentValue", st.PropertyValue{IntVal: 200}),
 	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, demoInfoProviderMock{})
 
 	assert.Equal(t, 300, state.CurrentEquipmentValue())
 }
@@ -96,7 +96,7 @@ func TestTeamState_EquipmentValueRoundStart(t *testing.T) {
 		playerWithProperty("m_unRoundStartEquipmentValue", st.PropertyValue{IntVal: 100}),
 		playerWithProperty("m_unRoundStartEquipmentValue", st.PropertyValue{IntVal: 200}),
 	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, demoInfoProviderMock{})
 
 	assert.Equal(t, 300, state.RoundStartEquipmentValue())
 }
@@ -106,7 +106,7 @@ func TestTeamState_EquipmentValueFreezeTimeEnd(t *testing.T) {
 		playerWithProperty("m_unFreezetimeEndEquipmentValue", st.PropertyValue{IntVal: 100}),
 		playerWithProperty("m_unFreezetimeEndEquipmentValue", st.PropertyValue{IntVal: 200}),
 	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, demoInfoProviderMock{})
 
 	assert.Equal(t, 300, state.FreezeTimeEndEquipmentValue())
 }
@@ -116,7 +116,7 @@ func TestTeamState_MoneySpentThisRound(t *testing.T) {
 		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iCashSpentThisRound.000", st.PropertyValue{IntVal: 100})}),
 		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iCashSpentThisRound.000", st.PropertyValue{IntVal: 200})}),
 	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, demoInfoProviderMock{})
 
 	assert.Equal(t, 300, state.MoneySpentThisRound())
 }
@@ -126,7 +126,7 @@ func TestTeamState_MoneySpentTotal(t *testing.T) {
 		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iTotalCashSpent.000", st.PropertyValue{IntVal: 100})}),
 		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iTotalCashSpent.000", st.PropertyValue{IntVal: 200})}),
 	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, demoInfoProviderMock{})
 
 	assert.Equal(t, 300, state.MoneySpentTotal())
 }
@@ -178,10 +178,15 @@ type demoInfoProviderMock struct {
 	playersByHandle      map[int]*Player
 	playerResourceEntity st.Entity
 	equipment            *Equipment
+	isSource2            bool
 }
 
 func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
 	panic("implement me")
+}
+
+func (p demoInfoProviderMock) IsSource2() bool {
+	return p.isSource2
 }
 
 func (p demoInfoProviderMock) TickRate() float64 {

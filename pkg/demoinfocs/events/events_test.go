@@ -56,6 +56,7 @@ func TestKill_IsWallBang(t *testing.T) {
 }
 
 type demoInfoProviderMock struct {
+	isSource2 bool
 }
 
 func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
@@ -64,6 +65,10 @@ func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
 
 func (p demoInfoProviderMock) IngameTick() int {
 	return 0
+}
+
+func (p demoInfoProviderMock) IsSource2() bool {
+	return p.isSource2
 }
 
 func (p demoInfoProviderMock) TickRate() float64 {
