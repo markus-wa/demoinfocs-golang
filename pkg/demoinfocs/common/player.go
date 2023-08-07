@@ -86,6 +86,11 @@ func (p *Player) IsBlinded() bool {
 
 // IsAirborne returns true if the player is jumping or falling.
 func (p *Player) IsAirborne() bool {
+	if p.demoInfoProvider.IsSource2() {
+		groundEntityHandle := getUInt64(p.PlayerPawnEntity(), "m_hGroundEntity")
+		return groundEntityHandle == constants.InvalidEntityHandleSource2
+	}
+
 	if p.Entity == nil {
 		return false
 	}
@@ -201,21 +206,37 @@ func (p *Player) HasSpotted(other *Player) bool {
 
 // IsInBombZone returns whether the player is currently in the bomb zone or not.
 func (p *Player) IsInBombZone() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_bInBombZone")
+	}
+
 	return getBool(p.Entity, "m_bInBombZone")
 }
 
 // IsInBuyZone returns whether the player is currently in the buy zone or not.
 func (p *Player) IsInBuyZone() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_bInBuyZone")
+	}
+
 	return getBool(p.Entity, "m_bInBuyZone")
 }
 
 // IsWalking returns whether the player is currently walking (sneaking) in or not.
 func (p *Player) IsWalking() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_bIsWalking")
+	}
+
 	return getBool(p.Entity, "m_bIsWalking")
 }
 
 // IsScoped returns whether the player is currently scoped in or not.
 func (p *Player) IsScoped() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_bIsScoped")
+	}
+
 	return getBool(p.Entity, "m_bIsScoped")
 }
 
@@ -245,17 +266,29 @@ func (p *Player) IsStanding() bool {
 
 // HasDefuseKit returns true if the player currently has a defuse kit in his inventory.
 func (p *Player) HasDefuseKit() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_pItemServices.m_bHasDefuser")
+	}
+
 	return getBool(p.Entity, "m_bHasDefuser")
 }
 
 // HasHelmet returns true if the player is currently wearing head armor.
 func (p *Player) HasHelmet() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_pItemServices.m_bHasHelmet")
+	}
+
 	return getBool(p.Entity, "m_bHasHelmet")
 }
 
 // IsControllingBot returns true if the player is currently controlling a bot.
 // See also ControlledBot().
 func (p *Player) IsControllingBot() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.Entity, "m_bControllingBot")
+	}
+
 	return getBool(p.Entity, "m_bIsControllingBot")
 }
 
@@ -300,6 +333,10 @@ func (p *Player) Money() int {
 
 // EquipmentValueCurrent returns the current value of equipment in the player's inventory.
 func (p *Player) EquipmentValueCurrent() int {
+	if p.demoInfoProvider.IsSource2() {
+		return int(getUInt64(p.PlayerPawnEntity(), "m_unCurrentEquipmentValue"))
+	}
+
 	return getInt(p.Entity, "m_unCurrentEquipmentValue")
 }
 
@@ -372,6 +409,11 @@ func (p *Player) PositionEyes() r3.Vector {
 
 // Velocity returns the player's velocity.
 func (p *Player) Velocity() r3.Vector {
+	if p.demoInfoProvider.IsSource2() {
+		// TODO Find out where the velocity is stored in Source 2 demos
+		return r3.Vector{}
+	}
+
 	if p.Entity == nil {
 		return r3.Vector{}
 	}
@@ -429,6 +471,10 @@ func (pf PlayerFlags) DuckingKeyPressed() bool {
 
 // Flags returns flags currently set on m_fFlags.
 func (p *Player) Flags() PlayerFlags {
+	if p.demoInfoProvider.IsSource2() {
+		return PlayerFlags(getUInt64(p.PlayerPawnEntity(), "m_fFlags"))
+	}
+
 	return PlayerFlags(getInt(p.Entity, "m_fFlags"))
 }
 
