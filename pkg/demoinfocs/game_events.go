@@ -268,7 +268,29 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 	return geh
 }
 
+func (geh gameEventHandler) clearGrenadeProjectiles() {
+	// Issue #42
+	// Sometimes grenades & infernos aren't deleted / destroyed via entity-updates at the end of the round,
+	// so we need to do it here for those that weren't.
+	//
+	// We're not deleting them from entitites though as that's supposed to be as close to the actual demo data as possible.
+	// We're also not using Entity.Destroy() because it would - in some cases - be called twice on the same entity
+	// and it's supposed to be called when the demo actually says so (same case as with gameState.entities).
+	for _, proj := range geh.gameState().grenadeProjectiles {
+		geh.parser.nadeProjectileDestroyed(proj)
+	}
+
+	for _, inf := range geh.gameState().infernos {
+		geh.parser.infernoExpired(inf)
+	}
+
+	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)
+	geh.gameState().thrownGrenades = make(map[*common.Player][]*common.Equipment)
+}
+
 func (geh gameEventHandler) roundStart(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	geh.clearGrenadeProjectiles()
+
 	geh.dispatch(events.RoundStart{
 		TimeLimit: int(data["timelimit"].GetValLong()),
 		FragLimit: int(data["fraglimit"].GetValLong()),
@@ -310,23 +332,7 @@ func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT)
 }
 
 func (geh gameEventHandler) roundOfficiallyEnded(map[string]*msg.CSVCMsg_GameEventKeyT) {
-	// Issue #42
-	// Sometimes grenades & infernos aren't deleted / destroyed via entity-updates at the end of the round,
-	// so we need to do it here for those that weren't.
-	//
-	// We're not deleting them from entitites though as that's supposed to be as close to the actual demo data as possible.
-	// We're also not using Entity.Destroy() because it would - in some cases - be called twice on the same entity
-	// and it's supposed to be called when the demo actually says so (same case as with gameState.entities).
-	for _, proj := range geh.gameState().grenadeProjectiles {
-		geh.parser.nadeProjectileDestroyed(proj)
-	}
-
-	for _, inf := range geh.gameState().infernos {
-		geh.parser.infernoExpired(inf)
-	}
-
-	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)
-	geh.gameState().thrownGrenades = make(map[*common.Player][]*common.Equipment)
+	geh.clearGrenadeProjectiles()
 
 	geh.dispatch(events.RoundEndOfficial{})
 }

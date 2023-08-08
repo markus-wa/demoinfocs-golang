@@ -96,9 +96,7 @@ func main() {
 		round                        = 0
 	)
 
-	p.RegisterEventHandler(func(events.RoundEnd) {
-		round++
-
+	p.RegisterEventHandler(func(start events.RoundStart) {
 		// We only want the data from the first 5 rounds so the image is not too cluttered
 		// This is a very cheap way to do it. Won't work with demos that have match-restarts etc.
 		if round == 5 {
@@ -112,6 +110,8 @@ func main() {
 			infernosFirst5Rounds = make([]*common.Inferno, len(infernos))
 			copy(infernosFirst5Rounds, infernos)
 		}
+
+		round++
 	})
 
 	err = p.ParseToEnd()
