@@ -31,7 +31,7 @@ func (c *class) DataTableName() string {
 }
 
 func (c *class) BaseClasses() (res []st.ServerClass) {
-	return nil
+	panic("not implemented")
 }
 
 func (c *class) PropertyEntries() []string {

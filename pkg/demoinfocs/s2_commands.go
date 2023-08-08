@@ -31,6 +31,8 @@ func (p *parser) handleClassInfo(msg *msgs2.CDemoClassInfo) {
 		panic(err)
 	}
 
+	debugAllServerClasses(p.ServerClasses())
+
 	p.mapEquipment()
 	p.bindEntities()
 

@@ -14,6 +14,10 @@ import (
 )
 
 func (p *parser) mapEquipment() {
+	if p.isSource2() {
+		return
+	}
+
 	for _, sc := range p.stParser.ServerClasses().All() {
 		switch sc.Name() {
 		case "CC4":
@@ -528,44 +532,58 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, getPlayer func() *com
 }
 
 func (p *parser) bindWeapons() {
-	if p.isSource2() {
-		for _, sc := range p.stParser.ServerClasses().All() {
+	s2 := p.isSource2()
+
+	for _, sc := range p.stParser.ServerClasses().All() {
+		if s2 {
 			hasIndexProp := false
 			hasClipProp := false
-			isEquipmentClass := false
+			hasThrower := false
 
 			for _, prop := range sc.PropertyEntries() {
 				if prop == "m_iItemDefinitionIndex" {
 					hasIndexProp = true
 				}
+
 				if prop == "m_iClip1" {
 					hasClipProp = true
 				}
-				isEquipmentClass = hasClipProp && hasIndexProp
-				if isEquipmentClass {
-					break
+
+				if prop == "m_hThrower" {
+					hasThrower = true
 				}
 			}
+
+			isEquipmentClass := hasClipProp && hasIndexProp
+
 			if isEquipmentClass {
 				sc.OnEntityCreated(p.bindWeaponS2)
 			}
-		}
 
-		return
-	}
+			isGrenadeClass := hasIndexProp && hasThrower
 
-	for _, sc := range p.stParser.ServerClasses().All() {
-		for _, bc := range sc.BaseClasses() {
-			switch bc.Name() {
-			case "CWeaponCSBase":
-				sc2 := sc // Local copy for loop
-				sc.OnEntityCreated(func(e st.Entity) { p.bindWeapon(e, p.equipmentMapping[sc2]) })
-			case "CBaseGrenade": // Grenade that has been thrown by player.
+			if isGrenadeClass {
 				sc.OnEntityCreated(p.bindGrenadeProjectiles)
-			case "CBaseCSGrenade":
-				// @micvbang TODO: handle grenades dropped by dead player.
-				// Grenades that were dropped by a dead player (and can be picked up by other players).
-			} //nolint:wsl
+			}
+		} else {
+			for _, bc := range sc.BaseClasses() {
+				switch bc.Name() {
+				case "CWeaponCSBase":
+					if s2 {
+						continue
+					}
+
+					sc2 := sc // Local copy for loop
+					sc.OnEntityCreated(func(e st.Entity) { p.bindWeapon(e, p.equipmentMapping[sc2]) })
+
+				case "CBaseGrenade": // Grenade that has been thrown by player.
+					sc.OnEntityCreated(p.bindGrenadeProjectiles)
+
+				case "CBaseCSGrenade":
+					// @micvbang TODO: handle grenades dropped by dead player.
+					// Grenades that were dropped by a dead player (and can be picked up by other players).
+				} //nolint:wsl
+			}
 		}
 	}
 
@@ -603,13 +621,17 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		p.nadeProjectileDestroyed(proj)
 	})
 
-	entity.Property("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
-		wep = p.grenadeModelIndices[val.IntVal]
+	entity.Property("m_iItemDefinitionIndex").OnUpdate(func(val st.PropertyValue) {
+		if p.isSource2() {
+			wep = common.EquipmentIndexMapping[val.S2UInt64()]
+		} else {
+			wep = p.grenadeModelIndices[val.IntVal]
+		}
 	})
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
 	entity.Property("m_hThrower").OnUpdate(func(val st.PropertyValue) {
-		proj.Thrower = p.gameState.Participants().FindByHandle(val.IntVal)
+		proj.Thrower = p.gameState.Participants().FindByHandle64(val.Handle())
 	})
 
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
@@ -624,10 +646,10 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	// So we need to check for nil and can't send out bounce events if it's missing
 	if bounceProp := entity.Property("m_nBounces"); bounceProp != nil {
 		bounceProp.OnUpdate(func(val st.PropertyValue) {
-			if val.IntVal != 0 {
+			if val.Int() != 0 {
 				p.eventDispatcher.Dispatch(events.GrenadeProjectileBounce{
 					Projectile: proj,
-					BounceNr:   val.IntVal,
+					BounceNr:   val.Int(),
 				})
 			}
 		})
@@ -666,6 +688,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	entityID := entity.ID()
 	itemIndex := entity.Property("m_iItemDefinitionIndex").Value().S2UInt64()
 	wepType := common.EquipmentIndexMapping[itemIndex]
+
 	if wepType == common.EqUnknown {
 		fmt.Println("unknown equipment with index", itemIndex)
 		p.msgDispatcher.Dispatch(events.ParserWarn{

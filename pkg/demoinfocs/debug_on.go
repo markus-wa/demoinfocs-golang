@@ -111,7 +111,7 @@ func debugDemoCommand(cmd demoCommand) {
 
 func debugAllServerClasses(classes st.ServerClasses) {
 	if debugServerClasses == yes {
-		for _, sc := range classes {
+		for _, sc := range classes.All() {
 			fmt.Println(sc)
 			fmt.Println()
 		}
