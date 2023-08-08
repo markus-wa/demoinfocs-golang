@@ -90,11 +90,15 @@ func main() {
 		infernos = append(infernos, e.Inferno)
 	})
 
-	var nadeTrajectoriesFirst5Rounds []*nadePath
-	var infernosFirst5Rounds []*common.Inferno
-	round := 0
+	var (
+		nadeTrajectoriesFirst5Rounds []*nadePath
+		infernosFirst5Rounds         []*common.Inferno
+		round                        = 0
+	)
+
 	p.RegisterEventHandler(func(events.RoundEnd) {
 		round++
+
 		// We only want the data from the first 5 rounds so the image is not too cluttered
 		// This is a very cheap way to do it. Won't work with demos that have match-restarts etc.
 		if round == 5 {
