@@ -15,6 +15,11 @@ type GameState struct {
 	mock.Mock
 }
 
+// OvertimeCount is a mock-implementation of GameState.OvertimeCount().
+func (gs *GameState) OvertimeCount() int {
+	return gs.Called().Int(0)
+}
+
 // IngameTick is a mock-implementation of GameState.IngameTick().
 func (gs *GameState) IngameTick() int {
 	return gs.Called().Int(0)

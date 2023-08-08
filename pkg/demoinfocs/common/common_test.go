@@ -201,6 +201,10 @@ func (p demoInfoProviderMock) FindPlayerByHandle(handle int) *Player {
 	return p.playersByHandle[handle]
 }
 
+func (p demoInfoProviderMock) FindPlayerByPawnHandle(handle uint64) *Player {
+	return p.playersByHandle[int(handle)]
+}
+
 func (p demoInfoProviderMock) PlayerResourceEntity() st.Entity {
 	return p.playerResourceEntity
 }

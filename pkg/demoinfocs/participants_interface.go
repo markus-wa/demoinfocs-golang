@@ -37,6 +37,11 @@ type Participants interface {
 	// TeamMembers returns all players belonging to the requested team at this time.
 	// The returned slice is a snapshot and is not updated on changes.
 	TeamMembers(team common.Team) []*common.Player
+	// FindByPawnHandle attempts to find a player by his pawn entity-handle.
+	// This works only for Source 2 demos.
+	//
+	// Returns nil if not found.
+	FindByPawnHandle(handle uint64) *common.Player
 	// FindByHandle64 attempts to find a player by his entity-handle.
 	// The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
 	//

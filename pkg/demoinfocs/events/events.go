@@ -229,6 +229,7 @@ type SmokeExpired struct {
 // FireGrenadeStart signals the start of a molly/incendiary.
 // GrenadeType will always be EqIncendiary as it's not networked whether it's an incendiary or molotov.
 // Thrower will always be nil as this isn't networked.
+// May not be triggered with Source 2 demos and contain missing/incorrect data, it's recommended to use InfernoStart instead.
 type FireGrenadeStart struct {
 	GrenadeEvent
 }
@@ -236,6 +237,7 @@ type FireGrenadeStart struct {
 // FireGrenadeExpired signals that all fires of a molly/incendiary have extinguished.
 // GrenadeType will always be EqIncendiary as it's not networked whether it's an incendiary or molotov.
 // Thrower will always be nil as this isn't networked.
+// May not be triggered with Source 2 demos and contain missing/incorrect data, it's recommended to use InfernoExpired instead.
 type FireGrenadeExpired struct {
 	GrenadeEvent
 }

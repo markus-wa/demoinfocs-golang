@@ -59,6 +59,11 @@ func (ptcp *Participants) FindByHandle64(handle uint64) *common.Player {
 	return ptcp.Called().Get(0).(*common.Player)
 }
 
+// FindByPawnHandle is a mock-implementation of Participants.FindByPawnHandle().
+func (ptcp *Participants) FindByPawnHandle(handle uint64) *common.Player {
+	return ptcp.Called().Get(0).(*common.Player)
+}
+
 // SpottersOf is a mock-implementation of Participants.SpottersOf().
 func (ptcp *Participants) SpottersOf(spotted *common.Player) []*common.Player {
 	return ptcp.Called().Get(0).([]*common.Player)
