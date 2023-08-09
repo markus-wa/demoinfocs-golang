@@ -621,13 +621,15 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		p.nadeProjectileDestroyed(proj)
 	})
 
-	entity.Property("m_iItemDefinitionIndex").OnUpdate(func(val st.PropertyValue) {
-		if p.isSource2() {
+	if p.isSource2() {
+		entity.Property("m_iItemDefinitionIndex").OnUpdate(func(val st.PropertyValue) {
 			wep = common.EquipmentIndexMapping[val.S2UInt64()]
-		} else {
+		})
+	} else {
+		entity.Property("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
 			wep = p.grenadeModelIndices[val.IntVal]
-		}
-	})
+		})
+	}
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
 	entity.Property("m_hThrower").OnUpdate(func(val st.PropertyValue) {
