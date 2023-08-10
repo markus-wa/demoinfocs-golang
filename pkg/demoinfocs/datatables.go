@@ -337,10 +337,16 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	pl.EntityID = controllerEntityID
 	pl.Entity = controllerEntity
 	pl.IsConnected = true
+	pawnProp := controllerEntity.Property("m_hPawn")
+	pl.PawnEntityID = int(pawnProp.Value().S2UInt64() & constants.EntityHandleIndexMaskSource2)
 
 	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
 		pl.Team = common.Team(val.S2UInt64())
 		pl.TeamState = p.gameState.Team(pl.Team)
+	})
+
+	pawnProp.OnUpdate(func(val st.PropertyValue) {
+		pl.PawnEntityID = int(val.S2UInt64()) & constants.EntityHandleIndexMaskSource2
 	})
 
 	controllerEntity.OnDestroy(func() {
@@ -360,11 +366,6 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 	player := func() *common.Player {
 		return p.gameState.Participants().FindByHandle64(pawnEntity.PropertyValueMust("m_hController").Handle())
-	}
-
-	pl := player()
-	if pl != nil {
-		pl.PawnEntityID = pawnEntity.ID()
 	}
 
 	// Position

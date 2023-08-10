@@ -79,7 +79,6 @@ func (p *Player) IsAlive() bool {
 	}
 
 	return getInt(p.Entity, "m_lifeState") == 0
-
 }
 
 // IsBlinded returns true if the player is currently flashed.
