@@ -70,10 +70,8 @@ func (p *Player) SteamID32() uint32 {
 
 // IsAlive returns true if the player is alive.
 func (p *Player) IsAlive() bool {
-	s2IsAlive := p.Entity.Property("m_bPawnIsAlive")
-
-	if s2IsAlive != nil {
-		return s2IsAlive.Value().BoolVal()
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.Entity, "m_bPawnIsAlive")
 	}
 
 	return p.Health() > 0 || getInt(p.Entity, "m_lifeState") == 0
@@ -189,13 +187,25 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 
 	var mask st.Property
 	if bit < 32 {
-		mask = p.Entity.Property("m_bSpottedByMask.000")
+		if p.demoInfoProvider.IsSource2() {
+			mask = p.PlayerPawnEntity().Property("m_bSpottedByMask.0000")
+		} else {
+			mask = p.Entity.Property("m_bSpottedByMask.000")
+		}
 	} else {
 		bit -= 32
-		mask = p.Entity.Property("m_bSpottedByMask.001")
+		if p.demoInfoProvider.IsSource2() {
+			mask = p.PlayerPawnEntity().Property("m_bSpottedByMask.0001")
+		} else {
+			mask = p.Entity.Property("m_bSpottedByMask.001")
+		}
 	}
 
-	return (mask.Value().IntVal & (1 << bit)) != 0
+	if p.demoInfoProvider.IsSource2() {
+		return (mask.Value().S2UInt64() & (1 << bit)) != 0
+	} else {
+		return (mask.Value().IntVal & (1 << bit)) != 0
+	}
 }
 
 // HasSpotted returns true if the player has spotted the other player.
@@ -345,11 +355,19 @@ func (p *Player) EquipmentValueCurrent() int {
 // This is before the player has bought any new items in the freeze time.
 // See also Player.EquipmentValueFreezetimeEnd().
 func (p *Player) EquipmentValueRoundStart() int {
+	if p.demoInfoProvider.IsSource2() {
+		return int(getUInt64(p.PlayerPawnEntity(), "m_unRoundStartEquipmentValue"))
+	}
+
 	return getInt(p.Entity, "m_unRoundStartEquipmentValue")
 }
 
 // EquipmentValueFreezeTimeEnd returns the value of equipment in the player's inventory at the end of the freeze time.
 func (p *Player) EquipmentValueFreezeTimeEnd() int {
+	if p.demoInfoProvider.IsSource2() {
+		return int(getUInt64(p.PlayerPawnEntity(), "m_unFreezetimeEndEquipmentValue"))
+	}
+
 	return getInt(p.Entity, "m_unFreezetimeEndEquipmentValue")
 }
 
