@@ -643,7 +643,6 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	if !p.demoInfoProvider.IsSource2() {
 		entity.Property("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
 			wep = p.grenadeModelIndices[val.Int()]
-		})
 	}
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
