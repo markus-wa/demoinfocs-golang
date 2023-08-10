@@ -362,6 +362,11 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		return p.gameState.Participants().FindByHandle64(pawnEntity.PropertyValueMust("m_hController").Handle())
 	}
 
+	pl := player()
+	if pl != nil {
+		pl.PawnEntityID = pawnEntity.ID()
+	}
+
 	// Position
 	pawnEntity.OnPositionUpdate(func(pos r3.Vector) {
 		pl := player()
@@ -560,9 +565,7 @@ func (p *parser) bindWeapons() {
 				sc.OnEntityCreated(p.bindWeaponS2)
 			}
 
-			isGrenadeClass := hasIndexProp && hasThrower
-
-			if isGrenadeClass {
+			if hasThrower {
 				sc.OnEntityCreated(p.bindGrenadeProjectiles)
 			}
 		} else {
@@ -599,8 +602,24 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	proj.Entity = entity
 	p.gameState.grenadeProjectiles[entityID] = proj
 
+	if p.demoInfoProvider.IsSource2() {
+		player := p.demoInfoProvider.FindPlayerByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
+		proj.Thrower = player
+		proj.Owner = player
+	}
+
 	var wep common.EquipmentType
 	entity.OnCreateFinished(func() { //nolint:wsl
+		if p.demoInfoProvider.IsSource2() {
+			model := entity.PropertyValueMust("CBodyComponent.m_hModel").S2UInt64()
+			weaponType, exists := p.equipmentTypePerModel[model]
+			if exists {
+				wep = weaponType
+			} else {
+				fmt.Printf("unknown grenade model %d", model)
+			}
+		}
+
 		// copy the weapon so it doesn't get overwritten by a new entity in parser.weapons
 		wepCopy := *(getPlayerWeapon(proj.Thrower, wep))
 		proj.WeaponInstance = &wepCopy
@@ -621,23 +640,26 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		p.nadeProjectileDestroyed(proj)
 	})
 
-	if p.isSource2() {
-		entity.Property("m_iItemDefinitionIndex").OnUpdate(func(val st.PropertyValue) {
-			wep = common.EquipmentIndexMapping[val.S2UInt64()]
-		})
-	} else {
+	if !p.demoInfoProvider.IsSource2() {
 		entity.Property("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
-			wep = p.grenadeModelIndices[val.IntVal]
-		})
+			wep = p.grenadeModelIndices[val.Int()]
 	}
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
 	entity.Property("m_hThrower").OnUpdate(func(val st.PropertyValue) {
-		proj.Thrower = p.gameState.Participants().FindByHandle64(val.Handle())
+		if p.demoInfoProvider.IsSource2() {
+			proj.Thrower = p.demoInfoProvider.FindPlayerByPawnHandle(val.Handle())
+		} else {
+			proj.Thrower = p.gameState.Participants().FindByHandle(val.Int())
+		}
 	})
 
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
-		proj.Owner = p.gameState.Participants().FindByHandle64(val.Handle())
+		if p.demoInfoProvider.IsSource2() {
+			proj.Owner = p.gameState.Participants().FindByPawnHandle(val.Handle())
+		} else {
+			proj.Owner = p.gameState.Participants().FindByHandle(val.Int())
+		}
 	})
 
 	entity.OnPositionUpdate(func(newPos r3.Vector) {
@@ -648,10 +670,11 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	// So we need to check for nil and can't send out bounce events if it's missing
 	if bounceProp := entity.Property("m_nBounces"); bounceProp != nil {
 		bounceProp.OnUpdate(func(val st.PropertyValue) {
-			if val.Int() != 0 {
+			bounceNumber := val.Int()
+			if bounceNumber != 0 {
 				p.eventDispatcher.Dispatch(events.GrenadeProjectileBounce{
 					Projectile: proj,
-					BounceNr:   val.Int(),
+					BounceNr:   bounceNumber,
 				})
 			}
 		})
@@ -688,7 +711,7 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 func (p *parser) bindWeaponS2(entity st.Entity) {
 	entityID := entity.ID()
-	itemIndex := entity.Property("m_iItemDefinitionIndex").Value().S2UInt64()
+	itemIndex := entity.PropertyValueMust("m_iItemDefinitionIndex").S2UInt64()
 	wepType := common.EquipmentIndexMapping[itemIndex]
 
 	if wepType == common.EqUnknown {
@@ -697,6 +720,9 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 			Message: fmt.Sprintf("unknown equipment with index %d", itemIndex),
 			Type:    events.WarnTypeUnknownEquipmentIndex,
 		})
+	} else {
+		model := entity.PropertyValueMust("CBodyComponent.m_hModel").S2UInt64()
+		p.equipmentTypePerModel[model] = wepType
 	}
 
 	equipment, exists := p.gameState.weapons[entityID]

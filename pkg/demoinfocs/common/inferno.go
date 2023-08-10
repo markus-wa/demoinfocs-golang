@@ -47,7 +47,12 @@ func (inf *Inferno) UniqueID() int64 {
 // Thrower returns the player who threw the fire grenade.
 // Could be nil if the player disconnected after throwing it.
 func (inf *Inferno) Thrower() *Player {
-	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.Property("m_hOwnerEntity").Value().IntVal)
+	handleProp := inf.Entity.Property("m_hOwnerEntity").Value()
+	if inf.demoInfoProvider.IsSource2() {
+		return inf.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
+	}
+
+	return inf.demoInfoProvider.FindPlayerByHandle(handleProp.Int())
 }
 
 // Fires returns all fires (past + present).
@@ -55,20 +60,24 @@ func (inf *Inferno) Thrower() *Player {
 func (inf *Inferno) Fires() Fires {
 	entity := inf.Entity
 	origin := entity.Position()
-	nFires := entity.PropertyValueMust("m_fireCount").IntVal
+	nFires := entity.PropertyValueMust("m_fireCount").Int()
 	fires := make([]Fire, 0, nFires)
 
+	iFormat := "%03d"
+	if inf.demoInfoProvider.IsSource2() {
+		iFormat = "%04d"
+	}
 	for i := 0; i < nFires; i++ {
-		iStr := fmt.Sprintf("%03d", i)
+		iStr := fmt.Sprintf(iFormat, i)
 		offset := r3.Vector{
-			X: float64(entity.PropertyValueMust("m_fireXDelta." + iStr).IntVal),
-			Y: float64(entity.PropertyValueMust("m_fireYDelta." + iStr).IntVal),
-			Z: float64(entity.PropertyValueMust("m_fireZDelta." + iStr).IntVal),
+			X: float64(entity.PropertyValueMust("m_fireXDelta." + iStr).Int()),
+			Y: float64(entity.PropertyValueMust("m_fireYDelta." + iStr).Int()),
+			Z: float64(entity.PropertyValueMust("m_fireZDelta." + iStr).Int()),
 		}
 
 		fire := Fire{
 			Vector:    origin.Add(offset),
-			IsBurning: entity.PropertyValueMust("m_bFireIsBurning."+iStr).IntVal == 1,
+			IsBurning: entity.PropertyValueMust("m_bFireIsBurning." + iStr).BoolVal(),
 		}
 
 		fires = append(fires, fire)

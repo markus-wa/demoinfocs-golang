@@ -90,16 +90,17 @@ type parser struct {
 
 	// Additional fields, mainly caching & tracking things
 
-	bombsiteA            bombsite
-	bombsiteB            bombsite
-	equipmentMapping     map[st.ServerClass]common.EquipmentType         // Maps server classes to equipment-types
-	rawPlayers           map[int]*common.PlayerInfo                      // Maps entity IDs to 'raw' player info
-	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id) for Source 1 demos only
-	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
-	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
-	grenadeModelIndices  map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
-	stringTables         []createStringTable                             // Contains all created sendtables, needed when updating them
-	delayedEventHandlers []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
+	bombsiteA             bombsite
+	bombsiteB             bombsite
+	equipmentMapping      map[st.ServerClass]common.EquipmentType         // Maps server classes to equipment-types
+	rawPlayers            map[int]*common.PlayerInfo                      // Maps entity IDs to 'raw' player info
+	modelPreCache         []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id) for Source 1 demos only
+	triggers              map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
+	gameEventDescs        map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
+	grenadeModelIndices   map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
+	equipmentTypePerModel map[uint64]common.EquipmentType                 // Used to retrieve the EquipmentType of grenade projectiles based on models value. Source 2 only.
+	stringTables          []createStringTable                             // Contains all created sendtables, needed when updating them
+	delayedEventHandlers  []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
@@ -367,6 +368,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.demoInfoProvider = demoInfoProvider{parser: &p}
 	p.gameState = newGameState(p.demoInfoProvider)
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
+	p.equipmentTypePerModel = make(map[uint64]common.EquipmentType)
 	p.gameEventHandler = newGameEventHandler(&p, config.IgnoreErrBombsiteIndexNotFound)
 	p.userMessageHandler = newUserMessageHandler(&p)
 	p.bombsiteA.index = -1
@@ -438,6 +440,10 @@ func (p demoInfoProvider) TickRate() float64 {
 
 func (p demoInfoProvider) FindPlayerByHandle(handle int) *common.Player {
 	return p.parser.gameState.Participants().FindByHandle(handle)
+}
+
+func (p demoInfoProvider) FindPlayerByPawnHandle(handle uint64) *common.Player {
+	return p.parser.gameState.Participants().FindByPawnHandle(handle)
 }
 
 func (p demoInfoProvider) FindEntityByHandle(handle uint64) st.Entity {

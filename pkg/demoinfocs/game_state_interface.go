@@ -57,6 +57,8 @@ type GameState interface {
 	IsWarmupPeriod() bool
 	// IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.
 	IsMatchStarted() bool
+	// OvertimeCount returns the number of overtime according to CCSGameRulesProxy.
+	OvertimeCount() int
 	// PlayerResourceEntity returns the game's CCSPlayerResource entity.
 	// Contains scoreboard information and more.
 	PlayerResourceEntity() st.Entity

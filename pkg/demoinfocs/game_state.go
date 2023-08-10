@@ -387,6 +387,21 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 	return res
 }
 
+// FindByPawnHandle attempts to find a player by his pawn entity-handle.
+// This works only for Source 2 demos.
+//
+// Returns nil if not found.
+func (ptcp participants) FindByPawnHandle(handle uint64) *common.Player {
+	entityID := entityIDFromHandle(handle, ptcp.getIsSource2())
+	for _, player := range ptcp.All() {
+		if player.PawnEntityID == entityID {
+			return player
+		}
+	}
+
+	return nil
+}
+
 // FindByHandle64 attempts to find a player by his entity-handle.
 // The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
 //

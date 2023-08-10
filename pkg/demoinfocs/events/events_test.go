@@ -79,6 +79,10 @@ func (p demoInfoProviderMock) FindPlayerByHandle(int) *common.Player {
 	return nil
 }
 
+func (p demoInfoProviderMock) FindPlayerByPawnHandle(uint64) *common.Player {
+	return nil
+}
+
 func (p demoInfoProviderMock) PlayerResourceEntity() st.Entity {
 	return nil
 }
