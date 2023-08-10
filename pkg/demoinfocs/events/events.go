@@ -45,6 +45,7 @@ type RoundEndReason byte
 
 // RoundEndReason constants give information about why a round ended (Bomb defused, exploded etc.).
 const (
+	RoundEndReasonStillInProgress      RoundEndReason = 0
 	RoundEndReasonTargetBombed         RoundEndReason = 1
 	RoundEndReasonVIPEscaped           RoundEndReason = 2
 	RoundEndReasonVIPKilled            RoundEndReason = 3
@@ -63,6 +64,8 @@ const (
 	RoundEndReasonGameStart            RoundEndReason = 16
 	RoundEndReasonTerroristsSurrender  RoundEndReason = 17
 	RoundEndReasonCTSurrender          RoundEndReason = 18
+	RoundEndReasonTerroristsPlanted    RoundEndReason = 19
+	RoundEndReasonCTsReachedHostage    RoundEndReason = 20
 )
 
 // RoundEnd signals that a round just finished.
