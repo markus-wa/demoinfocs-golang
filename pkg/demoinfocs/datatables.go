@@ -88,7 +88,7 @@ func (p *parser) bindBomb() {
 
 		if p.isSource2() {
 			bombEntity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
-				bomb.Carrier = p.gameState.Participants().FindByHandle64(val.Handle())
+				bomb.Carrier = p.gameState.Participants().FindByPawnHandle(val.Handle())
 			})
 		} else {
 			bombEntity.Property("m_hOwner").OnUpdate(func(val st.PropertyValue) {
