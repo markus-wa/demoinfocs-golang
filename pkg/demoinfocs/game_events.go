@@ -289,6 +289,10 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 }
 
 func (geh gameEventHandler) roundStart(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	geh.clearGrenadeProjectiles()
 
 	geh.dispatch(events.RoundStart{
@@ -311,6 +315,10 @@ func (geh gameEventHandler) roundAnnounceLastRoundHalf(map[string]*msg.CSVCMsg_G
 }
 
 func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	winner := common.Team(data["winner"].GetValByte())
 	winnerState := geh.gameState().Team(winner)
 
@@ -332,6 +340,10 @@ func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT)
 }
 
 func (geh gameEventHandler) roundOfficiallyEnded(map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	geh.clearGrenadeProjectiles()
 
 	geh.dispatch(events.RoundEndOfficial{})
@@ -655,6 +667,10 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	bombEvent, err := geh.bombEvent(data)
 	if err != nil {
 		geh.parser.setError(err)
@@ -668,6 +684,10 @@ func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CSVCMsg_GameEven
 }
 
 func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	bombEvent, err := geh.bombEvent(data)
 	if err != nil {
 		geh.parser.setError(err)
@@ -685,6 +705,10 @@ func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) bombDefused(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	bombEvent, err := geh.bombEvent(data)
 	if err != nil {
 		geh.parser.setError(err)
@@ -696,6 +720,10 @@ func (geh gameEventHandler) bombDefused(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) bombExploded(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	bombEvent, err := geh.bombEvent(data)
 	if err != nil {
 		geh.parser.setError(err)
@@ -760,6 +788,10 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 }
 
 func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	geh.gameState().currentDefuser = geh.playerByUserID32(data["userid"].GetValShort())
 
 	geh.dispatch(events.BombDefuseStart{
@@ -802,6 +834,10 @@ func (geh gameEventHandler) itemEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 }
 
 func (geh gameEventHandler) bombDropped(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 	entityID := int(data["entityid"].GetValShort())
 
@@ -812,6 +848,10 @@ func (geh gameEventHandler) bombDropped(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) bombPickup(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	geh.dispatch(events.BombPickup{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
