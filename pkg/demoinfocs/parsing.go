@@ -128,6 +128,8 @@ func (p *parser) ParseToEnd() (err error) {
 		if err == nil {
 			err = p.error()
 		}
+
+		p.ensurePlaybackValuesAreSet()
 	}()
 
 	if p.header == nil {
@@ -521,6 +523,16 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.FrameDone{})
+}
+
+// CS2 demos playback info are available in the CDemoFileInfo message that should be parsed at the end of the demo.
+// Demos may not contain it, as a workaround we update values with the last parser information at the end of parsing.
+func (p *parser) ensurePlaybackValuesAreSet() {
+	if p.header.PlaybackTicks == 0 {
+		p.header.PlaybackTicks = p.gameState.ingameTick
+		p.header.PlaybackFrames = p.currentFrame
+		p.header.PlaybackTime = time.Duration(float32(p.header.PlaybackTicks)*float32(p.tickInterval)) * time.Second
+	}
 }
 
 /*
