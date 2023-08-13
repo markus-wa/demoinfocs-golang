@@ -1006,6 +1006,34 @@ func guidToSteamID64(guid string) (uint64, error) {
 	return common.ConvertSteamID32To64(steamID32), nil
 }
 
+func (p *parser) dispatchMatchStartedEventIfNecessary() {
+	if p.gameState.lastMatchStartedChangedEvent != nil {
+		p.gameState.isMatchStarted = p.gameState.lastMatchStartedChangedEvent.NewIsStarted
+		p.gameEventHandler.dispatch(*p.gameState.lastMatchStartedChangedEvent)
+		p.gameState.lastMatchStartedChangedEvent = nil
+	}
+}
+
+// Dispatch round progress events in the following order:
+// 1. MatchStartedChanged
+// 2. RoundStart
+// 3. RoundEnd
+// 4. MatchStartedChanged
+func (p *parser) processRoundProgressEvents() {
+	if p.gameState.lastRoundStartEvent != nil {
+		p.dispatchMatchStartedEventIfNecessary()
+		p.gameEventHandler.dispatch(*p.gameState.lastRoundStartEvent)
+		p.gameState.lastRoundStartEvent = nil
+	}
+
+	if p.gameState.lastRoundEndEvent != nil {
+		p.gameEventHandler.dispatch(*p.gameState.lastRoundEndEvent)
+		p.gameState.lastRoundEndEvent = nil
+	}
+
+	p.dispatchMatchStartedEventIfNecessary()
+}
+
 func (p *parser) processFlyingFlashbangs() {
 	if len(p.gameState.flyingFlashbangs) == 0 {
 		return
@@ -1034,4 +1062,24 @@ func (p *parser) processFlyingFlashbangs() {
 	}
 
 	p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
+}
+
+// Do some processing to dispatch game events at the end of the frame in correct order.
+// This is necessary because some prop updates are not in a order that we would expect, e.g.:
+// - The player prop m_flFlashDuration is updated after the game event player_blind have been parsed (used for CS:GO only)
+// - The player prop m_flFlashDuration may be updated after *or* before the flashbang explosion event
+// - Bomb props used to detect bomb events are updated after the prop m_eRoundWinReason used to detect round end events
+//
+// This makes sure game events are dispatched in a more expected order.
+func (p *parser) processFrameGameEvents() {
+	if p.isSource2() {
+		p.processFlyingFlashbangs()
+		p.processRoundProgressEvents()
+	}
+
+	for _, eventHandler := range p.delayedEventHandlers {
+		eventHandler()
+	}
+
+	p.delayedEventHandlers = p.delayedEventHandlers[:0]
 }

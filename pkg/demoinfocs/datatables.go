@@ -1022,11 +1022,11 @@ func (p *parser) bindGameRules() {
 				objective = "DEATHMATCH"
 			}
 
-			p.gameEventHandler.dispatch(events.RoundStart{
+			p.gameState.lastRoundStartEvent = &events.RoundStart{
 				TimeLimit: roundTime,
 				FragLimit: 0, // Always 0, seems hardcoded in the game
 				Objective: objective,
-			})
+			}
 		}
 
 		entity.Property(grPrefix("m_iRoundTime")).OnUpdate(func(val st.PropertyValue) {
@@ -1063,20 +1063,25 @@ func (p *parser) bindGameRules() {
 
 		entity.Property(grPrefix("m_bHasMatchStarted")).OnUpdate(func(val st.PropertyValue) {
 			oldMatchStarted := p.gameState.isMatchStarted
-			p.gameState.isMatchStarted = val.BoolVal()
+			newMatchStarted := val.BoolVal()
 
-			p.eventDispatcher.Dispatch(events.MatchStartedChanged{
+			event := events.MatchStartedChanged{
 				OldIsStarted: oldMatchStarted,
-				NewIsStarted: p.gameState.isMatchStarted,
-			})
-
-			// First round start event detection, we can't detect it by listening for a m_eRoundWinReason prop update
-			// because there is no update triggered when the first round starts, the prop is already set to 0.
-			if p.isSource2() && p.gameState.isMatchStarted {
-				winRoundReason := events.RoundEndReason(entity.PropertyValueMust(grPrefix("m_eRoundWinReason")).Int())
-				if winRoundReason == events.RoundEndReasonStillInProgress {
-					dispatchRoundStart()
+				NewIsStarted: newMatchStarted,
+			}
+			if p.isSource2() {
+				p.gameState.lastMatchStartedChangedEvent = &event
+				// First round start event detection, we can't detect it by listening for a m_eRoundWinReason prop update
+				// because there is no update triggered when the first round starts as the prop value is already 0.
+				if newMatchStarted {
+					winRoundReason := events.RoundEndReason(entity.PropertyValueMust(grPrefix("m_eRoundWinReason")).Int())
+					if winRoundReason == events.RoundEndReasonStillInProgress {
+						dispatchRoundStart()
+					}
 				}
+			} else {
+				p.gameState.isMatchStarted = newMatchStarted
+				p.eventDispatcher.Dispatch(event)
 			}
 		})
 
@@ -1170,17 +1175,13 @@ func (p *parser) bindGameRules() {
 					loserState = winnerState.Opponent
 				}
 
-				// Bomb props used to detect bomb events are updated before m_eRoundWinReason.
-				// We delay round events to make sure they occur after bomb events.
-				p.delayedEventHandlers = append(p.delayedEventHandlers, func() {
-					p.eventDispatcher.Dispatch(events.RoundEnd{
-						Reason:      reason,
-						Message:     message,
-						Winner:      winner,
-						WinnerState: winnerState,
-						LoserState:  loserState,
-					})
-				})
+				p.gameState.lastRoundEndEvent = &events.RoundEnd{
+					Reason:      reason,
+					Message:     message,
+					Winner:      winner,
+					WinnerState: winnerState,
+					LoserState:  loserState,
+				}
 
 				p.gameState.currentPlanter = nil
 			})
