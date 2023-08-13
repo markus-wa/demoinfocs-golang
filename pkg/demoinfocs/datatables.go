@@ -512,6 +512,15 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		}
 
 		pl.FlashDuration = val.Float()
+
+		if pl.FlashDuration > 0 {
+			if len(p.gameState.flyingFlashbangs) == 0 {
+				return
+			}
+
+			flashbang := p.gameState.flyingFlashbangs[0]
+			flashbang.flashedEntityIDs = append(flashbang.flashedEntityIDs, pl.EntityID)
+		}
 	})
 
 	p.bindPlayerWeaponsS2(pawnEntity, player)
@@ -746,12 +755,38 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 		p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
 
+		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash {
+			p.gameState.flyingFlashbangs = append(p.gameState.flyingFlashbangs, &FlyingFlashbang{
+				projectile:       proj,
+				flashedEntityIDs: []int{},
+			})
+		}
+
 		p.eventDispatcher.Dispatch(events.GrenadeProjectileThrow{
 			Projectile: proj,
 		})
 	})
 
 	entity.OnDestroy(func() {
+		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash {
+			p.gameEventHandler.dispatch(events.FlashExplode{
+				GrenadeEvent: events.GrenadeEvent{
+					GrenadeType:     common.EqFlash,
+					Grenade:         proj.WeaponInstance,
+					Position:        proj.Position(),
+					Thrower:         proj.Thrower,
+					GrenadeEntityID: proj.Entity.ID(),
+				},
+			})
+
+			if len(p.gameState.flyingFlashbangs) == 0 {
+				return
+			}
+
+			flashbang := p.gameState.flyingFlashbangs[0]
+			flashbang.explodedFrame = p.currentFrame
+		}
+
 		p.nadeProjectileDestroyed(proj)
 	})
 

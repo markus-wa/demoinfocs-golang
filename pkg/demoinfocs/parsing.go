@@ -513,6 +513,8 @@ type frameParsedTokenType struct{}
 var frameParsedToken = new(frameParsedTokenType)
 
 func (p *parser) handleFrameParsed(*frameParsedTokenType) {
+	p.processFlyingFlashbangs()
+
 	// PlayerFlashed events need to be dispatched at the end of the tick
 	// because Player.FlashDuration is updated after the game-events are parsed.
 	for _, eventHandler := range p.delayedEventHandlers {

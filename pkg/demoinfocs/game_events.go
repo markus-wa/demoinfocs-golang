@@ -286,6 +286,7 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 
 	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)
 	geh.gameState().thrownGrenades = make(map[*common.Player][]*common.Equipment)
+	geh.gameState().flyingFlashbangs = make([]*FlyingFlashbang, 0)
 }
 
 func (geh gameEventHandler) roundStart(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -486,6 +487,10 @@ func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CSVCMsg_GameEv
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	attacker := geh.gameState().lastFlash.player
 	projectile := geh.gameState().lastFlash.projectileByPlayer[attacker]
 	unassert.NotNilf(projectile, "PlayerFlashed.Projectile should never be nil")
@@ -507,6 +512,10 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() {
+		return
+	}
+
 	nadeEvent := geh.nadeEvent(data, common.EqFlash)
 
 	geh.gameState().lastFlash.player = nadeEvent.Thrower
@@ -995,4 +1004,34 @@ func guidToSteamID64(guid string) (uint64, error) {
 	}
 
 	return common.ConvertSteamID32To64(steamID32), nil
+}
+
+func (p *parser) processFlyingFlashbangs() {
+	if len(p.gameState.flyingFlashbangs) == 0 {
+		return
+	}
+
+	flashbang := p.gameState.flyingFlashbangs[0]
+	if len(flashbang.flashedEntityIDs) == 0 {
+		// Flashbang exploded and didn't flash any players, remove it from the queue
+		if flashbang.explodedFrame > 0 && flashbang.explodedFrame < p.currentFrame {
+			p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
+		}
+		return
+	}
+
+	for _, entityID := range flashbang.flashedEntityIDs {
+		player := p.gameState.Participants().ByEntityID()[entityID]
+		if player == nil {
+			continue
+		}
+
+		p.gameEventHandler.dispatch(events.PlayerFlashed{
+			Player:     player,
+			Attacker:   flashbang.projectile.Thrower,
+			Projectile: flashbang.projectile,
+		})
+	}
+
+	p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
 }
