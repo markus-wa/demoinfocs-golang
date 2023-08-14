@@ -75,6 +75,18 @@ func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 	})
 }
 
+func (p *parser) handleSetConVarS2(setConVar *msgs2.CNETMsg_SetConVar) {
+	updated := make(map[string]string)
+	for _, cvar := range setConVar.Convars.Cvars {
+		updated[cvar.GetName()] = cvar.GetValue()
+		p.gameState.rules.conVars[cvar.GetName()] = cvar.GetValue()
+	}
+
+	p.eventDispatcher.Dispatch(events.ConVarsUpdated{
+		UpdatedConVars: updated,
+	})
+}
+
 func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
 	// srvInfo.MapCrc might be interesting as well
 	p.tickInterval = srvInfo.GetTickInterval()

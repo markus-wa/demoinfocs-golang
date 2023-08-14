@@ -70,11 +70,15 @@ func (p *Player) SteamID32() uint32 {
 
 // IsAlive returns true if the player is alive.
 func (p *Player) IsAlive() bool {
-	if p.demoInfoProvider.IsSource2() {
-		return getBool(p.Entity, "m_bPawnIsAlive")
+	if p.Health() > 0 {
+		return true
 	}
 
-	return p.Health() > 0 || getInt(p.Entity, "m_lifeState") == 0
+	if p.demoInfoProvider.IsSource2() {
+		return p.PlayerPawnEntity().PropertyValueMust("m_lifeState").S2UInt64() == 0
+	}
+
+	return getInt(p.Entity, "m_lifeState") == 0
 }
 
 // IsBlinded returns true if the player is currently flashed.
