@@ -762,6 +762,13 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			})
 		}
 
+		if p.isSource2() {
+			p.eventDispatcher.Dispatch(events.WeaponFire{
+				Shooter: proj.Owner,
+				Weapon:  proj.WeaponInstance,
+			})
+		}
+
 		p.eventDispatcher.Dispatch(events.GrenadeProjectileThrow{
 			Projectile: proj,
 		})
@@ -889,6 +896,23 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	entity.OnDestroy(func() {
 		delete(p.gameState.weapons, entityID)
 	})
+
+	// Detect weapon firing, we don't use m_iClip1 because it would not work with weapons such as the knife (no ammo).
+	// WeaponFire events for grenades are dispatched when the grenade's projectile is created.
+	if p.isSource2() && equipment.Class() != common.EqClassGrenade {
+		entity.Property("m_fLastShotTime").OnUpdate(func(val st.PropertyValue) {
+			shooter := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
+			if shooter == nil {
+				shooter = equipment.Owner
+			}
+			if shooter != nil && val.Float() > 0 {
+				p.eventDispatcher.Dispatch(events.WeaponFire{
+					Shooter: shooter,
+					Weapon:  equipment,
+				})
+			}
+		})
+	}
 
 	entity.Property("m_iClip1").OnUpdate(func(val st.PropertyValue) {
 		if equipment.Owner != nil {
