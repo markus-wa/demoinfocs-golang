@@ -22,6 +22,7 @@ type Inferno struct {
 	// uniqueID is used to distinguish different infernos (which potentially have the same, reused entityID) from each other.
 	uniqueID         int64
 	demoInfoProvider demoInfoProvider
+	thrower          *Player
 }
 
 // Fire is a component of an Inferno.
@@ -47,6 +48,10 @@ func (inf *Inferno) UniqueID() int64 {
 // Thrower returns the player who threw the fire grenade.
 // Could be nil if the player disconnected after throwing it.
 func (inf *Inferno) Thrower() *Player {
+	if inf.thrower != nil {
+		return inf.thrower
+	}
+
 	handleProp := inf.Entity.Property("m_hOwnerEntity").Value()
 	if inf.demoInfoProvider.IsSource2() {
 		return inf.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
@@ -195,10 +200,11 @@ func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 // NewInferno creates a inferno and sets the Unique-ID.
 //
 // Intended for internal use only.
-func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity) *Inferno {
+func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity, thrower *Player) *Inferno {
 	return &Inferno{
 		Entity:           entity,
 		uniqueID:         rand.Int63(), //nolint:gosec
 		demoInfoProvider: demoInfoProvider,
+		thrower:          thrower,
 	}
 }

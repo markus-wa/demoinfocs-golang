@@ -801,7 +801,14 @@ func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 }
 
 func (p *parser) bindNewInferno(entity st.Entity) {
-	inf := common.NewInferno(p.demoInfoProvider, entity)
+	throwerHandle := entity.PropertyValueMust("m_hOwnerEntity").Handle()
+	var thrower *common.Player
+	if p.isSource2() {
+		thrower = p.gameState.Participants().FindByPawnHandle(throwerHandle)
+	} else {
+		thrower = p.gameState.Participants().FindByHandle64(throwerHandle)
+	}
+	inf := common.NewInferno(p.demoInfoProvider, entity, thrower)
 	p.gameState.infernos[entity.ID()] = inf
 
 	entity.OnCreateFinished(func() {
