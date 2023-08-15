@@ -258,18 +258,44 @@ func (p *Player) IsScoped() bool {
 // IsDucking returns true if the player is currently fully crouching.
 // See also: Flags().Ducking() & Flags().DuckingKeyPressed()
 func (p *Player) IsDucking() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return p.Flags().Ducking()
+	}
+
 	return p.Flags().Ducking() && p.Flags().DuckingKeyPressed()
 }
 
 // IsDuckingInProgress returns true if the player is currently in the progress of going from standing to crouched.
 // See also: Flags().Ducking() & Flags().DuckingKeyPressed()
 func (p *Player) IsDuckingInProgress() bool {
+	if p.demoInfoProvider.IsSource2() {
+		pawnEntity := p.PlayerPawnEntity()
+		if pawnEntity == nil {
+			return false
+		}
+		duckAmount := pawnEntity.PropertyValueMust("m_pMovementServices.m_flDuckAmount").Float()
+		wantToDuck := pawnEntity.PropertyValueMust("m_pMovementServices.m_bDesiresDuck").BoolVal()
+
+		return !p.Flags().Ducking() && wantToDuck && duckAmount > 0
+	}
+
 	return !p.Flags().Ducking() && p.Flags().DuckingKeyPressed()
 }
 
 // IsUnDuckingInProgress returns true if the player is currently in the progress of going from crouched to standing.
 // See also: Flags().Ducking() & Flags().DuckingKeyPressed()
 func (p *Player) IsUnDuckingInProgress() bool {
+	if p.demoInfoProvider.IsSource2() {
+		pawnEntity := p.PlayerPawnEntity()
+		if pawnEntity == nil {
+			return false
+		}
+		duckAmount := pawnEntity.PropertyValueMust("m_pMovementServices.m_flDuckAmount").Float()
+		wantToDuck := pawnEntity.PropertyValueMust("m_pMovementServices.m_bDesiresDuck").BoolVal()
+
+		return !p.Flags().Ducking() && !wantToDuck && duckAmount > 0
+	}
+
 	return p.Flags().Ducking() && !p.Flags().DuckingKeyPressed()
 }
 
@@ -515,11 +541,19 @@ func (p *Player) resourceEntity() st.Entity {
 
 // ClanTag returns the player's individual clan tag (Steam Groups etc.).
 func (p *Player) ClanTag() string {
+	if p.demoInfoProvider.IsSource2() {
+		return getString(p.Entity, "m_szClan")
+	}
+
 	return getString(p.resourceEntity(), "m_szClan."+p.entityIDStr())
 }
 
 // CrosshairCode returns the player's crosshair code or an empty string if there isn't one.
 func (p *Player) CrosshairCode() string {
+	if p.demoInfoProvider.IsSource2() {
+		return getString(p.Entity, "m_szCrosshairCodes")
+	}
+
 	if p.resourceEntity() == nil {
 		return ""
 	}
@@ -630,26 +664,54 @@ func (p *Player) MVPs() int {
 
 // TotalDamage returns the total health damage done by the player.
 func (p *Player) TotalDamage() int {
+	if p.demoInfoProvider.IsSource2() {
+		value := p.Entity.PropertyValueMust("m_pActionTrackingServices.m_iDamage")
+		if value.Any == nil {
+			return 0
+		}
+		return value.Int()
+	}
+
 	return getInt(p.resourceEntity(), "m_iMatchStats_Damage_Total."+p.entityIDStr())
 }
 
 // UtilityDamage returns the total damage done by the player with grenades.
 func (p *Player) UtilityDamage() int {
+	if p.demoInfoProvider.IsSource2() {
+		value := p.Entity.PropertyValueMust("m_pActionTrackingServices.m_iUtilityDamage")
+		if value.Any == nil {
+			return 0
+		}
+		return value.Int()
+	}
+
 	return getInt(p.resourceEntity(), "m_iMatchStats_UtilityDamage_Total."+p.entityIDStr())
 }
 
 // MoneySpentTotal returns the total amount of money the player has spent in the current match.
 func (p *Player) MoneySpentTotal() int {
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pInGameMoneyServices.m_iTotalCashSpent")
+	}
+
 	return getInt(p.resourceEntity(), "m_iTotalCashSpent."+p.entityIDStr())
 }
 
 // MoneySpentThisRound returns the amount of money the player has spent in the current round.
 func (p *Player) MoneySpentThisRound() int {
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pInGameMoneyServices.m_iCashSpentThisRound")
+	}
+
 	return getInt(p.resourceEntity(), "m_iCashSpentThisRound."+p.entityIDStr())
 }
 
 // LastPlaceName returns the string value of the player's position.
 func (p *Player) LastPlaceName() string {
+	if p.demoInfoProvider.IsSource2() {
+		return getString(p.PlayerPawnEntity(), "m_szLastPlaceName")
+	}
+
 	return getString(p.Entity, "m_szLastPlaceName")
 }
 
