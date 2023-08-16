@@ -75,7 +75,10 @@ func (p *Player) IsAlive() bool {
 	}
 
 	if p.demoInfoProvider.IsSource2() {
-		return p.PlayerPawnEntity().PropertyValueMust("m_lifeState").S2UInt64() == 0
+		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			return pawnEntity.PropertyValueMust("m_lifeState").S2UInt64() == 0
+		}
+		return getBool(p.Entity, "m_bPawnIsAlive")
 	}
 
 	return getInt(p.Entity, "m_lifeState") == 0
