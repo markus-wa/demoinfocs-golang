@@ -86,16 +86,19 @@ func (p *parser) bindBomb() {
 		if p.isSource2() {
 			bombEntity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 				carrier := p.gameState.Participants().FindByPawnHandle(val.Handle())
-				if carrier != nil {
-					p.eventDispatcher.Dispatch(events.BombPickup{
-						Player: carrier,
-					})
-				} else if bomb.Carrier != nil {
-					p.eventDispatcher.Dispatch(events.BombDropped{
-						Player:   bomb.Carrier,
-						EntityID: bomb.Carrier.EntityID,
-					})
+				if p.mimicSource1GameEvents {
+					if carrier != nil {
+						p.eventDispatcher.Dispatch(events.BombPickup{
+							Player: carrier,
+						})
+					} else if bomb.Carrier != nil {
+						p.eventDispatcher.Dispatch(events.BombDropped{
+							Player:   bomb.Carrier,
+							EntityID: bomb.Carrier.EntityID,
+						})
+					}
 				}
+
 				bomb.Carrier = carrier
 			})
 		} else {
@@ -114,18 +117,21 @@ func (p *parser) bindBomb() {
 
 					siteNumber := p.gameState.currentPlanter.PlayerPawnEntity().PropertyValueMust("m_nWhichBombZone").Int()
 					site := events.BomsiteUnknown
-					if siteNumber == 1 {
+					switch siteNumber {
+					case 1:
 						site = events.BombsiteA
-					} else if siteNumber == 2 {
+					case 2:
 						site = events.BombsiteB
 					}
 
-					p.eventDispatcher.Dispatch(events.BombPlantBegin{
-						BombEvent: events.BombEvent{
-							Player: p.gameState.currentPlanter,
-							Site:   site,
-						},
-					})
+					if p.mimicSource1GameEvents {
+						p.eventDispatcher.Dispatch(events.BombPlantBegin{
+							BombEvent: events.BombEvent{
+								Player: p.gameState.currentPlanter,
+								Site:   site,
+							},
+						})
+					}
 				} else {
 					p.gameState.currentPlanter = bomb.Carrier
 				}
@@ -163,12 +169,14 @@ func (p *parser) bindBomb() {
 				site = events.BombsiteB
 			}
 
-			p.eventDispatcher.Dispatch(events.BombPlanted{
-				BombEvent: events.BombEvent{
-					Player: planter,
-					Site:   site,
-				},
-			})
+			if p.mimicSource1GameEvents {
+				p.eventDispatcher.Dispatch(events.BombPlanted{
+					BombEvent: events.BombEvent{
+						Player: planter,
+						Site:   site,
+					},
+				})
+			}
 
 			// Set to true when the bomb has been planted and to false when it has been defused or has exploded.
 			bombEntity.Property("m_bBombTicking").OnUpdate(func(val st.PropertyValue) {
@@ -182,7 +190,7 @@ func (p *parser) bindBomb() {
 				// When the bomb is defused, m_bBombTicking is set to false and then m_hBombDefuser is set to nil.
 				// It means that if a player is currently defusing the bomb, it's a defuse event.
 				isDefuseEvent := p.gameState.currentDefuser != nil
-				if isDefuseEvent {
+				if isDefuseEvent || !p.mimicSource1GameEvents {
 					return
 				}
 
@@ -200,10 +208,12 @@ func (p *parser) bindBomb() {
 				if isValidPlayer {
 					defuser := p.gameState.Participants().FindByPawnHandle(val.Handle())
 					p.gameState.currentDefuser = defuser
-					p.eventDispatcher.Dispatch(events.BombDefuseStart{
-						Player: defuser,
-						HasKit: defuser.HasDefuseKit(),
-					})
+					if p.mimicSource1GameEvents {
+						p.eventDispatcher.Dispatch(events.BombDefuseStart{
+							Player: defuser,
+							HasKit: defuser.HasDefuseKit(),
+						})
+					}
 					return
 				}
 
@@ -220,7 +230,7 @@ func (p *parser) bindBomb() {
 			// Updated when the bomb has been planted and defused.
 			bombEntity.Property("m_bBombDefused").OnUpdate(func(val st.PropertyValue) {
 				isDefused := val.BoolVal()
-				if isDefused {
+				if isDefused && p.mimicSource1GameEvents {
 					defuser := p.gameState.Participants().FindByPawnHandle(bombEntity.PropertyValueMust("m_hBombDefuser").Handle())
 					p.eventDispatcher.Dispatch(events.BombDefused{
 						BombEvent: events.BombEvent{
@@ -762,7 +772,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			})
 		}
 
-		if p.isSource2() {
+		if p.isSource2() && p.mimicSource1GameEvents {
 			p.eventDispatcher.Dispatch(events.WeaponFire{
 				Shooter: proj.Owner,
 				Weapon:  proj.WeaponInstance,
@@ -775,7 +785,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	})
 
 	entity.OnDestroy(func() {
-		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash {
+		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash && p.mimicSource1GameEvents {
 			p.gameEventHandler.dispatch(events.FlashExplode{
 				GrenadeEvent: events.GrenadeEvent{
 					GrenadeType:     common.EqFlash,
@@ -899,7 +909,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 
 	// Detect weapon firing, we don't use m_iClip1 because it would not work with weapons such as the knife (no ammo).
 	// WeaponFire events for grenades are dispatched when the grenade's projectile is created.
-	if p.isSource2() && equipment.Class() != common.EqClassGrenade {
+	if p.isSource2() && equipment.Class() != common.EqClassGrenade && p.mimicSource1GameEvents {
 		entity.Property("m_fLastShotTime").OnUpdate(func(val st.PropertyValue) {
 			shooter := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
 			if shooter == nil {
@@ -1033,6 +1043,10 @@ func (p *parser) bindGameRules() {
 		dispatchRoundStart := func() {
 			p.gameEventHandler.clearGrenadeProjectiles()
 
+			if !p.mimicSource1GameEvents {
+				return
+			}
+
 			if p.gameState.TotalRoundsPlayed() > 0 {
 				p.gameEventHandler.dispatch(events.RoundEndOfficial{})
 			}
@@ -1093,7 +1107,7 @@ func (p *parser) bindGameRules() {
 				OldIsStarted: oldMatchStarted,
 				NewIsStarted: newMatchStarted,
 			}
-			if p.isSource2() {
+			if p.isSource2() && p.mimicSource1GameEvents {
 				p.gameState.lastMatchStartedChangedEvent = &event
 				// First round start event detection, we can't detect it by listening for a m_eRoundWinReason prop update
 				// because there is no update triggered when the first round starts as the prop value is already 0.
@@ -1199,12 +1213,14 @@ func (p *parser) bindGameRules() {
 					loserState = winnerState.Opponent
 				}
 
-				p.gameState.lastRoundEndEvent = &events.RoundEnd{
-					Reason:      reason,
-					Message:     message,
-					Winner:      winner,
-					WinnerState: winnerState,
-					LoserState:  loserState,
+				if p.mimicSource1GameEvents {
+					p.gameState.lastRoundEndEvent = &events.RoundEnd{
+						Reason:      reason,
+						Message:     message,
+						Winner:      winner,
+						WinnerState: winnerState,
+						LoserState:  loserState,
+					}
 				}
 
 				p.gameState.currentPlanter = nil
