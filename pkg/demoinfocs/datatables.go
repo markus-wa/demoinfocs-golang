@@ -86,7 +86,7 @@ func (p *parser) bindBomb() {
 		if p.isSource2() {
 			bombEntity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 				carrier := p.gameState.Participants().FindByPawnHandle(val.Handle())
-				if p.mimicSource1GameEvents {
+				if !p.disableMimicSource1GameEvents {
 					if carrier != nil {
 						p.eventDispatcher.Dispatch(events.BombPickup{
 							Player: carrier,
@@ -124,7 +124,7 @@ func (p *parser) bindBomb() {
 						site = events.BombsiteB
 					}
 
-					if p.mimicSource1GameEvents {
+					if !p.disableMimicSource1GameEvents {
 						p.eventDispatcher.Dispatch(events.BombPlantBegin{
 							BombEvent: events.BombEvent{
 								Player: p.gameState.currentPlanter,
@@ -169,7 +169,7 @@ func (p *parser) bindBomb() {
 				site = events.BombsiteB
 			}
 
-			if p.mimicSource1GameEvents {
+			if !p.disableMimicSource1GameEvents {
 				p.eventDispatcher.Dispatch(events.BombPlanted{
 					BombEvent: events.BombEvent{
 						Player: planter,
@@ -190,7 +190,7 @@ func (p *parser) bindBomb() {
 				// When the bomb is defused, m_bBombTicking is set to false and then m_hBombDefuser is set to nil.
 				// It means that if a player is currently defusing the bomb, it's a defuse event.
 				isDefuseEvent := p.gameState.currentDefuser != nil
-				if isDefuseEvent || !p.mimicSource1GameEvents {
+				if isDefuseEvent || p.disableMimicSource1GameEvents {
 					return
 				}
 
@@ -208,7 +208,7 @@ func (p *parser) bindBomb() {
 				if isValidPlayer {
 					defuser := p.gameState.Participants().FindByPawnHandle(val.Handle())
 					p.gameState.currentDefuser = defuser
-					if p.mimicSource1GameEvents {
+					if !p.disableMimicSource1GameEvents {
 						p.eventDispatcher.Dispatch(events.BombDefuseStart{
 							Player: defuser,
 							HasKit: defuser.HasDefuseKit(),
@@ -230,7 +230,7 @@ func (p *parser) bindBomb() {
 			// Updated when the bomb has been planted and defused.
 			bombEntity.Property("m_bBombDefused").OnUpdate(func(val st.PropertyValue) {
 				isDefused := val.BoolVal()
-				if isDefused && p.mimicSource1GameEvents {
+				if isDefused && !p.disableMimicSource1GameEvents {
 					defuser := p.gameState.Participants().FindByPawnHandle(bombEntity.PropertyValueMust("m_hBombDefuser").Handle())
 					p.eventDispatcher.Dispatch(events.BombDefused{
 						BombEvent: events.BombEvent{
@@ -772,7 +772,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			})
 		}
 
-		if p.isSource2() && p.mimicSource1GameEvents {
+		if p.isSource2() && !p.disableMimicSource1GameEvents {
 			p.eventDispatcher.Dispatch(events.WeaponFire{
 				Shooter: proj.Owner,
 				Weapon:  proj.WeaponInstance,
@@ -785,7 +785,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	})
 
 	entity.OnDestroy(func() {
-		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash && p.mimicSource1GameEvents {
+		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash && !p.disableMimicSource1GameEvents {
 			p.gameEventHandler.dispatch(events.FlashExplode{
 				GrenadeEvent: events.GrenadeEvent{
 					GrenadeType:     common.EqFlash,
@@ -909,7 +909,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 
 	// Detect weapon firing, we don't use m_iClip1 because it would not work with weapons such as the knife (no ammo).
 	// WeaponFire events for grenades are dispatched when the grenade's projectile is created.
-	if p.isSource2() && equipment.Class() != common.EqClassGrenade && p.mimicSource1GameEvents {
+	if p.isSource2() && equipment.Class() != common.EqClassGrenade && !p.disableMimicSource1GameEvents {
 		entity.Property("m_fLastShotTime").OnUpdate(func(val st.PropertyValue) {
 			shooter := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
 			if shooter == nil {
@@ -1043,7 +1043,7 @@ func (p *parser) bindGameRules() {
 		dispatchRoundStart := func() {
 			p.gameEventHandler.clearGrenadeProjectiles()
 
-			if !p.mimicSource1GameEvents {
+			if p.disableMimicSource1GameEvents {
 				return
 			}
 
@@ -1107,7 +1107,7 @@ func (p *parser) bindGameRules() {
 				OldIsStarted: oldMatchStarted,
 				NewIsStarted: newMatchStarted,
 			}
-			if p.isSource2() && p.mimicSource1GameEvents {
+			if p.isSource2() && !p.disableMimicSource1GameEvents {
 				p.gameState.lastMatchStartedChangedEvent = &event
 				// First round start event detection, we can't detect it by listening for a m_eRoundWinReason prop update
 				// because there is no update triggered when the first round starts as the prop value is already 0.
@@ -1213,7 +1213,7 @@ func (p *parser) bindGameRules() {
 					loserState = winnerState.Opponent
 				}
 
-				if p.mimicSource1GameEvents {
+				if !p.disableMimicSource1GameEvents {
 					p.gameState.lastRoundEndEvent = &events.RoundEnd{
 						Reason:      reason,
 						Message:     message,

@@ -290,7 +290,7 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 }
 
 func (geh gameEventHandler) roundStart(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -316,7 +316,7 @@ func (geh gameEventHandler) roundAnnounceLastRoundHalf(map[string]*msg.CSVCMsg_G
 }
 
 func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -341,7 +341,7 @@ func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT)
 }
 
 func (geh gameEventHandler) roundOfficiallyEnded(map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -390,7 +390,7 @@ func (geh gameEventHandler) playerJump(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -491,7 +491,7 @@ func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CSVCMsg_GameEv
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -516,7 +516,7 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -680,7 +680,7 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -697,7 +697,7 @@ func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CSVCMsg_GameEven
 }
 
 func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -718,7 +718,7 @@ func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) bombDefused(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -733,7 +733,7 @@ func (geh gameEventHandler) bombDefused(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) bombExploded(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -801,7 +801,7 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 }
 
 func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -847,7 +847,7 @@ func (geh gameEventHandler) itemEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 }
 
 func (geh gameEventHandler) bombDropped(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -861,7 +861,7 @@ func (geh gameEventHandler) bombDropped(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) bombPickup(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && geh.parser.mimicSource1GameEvents {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -1076,7 +1076,7 @@ func (p *parser) processFlyingFlashbangs() {
 //
 // This makes sure game events are dispatched in a more expected order.
 func (p *parser) processFrameGameEvents() {
-	if p.isSource2() && p.mimicSource1GameEvents {
+	if p.isSource2() && !p.disableMimicSource1GameEvents {
 		p.processFlyingFlashbangs()
 		p.processRoundProgressEvents()
 	}
