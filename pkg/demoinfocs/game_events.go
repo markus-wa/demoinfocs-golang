@@ -286,9 +286,14 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 
 	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)
 	geh.gameState().thrownGrenades = make(map[*common.Player][]*common.Equipment)
+	geh.gameState().flyingFlashbangs = make([]*FlyingFlashbang, 0)
 }
 
 func (geh gameEventHandler) roundStart(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	geh.clearGrenadeProjectiles()
 
 	geh.dispatch(events.RoundStart{
@@ -311,6 +316,10 @@ func (geh gameEventHandler) roundAnnounceLastRoundHalf(map[string]*msg.CSVCMsg_G
 }
 
 func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	winner := common.Team(data["winner"].GetValByte())
 	winnerState := geh.gameState().Team(winner)
 
@@ -332,6 +341,10 @@ func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT)
 }
 
 func (geh gameEventHandler) roundOfficiallyEnded(map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	geh.clearGrenadeProjectiles()
 
 	geh.dispatch(events.RoundEndOfficial{})
@@ -377,6 +390,10 @@ func (geh gameEventHandler) playerJump(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	shooter := geh.playerByUserID32(data["userid"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 
@@ -474,6 +491,10 @@ func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CSVCMsg_GameEv
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	attacker := geh.gameState().lastFlash.player
 	projectile := geh.gameState().lastFlash.projectileByPlayer[attacker]
 	unassert.NotNilf(projectile, "PlayerFlashed.Projectile should never be nil")
@@ -495,6 +516,10 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	nadeEvent := geh.nadeEvent(data, common.EqFlash)
 
 	geh.gameState().lastFlash.player = nadeEvent.Thrower
@@ -655,6 +680,10 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKey
 }
 
 func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	bombEvent, err := geh.bombEvent(data)
 	if err != nil {
 		geh.parser.setError(err)
@@ -668,6 +697,10 @@ func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CSVCMsg_GameEven
 }
 
 func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	bombEvent, err := geh.bombEvent(data)
 	if err != nil {
 		geh.parser.setError(err)
@@ -685,6 +718,10 @@ func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) bombDefused(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	bombEvent, err := geh.bombEvent(data)
 	if err != nil {
 		geh.parser.setError(err)
@@ -696,6 +733,10 @@ func (geh gameEventHandler) bombDefused(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) bombExploded(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	bombEvent, err := geh.bombEvent(data)
 	if err != nil {
 		geh.parser.setError(err)
@@ -760,6 +801,10 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 }
 
 func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	geh.gameState().currentDefuser = geh.playerByUserID32(data["userid"].GetValShort())
 
 	geh.dispatch(events.BombDefuseStart{
@@ -802,6 +847,10 @@ func (geh gameEventHandler) itemEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 }
 
 func (geh gameEventHandler) bombDropped(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 	entityID := int(data["entityid"].GetValShort())
 
@@ -812,6 +861,10 @@ func (geh gameEventHandler) bombDropped(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) bombPickup(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		return
+	}
+
 	geh.dispatch(events.BombPickup{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
@@ -955,4 +1008,82 @@ func guidToSteamID64(guid string) (uint64, error) {
 	}
 
 	return common.ConvertSteamID32To64(steamID32), nil
+}
+
+func (p *parser) dispatchMatchStartedEventIfNecessary() {
+	if p.gameState.lastMatchStartedChangedEvent != nil {
+		p.gameState.isMatchStarted = p.gameState.lastMatchStartedChangedEvent.NewIsStarted
+		p.gameEventHandler.dispatch(*p.gameState.lastMatchStartedChangedEvent)
+		p.gameState.lastMatchStartedChangedEvent = nil
+	}
+}
+
+// Dispatch round progress events in the following order:
+// 1. MatchStartedChanged
+// 2. RoundStart
+// 3. RoundEnd
+// 4. MatchStartedChanged
+func (p *parser) processRoundProgressEvents() {
+	if p.gameState.lastRoundStartEvent != nil {
+		p.dispatchMatchStartedEventIfNecessary()
+		p.gameEventHandler.dispatch(*p.gameState.lastRoundStartEvent)
+		p.gameState.lastRoundStartEvent = nil
+	}
+
+	if p.gameState.lastRoundEndEvent != nil {
+		p.gameEventHandler.dispatch(*p.gameState.lastRoundEndEvent)
+		p.gameState.lastRoundEndEvent = nil
+	}
+
+	p.dispatchMatchStartedEventIfNecessary()
+}
+
+func (p *parser) processFlyingFlashbangs() {
+	if len(p.gameState.flyingFlashbangs) == 0 {
+		return
+	}
+
+	flashbang := p.gameState.flyingFlashbangs[0]
+	if len(flashbang.flashedEntityIDs) == 0 {
+		// Flashbang exploded and didn't flash any players, remove it from the queue
+		if flashbang.explodedFrame > 0 && flashbang.explodedFrame < p.currentFrame {
+			p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
+		}
+		return
+	}
+
+	for _, entityID := range flashbang.flashedEntityIDs {
+		player := p.gameState.Participants().ByEntityID()[entityID]
+		if player == nil {
+			continue
+		}
+
+		p.gameEventHandler.dispatch(events.PlayerFlashed{
+			Player:     player,
+			Attacker:   flashbang.projectile.Thrower,
+			Projectile: flashbang.projectile,
+		})
+	}
+
+	p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
+}
+
+// Do some processing to dispatch game events at the end of the frame in correct order.
+// This is necessary because some prop updates are not in a order that we would expect, e.g.:
+// - The player prop m_flFlashDuration is updated after the game event player_blind have been parsed (used for CS:GO only)
+// - The player prop m_flFlashDuration may be updated after *or* before the flashbang explosion event
+// - Bomb props used to detect bomb events are updated after the prop m_eRoundWinReason used to detect round end events
+//
+// This makes sure game events are dispatched in a more expected order.
+func (p *parser) processFrameGameEvents() {
+	if p.isSource2() && !p.disableMimicSource1GameEvents {
+		p.processFlyingFlashbangs()
+		p.processRoundProgressEvents()
+	}
+
+	for _, eventHandler := range p.delayedEventHandlers {
+		eventHandler()
+	}
+
+	p.delayedEventHandlers = p.delayedEventHandlers[:0]
 }

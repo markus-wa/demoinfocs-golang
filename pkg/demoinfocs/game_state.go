@@ -7,6 +7,7 @@ import (
 
 	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/constants"
+	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
 	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
 )
 
@@ -16,30 +17,56 @@ import (
 
 // gameState contains all game-state relevant information.
 type gameState struct {
-	ingameTick           int
-	tState               common.TeamState
-	ctState              common.TeamState
-	playersByUserID      map[int]*common.Player            // Maps user-IDs to players
-	playersByEntityID    map[int]*common.Player            // Maps entity-IDs to players
-	playersBySteamID32   map[uint32]*common.Player         // Maps 32-bit-steam-IDs to players
-	playerResourceEntity st.Entity                         // CCSPlayerResource entity instance, contains scoreboard info and more
-	grenadeProjectiles   map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
-	infernos             map[int]*common.Inferno           // Maps entity-IDs to active infernos.
-	weapons              map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
-	hostages             map[int]*common.Hostage           // Maps entity-IDs to hostages.
-	entities             map[int]st.Entity                 // Maps entity IDs to entities
-	bomb                 common.Bomb
-	totalRoundsPlayed    int
-	gamePhase            common.GamePhase
-	isWarmupPeriod       bool
-	isMatchStarted       bool
-	overtimeCount        int
-	lastFlash            lastFlash                              // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
-	currentDefuser       *common.Player                         // Player currently defusing the bomb, if any
-	currentPlanter       *common.Player                         // Player currently planting the bomb, if any
-	thrownGrenades       map[*common.Player][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
-	rules                gameRules
-	demoInfo             demoInfoProvider
+	ingameTick                   int
+	tState                       common.TeamState
+	ctState                      common.TeamState
+	playersByUserID              map[int]*common.Player            // Maps user-IDs to players
+	playersByEntityID            map[int]*common.Player            // Maps entity-IDs to players
+	playersBySteamID32           map[uint32]*common.Player         // Maps 32-bit-steam-IDs to players
+	playerResourceEntity         st.Entity                         // CCSPlayerResource entity instance, contains scoreboard info and more
+	grenadeProjectiles           map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
+	infernos                     map[int]*common.Inferno           // Maps entity-IDs to active infernos.
+	weapons                      map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
+	hostages                     map[int]*common.Hostage           // Maps entity-IDs to hostages.
+	entities                     map[int]st.Entity                 // Maps entity IDs to entities
+	bomb                         common.Bomb
+	totalRoundsPlayed            int
+	gamePhase                    common.GamePhase
+	isWarmupPeriod               bool
+	isMatchStarted               bool
+	overtimeCount                int
+	lastFlash                    lastFlash                              // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
+	currentDefuser               *common.Player                         // Player currently defusing the bomb, if any
+	currentPlanter               *common.Player                         // Player currently planting the bomb, if any
+	thrownGrenades               map[*common.Player][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
+	rules                        gameRules
+	demoInfo                     demoInfoProvider
+	lastRoundStartEvent          *events.RoundStart          // Used to dispatch this event after a possible MatchStartedChanged event
+	lastRoundEndEvent            *events.RoundEnd            // Used to dispatch this event before a possible MatchStartedChanged event
+	lastMatchStartedChangedEvent *events.MatchStartedChanged // Used to dispatch this event before a possible RoundStart event and after a possible RoundEnd event
+	// Used to mimic missing player_blind events for CS2 demos.
+	//
+	// When a player throws a flashbang the following happens:
+	// 1. A player throws a flashbang
+	// 2. A projectile entity is created
+	// 3. The projectile entity is destroyed a few seconds later which means the flashbang exploded
+	// 4. The prop m_flFlashDuration is updated for all players that are flashed
+	//
+	// The problem is that the order of the steps 3 and 4 is not guaranteed.
+	// So it's not reliable to dispatch player-flashed events either when the projectile is destroyed or when the
+	// m_flFlashDuration prop is updated.
+	//
+	// As a solution, we keep track of flashbang projectiles created and all m_flFlashDuration prop updates related
+	// to this projectile. As all m_flFlashDuration prop updates occur during the same frame, we batch dispatch
+	// player-flashed events at the end of the frame if there are any.
+	// This slice acts like a FIFO queue, the first projectile inserted is the first one to be removed when it exploded.
+	flyingFlashbangs []*FlyingFlashbang
+}
+
+type FlyingFlashbang struct {
+	projectile       *common.GrenadeProjectile
+	flashedEntityIDs []int
+	explodedFrame    int
 }
 
 type lastFlash struct {
@@ -214,6 +241,7 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		hostages:           make(map[int]*common.Hostage),
 		entities:           make(map[int]st.Entity),
 		thrownGrenades:     make(map[*common.Player][]*common.Equipment),
+		flyingFlashbangs:   make([]*FlyingFlashbang, 0),
 		lastFlash: lastFlash{
 			projectileByPlayer: make(map[*common.Player]*common.GrenadeProjectile),
 		},
