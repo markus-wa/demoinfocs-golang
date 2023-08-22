@@ -147,6 +147,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["awp"] = EqAWP
 	eqNameToWeapon["bizon"] = EqBizon
 	eqNameToWeapon["c4"] = EqBomb
+	eqNameToWeapon["planted_c4"] = EqBomb
 	eqNameToWeapon["deagle"] = EqDeagle
 	eqNameToWeapon["decoy"] = EqDecoy
 	eqNameToWeapon["decoygrenade"] = EqDecoy
