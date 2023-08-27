@@ -156,9 +156,12 @@ This isn't very conclusive but it looks like IsFlashed isn't super reliable curr
 
 // Used internally to set the active weapon, see ActiveWeapon()
 func (p *Player) activeWeaponID() int {
-	pawnEntity := p.PlayerPawnEntity()
-	if pawnEntity != nil {
-		return int(pawnEntity.PropertyValueMust("m_pWeaponServices.m_hActiveWeapon").S2UInt64() & constants.EntityHandleIndexMaskSource2)
+	if p.demoInfoProvider.IsSource2() {
+		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			return int(pawnEntity.PropertyValueMust("m_pWeaponServices.m_hActiveWeapon").S2UInt64() & constants.EntityHandleIndexMaskSource2)
+		}
+
+		return 0
 	}
 
 	return getInt(p.Entity, "m_hActiveWeapon") & constants.EntityHandleIndexMask
@@ -406,10 +409,12 @@ func (p *Player) EquipmentValueFreezeTimeEnd() int {
 
 // ViewDirectionX returns the Yaw value in degrees, 0 to 360.
 func (p *Player) ViewDirectionX() float32 {
-	pawnEntity := p.PlayerPawnEntity()
-	if pawnEntity != nil {
-		d := pawnEntity.Property("m_angEyeAngles").Value().R3Vec()
-		return float32(d.Y)
+	if p.demoInfoProvider.IsSource2() {
+		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			return float32(pawnEntity.PropertyValueMust("m_angEyeAngles").R3Vec().Y)
+		}
+
+		return 0
 	}
 
 	return getFloat(p.Entity, "m_angEyeAngles[1]")
@@ -417,10 +422,12 @@ func (p *Player) ViewDirectionX() float32 {
 
 // ViewDirectionY returns the Pitch value in degrees, 270 to 90 (270=-90).
 func (p *Player) ViewDirectionY() float32 {
-	pawnEntity := p.PlayerPawnEntity()
-	if pawnEntity != nil {
-		d := pawnEntity.Property("m_angEyeAngles").Value().R3Vec()
-		return float32(d.X)
+	if p.demoInfoProvider.IsSource2() {
+		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			return float32(pawnEntity.PropertyValueMust("m_angEyeAngles").R3Vec().X)
+		}
+
+		return 0
 	}
 
 	return getFloat(p.Entity, "m_angEyeAngles[0]")
@@ -454,7 +461,12 @@ func (p *Player) PositionEyes() r3.Vector {
 	}
 
 	pos := p.Position()
-	pos.Z += float64(p.Entity.PropertyValueMust("localdata.m_vecViewOffset[2]").FloatVal)
+	if p.demoInfoProvider.IsSource2() {
+		// TODO Find out where we can find the offset in Source 2 demos
+		return pos
+	} else {
+		pos.Z += float64(p.Entity.PropertyValueMust("localdata.m_vecViewOffset[2]").Float())
+	}
 
 	return pos
 }
