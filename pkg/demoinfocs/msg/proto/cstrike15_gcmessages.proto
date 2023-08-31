@@ -1,8 +1,6 @@
 import "steammessages.proto";
 import "engine_gcmessages.proto";
-
-option optimize_for = SPEED;
-option cc_generic_services = false;
+import "gcsdk_gcmessages.proto";
 
 enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_Base = 9100;
@@ -15,7 +13,6 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_MatchmakingClient2GCHello = 9109;
 	k_EMsgGCCStrike15_v2_MatchmakingGC2ClientHello = 9110;
 	k_EMsgGCCStrike15_v2_MatchmakingGC2ClientAbandon = 9112;
-	k_EMsgGCCStrike15_v2_MatchmakingGCOperationalStats = 9115;
 	k_EMsgGCCStrike15_v2_MatchmakingOperator2GCBlogUpdate = 9117;
 	k_EMsgGCCStrike15_v2_ServerNotificationForUserPenalty = 9118;
 	k_EMsgGCCStrike15_v2_ClientReportPlayer = 9119;
@@ -193,6 +190,7 @@ message GlobalStatistics {
 	optional uint32 active_survey_id = 13;
 	optional uint32 rtime32_cur = 14;
 	optional uint32 rtime32_event_start = 15;
+	optional uint32 required_appid_version2 = 16;
 }
 
 message OperationalStatisticDescription {
@@ -383,12 +381,6 @@ message CMsgGC_ServerQuestUpdateData {
 	optional .ScoreLeaderboardData missionlbsdata = 4;
 }
 
-message CMsgGCCStrike15_v2_MatchmakingGCOperationalStats {
-	optional int32 packetid = 1;
-	repeated .OperationalStatisticDescription namekeys = 2;
-	repeated .OperationalStatisticsPacket packets = 3;
-}
-
 message CMsgGCCStrike15_v2_MatchmakingGC2ServerConfirm {
 	optional uint32 token = 1;
 	optional uint32 stamp = 2;
@@ -466,6 +458,16 @@ message CDataGCCStrike15_v2_TournamentMatchDraft {
 	optional int32 team_id_veto1 = 8;
 	optional int32 team_id_pickn = 9;
 	repeated .CDataGCCStrike15_v2_TournamentMatchDraft.Entry drafts = 10;
+	repeated int32 vote_mapid_0 = 11;
+	repeated int32 vote_mapid_1 = 12;
+	repeated int32 vote_mapid_2 = 13;
+	repeated int32 vote_mapid_3 = 14;
+	repeated int32 vote_mapid_4 = 15;
+	repeated int32 vote_mapid_5 = 16;
+	repeated int32 vote_starting_side = 17;
+	optional int32 vote_phase = 18;
+	optional float vote_phase_start = 19;
+	optional float vote_phase_length = 20;
 }
 
 message CPreMatchInfoData {
@@ -849,10 +851,6 @@ message CMsgGCCStrike15_v2_MatchEndRewardDropsNotification {
 	optional .CEconItemPreviewDataBlock iteminfo = 6;
 }
 
-message CMsgItemAcknowledged {
-	optional .CEconItemPreviewDataBlock iteminfo = 1;
-}
-
 message CMsgGCCStrike15_v2_Client2GCEconPreviewDataBlockRequest {
 	optional uint64 param_s = 1;
 	optional uint64 param_a = 2;
@@ -941,6 +939,7 @@ message CMsgGCCStrike15_v2_MatchList {
 message CMsgGCCStrike15_v2_MatchListTournamentOperatorMgmt {
 	optional int32 eventid = 1;
 	repeated .CDataGCCStrike15_v2_MatchInfo matches = 2;
+	optional uint32 accountid = 3;
 }
 
 message CMsgGCCStrike15_v2_Predictions {
@@ -972,8 +971,24 @@ message CMsgGCCStrike15_v2_Fantasy {
 	repeated .CMsgGCCStrike15_v2_Fantasy.FantasyTeam teams = 2;
 }
 
-message CAttribute_String {
-	optional string value = 1;
+message CMsgLegacySource1ClientWelcome {
+	message Location {
+		optional float latitude = 1;
+		optional float longitude = 2;
+		optional string country = 3;
+	}
+
+	optional uint32 version = 1;
+	optional bytes game_data = 2;
+	repeated .CMsgSOCacheSubscribed outofdate_subscribed_caches = 3;
+	repeated .CMsgSOCacheSubscriptionCheck uptodate_subscribed_caches = 4;
+	optional .CMsgLegacySource1ClientWelcome.Location location = 5;
+	optional bytes game_data2 = 6;
+	optional uint32 rtime32_gc_welcome_timestamp = 7;
+	optional uint32 currency = 8;
+	optional uint32 balance = 9;
+	optional string balance_url = 10;
+	optional string txn_country_code = 11;
 }
 
 message CMsgCStrike15Welcome {
@@ -1125,7 +1140,7 @@ message PlayerDecalDigitalSignature {
 	optional uint32 rtime = 3;
 	repeated float endpos = 4;
 	repeated float startpos = 5;
-	repeated float right = 6;
+	repeated float left = 6;
 	optional uint32 tx_defidx = 7;
 	optional int32 entindex = 8;
 	optional uint32 hitbox = 9;

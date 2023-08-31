@@ -1,7 +1,5 @@
 import "google/protobuf/descriptor.proto";
 
-option cc_generic_services = false;
-
 message CEngineGotvSyncPacket {
 	optional uint64 match_id = 1;
 	optional uint32 instance_id = 2;
