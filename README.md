@@ -1,6 +1,8 @@
-# demoinfocs-golang - CS:GO Demo Parser
+# demoinfocs-golang - CS:GO & CS2 Demo Parser
 
-A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter Strike: Global Offensive (CS:GO) demos (aka replays). 
+A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter-Strike: Global Offensive (CS:GO) demos (aka replays).
+
+Counter-Strike 2 support is experimental.
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://vshymanskyy.github.io/StandWithUkraine)
 
@@ -21,7 +23,13 @@ For business inquiries please use the contact information found on the [GitHub p
 
 ## Go Get
 
+### CS2 - ⚠️ Experimental
+
 	go get -u github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs
+
+### CS:GO
+
+	go get -u github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs
 
 ## Table of Contents
 

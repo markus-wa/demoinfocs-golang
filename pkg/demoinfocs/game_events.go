@@ -152,7 +152,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 	delayIfNoPlayers := func(f gameEventHandlerFunc) gameEventHandlerFunc {
 		return func(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 			if len(parser.gameState.playersByUserID) == 0 {
-				delay(f)
+				delay(f)(data)
 			} else {
 				f(data)
 			}
