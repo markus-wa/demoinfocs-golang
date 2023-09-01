@@ -309,7 +309,7 @@ func TestUnexpectedEndOfDemo(t *testing.T) {
 	p := demoinfocs.NewParser(f)
 
 	err := p.ParseToEnd()
-	assert.Equal(t, demoinfocs.ErrUnexpectedEndOfDemo, err, "parsing cancelled but error was not ErrUnexpectedEndOfDemo")
+	assert.ErrorIs(t, err, demoinfocs.ErrUnexpectedEndOfDemo, "parsing cancelled but error was not ErrUnexpectedEndOfDemo")
 }
 
 func TestBadNetMessageDecryptionKey(t *testing.T) {
