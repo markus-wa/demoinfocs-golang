@@ -27,6 +27,8 @@ For business inquiries please use the contact information found on the [GitHub p
 
 	go get -u github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs
 
+ ⚠️ The CS2 / v4 API may change in backwards incompatible ways without warning. 
+
 ### CS:GO
 
 	go get -u github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs
