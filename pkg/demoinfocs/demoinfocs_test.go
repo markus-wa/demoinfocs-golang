@@ -35,7 +35,7 @@ const (
 	defaultDemPath          = csDemosPath + "/default.dem"
 	retakeDemPath           = csDemosPath + "/retake_unknwon_bombsite_index.dem"
 	unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
-	s2DemPath               = csDemosPath + "/s2.dem"
+	s2DemPath               = demSetPathS2 + "/s2.dem"
 )
 
 var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current demos")
