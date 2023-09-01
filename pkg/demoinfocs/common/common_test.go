@@ -25,7 +25,12 @@ func TestBombPosition(t *testing.T) {
 	plEntity := entityWithID(1)
 	plEntity.On("Position").Return(playerPos)
 
-	bomb.Carrier = &Player{Entity: plEntity}
+	bomb.Carrier = &Player{
+		Entity: plEntity,
+		demoInfoProvider: demoInfoProviderMock{
+			isSource2: false,
+		},
+	}
 	assert.Equal(t, playerPos, bomb.Position(), "Bomb position should be Player.Position")
 }
 

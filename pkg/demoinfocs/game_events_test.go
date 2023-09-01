@@ -17,6 +17,9 @@ import (
 // See #90
 func TestRoundEnd_LoserState_Score(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
+	p.header = &common.DemoHeader{
+		Filestamp: "HL2DEMO",
+	}
 
 	p.gameState.tState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{IntVal: 1})
 	p.gameState.ctState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{IntVal: 2})
