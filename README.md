@@ -327,7 +327,7 @@ To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, y
 This library was originally based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a> (although today it shares little resemblence with these two).
 
 For Counter-Strike 2, [dotabuff/manta](https://github.com/dotabuff/manta) was an amazing resource for how to parse Source 2 demos and CS2 support would not have been possible without it.<br>
-I would also like to specifically thank @akiver & LaihoE for their brilliant help with CS2.
+I would also like to specifically thank [@akiver](https://github.com/akiver) & [@LaihoE](https://github.com/LaihoE) for their brilliant help with CS2.
 
 And a very special thanks goes out to all the [⭐contributors⭐](https://github.com/markus-wa/demoinfocs-golang/graphs/contributors)️, be it in the form of PRs, issues or anything else.
 
