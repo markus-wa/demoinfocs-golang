@@ -33,7 +33,7 @@ echo -n 'this will download ~ 1 GB of test-data (if not already done) [y/N] '
 
 read prePushYesNo
 if [[ "$prePushYesNo" == "y" || "$prePushYesNo" == "Y" ]]; then
-	scripts/download-test-data.sh default.7z unexpected_end_of_demo.7z regression-set.7z
+	scripts/download-test-data.sh default.7z unexpected_end_of_demo.7z regression-set.7z s2.7z
 	link .git/hooks/pre-push ../../scripts/git-hooks/pre-push.sh
 	echo 'added pre-push hook'
 fi

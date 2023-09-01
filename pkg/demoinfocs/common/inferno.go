@@ -9,7 +9,7 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/quickhull-go/v2"
 
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 // Inferno is a list of Fires with helper functions.
@@ -22,6 +22,7 @@ type Inferno struct {
 	// uniqueID is used to distinguish different infernos (which potentially have the same, reused entityID) from each other.
 	uniqueID         int64
 	demoInfoProvider demoInfoProvider
+	thrower          *Player
 }
 
 // Fire is a component of an Inferno.
@@ -47,7 +48,16 @@ func (inf *Inferno) UniqueID() int64 {
 // Thrower returns the player who threw the fire grenade.
 // Could be nil if the player disconnected after throwing it.
 func (inf *Inferno) Thrower() *Player {
-	return inf.demoInfoProvider.FindPlayerByHandle(inf.Entity.Property("m_hOwnerEntity").Value().IntVal)
+	if inf.thrower != nil {
+		return inf.thrower
+	}
+
+	handleProp := inf.Entity.Property("m_hOwnerEntity").Value()
+	if inf.demoInfoProvider.IsSource2() {
+		return inf.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
+	}
+
+	return inf.demoInfoProvider.FindPlayerByHandle(handleProp.Int())
 }
 
 // Fires returns all fires (past + present).
@@ -55,20 +65,24 @@ func (inf *Inferno) Thrower() *Player {
 func (inf *Inferno) Fires() Fires {
 	entity := inf.Entity
 	origin := entity.Position()
-	nFires := entity.PropertyValueMust("m_fireCount").IntVal
+	nFires := entity.PropertyValueMust("m_fireCount").Int()
 	fires := make([]Fire, 0, nFires)
 
+	iFormat := "%03d"
+	if inf.demoInfoProvider.IsSource2() {
+		iFormat = "%04d"
+	}
 	for i := 0; i < nFires; i++ {
-		iStr := fmt.Sprintf("%03d", i)
+		iStr := fmt.Sprintf(iFormat, i)
 		offset := r3.Vector{
-			X: float64(entity.PropertyValueMust("m_fireXDelta." + iStr).IntVal),
-			Y: float64(entity.PropertyValueMust("m_fireYDelta." + iStr).IntVal),
-			Z: float64(entity.PropertyValueMust("m_fireZDelta." + iStr).IntVal),
+			X: float64(entity.PropertyValueMust("m_fireXDelta." + iStr).Int()),
+			Y: float64(entity.PropertyValueMust("m_fireYDelta." + iStr).Int()),
+			Z: float64(entity.PropertyValueMust("m_fireZDelta." + iStr).Int()),
 		}
 
 		fire := Fire{
 			Vector:    origin.Add(offset),
-			IsBurning: entity.PropertyValueMust("m_bFireIsBurning."+iStr).IntVal == 1,
+			IsBurning: entity.PropertyValueMust("m_bFireIsBurning." + iStr).BoolVal(),
 		}
 
 		fires = append(fires, fire)
@@ -186,10 +200,11 @@ func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 // NewInferno creates a inferno and sets the Unique-ID.
 //
 // Intended for internal use only.
-func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity) *Inferno {
+func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity, thrower *Player) *Inferno {
 	return &Inferno{
 		Entity:           entity,
 		uniqueID:         rand.Int63(), //nolint:gosec
 		demoInfoProvider: demoInfoProvider,
+		thrower:          thrower,
 	}
 }

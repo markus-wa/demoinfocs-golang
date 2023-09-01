@@ -12,14 +12,32 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 //go:generate ifacemaker -f parser.go -f parsing.go -s parser -i Parser -p demoinfocs -D -y "Parser is an auto-generated interface for Parser, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o parser_interface.go
+
+type sendTableParser interface {
+	ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity
+	ServerClasses() st.ServerClasses
+	ParsePacket(b []byte) error
+	SetInstanceBaseline(classID int, data []byte)
+	OnDemoClassInfo(m *msgs2.CDemoClassInfo) error
+	OnServerInfo(m *msgs2.CSVCMsg_ServerInfo) error
+	OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error
+	OnEntity(h st.EntityHandler)
+}
+
+type createStringTable struct {
+	*msgs2.CSVCMsg_CreateStringTable
+	isS2         bool
+	s1MaxEntries *int32
+}
 
 /*
 Parser can parse a CS:GO demo.
@@ -49,7 +67,7 @@ type parser struct {
 	// Important fields
 
 	bitReader                    *bit.BitReader
-	stParser                     *st.SendTableParser
+	stParser                     sendTableParser
 	additionalNetMessageCreators map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                     chan any                  // Queue of net-messages
 	msgDispatcher                *dp.Dispatcher            // Net-message dispatcher
@@ -68,20 +86,22 @@ type parser struct {
 	 * Set to the client slot of the recording player.
 	 * Always -1 for GOTV demos.
 	 */
-	recordingPlayerSlot int
+	recordingPlayerSlot           int
+	disableMimicSource1GameEvents bool
 
 	// Additional fields, mainly caching & tracking things
 
-	bombsiteA            bombsite
-	bombsiteB            bombsite
-	equipmentMapping     map[*st.ServerClass]common.EquipmentType        // Maps server classes to equipment-types
-	rawPlayers           map[int]*common.PlayerInfo                      // Maps entity IDs to 'raw' player info
-	modelPreCache        []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id)
-	triggers             map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
-	gameEventDescs       map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
-	grenadeModelIndices  map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
-	stringTables         []*msg.CSVCMsg_CreateStringTable                // Contains all created sendtables, needed when updating them
-	delayedEventHandlers []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
+	bombsiteA             bombsite
+	bombsiteB             bombsite
+	equipmentMapping      map[st.ServerClass]common.EquipmentType         // Maps server classes to equipment-types
+	rawPlayers            map[int]*common.PlayerInfo                      // Maps entity IDs to 'raw' player info
+	modelPreCache         []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id) for Source 1 demos only
+	triggers              map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
+	gameEventDescs        map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
+	grenadeModelIndices   map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
+	equipmentTypePerModel map[uint64]common.EquipmentType                 // Used to retrieve the EquipmentType of grenade projectiles based on models value. Source 2 only.
+	stringTables          []createStringTable                             // Contains all created sendtables, needed when updating them
+	delayedEventHandlers  []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
@@ -328,6 +348,11 @@ type ParserConfig struct {
 	// NetMessageDecryptionKey tells the parser how to decrypt certain encrypted net-messages.
 	// See MatchInfoDecryptionKey() on how to retrieve the key from `match730_*.dem.info` files.
 	NetMessageDecryptionKey []byte
+
+	// DisableMimicSource1Events tells the parser to not mimic Source 1 game events for Source 2 demos.
+	// Unfortunately Source 2 demos *may* not contain Source 1 game events, that's why the parser will try to mimic them.
+	// It has an impact only with Source 2 demos and is false by default.
+	DisableMimicSource1Events bool
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
@@ -343,19 +368,20 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 
 	// Init parser
 	p.bitReader = bit.NewLargeBitReader(demostream)
-	p.stParser = st.NewSendTableParser()
-	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentType)
+	p.equipmentMapping = make(map[st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.demoInfoProvider = demoInfoProvider{parser: &p}
 	p.gameState = newGameState(p.demoInfoProvider)
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
+	p.equipmentTypePerModel = make(map[uint64]common.EquipmentType)
 	p.gameEventHandler = newGameEventHandler(&p, config.IgnoreErrBombsiteIndexNotFound)
 	p.userMessageHandler = newUserMessageHandler(&p)
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1
 	p.decryptionKey = config.NetMessageDecryptionKey
 	p.recordingPlayerSlot = -1
+	p.disableMimicSource1GameEvents = config.DisableMimicSource1Events
 
 	dispatcherCfg := dp.Config{
 		PanicHandler: func(v any) {
@@ -366,17 +392,25 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.eventDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 
 	// Attach proto msg handlers
-	p.msgDispatcher.RegisterHandler(p.handlePacketEntities)
+	p.msgDispatcher.RegisterHandler(p.handlePacketEntitiesS1)
 	p.msgDispatcher.RegisterHandler(p.handleGameEventList)
 	p.msgDispatcher.RegisterHandler(p.handleGameEvent)
-	p.msgDispatcher.RegisterHandler(p.handleCreateStringTable)
-	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTable)
+	p.msgDispatcher.RegisterHandler(p.handleCreateStringTableS1)
+	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTableS1)
 	p.msgDispatcher.RegisterHandler(p.handleUserMessage)
 	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfo)
 	p.msgDispatcher.RegisterHandler(p.handleEncryptedData)
 	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
+
+	// Source 2
+	p.msgDispatcher.RegisterHandler(p.handleGameEventListS2)
+	p.msgDispatcher.RegisterHandler(p.handleGameEventS2)
+	p.msgDispatcher.RegisterHandler(p.handleServerInfoS2)
+	p.msgDispatcher.RegisterHandler(p.handleCreateStringTableS2)
+	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTableS2)
+	p.msgDispatcher.RegisterHandler(p.handleSetConVarS2)
 
 	if config.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(config.MsgQueueBufferSize)
@@ -392,8 +426,16 @@ func (p *parser) initMsgQueue(buf int) {
 	p.msgDispatcher.AddQueues(p.msgQueue)
 }
 
+func (p *parser) isSource2() bool {
+	return p.header.Filestamp == "PBDEMS2"
+}
+
 type demoInfoProvider struct {
 	parser *parser
+}
+
+func (p demoInfoProvider) IsSource2() bool {
+	return p.parser.isSource2()
 }
 
 func (p demoInfoProvider) IngameTick() int {
@@ -406,6 +448,14 @@ func (p demoInfoProvider) TickRate() float64 {
 
 func (p demoInfoProvider) FindPlayerByHandle(handle int) *common.Player {
 	return p.parser.gameState.Participants().FindByHandle(handle)
+}
+
+func (p demoInfoProvider) FindPlayerByPawnHandle(handle uint64) *common.Player {
+	return p.parser.gameState.Participants().FindByPawnHandle(handle)
+}
+
+func (p demoInfoProvider) FindEntityByHandle(handle uint64) st.Entity {
+	return p.parser.gameState.EntityByHandle(handle)
 }
 
 func (p demoInfoProvider) PlayerResourceEntity() st.Entity {

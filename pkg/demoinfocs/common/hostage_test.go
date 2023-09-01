@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 func TestHostage_Leader(t *testing.T) {

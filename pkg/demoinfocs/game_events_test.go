@@ -7,16 +7,19 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables/fake"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables/fake"
 )
 
 // See #90
 func TestRoundEnd_LoserState_Score(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
+	p.header = &common.DemoHeader{
+		Filestamp: "HL2DEMO",
+	}
 
 	p.gameState.tState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{IntVal: 1})
 	p.gameState.ctState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{IntVal: 2})

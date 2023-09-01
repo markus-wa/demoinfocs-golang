@@ -4,10 +4,6 @@ name: CI
 
 jobs:
   ci:
-    strategy:
-      matrix:
-        go-version: [1.18.x]
-
     runs-on: ubuntu-latest
 
     env:
@@ -18,7 +14,7 @@ jobs:
     - name: Install Go
       uses: actions/setup-go@v2
       with:
-        go-version: ${{ matrix.go-version }}
+        go-version: 1.21.x
 
     - name: Install Reviewdog
       uses: reviewdog/action-setup@v1
@@ -37,14 +33,14 @@ jobs:
         sudo apt-get install -y p7zip-full
 
         # Install interface generator
-        go install github.com/vburenin/ifacemaker@v1.1.0
+        go install github.com/vburenin/ifacemaker@v1.2.1
 
         # Fetch refs for linter
         git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
         git fetch
 
         # Install golangci-lint
-        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.45.2
+        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.52.2
 
     - name: Build
       run: scripts/build.sh

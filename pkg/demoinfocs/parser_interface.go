@@ -5,8 +5,8 @@ package demoinfocs
 import (
 	"time"
 
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 	dp "github.com/markus-wa/godispatch"
 )
 
@@ -22,15 +22,15 @@ import (
 //
 // Example (without error handling):
 //
-// 	f, _ := os.Open("/path/to/demo.dem")
-// 	p := dem.NewParser(f)
-// 	defer p.Close()
-// 	header := p.ParseHeader()
-// 	fmt.Println("Map:", header.MapName)
-// 	p.RegisterEventHandler(func(e events.BombExplode) {
-// 		fmt.Printf(e.Site, "went BOOM!")
-// 	})
-// 	p.ParseToEnd()
+//	f, _ := os.Open("/path/to/demo.dem")
+//	p := dem.NewParser(f)
+//	defer p.Close()
+//	header := p.ParseHeader()
+//	fmt.Println("Map:", header.MapName)
+//	p.RegisterEventHandler(func(e events.BombExplode) {
+//		fmt.Printf(e.Site, "went BOOM!")
+//	})
+//	p.ParseToEnd()
 //
 // Prints out '{A/B} site went BOOM!' when a bomb explodes.
 type Parser interface {

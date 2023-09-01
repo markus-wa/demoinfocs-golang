@@ -12,11 +12,11 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/llgcode/draw2d/draw2dimg"
 
-	ex "github.com/markus-wa/demoinfocs-golang/v3/examples"
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	ex "github.com/markus-wa/demoinfocs-golang/v4/examples"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 )
 
 type nadePath struct {
@@ -90,11 +90,13 @@ func main() {
 		infernos = append(infernos, e.Inferno)
 	})
 
-	var nadeTrajectoriesFirst5Rounds []*nadePath
-	var infernosFirst5Rounds []*common.Inferno
-	round := 0
-	p.RegisterEventHandler(func(events.RoundEnd) {
-		round++
+	var (
+		nadeTrajectoriesFirst5Rounds []*nadePath
+		infernosFirst5Rounds         []*common.Inferno
+		round                        = 0
+	)
+
+	p.RegisterEventHandler(func(start events.RoundStart) {
 		// We only want the data from the first 5 rounds so the image is not too cluttered
 		// This is a very cheap way to do it. Won't work with demos that have match-restarts etc.
 		if round == 5 {
@@ -108,6 +110,8 @@ func main() {
 			infernosFirst5Rounds = make([]*common.Inferno, len(infernos))
 			copy(infernosFirst5Rounds, infernos)
 		}
+
+		round++
 	})
 
 	err = p.ParseToEnd()

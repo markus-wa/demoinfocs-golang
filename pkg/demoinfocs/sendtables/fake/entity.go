@@ -4,8 +4,8 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/mock"
 
-	bitread "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	bitread "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 // NewEntityWithProperty creates and returns an entity with a single mocked property.
@@ -30,8 +30,8 @@ type Entity struct {
 }
 
 // ServerClass is a mock-implementation of Entity.ServerClass().
-func (e *Entity) ServerClass() *st.ServerClass {
-	return e.Called().Get(0).(*st.ServerClass)
+func (e *Entity) ServerClass() st.ServerClass {
+	return e.Called().Get(0).(st.ServerClass)
 }
 
 // ID is a mock-implementation of Entity.ID().

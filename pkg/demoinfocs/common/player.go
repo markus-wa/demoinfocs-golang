@@ -7,8 +7,8 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/pkg/errors"
 
-	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/constants"
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 // Player contains mostly game-relevant player information.
@@ -33,6 +33,23 @@ type Player struct {
 	IsPlanting        bool
 	IsReloading       bool
 	IsUnknown         bool // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
+	PawnEntityID      int
+}
+
+func (p *Player) PlayerPawnEntity() st.Entity {
+	playerPawn, exists := p.Entity.PropertyValue("m_hPlayerPawn")
+	if !exists {
+		return nil
+	}
+	return p.demoInfoProvider.FindEntityByHandle(playerPawn.Handle())
+}
+
+func (p *Player) GetTeam() Team {
+	return Team(p.PlayerPawnEntity().PropertyValueMust("m_iTeamNum").S2UInt64())
+}
+
+func (p *Player) GetFlashDuration() float32 {
+	return p.PlayerPawnEntity().PropertyValueMust("m_flFlashDuration").Float()
 }
 
 // String returns the player's name.
@@ -53,7 +70,18 @@ func (p *Player) SteamID32() uint32 {
 
 // IsAlive returns true if the player is alive.
 func (p *Player) IsAlive() bool {
-	return p.Health() > 0 || getInt(p.Entity, "m_lifeState") == 0
+	if p.Health() > 0 {
+		return true
+	}
+
+	if p.demoInfoProvider.IsSource2() {
+		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			return pawnEntity.PropertyValueMust("m_lifeState").S2UInt64() == 0
+		}
+		return getBool(p.Entity, "m_bPawnIsAlive")
+	}
+
+	return getInt(p.Entity, "m_lifeState") == 0
 }
 
 // IsBlinded returns true if the player is currently flashed.
@@ -64,6 +92,11 @@ func (p *Player) IsBlinded() bool {
 
 // IsAirborne returns true if the player is jumping or falling.
 func (p *Player) IsAirborne() bool {
+	if p.demoInfoProvider.IsSource2() {
+		groundEntityHandle := getUInt64(p.PlayerPawnEntity(), "m_hGroundEntity")
+		return groundEntityHandle == constants.InvalidEntityHandleSource2
+	}
+
 	if p.Entity == nil {
 		return false
 	}
@@ -123,10 +156,19 @@ This isn't very conclusive but it looks like IsFlashed isn't super reliable curr
 
 // Used internally to set the active weapon, see ActiveWeapon()
 func (p *Player) activeWeaponID() int {
+	if p.demoInfoProvider.IsSource2() {
+		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			return int(pawnEntity.PropertyValueMust("m_pWeaponServices.m_hActiveWeapon").S2UInt64() & constants.EntityHandleIndexMaskSource2)
+		}
+
+		return 0
+	}
+
 	return getInt(p.Entity, "m_hActiveWeapon") & constants.EntityHandleIndexMask
 }
 
 // ActiveWeapon returns the currently active / equipped weapon of the player.
+// ! Can be nil
 func (p *Player) ActiveWeapon() *Equipment {
 	return p.demoInfoProvider.FindWeaponByEntityID(p.activeWeaponID())
 }
@@ -155,13 +197,25 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 
 	var mask st.Property
 	if bit < 32 {
-		mask = p.Entity.Property("m_bSpottedByMask.000")
+		if p.demoInfoProvider.IsSource2() {
+			mask = p.PlayerPawnEntity().Property("m_bSpottedByMask.0000")
+		} else {
+			mask = p.Entity.Property("m_bSpottedByMask.000")
+		}
 	} else {
 		bit -= 32
-		mask = p.Entity.Property("m_bSpottedByMask.001")
+		if p.demoInfoProvider.IsSource2() {
+			mask = p.PlayerPawnEntity().Property("m_bSpottedByMask.0001")
+		} else {
+			mask = p.Entity.Property("m_bSpottedByMask.001")
+		}
 	}
 
-	return (mask.Value().IntVal & (1 << bit)) != 0
+	if p.demoInfoProvider.IsSource2() {
+		return (mask.Value().S2UInt64() & (1 << bit)) != 0
+	} else {
+		return (mask.Value().IntVal & (1 << bit)) != 0
+	}
 }
 
 // HasSpotted returns true if the player has spotted the other player.
@@ -173,39 +227,81 @@ func (p *Player) HasSpotted(other *Player) bool {
 
 // IsInBombZone returns whether the player is currently in the bomb zone or not.
 func (p *Player) IsInBombZone() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_bInBombZone")
+	}
+
 	return getBool(p.Entity, "m_bInBombZone")
 }
 
 // IsInBuyZone returns whether the player is currently in the buy zone or not.
 func (p *Player) IsInBuyZone() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_bInBuyZone")
+	}
+
 	return getBool(p.Entity, "m_bInBuyZone")
 }
 
 // IsWalking returns whether the player is currently walking (sneaking) in or not.
 func (p *Player) IsWalking() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_bIsWalking")
+	}
+
 	return getBool(p.Entity, "m_bIsWalking")
 }
 
 // IsScoped returns whether the player is currently scoped in or not.
 func (p *Player) IsScoped() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_bIsScoped")
+	}
+
 	return getBool(p.Entity, "m_bIsScoped")
 }
 
 // IsDucking returns true if the player is currently fully crouching.
 // See also: Flags().Ducking() & Flags().DuckingKeyPressed()
 func (p *Player) IsDucking() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return p.Flags().Ducking()
+	}
+
 	return p.Flags().Ducking() && p.Flags().DuckingKeyPressed()
 }
 
 // IsDuckingInProgress returns true if the player is currently in the progress of going from standing to crouched.
 // See also: Flags().Ducking() & Flags().DuckingKeyPressed()
 func (p *Player) IsDuckingInProgress() bool {
+	if p.demoInfoProvider.IsSource2() {
+		pawnEntity := p.PlayerPawnEntity()
+		if pawnEntity == nil {
+			return false
+		}
+		duckAmount := pawnEntity.PropertyValueMust("m_pMovementServices.m_flDuckAmount").Float()
+		wantToDuck := pawnEntity.PropertyValueMust("m_pMovementServices.m_bDesiresDuck").BoolVal()
+
+		return !p.Flags().Ducking() && wantToDuck && duckAmount > 0
+	}
+
 	return !p.Flags().Ducking() && p.Flags().DuckingKeyPressed()
 }
 
 // IsUnDuckingInProgress returns true if the player is currently in the progress of going from crouched to standing.
 // See also: Flags().Ducking() & Flags().DuckingKeyPressed()
 func (p *Player) IsUnDuckingInProgress() bool {
+	if p.demoInfoProvider.IsSource2() {
+		pawnEntity := p.PlayerPawnEntity()
+		if pawnEntity == nil {
+			return false
+		}
+		duckAmount := pawnEntity.PropertyValueMust("m_pMovementServices.m_flDuckAmount").Float()
+		wantToDuck := pawnEntity.PropertyValueMust("m_pMovementServices.m_bDesiresDuck").BoolVal()
+
+		return !p.Flags().Ducking() && !wantToDuck && duckAmount > 0
+	}
+
 	return p.Flags().Ducking() && !p.Flags().DuckingKeyPressed()
 }
 
@@ -217,17 +313,29 @@ func (p *Player) IsStanding() bool {
 
 // HasDefuseKit returns true if the player currently has a defuse kit in his inventory.
 func (p *Player) HasDefuseKit() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_pItemServices.m_bHasDefuser")
+	}
+
 	return getBool(p.Entity, "m_bHasDefuser")
 }
 
 // HasHelmet returns true if the player is currently wearing head armor.
 func (p *Player) HasHelmet() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_pItemServices.m_bHasHelmet")
+	}
+
 	return getBool(p.Entity, "m_bHasHelmet")
 }
 
 // IsControllingBot returns true if the player is currently controlling a bot.
 // See also ControlledBot().
 func (p *Player) IsControllingBot() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.Entity, "m_bControllingBot")
+	}
+
 	return getBool(p.Entity, "m_bIsControllingBot")
 }
 
@@ -245,21 +353,37 @@ func (p *Player) ControlledBot() *Player {
 
 // Health returns the player's health points, normally 0-100.
 func (p *Player) Health() int {
+	if p.demoInfoProvider.IsSource2() {
+		return int(getUInt64(p.Entity, "m_iPawnHealth"))
+	}
+
 	return getInt(p.Entity, "m_iHealth")
 }
 
 // Armor returns the player's armor points, normally 0-100.
 func (p *Player) Armor() int {
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_iPawnArmor")
+	}
+
 	return getInt(p.Entity, "m_ArmorValue")
 }
 
 // Money returns the amount of money in the player's bank.
 func (p *Player) Money() int {
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pInGameMoneyServices.m_iAccount")
+	}
+
 	return getInt(p.Entity, "m_iAccount")
 }
 
 // EquipmentValueCurrent returns the current value of equipment in the player's inventory.
 func (p *Player) EquipmentValueCurrent() int {
+	if p.demoInfoProvider.IsSource2() {
+		return int(getUInt64(p.PlayerPawnEntity(), "m_unCurrentEquipmentValue"))
+	}
+
 	return getInt(p.Entity, "m_unCurrentEquipmentValue")
 }
 
@@ -267,21 +391,45 @@ func (p *Player) EquipmentValueCurrent() int {
 // This is before the player has bought any new items in the freeze time.
 // See also Player.EquipmentValueFreezetimeEnd().
 func (p *Player) EquipmentValueRoundStart() int {
+	if p.demoInfoProvider.IsSource2() {
+		return int(getUInt64(p.PlayerPawnEntity(), "m_unRoundStartEquipmentValue"))
+	}
+
 	return getInt(p.Entity, "m_unRoundStartEquipmentValue")
 }
 
 // EquipmentValueFreezeTimeEnd returns the value of equipment in the player's inventory at the end of the freeze time.
 func (p *Player) EquipmentValueFreezeTimeEnd() int {
+	if p.demoInfoProvider.IsSource2() {
+		return int(getUInt64(p.PlayerPawnEntity(), "m_unFreezetimeEndEquipmentValue"))
+	}
+
 	return getInt(p.Entity, "m_unFreezetimeEndEquipmentValue")
 }
 
 // ViewDirectionX returns the Yaw value in degrees, 0 to 360.
 func (p *Player) ViewDirectionX() float32 {
+	if p.demoInfoProvider.IsSource2() {
+		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			return float32(pawnEntity.PropertyValueMust("m_angEyeAngles").R3Vec().Y)
+		}
+
+		return 0
+	}
+
 	return getFloat(p.Entity, "m_angEyeAngles[1]")
 }
 
 // ViewDirectionY returns the Pitch value in degrees, 270 to 90 (270=-90).
 func (p *Player) ViewDirectionY() float32 {
+	if p.demoInfoProvider.IsSource2() {
+		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			return float32(pawnEntity.PropertyValueMust("m_angEyeAngles").R3Vec().X)
+		}
+
+		return 0
+	}
+
 	return getFloat(p.Entity, "m_angEyeAngles[0]")
 }
 
@@ -289,6 +437,14 @@ func (p *Player) ViewDirectionY() float32 {
 // Note: the Z value is not on the player's eye height but instead at his feet.
 // See also PositionEyes().
 func (p *Player) Position() r3.Vector {
+	if p.demoInfoProvider.IsSource2() {
+		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			return pawnEntity.Position()
+		}
+
+		return r3.Vector{}
+	}
+
 	if p.Entity == nil {
 		return r3.Vector{}
 	}
@@ -305,13 +461,23 @@ func (p *Player) PositionEyes() r3.Vector {
 	}
 
 	pos := p.Position()
-	pos.Z += float64(p.Entity.PropertyValueMust("localdata.m_vecViewOffset[2]").FloatVal)
+	if p.demoInfoProvider.IsSource2() {
+		// TODO Find out where we can find the offset in Source 2 demos
+		return pos
+	} else {
+		pos.Z += float64(p.Entity.PropertyValueMust("localdata.m_vecViewOffset[2]").Float())
+	}
 
 	return pos
 }
 
 // Velocity returns the player's velocity.
 func (p *Player) Velocity() r3.Vector {
+	if p.demoInfoProvider.IsSource2() {
+		// TODO Find out where we can find the velocity in Source 2 demos
+		return r3.Vector{}
+	}
+
 	if p.Entity == nil {
 		return r3.Vector{}
 	}
@@ -369,6 +535,10 @@ func (pf PlayerFlags) DuckingKeyPressed() bool {
 
 // Flags returns flags currently set on m_fFlags.
 func (p *Player) Flags() PlayerFlags {
+	if p.demoInfoProvider.IsSource2() {
+		return PlayerFlags(getUInt64(p.PlayerPawnEntity(), "m_fFlags"))
+	}
+
 	return PlayerFlags(getInt(p.Entity, "m_fFlags"))
 }
 
@@ -386,11 +556,19 @@ func (p *Player) resourceEntity() st.Entity {
 
 // ClanTag returns the player's individual clan tag (Steam Groups etc.).
 func (p *Player) ClanTag() string {
+	if p.demoInfoProvider.IsSource2() {
+		return getString(p.Entity, "m_szClan")
+	}
+
 	return getString(p.resourceEntity(), "m_szClan."+p.entityIDStr())
 }
 
 // CrosshairCode returns the player's crosshair code or an empty string if there isn't one.
 func (p *Player) CrosshairCode() string {
+	if p.demoInfoProvider.IsSource2() {
+		return getString(p.Entity, "m_szCrosshairCodes")
+	}
+
 	if p.resourceEntity() == nil {
 		return ""
 	}
@@ -403,11 +581,20 @@ func (p *Player) CrosshairCode() string {
 
 // Ping returns the players latency to the game server.
 func (p *Player) Ping() int {
+	// TODO change this func return type to uint64? (small BC)
+	if p.demoInfoProvider.IsSource2() {
+		return int(getUInt64(p.Entity, "m_iPing"))
+	}
+
 	return getInt(p.resourceEntity(), "m_iPing."+p.entityIDStr())
 }
 
 // Score returns the players score as shown on the scoreboard.
 func (p *Player) Score() int {
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_iScore")
+	}
+
 	return getInt(p.resourceEntity(), "m_iScore."+p.entityIDStr())
 }
 
@@ -437,6 +624,10 @@ var (
 // Returns ErrDataNotAvailable if the resource entity does not exist (it may exist later during parsing).
 // Returns ErrNotSupportedByDemo if the demo does not support player colors (e.g. very old demos).
 func (p *Player) ColorOrErr() (Color, error) {
+	if p.demoInfoProvider.IsSource2() {
+		return Color(getInt(p.Entity, "m_iCompTeammateColor")), nil
+	}
+
 	resourceEnt := p.resourceEntity()
 	if resourceEnt == nil {
 		return Grey, errors.Wrap(ErrDataNotAvailable, "player resource entity is nil")
@@ -452,46 +643,90 @@ func (p *Player) ColorOrErr() (Color, error) {
 
 // Kills returns the amount of kills the player has as shown on the scoreboard.
 func (p *Player) Kills() int {
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pActionTrackingServices.m_iKills")
+	}
+
 	return getInt(p.resourceEntity(), "m_iKills."+p.entityIDStr())
 }
 
 // Deaths returns the amount of deaths the player has as shown on the scoreboard.
 func (p *Player) Deaths() int {
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pActionTrackingServices.m_iDeaths")
+	}
+
 	return getInt(p.resourceEntity(), "m_iDeaths."+p.entityIDStr())
 }
 
 // Assists returns the amount of assists the player has as shown on the scoreboard.
 func (p *Player) Assists() int {
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pActionTrackingServices.m_iAssists")
+	}
+
 	return getInt(p.resourceEntity(), "m_iAssists."+p.entityIDStr())
 }
 
 // MVPs returns the amount of Most-Valuable-Player awards the player has as shown on the scoreboard.
 func (p *Player) MVPs() int {
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_iMVPs")
+	}
+
 	return getInt(p.resourceEntity(), "m_iMVPs."+p.entityIDStr())
 }
 
 // TotalDamage returns the total health damage done by the player.
 func (p *Player) TotalDamage() int {
+	if p.demoInfoProvider.IsSource2() {
+		value := p.Entity.PropertyValueMust("m_pActionTrackingServices.m_iDamage")
+		if value.Any == nil {
+			return 0
+		}
+		return value.Int()
+	}
+
 	return getInt(p.resourceEntity(), "m_iMatchStats_Damage_Total."+p.entityIDStr())
 }
 
 // UtilityDamage returns the total damage done by the player with grenades.
 func (p *Player) UtilityDamage() int {
+	if p.demoInfoProvider.IsSource2() {
+		value := p.Entity.PropertyValueMust("m_pActionTrackingServices.m_iUtilityDamage")
+		if value.Any == nil {
+			return 0
+		}
+		return value.Int()
+	}
+
 	return getInt(p.resourceEntity(), "m_iMatchStats_UtilityDamage_Total."+p.entityIDStr())
 }
 
 // MoneySpentTotal returns the total amount of money the player has spent in the current match.
 func (p *Player) MoneySpentTotal() int {
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pInGameMoneyServices.m_iTotalCashSpent")
+	}
+
 	return getInt(p.resourceEntity(), "m_iTotalCashSpent."+p.entityIDStr())
 }
 
 // MoneySpentThisRound returns the amount of money the player has spent in the current round.
 func (p *Player) MoneySpentThisRound() int {
+	if p.demoInfoProvider.IsSource2() {
+		return getInt(p.Entity, "m_pInGameMoneyServices.m_iCashSpentThisRound")
+	}
+
 	return getInt(p.resourceEntity(), "m_iCashSpentThisRound."+p.entityIDStr())
 }
 
 // LastPlaceName returns the string value of the player's position.
 func (p *Player) LastPlaceName() string {
+	if p.demoInfoProvider.IsSource2() {
+		return getString(p.PlayerPawnEntity(), "m_szLastPlaceName")
+	}
+
 	return getString(p.Entity, "m_szLastPlaceName")
 }
 
@@ -499,8 +734,11 @@ type demoInfoProvider interface {
 	IngameTick() int   // current in-game tick, used for IsBlinded()
 	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
 	FindPlayerByHandle(handle int) *Player
+	FindPlayerByPawnHandle(handle uint64) *Player
 	PlayerResourceEntity() st.Entity
 	FindWeaponByEntityID(id int) *Equipment
+	FindEntityByHandle(handle uint64) st.Entity
+	IsSource2() bool
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.
@@ -516,20 +754,20 @@ func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 // PlayerInfo contains information about a player such as their name and SteamID.
 // Primarily intended for internal use.
 type PlayerInfo struct {
-	Version     int64
+	Version     int64  // Not available with CS2 demos
 	XUID        uint64 // SteamID64
 	Name        string
-	UserID      int
-	GUID        string
-	FriendsID   int
-	FriendsName string
-	// Custom files stuff (CRC)
+	UserID      int    // Not available with CS2 demos
+	GUID        string // Not available with CS2 demos
+	FriendsID   int    // Not available with CS2 demos
+	FriendsName string // Not available with CS2 demos
+	// Custom files stuff (CRC). Not available with CS2 demos
 	CustomFiles0 int
 	CustomFiles1 int
 	CustomFiles2 int
 	CustomFiles3 int
 	// Amount of downloaded files from the server
-	FilesDownloaded byte
+	FilesDownloaded byte // Not available with CS2 demos
 	// Bots
 	IsFakePlayer bool
 	// HLTV Proxy

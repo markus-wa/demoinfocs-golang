@@ -7,7 +7,7 @@ import (
 )
 
 func TestServerClassGetters(t *testing.T) {
-	sc := ServerClass{
+	sc := serverClass{
 		id:            1,
 		name:          "TestClass",
 		dataTableID:   2,
@@ -21,7 +21,7 @@ func TestServerClassGetters(t *testing.T) {
 }
 
 func TestServerClassPropertyEntries(t *testing.T) {
-	var sc ServerClass
+	var sc serverClass
 
 	assert.Empty(t, sc.PropertyEntries())
 
@@ -31,14 +31,14 @@ func TestServerClassPropertyEntries(t *testing.T) {
 }
 
 func TestServerClassString(t *testing.T) {
-	sc := ServerClass{
+	sc := serverClass{
 		id:            1,
 		name:          "TestClass",
 		dataTableID:   2,
 		dataTableName: "ADataTable",
 	}
 
-	expectedString := `ServerClass: id=1 name=TestClass
+	expectedString := `serverClass: id=1 name=TestClass
 	dataTableId=2
 	dataTableName=ADataTable
 	baseClasses:
@@ -48,10 +48,10 @@ func TestServerClassString(t *testing.T) {
 
 	assert.Equal(t, expectedString, sc.String())
 
-	sc.baseClasses = []*ServerClass{{name: "AnotherClass"}, {name: "YetAnotherClass"}}
+	sc.baseClasses = []*serverClass{{name: "AnotherClass"}, {name: "YetAnotherClass"}}
 	sc.flattenedProps = []flattenedPropEntry{{name: "prop1"}, {name: "prop2"}}
 
-	expectedString = `ServerClass: id=1 name=TestClass
+	expectedString = `serverClass: id=1 name=TestClass
 	dataTableId=2
 	dataTableName=ADataTable
 	baseClasses:

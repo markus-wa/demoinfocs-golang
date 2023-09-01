@@ -8,12 +8,14 @@ import (
 	"github.com/markus-wa/ice-cipher-go/pkg/ice"
 	"google.golang.org/protobuf/proto"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
+	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
-func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
+func (p *parser) handlePacketEntitiesS1(pe *msg.CSVCMsg_PacketEntities) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -51,6 +53,16 @@ func (p *parser) handlePacketEntities(pe *msg.CSVCMsg_PacketEntities) {
 	p.poolBitReader(r)
 }
 
+func (p *parser) onEntity(e sendtables.Entity, op sendtables.EntityOp) error {
+	if op&sendtables.EntityOpCreated > 0 {
+		p.gameState.entities[e.ID()] = e
+	} else if op&sendtables.EntityOpDeleted > 0 {
+		delete(p.gameState.entities, e.ID())
+	}
+
+	return nil
+}
+
 func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 	updated := make(map[string]string)
 	for _, cvar := range setConVar.Convars.Cvars {
@@ -63,7 +75,30 @@ func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 	})
 }
 
+func (p *parser) handleSetConVarS2(setConVar *msgs2.CNETMsg_SetConVar) {
+	updated := make(map[string]string)
+	for _, cvar := range setConVar.Convars.Cvars {
+		updated[cvar.GetName()] = cvar.GetValue()
+		p.gameState.rules.conVars[cvar.GetName()] = cvar.GetValue()
+	}
+
+	p.eventDispatcher.Dispatch(events.ConVarsUpdated{
+		UpdatedConVars: updated,
+	})
+}
+
 func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
+	// srvInfo.MapCrc might be interesting as well
+	p.tickInterval = srvInfo.GetTickInterval()
+
+	p.eventDispatcher.Dispatch(events.TickRateInfoAvailable{
+		TickRate: p.TickRate(),
+		TickTime: p.TickTime(),
+	})
+}
+
+// FIXME: combine with above
+func (p *parser) handleServerInfoS2(srvInfo *msgs2.CSVCMsg_ServerInfo) {
 	// srvInfo.MapCrc might be interesting as well
 	p.tickInterval = srvInfo.GetTickInterval()
 

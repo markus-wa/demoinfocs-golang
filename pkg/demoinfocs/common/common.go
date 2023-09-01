@@ -10,7 +10,7 @@ import (
 
 	"github.com/golang/geo/r3"
 
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 // Team is the type for the various TeamXYZ constants.
@@ -120,8 +120,9 @@ func (b *Bomb) Position() r3.Vector {
 
 // TeamState contains a team's ID, score, clan name & country flag.
 type TeamState struct {
-	team            Team
-	membersCallback func(Team) []*Player
+	team             Team
+	membersCallback  func(Team) []*Player
+	demoInfoProvider demoInfoProvider
 
 	Entity st.Entity
 
@@ -136,12 +137,21 @@ func (ts *TeamState) Team() Team {
 
 // ID returns the team ID, this stays the same even after switching sides.
 func (ts *TeamState) ID() int {
+	if ts.demoInfoProvider.IsSource2() {
+		return int(getUInt64(ts.Entity, "m_iTeamNum"))
+	}
 	return getInt(ts.Entity, "m_iTeamNum")
 }
 
 // Score returns the current score of the team (usually 0-16 without overtime).
 func (ts *TeamState) Score() int {
-	return getInt(ts.Entity, "m_scoreTotal")
+	var propName string
+	if ts.demoInfoProvider.IsSource2() {
+		propName = "m_iScore"
+	} else {
+		propName = "m_scoreTotal"
+	}
+	return getInt(ts.Entity, propName)
 }
 
 // ClanName returns the team name (e.g. Fnatic).
@@ -207,16 +217,19 @@ func (ts *TeamState) MoneySpentTotal() (value int) {
 }
 
 // NewTeamState creates a new TeamState with the given Team and members callback function.
-func NewTeamState(team Team, membersCallback func(Team) []*Player) TeamState {
+func NewTeamState(team Team, membersCallback func(Team) []*Player, demoInfoProvider demoInfoProvider) TeamState {
 	return TeamState{
-		team:            team,
-		membersCallback: membersCallback,
+		team:             team,
+		membersCallback:  membersCallback,
+		demoInfoProvider: demoInfoProvider,
 	}
 }
 
 // ConvertSteamIDTxtTo32 converts a Steam-ID in text format to a 32-bit variant.
 // See https://developer.valvesoftware.com/wiki/SteamID
 func ConvertSteamIDTxtTo32(steamID string) (uint32, error) {
+	steamID = strings.TrimSuffix(steamID, "]") // Source 2 has [U:1:397560266] instead of STEAM_0:1:198780133
+
 	arr := strings.Split(steamID, ":")
 
 	if len(arr) != 3 {

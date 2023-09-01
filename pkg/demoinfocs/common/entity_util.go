@@ -1,13 +1,21 @@
 package common
 
-import st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+import st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 
 func getInt(entity st.Entity, propName string) int {
 	if entity == nil {
 		return 0
 	}
 
-	return entity.PropertyValueMust(propName).IntVal
+	return entity.PropertyValueMust(propName).Int()
+}
+
+func getUInt64(entity st.Entity, propName string) uint64 {
+	if entity == nil {
+		return 0
+	}
+
+	return entity.PropertyValueMust(propName).S2UInt64()
 }
 
 func getFloat(entity st.Entity, propName string) float32 {
@@ -15,7 +23,7 @@ func getFloat(entity st.Entity, propName string) float32 {
 		return 0
 	}
 
-	return entity.PropertyValueMust(propName).FloatVal
+	return entity.PropertyValueMust(propName).Float()
 }
 
 func getString(entity st.Entity, propName string) string {
@@ -23,7 +31,7 @@ func getString(entity st.Entity, propName string) string {
 		return ""
 	}
 
-	return entity.PropertyValueMust(propName).StringVal
+	return entity.PropertyValueMust(propName).String()
 }
 
 func getBool(entity st.Entity, propName string) bool {

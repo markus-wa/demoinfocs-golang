@@ -3,9 +3,9 @@ package fake
 import (
 	"github.com/stretchr/testify/mock"
 
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 var _ demoinfocs.GameState = new(GameState)
@@ -13,6 +13,11 @@ var _ demoinfocs.GameState = new(GameState)
 // GameState is a mock for of demoinfocs.GameState.
 type GameState struct {
 	mock.Mock
+}
+
+// OvertimeCount is a mock-implementation of GameState.OvertimeCount().
+func (gs *GameState) OvertimeCount() int {
+	return gs.Called().Int(0)
 }
 
 // IngameTick is a mock-implementation of GameState.IngameTick().
@@ -90,7 +95,7 @@ func (gs *GameState) Rules() demoinfocs.GameRules {
 	return gs.Called().Get(0).(demoinfocs.GameRules)
 }
 
-// PlayerResourceEntity is a mock-implementation of GameState.PlayerResorceEntity().
+// PlayerResourceEntity is a mock-implementation of GameState.PlayerResourceEntity().
 func (gs *GameState) PlayerResourceEntity() st.Entity {
 	return gs.Called().Get(0).(st.Entity)
 }
@@ -98,4 +103,9 @@ func (gs *GameState) PlayerResourceEntity() st.Entity {
 // Hostages is a mock-implementation of GameState.Hostages().
 func (gs *GameState) Hostages() []*common.Hostage {
 	return gs.Called().Get(0).([]*common.Hostage)
+}
+
+// EntityByHandle is a mock-implementation of GameState.EntityByHandle().
+func (gs *GameState) EntityByHandle(handle uint64) st.Entity {
+	return gs.Called(handle).Get(0).(st.Entity)
 }

@@ -3,7 +3,7 @@
 package demoinfocs
 
 import (
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 )
 
 // Participants is an auto-generated interface for participants.
@@ -37,10 +37,22 @@ type Participants interface {
 	// TeamMembers returns all players belonging to the requested team at this time.
 	// The returned slice is a snapshot and is not updated on changes.
 	TeamMembers(team common.Team) []*common.Player
+	// FindByPawnHandle attempts to find a player by his pawn entity-handle.
+	// This works only for Source 2 demos.
+	//
+	// Returns nil if not found.
+	FindByPawnHandle(handle uint64) *common.Player
+	// FindByHandle64 attempts to find a player by his entity-handle.
+	// The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
+	//
+	// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
+	FindByHandle64(handle uint64) *common.Player
 	// FindByHandle attempts to find a player by his entity-handle.
 	// The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
 	//
 	// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
+	//
+	// Deprecated: Use FindByHandle64 instead.
 	FindByHandle(handle int) *common.Player
 	// SpottersOf returns a list of all players who have spotted the passed player.
 	// This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.

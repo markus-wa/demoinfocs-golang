@@ -6,10 +6,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/constants"
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables/fake"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables/fake"
 )
 
 func TestNewGameState(t *testing.T) {
@@ -49,8 +49,8 @@ func TestGameState_Participants(t *testing.T) {
 	allByUserID := ptcp.AllByUserID()
 
 	// Should update ptcp as well since it uses the same map
-	gs.playersByEntityID[0] = newPlayer()
-	gs.playersByUserID[0] = newPlayer()
+	gs.playersByEntityID[0] = newPlayerS1()
+	gs.playersByUserID[0] = newPlayerS1()
 
 	assert.Equal(t, gs.playersByEntityID, ptcp.ByEntityID())
 	assert.Equal(t, gs.playersByUserID, ptcp.ByUserID())
@@ -74,7 +74,7 @@ func TestGameState_Participants(t *testing.T) {
 }
 
 func TestParticipants_All(t *testing.T) {
-	pl := newPlayer()
+	pl := newPlayerS1()
 	ptcps := participants{
 		playersByUserID: map[int]*common.Player{0: pl},
 	}
@@ -85,15 +85,15 @@ func TestParticipants_All(t *testing.T) {
 }
 
 func TestParticipants_Playing(t *testing.T) {
-	terrorist := newPlayer()
+	terrorist := newPlayerS1()
 	terrorist.Team = common.TeamTerrorists
-	ct := newPlayer()
+	ct := newPlayerS1()
 	ct.Team = common.TeamCounterTerrorists
-	unassigned := newPlayer()
+	unassigned := newPlayerS1()
 	unassigned.Team = common.TeamUnassigned
-	spectator := newPlayer()
+	spectator := newPlayerS1()
 	spectator.Team = common.TeamSpectators
-	def := newPlayer()
+	def := newPlayerS1()
 
 	ptcps := participants{
 		playersByUserID: map[int]*common.Player{
@@ -112,15 +112,15 @@ func TestParticipants_Playing(t *testing.T) {
 }
 
 func TestParticipants_TeamMembers(t *testing.T) {
-	terrorist := newPlayer()
+	terrorist := newPlayerS1()
 	terrorist.Team = common.TeamTerrorists
-	ct := newPlayer()
+	ct := newPlayerS1()
 	ct.Team = common.TeamCounterTerrorists
-	unassigned := newPlayer()
+	unassigned := newPlayerS1()
 	unassigned.Team = common.TeamUnassigned
-	spectator := newPlayer()
+	spectator := newPlayerS1()
 	spectator.Team = common.TeamSpectators
-	def := newPlayer()
+	def := newPlayerS1()
 
 	ptcps := participants{
 		playersByUserID: map[int]*common.Player{
@@ -138,12 +138,15 @@ func TestParticipants_TeamMembers(t *testing.T) {
 }
 
 func TestParticipants_FindByHandle(t *testing.T) {
-	pl := newPlayer()
+	pl := newPlayerS1()
 	pl.Team = common.TeamTerrorists
 
 	ptcps := participants{
 		playersByEntityID: map[int]*common.Player{
 			3000 & constants.EntityHandleIndexMask: pl,
+		},
+		getIsSource2: func() bool {
+			return false
 		},
 	}
 
@@ -153,11 +156,14 @@ func TestParticipants_FindByHandle(t *testing.T) {
 }
 
 func TestParticipants_FindByHandle_InvalidEntityHandle(t *testing.T) {
-	pl := newPlayer()
+	pl := newPlayerS1()
 	pl.Team = common.TeamTerrorists
 	ptcps := participants{
 		playersByEntityID: map[int]*common.Player{
 			constants.InvalidEntityHandle & constants.EntityHandleIndexMask: pl,
+		},
+		getIsSource2: func() bool {
+			return false
 		},
 	}
 
@@ -167,7 +173,7 @@ func TestParticipants_FindByHandle_InvalidEntityHandle(t *testing.T) {
 }
 
 func TestParticipants_Connected_SuppressNoEntity(t *testing.T) {
-	pl := newPlayer()
+	pl := newPlayerS1()
 	pl2 := common.NewPlayer(nil)
 	pl2.IsConnected = true
 
@@ -184,8 +190,8 @@ func TestParticipants_Connected_SuppressNoEntity(t *testing.T) {
 }
 
 func TestParticipants_Connected_SuppressNotConnected(t *testing.T) {
-	pl := newPlayer()
-	pl2 := newPlayer()
+	pl := newPlayerS1()
+	pl2 := newPlayerS1()
 	pl2.IsConnected = false
 
 	ptcps := participants{
@@ -201,14 +207,14 @@ func TestParticipants_Connected_SuppressNotConnected(t *testing.T) {
 }
 
 func TestParticipants_SpottersOf(t *testing.T) {
-	spotter1 := newPlayer()
+	spotter1 := newPlayerS1()
 	spotter1.EntityID = 1
-	spotter2 := newPlayer()
+	spotter2 := newPlayerS1()
 	spotter2.EntityID = 35
-	nonSpotter := newPlayer()
+	nonSpotter := newPlayerS1()
 	nonSpotter.EntityID = 5
 
-	spotted := newPlayer()
+	spotted := newPlayerS1()
 	entity := new(stfake.Entity)
 	entity.On("ID").Return(3)
 	prop0 := new(stfake.Property)
@@ -234,9 +240,9 @@ func TestParticipants_SpottersOf(t *testing.T) {
 }
 
 func TestParticipants_SpottedBy(t *testing.T) {
-	spotted1 := newPlayer()
+	spotted1 := newPlayerS1()
 	spotted1.EntityID = 2
-	spotted2 := newPlayer()
+	spotted2 := newPlayerS1()
 	spotted2.EntityID = 35
 
 	prop0 := new(stfake.Property)
@@ -249,9 +255,9 @@ func TestParticipants_SpottedBy(t *testing.T) {
 	spotted2Entity.On("Property", "m_bSpottedByMask.000").Return(prop0)
 	spotted2.Entity = spotted2Entity
 
-	unSpotted := newPlayer()
+	unSpotted := newPlayerS1()
 	unSpotted.EntityID = 5
-	spotter := newPlayer()
+	spotter := newPlayerS1()
 	spotter.EntityID = 1
 
 	unSpottedProp := new(stfake.Property)
@@ -347,13 +353,15 @@ func TestGameRules(t *testing.T) {
 	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
 }
 
-func newPlayer() *common.Player {
-	pl := newPlayerWithEntityID(1)
+func newPlayerS1() *common.Player {
+	pl := newPlayerWithEntityIDS1(1)
 	return pl
 }
 
-func newPlayerWithEntityID(id int) *common.Player {
-	pl := common.NewPlayer(nil)
+func newPlayerWithEntityIDS1(id int) *common.Player {
+	pl := common.NewPlayer(demoInfoProvider{
+		parser: &parser{header: &common.DemoHeader{Filestamp: "HL2DEMO"}},
+	})
 	pl.Entity = fakePlayerEntity(id)
 	pl.IsConnected = true
 

@@ -6,10 +6,15 @@ import (
 
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables/fake"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables/fake"
 )
+
+var s1DemoInfoProvider = demoInfoProviderMock{
+	isSource2: false,
+}
 
 func TestBombPosition(t *testing.T) {
 	groundPos := r3.Vector{X: 1, Y: 2, Z: 3}
@@ -24,7 +29,12 @@ func TestBombPosition(t *testing.T) {
 	plEntity := entityWithID(1)
 	plEntity.On("Position").Return(playerPos)
 
-	bomb.Carrier = &Player{Entity: plEntity}
+	bomb.Carrier = &Player{
+		Entity: plEntity,
+		demoInfoProvider: demoInfoProviderMock{
+			isSource2: false,
+		},
+	}
 	assert.Equal(t, playerPos, bomb.Position(), "Bomb position should be Player.Position")
 }
 
@@ -66,8 +76,8 @@ func TestDemoHeader_FrameTime_PlaybackFrames_Zero(t *testing.T) {
 }
 
 func TestTeamState_Team(t *testing.T) {
-	tState := NewTeamState(TeamTerrorists, nil)
-	ctState := NewTeamState(TeamCounterTerrorists, nil)
+	tState := NewTeamState(TeamTerrorists, nil, demoInfoProviderMock{})
+	ctState := NewTeamState(TeamCounterTerrorists, nil, demoInfoProviderMock{})
 
 	assert.Equal(t, TeamTerrorists, tState.Team())
 	assert.Equal(t, TeamCounterTerrorists, ctState.Team())
@@ -75,7 +85,7 @@ func TestTeamState_Team(t *testing.T) {
 
 func TestTeamState_Members(t *testing.T) {
 	members := []*Player{new(Player), new(Player)}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, demoInfoProviderMock{})
 
 	assert.Equal(t, members, state.Members())
 }
@@ -85,7 +95,16 @@ func TestTeamState_EquipmentValueCurrent(t *testing.T) {
 		playerWithProperty("m_unCurrentEquipmentValue", st.PropertyValue{IntVal: 100}),
 		playerWithProperty("m_unCurrentEquipmentValue", st.PropertyValue{IntVal: 200}),
 	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	dip := demoInfoProviderMock{
+		isSource2: false,
+	}
+
+	for _, p := range members {
+		p.demoInfoProvider = dip
+	}
+
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, dip)
 
 	assert.Equal(t, 300, state.CurrentEquipmentValue())
 }
@@ -95,7 +114,16 @@ func TestTeamState_EquipmentValueRoundStart(t *testing.T) {
 		playerWithProperty("m_unRoundStartEquipmentValue", st.PropertyValue{IntVal: 100}),
 		playerWithProperty("m_unRoundStartEquipmentValue", st.PropertyValue{IntVal: 200}),
 	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	dip := demoInfoProviderMock{
+		isSource2: false,
+	}
+
+	for _, p := range members {
+		p.demoInfoProvider = dip
+	}
+
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, dip)
 
 	assert.Equal(t, 300, state.RoundStartEquipmentValue())
 }
@@ -105,7 +133,16 @@ func TestTeamState_EquipmentValueFreezeTimeEnd(t *testing.T) {
 		playerWithProperty("m_unFreezetimeEndEquipmentValue", st.PropertyValue{IntVal: 100}),
 		playerWithProperty("m_unFreezetimeEndEquipmentValue", st.PropertyValue{IntVal: 200}),
 	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+
+	dip := demoInfoProviderMock{
+		isSource2: false,
+	}
+
+	for _, p := range members {
+		p.demoInfoProvider = dip
+	}
+
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, dip)
 
 	assert.Equal(t, 300, state.FreezeTimeEndEquipmentValue())
 }
@@ -115,7 +152,7 @@ func TestTeamState_MoneySpentThisRound(t *testing.T) {
 		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iCashSpentThisRound.000", st.PropertyValue{IntVal: 100})}),
 		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iCashSpentThisRound.000", st.PropertyValue{IntVal: 200})}),
 	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, demoInfoProviderMock{})
 
 	assert.Equal(t, 300, state.MoneySpentThisRound())
 }
@@ -125,7 +162,7 @@ func TestTeamState_MoneySpentTotal(t *testing.T) {
 		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iTotalCashSpent.000", st.PropertyValue{IntVal: 100})}),
 		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iTotalCashSpent.000", st.PropertyValue{IntVal: 200})}),
 	}
-	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members })
+	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, demoInfoProviderMock{})
 
 	assert.Equal(t, 300, state.MoneySpentTotal())
 }
@@ -169,6 +206,7 @@ func TestConvertSteamID64To32(t *testing.T) {
 type fakeProp struct {
 	propName string
 	value    st.PropertyValue
+	isNil    bool
 }
 
 type demoInfoProviderMock struct {
@@ -177,6 +215,15 @@ type demoInfoProviderMock struct {
 	playersByHandle      map[int]*Player
 	playerResourceEntity st.Entity
 	equipment            *Equipment
+	isSource2            bool
+}
+
+func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
+	panic("implement me")
+}
+
+func (p demoInfoProviderMock) IsSource2() bool {
+	return p.isSource2
 }
 
 func (p demoInfoProviderMock) TickRate() float64 {
@@ -189,6 +236,10 @@ func (p demoInfoProviderMock) IngameTick() int {
 
 func (p demoInfoProviderMock) FindPlayerByHandle(handle int) *Player {
 	return p.playersByHandle[handle]
+}
+
+func (p demoInfoProviderMock) FindPlayerByPawnHandle(handle uint64) *Player {
+	return p.playersByHandle[int(handle)]
 }
 
 func (p demoInfoProviderMock) PlayerResourceEntity() st.Entity {
@@ -229,7 +280,15 @@ func entityWithProperty(propName string, value st.PropertyValue) *stfake.Entity 
 func entityWithProperties(properties []fakeProp) *stfake.Entity {
 	entity := entityWithID(1)
 
+	entity.On("Property", mock.Anything).Return(nil)
+
 	for _, prop := range properties {
+		if prop.isNil {
+			entity.On("Property", prop.propName).Return(nil)
+
+			continue
+		}
+
 		property := new(stfake.Property)
 		property.On("Value").Return(prop.value)
 

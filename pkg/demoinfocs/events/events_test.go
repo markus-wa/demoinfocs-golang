@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 func TestPlayerFlashed_FlashDuration(t *testing.T) {
@@ -56,10 +56,19 @@ func TestKill_IsWallBang(t *testing.T) {
 }
 
 type demoInfoProviderMock struct {
+	isSource2 bool
+}
+
+func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
+	panic("implement me")
 }
 
 func (p demoInfoProviderMock) IngameTick() int {
 	return 0
+}
+
+func (p demoInfoProviderMock) IsSource2() bool {
+	return p.isSource2
 }
 
 func (p demoInfoProviderMock) TickRate() float64 {
@@ -67,6 +76,10 @@ func (p demoInfoProviderMock) TickRate() float64 {
 }
 
 func (p demoInfoProviderMock) FindPlayerByHandle(int) *common.Player {
+	return nil
+}
+
+func (p demoInfoProviderMock) FindPlayerByPawnHandle(uint64) *common.Player {
 	return nil
 }
 

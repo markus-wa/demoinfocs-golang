@@ -4,14 +4,14 @@ package sendtables
 
 import (
 	"github.com/golang/geo/r3"
-	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
+	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
 )
 
 // Entity is an auto-generated interface for entity, intended to be used when mockability is needed.
 // entity stores a entity in the game (e.g. players etc.) with its properties.
 type Entity interface {
 	// ServerClass returns the entity's server-class.
-	ServerClass() *ServerClass
+	ServerClass() ServerClass
 	// ID returns the entity's ID.
 	ID() int
 	// SerialNum returns the entity's serial number.

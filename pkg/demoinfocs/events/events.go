@@ -10,8 +10,8 @@ import (
 
 	"github.com/golang/geo/r3"
 
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 )
 
 // FrameDone signals that a demo-frame has been processed.
@@ -45,6 +45,7 @@ type RoundEndReason byte
 
 // RoundEndReason constants give information about why a round ended (Bomb defused, exploded etc.).
 const (
+	RoundEndReasonStillInProgress      RoundEndReason = 0
 	RoundEndReasonTargetBombed         RoundEndReason = 1
 	RoundEndReasonVIPEscaped           RoundEndReason = 2
 	RoundEndReasonVIPKilled            RoundEndReason = 3
@@ -63,6 +64,8 @@ const (
 	RoundEndReasonGameStart            RoundEndReason = 16
 	RoundEndReasonTerroristsSurrender  RoundEndReason = 17
 	RoundEndReasonCTSurrender          RoundEndReason = 18
+	RoundEndReasonTerroristsPlanted    RoundEndReason = 19
+	RoundEndReasonCTsReachedHostage    RoundEndReason = 20
 )
 
 // RoundEnd signals that a round just finished.
@@ -229,6 +232,7 @@ type SmokeExpired struct {
 // FireGrenadeStart signals the start of a molly/incendiary.
 // GrenadeType will always be EqIncendiary as it's not networked whether it's an incendiary or molotov.
 // Thrower will always be nil as this isn't networked.
+// May not be triggered with Source 2 demos and contain missing/incorrect data, it's recommended to use InfernoStart instead.
 type FireGrenadeStart struct {
 	GrenadeEvent
 }
@@ -236,6 +240,7 @@ type FireGrenadeStart struct {
 // FireGrenadeExpired signals that all fires of a molly/incendiary have extinguished.
 // GrenadeType will always be EqIncendiary as it's not networked whether it's an incendiary or molotov.
 // Thrower will always be nil as this isn't networked.
+// May not be triggered with Source 2 demos and contain missing/incorrect data, it's recommended to use InfernoExpired instead.
 type FireGrenadeExpired struct {
 	GrenadeEvent
 }
@@ -549,6 +554,8 @@ const (
 	// May occur because the decryption key used is incorrect.
 	// See ParserConfig.NetMessageDecryptionKey
 	WarnTypeCantReadEncryptedNetMessage
+
+	WarnTypeUnknownEquipmentIndex
 )
 
 // ParserWarn signals that a non-fatal problem occurred during parsing.
@@ -639,4 +646,10 @@ type RoundImpactScoreData struct {
 type PlayerInfo struct {
 	Index int
 	Info  common.PlayerInfo
+}
+
+// OvertimeNumberChanged signals that the number of overtime periods has changed.
+type OvertimeNumberChanged struct {
+	OldCount int
+	NewCount int
 }

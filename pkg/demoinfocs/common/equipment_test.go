@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 func TestEquipmentElement_Class(t *testing.T) {
@@ -41,7 +41,7 @@ func TestEquipment_UniqueID(t *testing.T) {
 func TestEquipment_AmmoInMagazine(t *testing.T) {
 	wep := &Equipment{
 		Type:   EqAK47,
-		Entity: entityWithProperty("m_iClip1", st.PropertyValue{IntVal: 31}),
+		Entity: entityWithProperty("m_iClip1", st.PropertyValue{IntVal: 31, Any: uint32(30)}),
 	}
 
 	// returned value should be minus 1, m_iClip1 is always 1 more than the actual number of bullets
@@ -78,7 +78,18 @@ func TestEquipment_AmmoInMagazine_EntityNil(t *testing.T) {
 }
 
 func TestEquipment_AmmoReserve(t *testing.T) {
-	entity := entityWithProperty("m_iPrimaryReserveAmmoCount", st.PropertyValue{IntVal: 60})
+	entity := entityWithProperties([]fakeProp{
+		{
+			propName: "m_pReserveAmmo.0000",
+			value:    st.PropertyValue{},
+			isNil:    true,
+		},
+		{
+			propName: "m_iPrimaryReserveAmmoCount",
+			value:    st.PropertyValue{IntVal: 60},
+			isNil:    false,
+		},
+	})
 	wep := &Equipment{
 		Type:   EqAK47,
 		Entity: entity,
@@ -91,7 +102,18 @@ func TestEquipment_AmmoReserve_Grenade(t *testing.T) {
 	owner := new(Player)
 	owner.AmmoLeft[1] = 2
 
-	entity := entityWithProperty("LocalWeaponData.m_iPrimaryAmmoType", st.PropertyValue{IntVal: 1})
+	entity := entityWithProperties([]fakeProp{
+		{
+			propName: "m_pReserveAmmo.0001",
+			value:    st.PropertyValue{},
+			isNil:    true,
+		},
+		{
+			propName: "LocalWeaponData.m_iPrimaryAmmoType",
+			value:    st.PropertyValue{IntVal: 1},
+			isNil:    false,
+		},
+	})
 	wep := &Equipment{
 		Type:   EqFlash,
 		Owner:  owner,

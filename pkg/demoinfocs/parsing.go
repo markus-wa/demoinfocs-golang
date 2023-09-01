@@ -7,22 +7,29 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/snappy"
 	"github.com/markus-wa/go-unassert"
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables2"
+
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 )
 
 const maxOsPath = 260
 
 const (
 	playerWeaponPrefix    = "m_hMyWeapons."
+	playerWeaponPrefixS2  = "m_pWeaponServices.m_hMyWeapons."
 	playerWeaponPrePrefix = "bcc_nonlocaldata."
 	gameRulesPrefix       = "cs_gamerules_data"
+	gameRulesPrefixS2     = "m_pGameRules"
 )
 
 // Parsing errors
@@ -45,18 +52,33 @@ var (
 func (p *parser) ParseHeader() (common.DemoHeader, error) {
 	var h common.DemoHeader
 	h.Filestamp = p.bitReader.ReadCString(8)
-	h.Protocol = p.bitReader.ReadSignedInt(32)
-	h.NetworkProtocol = p.bitReader.ReadSignedInt(32)
-	h.ServerName = p.bitReader.ReadCString(maxOsPath)
-	h.ClientName = p.bitReader.ReadCString(maxOsPath)
-	h.MapName = p.bitReader.ReadCString(maxOsPath)
-	h.GameDirectory = p.bitReader.ReadCString(maxOsPath)
-	h.PlaybackTime = time.Duration(p.bitReader.ReadFloat() * float32(time.Second))
-	h.PlaybackTicks = p.bitReader.ReadSignedInt(32)
-	h.PlaybackFrames = p.bitReader.ReadSignedInt(32)
-	h.SignonLength = p.bitReader.ReadSignedInt(32)
 
-	if h.Filestamp != "HL2DEMO" {
+	switch h.Filestamp {
+	case "HL2DEMO":
+		h.Protocol = p.bitReader.ReadSignedInt(32)
+		h.NetworkProtocol = p.bitReader.ReadSignedInt(32)
+		h.ServerName = p.bitReader.ReadCString(maxOsPath)
+		h.ClientName = p.bitReader.ReadCString(maxOsPath)
+		h.MapName = p.bitReader.ReadCString(maxOsPath)
+		h.GameDirectory = p.bitReader.ReadCString(maxOsPath)
+		h.PlaybackTime = time.Duration(p.bitReader.ReadFloat() * float32(time.Second))
+		h.PlaybackTicks = p.bitReader.ReadSignedInt(32)
+		h.PlaybackFrames = p.bitReader.ReadSignedInt(32)
+		h.SignonLength = p.bitReader.ReadSignedInt(32)
+
+		p.stParser = st.NewSendTableParser()
+
+	case "PBDEMS2":
+		p.bitReader.Skip(8 << 3) // skip 8 bytes
+
+		p.stParser = sendtables2.NewParser()
+
+		p.stParser.OnEntity(p.onEntity)
+
+		p.RegisterNetMessageHandler(p.stParser.OnServerInfo)
+		p.RegisterNetMessageHandler(p.stParser.OnPacketEntities)
+
+	default:
 		return h, ErrInvalidFileType
 	}
 
@@ -106,6 +128,10 @@ func (p *parser) ParseToEnd() (err error) {
 		if err == nil {
 			err = p.error()
 		}
+
+		if err == nil {
+			p.ensurePlaybackValuesAreSet()
+		}
 	}()
 
 	if p.header == nil {
@@ -115,8 +141,10 @@ func (p *parser) ParseToEnd() (err error) {
 		}
 	}
 
+	parseFrame := p.parseFrameFn()
+
 	for {
-		if !p.parseFrame() {
+		if !parseFrame() {
 			return p.error()
 		}
 
@@ -132,7 +160,7 @@ func recoverFromUnexpectedEOF(r any) error {
 	}
 
 	if r == io.ErrUnexpectedEOF || r == io.EOF {
-		return ErrUnexpectedEndOfDemo
+		return errors.Wrap(ErrUnexpectedEndOfDemo, "unexpected EOF")
 	}
 
 	switch err := r.(type) {
@@ -185,7 +213,7 @@ func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 		}
 	}
 
-	moreFrames = p.parseFrame()
+	moreFrames = p.parseFrameFn()()
 
 	return moreFrames, p.error()
 }
@@ -206,7 +234,7 @@ const (
 )
 
 //nolint:funlen,cyclop
-func (p *parser) parseFrame() bool {
+func (p *parser) parseFrameS1() bool {
 	cmd := demoCommand(p.bitReader.ReadSingleByte())
 
 	// Send ingame tick number update
@@ -232,9 +260,12 @@ func (p *parser) parseFrame() bool {
 	case dcDataTables:
 		p.msgDispatcher.SyncAllQueues()
 
-		p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
-		p.stParser.ParsePacket(p.bitReader)
-		p.bitReader.EndChunk()
+		b := p.bitReader.ReadBytes(p.bitReader.ReadSignedInt(32))
+
+		err := p.stParser.ParsePacket(b)
+		if err != nil {
+			panic(err)
+		}
 
 		debugAllServerClasses(p.ServerClasses())
 
@@ -270,6 +301,109 @@ func (p *parser) parseFrame() bool {
 	p.msgQueue <- frameParsedToken
 
 	return true
+}
+
+var demoCommandMsgsCreators = map[msgs2.EDemoCommands]NetMessageCreator{
+	msgs2.EDemoCommands_DEM_Stop:          func() proto.Message { return &msgs2.CDemoStop{} },
+	msgs2.EDemoCommands_DEM_FileHeader:    func() proto.Message { return &msgs2.CDemoFileHeader{} },
+	msgs2.EDemoCommands_DEM_FileInfo:      func() proto.Message { return &msgs2.CDemoFileInfo{} },
+	msgs2.EDemoCommands_DEM_SyncTick:      func() proto.Message { return &msgs2.CDemoSyncTick{} },
+	msgs2.EDemoCommands_DEM_SendTables:    func() proto.Message { return &msgs2.CDemoSendTables{} },
+	msgs2.EDemoCommands_DEM_ClassInfo:     func() proto.Message { return &msgs2.CDemoClassInfo{} },
+	msgs2.EDemoCommands_DEM_StringTables:  func() proto.Message { return &msgs2.CDemoStringTables{} },
+	msgs2.EDemoCommands_DEM_Packet:        func() proto.Message { return &msgs2.CDemoPacket{} },
+	msgs2.EDemoCommands_DEM_SignonPacket:  func() proto.Message { return &msgs2.CDemoPacket{} },
+	msgs2.EDemoCommands_DEM_ConsoleCmd:    func() proto.Message { return &msgs2.CDemoConsoleCmd{} },
+	msgs2.EDemoCommands_DEM_CustomData:    func() proto.Message { return &msgs2.CDemoCustomData{} },
+	msgs2.EDemoCommands_DEM_UserCmd:       func() proto.Message { return &msgs2.CDemoUserCmd{} },
+	msgs2.EDemoCommands_DEM_FullPacket:    func() proto.Message { return &msgs2.CDemoFullPacket{} },
+	msgs2.EDemoCommands_DEM_SaveGame:      func() proto.Message { return &msgs2.CDemoSaveGame{} },
+	msgs2.EDemoCommands_DEM_SpawnGroups:   func() proto.Message { return &msgs2.CDemoSpawnGroups{} },
+	msgs2.EDemoCommands_DEM_AnimationData: func() proto.Message { return &msgs2.CDemoAnimationData{} },
+}
+
+func (p *parser) parseFrameS2() bool {
+	cmd := msgs2.EDemoCommands(p.bitReader.ReadVarInt32())
+
+	msgType := cmd & ^msgs2.EDemoCommands_DEM_IsCompressed
+	msgCompressed := (cmd & msgs2.EDemoCommands_DEM_IsCompressed) != 0
+
+	tick := p.bitReader.ReadVarInt32()
+
+	// This appears to actually be an int32, where a -1 means pre-game.
+	if tick == 4294967295 {
+		tick = 0
+	}
+
+	p.msgQueue <- ingameTickNumber(int32(tick))
+
+	size := p.bitReader.ReadVarInt32()
+
+	buf := p.bitReader.ReadBytes(int(size))
+
+	if msgCompressed {
+		var err error
+
+		buf, err = snappy.Decode(nil, buf)
+		if err != nil {
+			panic(err) // FIXME: avoid panic
+		}
+	}
+
+	msg := demoCommandMsgsCreators[msgType]()
+
+	if msg == nil {
+		panic(fmt.Sprintf("Unknown demo command: %d", msgType))
+	}
+
+	err := proto.Unmarshal(buf, msg)
+	if err != nil {
+		panic(err) // FIXME: avoid panic
+	}
+
+	p.msgQueue <- msg
+
+	switch m := msg.(type) {
+	case *msgs2.CDemoFileHeader:
+		p.handleDemoFileHeader(m)
+
+	case *msgs2.CDemoPacket:
+		p.handleDemoPacket(m)
+
+	case *msgs2.CDemoFullPacket:
+		p.handleFullPacket(m)
+
+	case *msgs2.CDemoSendTables:
+		p.handleSendTables(m)
+
+	case *msgs2.CDemoClassInfo:
+		p.handleClassInfo(m)
+
+	case *msgs2.CDemoStringTables:
+		p.handleStringTables(m)
+
+	case *msgs2.CDemoFileInfo:
+		p.handleFileInfo(m)
+	}
+
+	// Queue up some post processing
+	p.msgQueue <- frameParsedToken
+
+	return msgType != msgs2.EDemoCommands_DEM_Stop
+}
+
+// FIXME: refactor to interface instead of switch
+func (p *parser) parseFrameFn() func() bool {
+	switch p.header.Filestamp {
+	case "HL2DEMO":
+		return p.parseFrameS1
+
+	case "PBDEMS2":
+		return p.parseFrameS2
+
+	default:
+		panic(fmt.Sprintf("Unknown demo version: %s", p.header.Filestamp))
+	}
 }
 
 var byteSlicePool = sync.Pool{
@@ -381,16 +515,20 @@ type frameParsedTokenType struct{}
 var frameParsedToken = new(frameParsedTokenType)
 
 func (p *parser) handleFrameParsed(*frameParsedTokenType) {
-	// PlayerFlashed events need to be dispatched at the end of the tick
-	// because Player.FlashDuration is updated after the game-events are parsed.
-	for _, eventHandler := range p.delayedEventHandlers {
-		eventHandler()
-	}
-
-	p.delayedEventHandlers = p.delayedEventHandlers[:0]
+	p.processFrameGameEvents()
 
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.FrameDone{})
+}
+
+// CS2 demos playback info are available in the CDemoFileInfo message that should be parsed at the end of the demo.
+// Demos may not contain it, as a workaround we update values with the last parser information at the end of parsing.
+func (p *parser) ensurePlaybackValuesAreSet() {
+	if p.header.PlaybackTicks == 0 {
+		p.header.PlaybackTicks = p.gameState.ingameTick
+		p.header.PlaybackFrames = p.currentFrame
+		p.header.PlaybackTime = time.Duration(float32(p.header.PlaybackTicks)*float32(p.tickInterval)) * time.Second
+	}
 }
 
 /*

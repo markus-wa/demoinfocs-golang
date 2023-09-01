@@ -21,19 +21,21 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 )
 
 const (
 	testDataPath            = "../../test"
 	csDemosPath             = testDataPath + "/cs-demos"
 	demSetPath              = csDemosPath + "/set"
+	demSetPathS2            = csDemosPath + "/s2"
 	defaultDemPath          = csDemosPath + "/default.dem"
 	retakeDemPath           = csDemosPath + "/retake_unknwon_bombsite_index.dem"
 	unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
+	s2DemPath               = demSetPathS2 + "/s2.dem"
 )
 
 var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current demos")
@@ -194,6 +196,33 @@ func TestDemoInfoCs(t *testing.T) {
 	assertGolden(t, assertions, "default", actual.Bytes())
 }
 
+func TestS2(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	f, err := os.Open(s2DemPath)
+	assertions := assert.New(t)
+	assertions.NoError(err, "error opening demo %q", s2DemPath)
+
+	defer mustClose(t, f)
+
+	cfg := demoinfocs.DefaultParserConfig
+	cfg.MsgQueueBufferSize = 0
+
+	p := demoinfocs.NewParserWithConfig(f, cfg)
+
+	t.Log("Parsing header")
+	_, err = p.ParseHeader()
+	assertions.NoError(err, "error returned by Parser.ParseHeader()")
+
+	t.Log("Parsing to end")
+	err = p.ParseToEnd()
+	assertions.NoError(err, "error occurred in ParseToEnd()")
+}
+
 func TestEncryptedNetMessages(t *testing.T) {
 	t.Parallel()
 
@@ -280,7 +309,7 @@ func TestUnexpectedEndOfDemo(t *testing.T) {
 	p := demoinfocs.NewParser(f)
 
 	err := p.ParseToEnd()
-	assert.Equal(t, demoinfocs.ErrUnexpectedEndOfDemo, err, "parsing cancelled but error was not ErrUnexpectedEndOfDemo")
+	assert.ErrorIs(t, err, demoinfocs.ErrUnexpectedEndOfDemo, "parsing cancelled but error was not ErrUnexpectedEndOfDemo")
 }
 
 func TestBadNetMessageDecryptionKey(t *testing.T) {
@@ -456,26 +485,20 @@ func runConcurrently(runner func()) {
 	wg.Wait()
 }
 
-func TestDemoSet(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	dems, err := ioutil.ReadDir(demSetPath)
-	assert.NoError(t, err, "failed to list directory %q", demSetPath)
+func testDemoSet(t *testing.T, path string) {
+	dems, err := os.ReadDir(path)
+	assert.NoError(t, err, "failed to list directory %q", path)
 
 	for _, d := range dems {
 		name := d.Name()
 		if strings.HasSuffix(name, ".dem") {
-			t.Logf("Parsing '%s/%s'\n", demSetPath, name)
+			t.Logf("Parsing '%s/%s'\n", path, name)
 			func() {
-				f := openFile(t, fmt.Sprintf("%s/%s", demSetPath, name))
+				f := openFile(t, fmt.Sprintf("%s/%s", path, name))
 				defer mustClose(t, f)
 
 				defer func() {
-					assert.Nil(t, recover(), "parsing of '%s/%s' panicked", demSetPath, name)
+					assert.Nil(t, recover(), "parsing of '%s/%s' panicked", path, name)
 				}()
 
 				p := demoinfocs.NewParser(f)
@@ -506,10 +529,30 @@ func TestDemoSet(t *testing.T) {
 				})
 
 				err = p.ParseToEnd()
-				assert.Nil(t, err, "parsing of '%s/%s' failed", demSetPath, name)
+				assert.NoError(t, err, "parsing of '%s/%s' failed", demSetPath, name)
 			}()
 		}
 	}
+}
+
+func TestDemoSet(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	t.Parallel()
+
+	testDemoSet(t, demSetPath)
+}
+
+func TestDemoSetS2(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	t.Parallel()
+
+	testDemoSet(t, demSetPathS2)
 }
 
 func BenchmarkDemoInfoCs(b *testing.B) {

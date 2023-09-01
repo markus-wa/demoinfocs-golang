@@ -3,8 +3,8 @@
 package demoinfocs
 
 import (
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 // GameState is an auto-generated interface for gameState.
@@ -57,7 +57,12 @@ type GameState interface {
 	IsWarmupPeriod() bool
 	// IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.
 	IsMatchStarted() bool
+	// OvertimeCount returns the number of overtime according to CCSGameRulesProxy.
+	OvertimeCount() int
 	// PlayerResourceEntity returns the game's CCSPlayerResource entity.
 	// Contains scoreboard information and more.
 	PlayerResourceEntity() st.Entity
+	// EntityByHandle returns the entity corresponding to the given handle.
+	// Returns nil if the handle is invalid.
+	EntityByHandle(handle uint64) st.Entity
 }

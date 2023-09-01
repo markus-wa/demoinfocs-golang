@@ -7,7 +7,7 @@ import (
 
 	r3 "github.com/golang/geo/r3"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
+	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
 )
 
 const (
@@ -35,6 +35,7 @@ const (
 	PropTypeArray
 	PropTypeDataTable
 	PropTypeInt64
+	PropTypeAny
 )
 
 const (
@@ -89,16 +90,92 @@ var propDecoder propertyDecoder
 // PropertyValue stores parsed & decoded send-table values.
 // For instance player health, location etc.
 type PropertyValue struct {
-	VectorVal r3.Vector
-	IntVal    int
-	Int64Val  int64
-	ArrayVal  []PropertyValue
-	StringVal string
-	FloatVal  float32
+	VectorVal r3.Vector       // Deprecated, use R3Vec() instead
+	IntVal    int             // Deprecated, use Int() instead
+	Int64Val  int64           // Deprecated, use Int64() instead
+	ArrayVal  []PropertyValue // Deprecated.
+	StringVal string          // Deprecated, use Str() instead
+	FloatVal  float32         // Deprecated, use Float() instead
+	Any       any
+	S2        bool
+}
+
+func (v PropertyValue) R3Vec() r3.Vector {
+	if v.S2 {
+		fs := v.Any.([]float32)
+
+		return r3.Vector{
+			X: float64(fs[0]),
+			Y: float64(fs[1]),
+			Z: float64(fs[2]),
+		}
+	}
+
+	return v.VectorVal
+}
+
+func (v PropertyValue) Int() int {
+	if v.S2 {
+		return int(v.Any.(int32))
+	}
+
+	return v.IntVal
+}
+
+func (v PropertyValue) Int64() int64 {
+	if v.S2 {
+		return v.Any.(int64)
+	}
+
+	return v.Int64Val
+}
+
+func (v PropertyValue) S2UInt64() uint64 {
+	return v.Any.(uint64)
+}
+
+func (v PropertyValue) S2UInt32() uint32 {
+	return v.Any.(uint32)
+}
+
+func (v PropertyValue) Handle() uint64 {
+	if v.S2 {
+		return v.S2UInt64()
+	}
+
+	if v.IntVal < 0 {
+		panic("Handle is negative")
+	}
+
+	return uint64(v.IntVal)
+}
+
+func (v PropertyValue) Float() float32 {
+	if v.S2 {
+		return v.Any.(float32)
+	}
+
+	return v.FloatVal
+}
+
+func (v PropertyValue) Str() string {
+	if v.S2 {
+		return v.Any.(string)
+	}
+
+	return v.StringVal
+}
+
+func (v PropertyValue) String() string {
+	return fmt.Sprint(v.Any)
 }
 
 // BoolVal returns true if IntVal > 0.
 func (v PropertyValue) BoolVal() bool {
+	if v.S2 {
+		return v.Any.(bool)
+	}
+
 	return v.IntVal > 0
 }
 
@@ -108,24 +185,31 @@ func (propertyDecoder) decodeProp(prop *property, reader *bit.BitReader) {
 	switch prop.entry.prop.rawType {
 	case propTypeFloat:
 		prop.value.FloatVal = propDecoder.decodeFloat(prop.entry.prop, reader)
+		prop.value.Any = prop.value.FloatVal
 
 	case propTypeInt:
 		prop.value.IntVal = propDecoder.decodeInt(prop.entry.prop, reader)
+		prop.value.Any = prop.value.IntVal
 
 	case propTypeVectorXY:
 		prop.value.VectorVal = propDecoder.decodeVectorXY(prop.entry.prop, reader)
+		prop.value.Any = prop.value.VectorVal
 
 	case propTypeVector:
 		prop.value.VectorVal = propDecoder.decodeVector(prop.entry.prop, reader)
+		prop.value.Any = prop.value.VectorVal
 
 	case propTypeArray:
 		prop.value.ArrayVal = propDecoder.decodeArray(prop.entry, reader)
+		prop.value.Any = prop.value.ArrayVal
 
 	case propTypeString:
 		prop.value.StringVal = propDecoder.decodeString(reader)
+		prop.value.Any = prop.value.StringVal
 
 	case propTypeInt64:
 		prop.value.Int64Val = propDecoder.decodeInt64(prop.entry.prop, reader)
+		prop.value.Any = prop.value.Int64Val
 
 	default:
 		panic(fmt.Sprintf("Unknown prop type %d", prop.entry.prop.rawType))

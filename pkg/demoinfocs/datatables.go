@@ -7,14 +7,18 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
 
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/constants"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
+	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 func (p *parser) mapEquipment() {
-	for _, sc := range p.stParser.ServerClasses() {
+	if p.isSource2() {
+		return
+	}
+
+	for _, sc := range p.stParser.ServerClasses().All() {
 		switch sc.Name() {
 		case "CC4":
 			p.equipmentMapping[sc] = common.EqBomb
@@ -76,23 +80,69 @@ func (p *parser) bindBomb() {
 	scC4 := p.stParser.ServerClasses().FindByName("CC4")
 	scC4.OnEntityCreated(func(bombEntity st.Entity) {
 		bombEntity.OnPositionUpdate(func(pos r3.Vector) {
-			// Bomb only has a position when not held by a player
-			bomb.Carrier = nil
-
 			bomb.LastOnGroundPosition = pos
 		})
 
-		bombEntity.Property("m_hOwner").OnUpdate(func(val st.PropertyValue) {
-			bomb.Carrier = p.gameState.Participants().FindByHandle(val.IntVal)
-		})
+		if p.isSource2() {
+			bombEntity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+				carrier := p.gameState.Participants().FindByPawnHandle(val.Handle())
+				if !p.disableMimicSource1GameEvents {
+					if carrier != nil {
+						p.eventDispatcher.Dispatch(events.BombPickup{
+							Player: carrier,
+						})
+					} else if bomb.Carrier != nil {
+						p.eventDispatcher.Dispatch(events.BombDropped{
+							Player:   bomb.Carrier,
+							EntityID: bomb.Carrier.EntityID,
+						})
+					}
+				}
 
+				bomb.Carrier = carrier
+			})
+		} else {
+			bombEntity.Property("m_hOwner").OnUpdate(func(val st.PropertyValue) {
+				bomb.Carrier = p.gameState.Participants().FindByHandle(val.Int())
+			})
+		}
+
+		// Updated when a player starts/stops planting the bomb
 		bombEntity.Property("m_bStartedArming").OnUpdate(func(val st.PropertyValue) {
-			if val.IntVal != 0 {
-				p.gameState.currentPlanter = bomb.Carrier
+			if val.BoolVal() {
+				if p.isSource2() {
+					planter := p.gameState.Participants().FindByPawnHandle(bombEntity.PropertyValueMust("m_hOwnerEntity").Handle())
+					planter.IsPlanting = true
+					p.gameState.currentPlanter = planter
+
+					siteNumber := p.gameState.currentPlanter.PlayerPawnEntity().PropertyValueMust("m_nWhichBombZone").Int()
+					site := events.BomsiteUnknown
+					switch siteNumber {
+					case 1:
+						site = events.BombsiteA
+					case 2:
+						site = events.BombsiteB
+					}
+
+					if !p.disableMimicSource1GameEvents {
+						p.eventDispatcher.Dispatch(events.BombPlantBegin{
+							BombEvent: events.BombEvent{
+								Player: p.gameState.currentPlanter,
+								Site:   site,
+							},
+						})
+					}
+				} else {
+					p.gameState.currentPlanter = bomb.Carrier
+				}
 			} else if p.gameState.currentPlanter != nil {
 				p.gameState.currentPlanter.IsPlanting = false
 				p.eventDispatcher.Dispatch(events.BombPlantAborted{Player: p.gameState.currentPlanter})
 			}
+		})
+
+		bombEntity.OnDestroy(func() {
+			p.gameState.currentPlanter = nil
 		})
 	})
 
@@ -101,14 +151,108 @@ func (p *parser) bindBomb() {
 	scPlantedC4.OnEntityCreated(func(bombEntity st.Entity) {
 		// Player can't hold the bomb when it has been planted
 		p.gameState.bomb.Carrier = nil
+		p.gameState.currentPlanter = nil
 
 		bomb.LastOnGroundPosition = bombEntity.Position()
+
+		if p.isSource2() {
+			isTicking := true
+			ownerProp := bombEntity.PropertyValueMust("m_hOwnerEntity")
+			planter := p.gameState.Participants().FindByPawnHandle(ownerProp.Handle())
+			planter.IsPlanting = false
+
+			siteNumber := bombEntity.PropertyValueMust("m_nBombSite").Int()
+			site := events.BomsiteUnknown
+			if siteNumber == 0 {
+				site = events.BombsiteA
+			} else if siteNumber == 1 {
+				site = events.BombsiteB
+			}
+
+			if !p.disableMimicSource1GameEvents {
+				p.eventDispatcher.Dispatch(events.BombPlanted{
+					BombEvent: events.BombEvent{
+						Player: planter,
+						Site:   site,
+					},
+				})
+			}
+
+			// Set to true when the bomb has been planted and to false when it has been defused or has exploded.
+			bombEntity.Property("m_bBombTicking").OnUpdate(func(val st.PropertyValue) {
+				isTicking = val.BoolVal()
+				if isTicking {
+					return
+				}
+
+				// At this point the bomb stopped ticking either because it has been defused or has exploded.
+				// We detect only explosions here, defuse events are detected with m_bBombDefused updates which seems more suitable.
+				// When the bomb is defused, m_bBombTicking is set to false and then m_hBombDefuser is set to nil.
+				// It means that if a player is currently defusing the bomb, it's a defuse event.
+				isDefuseEvent := p.gameState.currentDefuser != nil
+				if isDefuseEvent || p.disableMimicSource1GameEvents {
+					return
+				}
+
+				p.eventDispatcher.Dispatch(events.BombExplode{
+					BombEvent: events.BombEvent{
+						Player: planter,
+						Site:   site,
+					},
+				})
+			})
+
+			// Updated when a player starts/stops defusing the bomb
+			bombEntity.Property("m_hBombDefuser").OnUpdate(func(val st.PropertyValue) {
+				isValidPlayer := val.Handle() != constants.InvalidEntityHandleSource2
+				if isValidPlayer {
+					defuser := p.gameState.Participants().FindByPawnHandle(val.Handle())
+					p.gameState.currentDefuser = defuser
+					if !p.disableMimicSource1GameEvents {
+						p.eventDispatcher.Dispatch(events.BombDefuseStart{
+							Player: defuser,
+							HasKit: defuser.HasDefuseKit(),
+						})
+					}
+					return
+				}
+
+				isDefused := bombEntity.PropertyValueMust("m_bBombDefused").BoolVal()
+				if !isDefused && p.gameState.currentDefuser != nil {
+					p.eventDispatcher.Dispatch(events.BombDefuseAborted{
+						Player: p.gameState.currentDefuser,
+					})
+				}
+
+				p.gameState.currentDefuser = nil
+			})
+
+			// Updated when the bomb has been planted and defused.
+			bombEntity.Property("m_bBombDefused").OnUpdate(func(val st.PropertyValue) {
+				isDefused := val.BoolVal()
+				if isDefused && !p.disableMimicSource1GameEvents {
+					defuser := p.gameState.Participants().FindByPawnHandle(bombEntity.PropertyValueMust("m_hBombDefuser").Handle())
+					p.eventDispatcher.Dispatch(events.BombDefused{
+						BombEvent: events.BombEvent{
+							Player: defuser,
+							Site:   site,
+						},
+					})
+				}
+			})
+
+			bombEntity.OnDestroy(func() {
+				isTicking = true
+				p.gameState.currentDefuser = nil
+			})
+		}
 	})
 }
 
 func (p *parser) bindTeamStates() {
 	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity st.Entity) {
-		team := entity.PropertyValueMust("m_szTeamname").StringVal
+		teamVal := entity.PropertyValueMust("m_szTeamname")
+		team := teamVal.String()
 
 		var s *common.TeamState
 
@@ -130,14 +274,24 @@ func (p *parser) bindTeamStates() {
 			s.Entity = entity
 
 			// Register updates
-			var score int
-			entity.Property("m_scoreTotal").OnUpdate(func(val st.PropertyValue) {
+			var (
+				scoreProp st.Property
+				score     int
+			)
+
+			if p.isSource2() {
+				scoreProp = entity.Property("m_iScore")
+			} else {
+				scoreProp = entity.Property("m_scoreTotal")
+			}
+
+			scoreProp.OnUpdate(func(val st.PropertyValue) {
 				oldScore := score
-				score = val.IntVal
+				score = val.Int()
 
 				p.eventDispatcher.Dispatch(events.ScoreUpdated{
 					OldScore:  oldScore,
-					NewScore:  val.IntVal,
+					NewScore:  val.Int(),
 					TeamState: s,
 				})
 			})
@@ -155,19 +309,33 @@ func (p *parser) bindBombSites() {
 		t := new(boundingBoxInformation)
 		p.triggers[baseTrigger.ID()] = t
 
-		baseTrigger.BindProperty("m_Collision.m_vecMins", &t.min, st.ValTypeVector)
-		baseTrigger.BindProperty("m_Collision.m_vecMaxs", &t.max, st.ValTypeVector)
+		if p.isSource2() {
+			baseTrigger.BindProperty("m_vecMins", &t.min, st.ValTypeVector)
+			baseTrigger.BindProperty("m_vecMaxs", &t.max, st.ValTypeVector)
+		} else {
+			baseTrigger.BindProperty("m_Collision.m_vecMins", &t.min, st.ValTypeVector)
+			baseTrigger.BindProperty("m_Collision.m_vecMaxs", &t.max, st.ValTypeVector)
+		}
 	})
 }
 
 func (p *parser) bindPlayers() {
-	p.stParser.ServerClasses().FindByName("CCSPlayer").OnEntityCreated(func(player st.Entity) {
-		p.bindNewPlayer(player)
-	})
+	if p.isSource2() {
+		p.stParser.ServerClasses().FindByName("CCSPlayerController").OnEntityCreated(func(player st.Entity) {
+			p.bindNewPlayerControllerS2(player)
+		})
+		p.stParser.ServerClasses().FindByName("CCSPlayerPawn").OnEntityCreated(func(player st.Entity) {
+			p.bindNewPlayerPawnS2(player)
+		})
+	} else {
+		p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(entity st.Entity) {
+			p.gameState.playerResourceEntity = entity
+		})
 
-	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(entity st.Entity) {
-		p.gameState.playerResourceEntity = entity
-	})
+		p.stParser.ServerClasses().FindByName("CCSPlayer").OnEntityCreated(func(player st.Entity) {
+			p.bindNewPlayerS1(player)
+		})
+	}
 }
 
 func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew bool, player *common.Player) {
@@ -209,7 +377,7 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew b
 }
 
 //nolint:funlen
-func (p *parser) bindNewPlayer(playerEntity st.Entity) {
+func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 	entityID := playerEntity.ID()
 	rp := p.rawPlayers[entityID-1]
 
@@ -249,15 +417,16 @@ func (p *parser) bindNewPlayer(playerEntity st.Entity) {
 
 	p.bindPlayerWeapons(playerEntity, pl)
 
-	// Active weapon
-	playerEntity.Property("m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
-		pl.IsReloading = false
-	})
-
 	for i := 0; i < 32; i++ {
 		i2 := i // Copy so it stays the same
 		playerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
 	}
+
+	activeWep := playerEntity.Property("m_hActiveWeapon")
+
+	activeWep.OnUpdate(func(val st.PropertyValue) {
+		pl.IsReloading = false
+	})
 
 	playerEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
 		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.IntVal == 0 {
@@ -284,6 +453,119 @@ func (p *parser) bindNewPlayer(playerEntity st.Entity) {
 		} else {
 			p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
 		}
+	}
+}
+
+func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
+	controllerEntityID := controllerEntity.ID()
+
+	rp := p.rawPlayers[controllerEntityID-1]
+
+	isNew, pl := p.getOrCreatePlayer(controllerEntityID, rp)
+
+	pl.EntityID = controllerEntityID
+	pl.Entity = controllerEntity
+	pl.IsConnected = true
+	pawnProp := controllerEntity.Property("m_hPawn")
+	pl.PawnEntityID = int(pawnProp.Value().S2UInt64() & constants.EntityHandleIndexMaskSource2)
+
+	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
+		pl.Team = common.Team(val.S2UInt64())
+		pl.TeamState = p.gameState.Team(pl.Team)
+	})
+
+	pawnProp.OnUpdate(func(val st.PropertyValue) {
+		pl.PawnEntityID = int(val.S2UInt64()) & constants.EntityHandleIndexMaskSource2
+	})
+
+	controllerEntity.OnDestroy(func() {
+		delete(p.gameState.playersByEntityID, controllerEntityID)
+		pl.Entity = nil
+	})
+
+	if isNew {
+		if pl.SteamID64 != 0 {
+			p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
+		} else {
+			p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
+		}
+	}
+}
+
+func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
+	player := func() *common.Player {
+		return p.gameState.Participants().FindByHandle64(pawnEntity.PropertyValueMust("m_hController").Handle())
+	}
+
+	// Position
+	pawnEntity.OnPositionUpdate(func(pos r3.Vector) {
+		pl := player()
+		if pl == nil {
+			return
+		}
+
+		if pl.IsAlive() {
+			pl.LastAlivePosition = pos
+		}
+	})
+
+	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
+		pl := player()
+		if pl == nil {
+			return
+		}
+
+		if val.Float() == 0 {
+			pl.FlashTick = 0
+		} else {
+			pl.FlashTick = p.gameState.ingameTick
+		}
+
+		pl.FlashDuration = val.Float()
+
+		if pl.FlashDuration > 0 {
+			if len(p.gameState.flyingFlashbangs) == 0 {
+				return
+			}
+
+			flashbang := p.gameState.flyingFlashbangs[0]
+			flashbang.flashedEntityIDs = append(flashbang.flashedEntityIDs, pl.EntityID)
+		}
+	})
+
+	p.bindPlayerWeaponsS2(pawnEntity, player)
+
+	pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
+		pl := player()
+		if pl == nil {
+			return
+		}
+
+		pl.IsReloading = false
+	})
+
+	pawnEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
+		pl := player()
+		if pl == nil {
+			return
+		}
+
+		pl.IsDefusing = val.BoolVal()
+	})
+
+	spottedByMaskProp := pawnEntity.Property("m_bSpottedByMask.0000")
+	if spottedByMaskProp != nil {
+		pl := player()
+		if pl == nil {
+			return
+		}
+
+		spottersChanged := func(val st.PropertyValue) {
+			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
+		}
+
+		spottedByMaskProp.OnUpdate(spottersChanged)
+		pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
 	}
 }
 
@@ -339,19 +621,106 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 	}
 }
 
+func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, getPlayer func() *common.Player) {
+	pl := getPlayer()
+	if pl == nil {
+		return
+	}
+
+	var cache [maxWeapons]uint64
+	for i := range cache {
+		i2 := i // Copy for passing to handler
+		pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i)).OnUpdate(func(val st.PropertyValue) {
+			if val.Any == nil {
+				return
+			}
+			entityID := val.S2UInt64() & constants.EntityHandleIndexMaskSource2
+			if entityID != constants.EntityHandleIndexMaskSource2 {
+				if cache[i2] != 0 {
+					// Player already has a weapon in this slot.
+					delete(pl.Inventory, int(cache[i2]))
+				}
+				cache[i2] = entityID
+
+				wep := p.gameState.weapons[int(entityID)]
+
+				if wep == nil {
+					// sometimes a weapon is assigned to a player before the weapon entity is created
+					wep = common.NewEquipment(common.EqUnknown)
+					p.gameState.weapons[int(entityID)] = wep
+				}
+
+				// Clear previous owner
+				if wep.Owner != nil && wep.Entity != nil {
+					delete(wep.Owner.Inventory, wep.Entity.ID())
+				}
+
+				// Attribute weapon to player
+				wep.Owner = pl
+				pl.Inventory[int(entityID)] = wep
+			} else {
+				if cache[i2] != 0 && pl.Inventory[int(cache[i2])] != nil {
+					pl.Inventory[int(cache[i2])].Owner = nil
+				}
+				delete(pl.Inventory, int(cache[i2]))
+
+				cache[i2] = 0
+			}
+		})
+	}
+}
+
 func (p *parser) bindWeapons() {
-	for _, sc := range p.stParser.ServerClasses() {
-		for _, bc := range sc.BaseClasses() {
-			switch bc.Name() {
-			case "CWeaponCSBase":
-				sc2 := sc // Local copy for loop
-				sc.OnEntityCreated(func(e st.Entity) { p.bindWeapon(e, p.equipmentMapping[sc2]) })
-			case "CBaseGrenade": // Grenade that has been thrown by player.
+	s2 := p.isSource2()
+
+	for _, sc := range p.stParser.ServerClasses().All() {
+		if s2 {
+			hasIndexProp := false
+			hasClipProp := false
+			hasThrower := false
+
+			for _, prop := range sc.PropertyEntries() {
+				if prop == "m_iItemDefinitionIndex" {
+					hasIndexProp = true
+				}
+
+				if prop == "m_iClip1" {
+					hasClipProp = true
+				}
+
+				if prop == "m_hThrower" {
+					hasThrower = true
+				}
+			}
+
+			isEquipmentClass := hasClipProp && hasIndexProp
+
+			if isEquipmentClass {
+				sc.OnEntityCreated(p.bindWeaponS2)
+			}
+
+			if hasThrower {
 				sc.OnEntityCreated(p.bindGrenadeProjectiles)
-			case "CBaseCSGrenade":
-				// @micvbang TODO: handle grenades dropped by dead player.
-				// Grenades that were dropped by a dead player (and can be picked up by other players).
-			} //nolint:wsl
+			}
+		} else {
+			for _, bc := range sc.BaseClasses() {
+				switch bc.Name() {
+				case "CWeaponCSBase":
+					if s2 {
+						continue
+					}
+
+					sc2 := sc // Local copy for loop
+					sc.OnEntityCreated(func(e st.Entity) { p.bindWeapon(e, p.equipmentMapping[sc2]) })
+
+				case "CBaseGrenade": // Grenade that has been thrown by player.
+					sc.OnEntityCreated(p.bindGrenadeProjectiles)
+
+				case "CBaseCSGrenade":
+					// @micvbang TODO: handle grenades dropped by dead player.
+					// Grenades that were dropped by a dead player (and can be picked up by other players).
+				} //nolint:wsl
+			}
 		}
 	}
 
@@ -367,8 +736,24 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	proj.Entity = entity
 	p.gameState.grenadeProjectiles[entityID] = proj
 
+	if p.demoInfoProvider.IsSource2() {
+		player := p.demoInfoProvider.FindPlayerByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
+		proj.Thrower = player
+		proj.Owner = player
+	}
+
 	var wep common.EquipmentType
 	entity.OnCreateFinished(func() { //nolint:wsl
+		if p.demoInfoProvider.IsSource2() {
+			model := entity.PropertyValueMust("CBodyComponent.m_hModel").S2UInt64()
+			weaponType, exists := p.equipmentTypePerModel[model]
+			if exists {
+				wep = weaponType
+			} else {
+				fmt.Printf("unknown grenade model %d", model)
+			}
+		}
+
 		// copy the weapon so it doesn't get overwritten by a new entity in parser.weapons
 		wepCopy := *(getPlayerWeapon(proj.Thrower, wep))
 		proj.WeaponInstance = &wepCopy
@@ -380,26 +765,69 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 		p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
 
+		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash {
+			p.gameState.flyingFlashbangs = append(p.gameState.flyingFlashbangs, &FlyingFlashbang{
+				projectile:       proj,
+				flashedEntityIDs: []int{},
+			})
+		}
+
+		if p.isSource2() && !p.disableMimicSource1GameEvents {
+			p.eventDispatcher.Dispatch(events.WeaponFire{
+				Shooter: proj.Owner,
+				Weapon:  proj.WeaponInstance,
+			})
+		}
+
 		p.eventDispatcher.Dispatch(events.GrenadeProjectileThrow{
 			Projectile: proj,
 		})
 	})
 
 	entity.OnDestroy(func() {
+		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash && !p.disableMimicSource1GameEvents {
+			p.gameEventHandler.dispatch(events.FlashExplode{
+				GrenadeEvent: events.GrenadeEvent{
+					GrenadeType:     common.EqFlash,
+					Grenade:         proj.WeaponInstance,
+					Position:        proj.Position(),
+					Thrower:         proj.Thrower,
+					GrenadeEntityID: proj.Entity.ID(),
+				},
+			})
+
+			if len(p.gameState.flyingFlashbangs) == 0 {
+				return
+			}
+
+			flashbang := p.gameState.flyingFlashbangs[0]
+			flashbang.explodedFrame = p.currentFrame
+		}
+
 		p.nadeProjectileDestroyed(proj)
 	})
 
-	entity.Property("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
-		wep = p.grenadeModelIndices[val.IntVal]
-	})
+	if !p.demoInfoProvider.IsSource2() {
+		entity.Property("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
+			wep = p.grenadeModelIndices[val.Int()]
+		})
+	}
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
 	entity.Property("m_hThrower").OnUpdate(func(val st.PropertyValue) {
-		proj.Thrower = p.gameState.Participants().FindByHandle(val.IntVal)
+		if p.demoInfoProvider.IsSource2() {
+			proj.Thrower = p.demoInfoProvider.FindPlayerByPawnHandle(val.Handle())
+		} else {
+			proj.Thrower = p.gameState.Participants().FindByHandle(val.Int())
+		}
 	})
 
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
-		proj.Owner = p.gameState.Participants().FindByHandle(val.IntVal)
+		if p.demoInfoProvider.IsSource2() {
+			proj.Owner = p.gameState.Participants().FindByPawnHandle(val.Handle())
+		} else {
+			proj.Owner = p.gameState.Participants().FindByHandle(val.Int())
+		}
 	})
 
 	entity.OnPositionUpdate(func(newPos r3.Vector) {
@@ -410,10 +838,11 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	// So we need to check for nil and can't send out bounce events if it's missing
 	if bounceProp := entity.Property("m_nBounces"); bounceProp != nil {
 		bounceProp.OnUpdate(func(val st.PropertyValue) {
-			if val.IntVal != 0 {
+			bounceNumber := val.Int()
+			if bounceNumber != 0 {
 				p.eventDispatcher.Dispatch(events.GrenadeProjectileBounce{
 					Projectile: proj,
-					BounceNr:   val.IntVal,
+					BounceNr:   bounceNumber,
 				})
 			}
 		})
@@ -446,6 +875,60 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	if !isInferno && !isSmoke && !isDecoy {
 		p.gameEventHandler.deleteThrownGrenade(proj.Thrower, proj.WeaponInstance.Type)
 	}
+}
+
+func (p *parser) bindWeaponS2(entity st.Entity) {
+	entityID := entity.ID()
+	itemIndex := entity.PropertyValueMust("m_iItemDefinitionIndex").S2UInt64()
+	wepType := common.EquipmentIndexMapping[itemIndex]
+
+	if wepType == common.EqUnknown {
+		fmt.Println("unknown equipment with index", itemIndex)
+		p.msgDispatcher.Dispatch(events.ParserWarn{
+			Message: fmt.Sprintf("unknown equipment with index %d", itemIndex),
+			Type:    events.WarnTypeUnknownEquipmentIndex,
+		})
+	} else {
+		model := entity.PropertyValueMust("CBodyComponent.m_hModel").S2UInt64()
+		p.equipmentTypePerModel[model] = wepType
+	}
+
+	equipment, exists := p.gameState.weapons[entityID]
+	if !exists {
+		equipment = common.NewEquipment(wepType)
+		p.gameState.weapons[entityID] = equipment
+	} else {
+		equipment.Type = wepType
+	}
+
+	equipment.Entity = entity
+
+	entity.OnDestroy(func() {
+		delete(p.gameState.weapons, entityID)
+	})
+
+	// Detect weapon firing, we don't use m_iClip1 because it would not work with weapons such as the knife (no ammo).
+	// WeaponFire events for grenades are dispatched when the grenade's projectile is created.
+	if p.isSource2() && equipment.Class() != common.EqClassGrenade && !p.disableMimicSource1GameEvents {
+		entity.Property("m_fLastShotTime").OnUpdate(func(val st.PropertyValue) {
+			shooter := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
+			if shooter == nil {
+				shooter = equipment.Owner
+			}
+			if shooter != nil && val.Float() > 0 {
+				p.eventDispatcher.Dispatch(events.WeaponFire{
+					Shooter: shooter,
+					Weapon:  equipment,
+				})
+			}
+		})
+	}
+
+	entity.Property("m_iClip1").OnUpdate(func(val st.PropertyValue) {
+		if equipment.Owner != nil {
+			equipment.Owner.IsReloading = false
+		}
+	})
 }
 
 func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
@@ -501,7 +984,14 @@ func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 }
 
 func (p *parser) bindNewInferno(entity st.Entity) {
-	inf := common.NewInferno(p.demoInfoProvider, entity)
+	throwerHandle := entity.PropertyValueMust("m_hOwnerEntity").Handle()
+	var thrower *common.Player
+	if p.isSource2() {
+		thrower = p.gameState.Participants().FindByPawnHandle(throwerHandle)
+	} else {
+		thrower = p.gameState.Participants().FindByHandle64(throwerHandle)
+	}
+	inf := common.NewInferno(p.demoInfoProvider, entity, thrower)
 	p.gameState.infernos[entity.ID()] = inf
 
 	entity.OnCreateFinished(func() {
@@ -534,17 +1024,56 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 
 //nolint:funlen
 func (p *parser) bindGameRules() {
-	grPrefix := func(s string) string {
-		return fmt.Sprintf("%s.%s", gameRulesPrefix, s)
-	}
-
 	gameRules := p.ServerClasses().FindByName("CCSGameRulesProxy")
 	gameRules.OnEntityCreated(func(entity st.Entity) {
+		grPrefix := func(s string) string {
+			if p.isSource2() {
+				return fmt.Sprintf("%s.%s", gameRulesPrefixS2, s)
+			}
+
+			return fmt.Sprintf("%s.%s", gameRulesPrefix, s)
+		}
+
 		p.gameState.rules.entity = entity
+
+		roundTime := entity.PropertyValueMust(grPrefix("m_iRoundTime")).Int()
+		hasRescueZone := entity.PropertyValueMust(grPrefix("m_bMapHasRescueZone")).BoolVal()
+		hasBombTarget := entity.PropertyValueMust(grPrefix("m_bMapHasBombTarget")).BoolVal()
+
+		dispatchRoundStart := func() {
+			p.gameEventHandler.clearGrenadeProjectiles()
+
+			if p.disableMimicSource1GameEvents {
+				return
+			}
+
+			if p.gameState.TotalRoundsPlayed() > 0 {
+				p.gameEventHandler.dispatch(events.RoundEndOfficial{})
+			}
+
+			var objective string
+			if hasBombTarget {
+				objective = "BOMB TARGET"
+			} else if hasRescueZone {
+				objective = "HOSTAGE RESCUE"
+			} else {
+				objective = "DEATHMATCH"
+			}
+
+			p.gameState.lastRoundStartEvent = &events.RoundStart{
+				TimeLimit: roundTime,
+				FragLimit: 0, // Always 0, seems hardcoded in the game
+				Objective: objective,
+			}
+		}
+
+		entity.Property(grPrefix("m_iRoundTime")).OnUpdate(func(val st.PropertyValue) {
+			roundTime = val.Int()
+		})
 
 		entity.Property(grPrefix("m_gamePhase")).OnUpdate(func(val st.PropertyValue) {
 			oldGamePhase := p.gameState.gamePhase
-			p.gameState.gamePhase = common.GamePhase(val.IntVal)
+			p.gameState.gamePhase = common.GamePhase(val.Int())
 
 			p.eventDispatcher.Dispatch(events.GamePhaseChanged{
 				OldGamePhase: oldGamePhase,
@@ -562,7 +1091,7 @@ func (p *parser) bindGameRules() {
 		entity.BindProperty(grPrefix("m_totalRoundsPlayed"), &p.gameState.totalRoundsPlayed, st.ValTypeInt)
 		entity.Property(grPrefix("m_bWarmupPeriod")).OnUpdate(func(val st.PropertyValue) {
 			oldIsWarmupPeriod := p.gameState.isWarmupPeriod
-			p.gameState.isWarmupPeriod = val.IntVal == 1
+			p.gameState.isWarmupPeriod = val.BoolVal()
 
 			p.eventDispatcher.Dispatch(events.IsWarmupPeriodChanged{
 				OldIsWarmupPeriod: oldIsWarmupPeriod,
@@ -572,20 +1101,133 @@ func (p *parser) bindGameRules() {
 
 		entity.Property(grPrefix("m_bHasMatchStarted")).OnUpdate(func(val st.PropertyValue) {
 			oldMatchStarted := p.gameState.isMatchStarted
-			p.gameState.isMatchStarted = val.IntVal == 1
+			newMatchStarted := val.BoolVal()
 
-			p.eventDispatcher.Dispatch(events.MatchStartedChanged{
+			event := events.MatchStartedChanged{
 				OldIsStarted: oldMatchStarted,
-				NewIsStarted: p.gameState.isMatchStarted,
-			})
+				NewIsStarted: newMatchStarted,
+			}
+			if p.isSource2() && !p.disableMimicSource1GameEvents {
+				p.gameState.lastMatchStartedChangedEvent = &event
+				// First round start event detection, we can't detect it by listening for a m_eRoundWinReason prop update
+				// because there is no update triggered when the first round starts as the prop value is already 0.
+				if newMatchStarted {
+					winRoundReason := events.RoundEndReason(entity.PropertyValueMust(grPrefix("m_eRoundWinReason")).Int())
+					if winRoundReason == events.RoundEndReasonStillInProgress {
+						dispatchRoundStart()
+					}
+				}
+			} else {
+				p.gameState.isMatchStarted = newMatchStarted
+				p.eventDispatcher.Dispatch(event)
+			}
 		})
 
-		// TODO: seems like this is more reliable than RoundEnd events
-		// "m_eRoundWinReason"
+		// Incremented at the beginning of a new overtime.
+		entity.Property(grPrefix("m_nOvertimePlaying")).OnUpdate(func(val st.PropertyValue) {
+			overtimeCount := val.Int()
+			p.eventDispatcher.Dispatch(events.OvertimeNumberChanged{
+				OldCount: p.gameState.overtimeCount,
+				NewCount: overtimeCount,
+			})
+			p.gameState.overtimeCount = overtimeCount
+		})
+
+		if p.isSource2() {
+			firstUpdateOccurred := false
+			// Updated when a round ends or starts.
+			// The value 0 means there is no result yet and the round is in progress.
+			entity.Property(grPrefix("m_eRoundWinReason")).OnUpdate(func(val st.PropertyValue) {
+				// Ignore the first update that contains initial CCSGameRulesProxy class values.
+				if !firstUpdateOccurred {
+					firstUpdateOccurred = true
+					return
+				}
+
+				reason := events.RoundEndReason(val.Int())
+				if reason == events.RoundEndReasonStillInProgress {
+					dispatchRoundStart()
+					return
+				}
+
+				message := "UNKNOWN"
+				var winner common.Team = common.TeamUnassigned
+				switch reason {
+				case events.RoundEndReasonTargetBombed:
+					winner = common.TeamTerrorists
+					message = "#SFUI_Notice_Target_Bombed"
+				case events.RoundEndReasonTerroristsEscaped:
+					winner = common.TeamTerrorists
+					message = "#SFUI_Notice_Terrorists_Escaped"
+				case events.RoundEndReasonTerroristsWin:
+					winner = common.TeamTerrorists
+					message = "#SFUI_Notice_Terrorists_Win"
+				case events.RoundEndReasonHostagesNotRescued:
+					winner = common.TeamTerrorists
+					message = "#SFUI_Notice_Hostages_Not_Rescued"
+				case events.RoundEndReasonTerroristsPlanted:
+					winner = common.TeamTerrorists
+					message = "#SFUI_Notice_Terrorists_Planted"
+				case events.RoundEndReasonCTSurrender:
+					winner = common.TeamTerrorists
+					message = "#SFUI_Notice_CTs_Surrender"
+				case events.RoundEndReasonCTsReachedHostage:
+					winner = common.TeamCounterTerrorists
+					message = "#SFUI_Notice_CTs_ReachedHostage"
+				case events.RoundEndReasonCTStoppedEscape:
+					winner = common.TeamCounterTerrorists
+					message = "#SFUI_Notice_CTs_PreventEscape"
+				case events.RoundEndReasonTerroristsStopped:
+					winner = common.TeamCounterTerrorists
+					message = "#SFUI_Notice_Escaping_Terrorists_Neutralized"
+				case events.RoundEndReasonBombDefused:
+					winner = common.TeamCounterTerrorists
+					message = "#SFUI_Notice_Bomb_Defused"
+				case events.RoundEndReasonCTWin:
+					winner = common.TeamCounterTerrorists
+					message = "#SFUI_Notice_CTs_Win"
+				case events.RoundEndReasonHostagesRescued:
+					winner = common.TeamCounterTerrorists
+					message = "#SFUI_Notice_All_Hostages_Rescued"
+				case events.RoundEndReasonTargetSaved:
+					winner = common.TeamCounterTerrorists
+					message = "#SFUI_Notice_Target_Saved"
+				case events.RoundEndReasonTerroristsNotEscaped:
+					winner = common.TeamCounterTerrorists
+					message = "#SFUI_Notice_Terrorists_Not_Escaped"
+				case events.RoundEndReasonTerroristsSurrender:
+					winner = common.TeamCounterTerrorists
+					message = "#SFUI_Notice_Terrorists_Surrender"
+				case events.RoundEndReasonGameStart:
+					winner = common.TeamSpectators
+					message = "#SFUI_Notice_Game_Commencing"
+				case events.RoundEndReasonDraw:
+					winner = common.TeamSpectators
+					message = "#SFUI_Notice_Round_Draw"
+				}
+
+				var winnerState *common.TeamState
+				var loserState *common.TeamState
+				if winner != common.TeamUnassigned {
+					winnerState = p.gameState.Team(winner)
+					loserState = winnerState.Opponent
+				}
+
+				if !p.disableMimicSource1GameEvents {
+					p.gameState.lastRoundEndEvent = &events.RoundEnd{
+						Reason:      reason,
+						Message:     message,
+						Winner:      winner,
+						WinnerState: winnerState,
+						LoserState:  loserState,
+					}
+				}
+
+				p.gameState.currentPlanter = nil
+			})
+		}
 
 		// TODO: future fields to use
-		// "m_iRoundWinStatus"
-		// "m_nOvertimePlaying"
 		// "m_bGameRestart"
 		// "m_MatchDevice"
 		// "m_bHasMatchStarted"
@@ -615,7 +1257,7 @@ func (p *parser) bindHostages() {
 		var state common.HostageState
 		entity.Property("m_nHostageState").OnUpdate(func(val st.PropertyValue) {
 			oldState := state
-			state = common.HostageState(val.IntVal)
+			state = common.HostageState(val.Int())
 			if oldState != state {
 				p.eventDispatcher.Dispatch(events.HostageStateChanged{OldState: oldState, NewState: state, Hostage: p.gameState.hostages[entityID]})
 			}

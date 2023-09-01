@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
+	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
 )
 
 // sendPropertyFlags stores multiple send property flags.
@@ -43,13 +43,15 @@ type flattenedPropEntry struct {
 	name             string
 }
 
-// ServerClass stores meta information about Entity types (e.g. palyers, teams etc.).
-type ServerClass struct {
+//go:generate ifacemaker -f sendtables.go -s serverClass -i ServerClass -p sendtables -D -y "ServerClass is an auto-generated interface for property, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o serverclass_interface.go
+
+// serverClass stores meta information about Entity types (e.g. palyers, teams etc.).
+type serverClass struct {
 	id              int
 	name            string
 	dataTableID     int
 	dataTableName   string
-	baseClasses     []*ServerClass
+	baseClasses     []*serverClass
 	flattenedProps  []flattenedPropEntry
 	propNameToIndex map[string]int
 
@@ -59,32 +61,36 @@ type ServerClass struct {
 }
 
 // ID returns the server-class's ID.
-func (sc *ServerClass) ID() int {
+func (sc *serverClass) ID() int {
 	return sc.id
 }
 
 // Name returns the server-class's name.
-func (sc *ServerClass) Name() string {
+func (sc *serverClass) Name() string {
 	return sc.name
 }
 
 // DataTableID returns the data-table ID.
-func (sc *ServerClass) DataTableID() int {
+func (sc *serverClass) DataTableID() int {
 	return sc.dataTableID
 }
 
 // DataTableName returns the data-table name.
-func (sc *ServerClass) DataTableName() string {
+func (sc *serverClass) DataTableName() string {
 	return sc.dataTableName
 }
 
 // BaseClasses returns the base-classes of this server-class.
-func (sc *ServerClass) BaseClasses() []*ServerClass {
-	return sc.baseClasses
+func (sc *serverClass) BaseClasses() (res []ServerClass) {
+	for _, v := range sc.baseClasses {
+		res = append(res, v)
+	}
+
+	return
 }
 
 // PropertyEntries returns the names of all property-entries on this server-class.
-func (sc *ServerClass) PropertyEntries() []string {
+func (sc *serverClass) PropertyEntries() []string {
 	propEntryCount := len(sc.flattenedProps)
 	names := make([]string, propEntryCount)
 
@@ -102,7 +108,7 @@ type PropertyEntry struct {
 }
 
 // PropertyEntryDefinitions returns all property-entries on this server-class.
-func (sc *ServerClass) PropertyEntryDefinitions() []PropertyEntry {
+func (sc *serverClass) PropertyEntryDefinitions() []PropertyEntry {
 	propEntryCount := len(sc.flattenedProps)
 	res := make([]PropertyEntry, propEntryCount)
 
@@ -120,7 +126,7 @@ func (sc *ServerClass) PropertyEntryDefinitions() []PropertyEntry {
 	return res
 }
 
-func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int, serialNum int, recordingPlayerSlot int) *entity {
+func (sc *serverClass) newEntity(entityDataReader *bit.BitReader, entityID int, serialNum int, recordingPlayerSlot int) *entity {
 	props := make([]property, len(sc.flattenedProps))
 
 	for i := range sc.flattenedProps {
@@ -156,15 +162,15 @@ func (sc *ServerClass) newEntity(entityDataReader *bit.BitReader, entityID int, 
 	return entity
 }
 
-// OnEntityCreated registers a function to be called when a new entity is created from this ServerClass.
-func (sc *ServerClass) OnEntityCreated(handler EntityCreatedHandler) {
+// OnEntityCreated registers a function to be called when a new entity is created from this serverClass.
+func (sc *serverClass) OnEntityCreated(handler EntityCreatedHandler) {
 	sc.createdHandlers = append(sc.createdHandlers, handler)
 }
 
 // EntityCreatedHandler is the interface for handlers that are interested in EntityCreatedEvents.
 type EntityCreatedHandler func(Entity)
 
-var serverClassStringFormat = `ServerClass: id=%d name=%s
+var serverClassStringFormat = `serverClass: id=%d name=%s
 	dataTableId=%d
 	dataTableName=%s
 	baseClasses:
@@ -172,7 +178,7 @@ var serverClassStringFormat = `ServerClass: id=%d name=%s
 	properties:
 		%s`
 
-func (sc *ServerClass) String() string {
+func (sc *serverClass) String() string {
 	baseClasses := make([]string, len(sc.baseClasses))
 	for i, bc := range sc.baseClasses {
 		baseClasses[i] = bc.name
