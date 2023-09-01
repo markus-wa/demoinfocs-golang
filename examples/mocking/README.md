@@ -9,8 +9,8 @@ First, let's have a look at the API of our code, the 'system under test':
 
 ```go
 import (
-	dem "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
+	dem "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
+	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 )
 
 func collectKills(parser dem.Parser) (kills []events.Kill, err error) {
@@ -33,9 +33,9 @@ import (
 
 	assert "github.com/stretchr/testify/assert"
 
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
-	fake "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/fake"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	fake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/fake"
 )
 
 func TestCollectKills(t *testing.T) {
@@ -83,9 +83,9 @@ import (
 
 	assert "github.com/stretchr/testify/assert"
 
-	common "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
-	fake "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/fake"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	fake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/fake"
 )
 
 func TestCollectKillsError(t *testing.T) {

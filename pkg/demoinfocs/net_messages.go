@@ -8,11 +8,11 @@ import (
 	"github.com/markus-wa/ice-cipher-go/pkg/ice"
 	"google.golang.org/protobuf/proto"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
-	events "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msg"
-	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/msgs2"
-	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
+	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 func (p *parser) handlePacketEntitiesS1(pe *msg.CSVCMsg_PacketEntities) {

@@ -7,8 +7,8 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/pkg/errors"
 
-	"github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/constants"
-	st "github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 // Player contains mostly game-relevant player information.

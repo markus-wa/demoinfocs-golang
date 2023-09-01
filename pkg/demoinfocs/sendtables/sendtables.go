@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v3/internal/bitread"
+	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
 )
 
 // sendPropertyFlags stores multiple send property flags.

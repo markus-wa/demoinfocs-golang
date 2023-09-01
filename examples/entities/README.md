@@ -6,7 +6,7 @@ This example shows how to use unhandled data of entities by registering entity-c
 
 You can use the build tag `debugdemoinfocs` and the set `debugServerClasses=YES` with ldflags to find interesting server-classes and their properties.
 
-Example: `go run myprogram.go -tags debugdemoinfocs -ldflags '-X github.com/markus-wa/demoinfocs-golang/v3/pkg/demoinfocs.debugServerClasses=YES' | grep ServerClass`
+Example: `go run myprogram.go -tags debugdemoinfocs -ldflags '-X github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs.debugServerClasses=YES' | grep ServerClass`
 
 This gives you a list of all server-classes from any demo that was parsed in `myprogram.go`.
 

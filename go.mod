@@ -1,4 +1,4 @@
-module github.com/markus-wa/demoinfocs-golang/v3
+module github.com/markus-wa/demoinfocs-golang/v4
 
 require (
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551
@@ -26,4 +26,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-go 1.18
+go 1.21
