@@ -129,7 +129,9 @@ func (p *parser) ParseToEnd() (err error) {
 			err = p.error()
 		}
 
-		p.ensurePlaybackValuesAreSet()
+		if err == nil {
+			p.ensurePlaybackValuesAreSet()
+		}
 	}()
 
 	if p.header == nil {

@@ -401,6 +401,10 @@ func (e *Equipment) ZoomLevel() ZoomLevel {
 // Returns CWeaponCSBase.m_iPrimaryReserveAmmoCount for most weapons and 'Owner.AmmoLeft[AmmoType] - 1' for grenades.
 // Use AmmoInMagazine() + AmmoReserve() to quickly get the amount of grenades a player owns.
 func (e *Equipment) AmmoReserve() int {
+	if e.Entity == nil {
+		return 0
+	}
+
 	if e.Class() == EqClassGrenade {
 		s2Prop := e.Entity.Property("m_pReserveAmmo.0001")
 		if s2Prop != nil {
@@ -419,10 +423,6 @@ func (e *Equipment) AmmoReserve() int {
 			return e.Owner.AmmoLeft[e.AmmoType()] - 1
 		}
 
-		return 0
-	}
-
-	if e.Entity == nil {
 		return 0
 	}
 

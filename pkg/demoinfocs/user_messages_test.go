@@ -36,8 +36,8 @@ func Test_UserMessages_ServerRankUpdate(t *testing.T) {
 
 	p := NewParser(new(DevNullReader)).(*parser)
 
-	plA := newPlayer()
-	plB := newPlayer()
+	plA := newPlayerS1()
+	plB := newPlayerS1()
 	p.gameState.playersBySteamID32[123] = plA
 	p.gameState.playersBySteamID32[456] = plB
 
