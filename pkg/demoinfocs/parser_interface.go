@@ -22,15 +22,15 @@ import (
 //
 // Example (without error handling):
 //
-// 	f, _ := os.Open("/path/to/demo.dem")
-// 	p := dem.NewParser(f)
-// 	defer p.Close()
-// 	header := p.ParseHeader()
-// 	fmt.Println("Map:", header.MapName)
-// 	p.RegisterEventHandler(func(e events.BombExplode) {
-// 		fmt.Printf(e.Site, "went BOOM!")
-// 	})
-// 	p.ParseToEnd()
+//	f, _ := os.Open("/path/to/demo.dem")
+//	p := dem.NewParser(f)
+//	defer p.Close()
+//	header := p.ParseHeader()
+//	fmt.Println("Map:", header.MapName)
+//	p.RegisterEventHandler(func(e events.BombExplode) {
+//		fmt.Printf(e.Site, "went BOOM!")
+//	})
+//	p.ParseToEnd()
 //
 // Prints out '{A/B} site went BOOM!' when a bomb explodes.
 type Parser interface {
