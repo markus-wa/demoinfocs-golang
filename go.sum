@@ -27,6 +27,8 @@ github.com/markus-wa/godispatch v1.4.1 h1:Cdff5x33ShuX3sDmUbYWejk7tOuoHErFYMhUc2
 github.com/markus-wa/godispatch v1.4.1/go.mod h1:tk8L0yzLO4oAcFwM2sABMge0HRDJMdE8E7xm4gK/+xM=
 github.com/markus-wa/ice-cipher-go v0.0.0-20220823210642-1fcccd18c6c1 h1:YH4WI14HARrM3C6mKUMFDBz93O25oWSlLEYGeL27G0w=
 github.com/markus-wa/ice-cipher-go v0.0.0-20220823210642-1fcccd18c6c1/go.mod h1:JIsht5Oa9P50VnGJTvH2a6nkOqDFJbUeU1YRZYvdplw=
+github.com/markus-wa/ice-cipher-go v0.0.0-20230901094113-348096939ba7 h1:aR9pvnlnBxifXBmzidpAiq2prLSGlkhE904qnk2sCz4=
+github.com/markus-wa/ice-cipher-go v0.0.0-20230901094113-348096939ba7/go.mod h1:JIsht5Oa9P50VnGJTvH2a6nkOqDFJbUeU1YRZYvdplw=
 github.com/markus-wa/quickhull-go/v2 v2.2.0 h1:rB99NLYeUHoZQ/aNRcGOGqjNBGmrOaRxdtqTnsTUPTA=
 github.com/markus-wa/quickhull-go/v2 v2.2.0/go.mod h1:EuLMucfr4B+62eipXm335hOs23LTnO62W7Psn3qvU2k=
 github.com/oklog/ulid/v2 v2.1.0 h1:+9lhoxAP56we25tyYETBBY1YLA2SaoLvUFgrP2miPJU=
