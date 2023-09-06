@@ -589,6 +589,10 @@ func (p *parser) handleCreateStringTableS1(tab *msg.CSVCMsg_CreateStringTable) {
 }
 
 func (p *parser) parseUserInfo(data []byte, playerIndex int) {
+	if _, exists := p.rawPlayers[playerIndex]; exists {
+		return
+	}
+
 	var userInfo msgs2.CMsgPlayerInfo
 	err := proto.Unmarshal(data, &userInfo)
 	if err != nil {

@@ -627,7 +627,9 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEvent
 		}
 	}
 
-	geh.parser.setRawPlayer(int(data["index"].GetValByte()), pl)
+	if !geh.parser.isSource2() {
+		geh.parser.setRawPlayer(int(data["index"].GetValByte()), pl)
+	}
 }
 
 func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {

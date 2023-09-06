@@ -458,62 +458,52 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 
 func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	controllerEntityID := controllerEntity.ID()
-
-	rp := p.rawPlayers[controllerEntityID-1]
-
-	isNew, pl := p.getOrCreatePlayer(controllerEntityID, rp)
-
-	pl.EntityID = controllerEntityID
-	pl.Entity = controllerEntity
-	pl.IsConnected = true
-	pawnProp := controllerEntity.Property("m_hPawn")
-	pl.PawnEntityID = int(pawnProp.Value().S2UInt64() & constants.EntityHandleIndexMaskSource2)
-
-	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
-		pl.Team = common.Team(val.S2UInt64())
-		pl.TeamState = p.gameState.Team(pl.Team)
-	})
-
-	pawnProp.OnUpdate(func(val st.PropertyValue) {
-		pl.PawnEntityID = int(val.S2UInt64()) & constants.EntityHandleIndexMaskSource2
-	})
+	p.gameState.playerControllerEntities[controllerEntityID] = controllerEntity
 
 	controllerEntity.OnDestroy(func() {
 		delete(p.gameState.playersByEntityID, controllerEntityID)
-		pl.Entity = nil
 	})
-
-	if isNew {
-		if pl.SteamID64 != 0 {
-			p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
-		} else {
-			p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
-		}
-	}
 }
 
 func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
-	player := func() *common.Player {
-		return p.gameState.Participants().FindByHandle64(pawnEntity.PropertyValueMust("m_hController").Handle())
+	controllerHandle := pawnEntity.PropertyValueMust("m_hController").Handle()
+	if controllerHandle == constants.InvalidEntityHandleSource2 {
+		return
+	}
+
+	controllerEntityID := int(controllerHandle & constants.EntityHandleIndexMaskSource2)
+	controllerEntity := p.gameState.playerControllerEntities[controllerEntityID]
+
+	rp := p.rawPlayers[controllerEntityID-1]
+	_, pl := p.getOrCreatePlayer(controllerEntityID, rp)
+	pl.Entity = controllerEntity
+	pl.EntityID = controllerEntity.ID()
+	pl.IsConnected = true
+	pl.IsBot = controllerEntity.PropertyValueMust("m_steamID").String() == "0"
+	if pl.IsBot {
+		pl.Name = controllerEntity.PropertyValueMust("m_iszPlayerName").String()
+		pl.IsUnknown = false
+	}
+
+	if pl.SteamID64 != 0 {
+		p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
+	} else {
+		p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
 	}
 
 	// Position
 	pawnEntity.OnPositionUpdate(func(pos r3.Vector) {
-		pl := player()
-		if pl == nil {
-			return
-		}
-
 		if pl.IsAlive() {
 			pl.LastAlivePosition = pos
 		}
 	})
 
+	pawnEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
+		pl.Team = common.Team(val.S2UInt64())
+		pl.TeamState = p.gameState.Team(pl.Team)
+	})
+
 	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
-		pl := player()
-		if pl == nil {
-			return
-		}
 
 		if val.Float() == 0 {
 			pl.FlashTick = 0
@@ -533,33 +523,18 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		}
 	})
 
-	p.bindPlayerWeaponsS2(pawnEntity, player)
+	p.bindPlayerWeaponsS2(pawnEntity, pl)
 
 	pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
-		pl := player()
-		if pl == nil {
-			return
-		}
-
 		pl.IsReloading = false
 	})
 
 	pawnEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
-		pl := player()
-		if pl == nil {
-			return
-		}
-
 		pl.IsDefusing = val.BoolVal()
 	})
 
 	spottedByMaskProp := pawnEntity.Property("m_bSpottedByMask.0000")
 	if spottedByMaskProp != nil {
-		pl := player()
-		if pl == nil {
-			return
-		}
-
 		spottersChanged := func(val st.PropertyValue) {
 			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
 		}
@@ -567,6 +542,10 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		spottedByMaskProp.OnUpdate(spottersChanged)
 		pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
 	}
+
+	pawnEntity.OnDestroy(func() {
+		pl.IsConnected = false
+	})
 }
 
 const maxWeapons = 64
@@ -621,12 +600,7 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 	}
 }
 
-func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, getPlayer func() *common.Player) {
-	pl := getPlayer()
-	if pl == nil {
-		return
-	}
-
+func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	var cache [maxWeapons]uint64
 	for i := range cache {
 		i2 := i // Copy for passing to handler

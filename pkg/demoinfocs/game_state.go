@@ -20,10 +20,11 @@ type gameState struct {
 	ingameTick                   int
 	tState                       common.TeamState
 	ctState                      common.TeamState
-	playersByUserID              map[int]*common.Player            // Maps user-IDs to players
-	playersByEntityID            map[int]*common.Player            // Maps entity-IDs to players
-	playersBySteamID32           map[uint32]*common.Player         // Maps 32-bit-steam-IDs to players
-	playerResourceEntity         st.Entity                         // CCSPlayerResource entity instance, contains scoreboard info and more
+	playersByUserID              map[int]*common.Player    // Maps user-IDs to players
+	playersByEntityID            map[int]*common.Player    // Maps entity-IDs to players
+	playersBySteamID32           map[uint32]*common.Player // Maps 32-bit-steam-IDs to players
+	playerResourceEntity         st.Entity                 // CCSPlayerResource entity instance, contains scoreboard info and more
+	playerControllerEntities     map[int]st.Entity
 	grenadeProjectiles           map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos                     map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	weapons                      map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
@@ -232,16 +233,17 @@ func (gs gameState) EntityByHandle(handle uint64) st.Entity {
 
 func newGameState(demoInfo demoInfoProvider) *gameState {
 	gs := &gameState{
-		playersByEntityID:  make(map[int]*common.Player),
-		playersByUserID:    make(map[int]*common.Player),
-		playersBySteamID32: make(map[uint32]*common.Player),
-		grenadeProjectiles: make(map[int]*common.GrenadeProjectile),
-		infernos:           make(map[int]*common.Inferno),
-		weapons:            make(map[int]*common.Equipment),
-		hostages:           make(map[int]*common.Hostage),
-		entities:           make(map[int]st.Entity),
-		thrownGrenades:     make(map[*common.Player][]*common.Equipment),
-		flyingFlashbangs:   make([]*FlyingFlashbang, 0),
+		playerControllerEntities: make(map[int]st.Entity),
+		playersByEntityID:        make(map[int]*common.Player),
+		playersByUserID:          make(map[int]*common.Player),
+		playersBySteamID32:       make(map[uint32]*common.Player),
+		grenadeProjectiles:       make(map[int]*common.GrenadeProjectile),
+		infernos:                 make(map[int]*common.Inferno),
+		weapons:                  make(map[int]*common.Equipment),
+		hostages:                 make(map[int]*common.Hostage),
+		entities:                 make(map[int]st.Entity),
+		thrownGrenades:           make(map[*common.Player][]*common.Equipment),
+		flyingFlashbangs:         make([]*FlyingFlashbang, 0),
 		lastFlash: lastFlash{
 			projectileByPlayer: make(map[*common.Player]*common.GrenadeProjectile),
 		},
@@ -422,7 +424,11 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 func (ptcp participants) FindByPawnHandle(handle uint64) *common.Player {
 	entityID := entityIDFromHandle(handle, ptcp.getIsSource2())
 	for _, player := range ptcp.All() {
-		if player.PawnEntityID == entityID {
+		pawnEntity := player.PlayerPawnEntity()
+		if pawnEntity == nil {
+			continue
+		}
+		if pawnEntity.ID() == entityID {
 			return player
 		}
 	}
