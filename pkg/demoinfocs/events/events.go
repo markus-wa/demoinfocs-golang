@@ -38,6 +38,12 @@ type RoundStart struct {
 // RoundFreezetimeEnd signals that the freeze time is over.
 type RoundFreezetimeEnd struct{}
 
+// RoundFreezetimeChanged signals that the freeze time period has changed.
+type RoundFreezetimeChanged struct {
+	OldIsFreezetime bool
+	NewIsFreezetime bool
+}
+
 // RoundEndReason is the type for the various RoundEndReasonXYZ constants.
 //
 // See RoundEnd.

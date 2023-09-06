@@ -1071,6 +1071,15 @@ func (p *parser) bindGameRules() {
 			roundTime = val.Int()
 		})
 
+		entity.Property(grPrefix("m_bFreezePeriod")).OnUpdate(func(val st.PropertyValue) {
+			newIsFreezetime := val.BoolVal()
+			p.eventDispatcher.Dispatch(events.RoundFreezetimeChanged{
+				OldIsFreezetime: p.gameState.isFreezetime,
+				NewIsFreezetime: newIsFreezetime,
+			})
+			p.gameState.isFreezetime = newIsFreezetime
+		})
+
 		entity.Property(grPrefix("m_gamePhase")).OnUpdate(func(val st.PropertyValue) {
 			oldGamePhase := p.gameState.gamePhase
 			p.gameState.gamePhase = common.GamePhase(val.Int())
