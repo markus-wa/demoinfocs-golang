@@ -521,7 +521,7 @@ func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CSVCMsg_GameE
 
 	geh.gameState().lastFlash.player = nadeEvent.Thrower
 
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.isSource2() || geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		geh.dispatch(events.FlashExplode{
 			GrenadeEvent: nadeEvent,
 		})
