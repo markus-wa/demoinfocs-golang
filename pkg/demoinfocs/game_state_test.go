@@ -353,6 +353,12 @@ func TestGameRules(t *testing.T) {
 	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
 }
 
+func TestGameRules_IsFreezetimePeriod(t *testing.T) {
+	gs := gameState{isFreezetime: true}
+
+	assert.Equal(t, true, gs.IsFreezetimePeriod())
+}
+
 func newPlayerS1() *common.Player {
 	pl := newPlayerWithEntityIDS1(1)
 	return pl
