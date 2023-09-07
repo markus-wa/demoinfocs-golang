@@ -480,6 +480,7 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 	pl.EntityID = controllerEntity.ID()
 	pl.IsConnected = true
 	pl.IsBot = controllerEntity.PropertyValueMust("m_steamID").String() == "0"
+
 	if pl.IsBot {
 		pl.Name = controllerEntity.PropertyValueMust("m_iszPlayerName").String()
 		pl.IsUnknown = false
