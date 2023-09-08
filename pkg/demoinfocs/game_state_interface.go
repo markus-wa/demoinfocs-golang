@@ -55,6 +55,8 @@ type GameState interface {
 	GamePhase() common.GamePhase
 	// IsWarmupPeriod returns whether the game is currently in warmup period according to CCSGameRulesProxy.
 	IsWarmupPeriod() bool
+	// IsFreezetimePeriod returns whether the game is currently in freezetime period according to CCSGameRulesProxy.
+	IsFreezetimePeriod() bool
 	// IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.
 	IsMatchStarted() bool
 	// OvertimeCount returns the number of overtime according to CCSGameRulesProxy.

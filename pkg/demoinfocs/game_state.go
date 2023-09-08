@@ -33,6 +33,7 @@ type gameState struct {
 	totalRoundsPlayed            int
 	gamePhase                    common.GamePhase
 	isWarmupPeriod               bool
+	isFreezetime                 bool
 	isMatchStarted               bool
 	overtimeCount                int
 	lastFlash                    lastFlash                              // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
@@ -190,6 +191,11 @@ func (gs gameState) GamePhase() common.GamePhase {
 // IsWarmupPeriod returns whether the game is currently in warmup period according to CCSGameRulesProxy.
 func (gs gameState) IsWarmupPeriod() bool {
 	return gs.isWarmupPeriod
+}
+
+// IsFreezetimePeriod returns whether the game is currently in freezetime period according to CCSGameRulesProxy.
+func (gs gameState) IsFreezetimePeriod() bool {
+	return gs.isFreezetime
 }
 
 // IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.

@@ -85,6 +85,11 @@ func (gs *GameState) IsWarmupPeriod() bool {
 	return gs.Called().Bool(0)
 }
 
+// IsFreezetimePeriod is a mock-implementation of GameState.IsFreezetimePeriod().
+func (gs *GameState) IsFreezetimePeriod() bool {
+	return gs.Called().Bool(0)
+}
+
 // IsMatchStarted is a mock-implementation of GameState.IsMatchStarted().
 func (gs *GameState) IsMatchStarted() bool {
 	return gs.Called().Bool(0)
