@@ -456,12 +456,34 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 	}
 }
 
-func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
+func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entity) *common.Player {
 	controllerEntityID := controllerEntity.ID()
 	p.gameState.playerControllerEntities[controllerEntityID] = controllerEntity
 
+	rp := p.rawPlayers[controllerEntityID-1]
+	_, player := p.getOrCreatePlayer(controllerEntityID, rp)
+	player.Entity = controllerEntity
+	player.EntityID = controllerEntityID
+	player.IsBot = controllerEntity.PropertyValueMust("m_steamID").String() == "0"
+
+	if player.IsBot {
+		player.Name = controllerEntity.PropertyValueMust("m_iszPlayerName").String()
+		player.IsUnknown = false
+	}
+
+	return player
+}
+
+func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
+	pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
+
+	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
+		pl.Team = common.Team(val.S2UInt64())
+		pl.TeamState = p.gameState.Team(pl.Team)
+	})
+
 	controllerEntity.OnDestroy(func() {
-		delete(p.gameState.playersByEntityID, controllerEntityID)
+		delete(p.gameState.playersByEntityID, controllerEntity.ID())
 	})
 }
 
@@ -474,17 +496,8 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 	controllerEntityID := int(controllerHandle & constants.EntityHandleIndexMaskSource2)
 	controllerEntity := p.gameState.playerControllerEntities[controllerEntityID]
 
-	rp := p.rawPlayers[controllerEntityID-1]
-	_, pl := p.getOrCreatePlayer(controllerEntityID, rp)
-	pl.Entity = controllerEntity
-	pl.EntityID = controllerEntity.ID()
+	pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 	pl.IsConnected = true
-	pl.IsBot = controllerEntity.PropertyValueMust("m_steamID").String() == "0"
-
-	if pl.IsBot {
-		pl.Name = controllerEntity.PropertyValueMust("m_iszPlayerName").String()
-		pl.IsUnknown = false
-	}
 
 	if pl.SteamID64 != 0 {
 		p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
@@ -497,11 +510,6 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		if pl.IsAlive() {
 			pl.LastAlivePosition = pos
 		}
-	})
-
-	pawnEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
-		pl.Team = common.Team(val.S2UInt64())
-		pl.TeamState = p.gameState.Team(pl.Team)
 	})
 
 	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
