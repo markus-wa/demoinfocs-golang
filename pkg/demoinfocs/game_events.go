@@ -516,16 +516,16 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
-		return
-	}
 
 	nadeEvent := geh.nadeEvent(data, common.EqFlash)
 
 	geh.gameState().lastFlash.player = nadeEvent.Thrower
-	geh.dispatch(events.FlashExplode{
-		GrenadeEvent: nadeEvent,
-	})
+
+	if !geh.parser.isSource2() || geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+		geh.dispatch(events.FlashExplode{
+			GrenadeEvent: nadeEvent,
+		})
+	}
 }
 
 func (geh gameEventHandler) heGrenadeDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -627,7 +627,9 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEvent
 		}
 	}
 
-	geh.parser.setRawPlayer(int(data["index"].GetValByte()), pl)
+	if !geh.parser.isSource2() {
+		geh.parser.setRawPlayer(int(data["index"].GetValByte()), pl)
+	}
 }
 
 func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {

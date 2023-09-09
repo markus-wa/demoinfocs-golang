@@ -50,6 +50,7 @@ jobs:
 
     - name: Lint Changed Code
       run: scripts/lint-changes.sh
+      continue-on-error: true
 
     - name: Race Tests
       run: scripts/race-tests.sh

@@ -33,7 +33,6 @@ type Player struct {
 	IsPlanting        bool
 	IsReloading       bool
 	IsUnknown         bool // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
-	PawnEntityID      int
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
