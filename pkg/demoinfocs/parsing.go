@@ -346,7 +346,13 @@ func (p *parser) parseFrameS2() bool {
 
 		buf, err = snappy.Decode(nil, buf)
 		if err != nil {
-			panic(err) // FIXME: avoid panic
+			if errors.Is(err, snappy.ErrCorrupt) {
+				p.eventDispatcher.Dispatch(events.ParserWarn{
+					Message: "compressed message is corrupt",
+				})
+			} else {
+				panic(err)
+			}
 		}
 	}
 
