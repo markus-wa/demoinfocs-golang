@@ -561,6 +561,24 @@ func TestPlayer_LastPlaceName(t *testing.T) {
 	assert.Equal(t, "TopofMid", pl.LastPlaceName())
 }
 
+func TestPlayer_RankType(t *testing.T) {
+	pl := playerWithResourceProperty("m_iCompetitiveRankType", st.PropertyValue{IntVal: 6})
+
+	assert.Equal(t, 6, pl.RankType())
+}
+
+func TestPlayer_Rank(t *testing.T) {
+	pl := playerWithResourceProperty("m_iCompetitiveRanking", st.PropertyValue{IntVal: 10})
+
+	assert.Equal(t, 10, pl.Rank())
+}
+
+func TestPlayer_CompetitiveWins(t *testing.T) {
+	pl := playerWithResourceProperty("m_iCompetitiveWins", st.PropertyValue{IntVal: 190})
+
+	assert.Equal(t, 190, pl.CompetitiveWins())
+}
+
 func newPlayer(tick int) *Player {
 	return NewPlayer(mockDemoInfoProvider(128, tick))
 }
