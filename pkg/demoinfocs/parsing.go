@@ -345,7 +345,6 @@ func (p *parser) parseFrameS2() bool {
 		var err error
 
 		buf, err = snappy.Decode(nil, buf)
-
 		if err != nil {
 			if errors.Is(err, snappy.ErrCorrupt) {
 				p.eventDispatcher.Dispatch(events.ParserWarn{
