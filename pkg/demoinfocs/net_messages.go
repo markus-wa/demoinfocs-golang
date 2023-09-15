@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
+	"github.com/markus-wa/go-unassert"
 	"github.com/markus-wa/ice-cipher-go/pkg/ice"
 	"google.golang.org/protobuf/proto"
 
@@ -106,6 +107,28 @@ func (p *parser) handleServerInfoS2(srvInfo *msgs2.CSVCMsg_ServerInfo) {
 		TickRate: p.TickRate(),
 		TickTime: p.TickTime(),
 	})
+}
+
+func (p *parser) handleServerRankUpdate(msg *msgs2.CCSUsrMsg_ServerRankUpdate) {
+	for _, v := range msg.RankUpdate {
+		steamID32 := uint32(v.GetAccountId())
+		player, ok := p.gameState.playersBySteamID32[steamID32]
+		if !ok {
+			errMsg := fmt.Sprintf("rank update for unknown player with SteamID32=%d", steamID32)
+
+			p.eventDispatcher.Dispatch(events.ParserWarn{Message: errMsg})
+			unassert.Error(errMsg)
+		}
+
+		p.eventDispatcher.Dispatch(events.RankUpdate{
+			SteamID32:  v.GetAccountId(),
+			RankOld:    int(v.GetRankOld()),
+			RankNew:    int(v.GetRankNew()),
+			WinCount:   int(v.GetNumWins()),
+			RankChange: v.GetRankChange(),
+			Player:     player,
+		})
+	}
 }
 
 func (p *parser) handleEncryptedData(msg *msg.CSVCMsg_EncryptedData) {
