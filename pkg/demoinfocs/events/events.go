@@ -362,8 +362,8 @@ type BombPickup struct {
 	Player *common.Player
 }
 
-// HostageRecued signals that a hostage has been rescued.
-type HostageRecued struct {
+// HostageRescued signals that a hostage has been rescued.
+type HostageRescued struct {
 	Player  *common.Player
 	Hostage *common.Hostage
 }

@@ -597,7 +597,7 @@ func (geh gameEventHandler) hostageKilled(data map[string]*msg.CSVCMsg_GameEvent
 }
 
 func (geh gameEventHandler) hostageRescued(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	event := events.HostageRecued{
+	event := events.HostageRescued{
 		Player:  geh.playerByUserID32(data["userid"].GetValShort()),
 		Hostage: geh.gameState().hostages[int(data["hostage"].GetValShort())],
 	}
