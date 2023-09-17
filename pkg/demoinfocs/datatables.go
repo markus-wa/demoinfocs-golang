@@ -894,7 +894,41 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 
 	equipment.Entity = entity
 
+	// Used to detect when a player has been refunded for a weapon
+	// This happens when:
+	// - The player is inside the buy zone
+	// - The player's money has increased AND the weapon entity is destroyed at the same tick (unfortunately the money is updated first)
+	var owner *common.Player
+	var oldOwnerMoney int
+	var lastMoneyUpdateTick int
+	var lastMoneyIncreased bool
+
+	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+		weaponOwner := p.GameState().Participants().FindByPawnHandle(val.Handle())
+		if weaponOwner == nil {
+			return
+		}
+
+		owner = weaponOwner
+		oldOwnerMoney = owner.Money()
+
+		owner.Entity.Property("m_pInGameMoneyServices.m_iAccount").OnUpdate(func(val st.PropertyValue) {
+			lastMoneyUpdateTick = p.gameState.ingameTick
+			currentMoney := owner.Money()
+			lastMoneyIncreased = currentMoney > oldOwnerMoney
+			oldOwnerMoney = currentMoney
+		})
+	})
+
 	entity.OnDestroy(func() {
+		if owner != nil && owner.IsInBuyZone() && p.GameState().IngameTick() == lastMoneyUpdateTick && lastMoneyIncreased {
+			p.eventDispatcher.Dispatch(events.ItemRefund{
+				Player: owner,
+				Weapon: equipment,
+			})
+		}
+
+		lastMoneyIncreased = false
 		delete(p.gameState.weapons, entityID)
 	})
 

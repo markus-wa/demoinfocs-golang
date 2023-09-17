@@ -659,3 +659,10 @@ type OvertimeNumberChanged struct {
 	OldCount int
 	NewCount int
 }
+
+// ItemRefund signals a player was refunded for an item.
+// Available with CS2 demos only.
+type ItemRefund struct {
+	Player *common.Player
+	Weapon *common.Equipment
+}
