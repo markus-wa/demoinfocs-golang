@@ -114,6 +114,24 @@ func (v PropertyValue) R3Vec() r3.Vector {
 	return v.VectorVal
 }
 
+func (v PropertyValue) R3VecOrNil() *r3.Vector {
+	if v.S2 {
+		if v.Any == nil {
+			return nil
+		}
+
+		fs := v.Any.([]float32)
+
+		return &r3.Vector{
+			X: float64(fs[0]),
+			Y: float64(fs[1]),
+			Z: float64(fs[2]),
+		}
+	}
+
+	return &v.VectorVal
+}
+
 func (v PropertyValue) Int() int {
 	if v.S2 {
 		return int(v.Any.(int32))
