@@ -40,6 +40,7 @@ func (p *Player) PlayerPawnEntity() st.Entity {
 	if !exists {
 		return nil
 	}
+
 	return p.demoInfoProvider.FindEntityByHandle(playerPawn.Handle())
 }
 
@@ -500,17 +501,17 @@ func (p *Player) Position() r3.Vector {
 // This is what you get from cl_showpos 1.
 // See also Position().
 func (p *Player) PositionEyes() r3.Vector {
+	if p.demoInfoProvider.IsSource2() {
+		panic("PositionEyes() is not supported for Source 2 demos")
+	}
+
 	if p.Entity == nil {
 		return r3.Vector{}
 	}
 
 	pos := p.Position()
-	if p.demoInfoProvider.IsSource2() {
-		// TODO Find out where we can find the offset in Source 2 demos
-		return pos
-	} else {
-		pos.Z += float64(p.Entity.PropertyValueMust("localdata.m_vecViewOffset[2]").Float())
-	}
+
+	pos.Z += float64(p.Entity.PropertyValueMust("localdata.m_vecViewOffset[2]").Float())
 
 	return pos
 }
@@ -518,8 +519,7 @@ func (p *Player) PositionEyes() r3.Vector {
 // Velocity returns the player's velocity.
 func (p *Player) Velocity() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
-		// TODO Find out where we can find the velocity in Source 2 demos
-		return r3.Vector{}
+		panic("Velocity() is not supported for Source 2 demos")
 	}
 
 	if p.Entity == nil {
