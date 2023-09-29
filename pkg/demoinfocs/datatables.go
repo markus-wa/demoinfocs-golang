@@ -308,23 +308,36 @@ func (p *parser) bindBombSites() {
 		playerResource.BindProperty("m_bombsiteCenterB", &p.bombsiteB.center, st.ValTypeVector)
 	})
 
-	if p.isSource2() {
-		p.stParser.ServerClasses().FindByName("CBombTarget").OnEntityCreated(func(target st.Entity) {
-			t := new(boundingBoxInformation)
-			p.triggers[target.ID()] = t
+	onBombTargetEntityCreated := func(target st.Entity) {
+		t := new(boundingBoxInformation)
+		p.triggers[target.ID()] = t
 
-			target.BindProperty("m_vecMins", &t.min, st.ValTypeVector)
-			target.BindProperty("m_vecMaxs", &t.max, st.ValTypeVector)
-		})
-	} else {
-		p.stParser.ServerClasses().FindByName("CBaseTrigger").OnEntityCreated(func(baseTrigger st.Entity) {
-			t := new(boundingBoxInformation)
-			p.triggers[baseTrigger.ID()] = t
+		var (
+			minPropName string
+			maxPropName string
+		)
+		if p.isSource2() {
+			minPropName = "m_vecMins"
+			maxPropName = "m_vecMaxs"
+		} else {
+			minPropName = "m_Collision.m_vecMins"
+			maxPropName = "m_Collision.m_vecMaxs"
+		}
 
-			baseTrigger.BindProperty("m_Collision.m_vecMins", &t.min, st.ValTypeVector)
-			baseTrigger.BindProperty("m_Collision.m_vecMaxs", &t.max, st.ValTypeVector)
-		})
+		target.BindProperty(minPropName, &t.min, st.ValTypeVector)
+		target.BindProperty(maxPropName, &t.max, st.ValTypeVector)
 	}
+
+	if p.isSource2() {
+		// CBombTarget is not available with CS2 demos created in the early days of the limited test.
+		bombTargetClass := p.stParser.ServerClasses().FindByName("CBombTarget")
+		if bombTargetClass != nil {
+			bombTargetClass.OnEntityCreated(onBombTargetEntityCreated)
+			return
+		}
+	}
+
+	p.stParser.ServerClasses().FindByName("CBaseTrigger").OnEntityCreated(onBombTargetEntityCreated)
 }
 
 func (p *parser) bindPlayers() {
