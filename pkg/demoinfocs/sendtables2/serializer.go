@@ -5,10 +5,16 @@ import (
 	"strings"
 )
 
+type FieldIndex struct {
+	index int
+	field *field
+}
+
 type serializer struct {
-	name    string
-	version int32
-	fields  []*field
+	name         string
+	version      int32
+	fields       []*field
+	fieldIndexes map[string]*FieldIndex
 }
 
 func (s *serializer) id() string {
@@ -36,15 +42,18 @@ func (s *serializer) getFieldForFieldPath(fp *fieldPath, pos int) *field {
 }
 
 func (s *serializer) getFieldPathForName(fp *fieldPath, name string) bool {
-	for i, f := range s.fields {
-		if name == f.varName {
-			fp.path[fp.last] = i
-			return true
-		}
+	if s.fieldIndexes[name] != nil {
+		fp.path[fp.last] = s.fieldIndexes[name].index
+		return true
+	}
 
-		if strings.HasPrefix(name, f.varName+".") {
-			fp.path[fp.last] = i
+	dotIndex := strings.Index(name, ".")
+	if dotIndex != -1 {
+		nameBeforeDot := name[:dotIndex]
+		if s.fieldIndexes[nameBeforeDot] != nil {
+			fp.path[fp.last] = s.fieldIndexes[nameBeforeDot].index
 			fp.last++
+			f := s.fieldIndexes[nameBeforeDot].field
 			return f.getFieldPathForName(fp, name[len(f.varName)+1:])
 		}
 	}
@@ -63,4 +72,15 @@ func (s *serializer) getFieldPaths(fp *fieldPath, state *fieldState) []*fieldPat
 
 func serializerId(name string, version int32) string {
 	return fmt.Sprintf("%s(%d)", name, version)
+}
+
+func (s *serializer) addField(f *field) {
+	s.fields = append(s.fields, f)
+	if s.fieldIndexes == nil {
+		s.fieldIndexes = make(map[string]*FieldIndex)
+	}
+	s.fieldIndexes[f.varName] = &FieldIndex{
+		index: len(s.fields) - 1,
+		field: f,
+	}
 }

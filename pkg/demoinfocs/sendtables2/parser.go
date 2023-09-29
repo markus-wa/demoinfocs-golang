@@ -210,7 +210,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 			}
 
 			// add the field to the serializer
-			serializer.fields = append(serializer.fields, fields[i])
+			serializer.addField(fields[i])
 		}
 
 		// store the serializer for field reference
