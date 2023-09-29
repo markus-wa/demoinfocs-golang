@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/golang/geo/r3"
@@ -122,6 +123,8 @@ func (p *parser) bindBomb() {
 						site = events.BombsiteA
 					case 2:
 						site = events.BombsiteB
+					case 0:
+						site = p.getClosestBombsiteFromPosition(planter.Position())
 					}
 
 					if !p.disableMimicSource1GameEvents {
@@ -305,18 +308,23 @@ func (p *parser) bindBombSites() {
 		playerResource.BindProperty("m_bombsiteCenterB", &p.bombsiteB.center, st.ValTypeVector)
 	})
 
-	p.stParser.ServerClasses().FindByName("CBaseTrigger").OnEntityCreated(func(baseTrigger st.Entity) {
-		t := new(boundingBoxInformation)
-		p.triggers[baseTrigger.ID()] = t
+	if p.isSource2() {
+		p.stParser.ServerClasses().FindByName("CBombTarget").OnEntityCreated(func(target st.Entity) {
+			t := new(boundingBoxInformation)
+			p.triggers[target.ID()] = t
 
-		if p.isSource2() {
-			baseTrigger.BindProperty("m_vecMins", &t.min, st.ValTypeVector)
-			baseTrigger.BindProperty("m_vecMaxs", &t.max, st.ValTypeVector)
-		} else {
+			target.BindProperty("m_vecMins", &t.min, st.ValTypeVector)
+			target.BindProperty("m_vecMaxs", &t.max, st.ValTypeVector)
+		})
+	} else {
+		p.stParser.ServerClasses().FindByName("CBaseTrigger").OnEntityCreated(func(baseTrigger st.Entity) {
+			t := new(boundingBoxInformation)
+			p.triggers[baseTrigger.ID()] = t
+
 			baseTrigger.BindProperty("m_Collision.m_vecMins", &t.min, st.ValTypeVector)
 			baseTrigger.BindProperty("m_Collision.m_vecMaxs", &t.max, st.ValTypeVector)
-		}
-	})
+		})
+	}
 }
 
 func (p *parser) bindPlayers() {
@@ -899,10 +907,10 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	// - The player is inside the buy zone
 	// - The player's money has increased AND the weapon entity is destroyed at the same tick (unfortunately the money is updated first)
 	var (
-		owner *common.Player
-		oldOwnerMoney int
+		owner               *common.Player
+		oldOwnerMoney       int
 		lastMoneyUpdateTick int
-		lastMoneyIncreased bool
+		lastMoneyIncreased  bool
 	)
 
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
@@ -1299,4 +1307,19 @@ func (p *parser) bindHostages() {
 			}
 		})
 	})
+}
+
+func getDistanceBetweenVectors(vectorA r3.Vector, vectorB r3.Vector) float64 {
+	return math.Sqrt(math.Pow(vectorA.X-vectorB.X, 2) + math.Pow(vectorA.Y-vectorB.Y, 2) + math.Pow(vectorA.Z-vectorB.Z, 2))
+}
+
+func (p *parser) getClosestBombsiteFromPosition(position r3.Vector) events.Bombsite {
+	distanceFromBombsiteA := getDistanceBetweenVectors(position, p.bombsiteA.center)
+	distanceFromBombsiteB := getDistanceBetweenVectors(position, p.bombsiteB.center)
+
+	if distanceFromBombsiteA < distanceFromBombsiteB {
+		return events.BombsiteA
+	}
+
+	return events.BombsiteB
 }
