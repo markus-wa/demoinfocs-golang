@@ -774,6 +774,15 @@ func (p *Player) LastPlaceName() string {
 	return getString(p.Entity, "m_szLastPlaceName")
 }
 
+// IsGrabbingHostage returns true if the player is currently grabbing a hostage.
+func (p *Player) IsGrabbingHostage() bool {
+	if p.demoInfoProvider.IsSource2() {
+		return getBool(p.PlayerPawnEntity(), "m_bIsGrabbingHostage")
+	}
+
+	return getBool(p.Entity, "m_bIsGrabbingHostage")
+}
+
 type demoInfoProvider interface {
 	IngameTick() int   // current in-game tick, used for IsBlinded()
 	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
