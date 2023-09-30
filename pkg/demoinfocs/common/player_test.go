@@ -409,7 +409,8 @@ func TestPlayer_PositionEyes(t *testing.T) {
 }
 
 func TestPlayer_PositionEyes_EntityNil(t *testing.T) {
-	pl := new(Player)
+	pl := &Player{}
+	pl.demoInfoProvider = s1DemoInfoProvider
 
 	assert.Empty(t, pl.PositionEyes())
 }
