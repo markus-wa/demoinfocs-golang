@@ -1121,10 +1121,21 @@ func (p *parser) bindGameRules() {
 
 		entity.Property(grPrefix("m_bFreezePeriod")).OnUpdate(func(val st.PropertyValue) {
 			newIsFreezetime := val.BoolVal()
-			p.eventDispatcher.Dispatch(events.RoundFreezetimeChanged{
+			freezetimeEvent := events.RoundFreezetimeChanged{
 				OldIsFreezetime: p.gameState.isFreezetime,
 				NewIsFreezetime: newIsFreezetime,
-			})
+			}
+
+			if p.isSource2() {
+				if p.disableMimicSource1GameEvents {
+					p.eventDispatcher.Dispatch(freezetimeEvent)
+				} else {
+					p.gameState.lastFreezeTimeChangedEvent = &freezetimeEvent
+				}
+			} else {
+				p.eventDispatcher.Dispatch(freezetimeEvent)
+			}
+
 			p.gameState.isFreezetime = newIsFreezetime
 		})
 

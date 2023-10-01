@@ -1023,13 +1023,20 @@ func (p *parser) dispatchMatchStartedEventIfNecessary() {
 // Dispatch round progress events in the following order:
 // 1. MatchStartedChanged
 // 2. RoundStart
-// 3. RoundEnd
-// 4. MatchStartedChanged
+// 3. FreezeTimeStart
+// 4. FreezetimeEnd
+// 5. RoundEnd
+// 6. MatchStartedChanged
 func (p *parser) processRoundProgressEvents() {
 	if p.gameState.lastRoundStartEvent != nil {
 		p.dispatchMatchStartedEventIfNecessary()
 		p.gameEventHandler.dispatch(*p.gameState.lastRoundStartEvent)
 		p.gameState.lastRoundStartEvent = nil
+	}
+
+	if p.gameState.lastFreezeTimeChangedEvent != nil {
+		p.gameEventHandler.dispatch(*p.gameState.lastFreezeTimeChangedEvent)
+		p.gameState.lastFreezeTimeChangedEvent = nil
 	}
 
 	if p.gameState.lastRoundEndEvent != nil {
