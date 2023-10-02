@@ -289,20 +289,20 @@ type BombEventIf interface {
 	implementsBombEventIf()
 }
 
-type bombsite rune
+type Bombsite rune
 
 // Bombsite identifiers
 const (
-	BomsiteUnknown bombsite = 0
-	BombsiteA      bombsite = 'A'
-	BombsiteB      bombsite = 'B'
+	BomsiteUnknown Bombsite = 0
+	BombsiteA      Bombsite = 'A'
+	BombsiteB      Bombsite = 'B'
 )
 
 // BombEvent contains the common attributes of bomb events. Dont register
 // handlers on this tho, you want BombEventIf for that.
 type BombEvent struct {
 	Player *common.Player
-	Site   bombsite
+	Site   Bombsite
 }
 
 // Make BombEvent implement BombEventIf

@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"testing"
 
+	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
@@ -128,6 +129,24 @@ func fakePlayerEntity(id int) *stfake.Entity {
 	configurePlayerEntityMock(id, entity)
 
 	return entity
+}
+
+func TestParser_GetClosestBombsiteFromPosition(t *testing.T) {
+	p := newParser()
+	p.bombsiteA = bombsite{
+		center: r3.Vector{X: 2, Y: 3, Z: 1},
+	}
+	p.bombsiteB = bombsite{
+		center: r3.Vector{X: 4, Y: 5, Z: 7},
+	}
+
+	site := p.getClosestBombsiteFromPosition(r3.Vector{X: -2, Y: 2, Z: 2})
+
+	assert.Equal(t, events.BombsiteA, site)
+
+	site = p.getClosestBombsiteFromPosition(r3.Vector{X: 3, Y: 6, Z: 5})
+
+	assert.Equal(t, events.BombsiteB, site)
 }
 
 func configurePlayerEntityMock(id int, entity *stfake.Entity) {

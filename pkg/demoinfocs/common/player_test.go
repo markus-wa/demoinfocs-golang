@@ -409,7 +409,8 @@ func TestPlayer_PositionEyes(t *testing.T) {
 }
 
 func TestPlayer_PositionEyes_EntityNil(t *testing.T) {
-	pl := new(Player)
+	pl := &Player{}
+	pl.demoInfoProvider = s1DemoInfoProvider
 
 	assert.Empty(t, pl.PositionEyes())
 }
@@ -577,6 +578,18 @@ func TestPlayer_CompetitiveWins(t *testing.T) {
 	pl := playerWithResourceProperty("m_iCompetitiveWins", st.PropertyValue{IntVal: 190})
 
 	assert.Equal(t, 190, pl.CompetitiveWins())
+}
+
+func TestPlayer_IsGrabbingHostage(t *testing.T) {
+	pl := playerWithProperty("m_bIsGrabbingHostage", st.PropertyValue{IntVal: 0})
+	pl.demoInfoProvider = s1DemoInfoProvider
+
+	assert.False(t, pl.IsGrabbingHostage())
+
+	pl = playerWithProperty("m_bIsGrabbingHostage", st.PropertyValue{IntVal: 1})
+	pl.demoInfoProvider = s1DemoInfoProvider
+
+	assert.True(t, pl.IsGrabbingHostage())
 }
 
 func newPlayer(tick int) *Player {
