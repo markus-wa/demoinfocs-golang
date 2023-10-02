@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type FieldIndex struct {
+type fieldIndex struct {
 	index int
 	field *field
 }
@@ -14,7 +14,7 @@ type serializer struct {
 	name         string
 	version      int32
 	fields       []*field
-	fieldIndexes map[string]*FieldIndex
+	fieldIndexes map[string]*fieldIndex
 }
 
 func (s *serializer) id() string {
@@ -75,12 +75,15 @@ func serializerId(name string, version int32) string {
 }
 
 func (s *serializer) addField(f *field) {
+	newFieldIndex := len(s.fields)
 	s.fields = append(s.fields, f)
+
 	if s.fieldIndexes == nil {
-		s.fieldIndexes = make(map[string]*FieldIndex)
+		s.fieldIndexes = make(map[string]*fieldIndex)
 	}
-	s.fieldIndexes[f.varName] = &FieldIndex{
-		index: len(s.fields) - 1,
+
+	s.fieldIndexes[f.varName] = &fieldIndex{
+		index: newFieldIndex,
 		field: f,
 	}
 }
