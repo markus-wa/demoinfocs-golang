@@ -43,9 +43,10 @@ type gameState struct {
 	thrownGrenades               map[*common.Player][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
 	rules                        gameRules
 	demoInfo                     demoInfoProvider
-	lastRoundStartEvent          *events.RoundStart          // Used to dispatch this event after a possible MatchStartedChanged event
-	lastRoundEndEvent            *events.RoundEnd            // Used to dispatch this event before a possible MatchStartedChanged event
-	lastMatchStartedChangedEvent *events.MatchStartedChanged // Used to dispatch this event before a possible RoundStart event and after a possible RoundEnd event
+	lastRoundStartEvent          *events.RoundStart             // Used to dispatch this event after a possible MatchStartedChanged event
+	lastFreezeTimeChangedEvent   *events.RoundFreezetimeChanged // Used to dispatch this event after a possible RoundStart event
+	lastRoundEndEvent            *events.RoundEnd               // Used to dispatch this event before a possible RoundFreezetimeChanged event
+	lastMatchStartedChangedEvent *events.MatchStartedChanged    // Used to dispatch this event before a possible RoundStart event and after a possible RoundEnd event
 	// Used to mimic missing player_blind events for CS2 demos.
 	//
 	// When a player throws a flashbang the following happens:
