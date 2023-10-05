@@ -327,7 +327,6 @@ func initEqElementToName() {
 	eqElementToName[EqKnifeStiletto] = "Stiletto Knife"
 	eqElementToName[EqKnifeWidowmaker] = "Widowmaker Knife"
 	eqElementToName[EqKnifeSkeleton] = "Skeleton Knife"
-
 }
 
 const weaponPrefix = "weapon_"
