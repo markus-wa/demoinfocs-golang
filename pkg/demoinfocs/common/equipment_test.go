@@ -20,11 +20,33 @@ func TestEquipmentElement_Name(t *testing.T) {
 }
 
 func TestMapEquipment(t *testing.T) {
-	assert.Equal(t, EqKnife, MapEquipment("weapon_bayonet"), "'weapon_bayonet' should be mapped to EqKnife")
-	assert.Equal(t, EqKnife, MapEquipment("weapon_knife_butterfly"), "'weapon_knife_butterfly' should be mapped to EqKnife")
+	assert.Equal(t, EqKnifeBayonet, MapEquipment("weapon_bayonet"), "'weapon_bayonet' should be mapped to EqKnifeBayonet")
+	assert.Equal(t, EqKnifeButterfly, MapEquipment("weapon_knife_butterfly"), "'weapon_knife_butterfly' should be mapped to EqKnifeButterfly")
 	assert.Equal(t, EqM4A4, MapEquipment("weapon_m4a1"), "'weapon_m4a1' should be mapped to EqM4A4") // This is correct, weapon_m4a1 == M4A4
 	assert.Equal(t, EqM4A1, MapEquipment("weapon_m4a1_silencer"), "'weapon_m4a1_silencer' should be mapped to EqM4A1")
 	assert.Equal(t, EqUnknown, MapEquipment("asdf"), "'asdf' should be mapped to EqUnknown")
+}
+
+func TestMapEquipmentKnives(t *testing.T) {
+	assert.Equal(t, EqKnifeBayonet, MapEquipment("weapon_knife_bayonet"), "'weapon_knife_bayonet' should be mapped to EqKnifeBayonet")
+	assert.Equal(t, EqKnifeCSS, MapEquipment("weapon_knife_css"), "'weapon_knife_css' should be mapped to EqKnifeCSS")
+	assert.Equal(t, EqKnifeFlip, MapEquipment("weapon_knife_flip"), "'weapon_knife_flip' should be mapped to EqKnifeFlip")
+	assert.Equal(t, EqKnifeGut, MapEquipment("weapon_knife_gut"), "'weapon_knife_gut' should be mapped to EqKnifeGut")
+	assert.Equal(t, EqKnifeKarambit, MapEquipment("weapon_knife_karambit"), "'weapon_knife_karambit' should be mapped to EqKnifeKarambit")
+	assert.Equal(t, EqKnifeM9Bayonet, MapEquipment("weapon_knife_m9_bayonet"), "'weapon_knife_m9_bayonet' should be mapped to EqKnifeM9Bayonet")
+	assert.Equal(t, EqKnifeTactical, MapEquipment("weapon_knife_tactical"), "'weapon_knife_tactical' should be mapped to EqKnifeTactical")
+	assert.Equal(t, EqKnifeFalchion, MapEquipment("weapon_knife_falchion"), "'weapon_knife_falchion' should be mapped to EqKnifeFalchion")
+	assert.Equal(t, EqKnifeSurvivalBowie, MapEquipment("weapon_knife_survival_bowie"), "'weapon_knife_survival_bowie' should be mapped to EqKnifeSurvivalBowie")
+	assert.Equal(t, EqKnifeButterfly, MapEquipment("weapon_knife_butterfly"), "'weapon_knife_butterfly' should be mapped to EqKnifeButterfly")
+	assert.Equal(t, EqKnifePush, MapEquipment("weapon_knife_push"), "'weapon_knife_push' should be mapped to EqKnifePush")
+	assert.Equal(t, EqKnifeCord, MapEquipment("weapon_knife_cord"), "'weapon_knife_cord' should be mapped to EqKnifeCord")
+	assert.Equal(t, EqKnifeCanis, MapEquipment("weapon_knife_canis"), "'weapon_knife_canis' should be mapped to EqKnifeCanis")
+	assert.Equal(t, EqKnifeUrsus, MapEquipment("weapon_knife_ursus"), "'weapon_knife_ursus' should be mapped to EqKnifeUrsus")
+	assert.Equal(t, EqKnifeGypsyJackknife, MapEquipment("weapon_knife_gypsy_jackknife"), "'weapon_knife_gypsy_jackknife' should be mapped to EqKnifeGypsyJackknife")
+	assert.Equal(t, EqKnifeOutdoor, MapEquipment("weapon_knife_outdoor"), "'weapon_knife_outdoor' should be mapped to EqKnifeOutdoor")
+	assert.Equal(t, EqKnifeStiletto, MapEquipment("weapon_knife_stiletto"), "'weapon_knife_stiletto' should be mapped to EqKnifeStiletto")
+	assert.Equal(t, EqKnifeWidowmaker, MapEquipment("weapon_knife_widowmaker"), "'weapon_knife_widowmaker' should be mapped to EqKnifeWidowmaker")
+	assert.Equal(t, EqKnifeSkeleton, MapEquipment("weapon_knife_skeleton"), "'weapon_knife_skeleton' should be mapped to EqKnifeSkeleton")
 }
 
 func TestEquipment_Class(t *testing.T) {
