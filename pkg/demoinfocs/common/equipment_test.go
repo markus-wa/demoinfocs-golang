@@ -156,6 +156,26 @@ func TestEquipment_ZoomLevel_EntityNil(t *testing.T) {
 	assert.Equal(t, ZoomLevel(0), wep.ZoomLevel())
 }
 
+func TestEquipment_Not_Silenced(t *testing.T) {
+	wep := &Equipment{
+		Type:   EqAK47,
+		Entity: entityWithProperty("m_bSilencerOn", st.PropertyValue{IntVal: 0}),
+	}
+
+	assert.Equal(t, false, wep.Silenced())
+}
+
+func TestEquipment_Silenced_On_Off(t *testing.T) {
+	wep := &Equipment{
+		Type:   EqUSP,
+		Entity: entityWithProperty("m_bSilencerOn", st.PropertyValue{IntVal: 1}),
+	}
+	assert.Equal(t, true, wep.Silenced(), "Weapon should be silenced after the property value has been set to 1.")
+
+	wep.Entity = entityWithProperty("m_bSilencerOn", st.PropertyValue{IntVal: 0})
+	assert.Equal(t, false, wep.Silenced(), "Weapon should not be silenced after the property value has been set to 0.")
+}
+
 func TestEquipmentAlternative(t *testing.T) {
 	assert.Equal(t, EqUSP, EquipmentAlternative(EqP2000))
 	assert.Equal(t, EqCZ, EquipmentAlternative(EqP250))
