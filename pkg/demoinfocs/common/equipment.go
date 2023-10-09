@@ -444,6 +444,18 @@ func (e *Equipment) RecoilIndex() float32 {
 	return val.Float()
 }
 
+// Silenced returns true if weapon is silenced.
+func (e *Equipment) Silenced() bool {
+	// If entity is nil returns false.
+	if e.Entity == nil {
+		return false
+	}
+
+	prop := e.Entity.Property("m_bSilencerOn")
+
+	return prop.Value().BoolVal()
+}
+
 // NewEquipment creates a new Equipment and sets the UniqueID.
 //
 // Intended for internal use only.
