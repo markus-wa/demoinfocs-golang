@@ -504,7 +504,7 @@ type RankUpdate struct {
 	Player     *common.Player // may be nil if the player has already disconnected
 }
 
-// OtherDeath signals that there has occured a death of something that is not a player.
+// OtherDeath signals that there has occurred a death of something that is not a player.
 // For example chickens.
 type OtherDeath struct {
 	Killer        *common.Player // May be nil
