@@ -510,6 +510,25 @@ func (ru RankUpdate) SteamID64() uint64 {
 	return common.ConvertSteamID32To64(uint32(ru.SteamID32))
 }
 
+// OtherDeath signals that there has occurred a death of something that is not a player.
+// For example chickens.
+type OtherDeath struct {
+	Killer            *common.Player // May be nil
+	Weapon            *common.Equipment
+	PenetratedObjects int
+	NoScope           bool
+	KillerBlind       bool
+	ThroughSmoke      bool
+
+	OtherType     string
+	OtherID       int32
+	OtherPosition r3.Vector
+}
+
+func (od OtherDeath) IsWallBang() bool {
+	return od.PenetratedObjects > 0
+}
+
 // ItemEquip signals an item was equipped.
 // This event is not available in all demos.
 type ItemEquip struct {
