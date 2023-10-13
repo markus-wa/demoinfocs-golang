@@ -504,19 +504,29 @@ type RankUpdate struct {
 	Player     *common.Player // may be nil if the player has already disconnected
 }
 
+// SteamID64 converts SteamID32 to the 64-bit SteamID variant and returns the result.
+// See https://developer.valvesoftware.com/wiki/SteamID
+func (ru RankUpdate) SteamID64() uint64 {
+	return common.ConvertSteamID32To64(uint32(ru.SteamID32))
+}
+
 // OtherDeath signals that there has occured a death of something that is not a player.
 // For example chickens.
 type OtherDeath struct {
-	Killer        *common.Player // May be nil
+	Killer            *common.Player // May be nil
+	Weapon            *common.Equipment
+	PenetratedObjects int
+	NoScope           bool
+	KillerBlind       bool
+	ThroughSmoke      bool
+
 	OtherType     string
 	OtherID       int32
 	OtherPosition r3.Vector
 }
 
-// SteamID64 converts SteamID32 to the 64-bit SteamID variant and returns the result.
-// See https://developer.valvesoftware.com/wiki/SteamID
-func (ru RankUpdate) SteamID64() uint64 {
-	return common.ConvertSteamID32To64(uint32(ru.SteamID32))
+func (od OtherDeath) IsWallBang() bool {
+	return od.PenetratedObjects > 0
 }
 
 // ItemEquip signals an item was equipped.
