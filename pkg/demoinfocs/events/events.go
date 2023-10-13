@@ -504,6 +504,15 @@ type RankUpdate struct {
 	Player     *common.Player // may be nil if the player has already disconnected
 }
 
+// OtherDeath signals that there has occured a death of something that is not a player.
+// For example chickens.
+type OtherDeath struct {
+	Killer        *common.Player // May be nil
+	OtherType     string
+	OtherID       int32
+	OtherPosition r3.Vector
+}
+
 // SteamID64 converts SteamID32 to the 64-bit SteamID variant and returns the result.
 // See https://developer.valvesoftware.com/wiki/SteamID
 func (ru RankUpdate) SteamID64() uint64 {
