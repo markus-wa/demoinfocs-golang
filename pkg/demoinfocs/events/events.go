@@ -510,7 +510,7 @@ func (ru RankUpdate) SteamID64() uint64 {
 	return common.ConvertSteamID32To64(uint32(ru.SteamID32))
 }
 
-// OtherDeath signals that there has occured a death of something that is not a player.
+// OtherDeath signals that there has occurred a death of something that is not a player.
 // For example chickens.
 type OtherDeath struct {
 	Killer            *common.Player // May be nil
