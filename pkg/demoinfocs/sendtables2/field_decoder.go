@@ -327,7 +327,7 @@ func runeTimeDecoder(r *reader) interface{} {
 }
 
 func simulationTimeDecoder(r *reader) interface{} {
-	return float32(r.readVarUint32()) * (1.0 / 30)
+	return float32(r.readVarUint32()) * (1.0 / 64)
 }
 
 func readBitCoordPres(r *reader) float32 {
