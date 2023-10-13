@@ -210,7 +210,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"item_pickup_slerp":               nil,                                   // Not sure, only in locally recorded (POV) demos
 		"item_remove":                     geh.itemRemove,                        // Dropped?
 		"jointeam_failed":                 nil,                                   // Dunno, only in locally recorded (POV) demos
-		"other_death":                     nil,                                   // Dunno
+		"other_death":                     geh.otherDeath,                        // Dunno
 		"player_blind":                    delay(geh.playerBlind),                // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
 		"player_changename":               nil,                                   // Name change
 		"player_connect":                  geh.playerConnect,                     // Bot connected or player reconnected, players normally come in via string tables & data tables
@@ -836,6 +836,20 @@ func (geh gameEventHandler) itemRemove(data map[string]*msg.CSVCMsg_GameEventKey
 	geh.dispatch(events.ItemDrop{
 		Player: player,
 		Weapon: weapon,
+	})
+}
+
+func (geh gameEventHandler) otherDeath(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	killer := geh.playerByUserID32(data["attacker"].GetValShort())
+	otherType := data["othertype"].GetValString()
+	otherID := data["otherid"].GetValShort()
+	otherPosition := geh.gameState().entities[int(otherID)].Position()
+
+	geh.dispatch(events.OtherDeath{
+		Killer:        killer,
+		OtherType:     otherType,
+		OtherID:       otherID,
+		OtherPosition: otherPosition,
 	})
 }
 
