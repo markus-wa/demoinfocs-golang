@@ -844,9 +844,17 @@ func (geh gameEventHandler) otherDeath(data map[string]*msg.CSVCMsg_GameEventKey
 	otherType := data["othertype"].GetValString()
 	otherID := data["otherid"].GetValShort()
 	otherPosition := geh.gameState().entities[int(otherID)].Position()
+	wepType := common.MapEquipment(data["weapon"].GetValString())
+	weapon := getPlayerWeapon(killer, wepType)
 
 	geh.dispatch(events.OtherDeath{
-		Killer:        killer,
+		Killer:            killer,
+		Weapon:            weapon,
+		PenetratedObjects: int(data["penetrated"].GetValShort()),
+		NoScope:           data["noscope"].GetValBool(),
+		ThroughSmoke:      data["thrusmoke"].GetValBool(),
+		KillerBlind:       data["attackerblind"].GetValBool(),
+
 		OtherType:     otherType,
 		OtherID:       otherID,
 		OtherPosition: otherPosition,
