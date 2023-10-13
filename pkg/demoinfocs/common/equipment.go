@@ -405,13 +405,6 @@ func (e *Equipment) AmmoReserve() int {
 		return 0
 	}
 
-	if e.Class() == EqClassGrenade {
-		s2Prop := e.Entity.Property("m_pReserveAmmo.0001")
-		if s2Prop != nil {
-			return s2Prop.Value().Int()
-		}
-	}
-
 	s2Prop := e.Entity.Property("m_pReserveAmmo.0000")
 	if s2Prop != nil {
 		return s2Prop.Value().Int()
