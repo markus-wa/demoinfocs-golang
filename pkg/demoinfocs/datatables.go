@@ -280,6 +280,8 @@ func (p *parser) bindTeamStates() {
 			var (
 				scoreProp st.Property
 				score     int
+
+				clanName string
 			)
 
 			if p.isSource2() {
@@ -295,6 +297,17 @@ func (p *parser) bindTeamStates() {
 				p.eventDispatcher.Dispatch(events.ScoreUpdated{
 					OldScore:  oldScore,
 					NewScore:  val.Int(),
+					TeamState: s,
+				})
+			})
+
+			entity.Property("m_szClanTeamname").OnUpdate(func(val st.PropertyValue) {
+				oldClanName := clanName
+				clanName = val.Str()
+
+				p.eventDispatcher.Dispatch(events.TeamClanNameUpdated{
+					OldName:   oldClanName,
+					NewName:   clanName,
 					TeamState: s,
 				})
 			})

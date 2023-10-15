@@ -685,3 +685,10 @@ type ItemRefund struct {
 	Player *common.Player
 	Weapon *common.Equipment
 }
+
+// TeamClanNameUpdated signals that a team's clan name has been changed.
+type TeamClanNameUpdated struct {
+	OldName   string
+	NewName   string
+	TeamState *common.TeamState
+}
