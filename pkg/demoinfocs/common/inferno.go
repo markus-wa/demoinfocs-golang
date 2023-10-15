@@ -105,6 +105,12 @@ func (f Fires) Active() Fires {
 	return Fires{s: active}
 }
 
+// List returns fires a list of the raw Fire entities. This can be useful
+// if you need to do custom calculations on the fires.
+func (f Fires) List() []Fire {
+	return f.s
+}
+
 // ConvexHull2D returns clockwise sorted corner points making up the 2D convex hull of all the fires in the inferno.
 // Useful for drawing on 2D maps.
 func (f Fires) ConvexHull2D() []r2.Point {

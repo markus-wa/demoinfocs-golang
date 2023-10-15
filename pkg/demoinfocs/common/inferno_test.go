@@ -121,3 +121,26 @@ func TestInferno_Thrower(t *testing.T) {
 
 	assert.Equal(t, player, NewInferno(provider, entity, nil).Thrower())
 }
+
+func TestInferno_List(t *testing.T) {
+	expected := []Fire{
+		{
+			Vector: r3.Vector{X: 1, Y: 2, Z: 3},
+		},
+		{
+			Vector: r3.Vector{X: 4, Y: 7, Z: 6},
+		},
+		{
+			Vector: r3.Vector{X: 7, Y: 2, Z: 9},
+		},
+		{
+			Vector: r3.Vector{X: 4, Y: 4, Z: 12},
+		},
+	}
+	fires := Fires{
+		s: expected,
+	}
+
+	got := fires.List()
+	assert.ElementsMatch(t, expected, got, "List() should return the fires contained in Fires")
+}
