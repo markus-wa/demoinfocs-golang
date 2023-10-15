@@ -354,7 +354,7 @@ func (p *Player) ControlledBot() *Player {
 // Health returns the player's health points, normally 0-100.
 func (p *Player) Health() int {
 	if p.demoInfoProvider.IsSource2() {
-		return int(getInt(p.PlayerPawnEntity(), "m_iHealth"))
+		return getInt(p.PlayerPawnEntity(), "m_iHealth")
 	}
 
 	return getInt(p.Entity, "m_iHealth")
