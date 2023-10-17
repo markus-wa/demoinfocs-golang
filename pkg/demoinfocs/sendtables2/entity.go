@@ -126,7 +126,7 @@ func (p property) Bind(variable any, t st.PropertyValueType) {
 }
 
 func (e *Entity) Property(name string) st.Property {
-	ok := e.class.serializer.getFieldPathForName(newFieldPath(), name)
+	ok := e.class.serializer.checkFieldName(name)
 	if !ok {
 		return nil
 	}

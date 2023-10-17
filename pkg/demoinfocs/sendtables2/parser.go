@@ -158,11 +158,10 @@ func (p *Parser) ParsePacket(b []byte) error {
 	fieldTypes := map[string]*fieldType{}
 
 	for _, s := range msg.GetSerializers() {
-		serializer := &serializer{
-			name:    msg.GetSymbols()[s.GetSerializerNameSym()],
-			version: s.GetSerializerVersion(),
-			fields:  []*field{},
-		}
+		serializer := newSerializer(
+			msg.GetSymbols()[s.GetSerializerNameSym()],
+			s.GetSerializerVersion(),
+		)
 
 		for _, i := range s.GetFieldsIndex() {
 			if _, ok := fields[i]; !ok {
