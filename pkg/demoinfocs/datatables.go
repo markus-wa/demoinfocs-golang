@@ -655,7 +655,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	var cache [maxWeapons]uint64
 	for i := range cache {
 		i2 := i // Copy for passing to handler
-		pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i)).OnUpdate(func(val st.PropertyValue) {
+		updateWeapon := func(val st.PropertyValue) {
 			if val.Any == nil {
 				return
 			}
@@ -691,7 +691,10 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 
 				cache[i2] = 0
 			}
-		})
+		}
+		property := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i))
+		updateWeapon(property.Value())
+		property.OnUpdate(updateWeapon)
 	}
 }
 
