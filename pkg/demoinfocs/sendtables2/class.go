@@ -7,11 +7,17 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
+type fpNameTreeCache struct {
+	next        map[int]*fpNameTreeCache
+	cachedValue string
+}
+
 type class struct {
 	classId         int32
 	name            string
 	serializer      *serializer
 	createdHandlers []st.EntityCreatedHandler
+	fpNameCache     *fpNameTreeCache
 }
 
 func (c *class) ID() int {
@@ -72,7 +78,27 @@ func (c *class) collectFieldsEntries(fields []*field, prefix string) []string {
 }
 
 func (c *class) getNameForFieldPath(fp *fieldPath) string {
-	return strings.Join(c.serializer.getNameForFieldPath(fp, 0), ".")
+	currentCacheNode := c.fpNameCache
+
+	for i := 0; i <= fp.last; i++ {
+		if currentCacheNode.next == nil {
+			currentCacheNode.next = make(map[int]*fpNameTreeCache)
+		}
+
+		pos := fp.path[i]
+		next, exists := currentCacheNode.next[pos]
+		if !exists {
+			next = &fpNameTreeCache{}
+			currentCacheNode.next[pos] = next
+		}
+		currentCacheNode = next
+	}
+
+	if currentCacheNode.cachedValue == "" {
+		currentCacheNode.cachedValue = strings.Join(c.serializer.getNameForFieldPath(fp, 0), ".")
+	}
+
+	return currentCacheNode.cachedValue
 }
 
 func (c *class) getTypeForFieldPath(fp *fieldPath) *fieldType {
