@@ -843,7 +843,14 @@ func (geh gameEventHandler) otherDeath(data map[string]*msg.CSVCMsg_GameEventKey
 	killer := geh.playerByUserID32(data["attacker"].GetValShort())
 	otherType := data["othertype"].GetValString()
 	otherID := data["otherid"].GetValShort()
-	otherPosition := geh.gameState().entities[int(otherID)].Position()
+	other := geh.gameState().entities[int(otherID)]
+
+	var otherPosition r3.Vector
+
+	if other != nil {
+		otherPosition = other.Position()
+	}
+
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 	weapon := getPlayerWeapon(killer, wepType)
 
