@@ -8,8 +8,8 @@ import (
 )
 
 type fpNameTreeCache struct {
-	next        map[int]*fpNameTreeCache
-	cachedValue string
+	next map[int]*fpNameTreeCache
+	name string
 }
 
 type class struct {
@@ -94,11 +94,11 @@ func (c *class) getNameForFieldPath(fp *fieldPath) string {
 		currentCacheNode = next
 	}
 
-	if currentCacheNode.cachedValue == "" {
-		currentCacheNode.cachedValue = strings.Join(c.serializer.getNameForFieldPath(fp, 0), ".")
+	if currentCacheNode.name == "" {
+		currentCacheNode.name = strings.Join(c.serializer.getNameForFieldPath(fp, 0), ".")
 	}
 
-	return currentCacheNode.cachedValue
+	return currentCacheNode.name
 }
 
 func (c *class) getTypeForFieldPath(fp *fieldPath) *fieldType {
