@@ -298,6 +298,11 @@ func (m *pendingMessage) priority() int {
 
 func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 	b := pack.GetData()
+
+	if len(b) == 0 {
+		return
+	}
+
 	r := bitread.NewSmallBitReader(bytes.NewReader(b))
 
 	ms := make([]pendingMessage, 0)
