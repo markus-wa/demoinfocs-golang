@@ -864,6 +864,12 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 	entity.OnPositionUpdate(func(newPos r3.Vector) {
 		proj.Trajectory = append(proj.Trajectory, newPos)
+
+		proj.Trajectory2 = append(proj.Trajectory2, common.TrajectoryEntry{
+			Position: newPos,
+			FrameID:  p.CurrentFrame(),
+			Time:     p.CurrentTime(),
+		})
 	})
 
 	// Some demos don't have this property as it seems
