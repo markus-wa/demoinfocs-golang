@@ -74,15 +74,20 @@ func (inf *Inferno) Fires() Fires {
 	}
 	for i := 0; i < nFires; i++ {
 		iStr := fmt.Sprintf(iFormat, i)
-		offset := r3.Vector{
-			X: float64(entity.PropertyValueMust("m_fireXDelta." + iStr).Int()),
-			Y: float64(entity.PropertyValueMust("m_fireYDelta." + iStr).Int()),
-			Z: float64(entity.PropertyValueMust("m_fireZDelta." + iStr).Int()),
-		}
 
 		fire := Fire{
-			Vector:    origin.Add(offset),
 			IsBurning: entity.PropertyValueMust("m_bFireIsBurning." + iStr).BoolVal(),
+		}
+
+		if prop := entity.Property("m_firePositions." + iStr); prop != nil {
+			fire.Vector = prop.Value().R3Vec()
+		} else {
+			offset := r3.Vector{
+				X: float64(entity.PropertyValueMust("m_fireXDelta." + iStr).Int()),
+				Y: float64(entity.PropertyValueMust("m_fireYDelta." + iStr).Int()),
+				Z: float64(entity.PropertyValueMust("m_fireZDelta." + iStr).Int()),
+			}
+			fire.Vector = origin.Add(offset)
 		}
 
 		fires = append(fires, fire)
