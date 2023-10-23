@@ -67,9 +67,13 @@ func (h *DemoHeader) FrameTime() time.Duration {
 type GrenadeProjectile struct {
 	Entity         st.Entity
 	WeaponInstance *Equipment
-	Thrower        *Player     // Always seems to be the same as Owner, even if the grenade was picked up
-	Owner          *Player     // Always seems to be the same as Thrower, even if the grenade was picked up
-	Trajectory     []r3.Vector // List of all known locations of the grenade up to the current point
+	Thrower        *Player // Always seems to be the same as Owner, even if the grenade was picked up
+	Owner          *Player // Always seems to be the same as Thrower, even if the grenade was picked up
+
+	// Deprecated: use Trajectory2 instead
+	Trajectory []r3.Vector // List of all known locations of the grenade up to the current point
+
+	Trajectory2 []TrajectoryEntry // List of all known locations and the point in time of the grenade up to the current point
 
 	// uniqueID is used to distinguish different grenades (which potentially have the same, reused entityID) from each other.
 	uniqueID int64
@@ -223,6 +227,13 @@ func NewTeamState(team Team, membersCallback func(Team) []*Player, demoInfoProvi
 		membersCallback:  membersCallback,
 		demoInfoProvider: demoInfoProvider,
 	}
+}
+
+// TrajectoryEntry represents the location of a grenade's trajectory at a specific point in time.
+type TrajectoryEntry struct {
+	Position r3.Vector
+	FrameID  int
+	Time     time.Duration
 }
 
 // ConvertSteamIDTxtTo32 converts a Steam-ID in text format to a 32-bit variant.
