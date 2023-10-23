@@ -354,7 +354,7 @@ func (p *Player) ControlledBot() *Player {
 // Health returns the player's health points, normally 0-100.
 func (p *Player) Health() int {
 	if p.demoInfoProvider.IsSource2() {
-		return int(getUInt64(p.Entity, "m_iPawnHealth"))
+		return getInt(p.PlayerPawnEntity(), "m_iHealth")
 	}
 
 	return getInt(p.Entity, "m_iHealth")
@@ -363,7 +363,7 @@ func (p *Player) Health() int {
 // Armor returns the player's armor points, normally 0-100.
 func (p *Player) Armor() int {
 	if p.demoInfoProvider.IsSource2() {
-		return getInt(p.Entity, "m_iPawnArmor")
+		return getInt(p.PlayerPawnEntity(), "m_ArmorValue")
 	}
 
 	return getInt(p.Entity, "m_ArmorValue")

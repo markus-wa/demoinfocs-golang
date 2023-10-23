@@ -460,13 +460,6 @@ func (e *Equipment) AmmoReserve() int {
 		return 0
 	}
 
-	if e.Class() == EqClassGrenade {
-		s2Prop := e.Entity.Property("m_pReserveAmmo.0001")
-		if s2Prop != nil {
-			return s2Prop.Value().Int()
-		}
-	}
-
 	s2Prop := e.Entity.Property("m_pReserveAmmo.0000")
 	if s2Prop != nil {
 		return s2Prop.Value().Int()
@@ -497,6 +490,18 @@ func (e *Equipment) RecoilIndex() float32 {
 	val, _ := e.Entity.PropertyValue("m_flRecoilIndex")
 
 	return val.Float()
+}
+
+// Silenced returns true if weapon is silenced.
+func (e *Equipment) Silenced() bool {
+	// If entity is nil returns false.
+	if e.Entity == nil {
+		return false
+	}
+
+	prop := e.Entity.Property("m_bSilencerOn")
+
+	return prop.Value().BoolVal()
 }
 
 // NewEquipment creates a new Equipment and sets the UniqueID.

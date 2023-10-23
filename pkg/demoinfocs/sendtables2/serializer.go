@@ -11,10 +11,21 @@ type fieldIndex struct {
 }
 
 type serializer struct {
-	name         string
-	version      int32
-	fields       []*field
-	fieldIndexes map[string]*fieldIndex
+	name            string
+	version         int32
+	fields          []*field
+	fieldIndexes    map[string]*fieldIndex
+	fieldNameChecks map[string]bool
+}
+
+func newSerializer(name string, version int32) *serializer {
+	return &serializer{
+		name:            name,
+		version:         version,
+		fields:          []*field{},
+		fieldIndexes:    make(map[string]*fieldIndex),
+		fieldNameChecks: make(map[string]bool),
+	}
 }
 
 func (s *serializer) id() string {
@@ -78,12 +89,18 @@ func (s *serializer) addField(f *field) {
 	newFieldIndex := len(s.fields)
 	s.fields = append(s.fields, f)
 
-	if s.fieldIndexes == nil {
-		s.fieldIndexes = make(map[string]*fieldIndex)
-	}
-
 	s.fieldIndexes[f.varName] = &fieldIndex{
 		index: newFieldIndex,
 		field: f,
 	}
+}
+
+func (s *serializer) checkFieldName(name string) bool {
+	ok, exists := s.fieldNameChecks[name]
+	if !exists {
+		ok = s.getFieldPathForName(newFieldPath(), name)
+		s.fieldNameChecks[name] = ok
+	}
+
+	return ok
 }
