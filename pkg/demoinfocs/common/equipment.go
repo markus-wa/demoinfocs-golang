@@ -336,8 +336,13 @@ const weaponPrefix = "weapon_"
 func MapEquipment(eqName string) EquipmentType {
 	eqName = strings.TrimPrefix(eqName, weaponPrefix)
 
-	// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentType
-	wep := eqNameToWeapon[eqName]
+	var wep EquipmentType
+	if strings.Contains(eqName, "knife") || strings.Contains(eqName, "bayonet") {
+		wep = EqKnife
+	} else {
+		// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentType
+		wep = eqNameToWeapon[eqName]
+	}
 
 	return wep
 }
@@ -355,9 +360,10 @@ const (
 // Equipment is a weapon / piece of equipment belonging to a player.
 // This also includes the skin and some additional data.
 type Equipment struct {
-	Type   EquipmentType // The type of weapon which the equipment instantiates.
-	Entity st.Entity     // The game entity instance
-	Owner  *Player       // The player carrying the equipment, not necessarily the buyer.
+	Type         EquipmentType // The type of weapon which the equipment instantiates.
+	Entity       st.Entity     // The game entity instance
+	Owner        *Player       // The player carrying the equipment, not necessarily the buyer.
+	RawEquipment EquipmentType // More information about the equipment eq. the different knives.
 	// E.g. 'models/weapons/w_rif_m4a1_s.mdl'.
 	// Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.) for Source 1 demos.
 	// It's always an empty string with Source 2 demos, you should use Type to know which weapon it is.
