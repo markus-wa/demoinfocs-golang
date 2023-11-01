@@ -76,7 +76,11 @@ func (p *Player) IsAlive() bool {
 
 	if p.demoInfoProvider.IsSource2() {
 		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
-			return pawnEntity.PropertyValueMust("m_lifeState").S2UInt64() == 0
+			if prop, exists := pawnEntity.PropertyValue("m_lifeState"); exists {
+				return prop.S2UInt64() == 0
+			}
+
+			return false
 		}
 		return getBool(p.Entity, "m_bPawnIsAlive")
 	}
@@ -354,7 +358,14 @@ func (p *Player) ControlledBot() *Player {
 // Health returns the player's health points, normally 0-100.
 func (p *Player) Health() int {
 	if p.demoInfoProvider.IsSource2() {
-		return getInt(p.PlayerPawnEntity(), "m_iHealth")
+		if p.PlayerPawnEntity() == nil {
+			return 0
+		}
+		if prop, exists := p.PlayerPawnEntity().PropertyValue("m_iHealth"); exists {
+			return prop.Int()
+		}
+
+		return 0
 	}
 
 	return getInt(p.Entity, "m_iHealth")
