@@ -25,6 +25,7 @@ type Entity struct {
 	onCreateFinished []func()
 	onDestroy        []func()
 	updateHandlers   map[string][]st.PropertyUpdateHandler
+	propCache        map[string]st.Property
 }
 
 func (e *Entity) ServerClass() st.ServerClass {
@@ -126,15 +127,19 @@ func (p property) Bind(variable any, t st.PropertyValueType) {
 }
 
 func (e *Entity) Property(name string) st.Property {
-	ok := e.class.serializer.checkFieldName(name)
-	if !ok {
-		return nil
+	if e.propCache[name] == nil {
+		ok := e.class.serializer.checkFieldName(name)
+		if !ok {
+			return nil
+		}
+
+		e.propCache[name] = property{
+			entity: e,
+			name:   name,
+		}
 	}
 
-	return property{
-		entity: e,
-		name:   name,
-	}
+	return e.propCache[name]
 }
 
 func (e *Entity) BindProperty(prop string, variable any, t st.PropertyValueType) {
@@ -258,6 +263,7 @@ func newEntity(index, serial int32, class *class) *Entity {
 		onCreateFinished: nil,
 		onDestroy:        nil,
 		updateHandlers:   make(map[string][]st.PropertyUpdateHandler),
+		propCache:        map[string]st.Property{},
 	}
 }
 
@@ -406,10 +412,10 @@ func (p *Parser) FilterEntity(fb func(*Entity) bool) []*Entity {
 	return entities
 }
 
-func (e *Entity) readFields(r *reader) {
-	fps := readFieldPaths(r)
+func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
+	readFieldPaths(r, paths)
 
-	for _, fp := range fps {
+	for _, fp := range *paths {
 		decoder := e.class.serializer.getDecoderForFieldPath(fp, 0)
 
 		val := decoder(r)
@@ -456,7 +462,10 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		op  st.EntityOp
 	}
 
-	var tuples []tuple
+	var (
+		tuples []tuple
+		paths  = make([]*fieldPath, 0)
+	)
 
 	for ; updates > 0; updates-- {
 		var (
@@ -487,8 +496,11 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 				e = newEntity(index, serial, class)
 				p.entities[index] = e
 
-				e.readFields(newReader(baseline))
-				e.readFields(r)
+				e.readFields(newReader(baseline), &paths)
+				paths = paths[:0]
+
+				e.readFields(r, &paths)
+				paths = paths[:0]
 
 				// Fire created-handlers so update-handlers can be registered
 				for _, h := range class.createdHandlers {
@@ -512,7 +524,8 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 					op |= st.EntityOpEntered
 				}
 
-				e.readFields(r)
+				e.readFields(r, &paths)
+				paths = paths[:0]
 			}
 		} else {
 			e = p.entities[index]
