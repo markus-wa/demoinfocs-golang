@@ -159,9 +159,12 @@ func (p *parser) bindBomb() {
 		bomb.LastOnGroundPosition = bombEntity.Position()
 
 		if p.isSource2() {
-			isTicking := true
 			ownerProp := bombEntity.PropertyValueMust("m_hOwnerEntity")
 			planter := p.gameState.Participants().FindByPawnHandle(ownerProp.Handle())
+			if planter == nil {
+				return
+			}
+			isTicking := true
 			planter.IsPlanting = false
 
 			siteNumber := bombEntity.PropertyValueMust("m_nBombSite").Int()
