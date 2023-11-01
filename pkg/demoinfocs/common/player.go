@@ -380,7 +380,9 @@ func (p *Player) Armor() int {
 // CS2 values:
 // -1 -> Not available, demo probably not coming from a Valve server
 // 0 -> None?
-// 11 -> Classic Competitive
+// 7 -> Wingman 2v2
+// 11 -> Premier mode
+// 12 -> Classic Competitive
 func (p *Player) RankType() int {
 	if p.demoInfoProvider.IsSource2() {
 		return getInt(p.Entity, "m_iCompetitiveRankType")
