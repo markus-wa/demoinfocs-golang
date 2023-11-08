@@ -28,6 +28,11 @@ func (p *Property) Type() st.PropertyType {
 	return p.Called().Get(0).(st.PropertyType)
 }
 
+// OnUpdateWithId is a mock-implementation of Property.OnUpdateWithId().
+func (p *Property) OnUpdateWithId(handler st.PropertyUpdateHandler, id int64) {
+	p.Called(handler, id)
+}
+
 // OnUpdate is a mock-implementation of Property.OnUpdate().
 func (p *Property) OnUpdate(handler st.PropertyUpdateHandler) int64 {
 	return p.Called(handler).Get(0).(int64)
