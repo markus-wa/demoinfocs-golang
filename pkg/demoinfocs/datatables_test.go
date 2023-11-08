@@ -97,7 +97,7 @@ func testPlayerSpotted(t *testing.T, propName string) {
 	var spottedByUpdateHandler st.PropertyUpdateHandler
 	spottedByProp0.On("OnUpdate", mock.Anything).Run(func(args mock.Arguments) {
 		spottedByUpdateHandler = args.Get(0).(st.PropertyUpdateHandler)
-	})
+	}).Return(int64(0))
 
 	spotted.On("Property", propName).Return(spottedByProp0)
 	configurePlayerEntityMock(1, spotted)
@@ -155,13 +155,13 @@ func configurePlayerEntityMock(id int, entity *stfake.Entity) {
 	var destroyCallback func()
 	entity.On("OnDestroy", mock.Anything).Run(func(args mock.Arguments) {
 		destroyCallback = args.Get(0).(func())
-	})
+	}).Return(int64(0))
 
-	entity.On("OnPositionUpdate", mock.Anything).Return()
+	entity.On("OnPositionUpdate", mock.Anything).Return(int64(0))
 	prop := new(stfake.Property)
-	prop.On("OnUpdate", mock.Anything).Return()
+	prop.On("OnUpdate", mock.Anything).Return(int64(0))
 	entity.On("Property", mock.Anything).Return(prop)
-	entity.On("BindProperty", mock.Anything, mock.Anything, mock.Anything)
+	entity.On("BindProperty", mock.Anything, mock.Anything, mock.Anything).Return(int64(0))
 	entity.On("Destroy").Run(func(mock.Arguments) {
 		destroyCallback()
 	})
