@@ -29,13 +29,13 @@ func (p *Property) Type() st.PropertyType {
 }
 
 // OnUpdate is a mock-implementation of Property.OnUpdate().
-func (p *Property) OnUpdate(handler st.PropertyUpdateHandler) {
-	p.Called(handler)
+func (p *Property) OnUpdate(handler st.PropertyUpdateHandler) int64 {
+	return p.Called(handler).Get(0).(int64)
 }
 
 // Bind is a mock-implementation of Property.Bind().
-func (p *Property) Bind(variable any, valueType st.PropertyValueType) {
-	p.Called(variable, valueType)
+func (p *Property) Bind(variable any, valueType st.PropertyValueType) int64 {
+	return p.Called(variable, valueType).Get(0).(int64)
 }
 
 // ArrayElementType is a mock-implementation of Property.ArrayElementType().

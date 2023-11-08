@@ -61,8 +61,8 @@ func (e *Entity) Property(name string) st.Property {
 }
 
 // BindProperty is a mock-implementation of Entity.BindProperty().
-func (e *Entity) BindProperty(name string, variable any, valueType st.PropertyValueType) {
-	e.Called(name, variable, valueType)
+func (e *Entity) BindProperty(name string, variable any, valueType st.PropertyValueType) int64 {
+	return e.Called(name, variable, valueType).Get(0).(int64)
 }
 
 // PropertyValue is a mock-implementation of Entity.PropertyValue().
@@ -89,6 +89,11 @@ func (e *Entity) Position() r3.Vector {
 	return e.Called().Get(0).(r3.Vector)
 }
 
+// OnPositionUpdateWithId is a mock-implementation of Entity.OnPositionUpdate().
+func (e *Entity) OnPositionUpdateWithId(handler func(pos r3.Vector), id int64) {
+	e.Called(handler, id)
+}
+
 // OnPositionUpdate is a mock-implementation of Entity.OnPositionUpdate().
 func (e *Entity) OnPositionUpdate(handler func(pos r3.Vector)) {
 	e.Called(handler)
@@ -99,9 +104,14 @@ func (e *Entity) BindPosition(pos *r3.Vector) {
 	e.Called(pos)
 }
 
+// OnDestroyWithId is a mock-implementation of Entity.OnDestroy().
+func (e *Entity) OnDestroyWithId(delegate func(), id int64) {
+	e.Called(delegate, id)
+}
+
 // OnDestroy is a mock-implementation of Entity.OnDestroy().
-func (e *Entity) OnDestroy(delegate func()) {
-	e.Called(delegate)
+func (e *Entity) OnDestroy(delegate func()) int64 {
+	return e.Called(delegate).Get(0).(int64)
 }
 
 // Destroy is a mock-implementation of Entity.Destroy().

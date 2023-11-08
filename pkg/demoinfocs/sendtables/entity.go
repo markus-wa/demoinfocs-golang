@@ -1,6 +1,7 @@
 package sendtables
 
 import (
+	"math/rand"
 	"sync"
 
 	"github.com/golang/geo/r3"
@@ -11,7 +12,7 @@ import (
 //go:generate ifacemaker -f entity.go -s entity -i Entity -p sendtables -D -y "Entity is an auto-generated interface for entity, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o entity_interface.go
 //go:generate ifacemaker -f entity.go -s property -i Property -p sendtables -D -y "Property is an auto-generated interface for property, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o property_interface.go
 
-// entity stores a entity in the game (e.g. players etc.) with its properties.
+// entity stores an entity in the game (e.g. players etc.) with its properties.
 type entity struct {
 	serverClass *serverClass
 	id          int
@@ -19,7 +20,7 @@ type entity struct {
 	props       []property
 
 	onCreateFinished   []func()
-	onDestroy          []func()
+	onDestroy          map[int64]func()
 	position           func() r3.Vector
 	positionPropNameXY string
 	positionPropNameZ  string
@@ -74,8 +75,8 @@ func (e *entity) Property(name string) Property {
 // BindProperty combines Property() & Property.Bind() into one.
 // Essentially binds a property's value to a pointer.
 // See the docs of the two individual functions for more info.
-func (e *entity) BindProperty(name string, variable any, valueType PropertyValueType) {
-	e.Property(name).Bind(variable, valueType)
+func (e *entity) BindProperty(name string, variable any, valueType PropertyValueType) int64 {
+	return e.Property(name).Bind(variable, valueType)
 }
 
 // PropertyValue finds a property on the entity by name and returns its value.
@@ -272,7 +273,32 @@ func (e *entity) Position() r3.Vector {
 	return e.position()
 }
 
-// OnPositionUpdate registers a handler for the entity's position update.
+// OnPositionUpdateWithId registers a handler for the entity's position update with the given id.
+// The handler is called with the new position every time a position-relevant property is updated.
+//
+// See also Position()
+func (e *entity) OnPositionUpdateWithId(h func(pos r3.Vector), id int64) {
+	pos := new(r3.Vector)
+	firePosUpdate := func(PropertyValue) {
+		newPos := e.Position()
+		if *pos != newPos {
+			h(newPos)
+			*pos = newPos
+		}
+	}
+
+	if e.isPlayer() {
+		e.Property(e.positionPropNameXY).OnUpdateWithId(firePosUpdate, id)
+		e.Property(e.positionPropNameZ).OnUpdateWithId(firePosUpdate, id)
+	} else {
+		e.Property(propCellX).OnUpdateWithId(firePosUpdate, id)
+		e.Property(propCellY).OnUpdateWithId(firePosUpdate, id)
+		e.Property(propCellZ).OnUpdateWithId(firePosUpdate, id)
+		e.Property(propVecOrigin).OnUpdateWithId(firePosUpdate, id)
+	}
+}
+
+// OnPositionUpdate registers a handler for the entity's position update and returns a randomly-generated handler id.
 // The handler is called with the new position every time a position-relevant property is updated.
 //
 // See also Position()
@@ -302,9 +328,25 @@ func coordFromCell(cell, cellWidth int, offset float64) float64 {
 	return float64(cell*cellWidth-maxCoordInt) + offset
 }
 
-// OnDestroy registers a function to be called on the entity's destruction.
-func (e *entity) OnDestroy(delegate func()) {
-	e.onDestroy = append(e.onDestroy, delegate)
+// OnDestroyWithId registers a function to be called on the entity's destruction with a given id.
+func (e *entity) OnDestroyWithId(delegate func(), id int64) {
+	if e.onDestroy == nil {
+		e.onDestroy = make(map[int64]func())
+	}
+	e.onDestroy[id] = delegate
+
+	return
+}
+
+// OnDestroy registers a function to be called on the entity's destruction and returns a randomly-generated handler id.
+func (e *entity) OnDestroy(delegate func()) (delegateId int64) {
+	if e.onDestroy == nil {
+		e.onDestroy = make(map[int64]func())
+	}
+	delegateId = rand.Int63()
+	e.onDestroy[delegateId] = delegate
+
+	return
 }
 
 // Destroy triggers all via OnDestroy() registered functions.
@@ -323,10 +365,10 @@ func (e *entity) OnCreateFinished(delegate func()) {
 }
 
 // property wraps a flattenedPropEntry and allows registering handlers
-// that can be triggered on a update of the property.
+// that can be triggered on an update of the property.
 type property struct {
 	entry          *flattenedPropEntry
-	updateHandlers []PropertyUpdateHandler
+	updateHandlers map[int64]PropertyUpdateHandler
 	value          PropertyValue
 }
 
@@ -368,12 +410,29 @@ const (
 // PropertyUpdateHandler is the interface for handlers that are interested in property changes.
 type PropertyUpdateHandler func(PropertyValue)
 
-// OnUpdate registers a handler for updates of the property's value.
+// OnUpdate registers a handler for updates of the property's value and returns a randomly-generated handler id.
 //
 // The handler will be called with the current value upon registration.
-func (pe *property) OnUpdate(handler PropertyUpdateHandler) {
+func (pe *property) OnUpdate(handler PropertyUpdateHandler) (handlerId int64) {
 	handler(pe.value)
-	pe.updateHandlers = append(pe.updateHandlers, handler)
+	handlerId = rand.Int63()
+	if pe.updateHandlers == nil {
+		pe.updateHandlers = make(map[int64]PropertyUpdateHandler)
+	}
+	pe.updateHandlers[handlerId] = handler
+
+	return
+}
+
+// OnUpdateWithId registers a handler for updates of the property's value with the given handler id.
+//
+// The handler will be called with the current value upon registration.
+func (pe *property) OnUpdateWithId(handler PropertyUpdateHandler, handlerId int64) {
+	handler(pe.value)
+	if pe.updateHandlers == nil {
+		pe.updateHandlers = make(map[int64]PropertyUpdateHandler)
+	}
+	pe.updateHandlers[handlerId] = handler
 }
 
 // Trigger all the registered PropertyUpdateHandlers on this entry.
@@ -395,7 +454,7 @@ This will bind the property's value to i so every time it's updated i is updated
 
 The valueType indicates which field of the PropertyValue to use for the binding.
 */
-func (pe *property) Bind(variable any, valueType PropertyValueType) {
+func (pe *property) Bind(variable any, valueType PropertyValueType) int64 {
 	var binder PropertyUpdateHandler
 
 	switch valueType {
@@ -434,5 +493,5 @@ func (pe *property) Bind(variable any, valueType PropertyValueType) {
 		}
 	}
 
-	pe.OnUpdate(binder)
+	return pe.OnUpdate(binder)
 }

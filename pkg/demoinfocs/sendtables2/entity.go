@@ -2,6 +2,7 @@ package sendtables2
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 
 	"github.com/golang/geo/r3"
@@ -23,8 +24,8 @@ type Entity struct {
 	fpNoop  map[string]bool
 
 	onCreateFinished []func()
-	onDestroy        []func()
-	updateHandlers   map[string][]st.PropertyUpdateHandler
+	onDestroy        map[int64]func()
+	updateHandlers   map[string]map[int64]st.PropertyUpdateHandler
 	propCache        map[string]st.Property
 }
 
@@ -78,8 +79,21 @@ func (p property) ArrayElementType() st.PropertyType {
 	panic("not implemented")
 }
 
-func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
-	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], handler)
+func (p property) OnUpdate(handler st.PropertyUpdateHandler) (handlerId int64) {
+	if p.entity.updateHandlers[p.name] == nil {
+		p.entity.updateHandlers[p.name] = make(map[int64]st.PropertyUpdateHandler)
+	}
+	handlerId = rand.Int63()
+	p.entity.updateHandlers[p.name][handlerId] = handler
+
+	return
+}
+
+func (p property) OnUpdateWithId(handler st.PropertyUpdateHandler, handlerId int64) {
+	if p.entity.updateHandlers[p.name] == nil {
+		p.entity.updateHandlers[p.name] = make(map[int64]st.PropertyUpdateHandler)
+	}
+	p.entity.updateHandlers[p.name][handlerId] = handler
 }
 
 type bindFactory func(variable any) st.PropertyUpdateHandler
@@ -122,8 +136,8 @@ var bindFactoryByType = map[st.PropertyValueType]bindFactory{
 	},
 }
 
-func (p property) Bind(variable any, t st.PropertyValueType) {
-	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], bindFactoryByType[t](variable))
+func (p property) Bind(variable any, t st.PropertyValueType) int64 {
+	return p.OnUpdate(bindFactoryByType[t](variable))
 }
 
 func (e *Entity) Property(name string) st.Property {
@@ -142,8 +156,8 @@ func (e *Entity) Property(name string) st.Property {
 	return e.propCache[name]
 }
 
-func (e *Entity) BindProperty(prop string, variable any, t st.PropertyValueType) {
-	e.Property(prop).Bind(variable, t)
+func (e *Entity) BindProperty(prop string, variable any, t st.PropertyValueType) int64 {
+	return e.Property(prop).Bind(variable, t)
 }
 
 func (e *Entity) PropertyValue(name string) (st.PropertyValue, bool) {
@@ -218,6 +232,24 @@ func (e *Entity) Position() r3.Vector {
 	}
 }
 
+func (e *Entity) OnPositionUpdateWithId(h func(pos r3.Vector), id int64) {
+	pos := new(r3.Vector)
+	firePosUpdate := func(st.PropertyValue) {
+		newPos := e.Position()
+		if *pos != newPos {
+			h(newPos)
+			*pos = newPos
+		}
+	}
+
+	e.Property(propCellX).OnUpdateWithId(firePosUpdate, id)
+	e.Property(propCellY).OnUpdateWithId(firePosUpdate, id)
+	e.Property(propCellZ).OnUpdateWithId(firePosUpdate, id)
+	e.Property(propVecX).OnUpdateWithId(firePosUpdate, id)
+	e.Property(propVecY).OnUpdateWithId(firePosUpdate, id)
+	e.Property(propVecZ).OnUpdateWithId(firePosUpdate, id)
+}
+
 func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 	pos := new(r3.Vector)
 	firePosUpdate := func(st.PropertyValue) {
@@ -236,8 +268,23 @@ func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 	e.Property(propVecZ).OnUpdate(firePosUpdate)
 }
 
-func (e *Entity) OnDestroy(delegate func()) {
-	e.onDestroy = append(e.onDestroy, delegate)
+func (e *Entity) OnDestroyWithId(delegate func(), id int64) {
+	if e.onDestroy == nil {
+		e.onDestroy = make(map[int64]func())
+	}
+	e.onDestroy[id] = delegate
+
+	return
+}
+
+func (e *Entity) OnDestroy(delegate func()) (delegateId int64) {
+	if e.onDestroy == nil {
+		e.onDestroy = make(map[int64]func())
+	}
+	delegateId = rand.Int63()
+	e.onDestroy[delegateId] = delegate
+
+	return
 }
 
 func (e *Entity) Destroy() {
@@ -262,7 +309,7 @@ func newEntity(index, serial int32, class *class) *Entity {
 		fpNoop:           make(map[string]bool),
 		onCreateFinished: nil,
 		onDestroy:        nil,
-		updateHandlers:   make(map[string][]st.PropertyUpdateHandler),
+		updateHandlers:   make(map[string]map[int64]st.PropertyUpdateHandler),
 		propCache:        map[string]st.Property{},
 	}
 }

@@ -4,7 +4,7 @@ package sendtables
 
 // Property is an auto-generated interface for property, intended to be used when mockability is needed.
 // property wraps a flattenedPropEntry and allows registering handlers
-// that can be triggered on a update of the property.
+// that can be triggered on an update of the property.
 type Property interface {
 	// Name returns the property's name.
 	Name() string
@@ -14,10 +14,14 @@ type Property interface {
 	Type() PropertyType
 	// ArrayElementType returns the data type of array entries, if Property.Type() is PropTypeArray.
 	ArrayElementType() PropertyType
-	// OnUpdate registers a handler for updates of the property's value.
+	// OnUpdate registers a handler for updates of the property's value and returns a randomly-generated handler id.
 	//
 	// The handler will be called with the current value upon registration.
-	OnUpdate(handler PropertyUpdateHandler)
+	OnUpdate(handler PropertyUpdateHandler) (handlerId int64)
+	// OnUpdateWithId registers a handler for updates of the property's value with the given handler id.
+	//
+	// The handler will be called with the current value upon registration.
+	OnUpdateWithId(handler PropertyUpdateHandler, handlerId int64)
 	/*
 	   Bind binds a property's value to a pointer.
 
@@ -30,5 +34,5 @@ type Property interface {
 
 	   The valueType indicates which field of the PropertyValue to use for the binding.
 	*/
-	Bind(variable any, valueType PropertyValueType)
+	Bind(variable any, valueType PropertyValueType) int64
 }

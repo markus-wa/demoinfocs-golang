@@ -8,7 +8,7 @@ import (
 )
 
 // Entity is an auto-generated interface for entity, intended to be used when mockability is needed.
-// entity stores a entity in the game (e.g. players etc.) with its properties.
+// entity stores an entity in the game (e.g. players etc.) with its properties.
 type Entity interface {
 	// ServerClass returns the entity's server-class.
 	ServerClass() ServerClass
@@ -25,7 +25,7 @@ type Entity interface {
 	// BindProperty combines Property() & Property.Bind() into one.
 	// Essentially binds a property's value to a pointer.
 	// See the docs of the two individual functions for more info.
-	BindProperty(name string, variable any, valueType PropertyValueType)
+	BindProperty(name string, variable any, valueType PropertyValueType) int64
 	// PropertyValue finds a property on the entity by name and returns its value.
 	//
 	// Returns false as second value if the property was not found.
@@ -41,13 +41,20 @@ type Entity interface {
 	ApplyUpdate(reader *bit.BitReader)
 	// Position returns the entity's position in world coordinates.
 	Position() r3.Vector
-	// OnPositionUpdate registers a handler for the entity's position update.
+	// OnPositionUpdateWithId registers a handler for the entity's position update with the given id.
+	// The handler is called with the new position every time a position-relevant property is updated.
+	//
+	// See also Position()
+	OnPositionUpdateWithId(h func(pos r3.Vector), id int64)
+	// OnPositionUpdate registers a handler for the entity's position update and returns a randomly-generated handler id.
 	// The handler is called with the new position every time a position-relevant property is updated.
 	//
 	// See also Position()
 	OnPositionUpdate(h func(pos r3.Vector))
-	// OnDestroy registers a function to be called on the entity's destruction.
-	OnDestroy(delegate func())
+	// OnDestroyWithId registers a function to be called on the entity's destruction with a given id.
+	OnDestroyWithId(delegate func(), id int64)
+	// OnDestroy registers a function to be called on the entity's destruction and returns a randomly-generated handler id.
+	OnDestroy(delegate func()) (delegateId int64)
 	// Destroy triggers all via OnDestroy() registered functions.
 	//
 	// Intended for internal use only.

@@ -526,6 +526,7 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 
 func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 	var prevControllerHandle uint64
+	handlerId := int64(pawnEntity.ID())
 
 	pawnEntity.Property("m_hController").OnUpdate(func(controllerHandleVal st.PropertyValue) {
 		controllerHandle := controllerHandleVal.Handle()
@@ -551,13 +552,13 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		}
 
 		// Position
-		pawnEntity.OnPositionUpdate(func(pos r3.Vector) {
+		pawnEntity.OnPositionUpdateWithId(func(pos r3.Vector) {
 			if pl.IsAlive() {
 				pl.LastAlivePosition = pos
 			}
-		})
+		}, handlerId)
 
-		pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
+		pawnEntity.Property("m_flFlashDuration").OnUpdateWithId(func(val st.PropertyValue) {
 			if val.Float() == 0 {
 				pl.FlashTick = 0
 			} else {
@@ -574,17 +575,17 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 				flashbang := p.gameState.flyingFlashbangs[0]
 				flashbang.flashedEntityIDs = append(flashbang.flashedEntityIDs, pl.EntityID)
 			}
-		})
+		}, handlerId)
 
 		p.bindPlayerWeaponsS2(pawnEntity, pl)
 
-		pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
+		pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon").OnUpdateWithId(func(val st.PropertyValue) {
 			pl.IsReloading = false
-		})
+		}, handlerId)
 
-		pawnEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
+		pawnEntity.Property("m_bIsDefusing").OnUpdateWithId(func(val st.PropertyValue) {
 			pl.IsDefusing = val.BoolVal()
-		})
+		}, handlerId)
 
 		spottedByMaskProp := pawnEntity.Property("m_bSpottedByMask.0000")
 		if spottedByMaskProp != nil {
@@ -592,13 +593,13 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 				p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
 			}
 
-			spottedByMaskProp.OnUpdate(spottersChanged)
-			pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
+			spottedByMaskProp.OnUpdateWithId(spottersChanged, handlerId)
+			pawnEntity.Property("m_bSpottedByMask.0001").OnUpdateWithId(spottersChanged, handlerId)
 		}
 
-		pawnEntity.OnDestroy(func() {
+		pawnEntity.OnDestroyWithId(func() {
 			pl.IsConnected = false
-		})
+		}, handlerId)
 	})
 }
 
