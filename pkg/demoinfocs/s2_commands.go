@@ -378,3 +378,9 @@ func (p *parser) handleDemoFileHeader(msg *msgs2.CDemoFileHeader) {
 	p.header.MapName = msg.GetMapName()
 	p.header.NetworkProtocol = int(msg.GetNetworkProtocol())
 }
+
+func (p *parser) updatePlayersPreviousFramePosition() {
+	for _, player := range p.GameState().Participants().Playing() {
+		player.PreviousFramePosition = player.Position()
+	}
+}

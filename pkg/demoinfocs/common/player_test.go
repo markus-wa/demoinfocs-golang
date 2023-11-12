@@ -432,9 +432,10 @@ func createPlayerForVelocityTest() *Player {
 	controllerEntity := entityWithProperties([]fakeProp{
 		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
 	})
-	pawnEntity := entityWithProperties([]fakeProp{
-		{propName: "m_iHealth", value: st.PropertyValue{Any: int32(100), S2: true}},
-	})
+	pawnEntity := new(stfake.Entity)
+	position := r3.Vector{X: 20, Y: 300, Z: 100}
+
+	pawnEntity.On("Position").Return(position)
 
 	pl := &Player{
 		Entity: controllerEntity,
@@ -453,14 +454,15 @@ func createPlayerForVelocityTest() *Player {
 
 func TestPlayer_VelocityS2(t *testing.T) {
 	pl := createPlayerForVelocityTest()
-	pl.LastPositions = []r3.Vector{{X: 10, Y: 200, Z: 50}, {X: 20, Y: 300, Z: 100}}
+	pl.PreviousFramePosition = r3.Vector{X: 10, Y: 200, Z: 50}
 
 	expected := r3.Vector{X: 640, Y: 6400, Z: 3200}
 	assert.Equal(t, expected, pl.Velocity())
 }
 
-func TestPlayer_VelocityS2WithoutPositions(t *testing.T) {
+func TestPlayer_VelocityDidNotChangeS2(t *testing.T) {
 	pl := createPlayerForVelocityTest()
+	pl.PreviousFramePosition = r3.Vector{X: 20, Y: 300, Z: 100}
 
 	expected := r3.Vector{X: 0, Y: 0, Z: 0}
 	assert.Equal(t, expected, pl.Velocity())
