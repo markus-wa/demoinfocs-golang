@@ -213,13 +213,14 @@ type demoInfoProviderMock struct {
 	tickRate             float64
 	ingameTick           int
 	playersByHandle      map[int]*Player
+	entitiesByHandle     map[uint64]st.Entity
 	playerResourceEntity st.Entity
 	equipment            *Equipment
 	isSource2            bool
 }
 
 func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
-	panic("implement me")
+	return p.entitiesByHandle[handle]
 }
 
 func (p demoInfoProviderMock) IsSource2() bool {
