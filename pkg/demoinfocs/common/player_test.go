@@ -428,7 +428,7 @@ func TestPlayer_Velocity(t *testing.T) {
 	assert.Equal(t, expected, pl.Velocity())
 }
 
-func TestPlayer_VelocityS2(t *testing.T) {
+func createPlayerForVelocityTest() *Player {
 	controllerEntity := entityWithProperties([]fakeProp{
 		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
 	})
@@ -446,10 +446,23 @@ func TestPlayer_VelocityS2(t *testing.T) {
 			1: pawnEntity,
 		},
 	}
-	pl.LastPositions = []r3.Vector{{X: 10, Y: 200, Z: 0}, {X: 20, Y: 300, Z: 0}}
 	pl.demoInfoProvider = demoInfoProvider
 
-	expected := r3.Vector{X: 640, Y: 6400, Z: 0}
+	return pl
+}
+
+func TestPlayer_VelocityS2(t *testing.T) {
+	pl := createPlayerForVelocityTest()
+	pl.LastPositions = []r3.Vector{{X: 10, Y: 200, Z: 50}, {X: 20, Y: 300, Z: 100}}
+
+	expected := r3.Vector{X: 640, Y: 6400, Z: 3200}
+	assert.Equal(t, expected, pl.Velocity())
+}
+
+func TestPlayer_VelocityS2WithoutPositions(t *testing.T) {
+	pl := createPlayerForVelocityTest()
+
+	expected := r3.Vector{X: 0, Y: 0, Z: 0}
 	assert.Equal(t, expected, pl.Velocity())
 }
 

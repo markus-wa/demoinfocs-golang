@@ -532,6 +532,7 @@ func (p *Player) Velocity() r3.Vector {
 		return r3.Vector{
 			X: diff.X * t,
 			Y: diff.Y * t,
+			Z: diff.Z * t,
 		}
 	}
 
