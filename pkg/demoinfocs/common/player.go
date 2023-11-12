@@ -32,7 +32,8 @@ type Player struct {
 	IsDefusing        bool
 	IsPlanting        bool
 	IsReloading       bool
-	IsUnknown         bool // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
+	IsUnknown         bool        // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
+	LastPositions     []r3.Vector // CS2 only, used to compute velocity as it's not networked in CS2 demos
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
@@ -521,7 +522,17 @@ func (p *Player) PositionEyes() r3.Vector {
 // Velocity returns the player's velocity.
 func (p *Player) Velocity() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
-		panic("Velocity() is not supported for Source 2 demos")
+		if !p.IsAlive() || len(p.LastPositions) != 2 {
+			return r3.Vector{}
+		}
+
+		t := 64.0
+		diff := p.LastPositions[1].Sub(p.LastPositions[0])
+
+		return r3.Vector{
+			X: diff.X * t,
+			Y: diff.Y * t,
+		}
 	}
 
 	if p.Entity == nil {
@@ -801,8 +812,9 @@ type demoInfoProvider interface {
 // Intended for internal use only.
 func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 	return &Player{
-		Inventory:        make(map[int]*Equipment),
-		demoInfoProvider: demoInfoProvider,
+		Inventory:         make(map[int]*Equipment),
+		demoInfoProvider:  demoInfoProvider,
+		LastAlivePosition: r3.Vector{},
 	}
 }
 

@@ -569,6 +569,12 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		}
 		if pl.IsAlive() {
 			pl.LastAlivePosition = pos
+			pl.LastPositions = append(pl.LastPositions, pos)
+			if len(pl.LastPositions) > 2 {
+				pl.LastPositions = pl.LastPositions[1:]
+			}
+		} else {
+			pl.LastPositions = nil
 		}
 	})
 
