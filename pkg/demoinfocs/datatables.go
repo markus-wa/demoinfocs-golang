@@ -987,6 +987,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 		weaponOwner := p.GameState().Participants().FindByPawnHandle(val.Handle())
 		if weaponOwner == nil {
+			equipment.Owner = nil
 			return
 		}
 
@@ -1010,6 +1011,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		}
 
 		lastMoneyIncreased = false
+		equipment.Owner = nil
 		delete(p.gameState.weapons, entityID)
 	})
 
