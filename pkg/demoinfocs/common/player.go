@@ -15,24 +15,25 @@ import (
 type Player struct {
 	demoInfoProvider demoInfoProvider // provider for demo info such as tick-rate or current tick
 
-	SteamID64         uint64             // 64-bit representation of the user's Steam ID. See https://developer.valvesoftware.com/wiki/SteamID
-	LastAlivePosition r3.Vector          // The location where the player was last alive. Should be equal to Position if the player is still alive.
-	UserID            int                // Mostly used in game-events to address this player
-	Name              string             // Steam / in-game user name
-	Inventory         map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
-	AmmoLeft          [32]int            // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
-	EntityID          int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
-	Entity            st.Entity          // May be nil between player-death and re-spawn
-	FlashDuration     float32            // Blindness duration from the flashbang currently affecting the player (seconds)
-	FlashTick         int                // In-game tick at which the player was last flashed
-	TeamState         *TeamState         // When keeping the reference make sure you notice when the player changes teams
-	Team              Team               // Team identifier for the player (e.g. TeamTerrorists or TeamCounterTerrorists).
-	IsBot             bool               // True if this is a bot-entity. See also IsControllingBot and ControlledBot().
-	IsConnected       bool
-	IsDefusing        bool
-	IsPlanting        bool
-	IsReloading       bool
-	IsUnknown         bool // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
+	SteamID64             uint64             // 64-bit representation of the user's Steam ID. See https://developer.valvesoftware.com/wiki/SteamID
+	LastAlivePosition     r3.Vector          // The location where the player was last alive. Should be equal to Position if the player is still alive.
+	UserID                int                // Mostly used in game-events to address this player
+	Name                  string             // Steam / in-game user name
+	Inventory             map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
+	AmmoLeft              [32]int            // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
+	EntityID              int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
+	Entity                st.Entity          // May be nil between player-death and re-spawn
+	FlashDuration         float32            // Blindness duration from the flashbang currently affecting the player (seconds)
+	FlashTick             int                // In-game tick at which the player was last flashed
+	TeamState             *TeamState         // When keeping the reference make sure you notice when the player changes teams
+	Team                  Team               // Team identifier for the player (e.g. TeamTerrorists or TeamCounterTerrorists).
+	IsBot                 bool               // True if this is a bot-entity. See also IsControllingBot and ControlledBot().
+	IsConnected           bool
+	IsDefusing            bool
+	IsPlanting            bool
+	IsReloading           bool
+	IsUnknown             bool      // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
+	PreviousFramePosition r3.Vector // CS2 only, used to compute velocity as it's not networked in CS2 demos
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
@@ -380,7 +381,9 @@ func (p *Player) Armor() int {
 // CS2 values:
 // -1 -> Not available, demo probably not coming from a Valve server
 // 0 -> None?
-// 11 -> Classic Competitive
+// 7 -> Wingman 2v2
+// 11 -> Premier mode
+// 12 -> Classic Competitive
 func (p *Player) RankType() int {
 	if p.demoInfoProvider.IsSource2() {
 		return getInt(p.Entity, "m_iCompetitiveRankType")
@@ -519,7 +522,14 @@ func (p *Player) PositionEyes() r3.Vector {
 // Velocity returns the player's velocity.
 func (p *Player) Velocity() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
-		panic("Velocity() is not supported for Source 2 demos")
+		t := 64.0
+		diff := p.Position().Sub(p.PreviousFramePosition)
+
+		return r3.Vector{
+			X: diff.X * t,
+			Y: diff.Y * t,
+			Z: diff.Z * t,
+		}
 	}
 
 	if p.Entity == nil {
@@ -799,8 +809,9 @@ type demoInfoProvider interface {
 // Intended for internal use only.
 func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 	return &Player{
-		Inventory:        make(map[int]*Equipment),
-		demoInfoProvider: demoInfoProvider,
+		Inventory:             make(map[int]*Equipment),
+		demoInfoProvider:      demoInfoProvider,
+		PreviousFramePosition: r3.Vector{},
 	}
 }
 

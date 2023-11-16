@@ -64,6 +64,8 @@ func (qfd *quantizedFloatDecoder) validateFlags() {
 	}
 }
 
+var qFloatMultipliers = []float32{0.9999, 0.99, 0.9, 0.8, 0.7}
+
 // Assign multipliers
 func (qfd *quantizedFloatDecoder) assignMultipliers(steps uint32) {
 	qfd.HighLowMul = 0.0
@@ -85,9 +87,8 @@ func (qfd *quantizedFloatDecoder) assignMultipliers(steps uint32) {
 
 	// Adjust precision
 	if (HighMul*Range > float32(High)) || (float64(HighMul*Range) > float64(High)) {
-		multipliers := []float32{0.9999, 0.99, 0.9, 0.8, 0.7}
 
-		for _, mult := range multipliers {
+		for _, mult := range qFloatMultipliers {
 			HighMul = float32(High) / Range * mult
 
 			if (HighMul*Range > float32(High)) || (float64(HighMul*Range) > float64(High)) {
