@@ -119,7 +119,17 @@ func (geh gameEventHandler) gameState() *gameState {
 }
 
 func (geh gameEventHandler) playerByUserID(userID int) *common.Player {
-	return geh.gameState().playersByUserID[userID]
+	player := geh.gameState().playersByUserID[userID]
+	if player != nil {
+		return player
+	}
+
+	rawInfo := geh.parser.rawPlayers[userID]
+	if rawInfo == nil {
+		return nil
+	}
+
+	return geh.gameState().playersByUserID[rawInfo.UserID]
 }
 
 func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
