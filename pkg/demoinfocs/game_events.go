@@ -120,7 +120,7 @@ func (geh gameEventHandler) gameState() *gameState {
 
 func (geh gameEventHandler) playerByUserID(userID int) *common.Player {
 	player := geh.gameState().playersByUserID[userID]
-	if player != nil {
+	if player != nil || !geh.parser.isSource2() {
 		return player
 	}
 
