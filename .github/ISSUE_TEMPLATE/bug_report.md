@@ -20,7 +20,7 @@ func x() {
 A clear and concise description of what you expected to happen.
 
 **Library version**
-e.g. v1.x.x
+vX.X.X
 
 **Additional context**
 Add any other context about the problem here - like your OS if that could be relevant.
