@@ -688,21 +688,38 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 }
 
 func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
-	var cache [maxWeapons]uint64
-	for i := range cache {
+	cache := make(map[int]uint64)
+
+	for i := 0; i < maxWeapons; i++ {
 		i2 := i // Copy for passing to handler
+
 		updateWeapon := func(val st.PropertyValue) {
 			if val.Any == nil {
+				// Remove previous weapon in this slot from player inventory
+				if prevEntityID, exists := cache[i2]; exists {
+					if prevWeapon, exists := pl.Inventory[int(prevEntityID)]; exists {
+						prevWeapon.Owner = nil
+
+						delete(pl.Inventory, int(prevEntityID))
+					}
+				}
+
 				return
 			}
-			entityID := val.S2UInt64() & constants.EntityHandleIndexMaskSource2
-			if entityID != constants.EntityHandleIndexMaskSource2 {
-				if cache[i2] != 0 {
-					// Player already has a weapon in this slot.
-					delete(pl.Inventory, int(cache[i2]))
-				}
-				cache[i2] = entityID
 
+			entityID := val.S2UInt64() & constants.EntityHandleIndexMaskSource2
+
+			if entityID != constants.EntityHandleIndexMaskSource2 {
+				// Remove previous weapon in this slot from player inventory
+				if prevEntityID, exists := cache[i2]; exists {
+					if prevWeapon, exists := pl.Inventory[int(prevEntityID)]; exists {
+						prevWeapon.Owner = nil
+
+						delete(pl.Inventory, int(prevEntityID))
+					}
+				}
+
+				cache[i2] = entityID
 				wep := p.gameState.weapons[int(entityID)]
 
 				if wep == nil {
@@ -711,23 +728,28 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 					p.gameState.weapons[int(entityID)] = wep
 				}
 
-				// Clear previous owner
+				// Clear previous owner of the new weapon
 				if wep.Owner != nil && wep.Entity != nil {
 					delete(wep.Owner.Inventory, wep.Entity.ID())
 				}
 
-				// Attribute weapon to player
+				// Attribute new weapon to player
 				wep.Owner = pl
 				pl.Inventory[int(entityID)] = wep
 			} else {
-				if cache[i2] != 0 && pl.Inventory[int(cache[i2])] != nil {
-					pl.Inventory[int(cache[i2])].Owner = nil
-				}
-				delete(pl.Inventory, int(cache[i2]))
+				// Handle removal of weapon from this slot
+				if prevEntityID, exists := cache[i2]; exists {
+					if prevWeapon, exists := pl.Inventory[int(prevEntityID)]; exists {
+						prevWeapon.Owner = nil
 
-				cache[i2] = 0
+						delete(pl.Inventory, int(prevEntityID))
+					}
+
+					delete(cache, i2)
+				}
 			}
 		}
+
 		property := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i))
 		updateWeapon(property.Value())
 		property.OnUpdate(updateWeapon)
