@@ -688,44 +688,50 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 }
 
 func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
-	var cache [maxWeapons]uint64
-	for i := range cache {
-		i2 := i // Copy for passing to handler
+	const inventoryCapacity = 64
+	var inventorySize uint64
+
+	getWep := func(wepSlotPropertyValue st.PropertyValue) (uint64, *common.Equipment) {
+		entityID := wepSlotPropertyValue.S2UInt64() & constants.EntityHandleIndexMaskSource2
+		wep := p.gameState.weapons[int(entityID)]
+		if wep == nil {
+			// sometimes a weapon is assigned to a player before the weapon entity is created
+			wep = common.NewEquipment(common.EqUnknown)
+			p.gameState.weapons[int(entityID)] = wep
+		}
+
+		return entityID, wep
+	}
+
+	pawnEntity.Property("m_pWeaponServices.m_hMyWeapons").OnUpdate(func(pv st.PropertyValue) {
+		newInventorySize := pv.S2UInt64()
+		inventorySize = newInventorySize
+
+		inventory := make(map[int]*common.Equipment, inventorySize)
+		for i := uint64(0); i < inventorySize; i++ {
+			val := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i)).Value()
+			if val.Any == nil {
+				continue
+			}
+
+			entityID, wep := getWep(val)
+			inventory[int(entityID)] = wep
+		}
+		pl.Inventory = inventory
+	})
+
+	for i := 0; i < inventoryCapacity; i++ {
+		i := i
 		updateWeapon := func(val st.PropertyValue) {
 			if val.Any == nil {
 				return
 			}
-			entityID := val.S2UInt64() & constants.EntityHandleIndexMaskSource2
-			if entityID != constants.EntityHandleIndexMaskSource2 {
-				if cache[i2] != 0 {
-					// Player already has a weapon in this slot.
-					delete(pl.Inventory, int(cache[i2]))
-				}
-				cache[i2] = entityID
 
-				wep := p.gameState.weapons[int(entityID)]
+			entityID, wep := getWep(val)
+			wep.Owner = pl
 
-				if wep == nil {
-					// sometimes a weapon is assigned to a player before the weapon entity is created
-					wep = common.NewEquipment(common.EqUnknown)
-					p.gameState.weapons[int(entityID)] = wep
-				}
-
-				// Clear previous owner
-				if wep.Owner != nil && wep.Entity != nil {
-					delete(wep.Owner.Inventory, wep.Entity.ID())
-				}
-
-				// Attribute weapon to player
-				wep.Owner = pl
+			if uint64(i) < inventorySize {
 				pl.Inventory[int(entityID)] = wep
-			} else {
-				if cache[i2] != 0 && pl.Inventory[int(cache[i2])] != nil {
-					pl.Inventory[int(cache[i2])].Owner = nil
-				}
-				delete(pl.Inventory, int(cache[i2]))
-
-				cache[i2] = 0
 			}
 		}
 		property := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i))
