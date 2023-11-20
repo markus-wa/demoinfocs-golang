@@ -181,16 +181,16 @@ func (p *Player) Weapons() []*Equipment {
 		playerWeaponPrefixS2 = "m_pWeaponServices.m_hMyWeapons."
 	)
 
-	pawnEnt := p.PlayerPawnEntity()
+	pawnEntity := p.PlayerPawnEntity()
 
-	if pawnEnt == nil {
+	if pawnEntity == nil {
 		return nil
 	}
 
 	res := make([]*Equipment, 0)
 
 	for i := 0; i < inventoryCapacity; i++ {
-		property, ok := pawnEnt.PropertyValue(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i))
+		property, ok := pawnEntity.PropertyValue(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i))
 		if !ok {
 			break
 		}
@@ -199,20 +199,32 @@ func (p *Player) Weapons() []*Equipment {
 			continue
 		}
 
-		weaponHandle := property.S2UInt64()
+		weaponHandle := property.Handle()
 
 		if weaponHandle == constants.InvalidEntityHandleSource2 {
 			continue
 		}
 
-		entityID := int(weaponHandle & constants.EntityHandleIndexMaskSource2)
-		weaponEntity := p.demoInfoProvider.FindWeaponByEntityID(entityID)
+		weaponEntity := p.demoInfoProvider.FindEntityByHandle(weaponHandle)
 
 		if weaponEntity == nil {
 			continue
 		}
 
-		res = append(res, weaponEntity)
+		itemDefIdx, ok := weaponEntity.PropertyValue("m_iItemDefinitionIndex")
+		if !ok {
+			continue
+		}
+
+		wepType, ok := EquipmentIndexMapping[itemDefIdx.S2UInt64()]
+		if !ok {
+			continue
+		}
+
+		eq := NewEquipment(wepType)
+		eq.Entity = weaponEntity
+
+		res = append(res, eq)
 	}
 
 	return res
