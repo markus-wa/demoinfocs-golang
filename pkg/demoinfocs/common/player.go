@@ -19,7 +19,7 @@ type Player struct {
 	LastAlivePosition     r3.Vector          // The location where the player was last alive. Should be equal to Position if the player is still alive.
 	UserID                int                // Mostly used in game-events to address this player
 	Name                  string             // Steam / in-game user name
-	Inventory             map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
+	Inventory             map[int]*Equipment // Deprecated, use Player.Weapons() instead
 	AmmoLeft              [32]int            // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
 	EntityID              int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
 	Entity                st.Entity          // May be nil between player-death and re-spawn
@@ -175,11 +175,44 @@ func (p *Player) ActiveWeapon() *Equipment {
 }
 
 // Weapons returns all weapons in the player's possession.
-// Contains all entries from Player.Inventory but as a slice instead of a map.
 func (p *Player) Weapons() []*Equipment {
-	res := make([]*Equipment, 0, len(p.Inventory))
-	for _, w := range p.Inventory {
-		res = append(res, w)
+	const (
+		inventoryCapacity    = 64
+		playerWeaponPrefixS2 = "m_pWeaponServices.m_hMyWeapons."
+	)
+
+	pawnEnt := p.PlayerPawnEntity()
+
+	if pawnEnt == nil {
+		return nil
+	}
+
+	res := make([]*Equipment, 0)
+
+	for i := 0; i < inventoryCapacity; i++ {
+		property, ok := pawnEnt.PropertyValue(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i))
+		if !ok {
+			break
+		}
+
+		if property.Any == nil {
+			continue
+		}
+
+		weaponHandle := property.S2UInt64()
+
+		if weaponHandle == constants.InvalidEntityHandleSource2 {
+			continue
+		}
+
+		entityID := int(weaponHandle & constants.EntityHandleIndexMaskSource2)
+		weaponEntity := p.demoInfoProvider.FindWeaponByEntityID(entityID)
+
+		if weaponEntity == nil {
+			continue
+		}
+
+		res = append(res, weaponEntity)
 	}
 
 	return res
