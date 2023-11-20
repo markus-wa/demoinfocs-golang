@@ -1,4 +1,4 @@
-# demoinfocs-golang - CS:GO & CS2 Demo Parser
+# demoinfocs-golang - Counter-Strike 2 & CS:GO Demo Parser
 
 A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter-Strike: Global Offensive (CS:GO) demos (aka replays).
 
