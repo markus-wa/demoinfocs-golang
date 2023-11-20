@@ -689,17 +689,20 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 
 func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	const inventoryCapacity = 64
+
 	var inventorySize uint64 = 64
 
 	type eq struct {
 		*common.Equipment
 		entityID int
 	}
+
 	playerInventory := make(map[int]eq)
 
 	getWep := func(wepSlotPropertyValue st.PropertyValue) (uint64, *common.Equipment) {
 		entityID := wepSlotPropertyValue.S2UInt64() & constants.EntityHandleIndexMaskSource2
 		wep := p.gameState.weapons[int(entityID)]
+
 		if wep == nil {
 			// sometimes a weapon is assigned to a player before the weapon entity is created
 			wep = common.NewEquipment(common.EqUnknown)
@@ -711,6 +714,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 
 	setPlayerInventory := func() {
 		inventory := make(map[int]*common.Equipment, inventorySize)
+
 		for i := uint64(0); i < inventorySize; i++ {
 			val := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i)).Value()
 			if val.Any == nil {
@@ -720,6 +724,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 			entityID, wep := getWep(val)
 			inventory[int(entityID)] = wep
 		}
+
 		pl.Inventory = inventory
 	}
 
@@ -759,6 +764,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 				setPlayerInventory()
 			}
 		}
+
 		property := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i))
 		updateWeapon(property.Value())
 		property.OnUpdate(updateWeapon)
