@@ -690,7 +690,12 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	const inventoryCapacity = 64
 	var inventorySize uint64 = 64
-	playerInventory := make(map[int]*common.Equipment)
+
+	type eq struct {
+		*common.Equipment
+		entityID int
+	}
+	playerInventory := make(map[int]eq)
 
 	getWep := func(wepSlotPropertyValue st.PropertyValue) (uint64, *common.Equipment) {
 		entityID := wepSlotPropertyValue.S2UInt64() & constants.EntityHandleIndexMaskSource2
@@ -739,10 +744,14 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 				if entityWasCreated {
 					existingWeapon, exists := playerInventory[i]
 					if exists {
-						delete(pl.Inventory, existingWeapon.Entity.ID())
+						delete(pl.Inventory, existingWeapon.entityID)
 					}
+
 					pl.Inventory[int(entityID)] = wep
-					playerInventory[i] = wep
+					playerInventory[i] = eq{
+						Equipment: wep,
+						entityID:  int(entityID),
+					}
 				} else {
 					delete(pl.Inventory, int(entityID))
 				}
