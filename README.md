@@ -65,11 +65,7 @@ You can download the latest version of Go [here](https://golang.org/).
 ```terminal
 mkdir my-project
 cd my-project
-
-go mod init github.com/<YOUR_GITHUB_USER>/my-project
-# the module name (github.com/<YOUR_GITHUB_USER>/my-project) can always be changed later
-# you can also put example.com/my-project or anything else if you don't plan to publish your project
-
+go mod init my-project
 go get -u github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs
 ```
 
