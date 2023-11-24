@@ -428,6 +428,46 @@ func TestPlayer_Velocity(t *testing.T) {
 	assert.Equal(t, expected, pl.Velocity())
 }
 
+func createPlayerForVelocityTest() *Player {
+	controllerEntity := entityWithProperties([]fakeProp{
+		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
+	})
+	pawnEntity := new(stfake.Entity)
+	position := r3.Vector{X: 20, Y: 300, Z: 100}
+
+	pawnEntity.On("Position").Return(position)
+
+	pl := &Player{
+		Entity: controllerEntity,
+	}
+
+	demoInfoProvider := demoInfoProviderMock{
+		isSource2: true,
+		entitiesByHandle: map[uint64]st.Entity{
+			1: pawnEntity,
+		},
+	}
+	pl.demoInfoProvider = demoInfoProvider
+
+	return pl
+}
+
+func TestPlayer_VelocityS2(t *testing.T) {
+	pl := createPlayerForVelocityTest()
+	pl.PreviousFramePosition = r3.Vector{X: 10, Y: 200, Z: 50}
+
+	expected := r3.Vector{X: 640, Y: 6400, Z: 3200}
+	assert.Equal(t, expected, pl.Velocity())
+}
+
+func TestPlayer_VelocityDidNotChangeS2(t *testing.T) {
+	pl := createPlayerForVelocityTest()
+	pl.PreviousFramePosition = r3.Vector{X: 20, Y: 300, Z: 100}
+
+	expected := r3.Vector{X: 0, Y: 0, Z: 0}
+	assert.Equal(t, expected, pl.Velocity())
+}
+
 func TestPlayer_Velocity_EntityNil(t *testing.T) {
 	pl := new(Player)
 	pl.demoInfoProvider = s1DemoInfoProvider

@@ -159,9 +159,12 @@ func (p *parser) bindBomb() {
 		bomb.LastOnGroundPosition = bombEntity.Position()
 
 		if p.isSource2() {
-			isTicking := true
 			ownerProp := bombEntity.PropertyValueMust("m_hOwnerEntity")
 			planter := p.gameState.Participants().FindByPawnHandle(ownerProp.Handle())
+			if planter == nil {
+				return
+			}
+			isTicking := true
 			planter.IsPlanting = false
 
 			siteNumber := bombEntity.PropertyValueMust("m_nBombSite").Int()
@@ -524,6 +527,15 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 	var prevControllerHandle uint64
 
+	getPlayerFromPawnEntity := func(pawnEntity st.Entity) *common.Player {
+		controllerProp, hasProp := pawnEntity.PropertyValue("m_hController")
+		if !hasProp {
+			return nil
+		}
+
+		return p.gameState.Participants().FindByHandle64(controllerProp.Handle())
+	}
+
 	pawnEntity.Property("m_hController").OnUpdate(func(controllerHandleVal st.PropertyValue) {
 		controllerHandle := controllerHandleVal.Handle()
 		if controllerHandle == constants.InvalidEntityHandleSource2 || controllerHandle == prevControllerHandle {
@@ -537,65 +549,89 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 
 		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
+		p.bindPlayerWeaponsS2(pawnEntity, pl)
+
 		if !pl.IsConnected {
 			pl.IsConnected = true
-
 			if pl.SteamID64 != 0 {
 				p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 			} else {
 				p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
 			}
 		}
+	})
 
-		// Position
-		pawnEntity.OnPositionUpdate(func(pos r3.Vector) {
-			if pl.IsAlive() {
-				pl.LastAlivePosition = pos
-			}
-		})
+	// Position
+	pawnEntity.OnPositionUpdate(func(pos r3.Vector) {
+		pl := getPlayerFromPawnEntity(pawnEntity)
+		if pl == nil {
+			return
+		}
+		if pl.IsAlive() {
+			pl.LastAlivePosition = pos
+		}
+	})
 
-		pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
-			if val.Float() == 0 {
-				pl.FlashTick = 0
-			} else {
-				pl.FlashTick = p.gameState.ingameTick
-			}
-
-			pl.FlashDuration = val.Float()
-
-			if pl.FlashDuration > 0 {
-				if len(p.gameState.flyingFlashbangs) == 0 {
-					return
-				}
-
-				flashbang := p.gameState.flyingFlashbangs[0]
-				flashbang.flashedEntityIDs = append(flashbang.flashedEntityIDs, pl.EntityID)
-			}
-		})
-
-		p.bindPlayerWeaponsS2(pawnEntity, pl)
-
-		pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
-			pl.IsReloading = false
-		})
-
-		pawnEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
-			pl.IsDefusing = val.BoolVal()
-		})
-
-		spottedByMaskProp := pawnEntity.Property("m_bSpottedByMask.0000")
-		if spottedByMaskProp != nil {
-			spottersChanged := func(val st.PropertyValue) {
-				p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
-			}
-
-			spottedByMaskProp.OnUpdate(spottersChanged)
-			pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
+	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
+		pl := getPlayerFromPawnEntity(pawnEntity)
+		if pl == nil {
+			return
+		}
+		if val.Float() == 0 {
+			pl.FlashTick = 0
+		} else {
+			pl.FlashTick = p.gameState.ingameTick
 		}
 
-		pawnEntity.OnDestroy(func() {
-			pl.IsConnected = false
-		})
+		pl.FlashDuration = val.Float()
+
+		if pl.FlashDuration > 0 {
+			if len(p.gameState.flyingFlashbangs) == 0 {
+				return
+			}
+
+			flashbang := p.gameState.flyingFlashbangs[0]
+			flashbang.flashedEntityIDs = append(flashbang.flashedEntityIDs, pl.EntityID)
+		}
+	})
+
+	pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
+		pl := getPlayerFromPawnEntity(pawnEntity)
+		if pl == nil {
+			return
+		}
+		pl.IsReloading = false
+	})
+
+	pawnEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
+		pl := getPlayerFromPawnEntity(pawnEntity)
+		if pl == nil {
+			return
+		}
+		pl.IsDefusing = val.BoolVal()
+	})
+
+	spottedByMaskProp := pawnEntity.Property("m_bSpottedByMask.0000")
+	if spottedByMaskProp != nil {
+		spottersChanged := func(val st.PropertyValue) {
+			pl := getPlayerFromPawnEntity(pawnEntity)
+			if pl == nil {
+				return
+			}
+
+			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
+		}
+
+		spottedByMaskProp.OnUpdate(spottersChanged)
+		pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
+	}
+
+	pawnEntity.OnDestroy(func() {
+		pl := getPlayerFromPawnEntity(pawnEntity)
+		if pl == nil {
+			return
+		}
+		pl.IsConnected = false
 	})
 }
 
@@ -652,46 +688,83 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 }
 
 func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
-	var cache [maxWeapons]uint64
-	for i := range cache {
-		i2 := i // Copy for passing to handler
+	const inventoryCapacity = 64
+
+	var inventorySize uint64 = 64
+
+	type eq struct {
+		*common.Equipment
+		entityID int
+	}
+
+	playerInventory := make(map[int]eq)
+
+	getWep := func(wepSlotPropertyValue st.PropertyValue) (uint64, *common.Equipment) {
+		entityID := wepSlotPropertyValue.S2UInt64() & constants.EntityHandleIndexMaskSource2
+		wep := p.gameState.weapons[int(entityID)]
+
+		if wep == nil {
+			// sometimes a weapon is assigned to a player before the weapon entity is created
+			wep = common.NewEquipment(common.EqUnknown)
+			p.gameState.weapons[int(entityID)] = wep
+		}
+
+		return entityID, wep
+	}
+
+	setPlayerInventory := func() {
+		inventory := make(map[int]*common.Equipment, inventorySize)
+
+		for i := uint64(0); i < inventorySize; i++ {
+			val := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i)).Value()
+			if val.Any == nil {
+				continue
+			}
+
+			entityID, wep := getWep(val)
+			inventory[int(entityID)] = wep
+		}
+
+		pl.Inventory = inventory
+	}
+
+	pawnEntity.Property("m_pWeaponServices.m_hMyWeapons").OnUpdate(func(pv st.PropertyValue) {
+		inventorySize = pv.S2UInt64()
+		setPlayerInventory()
+	})
+
+	for i := 0; i < inventoryCapacity; i++ {
+		i := i
 		updateWeapon := func(val st.PropertyValue) {
 			if val.Any == nil {
 				return
 			}
-			entityID := val.S2UInt64() & constants.EntityHandleIndexMaskSource2
-			if entityID != constants.EntityHandleIndexMaskSource2 {
-				if cache[i2] != 0 {
-					// Player already has a weapon in this slot.
-					delete(pl.Inventory, int(cache[i2]))
+
+			entityID, wep := getWep(val)
+			wep.Owner = pl
+
+			entityWasCreated := entityID != constants.EntityHandleIndexMaskSource2
+
+			if uint64(i) < inventorySize {
+				if entityWasCreated {
+					existingWeapon, exists := playerInventory[i]
+					if exists {
+						delete(pl.Inventory, existingWeapon.entityID)
+					}
+
+					pl.Inventory[int(entityID)] = wep
+					playerInventory[i] = eq{
+						Equipment: wep,
+						entityID:  int(entityID),
+					}
+				} else {
+					delete(pl.Inventory, int(entityID))
 				}
-				cache[i2] = entityID
 
-				wep := p.gameState.weapons[int(entityID)]
-
-				if wep == nil {
-					// sometimes a weapon is assigned to a player before the weapon entity is created
-					wep = common.NewEquipment(common.EqUnknown)
-					p.gameState.weapons[int(entityID)] = wep
-				}
-
-				// Clear previous owner
-				if wep.Owner != nil && wep.Entity != nil {
-					delete(wep.Owner.Inventory, wep.Entity.ID())
-				}
-
-				// Attribute weapon to player
-				wep.Owner = pl
-				pl.Inventory[int(entityID)] = wep
-			} else {
-				if cache[i2] != 0 && pl.Inventory[int(cache[i2])] != nil {
-					pl.Inventory[int(cache[i2])].Owner = nil
-				}
-				delete(pl.Inventory, int(cache[i2]))
-
-				cache[i2] = 0
+				setPlayerInventory()
 			}
 		}
+
 		property := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i))
 		updateWeapon(property.Value())
 		property.OnUpdate(updateWeapon)
@@ -860,6 +933,12 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 	entity.OnPositionUpdate(func(newPos r3.Vector) {
 		proj.Trajectory = append(proj.Trajectory, newPos)
+
+		proj.Trajectory2 = append(proj.Trajectory2, common.TrajectoryEntry{
+			Position: newPos,
+			FrameID:  p.CurrentFrame(),
+			Time:     p.CurrentTime(),
+		})
 	})
 
 	// Some demos don't have this property as it seems
@@ -945,6 +1024,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 		weaponOwner := p.GameState().Participants().FindByPawnHandle(val.Handle())
 		if weaponOwner == nil {
+			equipment.Owner = nil
 			return
 		}
 
@@ -968,6 +1048,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		}
 
 		lastMoneyIncreased = false
+		equipment.Owner = nil
 		delete(p.gameState.weapons, entityID)
 	})
 
