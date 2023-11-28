@@ -148,6 +148,22 @@ type PlayerJump struct {
 	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 }
 
+type Sound byte
+
+const (
+	Unknown Sound = 0
+	Step    Sound = 1
+	Jump    Sound = 2
+	Scope   Sound = 3
+)
+
+type PlayerSound struct {
+	Player   *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Duration float32
+	Radius   int32
+	Sound    Sound
+}
+
 // Kill signals that a player has been killed.
 type Kill struct {
 	Weapon            *common.Equipment
