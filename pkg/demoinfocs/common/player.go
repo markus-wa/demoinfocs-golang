@@ -347,8 +347,15 @@ func (p *Player) ControlledBot() *Player {
 		return nil
 	}
 
-	botHandle := p.Entity.Property("m_iControlledBotEntIndex").Value().IntVal
+	if p.demoInfoProvider.IsSource2() {
+		playerPawn, exists := p.Entity.PropertyValue("m_hOriginalControllerOfCurrentPawn")
+		if !exists {
+			return nil
+		}
+		return p.demoInfoProvider.FindPlayerByHandle(p.demoInfoProvider.FindEntityByHandle(playerPawn.Handle()).ID())
+	}
 
+	botHandle := p.Entity.Property("m_iControlledBotEntIndex").Value().IntVal
 	return p.demoInfoProvider.FindPlayerByHandle(botHandle)
 }
 
