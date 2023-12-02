@@ -220,6 +220,15 @@ func (ts *TeamState) MoneySpentTotal() (value int) {
 	return
 }
 
+// CurrentMoney returns the current total amount of cash.
+func (ts *TeamState) CurrentMoney() (value int) {
+	for _, pl := range ts.Members() {
+		value += pl.Money()
+	}
+
+	return
+}
+
 // NewTeamState creates a new TeamState with the given Team and members callback function.
 func NewTeamState(team Team, membersCallback func(Team) []*Player, demoInfoProvider demoInfoProvider) TeamState {
 	return TeamState{
