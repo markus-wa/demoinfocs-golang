@@ -44,6 +44,11 @@ func (ptcp *Participants) Playing() []*common.Player {
 	return ptcp.Called().Get(0).([]*common.Player)
 }
 
+// Playing is a mock-implementation of Participants.Playing().
+func (ptcp *Participants) Alive() []*common.Player {
+	return ptcp.Called().Get(0).([]*common.Player)
+}
+
 // TeamMembers is a mock-implementation of Participants.TeamMembers().
 func (ptcp *Participants) TeamMembers(team common.Team) []*common.Player {
 	return ptcp.Called().Get(0).([]*common.Player)
