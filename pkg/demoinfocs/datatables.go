@@ -826,6 +826,7 @@ func (p *parser) bindWeapons() {
 	}
 
 	p.stParser.ServerClasses().FindByName("CInferno").OnEntityCreated(p.bindNewInferno)
+	p.stParser.ServerClasses().FindByName("CSmokeGrenadeProjectile").OnEntityCreated(p.bindNewSmoke)
 }
 
 // bindGrenadeProjectiles keeps track of the location of live grenades (parser.gameState.grenadeProjectiles), actively thrown by players.
@@ -1165,6 +1166,33 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 	delete(p.gameState.infernos, inf.Entity.ID())
 
 	p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
+}
+
+func (p *parser) bindNewSmoke(entity st.Entity) {
+	throwerHandle := entity.PropertyValueMust("m_hOwnerEntity").Handle()
+	var thrower *common.Player
+	if p.isSource2() {
+		thrower = p.gameState.Participants().FindByPawnHandle(throwerHandle)
+	} else {
+		thrower = p.gameState.Participants().FindByHandle64(throwerHandle)
+	}
+	smk := common.NewSmoke(p.demoInfoProvider, entity, thrower)
+	p.gameState.smokes[entity.ID()] = smk
+
+	entity.OnDestroy(func() {
+		p.smokeExpired(smk)
+	})
+}
+
+// Separate function because we also use it in round_officially_ended (issue #42)
+func (p *parser) smokeExpired(inf *common.Smoke) {
+	// If the smoke entity is destroyed AFTER round_officially_ended
+	// we already executed this code when we received that event.
+	if _, exists := p.gameState.smokes[inf.Entity.ID()]; !exists {
+		return
+	}
+
+	delete(p.gameState.smokes, inf.Entity.ID())
 }
 
 //nolint:funlen

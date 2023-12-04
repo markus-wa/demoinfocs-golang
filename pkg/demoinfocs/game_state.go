@@ -64,6 +64,7 @@ type gameState struct {
 	// player-flashed events at the end of the frame if there are any.
 	// This slice acts like a FIFO queue, the first projectile inserted is the first one to be removed when it exploded.
 	flyingFlashbangs []*FlyingFlashbang
+	smokes           map[int]*common.Smoke // Maps entity-IDs to active smokes.
 }
 
 type FlyingFlashbang struct {
@@ -161,6 +162,11 @@ func (gs gameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 
 // Infernos returns a map from entity-IDs to all currently burning infernos (fires from incendiaries and Molotovs).
 func (gs gameState) Infernos() map[int]*common.Inferno {
+	return gs.infernos
+}
+
+// Smokes returns a map from entity-IDs to all smokes.
+func (gs gameState) Smokes() map[int]*common.Inferno {
 	return gs.infernos
 }
 
