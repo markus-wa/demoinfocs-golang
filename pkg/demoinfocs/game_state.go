@@ -417,11 +417,24 @@ func (ptcp participants) Playing() []*common.Player {
 	return res
 }
 
+// Alive returns all players that are currently alive.
+// The returned slice is a snapshot and is not updated on changes.
+func (ptcp participants) Alive() []*common.Player {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, p := range ptcp.playersByUserID {
+		if p.ActiveWeapon() != nil {
+			res = append(res, p)
+		}
+	}
+
+	return res
+}
+
 // TeamMembers returns all players belonging to the requested team at this time.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
-	res, original := ptcp.initializeSliceFromByUserID()
-	for _, p := range original {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, p := range ptcp.playersByUserID {
 		if p.Team == team {
 			res = append(res, p)
 		}
