@@ -15,6 +15,10 @@ func getUInt64(entity st.Entity, propName string) uint64 {
 		return 0
 	}
 
+	if entity.Property(propName) == nil {
+		return 0
+	}
+
 	return entity.PropertyValueMust(propName).S2UInt64()
 }
 
