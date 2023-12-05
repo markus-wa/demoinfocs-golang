@@ -159,6 +159,10 @@ This isn't very conclusive but it looks like IsFlashed isn't super reliable curr
 func (p *Player) activeWeaponID() int {
 	if p.demoInfoProvider.IsSource2() {
 		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			if pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon") == nil {
+				return 0
+			}
+
 			return int(pawnEntity.PropertyValueMust("m_pWeaponServices.m_hActiveWeapon").S2UInt64() & constants.EntityHandleIndexMaskSource2)
 		}
 
@@ -171,6 +175,9 @@ func (p *Player) activeWeaponID() int {
 // ActiveWeapon returns the currently active / equipped weapon of the player.
 // ! Can be nil
 func (p *Player) ActiveWeapon() *Equipment {
+	if p.activeWeaponID() == 0 {
+		return nil
+	}
 	return p.demoInfoProvider.FindWeaponByEntityID(p.activeWeaponID())
 }
 
