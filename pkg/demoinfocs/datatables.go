@@ -1182,6 +1182,13 @@ func (p *parser) bindNewSmoke(entity st.Entity) {
 	entity.OnDestroy(func() {
 		p.smokeExpired(smk)
 	})
+
+	entity.Property("m_bDidSmokeEffect").OnUpdate(func(val st.PropertyValue) {
+		smk.IsActive = entity.PropertyValueMust("m_bDidSmokeEffect").BoolVal()
+		if smk.IsActive {
+			smk.ActivationTick = p.demoInfoProvider.IngameTick()
+		}
+	})
 }
 
 // Separate function because we also use it in round_officially_ended (issue #42)

@@ -166,8 +166,8 @@ func (gs gameState) Infernos() map[int]*common.Inferno {
 }
 
 // Smokes returns a map from entity-IDs to all smokes.
-func (gs gameState) Smokes() map[int]*common.Inferno {
-	return gs.infernos
+func (gs gameState) Smokes() map[int]*common.Smoke {
+	return gs.smokes
 }
 
 // Weapons returns a map from entity-IDs to all weapons currently in the game.
@@ -252,6 +252,7 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		playersBySteamID32:       make(map[uint32]*common.Player),
 		grenadeProjectiles:       make(map[int]*common.GrenadeProjectile),
 		infernos:                 make(map[int]*common.Inferno),
+		smokes:                   make(map[int]*common.Smoke),
 		weapons:                  make(map[int]*common.Equipment),
 		hostages:                 make(map[int]*common.Hostage),
 		entities:                 make(map[int]st.Entity),

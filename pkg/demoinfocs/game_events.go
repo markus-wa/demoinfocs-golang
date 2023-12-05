@@ -294,6 +294,10 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 		geh.parser.infernoExpired(inf)
 	}
 
+	for _, smk := range geh.gameState().smokes {
+		geh.parser.smokeExpired(smk)
+	}
+
 	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)
 	geh.gameState().thrownGrenades = make(map[*common.Player][]*common.Equipment)
 	geh.gameState().flyingFlashbangs = make([]*FlyingFlashbang, 0)

@@ -5,7 +5,9 @@ import (
 )
 
 type Smoke struct {
-	Entity st.Entity
+	Entity         st.Entity
+	IsActive       bool
+	ActivationTick int
 
 	demoInfoProvider demoInfoProvider
 	thrower          *Player
@@ -26,9 +28,18 @@ func (smk *Smoke) Thrower() *Player {
 	return smk.demoInfoProvider.FindPlayerByHandle(handleProp.Int())
 }
 
+func (smk *Smoke) ExpirationTick() int {
+	if !smk.IsActive {
+		return -1
+	}
+	return smk.ActivationTick + 1412
+}
+
 func NewSmoke(demoInfoProvider demoInfoProvider, entity st.Entity, thrower *Player) *Smoke {
 	return &Smoke{
 		Entity:           entity,
+		IsActive:         false,
+		ActivationTick:   -1,
 		demoInfoProvider: demoInfoProvider,
 		thrower:          thrower,
 	}
