@@ -380,7 +380,7 @@ func (p *parser) handleDemoFileHeader(msg *msgs2.CDemoFileHeader) {
 }
 
 func (p *parser) updatePlayersPreviousFramePosition() {
-	for _, player := range p.GameState().Participants().Playing() {
+	for _, player := range p.GameState().Participants().Alive() {
 		player.PreviousFramePosition = player.Position()
 	}
 }

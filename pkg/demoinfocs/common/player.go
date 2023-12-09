@@ -539,6 +539,10 @@ func (p *Player) Velocity() r3.Vector {
 		t := 64.0
 		diff := p.Position().Sub(p.PreviousFramePosition)
 
+		if p.ActiveWeapon() == nil {
+			return r3.Vector{}
+		}
+
 		return r3.Vector{
 			X: diff.X * t,
 			Y: diff.Y * t,

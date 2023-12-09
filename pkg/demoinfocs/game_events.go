@@ -395,11 +395,25 @@ func (geh gameEventHandler) playerFootstep(data map[string]*msg.CSVCMsg_GameEven
 	geh.dispatch(events.Footstep{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
+
+	geh.dispatch(events.PlayerSound{
+		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
+		Duration: 0.5,
+		Radius:   1100,
+		Sound:    events.Step,
+	})
 }
 
 func (geh gameEventHandler) playerJump(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.PlayerJump{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
+	})
+
+	geh.dispatch(events.PlayerSound{
+		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
+		Duration: 0.5,
+		Radius:   493,
+		Sound:    events.Jump,
 	})
 }
 
