@@ -389,6 +389,12 @@ func (geh gameEventHandler) beginNewMatch(map[string]*msg.CSVCMsg_GameEventKeyT)
 
 func (geh gameEventHandler) roundFreezeEnd(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.RoundFreezetimeEnd{})
+
+	for _, player := range geh.parser.gameState.playersBySteamID32 {
+		player.Distance.Running = 0
+		player.Distance.Walking = 0
+		player.Distance.Ducking = 0
+	}
 }
 
 func (geh gameEventHandler) playerFootstep(data map[string]*msg.CSVCMsg_GameEventKeyT) {

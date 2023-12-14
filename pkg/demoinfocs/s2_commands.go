@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"sort"
 	"time"
 
@@ -381,6 +382,18 @@ func (p *parser) handleDemoFileHeader(msg *msgs2.CDemoFileHeader) {
 
 func (p *parser) updatePlayersPreviousFramePosition() {
 	for _, player := range p.GameState().Participants().Alive() {
+		diffX := player.LastAlivePosition.X - player.PreviousFramePosition.X
+		diffY := player.LastAlivePosition.Y - player.PreviousFramePosition.Y
+		distance := math.Sqrt(diffX*diffX + diffY*diffY)
+
+		if player.IsDucking() || player.IsDuckingInProgress() || player.IsUnDuckingInProgress() {
+			player.Distance.Ducking += distance
+		} else if player.IsWalking() {
+			player.Distance.Walking += distance
+		} else {
+			player.Distance.Running += distance
+		}
+
 		player.PreviousFramePosition = player.Position()
 	}
 }
