@@ -852,7 +852,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			if exists {
 				wep = weaponType
 			} else {
-				fmt.Printf("unknown grenade model %d", model)
+				// fmt.Printf("unknown grenade model %d", model)
 			}
 		}
 
@@ -1222,6 +1222,12 @@ func (p *parser) bindGameRules() {
 
 		dispatchRoundStart := func() {
 			p.gameEventHandler.clearGrenadeProjectiles()
+
+			for _, player := range p.gameState.playersByEntityID {
+				player.IsPlanting = false
+				player.IsDefusing = false
+				player.IsReloading = false
+			}
 
 			if p.disableMimicSource1GameEvents {
 				return
