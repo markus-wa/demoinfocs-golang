@@ -78,15 +78,20 @@ func (p *Player) SteamID32() uint32 {
 
 // IsAlive returns true if the player is alive.
 func (p *Player) IsAlive() bool {
-	if p.Health() > 0 {
-		return true
-	}
-
 	if p.demoInfoProvider.IsSource2() {
+
 		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
-			return pawnEntity.PropertyValueMust("m_lifeState").S2UInt64() == 0
+			if pawnEntity.Property("m_lifeState") != nil {
+				return pawnEntity.PropertyValueMust("m_lifeState").S2UInt64() == 0
+			} else if pawnEntity.Property("m_iHealth") != nil && p.Health() > 0 {
+				return true
+			}
 		}
 		return getBool(p.Entity, "m_bPawnIsAlive")
+	}
+
+	if p.Health() > 0 {
+		return true
 	}
 
 	return getInt(p.Entity, "m_lifeState") == 0

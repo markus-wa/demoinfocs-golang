@@ -423,7 +423,7 @@ func (ptcp participants) Playing() []*common.Player {
 func (ptcp participants) Alive() []*common.Player {
 	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
 	for _, p := range ptcp.playersByUserID {
-		if p.ActiveWeapon() != nil {
+		if p.IsAlive() {
 			res = append(res, p)
 		}
 	}
