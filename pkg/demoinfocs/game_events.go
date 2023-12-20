@@ -376,7 +376,7 @@ func (geh gameEventHandler) botTakeover(data map[string]*msg.CSVCMsg_GameEventKe
 
 	unassert.True(!taker.IsBot)
 	unassert.True(taker.IsControllingBot())
-	unassert.NotNil(taker.ControlledBot())
+	unassert.NotNil(taker.ControlledPawn())
 
 	geh.dispatch(events.BotTakenOver{
 		Taker: taker,

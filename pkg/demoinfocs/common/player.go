@@ -359,23 +359,41 @@ func (p *Player) IsControllingBot() bool {
 	return getBool(p.Entity, "m_bIsControllingBot")
 }
 
-// ControlledBot returns the player instance of the bot that the player is controlling, if any.
-// Returns nil if the player is not controlling a bot.
-func (p *Player) ControlledBot() *Player {
+// ControlledPawn returns the player instance of the pawn that the player is controlling, if any.
+func (p *Player) ControlledPawn() *Player {
 	if p.Entity == nil {
 		return nil
 	}
 
 	if p.demoInfoProvider.IsSource2() {
 		playerPawn, exists := p.Entity.PropertyValue("m_hOriginalControllerOfCurrentPawn")
-		if !exists {
-			return nil
+		if !exists || !p.IsControllingBot() {
+			return p
 		}
+
 		return p.demoInfoProvider.FindPlayerByHandle(p.demoInfoProvider.FindEntityByHandle(playerPawn.Handle()).ID())
 	}
 
 	botHandle := p.Entity.Property("m_iControlledBotEntIndex").Value().IntVal
 	return p.demoInfoProvider.FindPlayerByHandle(botHandle)
+}
+
+// Controller returns the player instance of the controller that the is controlling player, if any.
+func (p *Player) Controller() *Player {
+	if p.Entity == nil {
+		return nil
+	}
+
+	if p.demoInfoProvider.IsSource2() {
+		playerPawn, exists := p.Entity.PropertyValue("m_hOriginalControllerOfCurrentPawn")
+		if !exists || !p.IsBot {
+			return p
+		}
+
+		return p.demoInfoProvider.FindPlayerByHandle(p.demoInfoProvider.FindEntityByHandle(playerPawn.Handle()).ID())
+	}
+
+	return nil
 }
 
 // Health returns the player's health points, normally 0-100.
