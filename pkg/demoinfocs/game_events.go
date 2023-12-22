@@ -266,7 +266,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"vote_cast":                      nil,                              // Dunno, only present in POV demos
 		"weapon_fire":                    delayIfNoPlayers(geh.weaponFire), // Weapon was fired
 		"weapon_fire_on_empty":           nil,                              // Sounds boring
-		"weapon_reload":                  geh.weaponReload,                 // Weapon reloaded
+		"weapon_reload":                  nil,                              // Weapon reloaded
 		"weapon_zoom":                    nil,                              // Zooming in
 		"weapon_zoom_rifle":              nil,                              // Dunno, only in locally recorded (POV) demo
 		"entity_killed":                  nil,
@@ -456,28 +456,29 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKey
 	})
 }
 
-func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	pl := geh.playerByUserID32(data["userid"].GetValShort())
-	if pl == nil {
-		// see #162, "unknown" players since November 2019 update
-		return
-	}
+// func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+// 	pl := geh.playerByUserID32(data["userid"].GetValShort())
+// 	if pl == nil {
+// 		// see #162, "unknown" players since November 2019 update
+// 		return
+// 	}
 
-	pl.IsReloading = true
+// 	pl.IsReloading = true
 
-	geh.dispatch(events.WeaponReload{
-		Player: pl,
-	})
-}
+// 	geh.dispatch(events.WeaponReload{
+// 		Player: pl,
+// 	})
+// }
 
 func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	killer := geh.playerByUserID32(data["attacker"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 	victimUserID := data["userid"].GetValShort()
+	victim := geh.playerByUserID32(data["userid"].GetValShort())
 	wepType = geh.attackerWeaponType(wepType, victimUserID)
 
 	geh.dispatch(events.Kill{
-		Victim:            geh.playerByUserID32(data["userid"].GetValShort()),
+		Victim:            victim,
 		Killer:            killer,
 		Assister:          geh.playerByUserID32(data["assister"].GetValShort()),
 		IsHeadshot:        data["headshot"].GetValBool(),

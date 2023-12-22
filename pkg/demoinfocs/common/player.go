@@ -331,6 +331,14 @@ func (p *Player) IsStanding() bool {
 	return !p.Flags().Ducking() && !p.Flags().DuckingKeyPressed()
 }
 
+// func (p *Player) IsReloading() bool {
+// 	if p == nil || p.ActiveWeapon() == nil || p.ActiveWeapon().Entity.Property("m_bInReload") == nil {
+// 		return false
+// 	}
+
+// 	return p.ActiveWeapon().Entity.Property("m_bInReload").Value().BoolVal()
+// }
+
 // HasDefuseKit returns true if the player currently has a defuse kit in his inventory.
 func (p *Player) HasDefuseKit() bool {
 	if p.demoInfoProvider.IsSource2() {

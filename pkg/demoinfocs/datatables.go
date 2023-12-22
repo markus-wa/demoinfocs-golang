@@ -459,12 +459,6 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 		playerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
 	}
 
-	activeWep := playerEntity.Property("m_hActiveWeapon")
-
-	activeWep.OnUpdate(func(val st.PropertyValue) {
-		pl.IsReloading = false
-	})
-
 	playerEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
 		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.IntVal == 0 {
 			p.eventDispatcher.Dispatch(events.BombDefuseAborted{Player: pl})
@@ -600,7 +594,14 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		if pl == nil {
 			return
 		}
-		pl.IsReloading = false
+
+		if pl.IsReloading {
+			p.eventDispatcher.Dispatch(events.WeaponReloadEnd{
+				Player: pl,
+			})
+
+			pl.IsReloading = false
+		}
 	})
 
 	pawnEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
@@ -851,8 +852,6 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			weaponType, exists := p.equipmentTypePerModel[model]
 			if exists {
 				wep = weaponType
-			} else {
-				// fmt.Printf("unknown grenade model %d", model)
 			}
 		}
 
@@ -1070,9 +1069,21 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		})
 	}
 
-	entity.Property("m_iClip1").OnUpdate(func(val st.PropertyValue) {
+	entity.Property("m_bInReload").OnUpdate(func(val st.PropertyValue) {
 		if equipment.Owner != nil {
-			equipment.Owner.IsReloading = false
+			if val.BoolVal() {
+				p.eventDispatcher.Dispatch(events.WeaponReloadBegin{
+					Player: equipment.Owner,
+				})
+
+				equipment.Owner.IsReloading = true
+			} else if !val.BoolVal() && equipment.Owner.IsReloading {
+				p.eventDispatcher.Dispatch(events.WeaponReloadEnd{
+					Player: equipment.Owner,
+				})
+
+				equipment.Owner.IsReloading = false
+			}
 		}
 	})
 }
@@ -1096,12 +1107,6 @@ func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 
 	entity.OnDestroy(func() {
 		delete(p.gameState.weapons, entityID)
-	})
-
-	entity.Property("m_iClip1").OnUpdate(func(val st.PropertyValue) {
-		if eq.Owner != nil {
-			eq.Owner.IsReloading = false
-		}
 	})
 
 	// Detect alternative weapons (P2k -> USP, M4A4 -> M4A1-S etc.)
@@ -1226,7 +1231,6 @@ func (p *parser) bindGameRules() {
 			for _, player := range p.gameState.playersByEntityID {
 				player.IsPlanting = false
 				player.IsDefusing = false
-				player.IsReloading = false
 			}
 
 			if p.disableMimicSource1GameEvents {

@@ -131,7 +131,7 @@ func TestDemoInfoCs(t *testing.T) {
 	})
 
 	// reload checks
-	p.RegisterEventHandler(func(reload events.WeaponReload) {
+	p.RegisterEventHandler(func(reload events.WeaponReloadBegin) {
 		assertions.True(reload.Player.IsReloading, "Player started reloading but IsReloading is false")
 	})
 
