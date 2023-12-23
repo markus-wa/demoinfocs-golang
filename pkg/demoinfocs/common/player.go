@@ -78,6 +78,10 @@ func (p *Player) SteamID32() uint32 {
 
 // IsAlive returns true if the player is alive.
 func (p *Player) IsAlive() bool {
+	if p.Team < 2 {
+		return false
+	}
+
 	if p.demoInfoProvider.IsSource2() {
 
 		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {

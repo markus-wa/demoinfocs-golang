@@ -1023,6 +1023,20 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 		weaponOwner := p.GameState().Participants().FindByPawnHandle(val.Handle())
+		// prev, ok := entity.PropertyValue("m_hPrevOwner")
+		// var prevOwner *common.Player
+		// if ok {
+		// 	prevOwner = p.GameState().Participants().FindByPawnHandle(prev.Handle())
+		// 	lastDrop := entity.Property("m_flDroppedAtTime").Value().Float()
+		// 	if lastDrop > 0 && weaponOwner != prevOwner {
+		// 		p.eventDispatcher.Dispatch(events.ItemChangeOwner{
+		// 			NewOwner:  weaponOwner,
+		// 			PrevOwner: prevOwner,
+		// 			Weapon:    equipment,
+		// 		})
+		// 	}
+		// }
+
 		if weaponOwner == nil {
 			equipment.Owner = nil
 			return
@@ -1037,6 +1051,24 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 			lastMoneyIncreased = currentMoney > oldOwnerMoney
 			oldOwnerMoney = currentMoney
 		})
+	})
+
+	entity.Property("m_bInReload").OnUpdate(func(val st.PropertyValue) {
+		if equipment.Owner != nil {
+			if val.BoolVal() {
+				p.eventDispatcher.Dispatch(events.WeaponReloadBegin{
+					Player: equipment.Owner,
+				})
+
+				equipment.Owner.IsReloading = true
+			} else if !val.BoolVal() && equipment.Owner.IsReloading {
+				p.eventDispatcher.Dispatch(events.WeaponReloadEnd{
+					Player: equipment.Owner,
+				})
+
+				equipment.Owner.IsReloading = false
+			}
+		}
 	})
 
 	entity.OnDestroy(func() {
@@ -1069,23 +1101,6 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		})
 	}
 
-	entity.Property("m_bInReload").OnUpdate(func(val st.PropertyValue) {
-		if equipment.Owner != nil {
-			if val.BoolVal() {
-				p.eventDispatcher.Dispatch(events.WeaponReloadBegin{
-					Player: equipment.Owner,
-				})
-
-				equipment.Owner.IsReloading = true
-			} else if !val.BoolVal() && equipment.Owner.IsReloading {
-				p.eventDispatcher.Dispatch(events.WeaponReloadEnd{
-					Player: equipment.Owner,
-				})
-
-				equipment.Owner.IsReloading = false
-			}
-		}
-	})
 }
 
 func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
@@ -1231,6 +1246,12 @@ func (p *parser) bindGameRules() {
 			for _, player := range p.gameState.playersByEntityID {
 				player.IsPlanting = false
 				player.IsDefusing = false
+			}
+
+			for key, wep := range p.gameState.weapons {
+				if wep.Entity == nil {
+					delete(p.gameState.weapons, key)
+				}
 			}
 
 			if p.disableMimicSource1GameEvents {

@@ -1,6 +1,7 @@
 package common
 
 import (
+	"math"
 	"math/rand"
 	"strings"
 
@@ -447,6 +448,45 @@ func (e *Equipment) Silenced() bool {
 	prop := e.Entity.Property("m_bSilencerOn")
 
 	return prop.Value().BoolVal()
+}
+
+type Skin struct {
+	ItemId  int32
+	PaintId int32
+	Pattern int32
+	Float   float32
+}
+
+func (e *Equipment) Skin() Skin {
+	skin := Skin{}
+
+	if e.Entity == nil {
+		return skin
+	}
+
+	val, exists := e.Entity.PropertyValue("m_iItemDefinitionIndex")
+	if exists {
+		skin.ItemId = int32(val.S2UInt64())
+	}
+
+	val, exists = e.Entity.PropertyValue("m_Attributes.0000.m_iRawValue32")
+	if !exists {
+		return skin
+	}
+
+	skin.PaintId = int32(math.Round(float64(val.Float())))
+
+	val, exists = e.Entity.PropertyValue("m_Attributes.0001.m_iRawValue32")
+	if exists {
+		skin.Pattern = int32(val.Float())
+	}
+
+	val, exists = e.Entity.PropertyValue("m_Attributes.0002.m_iRawValue32")
+	if exists {
+		skin.Float = val.Float()
+	}
+
+	return skin
 }
 
 // NewEquipment creates a new Equipment and sets the UniqueID.

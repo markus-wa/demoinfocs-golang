@@ -571,6 +571,12 @@ type ItemDrop struct {
 	Weapon *common.Equipment
 }
 
+type ItemChangeOwner struct {
+	NewOwner  *common.Player
+	PrevOwner *common.Player
+	Weapon    *common.Equipment
+}
+
 // DataTablesParsed signals that the datatables were parsed.
 // You can use the Parser.ServerClasses() after this event to register update notification on entities & properties.
 type DataTablesParsed struct{}
