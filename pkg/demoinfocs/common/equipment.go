@@ -450,6 +450,14 @@ func (e *Equipment) Silenced() bool {
 	return prop.Value().BoolVal()
 }
 
+func (e *Equipment) OwnerHandle() uint64 {
+	val, ok := e.Entity.PropertyValue("m_hOwnerEntity")
+	if ok {
+		return val.Handle()
+	}
+	return 0
+}
+
 type Skin struct {
 	ItemId  int32
 	PaintId int32
