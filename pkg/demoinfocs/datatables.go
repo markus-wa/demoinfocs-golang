@@ -1071,6 +1071,19 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		}
 	})
 
+	entity.Property("m_bReloadVisuallyComplete").OnUpdate(func(val st.PropertyValue) {
+		reload := val.BoolVal()
+		if !reload || equipment.Owner == nil || !equipment.Owner.IsReloading {
+			return
+		}
+
+		p.eventDispatcher.Dispatch(events.WeaponReloadEnd{
+			Player: equipment.Owner,
+		})
+
+		equipment.Owner.IsReloading = false
+	})
+
 	entity.OnDestroy(func() {
 		if owner != nil && owner.IsInBuyZone() && p.GameState().IngameTick() == lastMoneyUpdateTick && lastMoneyIncreased {
 			p.eventDispatcher.Dispatch(events.ItemRefund{
