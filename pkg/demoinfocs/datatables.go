@@ -1078,7 +1078,8 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		}
 
 		p.eventDispatcher.Dispatch(events.WeaponReloadEnd{
-			Player: equipment.Owner,
+			Player:  equipment.Owner,
+			Success: true,
 		})
 
 		equipment.Owner.IsReloading = false
