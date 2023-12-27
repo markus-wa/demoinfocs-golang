@@ -308,6 +308,7 @@ type Equipment struct {
 	// Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.) for Source 1 demos.
 	// It's always an empty string with Source 2 demos, you should use Type to know which weapon it is.
 	OriginalString string
+	Skin           *Skin
 
 	uniqueID  int64 // Deprecated, use uniqueID2, see UniqueID() for why
 	uniqueID2 ulid.ULID
@@ -465,7 +466,7 @@ type Skin struct {
 	Float   float32
 }
 
-func (e *Equipment) Skin() *Skin {
+func (e *Equipment) GetSkin() *Skin {
 	if e.Entity == nil {
 		return nil
 	}

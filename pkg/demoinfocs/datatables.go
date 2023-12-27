@@ -1009,6 +1009,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	}
 
 	equipment.Entity = entity
+	equipment.Skin = equipment.GetSkin()
 
 	// Used to detect when a player has been refunded for a weapon
 	// This happens when:
