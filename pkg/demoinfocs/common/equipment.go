@@ -460,10 +460,10 @@ func (e *Equipment) OwnerHandle() uint64 {
 }
 
 type Skin struct {
-	ItemId  int32
-	PaintId int32
-	Pattern int32
-	Float   float32
+	ItemId  int32    `json:"item_id"`
+	PaintId *int32   `json:"paint_id"`
+	Pattern *int32   `json:"patters"`
+	Float   *float32 `json:"float"`
 }
 
 func (e *Equipment) GetSkin() *Skin {
@@ -482,16 +482,19 @@ func (e *Equipment) GetSkin() *Skin {
 	if !exists || val.Any == nil {
 		return skin
 	}
-	skin.PaintId = int32(math.Round(float64(val.Float())))
+	paintId := int32(math.Round(float64(val.Float())))
+	skin.PaintId = &paintId
 
 	val, exists = e.Entity.PropertyValue("m_Attributes.0001.m_iRawValue32")
 	if exists {
-		skin.Pattern = int32(val.Float())
+		patter := int32(val.Float())
+		skin.Pattern = &patter
 	}
 
 	val, exists = e.Entity.PropertyValue("m_Attributes.0002.m_iRawValue32")
 	if exists {
-		skin.Float = val.Float()
+		skinFloat := val.Float()
+		skin.Float = &skinFloat
 	}
 
 	return skin
