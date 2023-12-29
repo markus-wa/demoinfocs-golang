@@ -514,6 +514,12 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
+	controllerEntity.Property("m_hPawn").OnUpdate(func(val st.PropertyValue) {
+		if val.Handle() == constants.InvalidEntityHandleSource2 {
+			pl.IsConnected = false
+		}
+	})
+
 	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
 		pl.Team = common.Team(val.S2UInt64())
 		pl.TeamState = p.gameState.Team(pl.Team)
