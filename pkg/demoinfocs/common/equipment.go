@@ -281,7 +281,18 @@ func MapEquipment(eqName string) EquipmentType {
 		wep = EqKnife
 	} else {
 		// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentType
-		wep = eqNameToWeapon[eqName]
+		if strings.HasPrefix(eqName, "m4a1_silencer") {
+			wep = EqM4A1
+		} else if strings.HasPrefix(eqName, "vesthelm") {
+			wep = EqHelmet
+		} else {
+			for name := range eqNameToWeapon {
+				if strings.HasPrefix(eqName, name) {
+					wep = eqNameToWeapon[name]
+					break
+				}
+			}
+		}
 	}
 
 	return wep
