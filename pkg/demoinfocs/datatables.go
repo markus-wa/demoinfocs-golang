@@ -1055,35 +1055,35 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	})
 
 	entity.Property("m_bInReload").OnUpdate(func(val st.PropertyValue) {
-		if equipment.Owner != nil {
+		if owner != nil {
 			if val.BoolVal() {
 				p.eventDispatcher.Dispatch(events.WeaponReloadBegin{
-					Player: equipment.Owner,
+					Player: owner,
 				})
 
-				equipment.Owner.IsReloading = true
-			} else if !val.BoolVal() && equipment.Owner.IsReloading {
+				owner.IsReloading = true
+			} else if !val.BoolVal() && owner.IsReloading {
 				p.eventDispatcher.Dispatch(events.WeaponReloadEnd{
-					Player: equipment.Owner,
+					Player: owner,
 				})
 
-				equipment.Owner.IsReloading = false
+				owner.IsReloading = false
 			}
 		}
 	})
 
 	entity.Property("m_bReloadVisuallyComplete").OnUpdate(func(val st.PropertyValue) {
 		reload := val.BoolVal()
-		if !reload || equipment.Owner == nil || !equipment.Owner.IsReloading {
+		if !reload || owner == nil || !owner.IsReloading {
 			return
 		}
 
 		p.eventDispatcher.Dispatch(events.WeaponReloadEnd{
-			Player:  equipment.Owner,
+			Player:  owner,
 			Success: true,
 		})
 
-		equipment.Owner.IsReloading = false
+		owner.IsReloading = false
 	})
 
 	entity.OnDestroy(func() {

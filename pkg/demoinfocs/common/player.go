@@ -34,7 +34,7 @@ type Player struct {
 	IsReloading           bool
 	IsUnknown             bool      // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 	PreviousFramePosition r3.Vector // CS2 only, used to compute velocity as it's not networked in CS2 demos
-	Distance              Distance  // Distance since freezetime end
+	Distance              Distance  // Distance since last freezetime end
 }
 
 type Distance struct {
