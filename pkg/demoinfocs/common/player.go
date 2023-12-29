@@ -37,6 +37,15 @@ type Player struct {
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
+	pawn, exists := p.Entity.PropertyValue("m_hPawn")
+	if !exists {
+		return nil
+	}
+
+	if pawn.Handle() == constants.InvalidEntityHandleSource2 {
+		return nil
+	}
+
 	playerPawn, exists := p.Entity.PropertyValue("m_hPlayerPawn")
 	if !exists {
 		return nil

@@ -431,6 +431,7 @@ func TestPlayer_Velocity(t *testing.T) {
 func createPlayerForVelocityTest() *Player {
 	controllerEntity := entityWithProperties([]fakeProp{
 		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
+		{propName: "m_hPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
 	})
 	pawnEntity := new(stfake.Entity)
 	position := r3.Vector{X: 20, Y: 300, Z: 100}
