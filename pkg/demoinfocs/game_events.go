@@ -402,7 +402,7 @@ func (geh gameEventHandler) playerFootstep(data map[string]*msg.CSVCMsg_GameEven
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
 
-	geh.dispatch(events.PlayerSound{
+	geh.dispatch(events.FakePlayerSound{
 		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
 		Duration: 0.5,
 		Radius:   1100,
@@ -415,9 +415,9 @@ func (geh gameEventHandler) playerJump(data map[string]*msg.CSVCMsg_GameEventKey
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
 
-	geh.dispatch(events.PlayerSound{
+	geh.dispatch(events.FakePlayerSound{
 		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
-		Duration: 0.5,
+		Duration: 0.1,
 		Radius:   493,
 		Sound:    events.JUMP,
 	})
@@ -426,6 +426,13 @@ func (geh gameEventHandler) playerJump(data map[string]*msg.CSVCMsg_GameEventKey
 func (geh gameEventHandler) weaponZoom(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.WeaponZoom{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
+	})
+
+	geh.dispatch(events.FakePlayerSound{
+		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
+		Duration: 0.1,
+		Radius:   597,
+		Sound:    events.ZOOM,
 	})
 }
 
@@ -437,7 +444,13 @@ func (geh gameEventHandler) playerSound(data map[string]*msg.CSVCMsg_GameEventKe
 	} else if radius == 493 {
 		sound = events.JUMP
 	} else if radius == 597 {
-		sound = events.SCOPE
+		sound = events.ZOOM
+	} else if radius == 600 {
+		sound = events.SILENCED_SHOT
+	} else if radius == 800 {
+		sound = events.KNIFE_SWING
+	} else if radius == 1000 {
+		sound = events.KNIFE_HIT
 	}
 
 	geh.dispatch(events.PlayerSound{
@@ -446,6 +459,15 @@ func (geh gameEventHandler) playerSound(data map[string]*msg.CSVCMsg_GameEventKe
 		Radius:   radius,
 		Sound:    sound,
 	})
+
+	if sound != events.UNKNOWN {
+		geh.dispatch(events.FakePlayerSound{
+			Player:   geh.playerByUserID32(data["userid"].GetValShort()),
+			Duration: data["duration"].GetValFloat(),
+			Radius:   radius,
+			Sound:    sound,
+		})
+	}
 }
 
 func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -455,11 +477,30 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKey
 
 	shooter := geh.playerByUserID32(data["userid"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
+	wep := getPlayerWeapon(shooter, wepType)
 
 	geh.dispatch(events.WeaponFire{
 		Shooter: shooter,
-		Weapon:  getPlayerWeapon(shooter, wepType),
+		Weapon:  wep,
 	})
+
+	if wep.Silenced() {
+		geh.dispatch(events.FakePlayerSound{
+			Player:   shooter,
+			Duration: 0.5,
+			Radius:   600,
+			Sound:    events.SILENCED_SHOT,
+		})
+	}
+
+	if wep.Type == common.EqKnife {
+		geh.dispatch(events.FakePlayerSound{
+			Player:   shooter,
+			Duration: 0.5,
+			Radius:   800,
+			Sound:    events.KNIFE_SWING,
+		})
+	}
 }
 
 // func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventKeyT) {

@@ -155,13 +155,23 @@ type WeaponZoom struct {
 type Sound byte
 
 const (
-	UNKNOWN Sound = 0
-	STEP    Sound = 1
-	JUMP    Sound = 2
-	SCOPE   Sound = 3
+	UNKNOWN       Sound = 0
+	STEP          Sound = 1
+	JUMP          Sound = 2
+	ZOOM          Sound = 3
+	SILENCED_SHOT Sound = 4
+	KNIFE_SWING   Sound = 5
+	KNIFE_HIT     Sound = 6
 )
 
 type PlayerSound struct {
+	Player   *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Duration float32
+	Radius   int32
+	Sound    Sound
+}
+
+type FakePlayerSound struct {
 	Player   *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Duration float32
 	Radius   int32
