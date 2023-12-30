@@ -414,11 +414,11 @@ func (p *Player) ControlledPawn() *Player {
 			return p
 		}
 
-		return p.demoInfoProvider.FindPlayerByHandle(p.demoInfoProvider.FindEntityByHandle(playerPawn.Handle()).ID())
+		return p.demoInfoProvider.FindPlayerByHandle(playerPawn.S2UInt64())
 	}
 
 	botHandle := p.Entity.Property("m_iControlledBotEntIndex").Value().IntVal
-	return p.demoInfoProvider.FindPlayerByHandle(botHandle)
+	return p.demoInfoProvider.FindPlayerByHandle(uint64(botHandle))
 }
 
 // Controller returns the player instance of the controller that the is controlling player, if any.
@@ -433,7 +433,7 @@ func (p *Player) Controller() *Player {
 			return p
 		}
 
-		return p.demoInfoProvider.FindPlayerByHandle(p.demoInfoProvider.FindEntityByHandle(playerPawn.Handle()).ID())
+		return p.demoInfoProvider.FindPlayerByHandle(playerPawn.S2UInt64())
 	}
 
 	return nil
@@ -887,7 +887,7 @@ func (p *Player) IsGrabbingHostage() bool {
 type demoInfoProvider interface {
 	IngameTick() int   // current in-game tick, used for IsBlinded()
 	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
-	FindPlayerByHandle(handle int) *Player
+	FindPlayerByHandle(handle uint64) *Player
 	FindPlayerByPawnHandle(handle uint64) *Player
 	PlayerResourceEntity() st.Entity
 	FindWeaponByEntityID(id int) *Equipment
