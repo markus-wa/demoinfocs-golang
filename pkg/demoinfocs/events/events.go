@@ -148,13 +148,17 @@ type PlayerJump struct {
 	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 }
 
+type WeaponZoom struct {
+	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+}
+
 type Sound byte
 
 const (
-	Unknown Sound = 0
-	Step    Sound = 1
-	Jump    Sound = 2
-	Scope   Sound = 3
+	UNKNOWN Sound = 0
+	STEP    Sound = 1
+	JUMP    Sound = 2
+	SCOPE   Sound = 3
 )
 
 type PlayerSound struct {

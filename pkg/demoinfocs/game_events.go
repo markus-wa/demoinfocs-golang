@@ -267,7 +267,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"weapon_fire":                    delayIfNoPlayers(geh.weaponFire), // Weapon was fired
 		"weapon_fire_on_empty":           nil,                              // Sounds boring
 		"weapon_reload":                  nil,                              // Weapon reloaded
-		"weapon_zoom":                    nil,                              // Zooming in
+		"weapon_zoom":                    geh.weaponZoom,                   // Zooming in
 		"weapon_zoom_rifle":              nil,                              // Dunno, only in locally recorded (POV) demo
 		"entity_killed":                  nil,
 
@@ -406,7 +406,7 @@ func (geh gameEventHandler) playerFootstep(data map[string]*msg.CSVCMsg_GameEven
 		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
 		Duration: 0.5,
 		Radius:   1100,
-		Sound:    events.Step,
+		Sound:    events.STEP,
 	})
 }
 
@@ -419,19 +419,25 @@ func (geh gameEventHandler) playerJump(data map[string]*msg.CSVCMsg_GameEventKey
 		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
 		Duration: 0.5,
 		Radius:   493,
-		Sound:    events.Jump,
+		Sound:    events.JUMP,
+	})
+}
+
+func (geh gameEventHandler) weaponZoom(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	geh.dispatch(events.WeaponZoom{
+		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
 }
 
 func (geh gameEventHandler) playerSound(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	sound := events.Unknown
+	sound := events.UNKNOWN
 	radius := data["radius"].GetValLong()
 	if data["step"].GetValBool() {
-		sound = events.Step
+		sound = events.STEP
 	} else if radius == 493 {
-		sound = events.Jump
+		sound = events.JUMP
 	} else if radius == 597 {
-		sound = events.Scope
+		sound = events.SCOPE
 	}
 
 	geh.dispatch(events.PlayerSound{
