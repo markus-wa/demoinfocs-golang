@@ -30,15 +30,15 @@ func (smk *Smoke) Thrower() *Player {
 	return smk.demoInfoProvider.FindPlayerByHandle(handleProp.Int())
 }
 
-func (smk *Smoke) Voxel() []uint64 {
-	voxels := make([]uint64, 0)
+func (smk *Smoke) Voxel() []uint8 {
+	voxels := make([]uint8, 0)
 
 	for i := 0; i < 10000; i++ {
 		val := smk.Entity.Property("m_VoxelFrameData." + fmt.Sprintf("%04d", i)).Value()
 		if val.Any == nil {
 			break
 		}
-		voxels = append(voxels, val.S2UInt64())
+		voxels = append(voxels, uint8(val.S2UInt64()))
 	}
 	return voxels
 }
