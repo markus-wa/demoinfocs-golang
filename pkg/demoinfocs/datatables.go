@@ -954,6 +954,20 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			}
 		})
 	}
+
+	if voxelProp := entity.Property("m_VoxelFrameData"); voxelProp != nil {
+		voxelProp.OnUpdate(func(val st.PropertyValue) {
+			smk := p.gameState.smokes[entityID]
+			voxelLen := len(smk.VoxelFrameData)
+			for i := voxelLen; i < 10000; i++ {
+				val := smk.Entity.Property("m_VoxelFrameData." + fmt.Sprintf("%04d", i)).Value()
+				if val.Any == nil {
+					break
+				}
+				smk.VoxelFrameData = append(smk.VoxelFrameData, uint8(val.S2UInt64()))
+			}
+		})
+	}
 }
 
 // Separate function because we also use it in round_officially_ended (issue #42)

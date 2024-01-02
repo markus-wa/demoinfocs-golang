@@ -10,6 +10,7 @@ type Smoke struct {
 	Entity         st.Entity
 	IsActive       bool
 	ActivationTick int
+	VoxelFrameData []uint8
 
 	demoInfoProvider demoInfoProvider
 	thrower          *Player
