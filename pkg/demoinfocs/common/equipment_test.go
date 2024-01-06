@@ -24,6 +24,8 @@ func TestMapEquipment(t *testing.T) {
 	assert.Equal(t, EqKnife, MapEquipment("weapon_knife_butterfly"), "'weapon_knife_butterfly' should be mapped to EqKnife")
 	assert.Equal(t, EqM4A4, MapEquipment("weapon_m4a1"), "'weapon_m4a1' should be mapped to EqM4A4") // This is correct, weapon_m4a1 == M4A4
 	assert.Equal(t, EqM4A1, MapEquipment("weapon_m4a1_silencer"), "'weapon_m4a1_silencer' should be mapped to EqM4A1")
+	assert.Equal(t, EqKevlar, MapEquipment("weapon_vest"), "'weapon_vest' should be mapped to EqKevlar")
+	assert.Equal(t, EqHelmet, MapEquipment("weapon_vesthelm"), "'weapon_vesthelm' should be mapped to EqHelmet")
 	assert.Equal(t, EqUnknown, MapEquipment("asdf"), "'asdf' should be mapped to EqUnknown")
 }
 

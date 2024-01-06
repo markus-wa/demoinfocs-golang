@@ -1030,7 +1030,6 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	// - The player is inside the buy zone
 	// - The player's money has increased AND the weapon entity is destroyed at the same tick (unfortunately the money is updated first)
 	var (
-		owner               *common.Player
 		oldOwnerMoney       int
 		lastMoneyUpdateTick int
 		lastMoneyIncreased  bool
@@ -1086,6 +1085,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	})
 
 	entity.OnDestroy(func() {
+		owner := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
 		if owner != nil && owner.IsInBuyZone() && p.GameState().IngameTick() == lastMoneyUpdateTick && lastMoneyIncreased {
 			p.eventDispatcher.Dispatch(events.ItemRefund{
 				Player: owner,
