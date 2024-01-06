@@ -85,13 +85,17 @@ func (p *Player) IsAlive() bool {
 	if p.demoInfoProvider.IsSource2() {
 
 		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
-			if pawnEntity.Property("m_lifeState") != nil {
-				return pawnEntity.PropertyValueMust("m_lifeState").S2UInt64() == 0
-			} else if pawnEntity.Property("m_iHealth") != nil && p.Health() > 0 {
-				return true
+			lifeStateVal, ok := pawnEntity.PropertyValue("m_lifeState")
+			if ok {
+				lifeState := lifeStateVal.S2UInt64()
+				if lifeState == 0 {
+					return p.Health() > 0
+				}
 			}
+			return p.Health() > 0
 		}
-		return getBool(p.Entity, "m_bPawnIsAlive")
+		return false
+		// return getBool(p.Entity, "m_bPawnIsAlive")
 	}
 
 	if p.Health() > 0 {
@@ -303,8 +307,16 @@ func (p *Player) IsDuckingInProgress() bool {
 		if pawnEntity == nil {
 			return false
 		}
-		duckAmount := pawnEntity.PropertyValueMust("m_pMovementServices.m_flDuckAmount").Float()
-		wantToDuck := pawnEntity.PropertyValueMust("m_pMovementServices.m_bDesiresDuck").BoolVal()
+		duckAmountVal, ok := pawnEntity.PropertyValue("m_pMovementServices.m_flDuckAmount")
+		if !ok {
+			return false
+		}
+		duckAmount := duckAmountVal.Float()
+		wantToDuckVal, ok := pawnEntity.PropertyValue("m_pMovementServices.m_bDesiresDuck")
+		if !ok {
+			return false
+		}
+		wantToDuck := wantToDuckVal.BoolVal()
 
 		return !p.Flags().Ducking() && wantToDuck && duckAmount > 0
 	}
@@ -320,8 +332,16 @@ func (p *Player) IsUnDuckingInProgress() bool {
 		if pawnEntity == nil {
 			return false
 		}
-		duckAmount := pawnEntity.PropertyValueMust("m_pMovementServices.m_flDuckAmount").Float()
-		wantToDuck := pawnEntity.PropertyValueMust("m_pMovementServices.m_bDesiresDuck").BoolVal()
+		duckAmountVal, ok := pawnEntity.PropertyValue("m_pMovementServices.m_flDuckAmount")
+		if !ok {
+			return false
+		}
+		duckAmount := duckAmountVal.Float()
+		wantToDuckVal, ok := pawnEntity.PropertyValue("m_pMovementServices.m_bDesiresDuck")
+		if !ok {
+			return false
+		}
+		wantToDuck := wantToDuckVal.BoolVal()
 
 		return !p.Flags().Ducking() && !wantToDuck && duckAmount > 0
 	}

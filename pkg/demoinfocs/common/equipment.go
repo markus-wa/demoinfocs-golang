@@ -486,13 +486,13 @@ func (e *Equipment) GetSkin() *Skin {
 	skin.PaintId = &paintId
 
 	val, exists = e.Entity.PropertyValue("m_Attributes.0001.m_iRawValue32")
-	if exists {
+	if exists && val.Any != nil {
 		patter := int32(val.Float())
 		skin.Pattern = &patter
 	}
 
 	val, exists = e.Entity.PropertyValue("m_Attributes.0002.m_iRawValue32")
-	if exists {
+	if exists && val.Any != nil {
 		skinFloat := val.Float()
 		skin.Float = &skinFloat
 	}
