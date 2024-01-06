@@ -462,7 +462,7 @@ func (e *Equipment) OwnerHandle() uint64 {
 type Skin struct {
 	ItemId  int32    `json:"item_id"`
 	PaintId *int32   `json:"paint_id"`
-	Pattern *int32   `json:"patters"`
+	Pattern *int32   `json:"pattern"`
 	Float   *float32 `json:"float"`
 }
 

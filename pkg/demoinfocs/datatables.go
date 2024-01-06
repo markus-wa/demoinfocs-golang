@@ -1037,27 +1037,12 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	)
 
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
-		weaponOwner := p.GameState().Participants().FindByPawnHandle(val.Handle())
-		// prev, ok := entity.PropertyValue("m_hPrevOwner")
-		// var prevOwner *common.Player
-		// if ok {
-		// 	prevOwner = p.GameState().Participants().FindByPawnHandle(prev.Handle())
-		// 	lastDrop := entity.Property("m_flDroppedAtTime").Value().Float()
-		// 	if lastDrop > 0 && weaponOwner != prevOwner {
-		// 		p.eventDispatcher.Dispatch(events.ItemChangeOwner{
-		// 			NewOwner:  weaponOwner,
-		// 			PrevOwner: prevOwner,
-		// 			Weapon:    equipment,
-		// 		})
-		// 	}
-		// }
-
-		if weaponOwner == nil {
+		owner := p.GameState().Participants().FindByPawnHandle(val.Handle())
+		if owner == nil {
 			equipment.Owner = nil
 			return
 		}
 
-		owner = weaponOwner
 		oldOwnerMoney = owner.Money()
 
 		owner.Entity.Property("m_pInGameMoneyServices.m_iAccount").OnUpdate(func(val st.PropertyValue) {
