@@ -90,6 +90,8 @@ func (p *Player) IsAlive() bool {
 				lifeState := lifeStateVal.S2UInt64()
 				if lifeState == 0 {
 					return p.Health() > 0
+				} else {
+					return false
 				}
 			}
 			return p.Health() > 0
