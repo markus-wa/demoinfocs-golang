@@ -91,6 +91,12 @@ func (gs *gameState) indexPlayerBySteamID(pl *common.Player) {
 	}
 }
 
+func (gs *gameState) indexPlayerByUserID(pl *common.Player) {
+	if _, ok := gs.playersByUserID[pl.UserID]; !ok {
+		gs.playersByUserID[pl.UserID] = pl
+	}
+}
+
 // IngameTick returns the latest actual tick number of the server during the game.
 //
 // Watch out, I've seen this return wonky negative numbers at the start of demos.
