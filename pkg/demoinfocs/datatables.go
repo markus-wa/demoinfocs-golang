@@ -1053,6 +1053,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	})
 
 	entity.Property("m_bInReload").OnUpdate(func(val st.PropertyValue) {
+		owner := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
 		if owner != nil {
 			if val.BoolVal() {
 				p.eventDispatcher.Dispatch(events.WeaponReloadBegin{
@@ -1071,6 +1072,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	})
 
 	entity.Property("m_bReloadVisuallyComplete").OnUpdate(func(val st.PropertyValue) {
+		owner := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
 		reload := val.BoolVal()
 		if !reload || owner == nil || !owner.IsReloading {
 			return
@@ -1262,11 +1264,11 @@ func (p *parser) bindGameRules() {
 				player.IsDefusing = false
 			}
 
-			for key, wep := range p.gameState.weapons {
-				if wep.Entity == nil {
-					delete(p.gameState.weapons, key)
-				}
-			}
+			// for key, wep := range p.gameState.weapons {
+			// 	if wep.Entity == nil {
+			// 		delete(p.gameState.weapons, key)
+			// 	}
+			// }
 
 			if p.disableMimicSource1GameEvents {
 				return
