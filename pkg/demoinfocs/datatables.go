@@ -476,7 +476,6 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 
 		spottedByMaskProp.OnUpdate(spottersChanged)
 		playerEntity.Property("m_bSpottedByMask.001").OnUpdate(spottersChanged)
-
 	}
 
 	if isNew {
@@ -484,24 +483,6 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 			p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 		} else {
 			p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
-			playerInfo := common.PlayerInfo{
-				XUID:         0,
-				Name:         pl.Name,
-				UserID:       pl.UserID,
-				IsFakePlayer: true,
-				IsHltv:       false,
-				// Fields not available with CS2 demos
-				Version:         0,
-				GUID:            "",
-				FriendsID:       0,
-				FriendsName:     "",
-				CustomFiles0:    0,
-				CustomFiles1:    0,
-				CustomFiles2:    0,
-				CustomFiles3:    0,
-				FilesDownloaded: 0,
-			}
-			p.setRawPlayer(pl.Entity.ID(), playerInfo)
 		}
 	}
 }
@@ -570,25 +551,6 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 				p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 			} else {
 				p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
-				p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
-				playerInfo := common.PlayerInfo{
-					XUID:         0,
-					Name:         pl.Name,
-					UserID:       pl.UserID,
-					IsFakePlayer: true,
-					IsHltv:       false,
-					// Fields not available with CS2 demos
-					Version:         0,
-					GUID:            "",
-					FriendsID:       0,
-					FriendsName:     "",
-					CustomFiles0:    0,
-					CustomFiles1:    0,
-					CustomFiles2:    0,
-					CustomFiles3:    0,
-					FilesDownloaded: 0,
-				}
-				p.setRawPlayer(pl.Entity.ID(), playerInfo)
 			}
 		}
 	})
