@@ -331,7 +331,7 @@ func TestPlayer_ControlledBot(t *testing.T) {
 		IsBot: true,
 	}
 	demoInfoProvider := &demoInfoProviderMock{
-		playersByHandle: map[int]*Player{
+		playersByHandle: map[uint64]*Player{
 			12: dave,
 		},
 	}
@@ -342,6 +342,29 @@ func TestPlayer_ControlledBot(t *testing.T) {
 	assert.Nil(t, pl.ControlledBot())
 
 	pl = playerWithProperty("m_iControlledBotEntIndex", st.PropertyValue{IntVal: 12})
+	pl.demoInfoProvider = demoInfoProvider
+
+	assert.Same(t, dave, pl.ControlledBot())
+}
+
+func TestPlayer_ControlledBotS2(t *testing.T) {
+	dave := &Player{
+		Name:  "Dave",
+		IsBot: true,
+	}
+	demoInfoProvider := &demoInfoProviderMock{
+		playersByHandle: map[uint64]*Player{
+			12: dave,
+		},
+		isSource2: true,
+	}
+
+	pl := playerWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(0)})
+	pl.demoInfoProvider = demoInfoProvider
+
+	assert.Nil(t, pl.ControlledBot())
+
+	pl = playerWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(12)})
 	pl.demoInfoProvider = demoInfoProvider
 
 	assert.Same(t, dave, pl.ControlledBot())

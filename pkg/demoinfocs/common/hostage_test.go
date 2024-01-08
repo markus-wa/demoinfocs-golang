@@ -12,7 +12,7 @@ func TestHostage_Leader(t *testing.T) {
 	player := new(Player)
 	player.EntityID = 10
 	provider := demoInfoProviderMock{
-		playersByHandle: map[int]*Player{10: player},
+		playersByHandle: map[uint64]*Player{10: player},
 	}
 	hostage := hostageWithProperty("m_leader", st.PropertyValue{IntVal: 10}, provider)
 
