@@ -53,6 +53,7 @@ func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
 	pl.Name = raw.Name
 	pl.SteamID64 = raw.XUID
 	pl.IsBot = raw.IsFakePlayer
+	pl.UserID = index
 
 	p.gameState.indexPlayerBySteamID(pl)
 	p.gameState.indexPlayerByUserID(pl)
