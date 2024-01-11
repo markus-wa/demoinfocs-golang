@@ -1213,6 +1213,7 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 func (p *parser) bindNewSmoke(entity st.Entity) {
 	throwerHandle := entity.PropertyValueMust("m_hOwnerEntity").Handle()
 	var thrower *common.Player
+
 	if p.isSource2() {
 		thrower = p.gameState.Participants().FindByPawnHandle(throwerHandle)
 	} else {
