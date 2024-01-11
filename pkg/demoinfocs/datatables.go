@@ -557,6 +557,24 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 				p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 			} else {
 				p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
+				playerInfo := common.PlayerInfo{
+					XUID:         0,
+					Name:         pl.Name,
+					UserID:       pl.EntityID - 1,
+					IsFakePlayer: true,
+					IsHltv:       false,
+					// Fields not available with CS2 demos
+					Version:         0,
+					GUID:            "",
+					FriendsID:       0,
+					FriendsName:     "",
+					CustomFiles0:    0,
+					CustomFiles1:    0,
+					CustomFiles2:    0,
+					CustomFiles3:    0,
+					FilesDownloaded: 0,
+				}
+				p.setRawPlayer(pl.EntityID-1, playerInfo)
 			}
 		}
 	})
