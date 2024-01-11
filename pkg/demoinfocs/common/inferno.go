@@ -57,7 +57,7 @@ func (inf *Inferno) Thrower() *Player {
 		return inf.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
 	}
 
-	return inf.demoInfoProvider.FindPlayerByHandle(handleProp.Int())
+	return inf.demoInfoProvider.FindPlayerByHandle(uint64(handleProp.Int()))
 }
 
 // Fires returns all fires (past + present).

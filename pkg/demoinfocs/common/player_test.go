@@ -331,7 +331,7 @@ func TestPlayer_ControlledBot(t *testing.T) {
 		IsBot: true,
 	}
 	demoInfoProvider := &demoInfoProviderMock{
-		playersByHandle: map[int]*Player{
+		playersByHandle: map[uint64]*Player{
 			12: dave,
 		},
 	}
@@ -342,6 +342,29 @@ func TestPlayer_ControlledBot(t *testing.T) {
 	assert.Nil(t, pl.ControlledPawn())
 
 	pl = playerWithProperty("m_iControlledBotEntIndex", st.PropertyValue{IntVal: 12})
+	pl.demoInfoProvider = demoInfoProvider
+
+	assert.Same(t, dave, pl.ControlledPawn())
+}
+
+func TestPlayer_ControlledBotS2(t *testing.T) {
+	dave := &Player{
+		Name:  "Dave",
+		IsBot: true,
+	}
+	demoInfoProvider := &demoInfoProviderMock{
+		playersByHandle: map[uint64]*Player{
+			12: dave,
+		},
+		isSource2: true,
+	}
+
+	pl := playerWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(0)})
+	pl.demoInfoProvider = demoInfoProvider
+
+	assert.Nil(t, pl.ControlledPawn())
+
+	pl = playerWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(12)})
 	pl.demoInfoProvider = demoInfoProvider
 
 	assert.Same(t, dave, pl.ControlledPawn())
@@ -431,6 +454,7 @@ func TestPlayer_Velocity(t *testing.T) {
 func createPlayerForVelocityTest() *Player {
 	controllerEntity := entityWithProperties([]fakeProp{
 		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
+		{propName: "m_hPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
 	})
 	pawnEntity := new(stfake.Entity)
 	position := r3.Vector{X: 20, Y: 300, Z: 100}

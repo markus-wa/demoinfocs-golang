@@ -212,7 +212,7 @@ type fakeProp struct {
 type demoInfoProviderMock struct {
 	tickRate             float64
 	ingameTick           int
-	playersByHandle      map[int]*Player
+	playersByHandle      map[uint64]*Player
 	entitiesByHandle     map[uint64]st.Entity
 	playerResourceEntity st.Entity
 	equipment            *Equipment
@@ -235,12 +235,12 @@ func (p demoInfoProviderMock) IngameTick() int {
 	return p.ingameTick
 }
 
-func (p demoInfoProviderMock) FindPlayerByHandle(handle int) *Player {
+func (p demoInfoProviderMock) FindPlayerByHandle(handle uint64) *Player {
 	return p.playersByHandle[handle]
 }
 
 func (p demoInfoProviderMock) FindPlayerByPawnHandle(handle uint64) *Player {
-	return p.playersByHandle[int(handle)]
+	return p.playersByHandle[handle]
 }
 
 func (p demoInfoProviderMock) PlayerResourceEntity() st.Entity {

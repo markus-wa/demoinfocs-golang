@@ -28,7 +28,7 @@ func (smk *Smoke) Thrower() *Player {
 		return smk.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
 	}
 
-	return smk.demoInfoProvider.FindPlayerByHandle(handleProp.Int())
+	return smk.demoInfoProvider.FindPlayerByHandle(handleProp.S2UInt64())
 }
 
 func (smk *Smoke) Voxel() []uint8 {
