@@ -118,6 +118,25 @@ const (
 	EqWrench                   EquipmentType = 419
 	EqSnowball                 EquipmentType = 420
 	EqBumpMine                 EquipmentType = 421
+	EqKnifeBayonet             EquipmentType = 422
+	EqKnifeCSS                 EquipmentType = 423
+	EqKnifeFlip                EquipmentType = 424
+	EqKnifeGut                 EquipmentType = 425
+	EqKnifeKarambit            EquipmentType = 426
+	EqKnifeM9Bayonet           EquipmentType = 427
+	EqKnifeTactical            EquipmentType = 428
+	EqKnifeFalchion            EquipmentType = 429
+	EqKnifeSurvivalBowie       EquipmentType = 430
+	EqKnifeButterfly           EquipmentType = 431
+	EqKnifePush                EquipmentType = 432
+	EqKnifeCord                EquipmentType = 433
+	EqKnifeCanis               EquipmentType = 434
+	EqKnifeUrsus               EquipmentType = 435
+	EqKnifeGypsyJackknife      EquipmentType = 436
+	EqKnifeOutdoor             EquipmentType = 437
+	EqKnifeStiletto            EquipmentType = 438
+	EqKnifeWidowmaker          EquipmentType = 439
+	EqKnifeSkeleton            EquipmentType = 440
 
 	// Grenades
 
@@ -204,6 +223,28 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["vesthelm"] = EqHelmet
 	eqNameToWeapon["defuser"] = EqDefuseKit
 
+	eqNameToWeapon["knife"] = EqKnife
+	eqNameToWeapon["bayonet"] = EqKnifeBayonet
+	eqNameToWeapon["knife_bayonet"] = EqKnifeBayonet
+	eqNameToWeapon["knife_css"] = EqKnifeCSS
+	eqNameToWeapon["knife_flip"] = EqKnifeFlip
+	eqNameToWeapon["knife_gut"] = EqKnifeGut
+	eqNameToWeapon["knife_karambit"] = EqKnifeKarambit
+	eqNameToWeapon["knife_m9_bayonet"] = EqKnifeM9Bayonet
+	eqNameToWeapon["knife_tactical"] = EqKnifeTactical
+	eqNameToWeapon["knife_falchion"] = EqKnifeFalchion
+	eqNameToWeapon["knife_survival_bowie"] = EqKnifeSurvivalBowie
+	eqNameToWeapon["knife_butterfly"] = EqKnifeButterfly
+	eqNameToWeapon["knife_push"] = EqKnifePush
+	eqNameToWeapon["knife_cord"] = EqKnifeCord
+	eqNameToWeapon["knife_canis"] = EqKnifeCanis
+	eqNameToWeapon["knife_ursus"] = EqKnifeUrsus
+	eqNameToWeapon["knife_gypsy_jackknife"] = EqKnifeGypsyJackknife
+	eqNameToWeapon["knife_outdoor"] = EqKnifeOutdoor
+	eqNameToWeapon["knife_stiletto"] = EqKnifeStiletto
+	eqNameToWeapon["knife_widowmaker"] = EqKnifeWidowmaker
+	eqNameToWeapon["knife_skeleton"] = EqKnifeSkeleton
+
 	// These don't exist and / or used to crash the game with the give command
 	eqNameToWeapon["scar17"] = EqUnknown
 	eqNameToWeapon["sensorgrenade"] = EqUnknown
@@ -267,6 +308,25 @@ func initEqElementToName() {
 	eqElementToName[EqDefuseKit] = "Defuse Kit"
 	eqElementToName[EqKnife] = "Knife"
 	eqElementToName[EqUnknown] = "UNKNOWN"
+	eqElementToName[EqKnifeBayonet] = "Bayonet"
+	eqElementToName[EqKnifeCSS] = "CSS Knife"
+	eqElementToName[EqKnifeFlip] = "Flip Knife"
+	eqElementToName[EqKnifeGut] = "Gut Knife"
+	eqElementToName[EqKnifeKarambit] = "Karambit"
+	eqElementToName[EqKnifeM9Bayonet] = "M9 Bayonet"
+	eqElementToName[EqKnifeTactical] = "Tactical Knife"
+	eqElementToName[EqKnifeFalchion] = "Falchion Knife"
+	eqElementToName[EqKnifeSurvivalBowie] = "Survival Bowie Knife"
+	eqElementToName[EqKnifeButterfly] = "Butterfly Knife"
+	eqElementToName[EqKnifePush] = "Push Knife"
+	eqElementToName[EqKnifeCord] = "Cord Knife"
+	eqElementToName[EqKnifeCanis] = "Canis Knife"
+	eqElementToName[EqKnifeUrsus] = "Ursus Knife"
+	eqElementToName[EqKnifeGypsyJackknife] = "Gypsy Jackknife"
+	eqElementToName[EqKnifeOutdoor] = "Outdoor Knife"
+	eqElementToName[EqKnifeStiletto] = "Stiletto Knife"
+	eqElementToName[EqKnifeWidowmaker] = "Widowmaker Knife"
+	eqElementToName[EqKnifeSkeleton] = "Skeleton Knife"
 }
 
 const weaponPrefix = "weapon_"
@@ -311,9 +371,10 @@ const (
 // Equipment is a weapon / piece of equipment belonging to a player.
 // This also includes the skin and some additional data.
 type Equipment struct {
-	Type   EquipmentType // The type of weapon which the equipment instantiates.
-	Entity st.Entity     // The game entity instance
-	Owner  *Player       // The player carrying the equipment, not necessarily the buyer.
+	Type         EquipmentType // The type of weapon which the equipment instantiates.
+	Entity       st.Entity     // The game entity instance
+	Owner        *Player       // The player carrying the equipment, not necessarily the buyer.
+	RawEquipment EquipmentType // More information about the equipment eq. the different knives.
 	// E.g. 'models/weapons/w_rif_m4a1_s.mdl'.
 	// Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.) for Source 1 demos.
 	// It's always an empty string with Source 2 demos, you should use Type to know which weapon it is.
@@ -554,23 +615,23 @@ var EquipmentIndexMapping = map[uint64]EquipmentType{
 	83:  EqHE,                       // weapon_frag_grenade
 	84:  EqSnowball,                 // weapon_snowball
 	85:  EqBumpMine,                 // weapon_bumpmine
-	500: EqKnife,                    // weapon_bayonet
-	503: EqKnife,                    // weapon_knife_css
-	505: EqKnife,                    // weapon_knife_flip
-	506: EqKnife,                    // weapon_knife_gut
-	507: EqKnife,                    // weapon_knife_karambit
-	508: EqKnife,                    // weapon_knife_m9_bayonet
-	509: EqKnife,                    // weapon_knife_tactical
-	512: EqKnife,                    // weapon_knife_falchion
-	514: EqKnife,                    // weapon_knife_survival_bowie
-	515: EqKnife,                    // weapon_knife_butterfly
-	516: EqKnife,                    // weapon_knife_push
-	517: EqKnife,                    // weapon_knife_cord
-	518: EqKnife,                    // weapon_knife_canis
-	519: EqKnife,                    // weapon_knife_ursus
-	520: EqKnife,                    // weapon_knife_gypsy_jackknife
-	521: EqKnife,                    // weapon_knife_outdoor
-	522: EqKnife,                    // weapon_knife_stiletto
-	523: EqKnife,                    // weapon_knife_widowmaker
-	525: EqKnife,                    // weapon_knife_skeleton
+	500: EqKnifeBayonet,             // weapon_bayonet
+	503: EqKnifeCSS,                 // weapon_knife_css
+	505: EqKnifeFlip,                // weapon_knife_flip
+	506: EqKnifeGut,                 // weapon_knife_gut
+	507: EqKnifeKarambit,            // weapon_knife_karambit
+	508: EqKnifeM9Bayonet,           // weapon_knife_m9_bayonet
+	509: EqKnifeTactical,            // weapon_knife_tactical
+	512: EqKnifeFalchion,            // weapon_knife_falchion
+	514: EqKnifeSurvivalBowie,       // weapon_knife_survival_bowie
+	515: EqKnifeButterfly,           // weapon_knife_butterfly
+	516: EqKnifePush,                // weapon_knife_push
+	517: EqKnifeCord,                // weapon_knife_cord
+	518: EqKnifeCanis,               // weapon_knife_canis
+	519: EqKnifeUrsus,               // weapon_knife_ursus
+	520: EqKnifeGypsyJackknife,      // weapon_knife_gypsy_jackknife
+	521: EqKnifeOutdoor,             // weapon_knife_outdoor
+	522: EqKnifeStiletto,            // weapon_knife_stiletto
+	523: EqKnifeWidowmaker,          // weapon_knife_widowmaker
+	525: EqKnifeSkeleton,            // weapon_knife_skeleton
 }

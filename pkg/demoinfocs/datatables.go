@@ -14,6 +14,10 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
+const (
+	knifePrefix = uint64(500)
+)
+
 func (p *parser) mapEquipment() {
 	if p.isSource2() {
 		return
@@ -991,9 +995,17 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 }
 
 func (p *parser) bindWeaponS2(entity st.Entity) {
+	var wepType common.EquipmentType
+
 	entityID := entity.ID()
 	itemIndex := entity.PropertyValueMust("m_iItemDefinitionIndex").S2UInt64()
-	wepType := common.EquipmentIndexMapping[itemIndex]
+	rawWeaponType := common.EquipmentIndexMapping[itemIndex]
+
+	if itemIndex >= knifePrefix {
+		wepType = common.EqKnife
+	} else {
+		wepType = common.EquipmentIndexMapping[itemIndex]
+	}
 
 	if wepType == common.EqUnknown {
 		fmt.Println("unknown equipment with index", itemIndex)
@@ -1009,9 +1021,11 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	equipment, exists := p.gameState.weapons[entityID]
 	if !exists {
 		equipment = common.NewEquipment(wepType)
+		equipment.RawEquipment = rawWeaponType
 		p.gameState.weapons[entityID] = equipment
 	} else {
 		equipment.Type = wepType
+		equipment.RawEquipment = rawWeaponType
 	}
 
 	equipment.Entity = entity
