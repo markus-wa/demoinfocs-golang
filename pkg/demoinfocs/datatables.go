@@ -1261,7 +1261,10 @@ func (p *parser) bindGameRules() {
 
 			for _, player := range p.gameState.playersByEntityID {
 				player.IsPlanting = false
+				p.gameState.currentPlanter = nil
+
 				player.IsDefusing = false
+				p.gameState.currentDefuser = nil
 			}
 
 			// for key, wep := range p.gameState.weapons {
