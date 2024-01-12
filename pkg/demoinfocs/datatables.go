@@ -1120,8 +1120,9 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		}
 
 		lastMoneyIncreased = false
-		equipment.Owner = nil
-		delete(p.gameState.weapons, entityID)
+		// equipment.Owner = nil
+		// delete(p.gameState.weapons, entityID)
+		p.gameState.wepsToRemove[entityID] = equipment
 	})
 
 	// Detect weapon firing, we don't use m_iClip1 because it would not work with weapons such as the knife (no ammo).

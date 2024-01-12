@@ -65,6 +65,7 @@ type gameState struct {
 	// This slice acts like a FIFO queue, the first projectile inserted is the first one to be removed when it exploded.
 	flyingFlashbangs []*FlyingFlashbang
 	smokes           map[int]*common.Smoke // Maps entity-IDs to active smokes.
+	wepsToRemove     map[int]*common.Equipment
 }
 
 type FlyingFlashbang struct {
@@ -260,6 +261,7 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		infernos:                 make(map[int]*common.Inferno),
 		smokes:                   make(map[int]*common.Smoke),
 		weapons:                  make(map[int]*common.Equipment),
+		wepsToRemove:             make(map[int]*common.Equipment),
 		hostages:                 make(map[int]*common.Hostage),
 		entities:                 make(map[int]st.Entity),
 		thrownGrenades:           make(map[*common.Player][]*common.Equipment),

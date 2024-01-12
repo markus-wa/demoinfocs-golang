@@ -523,6 +523,12 @@ var frameParsedToken = new(frameParsedTokenType)
 func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 	p.processFrameGameEvents()
 
+	for entityID, eq := range p.gameState.wepsToRemove {
+		eq.Owner = nil
+		delete(p.gameState.weapons, entityID)
+		delete(p.gameState.wepsToRemove, entityID)
+	}
+
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.FrameDone{})
 
