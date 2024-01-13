@@ -441,10 +441,6 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 		team := val.IntVal
 		pl.Team = common.Team(team)
 		pl.TeamState = p.gameState.Team(pl.Team)
-
-		if team < 2 {
-			p.gameState.setPlayerLifeState(pl, false)
-		}
 	})
 
 	playerEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
@@ -521,8 +517,13 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	})
 
 	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
+		team := val.S2UInt64()
 		pl.Team = common.Team(val.S2UInt64())
 		pl.TeamState = p.gameState.Team(pl.Team)
+
+		if team < 2 {
+			p.gameState.setPlayerLifeState(pl, false)
+		}
 	})
 
 	controllerEntity.OnDestroy(func() {
