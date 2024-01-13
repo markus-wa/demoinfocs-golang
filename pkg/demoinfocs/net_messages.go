@@ -58,6 +58,9 @@ func (p *parser) onEntity(e sendtables.Entity, op sendtables.EntityOp) error {
 	if op&sendtables.EntityOpCreated > 0 {
 		p.gameState.entities[e.ID()] = e
 	} else if op&sendtables.EntityOpDeleted > 0 {
+		if player, ok := p.gameState.Participants().AllByUserID()[e.ID()-1]; ok {
+			player.Entity = nil
+		}
 		delete(p.gameState.entities, e.ID())
 	}
 

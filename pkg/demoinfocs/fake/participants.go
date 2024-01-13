@@ -49,6 +49,11 @@ func (ptcp *Participants) Alive() []*common.Player {
 	return ptcp.Called().Get(0).([]*common.Player)
 }
 
+// AliveByEntID is a mock-implementation of Participants.AliveByEntID().
+func (ptcp *Participants) AliveByEntID() map[int]*common.Player {
+	return ptcp.Called().Get(0).(map[int]*common.Player)
+}
+
 // TeamMembers is a mock-implementation of Participants.TeamMembers().
 func (ptcp *Participants) TeamMembers(team common.Team) []*common.Player {
 	return ptcp.Called().Get(0).([]*common.Player)

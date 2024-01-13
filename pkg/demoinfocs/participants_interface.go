@@ -37,6 +37,7 @@ type Participants interface {
 	// Playing returns all players that are alive.
 	// The returned slice is a snapshot and is not updated on changes.
 	Alive() []*common.Player
+	AliveByEntID() map[int]*common.Player
 	// TeamMembers returns all players belonging to the requested team at this time.
 	// The returned slice is a snapshot and is not updated on changes.
 	TeamMembers(team common.Team) []*common.Player

@@ -35,6 +35,7 @@ type Player struct {
 	IsUnknown             bool      // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 	PreviousFramePosition r3.Vector // CS2 only, used to compute velocity as it's not networked in CS2 demos
 	Distance              Distance  // Distance since last freezetime end
+	Alive                 bool      // True if player is alive
 }
 
 type Distance struct {
@@ -44,6 +45,9 @@ type Distance struct {
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
+	if p.Entity == nil {
+		return nil
+	}
 	pawn, exists := p.Entity.PropertyValue("m_hPawn")
 	if !exists {
 		return nil
@@ -91,29 +95,16 @@ func (p *Player) IsAlive() bool {
 		return false
 	}
 
-	if p.demoInfoProvider.IsSource2() {
-
-		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
-			lifeStateVal, ok := pawnEntity.PropertyValue("m_lifeState")
-			if ok {
-				lifeState := lifeStateVal.S2UInt64()
-				if lifeState == 0 {
-					return p.Health() > 0
-				} else {
-					return false
-				}
+	if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+		if lifeStateVal, ok := pawnEntity.PropertyValue("m_lifeState"); ok {
+			if lifeStateVal.S2UInt64() == 0 {
+				return p.Health() > 0
 			}
-			return p.Health() > 0
+			return false
 		}
-		return false
-		// return getBool(p.Entity, "m_bPawnIsAlive")
+		return p.Health() > 0
 	}
-
-	if p.Health() > 0 {
-		return true
-	}
-
-	return getInt(p.Entity, "m_lifeState") == 0
+	return false
 }
 
 // IsBlinded returns true if the player is currently flashed.
@@ -446,6 +437,10 @@ func (p *Player) Health() int {
 	}
 
 	return getInt(p.Entity, "m_iHealth")
+}
+
+func (p *Player) LifeState() int {
+	return int(getUInt64(p.PlayerPawnEntity(), "m_lifeState"))
 }
 
 // Armor returns the player's armor points, normally 0-100.

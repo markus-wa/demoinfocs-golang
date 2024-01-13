@@ -22,6 +22,7 @@ type gameState struct {
 	ctState                      common.TeamState
 	playersByUserID              map[int]*common.Player    // Maps user-IDs to players
 	playersByEntityID            map[int]*common.Player    // Maps entity-IDs to players
+	aliveByEntityID              map[int]*common.Player    // Maps entity-IDs to alive players
 	playersBySteamID32           map[uint32]*common.Player // Maps 32-bit-steam-IDs to players
 	playerResourceEntity         st.Entity                 // CCSPlayerResource entity instance, contains scoreboard info and more
 	playerControllerEntities     map[int]st.Entity
@@ -98,6 +99,19 @@ func (gs *gameState) indexPlayerByUserID(pl *common.Player) {
 	}
 }
 
+func (gs *gameState) setPlayerLifeState(pl *common.Player, alive bool) {
+	pl.Alive = alive
+	if pl.Entity == nil {
+		delete(gs.aliveByEntityID, pl.EntityID)
+		return
+	}
+	if alive {
+		gs.aliveByEntityID[pl.Entity.ID()] = pl
+		return
+	}
+	delete(gs.aliveByEntityID, pl.Entity.ID())
+}
+
 // IngameTick returns the latest actual tick number of the server during the game.
 //
 // Watch out, I've seen this return wonky negative numbers at the start of demos.
@@ -139,6 +153,7 @@ func (gs gameState) Participants() Participants {
 	return participants{
 		playersByEntityID: gs.playersByEntityID,
 		playersByUserID:   gs.playersByUserID,
+		aliveByEntityID:   gs.aliveByEntityID,
 		getIsSource2:      gs.demoInfo.parser.isSource2,
 	}
 }
@@ -256,6 +271,7 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		playerControllerEntities: make(map[int]st.Entity),
 		playersByEntityID:        make(map[int]*common.Player),
 		playersByUserID:          make(map[int]*common.Player),
+		aliveByEntityID:          make(map[int]*common.Player),
 		playersBySteamID32:       make(map[uint32]*common.Player),
 		grenadeProjectiles:       make(map[int]*common.GrenadeProjectile),
 		infernos:                 make(map[int]*common.Inferno),
@@ -346,6 +362,7 @@ func (gr gameRules) Entity() st.Entity {
 type participants struct {
 	playersByUserID   map[int]*common.Player // Maps user-IDs to players
 	playersByEntityID map[int]*common.Player // Maps entity-IDs to players
+	aliveByEntityID   map[int]*common.Player
 	getIsSource2      func() bool
 }
 
@@ -431,12 +448,16 @@ func (ptcp participants) Playing() []*common.Player {
 func (ptcp participants) Alive() []*common.Player {
 	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
 	for _, p := range ptcp.playersByUserID {
-		if p.IsAlive() {
+		if p.Alive {
 			res = append(res, p)
 		}
 	}
 
 	return res
+}
+
+func (ptcp participants) AliveByEntID() map[int]*common.Player {
+	return ptcp.aliveByEntityID
 }
 
 // TeamMembers returns all players belonging to the requested team at this time.

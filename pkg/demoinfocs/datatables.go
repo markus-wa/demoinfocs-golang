@@ -431,15 +431,20 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 
 	// Position
 	playerEntity.OnPositionUpdate(func(pos r3.Vector) {
-		if pl.IsAlive() {
+		if pl.Alive {
 			pl.LastAlivePosition = pos
 		}
 	})
 
 	// General info
 	playerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
-		pl.Team = common.Team(val.IntVal)
+		team := val.IntVal
+		pl.Team = common.Team(team)
 		pl.TeamState = p.gameState.Team(pl.Team)
+
+		if team < 2 {
+			p.gameState.setPlayerLifeState(pl, false)
+		}
 	})
 
 	playerEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
@@ -512,6 +517,7 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 		if val.Handle() == constants.InvalidEntityHandleSource2 {
 			pl.IsConnected = false
 		}
+		p.gameState.setPlayerLifeState(pl, pl.IsAlive())
 	})
 
 	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
@@ -521,6 +527,7 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 
 	controllerEntity.OnDestroy(func() {
 		delete(p.gameState.playersByEntityID, controllerEntity.ID())
+		p.gameState.setPlayerLifeState(pl, false)
 	})
 }
 
@@ -538,16 +545,20 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 
 	pawnEntity.Property("m_hController").OnUpdate(func(controllerHandleVal st.PropertyValue) {
 		controllerHandle := controllerHandleVal.Handle()
-		if controllerHandle == constants.InvalidEntityHandleSource2 || controllerHandle == prevControllerHandle {
+		if controllerHandle == constants.InvalidEntityHandleSource2 {
+			return
+		}
+
+		controllerEntityID := int(controllerHandle & constants.EntityHandleIndexMaskSource2)
+		controllerEntity := p.gameState.playerControllerEntities[controllerEntityID]
+		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
+		p.gameState.setPlayerLifeState(pl, pl.IsAlive())
+
+		if controllerHandle == prevControllerHandle {
 			return
 		}
 
 		prevControllerHandle = controllerHandle
-
-		controllerEntityID := int(controllerHandle & constants.EntityHandleIndexMaskSource2)
-		controllerEntity := p.gameState.playerControllerEntities[controllerEntityID]
-
-		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
 		p.bindPlayerWeaponsS2(pawnEntity, pl)
 
@@ -635,6 +646,44 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		}
 		pl.IsDefusing = val.BoolVal()
 	})
+
+	pawnEntity.Property("m_iHealth").OnUpdate(func(val st.PropertyValue) {
+		pl := getPlayerFromPawnEntity(pawnEntity)
+		if pl == nil {
+			return
+		}
+		if val.Int() == 0 {
+			p.gameState.setPlayerLifeState(pl, false)
+			return
+		}
+		if pl.LifeState() == 0 {
+			p.gameState.setPlayerLifeState(pl, true)
+		}
+	})
+
+	if lifeStateProp := pawnEntity.Property("m_lifeState"); lifeStateProp != nil {
+		lifeStateProp.OnUpdate(func(val st.PropertyValue) {
+			pl := getPlayerFromPawnEntity(pawnEntity)
+			if pl == nil {
+				return
+			}
+			if val.S2UInt64() == 0 {
+				p.gameState.setPlayerLifeState(pl, pl.Health() > 0)
+				return
+			}
+			p.gameState.setPlayerLifeState(pl, false)
+		})
+	}
+
+	if playerPawnProp := pawnEntity.Property("m_hPlayerPawn"); playerPawnProp != nil {
+		playerPawnProp.OnUpdate(func(val st.PropertyValue) {
+			pl := getPlayerFromPawnEntity(pawnEntity)
+			if pl == nil {
+				return
+			}
+			p.gameState.setPlayerLifeState(pl, pl.IsAlive())
+		})
+	}
 
 	spottedByMaskProp := pawnEntity.Property("m_bSpottedByMask.0000")
 	if spottedByMaskProp != nil {
@@ -754,7 +803,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	}
 
 	pawnEntity.Property("m_pWeaponServices.m_hMyWeapons").OnUpdate(func(pv st.PropertyValue) {
-		inventorySize = pv.S2UInt64()
+		// inventorySize = pv.S2UInt64()
 		setPlayerInventory()
 	})
 
@@ -1141,7 +1190,6 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 			}
 		})
 	}
-
 }
 
 func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
