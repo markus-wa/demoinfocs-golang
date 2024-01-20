@@ -804,7 +804,9 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	}
 
 	pawnEntity.Property("m_pWeaponServices.m_hMyWeapons").OnUpdate(func(pv st.PropertyValue) {
-		// inventorySize = pv.S2UInt64()
+		if val, ok := pv.Any.(uint64); ok {
+			inventorySize = val
+		}
 		setPlayerInventory()
 	})
 

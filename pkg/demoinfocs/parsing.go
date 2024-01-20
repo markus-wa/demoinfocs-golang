@@ -14,15 +14,12 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables2"
 
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 )
-
-const maxOsPath = 260
 
 const (
 	playerWeaponPrefix    = "m_hMyWeapons."
@@ -53,22 +50,7 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 	var h common.DemoHeader
 	h.Filestamp = p.bitReader.ReadCString(8)
 
-	switch h.Filestamp {
-	case "HL2DEMO":
-		h.Protocol = p.bitReader.ReadSignedInt(32)
-		h.NetworkProtocol = p.bitReader.ReadSignedInt(32)
-		h.ServerName = p.bitReader.ReadCString(maxOsPath)
-		h.ClientName = p.bitReader.ReadCString(maxOsPath)
-		h.MapName = p.bitReader.ReadCString(maxOsPath)
-		h.GameDirectory = p.bitReader.ReadCString(maxOsPath)
-		h.PlaybackTime = time.Duration(p.bitReader.ReadFloat() * float32(time.Second))
-		h.PlaybackTicks = p.bitReader.ReadSignedInt(32)
-		h.PlaybackFrames = p.bitReader.ReadSignedInt(32)
-		h.SignonLength = p.bitReader.ReadSignedInt(32)
-
-		p.stParser = st.NewSendTableParser()
-
-	case "PBDEMS2":
+	if h.Filestamp == "PBDEMS2" {
 		p.bitReader.Skip(8 << 3) // skip 8 bytes
 
 		p.stParser = sendtables2.NewParser()
@@ -77,8 +59,7 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 
 		p.RegisterNetMessageHandler(p.stParser.OnServerInfo)
 		p.RegisterNetMessageHandler(p.stParser.OnPacketEntities)
-
-	default:
+	} else {
 		return h, ErrInvalidFileType
 	}
 
