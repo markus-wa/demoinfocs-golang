@@ -29,6 +29,14 @@ func TestMapEquipment(t *testing.T) {
 	assert.Equal(t, EqUnknown, MapEquipment("asdf"), "'asdf' should be mapped to EqUnknown")
 }
 
+func TestWeirdCS2Values(t *testing.T) {
+	assert.Equal(t, EqDeagle, MapEquipment("deagle_vip"), "'deagle_vip' should be mapped to EqDeagle")
+	assert.Equal(t, EqUSP, MapEquipment("usp_silencer_vip"), "'usp_silencer_vip' should be mapped to EqUSP")
+	assert.Equal(t, EqUSP, MapEquipment("5e_vip_usp_silencer"), "'5e_vip_usp_silencer' should be mapped to EqUSP")
+	assert.Equal(t, EqAK47, MapEquipment("5e_vip_ak47"), "'5e_vip_ak47' should be mapped to EqAK47")
+	assert.Equal(t, EqDeagle, MapEquipment("5e_default_deagle"), "'5e_default_deagle' should be mapped to EqDeagle")
+}
+
 func TestEquipment_Class(t *testing.T) {
 	assert.Equal(t, EqClassUnknown, NewEquipment(EqUnknown).Class(), "EqUnknown should have the class EqClassUnknown")
 	assert.Equal(t, EqClassPistols, NewEquipment(EqP2000).Class(), "EqP2000 should have the class EqClassPistols")

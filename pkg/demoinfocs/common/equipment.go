@@ -288,7 +288,7 @@ func MapEquipment(eqName string) EquipmentType {
 			wep = EqHelmet
 		} else {
 			for name := range eqNameToWeapon {
-				if strings.HasPrefix(eqName, name) {
+				if strings.HasPrefix(eqName, name) || strings.HasSuffix(eqName, name) {
 					wep = eqNameToWeapon[name]
 					break
 				}
