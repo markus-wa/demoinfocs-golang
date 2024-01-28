@@ -221,7 +221,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"item_remove":                     geh.itemRemove,                        // Dropped?
 		"jointeam_failed":                 nil,                                   // Dunno, only in locally recorded (POV) demos
 		"other_death":                     geh.otherDeath,                        // Other deaths, like chickens.
-		"player_blind":                    delay(geh.playerBlind),                // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
+		"player_blind":                    geh.playerBlind,                       // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
 		"player_changename":               nil,                                   // Name change
 		"player_connect":                  geh.playerConnect,                     // Bot connected or player reconnected, players normally come in via string tables & data tables
 		"player_connect_full":             nil,                                   // Connecting finished
@@ -592,27 +592,12 @@ func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CSVCMsg_GameEv
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
-		return
-	}
-
-	attacker := geh.gameState().lastFlash.player
-	projectile := geh.gameState().lastFlash.projectileByPlayer[attacker]
-	unassert.NotNilf(projectile, "PlayerFlashed.Projectile should never be nil")
-
-	if projectile != nil {
-		unassert.Samef(attacker, projectile.Thrower, "PlayerFlashed.Attacker != PlayerFlashed.Projectile.Thrower")
-		unassert.NotNilf(projectile.WeaponInstance, "WeaponInstance == nil")
-
-		if projectile.WeaponInstance != nil {
-			unassert.Samef(projectile.WeaponInstance.Type, common.EqFlash, "PlayerFlashed.Projectile.Weapon != EqFlash")
-		}
-	}
-
 	geh.dispatch(events.PlayerFlashed{
 		Player:     geh.playerByUserID32(data["userid"].GetValShort()),
-		Attacker:   attacker,
-		Projectile: projectile,
+		Attacker:   geh.playerByUserID32(data["attacker"].GetValShort()),
+		Projectile: geh.gameState().grenadeProjectiles[int(data["entityid"].GetValShort())],
+		Duration:   data["blind_duration"].GetValFloat(),
+		EntityId:   int(data["entityid"].GetValShort()),
 	})
 }
 
@@ -1197,7 +1182,7 @@ func (p *parser) processFlyingFlashbangs() {
 			continue
 		}
 
-		p.gameEventHandler.dispatch(events.PlayerFlashed{
+		p.gameEventHandler.dispatch(events.FakePlayerFlashed{
 			Player:     player,
 			Attacker:   flashbang.projectile.Thrower,
 			Projectile: flashbang.projectile,
