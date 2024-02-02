@@ -75,7 +75,7 @@ func (p demoInfoProviderMock) TickRate() float64 {
 	return 128
 }
 
-func (p demoInfoProviderMock) FindPlayerByHandle(int) *common.Player {
+func (p demoInfoProviderMock) FindPlayerByHandle(uint64) *common.Player {
 	return nil
 }
 

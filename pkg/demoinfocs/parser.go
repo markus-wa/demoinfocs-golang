@@ -447,8 +447,8 @@ func (p demoInfoProvider) TickRate() float64 {
 	return p.parser.TickRate()
 }
 
-func (p demoInfoProvider) FindPlayerByHandle(handle int) *common.Player {
-	return p.parser.gameState.Participants().FindByHandle(handle)
+func (p demoInfoProvider) FindPlayerByHandle(handle uint64) *common.Player {
+	return p.parser.gameState.Participants().FindByHandle64(handle)
 }
 
 func (p demoInfoProvider) FindPlayerByPawnHandle(handle uint64) *common.Player {

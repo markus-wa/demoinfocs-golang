@@ -514,12 +514,19 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
+	controllerEntity.Property("m_hPawn").OnUpdate(func(val st.PropertyValue) {
+		if val.Handle() == constants.InvalidEntityHandleSource2 {
+			pl.IsConnected = false
+		}
+	})
+
 	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
 		pl.Team = common.Team(val.S2UInt64())
 		pl.TeamState = p.gameState.Team(pl.Team)
 	})
 
 	controllerEntity.OnDestroy(func() {
+		pl.IsConnected = false
 		delete(p.gameState.playersByEntityID, controllerEntity.ID())
 	})
 }
@@ -1015,20 +1022,18 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	// - The player is inside the buy zone
 	// - The player's money has increased AND the weapon entity is destroyed at the same tick (unfortunately the money is updated first)
 	var (
-		owner               *common.Player
 		oldOwnerMoney       int
 		lastMoneyUpdateTick int
 		lastMoneyIncreased  bool
 	)
 
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
-		weaponOwner := p.GameState().Participants().FindByPawnHandle(val.Handle())
-		if weaponOwner == nil {
+		owner := p.GameState().Participants().FindByPawnHandle(val.Handle())
+		if owner == nil {
 			equipment.Owner = nil
 			return
 		}
 
-		owner = weaponOwner
 		oldOwnerMoney = owner.Money()
 
 		owner.Entity.Property("m_pInGameMoneyServices.m_iAccount").OnUpdate(func(val st.PropertyValue) {
@@ -1040,6 +1045,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	})
 
 	entity.OnDestroy(func() {
+		owner := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
 		if owner != nil && owner.IsInBuyZone() && p.GameState().IngameTick() == lastMoneyUpdateTick && lastMoneyIncreased {
 			p.eventDispatcher.Dispatch(events.ItemRefund{
 				Player: owner,

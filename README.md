@@ -1,6 +1,6 @@
-# demoinfocs-golang - CS:GO & CS2 Demo Parser
+# demoinfocs-golang - Counter-Strike 2 & CS:GO Demo Parser
 
-A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter-Strike: Global Offensive (CS:GO) demos (aka replays).
+A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter-Strike 2 and Counter-Strike: Global Offensive (CS:GO) demos (aka replays).
 
 Counter-Strike 2 support is experimental.
 
@@ -23,11 +23,9 @@ For business inquiries please use the contact information found on the [GitHub p
 
 ## Go Get
 
-### CS2 - ⚠️ Experimental
+### Counter-Strike 2
 
 	go get -u github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs
-
- ⚠️ The CS2 / v4 API may change in backwards incompatible ways without warning. 
 
 ### CS:GO
 
@@ -67,11 +65,7 @@ You can download the latest version of Go [here](https://golang.org/).
 ```terminal
 mkdir my-project
 cd my-project
-
-go mod init github.com/<YOUR_GITHUB_USER>/my-project
-# the module name (github.com/<YOUR_GITHUB_USER>/my-project) can always be changed later
-# you can also put example.com/my-project or anything else if you don't plan to publish your project
-
+go mod init my-project
 go get -u github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs
 ```
 

@@ -24,7 +24,17 @@ func TestMapEquipment(t *testing.T) {
 	assert.Equal(t, EqKnife, MapEquipment("weapon_knife_butterfly"), "'weapon_knife_butterfly' should be mapped to EqKnife")
 	assert.Equal(t, EqM4A4, MapEquipment("weapon_m4a1"), "'weapon_m4a1' should be mapped to EqM4A4") // This is correct, weapon_m4a1 == M4A4
 	assert.Equal(t, EqM4A1, MapEquipment("weapon_m4a1_silencer"), "'weapon_m4a1_silencer' should be mapped to EqM4A1")
+	assert.Equal(t, EqKevlar, MapEquipment("weapon_vest"), "'weapon_vest' should be mapped to EqKevlar")
+	assert.Equal(t, EqHelmet, MapEquipment("weapon_vesthelm"), "'weapon_vesthelm' should be mapped to EqHelmet")
 	assert.Equal(t, EqUnknown, MapEquipment("asdf"), "'asdf' should be mapped to EqUnknown")
+}
+
+func TestWeirdCS2Values(t *testing.T) {
+	assert.Equal(t, EqDeagle, MapEquipment("deagle_vip"), "'deagle_vip' should be mapped to EqDeagle")
+	assert.Equal(t, EqUSP, MapEquipment("usp_silencer_vip"), "'usp_silencer_vip' should be mapped to EqUSP")
+	assert.Equal(t, EqUSP, MapEquipment("5e_vip_usp_silencer"), "'5e_vip_usp_silencer' should be mapped to EqUSP")
+	assert.Equal(t, EqAK47, MapEquipment("5e_vip_ak47"), "'5e_vip_ak47' should be mapped to EqAK47")
+	assert.Equal(t, EqDeagle, MapEquipment("5e_default_deagle"), "'5e_default_deagle' should be mapped to EqDeagle")
 }
 
 func TestEquipment_Class(t *testing.T) {

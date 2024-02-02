@@ -116,7 +116,7 @@ func TestInferno_Thrower(t *testing.T) {
 
 	player := new(Player)
 	provider := demoInfoProviderMock{
-		playersByHandle: map[int]*Player{1: player},
+		playersByHandle: map[uint64]*Player{1: player},
 	}
 
 	assert.Equal(t, player, NewInferno(provider, entity, nil).Thrower())

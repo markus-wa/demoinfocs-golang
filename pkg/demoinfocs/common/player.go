@@ -37,6 +37,15 @@ type Player struct {
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
+	pawn, exists := p.Entity.PropertyValue("m_hPawn")
+	if !exists {
+		return nil
+	}
+
+	if pawn.Handle() == constants.InvalidEntityHandleSource2 {
+		return nil
+	}
+
 	playerPawn, exists := p.Entity.PropertyValue("m_hPlayerPawn")
 	if !exists {
 		return nil
@@ -347,9 +356,15 @@ func (p *Player) ControlledBot() *Player {
 		return nil
 	}
 
-	botHandle := p.Entity.Property("m_iControlledBotEntIndex").Value().IntVal
+	if p.demoInfoProvider.IsSource2() {
+		controllerHandler := p.Entity.Property("m_hOriginalControllerOfCurrentPawn").Value().S2UInt64()
 
-	return p.demoInfoProvider.FindPlayerByHandle(botHandle)
+		return p.demoInfoProvider.FindPlayerByHandle(controllerHandler)
+	}
+
+	botHandle := p.Entity.Property("m_iControlledBotEntIndex").Value().Int()
+
+	return p.demoInfoProvider.FindPlayerByHandle(uint64(botHandle))
 }
 
 // Health returns the player's health points, normally 0-100.
@@ -796,7 +811,7 @@ func (p *Player) IsGrabbingHostage() bool {
 type demoInfoProvider interface {
 	IngameTick() int   // current in-game tick, used for IsBlinded()
 	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
-	FindPlayerByHandle(handle int) *Player
+	FindPlayerByHandle(handle uint64) *Player
 	FindPlayerByPawnHandle(handle uint64) *Player
 	PlayerResourceEntity() st.Entity
 	FindWeaponByEntityID(id int) *Equipment
