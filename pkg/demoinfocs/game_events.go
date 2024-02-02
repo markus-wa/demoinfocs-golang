@@ -1,7 +1,6 @@
 package demoinfocs
 
 import (
-	_ "embed"
 	"fmt"
 
 	"github.com/golang/geo/r3"
@@ -80,9 +79,6 @@ func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	})
 }
 
-//go:embed s2_CMsgSource1LegacyGameEventList.pb.bin
-var gameEventListS2 []byte
-
 func (p *parser) handleGameEventS2(ge *msgs2.CMsgSource1LegacyGameEvent) {
 	if p.gameEventDescs == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{
@@ -92,7 +88,7 @@ func (p *parser) handleGameEventS2(ge *msgs2.CMsgSource1LegacyGameEvent) {
 
 		list := new(msgs2.CMsgSource1LegacyGameEventList)
 
-		err := proto.Unmarshal(gameEventListS2, list)
+		err := proto.Unmarshal(p.source2FallbackGameEventListBin, list)
 		if err != nil {
 			p.setError(err)
 

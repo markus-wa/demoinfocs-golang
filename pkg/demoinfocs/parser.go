@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	_ "embed"
 	"fmt"
 	"io"
 	"runtime/debug"
@@ -66,22 +67,23 @@ Prints out '{A/B} site went BOOM!' when a bomb explodes.
 type parser struct {
 	// Important fields
 
-	bitReader                    *bit.BitReader
-	stParser                     sendTableParser
-	additionalNetMessageCreators map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
-	msgQueue                     chan any                  // Queue of net-messages
-	msgDispatcher                *dp.Dispatcher            // Net-message dispatcher
-	gameEventHandler             gameEventHandler
-	userMessageHandler           userMessageHandler
-	eventDispatcher              *dp.Dispatcher
-	currentFrame                 int                // Demo-frame, not ingame-tick
-	tickInterval                 float32            // Duration between ticks in seconds
-	header                       *common.DemoHeader // Pointer so we can check for nil
-	gameState                    *gameState
-	demoInfoProvider             demoInfoProvider // Provides demo infos to other packages that the core package depends on
-	err                          error            // Contains a error that occurred during parsing if any
-	errLock                      sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
-	decryptionKey                []byte           // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
+	bitReader                       *bit.BitReader
+	stParser                        sendTableParser
+	additionalNetMessageCreators    map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
+	msgQueue                        chan any                  // Queue of net-messages
+	msgDispatcher                   *dp.Dispatcher            // Net-message dispatcher
+	gameEventHandler                gameEventHandler
+	userMessageHandler              userMessageHandler
+	eventDispatcher                 *dp.Dispatcher
+	currentFrame                    int                // Demo-frame, not ingame-tick
+	tickInterval                    float32            // Duration between ticks in seconds
+	header                          *common.DemoHeader // Pointer so we can check for nil
+	gameState                       *gameState
+	demoInfoProvider                demoInfoProvider // Provides demo infos to other packages that the core package depends on
+	err                             error            // Contains a error that occurred during parsing if any
+	errLock                         sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
+	decryptionKey                   []byte           // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
+	source2FallbackGameEventListBin []byte           // sv_hibernate_when_empty bug workaround
 	/**
 	 * Set to the client slot of the recording player.
 	 * Always -1 for GOTV demos.
@@ -353,12 +355,20 @@ type ParserConfig struct {
 	// Unfortunately Source 2 demos *may* not contain Source 1 game events, that's why the parser will try to mimic them.
 	// It has an impact only with Source 2 demos and is false by default.
 	DisableMimicSource1Events bool
+
+	// Source2FallbackGameEventListBin is a fallback game event list protobuf message for Source 2 demos.
+	// It's used when the game event list is not found in the demo file.
+	// This can happen due to a CS2 bug with sv_hibernate_when_empty.
+	Source2FallbackGameEventListBin []byte
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
 var DefaultParserConfig = ParserConfig{
 	MsgQueueBufferSize: -1,
 }
+
+//go:embed s2_CMsgSource1LegacyGameEventList.pb.bin
+var defaultSource2FallbackGameEventListBin []byte
 
 // NewParserWithConfig returns a new Parser with a custom configuration.
 //
@@ -382,6 +392,11 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.decryptionKey = config.NetMessageDecryptionKey
 	p.recordingPlayerSlot = -1
 	p.disableMimicSource1GameEvents = config.DisableMimicSource1Events
+	p.source2FallbackGameEventListBin = config.Source2FallbackGameEventListBin
+
+	if p.source2FallbackGameEventListBin == nil {
+		p.source2FallbackGameEventListBin = defaultSource2FallbackGameEventListBin
+	}
 
 	dispatcherCfg := dp.Config{
 		PanicHandler: func(v any) {
