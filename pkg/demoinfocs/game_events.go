@@ -668,6 +668,14 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKey
 
 	if player != nil {
 		if player.Team != newTeam {
+			if geh.parser.isSource2() {
+				// The "team" field may be incorrect with CS2 demos.
+				// As the prop m_iTeamNum (bound to player.Team) is updated before the game-event is fired we can force
+				// the correct team here.
+				// https://github.com/markus-wa/demoinfocs-golang/issues/494
+				newTeam = player.Team
+			}
+
 			player.Team = newTeam
 		}
 
