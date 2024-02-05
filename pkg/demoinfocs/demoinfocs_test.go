@@ -18,6 +18,7 @@ import (
 	"time"
 
 	dispatch "github.com/markus-wa/godispatch"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 
@@ -25,6 +26,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 )
 
 const (
@@ -213,6 +215,12 @@ func TestS2(t *testing.T) {
 	cfg.MsgQueueBufferSize = 0
 
 	p := demoinfocs.NewParserWithConfig(f, cfg)
+
+	if *update {
+		p.RegisterNetMessageHandler(func(gel *msgs2.CMsgSource1LegacyGameEventList) {
+			lo.Must0(os.WriteFile("s2_CMsgSource1LegacyGameEventList.pb.bin", lo.Must(proto.Marshal(gel)), 0600))
+		})
+	}
 
 	t.Log("Parsing header")
 	_, err = p.ParseHeader()

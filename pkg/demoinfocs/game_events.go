@@ -6,6 +6,7 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
@@ -79,6 +80,24 @@ func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 }
 
 func (p *parser) handleGameEventS2(ge *msgs2.CMsgSource1LegacyGameEvent) {
+	if p.gameEventDescs == nil {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "received GameEvent but event descriptors are missing",
+			Type:    events.WarnTypeGameEventBeforeDescriptors,
+		})
+
+		list := new(msgs2.CMsgSource1LegacyGameEventList)
+
+		err := proto.Unmarshal(p.source2FallbackGameEventListBin, list)
+		if err != nil {
+			p.setError(err)
+
+			return
+		}
+
+		p.handleGameEventListS2(list)
+	}
+
 	keys := make([]*msg.CSVCMsg_GameEventKeyT, 0, len(ge.Keys))
 
 	for _, k := range ge.Keys {
