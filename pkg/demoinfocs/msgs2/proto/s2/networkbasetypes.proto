@@ -121,6 +121,8 @@ message CNETMsg_Tick {
 	optional uint32 host_loss = 7;
 	optional uint32 host_unfiltered_frametime = 8;
 	optional uint32 hltv_replay_flags = 9;
+	optional uint32 expected_long_tick = 10;
+	optional string expected_long_tick_reason = 11;
 }
 
 message CNETMsg_StringCmd {

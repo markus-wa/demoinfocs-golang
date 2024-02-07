@@ -6,6 +6,7 @@ enum GCClientLauncherType {
 	GCClientLauncherType_DEFAULT = 0;
 	GCClientLauncherType_PERFECTWORLD = 1;
 	GCClientLauncherType_STEAMCHINA = 2;
+	GCClientLauncherType_SOURCE2 = 3;
 }
 
 enum GCConnectionStatus {
@@ -164,6 +165,7 @@ message CMsgServerHello {
 	optional bytes legacy_steamdatagram_routing = 6;
 	optional uint32 required_internal_addr = 7;
 	optional bytes steamdatagram_login = 8;
+	optional uint32 socache_control = 9;
 }
 
 message CMsgClientWelcome {

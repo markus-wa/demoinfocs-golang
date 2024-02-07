@@ -69,7 +69,12 @@ message CGameInfo {
 		optional uint32 end_time = 11;
 	}
 
+	message CCSGameInfo {
+		repeated int32 round_start_ticks = 1;
+	}
+
 	optional CGameInfo.CDotaGameInfo dota = 4;
+	optional CGameInfo.CCSGameInfo cs = 5;
 }
 
 message CDemoFileInfo {
@@ -130,6 +135,7 @@ message CDemoAnimationData {
 	optional int32 start_tick = 2;
 	optional int32 end_tick = 3;
 	optional bytes data = 4;
+	optional int64 data_checksum = 5;
 }
 
 message CDemoStringTables {

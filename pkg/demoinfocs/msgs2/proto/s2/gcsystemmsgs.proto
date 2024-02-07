@@ -232,6 +232,7 @@ message CCommunity_GetGamePersonalDataEntries_Response {
 	optional uint32 gceresult = 1;
 	repeated string entries = 2;
 	optional string continue_token = 3;
+	optional string continue_text = 4;
 }
 
 message CCommunity_TerminateGamePersonalDataEntries_Request {
