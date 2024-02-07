@@ -2,9 +2,6 @@ package com.github.markus_wa.demoinfocs_golang.s2;
 
 import "s2/steammessages.proto";
 
-option optimize_for = SPEED;
-option cc_generic_services = false;
-
 enum EGCBaseMsg {
 	k_EMsgGCSystemMessage = 4001;
 	k_EMsgGCReplicateConVars = 4002;
@@ -173,6 +170,10 @@ message CMsgApplySticker {
 	optional uint32 sticker_slot = 3;
 	optional uint32 baseitem_defidx = 4;
 	optional float sticker_wear = 5;
+	optional float sticker_rotation = 6;
+	optional float sticker_scale = 7;
+	optional float sticker_offset_x = 8;
+	optional float sticker_offset_y = 9;
 }
 
 message CMsgModifyItemAttribute {
@@ -274,7 +275,6 @@ message CMsgStoreGetUserDataResponse {
 message CMsgUpdateItemSchema {
 	optional bytes items_game = 1;
 	optional fixed32 item_schema_version = 2;
-	optional string items_game_url_DEPRECATED2013 = 3;
 	optional string items_game_url = 4;
 }
 
@@ -550,4 +550,5 @@ message CMsgAdjustEquipSlot {
 
 message CMsgAdjustEquipSlots {
 	repeated CMsgAdjustEquipSlot slots = 1;
+	optional uint32 change_num = 2;
 }

@@ -445,7 +445,28 @@ message CMsgGCGetPartnerAccountLink_Response {
 	optional bool is_adult = 5;
 }
 
+message CMsgGCAddressMask {
+	optional fixed32 ipv4 = 1;
+	optional uint32 maskbits = 2 [default = 32];
+}
+
+message CMsgGCAddressMaskGroup {
+	repeated CMsgGCAddressMask addrs = 1;
+}
+
 message CMsgGCRoutingInfo {
+	message TokenBucketConfiguration {
+		optional int32 tokens_start = 1;
+		optional int32 tokens_grant = 2;
+		optional int32 grant_seconds = 3;
+	}
+
+	message PolicyRule {
+		optional int32 account_type = 1;
+		optional int32 address_mask_group_id = 2;
+		optional CMsgGCRoutingInfo.TokenBucketConfiguration token_bucket = 3;
+	}
+
 	enum RoutingMethod {
 		RANDOM = 0;
 		DISCARD = 1;
@@ -459,6 +480,7 @@ message CMsgGCRoutingInfo {
 	optional CMsgGCRoutingInfo.RoutingMethod fallback = 3 [default = DISCARD];
 	optional uint32 protobuf_field = 4;
 	optional string webapi_param = 5;
+	repeated CMsgGCRoutingInfo.PolicyRule policy_rules = 6;
 }
 
 message CMsgGCMsgMasterSetWebAPIRouting {
@@ -478,6 +500,7 @@ message CMsgGCMsgMasterSetClientMsgRouting {
 	}
 
 	repeated CMsgGCMsgMasterSetClientMsgRouting.Entry entries = 1;
+	repeated CMsgGCAddressMaskGroup address_mask_groups = 2;
 }
 
 message CMsgGCMsgMasterSetWebAPIRouting_Response {

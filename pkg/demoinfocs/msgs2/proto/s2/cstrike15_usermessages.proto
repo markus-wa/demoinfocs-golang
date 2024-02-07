@@ -78,7 +78,6 @@ enum ECstrike15UserMessages {
 	CS_UM_RoundEndReportData = 379;
 	CS_UM_CurrentRoundOdds = 380;
 	CS_UM_DeepStats = 381;
-	CS_UM_UtilMsg = 382;
 	CS_UM_ShootInfo = 383;
 }
 
@@ -589,4 +588,10 @@ message CCSUsrMsg_ClientInfo {
 message CCSUsrMsg_ServerRankRevealAll {
 	optional int32 seconds_till_shutdown = 1;
 	optional CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve reservation = 2;
+}
+
+message CCSUsrMsgPreMatchSayText {
+	optional uint32 account_id = 1;
+	optional string text = 2;
+	optional bool all_chat = 3;
 }
