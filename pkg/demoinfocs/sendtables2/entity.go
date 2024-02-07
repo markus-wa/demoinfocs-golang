@@ -450,7 +450,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		serial  int32
 	)
 
-	if !m.GetIsDelta() {
+	if !m.GetLegacyIsDelta() {
 		if p.entityFullPackets > 0 {
 			return nil
 		}
