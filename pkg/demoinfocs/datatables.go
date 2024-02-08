@@ -514,9 +514,32 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
-	controllerEntity.Property("m_hPawn").OnUpdate(func(val st.PropertyValue) {
-		if val.Handle() == constants.InvalidEntityHandleSource2 {
-			pl.IsConnected = false
+	controllerEntity.Property("m_iConnected").OnUpdate(func(val st.PropertyValue) {
+		state := val.S2UInt32()
+		wasConnected := pl.IsConnected
+		pl.IsConnected = state == 0
+
+		isDisconnection := state == 8
+		if isDisconnection {
+			for k, v := range p.rawPlayers {
+				if v.XUID == pl.SteamID64 {
+					delete(p.rawPlayers, k)
+				}
+			}
+			p.gameEventHandler.dispatch(events.PlayerDisconnected{
+				Player: pl,
+			})
+
+			return
+		}
+
+		isConnection := !wasConnected && pl.IsConnected
+		if isConnection {
+			if pl.SteamID64 != 0 {
+				p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
+			} else {
+				p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
+			}
 		}
 	})
 
@@ -557,15 +580,6 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
 		p.bindPlayerWeaponsS2(pawnEntity, pl)
-
-		if !pl.IsConnected {
-			pl.IsConnected = true
-			if pl.SteamID64 != 0 {
-				p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
-			} else {
-				p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
-			}
-		}
 	})
 
 	// Position
@@ -632,14 +646,6 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		spottedByMaskProp.OnUpdate(spottersChanged)
 		pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
 	}
-
-	pawnEntity.OnDestroy(func() {
-		pl := getPlayerFromPawnEntity(pawnEntity)
-		if pl == nil {
-			return
-		}
-		pl.IsConnected = false
-	})
 }
 
 const maxWeapons = 64
