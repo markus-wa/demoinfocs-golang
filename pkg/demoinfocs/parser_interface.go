@@ -3,6 +3,7 @@
 package demoinfocs
 
 import (
+	_ "embed"
 	"time"
 
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
