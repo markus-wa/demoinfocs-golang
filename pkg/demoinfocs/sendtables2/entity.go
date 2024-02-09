@@ -477,6 +477,12 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		index = next
 
 		cmd = r.readBits(2)
+		if cmd == 0 && m.GetHasPvsVisBits() > 0 {
+			cmd = r.readBits(2) << 3
+			if cmd&0x08 == 8 {
+				continue
+			}
+		}
 		if cmd&0x01 == 0 {
 			if cmd&0x02 != 0 {
 				classId = int32(r.readBits(p.classIdSize))
