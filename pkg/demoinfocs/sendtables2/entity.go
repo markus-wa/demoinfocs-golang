@@ -438,6 +438,17 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 	}
 }
 
+// updateFlag is a bitmask representing the type of operation performed on an Entity
+type updateFlag = uint32
+
+const (
+	updateFlagCreate       updateFlag = 0b10
+	updateFlagLeave        updateFlag = 0b01
+	updateFlagDelete       updateFlag = 0b10
+	updateFlagPreserveEnt  updateFlag = 0b01000
+	updateFlagVisibleInPVS updateFlag = 0b10000
+)
+
 // Internal Callback for OnCSVCMsg_PacketEntities.
 func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 	r := newReader(m.GetEntityData())
@@ -467,6 +478,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		paths  = make([]*fieldPath, 0)
 	)
 
+	isPvsPacket := m.GetHasPvsVisBits() != 0
 	for ; updates > 0; updates-- {
 		var (
 			e  *Entity
@@ -477,14 +489,12 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		index = next
 
 		cmd = r.readBits(2)
-		if cmd == 0 && m.GetHasPvsVisBits() > 0 {
+		if cmd == 0 && isPvsPacket {
 			cmd = r.readBits(2) << 3
-			if cmd&0x08 == 8 {
-				continue
-			}
 		}
-		if cmd&0x01 == 0 {
-			if cmd&0x02 != 0 {
+
+		if cmd&updateFlagLeave == 0 {
+			if cmd&updateFlagCreate != 0 {
 				classId = int32(r.readBits(p.classIdSize))
 				serial = int32(r.readBits(17))
 				r.readVarUint32()
@@ -519,7 +529,11 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 				}
 
 				op = st.EntityOpCreated | st.EntityOpEntered
-			} else {
+			} else if cmd&updateFlagPreserveEnt != 0 {
+				// todo: handle visibility
+				// visibleInPvs := !isPvsPacket || cmd&updateFlagVisibleInPVS != 0
+				// fmt.Println("preserve visible in pvs", visibleInPvs)
+			} else { // delta update
 				if e = p.entities[index]; e == nil {
 					_panicf("unable to find existing entity %d", index)
 				}
@@ -532,6 +546,8 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 
 				e.readFields(r, &paths)
 				paths = paths[:0]
+				// todo: handle visibility
+				// visibleInPVS := !isPvsPacket || cmd&updateFlagVisibleInPVS != 0
 			}
 		} else {
 			e = p.entities[index]
@@ -545,7 +561,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 			}
 
 			op = st.EntityOpLeft
-			if cmd&0x02 != 0 {
+			if cmd&updateFlagDelete != 0 {
 				op |= st.EntityOpDeleted
 
 				e.Destroy()
