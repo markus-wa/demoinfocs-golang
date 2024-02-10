@@ -438,16 +438,37 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 	}
 }
 
-// updateFlag is a bitmask representing the type of operation performed on an Entity
-type updateFlag = uint32
+const (
+	updateFlagDelete       = 0b10
+	updateFlagVisibleInPVS = 0b10000
+)
+
+type updateType = uint32
 
 const (
-	updateFlagCreate       updateFlag = 0b10
-	updateFlagLeave        updateFlag = 0b01
-	updateFlagDelete       updateFlag = 0b10
-	updateFlagPreserveEnt  updateFlag = 0b01000
-	updateFlagVisibleInPVS updateFlag = 0b10000
+	updateTypeEnter updateType = iota
+	updateTypeLeave
+	updateTypeDelta
+	updateTypePreserve
 )
+
+func readEntityUpdateType(r *reader, hasVisBits uint32) (updateType, uint32) {
+	flags := r.readBits(2)
+	if flags&0x01 != 0 {
+		return updateTypeLeave, flags
+	}
+	if flags&0x02 != 0 {
+		return updateTypeEnter, flags
+	}
+	if hasVisBits != 0 {
+		flags = r.readBits(2) << 3
+		if flags&0x08 != 0 {
+			return updateTypePreserve, flags
+		}
+	}
+
+	return updateTypeDelta, flags
+}
 
 // Internal Callback for OnCSVCMsg_PacketEntities.
 func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
@@ -456,7 +477,6 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 	var (
 		index   = int32(-1)
 		updates = int(m.GetUpdatedEntries())
-		cmd     uint32
 		classId int32
 		serial  int32
 	)
@@ -478,7 +498,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		paths  = make([]*fieldPath, 0)
 	)
 
-	isPvsPacket := m.GetHasPvsVisBits() != 0
+	hasVisBits := m.GetHasPvsVisBits()
 	for ; updates > 0; updates-- {
 		var (
 			e  *Entity
@@ -488,68 +508,62 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		next := index + int32(r.readUBitVar()) + 1
 		index = next
 
-		cmd = r.readBits(2)
-		if cmd == 0 && isPvsPacket {
-			cmd = r.readBits(2) << 3
-		}
+		updateType, flags := readEntityUpdateType(r, hasVisBits)
+		switch updateType {
+		case updateTypeEnter:
+			classId = int32(r.readBits(p.classIdSize))
+			serial = int32(r.readBits(17))
+			r.readVarUint32()
 
-		if cmd&updateFlagLeave == 0 {
-			if cmd&updateFlagCreate != 0 {
-				classId = int32(r.readBits(p.classIdSize))
-				serial = int32(r.readBits(17))
-				r.readVarUint32()
-
-				class := p.classesById[classId]
-				if class == nil {
-					_panicf("unable to find new class %d", classId)
-				}
-
-				baseline := p.classBaselines[classId]
-				if baseline == nil {
-					_panicf("unable to find new baseline %d", classId)
-				}
-
-				e = newEntity(index, serial, class)
-				p.entities[index] = e
-
-				e.readFields(newReader(baseline), &paths)
-				paths = paths[:0]
-
-				e.readFields(r, &paths)
-				paths = paths[:0]
-
-				// Fire created-handlers so update-handlers can be registered
-				for _, h := range class.createdHandlers {
-					h(e)
-				}
-
-				// Fire all post-creation actions
-				for _, f := range e.onCreateFinished {
-					f()
-				}
-
-				op = st.EntityOpCreated | st.EntityOpEntered
-			} else if cmd&updateFlagPreserveEnt != 0 {
-				// todo: handle visibility
-				// visibleInPvs := !isPvsPacket || cmd&updateFlagVisibleInPVS != 0
-				// fmt.Println("preserve visible in pvs", visibleInPvs)
-			} else { // delta update
-				if e = p.entities[index]; e == nil {
-					_panicf("unable to find existing entity %d", index)
-				}
-
-				op = st.EntityOpUpdated
-				if !e.active {
-					e.active = true
-					op |= st.EntityOpEntered
-				}
-
-				e.readFields(r, &paths)
-				paths = paths[:0]
-				// todo: handle visibility
-				// visibleInPVS := !isPvsPacket || cmd&updateFlagVisibleInPVS != 0
+			class := p.classesById[classId]
+			if class == nil {
+				_panicf("unable to find new class %d", classId)
 			}
-		} else {
+
+			baseline := p.classBaselines[classId]
+			if baseline == nil {
+				_panicf("unable to find new baseline %d", classId)
+			}
+
+			e = newEntity(index, serial, class)
+			p.entities[index] = e
+
+			e.readFields(newReader(baseline), &paths)
+			paths = paths[:0]
+
+			e.readFields(r, &paths)
+			paths = paths[:0]
+
+			// Fire created-handlers so update-handlers can be registered
+			for _, h := range class.createdHandlers {
+				h(e)
+			}
+
+			// Fire all post-creation actions
+			for _, f := range e.onCreateFinished {
+				f()
+			}
+
+			op = st.EntityOpCreated | st.EntityOpEntered
+		case updateTypeDelta:
+			if e = p.entities[index]; e == nil {
+				_panicf("unable to find existing entity %d", index)
+			}
+
+			op = st.EntityOpUpdated
+			if !e.active {
+				e.active = true
+				op |= st.EntityOpEntered
+			}
+
+			e.readFields(r, &paths)
+			paths = paths[:0]
+			// todo: handle visibility
+			// visibleInPVS := hasVisBits == 0 || flags&updateFlagVisibleInPVS != 0
+			// fmt.Println("visible in pvs", visibleInPVS)
+		case updateTypePreserve:
+			// visibleInPVS := hasVisBits == 0 || flags&updateFlagVisibleInPVS != 0
+		case updateTypeLeave:
 			e = p.entities[index]
 			if e == nil {
 				continue
@@ -561,7 +575,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 			}
 
 			op = st.EntityOpLeft
-			if cmd&updateFlagDelete != 0 {
+			if flags&updateFlagDelete != 0 {
 				op |= st.EntityOpDeleted
 
 				e.Destroy()
