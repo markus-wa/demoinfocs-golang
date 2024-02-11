@@ -300,7 +300,6 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 
 	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)
 	geh.gameState().thrownGrenades = make(map[*common.Player][]*common.Equipment)
-	geh.gameState().flyingFlashbangs = make([]*FlyingFlashbang, 0)
 }
 
 func (geh gameEventHandler) roundStart(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -597,15 +596,12 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKe
 		Attacker:   geh.playerByUserID32(data["attacker"].GetValShort()),
 		Projectile: geh.gameState().grenadeProjectiles[int(data["entityid"].GetValShort())],
 		Duration:   data["blind_duration"].GetValFloat(),
-		EntityId:   int(data["entityid"].GetValShort()),
 	})
 }
 
 func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 
 	nadeEvent := geh.nadeEvent(data, common.EqFlash)
-
-	geh.gameState().lastFlash.player = nadeEvent.Thrower
 
 	if !geh.parser.isSource2() || geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		geh.dispatch(events.FlashExplode{
@@ -1162,36 +1158,6 @@ func (p *parser) processRoundProgressEvents() {
 	p.dispatchMatchStartedEventIfNecessary()
 }
 
-func (p *parser) processFlyingFlashbangs() {
-	if len(p.gameState.flyingFlashbangs) == 0 {
-		return
-	}
-
-	flashbang := p.gameState.flyingFlashbangs[0]
-	if len(flashbang.flashedEntityIDs) == 0 {
-		// Flashbang exploded and didn't flash any players, remove it from the queue
-		if flashbang.explodedFrame > 0 && flashbang.explodedFrame < p.currentFrame {
-			p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
-		}
-		return
-	}
-
-	for _, entityID := range flashbang.flashedEntityIDs {
-		player := p.gameState.Participants().ByEntityID()[entityID]
-		if player == nil {
-			continue
-		}
-
-		p.gameEventHandler.dispatch(events.FakePlayerFlashed{
-			Player:     player,
-			Attacker:   flashbang.projectile.Thrower,
-			Projectile: flashbang.projectile,
-		})
-	}
-
-	p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
-}
-
 // Do some processing to dispatch game events at the end of the frame in correct order.
 // This is necessary because some prop updates are not in a order that we would expect, e.g.:
 // - The player prop m_flFlashDuration is updated after the game event player_blind have been parsed (used for CS:GO only)
@@ -1201,7 +1167,6 @@ func (p *parser) processFlyingFlashbangs() {
 // This makes sure game events are dispatched in a more expected order.
 func (p *parser) processFrameGameEvents() {
 	if p.isSource2() && !p.disableMimicSource1GameEvents {
-		p.processFlyingFlashbangs()
 		p.processRoundProgressEvents()
 	}
 

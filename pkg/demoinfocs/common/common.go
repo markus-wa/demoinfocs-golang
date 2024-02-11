@@ -128,7 +128,8 @@ type TeamState struct {
 	membersCallback  func(Team) []*Player
 	demoInfoProvider demoInfoProvider
 
-	Entity st.Entity
+	Entity   st.Entity
+	Timeouts int
 
 	// Terrorist TeamState for CTs, CT TeamState for Terrorists
 	Opponent *TeamState

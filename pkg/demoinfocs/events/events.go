@@ -313,7 +313,6 @@ type PlayerFlashed struct {
 	Attacker   *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Projectile *common.GrenadeProjectile
 	Duration   float32
-	EntityId   int
 }
 
 // FlashDuration returns the duration of the blinding effect.
@@ -691,6 +690,11 @@ type TeamSideSwitch struct {
 // GameHalfEnded signals that the currently ongoing game half has ended.
 // GameHalfEnded is usually dispatched in the end of a round, just before RoundEndOfficial.
 type GameHalfEnded struct {
+}
+
+type Timeout struct {
+	TeamState *common.TeamState
+	Tech      bool
 }
 
 // MatchStartedChanged signals that the value of data table DT_GameRulesProxy.m_bHasMatchStarted has changed

@@ -396,7 +396,7 @@ func (p *Player) IsControllingBot() bool {
 // ControlledPawn returns the player instance of the pawn that the player is controlling, if any.
 func (p *Player) ControlledPawn() *Player {
 	if p.Entity == nil {
-		return nil
+		return p
 	}
 
 	if p.demoInfoProvider.IsSource2() {
@@ -415,7 +415,7 @@ func (p *Player) ControlledPawn() *Player {
 // Controller returns the player instance of the controller that the is controlling player, if any.
 func (p *Player) Controller() *Player {
 	if p.Entity == nil {
-		return nil
+		return p
 	}
 
 	if p.demoInfoProvider.IsSource2() {

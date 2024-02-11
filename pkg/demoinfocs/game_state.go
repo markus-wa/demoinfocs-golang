@@ -38,7 +38,6 @@ type gameState struct {
 	isFreezetime                 bool
 	isMatchStarted               bool
 	overtimeCount                int
-	lastFlash                    lastFlash                              // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
 	currentDefuser               *common.Player                         // Player currently defusing the bomb, if any
 	currentPlanter               *common.Player                         // Player currently planting the bomb, if any
 	thrownGrenades               map[*common.Player][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
@@ -64,20 +63,8 @@ type gameState struct {
 	// to this projectile. As all m_flFlashDuration prop updates occur during the same frame, we batch dispatch
 	// player-flashed events at the end of the frame if there are any.
 	// This slice acts like a FIFO queue, the first projectile inserted is the first one to be removed when it exploded.
-	flyingFlashbangs []*FlyingFlashbang
-	smokes           map[int]*common.Smoke // Maps entity-IDs to active smokes.
-	wepsToRemove     map[int]*common.Equipment
-}
-
-type FlyingFlashbang struct {
-	projectile       *common.GrenadeProjectile
-	flashedEntityIDs []int
-	explodedFrame    int
-}
-
-type lastFlash struct {
-	player             *common.Player
-	projectileByPlayer map[*common.Player]*common.GrenadeProjectile
+	smokes       map[int]*common.Smoke // Maps entity-IDs to active smokes.
+	wepsToRemove map[int]*common.Equipment
 }
 
 type ingameTickNumber int
@@ -101,15 +88,12 @@ func (gs *gameState) indexPlayerByUserID(pl *common.Player) {
 
 func (gs *gameState) setPlayerLifeState(pl *common.Player, alive bool) {
 	pl.Alive = alive
-	if pl.Entity == nil {
+	if pl.Entity == nil || !alive {
+		clear(pl.Inventory)
 		delete(gs.aliveByEntityID, pl.EntityID)
 		return
 	}
-	if alive {
-		gs.aliveByEntityID[pl.Entity.ID()] = pl
-		return
-	}
-	delete(gs.aliveByEntityID, pl.Entity.ID())
+	gs.aliveByEntityID[pl.Entity.ID()] = pl
 }
 
 // IngameTick returns the latest actual tick number of the server during the game.
@@ -281,10 +265,6 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		hostages:                 make(map[int]*common.Hostage),
 		entities:                 make(map[int]st.Entity),
 		thrownGrenades:           make(map[*common.Player][]*common.Equipment),
-		flyingFlashbangs:         make([]*FlyingFlashbang, 0),
-		lastFlash: lastFlash{
-			projectileByPlayer: make(map[*common.Player]*common.GrenadeProjectile),
-		},
 		rules: gameRules{
 			conVars: make(map[string]string),
 		},

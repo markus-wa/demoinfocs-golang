@@ -615,15 +615,6 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		}
 
 		pl.FlashDuration = val.Float()
-
-		if pl.FlashDuration > 0 {
-			if len(p.gameState.flyingFlashbangs) == 0 {
-				return
-			}
-
-			flashbang := p.gameState.flyingFlashbangs[0]
-			flashbang.flashedEntityIDs = append(flashbang.flashedEntityIDs, pl.EntityID)
-		}
 	})
 
 	pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
@@ -764,6 +755,10 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 }
 
 func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
+	if pl.PlayerPawnEntity() == nil || pl.PlayerPawnEntity().ID() != pawnEntity.ID() {
+		return
+	}
+
 	const inventoryCapacity = 64
 
 	var inventorySize uint64 = 64
@@ -943,13 +938,6 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 		p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
 
-		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash {
-			p.gameState.flyingFlashbangs = append(p.gameState.flyingFlashbangs, &FlyingFlashbang{
-				projectile:       proj,
-				flashedEntityIDs: []int{},
-			})
-		}
-
 		if p.isSource2() && !p.disableMimicSource1GameEvents {
 			p.eventDispatcher.Dispatch(events.WeaponFire{
 				Shooter: proj.Owner,
@@ -973,13 +961,6 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 					GrenadeEntityID: proj.Entity.ID(),
 				},
 			})
-
-			if len(p.gameState.flyingFlashbangs) == 0 {
-				return
-			}
-
-			flashbang := p.gameState.flyingFlashbangs[0]
-			flashbang.explodedFrame = p.currentFrame
 		}
 
 		p.nadeProjectileDestroyed(proj)
@@ -1035,8 +1016,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	if voxelProp := entity.Property("m_VoxelFrameData"); voxelProp != nil {
 		voxelProp.OnUpdate(func(val st.PropertyValue) {
 			smk := p.gameState.smokes[entityID]
-			voxelLen := len(smk.VoxelFrameData)
-			for i := voxelLen; i < 10000; i++ {
+			for i := len(smk.VoxelFrameData); i < 10000; i++ {
 				val := smk.Entity.Property("m_VoxelFrameData." + fmt.Sprintf("%04d", i)).Value()
 				if val.Any == nil {
 					break
@@ -1060,10 +1040,6 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	})
 
 	delete(p.gameState.grenadeProjectiles, proj.Entity.ID())
-
-	if proj.WeaponInstance.Type == common.EqFlash {
-		p.gameState.lastFlash.projectileByPlayer[proj.Owner] = proj
-	}
 
 	// We delete from the Owner.ThrownGrenades (only if not inferno or smoke, because they will be deleted when they expire)
 	isInferno := proj.WeaponInstance.Type == common.EqMolotov || proj.WeaponInstance.Type == common.EqIncendiary
@@ -1173,8 +1149,6 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		}
 
 		lastMoneyIncreased = false
-		// equipment.Owner = nil
-		// delete(p.gameState.weapons, entityID)
 		p.gameState.wepsToRemove[entityID] = equipment
 	})
 
@@ -1283,13 +1257,7 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 
 func (p *parser) bindNewSmoke(entity st.Entity) {
 	throwerHandle := entity.PropertyValueMust("m_hOwnerEntity").Handle()
-	var thrower *common.Player
-
-	if p.isSource2() {
-		thrower = p.gameState.Participants().FindByPawnHandle(throwerHandle)
-	} else {
-		thrower = p.gameState.Participants().FindByHandle64(throwerHandle)
-	}
+	thrower := p.gameState.Participants().FindByPawnHandle(throwerHandle)
 	smk := common.NewSmoke(p.demoInfoProvider, entity, thrower)
 	p.gameState.smokes[entity.ID()] = smk
 
@@ -1298,8 +1266,7 @@ func (p *parser) bindNewSmoke(entity st.Entity) {
 	})
 
 	entity.Property("m_bDidSmokeEffect").OnUpdate(func(val st.PropertyValue) {
-		smk.IsActive = entity.PropertyValueMust("m_bDidSmokeEffect").BoolVal()
-		if smk.IsActive {
+		if val.BoolVal() {
 			smk.ActivationTick = p.demoInfoProvider.IngameTick()
 		}
 	})
@@ -1321,11 +1288,7 @@ func (p *parser) bindGameRules() {
 	gameRules := p.ServerClasses().FindByName("CCSGameRulesProxy")
 	gameRules.OnEntityCreated(func(entity st.Entity) {
 		grPrefix := func(s string) string {
-			if p.isSource2() {
-				return fmt.Sprintf("%s.%s", gameRulesPrefixS2, s)
-			}
-
-			return fmt.Sprintf("%s.%s", gameRulesPrefix, s)
+			return fmt.Sprintf("%s.%s", gameRulesPrefixS2, s)
 		}
 
 		p.gameState.rules.entity = entity
@@ -1335,28 +1298,21 @@ func (p *parser) bindGameRules() {
 		hasBombTarget := entity.PropertyValueMust(grPrefix("m_bMapHasBombTarget")).BoolVal()
 
 		dispatchRoundStart := func() {
+			if p.gameState.TotalRoundsPlayed() > 0 {
+				p.gameEventHandler.dispatch(events.RoundEndOfficial{})
+			}
+
 			p.gameEventHandler.clearGrenadeProjectiles()
 
 			for _, player := range p.gameState.playersByEntityID {
 				player.IsPlanting = false
-				p.gameState.currentPlanter = nil
-
 				player.IsDefusing = false
-				p.gameState.currentDefuser = nil
 			}
-
-			// for key, wep := range p.gameState.weapons {
-			// 	if wep.Entity == nil {
-			// 		delete(p.gameState.weapons, key)
-			// 	}
-			// }
+			p.gameState.currentPlanter = nil
+			p.gameState.currentDefuser = nil
 
 			if p.disableMimicSource1GameEvents {
 				return
-			}
-
-			if p.gameState.TotalRoundsPlayed() > 0 {
-				p.gameEventHandler.dispatch(events.RoundEndOfficial{})
 			}
 
 			var objective string
@@ -1555,8 +1511,36 @@ func (p *parser) bindGameRules() {
 						LoserState:  loserState,
 					}
 				}
+			})
 
-				p.gameState.currentPlanter = nil
+			entity.Property(grPrefix("m_nTerroristTimeOuts")).OnUpdate(func(val st.PropertyValue) {
+				if p.gameState.tState.Timeouts > val.Int() {
+					p.gameState.tState.Timeouts = val.Int()
+					p.eventDispatcher.Dispatch(events.Timeout{
+						TeamState: &p.gameState.tState,
+					})
+					return
+				}
+				p.gameState.tState.Timeouts = val.Int()
+			})
+
+			entity.Property(grPrefix("m_nCTTimeOuts")).OnUpdate(func(val st.PropertyValue) {
+				if p.gameState.ctState.Timeouts > val.Int() {
+					p.gameState.ctState.Timeouts = val.Int()
+					p.eventDispatcher.Dispatch(events.Timeout{
+						TeamState: &p.gameState.ctState,
+					})
+					return
+				}
+				p.gameState.ctState.Timeouts = val.Int()
+			})
+
+			entity.Property(grPrefix("m_bTechnicalTimeOut")).OnUpdate(func(val st.PropertyValue) {
+				if val.BoolVal() {
+					p.eventDispatcher.Dispatch(events.Timeout{
+						Tech: true,
+					})
+				}
 			})
 		}
 
