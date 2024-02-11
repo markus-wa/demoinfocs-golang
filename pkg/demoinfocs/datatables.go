@@ -357,22 +357,12 @@ func (p *parser) bindBombSites() {
 }
 
 func (p *parser) bindPlayers() {
-	if p.isSource2() {
-		p.stParser.ServerClasses().FindByName("CCSPlayerController").OnEntityCreated(func(player st.Entity) {
-			p.bindNewPlayerControllerS2(player)
-		})
-		p.stParser.ServerClasses().FindByName("CCSPlayerPawn").OnEntityCreated(func(player st.Entity) {
-			p.bindNewPlayerPawnS2(player)
-		})
-	} else {
-		p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(entity st.Entity) {
-			p.gameState.playerResourceEntity = entity
-		})
-
-		p.stParser.ServerClasses().FindByName("CCSPlayer").OnEntityCreated(func(player st.Entity) {
-			p.bindNewPlayerS1(player)
-		})
-	}
+	p.stParser.ServerClasses().FindByName("CCSPlayerController").OnEntityCreated(func(player st.Entity) {
+		p.bindNewPlayerControllerS2(player)
+	})
+	p.stParser.ServerClasses().FindByName("CCSPlayerPawn").OnEntityCreated(func(player st.Entity) {
+		p.bindNewPlayerPawnS2(player)
+	})
 }
 
 func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew bool, player *common.Player) {
@@ -411,89 +401,6 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew b
 	}
 
 	return isNew, player
-}
-
-//nolint:funlen
-func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
-	entityID := playerEntity.ID()
-	rp := p.rawPlayers[entityID-1]
-
-	isNew, pl := p.getOrCreatePlayer(entityID, rp)
-
-	pl.EntityID = entityID
-	pl.Entity = playerEntity
-	pl.IsConnected = true
-
-	playerEntity.OnDestroy(func() {
-		delete(p.gameState.playersByEntityID, entityID)
-		pl.Entity = nil
-	})
-
-	// Position
-	playerEntity.OnPositionUpdate(func(pos r3.Vector) {
-		if pl.Alive {
-			pl.LastAlivePosition = pos
-		}
-	})
-
-	// General info
-	playerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
-		team := val.IntVal
-		pl.Team = common.Team(team)
-		pl.TeamState = p.gameState.Team(pl.Team)
-	})
-
-	playerEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
-		if val.FloatVal == 0 {
-			pl.FlashTick = 0
-		} else {
-			pl.FlashTick = p.gameState.ingameTick
-		}
-
-		pl.FlashDuration = val.FloatVal
-	})
-
-	p.bindPlayerWeapons(playerEntity, pl)
-
-	for i := 0; i < 32; i++ {
-		i2 := i // Copy so it stays the same
-		playerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
-	}
-
-	playerEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
-		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.IntVal == 0 {
-			p.eventDispatcher.Dispatch(events.BombDefuseAborted{Player: pl})
-			p.gameState.currentDefuser = nil
-		}
-
-		pl.IsDefusing = val.IntVal != 0
-	})
-
-	spottedByMaskProp := playerEntity.Property("m_bSpottedByMask.000")
-	if spottedByMaskProp != nil {
-		spottersChanged := func(val st.PropertyValue) {
-			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
-		}
-
-		spottedByMaskProp.OnUpdate(spottersChanged)
-		playerEntity.Property("m_bSpottedByMask.001").OnUpdate(spottersChanged)
-	}
-
-	if isNew {
-		if pl.SteamID64 != 0 {
-			p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
-		} else {
-			p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
-			playerInfo := common.PlayerInfo{
-				XUID:         0,
-				Name:         pl.Name,
-				UserID:       pl.EntityID - 1,
-				IsFakePlayer: true,
-				IsHltv:       false,
-			}
-			p.setRawPlayer(pl.EntityID-1, playerInfo)
-		}
-	}
 }
 
 func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entity) *common.Player {
@@ -706,58 +613,6 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 
 		spottedByMaskProp.OnUpdate(spottersChanged)
 		pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
-	}
-}
-
-const maxWeapons = 64
-
-func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
-	// Some demos have an additional prefix for player weapons weapon
-	var wepPrefix string
-	if playerEntity.Property(playerWeaponPrefix+"000") != nil {
-		wepPrefix = playerWeaponPrefix
-	} else {
-		wepPrefix = playerWeaponPrePrefix + playerWeaponPrefix
-	}
-
-	// Weapons
-	var cache [maxWeapons]int
-	for i := range cache {
-		i2 := i // Copy for passing to handler
-		playerEntity.Property(wepPrefix + fmt.Sprintf("%03d", i)).OnUpdate(func(val st.PropertyValue) {
-			entityID := val.IntVal & constants.EntityHandleIndexMask
-			if entityID != constants.EntityHandleIndexMask {
-				if cache[i2] != 0 {
-					// Player already has a weapon in this slot.
-					delete(pl.Inventory, cache[i2])
-				}
-				cache[i2] = entityID
-
-				wep := p.gameState.weapons[entityID]
-
-				if wep == nil {
-					// sometimes a weapon is assigned to a player before the weapon entity is created
-					wep = common.NewEquipment(common.EqUnknown)
-					p.gameState.weapons[entityID] = wep
-				}
-
-				// Clear previous owner
-				if wep.Owner != nil && wep.Entity != nil {
-					delete(wep.Owner.Inventory, wep.Entity.ID())
-				}
-
-				// Attribute weapon to player
-				wep.Owner = pl
-				pl.Inventory[entityID] = wep
-			} else {
-				if cache[i2] != 0 && pl.Inventory[cache[i2]] != nil {
-					pl.Inventory[cache[i2]].Owner = nil
-				}
-				delete(pl.Inventory, cache[i2])
-
-				cache[i2] = 0
-			}
-		})
 	}
 }
 

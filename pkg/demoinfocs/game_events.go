@@ -610,6 +610,10 @@ func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CSVCMsg_GameEv
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	player := geh.playerByUserID32(data["userid"].GetValShort())
+	if player == nil {
+		return
+	}
 	geh.dispatch(events.PlayerFlashed{
 		Player:     geh.playerByUserID32(data["userid"].GetValShort()),
 		Attacker:   geh.playerByUserID32(data["attacker"].GetValShort()),
