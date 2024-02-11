@@ -128,7 +128,8 @@ type TeamState struct {
 	membersCallback  func(Team) []*Player
 	demoInfoProvider demoInfoProvider
 
-	Entity st.Entity
+	Entity   st.Entity
+	Timeouts int
 
 	// Terrorist TeamState for CTs, CT TeamState for Terrorists
 	Opponent *TeamState
@@ -215,6 +216,15 @@ func (ts *TeamState) MoneySpentThisRound() (value int) {
 func (ts *TeamState) MoneySpentTotal() (value int) {
 	for _, pl := range ts.Members() {
 		value += pl.MoneySpentTotal()
+	}
+
+	return
+}
+
+// CurrentMoney returns the current total amount of cash.
+func (ts *TeamState) CurrentMoney() (value int) {
+	for _, pl := range ts.Members() {
+		value += pl.Money()
 	}
 
 	return

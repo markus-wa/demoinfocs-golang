@@ -148,6 +148,36 @@ type PlayerJump struct {
 	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 }
 
+type WeaponZoom struct {
+	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+}
+
+type Sound byte
+
+const (
+	UNKNOWN       Sound = 0
+	STEP          Sound = 1
+	JUMP          Sound = 2
+	ZOOM          Sound = 3
+	SILENCED_SHOT Sound = 4
+	KNIFE_SWING   Sound = 5
+	KNIFE_HIT     Sound = 6
+)
+
+type PlayerSound struct {
+	Player   *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Duration float32
+	Radius   int32
+	Sound    Sound
+}
+
+type FakePlayerSound struct {
+	Player   *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Duration float32
+	Radius   int32
+	Sound    Sound
+}
+
 // Kill signals that a player has been killed.
 type Kill struct {
 	Weapon            *common.Equipment
@@ -180,8 +210,14 @@ type WeaponFire struct {
 }
 
 // WeaponReload signals that a player started to reload his weapon.
-type WeaponReload struct {
+type WeaponReloadBegin struct {
 	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+}
+
+// WeaponReload signals that a player ended to reload his weapon.
+type WeaponReloadEnd struct {
+	Player  *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Success bool
 }
 
 // GrenadeEventIf is the interface for all GrenadeEvents (except GrenadeProjectile* events).
@@ -276,11 +312,24 @@ type PlayerFlashed struct {
 	Player     *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Attacker   *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Projectile *common.GrenadeProjectile
+	Duration   float32
 }
 
 // FlashDuration returns the duration of the blinding effect.
 // This is just a shortcut for Player.FlashDurationTime().
 func (e PlayerFlashed) FlashDuration() time.Duration {
+	return e.Player.FlashDurationTime()
+}
+
+type FakePlayerFlashed struct {
+	Player     *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Attacker   *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Projectile *common.GrenadeProjectile
+}
+
+// FlashDuration returns the duration of the blinding effect.
+// This is just a shortcut for Player.FlashDurationTime().
+func (e FakePlayerFlashed) FlashDuration() time.Duration {
 	return e.Player.FlashDurationTime()
 }
 
@@ -550,6 +599,12 @@ type ItemDrop struct {
 	Weapon *common.Equipment
 }
 
+type ItemChangeOwner struct {
+	NewOwner  *common.Player
+	PrevOwner *common.Player
+	Weapon    *common.Equipment
+}
+
 // DataTablesParsed signals that the datatables were parsed.
 // You can use the Parser.ServerClasses() after this event to register update notification on entities & properties.
 type DataTablesParsed struct{}
@@ -635,6 +690,11 @@ type TeamSideSwitch struct {
 // GameHalfEnded signals that the currently ongoing game half has ended.
 // GameHalfEnded is usually dispatched in the end of a round, just before RoundEndOfficial.
 type GameHalfEnded struct {
+}
+
+type Timeout struct {
+	TeamState *common.TeamState
+	Tech      bool
 }
 
 // MatchStartedChanged signals that the value of data table DT_GameRulesProxy.m_bHasMatchStarted has changed

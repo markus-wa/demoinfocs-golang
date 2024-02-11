@@ -431,14 +431,15 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 
 	// Position
 	playerEntity.OnPositionUpdate(func(pos r3.Vector) {
-		if pl.IsAlive() {
+		if pl.Alive {
 			pl.LastAlivePosition = pos
 		}
 	})
 
 	// General info
 	playerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
-		pl.Team = common.Team(val.IntVal)
+		team := val.IntVal
+		pl.Team = common.Team(team)
 		pl.TeamState = p.gameState.Team(pl.Team)
 	})
 
@@ -458,12 +459,6 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 		i2 := i // Copy so it stays the same
 		playerEntity.BindProperty("m_iAmmo."+fmt.Sprintf("%03d", i2), &pl.AmmoLeft[i2], st.ValTypeInt)
 	}
-
-	activeWep := playerEntity.Property("m_hActiveWeapon")
-
-	activeWep.OnUpdate(func(val st.PropertyValue) {
-		pl.IsReloading = false
-	})
 
 	playerEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
 		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.IntVal == 0 {
@@ -489,6 +484,14 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 			p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 		} else {
 			p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
+			playerInfo := common.PlayerInfo{
+				XUID:         0,
+				Name:         pl.Name,
+				UserID:       pl.EntityID - 1,
+				IsFakePlayer: true,
+				IsHltv:       false,
+			}
+			p.setRawPlayer(pl.EntityID-1, playerInfo)
 		}
 	}
 }
@@ -514,6 +517,10 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
+	controllerEntity.Property("m_hPawn").OnUpdate(func(val st.PropertyValue) {
+		p.gameState.setPlayerLifeState(pl, pl.IsAlive())
+	})
+
 	controllerEntity.Property("m_iConnected").OnUpdate(func(val st.PropertyValue) {
 		state := val.S2UInt32()
 		wasConnected := pl.IsConnected
@@ -529,7 +536,6 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 			p.gameEventHandler.dispatch(events.PlayerDisconnected{
 				Player: pl,
 			})
-
 			return
 		}
 
@@ -539,18 +545,33 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 				p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
 			} else {
 				p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
+				playerInfo := common.PlayerInfo{
+					XUID:         0,
+					Name:         pl.Name,
+					UserID:       pl.EntityID - 1,
+					IsFakePlayer: true,
+					IsHltv:       false,
+				}
+				p.setRawPlayer(pl.EntityID-1, playerInfo)
 			}
 		}
+		p.gameState.setPlayerLifeState(pl, pl.IsAlive())
 	})
 
 	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
+		team := val.S2UInt64()
 		pl.Team = common.Team(val.S2UInt64())
 		pl.TeamState = p.gameState.Team(pl.Team)
+
+		if team < 2 {
+			p.gameState.setPlayerLifeState(pl, false)
+		}
 	})
 
 	controllerEntity.OnDestroy(func() {
 		pl.IsConnected = false
 		delete(p.gameState.playersByEntityID, controllerEntity.ID())
+		p.gameState.setPlayerLifeState(pl, false)
 	})
 }
 
@@ -568,16 +589,20 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 
 	pawnEntity.Property("m_hController").OnUpdate(func(controllerHandleVal st.PropertyValue) {
 		controllerHandle := controllerHandleVal.Handle()
-		if controllerHandle == constants.InvalidEntityHandleSource2 || controllerHandle == prevControllerHandle {
+		if controllerHandle == constants.InvalidEntityHandleSource2 {
+			return
+		}
+
+		controllerEntityID := int(controllerHandle & constants.EntityHandleIndexMaskSource2)
+		controllerEntity := p.gameState.playerControllerEntities[controllerEntityID]
+		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
+		p.gameState.setPlayerLifeState(pl, pl.IsAlive())
+
+		if controllerHandle == prevControllerHandle {
 			return
 		}
 
 		prevControllerHandle = controllerHandle
-
-		controllerEntityID := int(controllerHandle & constants.EntityHandleIndexMaskSource2)
-		controllerEntity := p.gameState.playerControllerEntities[controllerEntityID]
-
-		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
 		p.bindPlayerWeaponsS2(pawnEntity, pl)
 	})
@@ -605,15 +630,6 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		}
 
 		pl.FlashDuration = val.Float()
-
-		if pl.FlashDuration > 0 {
-			if len(p.gameState.flyingFlashbangs) == 0 {
-				return
-			}
-
-			flashbang := p.gameState.flyingFlashbangs[0]
-			flashbang.flashedEntityIDs = append(flashbang.flashedEntityIDs, pl.EntityID)
-		}
 	})
 
 	pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
@@ -621,7 +637,14 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		if pl == nil {
 			return
 		}
-		pl.IsReloading = false
+
+		if pl.IsReloading {
+			p.eventDispatcher.Dispatch(events.WeaponReloadEnd{
+				Player: pl,
+			})
+
+			pl.IsReloading = false
+		}
 	})
 
 	pawnEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
@@ -631,6 +654,44 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		}
 		pl.IsDefusing = val.BoolVal()
 	})
+
+	pawnEntity.Property("m_iHealth").OnUpdate(func(val st.PropertyValue) {
+		pl := getPlayerFromPawnEntity(pawnEntity)
+		if pl == nil {
+			return
+		}
+		if val.Int() == 0 {
+			p.gameState.setPlayerLifeState(pl, false)
+			return
+		}
+		if pl.LifeState() == 0 {
+			p.gameState.setPlayerLifeState(pl, true)
+		}
+	})
+
+	if lifeStateProp := pawnEntity.Property("m_lifeState"); lifeStateProp != nil {
+		lifeStateProp.OnUpdate(func(val st.PropertyValue) {
+			pl := getPlayerFromPawnEntity(pawnEntity)
+			if pl == nil {
+				return
+			}
+			if val.S2UInt64() == 0 {
+				p.gameState.setPlayerLifeState(pl, pl.Health() > 0)
+				return
+			}
+			p.gameState.setPlayerLifeState(pl, false)
+		})
+	}
+
+	if playerPawnProp := pawnEntity.Property("m_hPlayerPawn"); playerPawnProp != nil {
+		playerPawnProp.OnUpdate(func(val st.PropertyValue) {
+			pl := getPlayerFromPawnEntity(pawnEntity)
+			if pl == nil {
+				return
+			}
+			p.gameState.setPlayerLifeState(pl, pl.IsAlive())
+		})
+	}
 
 	spottedByMaskProp := pawnEntity.Property("m_bSpottedByMask.0000")
 	if spottedByMaskProp != nil {
@@ -701,6 +762,10 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 }
 
 func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
+	if pl.PlayerPawnEntity() == nil || pl.PlayerPawnEntity().ID() != pawnEntity.ID() {
+		return
+	}
+
 	const inventoryCapacity = 64
 
 	var inventorySize uint64 = 64
@@ -742,7 +807,9 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	}
 
 	pawnEntity.Property("m_pWeaponServices.m_hMyWeapons").OnUpdate(func(pv st.PropertyValue) {
-		inventorySize = pv.S2UInt64()
+		if val, ok := pv.Any.(uint64); ok {
+			inventorySize = val
+		}
 		setPlayerInventory()
 	})
 
@@ -839,6 +906,7 @@ func (p *parser) bindWeapons() {
 	}
 
 	p.stParser.ServerClasses().FindByName("CInferno").OnEntityCreated(p.bindNewInferno)
+	p.stParser.ServerClasses().FindByName("CSmokeGrenadeProjectile").OnEntityCreated(p.bindNewSmoke)
 }
 
 // bindGrenadeProjectiles keeps track of the location of live grenades (parser.gameState.grenadeProjectiles), actively thrown by players.
@@ -863,8 +931,6 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			weaponType, exists := p.equipmentTypePerModel[model]
 			if exists {
 				wep = weaponType
-			} else {
-				fmt.Printf("unknown grenade model %d", model)
 			}
 		}
 
@@ -878,13 +944,6 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		}
 
 		p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
-
-		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash {
-			p.gameState.flyingFlashbangs = append(p.gameState.flyingFlashbangs, &FlyingFlashbang{
-				projectile:       proj,
-				flashedEntityIDs: []int{},
-			})
-		}
 
 		if p.isSource2() && !p.disableMimicSource1GameEvents {
 			p.eventDispatcher.Dispatch(events.WeaponFire{
@@ -909,13 +968,6 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 					GrenadeEntityID: proj.Entity.ID(),
 				},
 			})
-
-			if len(p.gameState.flyingFlashbangs) == 0 {
-				return
-			}
-
-			flashbang := p.gameState.flyingFlashbangs[0]
-			flashbang.explodedFrame = p.currentFrame
 		}
 
 		p.nadeProjectileDestroyed(proj)
@@ -967,6 +1019,19 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			}
 		})
 	}
+
+	if voxelProp := entity.Property("m_VoxelFrameData"); voxelProp != nil {
+		voxelProp.OnUpdate(func(val st.PropertyValue) {
+			smk := p.gameState.smokes[entityID]
+			for i := len(smk.VoxelFrameData); i < 10000; i++ {
+				val := smk.Entity.Property("m_VoxelFrameData." + fmt.Sprintf("%04d", i)).Value()
+				if val.Any == nil {
+					break
+				}
+				smk.VoxelFrameData = append(smk.VoxelFrameData, uint8(val.S2UInt64()))
+			}
+		})
+	}
 }
 
 // Separate function because we also use it in round_officially_ended (issue #42)
@@ -982,10 +1047,6 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	})
 
 	delete(p.gameState.grenadeProjectiles, proj.Entity.ID())
-
-	if proj.WeaponInstance.Type == common.EqFlash {
-		p.gameState.lastFlash.projectileByPlayer[proj.Owner] = proj
-	}
 
 	// We delete from the Owner.ThrownGrenades (only if not inferno or smoke, because they will be deleted when they expire)
 	isInferno := proj.WeaponInstance.Type == common.EqMolotov || proj.WeaponInstance.Type == common.EqIncendiary
@@ -1022,6 +1083,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	}
 
 	equipment.Entity = entity
+	equipment.Skin = equipment.GetSkin()
 
 	// Used to detect when a player has been refunded for a weapon
 	// This happens when:
@@ -1050,6 +1112,40 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		})
 	})
 
+	entity.Property("m_bInReload").OnUpdate(func(val st.PropertyValue) {
+		owner := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
+		if owner != nil {
+			if val.BoolVal() {
+				p.eventDispatcher.Dispatch(events.WeaponReloadBegin{
+					Player: owner,
+				})
+
+				owner.IsReloading = true
+			} else if !val.BoolVal() && owner.IsReloading {
+				p.eventDispatcher.Dispatch(events.WeaponReloadEnd{
+					Player: owner,
+				})
+
+				owner.IsReloading = false
+			}
+		}
+	})
+
+	entity.Property("m_bReloadVisuallyComplete").OnUpdate(func(val st.PropertyValue) {
+		owner := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
+		reload := val.BoolVal()
+		if !reload || owner == nil || !owner.IsReloading {
+			return
+		}
+
+		p.eventDispatcher.Dispatch(events.WeaponReloadEnd{
+			Player:  owner,
+			Success: true,
+		})
+
+		owner.IsReloading = false
+	})
+
 	entity.OnDestroy(func() {
 		owner := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
 		if owner != nil && owner.IsInBuyZone() && p.GameState().IngameTick() == lastMoneyUpdateTick && lastMoneyIncreased {
@@ -1060,8 +1156,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		}
 
 		lastMoneyIncreased = false
-		equipment.Owner = nil
-		delete(p.gameState.weapons, entityID)
+		p.gameState.wepsToRemove[entityID] = equipment
 	})
 
 	// Detect weapon firing, we don't use m_iClip1 because it would not work with weapons such as the knife (no ammo).
@@ -1080,12 +1175,6 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 			}
 		})
 	}
-
-	entity.Property("m_iClip1").OnUpdate(func(val st.PropertyValue) {
-		if equipment.Owner != nil {
-			equipment.Owner.IsReloading = false
-		}
-	})
 }
 
 func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
@@ -1107,12 +1196,6 @@ func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 
 	entity.OnDestroy(func() {
 		delete(p.gameState.weapons, entityID)
-	})
-
-	entity.Property("m_iClip1").OnUpdate(func(val st.PropertyValue) {
-		if eq.Owner != nil {
-			eq.Owner.IsReloading = false
-		}
 	})
 
 	// Detect alternative weapons (P2k -> USP, M4A4 -> M4A1-S etc.)
@@ -1179,16 +1262,40 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 	p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
 }
 
+func (p *parser) bindNewSmoke(entity st.Entity) {
+	throwerHandle := entity.PropertyValueMust("m_hOwnerEntity").Handle()
+	thrower := p.gameState.Participants().FindByPawnHandle(throwerHandle)
+	smk := common.NewSmoke(p.demoInfoProvider, entity, thrower)
+	p.gameState.smokes[entity.ID()] = smk
+
+	entity.OnDestroy(func() {
+		p.smokeExpired(smk)
+	})
+
+	entity.Property("m_bDidSmokeEffect").OnUpdate(func(val st.PropertyValue) {
+		if val.BoolVal() {
+			smk.ActivationTick = p.demoInfoProvider.IngameTick()
+		}
+	})
+}
+
+// Separate function because we also use it in round_officially_ended (issue #42)
+func (p *parser) smokeExpired(inf *common.Smoke) {
+	// If the smoke entity is destroyed AFTER round_officially_ended
+	// we already executed this code when we received that event.
+	if _, exists := p.gameState.smokes[inf.Entity.ID()]; !exists {
+		return
+	}
+
+	delete(p.gameState.smokes, inf.Entity.ID())
+}
+
 //nolint:funlen
 func (p *parser) bindGameRules() {
 	gameRules := p.ServerClasses().FindByName("CCSGameRulesProxy")
 	gameRules.OnEntityCreated(func(entity st.Entity) {
 		grPrefix := func(s string) string {
-			if p.isSource2() {
-				return fmt.Sprintf("%s.%s", gameRulesPrefixS2, s)
-			}
-
-			return fmt.Sprintf("%s.%s", gameRulesPrefix, s)
+			return fmt.Sprintf("%s.%s", gameRulesPrefixS2, s)
 		}
 
 		p.gameState.rules.entity = entity
@@ -1198,14 +1305,21 @@ func (p *parser) bindGameRules() {
 		hasBombTarget := entity.PropertyValueMust(grPrefix("m_bMapHasBombTarget")).BoolVal()
 
 		dispatchRoundStart := func() {
+			if p.gameState.TotalRoundsPlayed() > 0 {
+				p.gameEventHandler.dispatch(events.RoundEndOfficial{})
+			}
+
 			p.gameEventHandler.clearGrenadeProjectiles()
+
+			for _, player := range p.gameState.playersByEntityID {
+				player.IsPlanting = false
+				player.IsDefusing = false
+			}
+			p.gameState.currentPlanter = nil
+			p.gameState.currentDefuser = nil
 
 			if p.disableMimicSource1GameEvents {
 				return
-			}
-
-			if p.gameState.TotalRoundsPlayed() > 0 {
-				p.gameEventHandler.dispatch(events.RoundEndOfficial{})
 			}
 
 			var objective string
@@ -1386,8 +1500,13 @@ func (p *parser) bindGameRules() {
 				var winnerState *common.TeamState
 				var loserState *common.TeamState
 				if winner != common.TeamUnassigned {
-					winnerState = p.gameState.Team(winner)
-					loserState = winnerState.Opponent
+					if winner == common.TeamSpectators {
+						winnerState = p.gameState.Team(winner)
+						loserState = p.gameState.Team(winner)
+					} else {
+						winnerState = p.gameState.Team(winner)
+						loserState = winnerState.Opponent
+					}
 				}
 
 				if !p.disableMimicSource1GameEvents {
@@ -1399,8 +1518,36 @@ func (p *parser) bindGameRules() {
 						LoserState:  loserState,
 					}
 				}
+			})
 
-				p.gameState.currentPlanter = nil
+			entity.Property(grPrefix("m_nTerroristTimeOuts")).OnUpdate(func(val st.PropertyValue) {
+				if p.gameState.tState.Timeouts > val.Int() {
+					p.gameState.tState.Timeouts = val.Int()
+					p.eventDispatcher.Dispatch(events.Timeout{
+						TeamState: &p.gameState.tState,
+					})
+					return
+				}
+				p.gameState.tState.Timeouts = val.Int()
+			})
+
+			entity.Property(grPrefix("m_nCTTimeOuts")).OnUpdate(func(val st.PropertyValue) {
+				if p.gameState.ctState.Timeouts > val.Int() {
+					p.gameState.ctState.Timeouts = val.Int()
+					p.eventDispatcher.Dispatch(events.Timeout{
+						TeamState: &p.gameState.ctState,
+					})
+					return
+				}
+				p.gameState.ctState.Timeouts = val.Int()
+			})
+
+			entity.Property(grPrefix("m_bTechnicalTimeOut")).OnUpdate(func(val st.PropertyValue) {
+				if val.BoolVal() {
+					p.eventDispatcher.Dispatch(events.Timeout{
+						Tech: true,
+					})
+				}
 			})
 		}
 

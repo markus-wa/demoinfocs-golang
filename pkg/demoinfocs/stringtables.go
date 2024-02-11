@@ -53,8 +53,10 @@ func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
 	pl.Name = raw.Name
 	pl.SteamID64 = raw.XUID
 	pl.IsBot = raw.IsFakePlayer
+	pl.UserID = index
 
 	p.gameState.indexPlayerBySteamID(pl)
+	p.gameState.indexPlayerByUserID(pl)
 
 	if nameChanged {
 		p.eventDispatcher.Dispatch(events.PlayerNameChange{
@@ -589,14 +591,14 @@ func (p *parser) handleCreateStringTableS1(tab *msg.CSVCMsg_CreateStringTable) {
 }
 
 func (p *parser) parseUserInfo(data []byte, playerIndex int) {
-	if _, exists := p.rawPlayers[playerIndex]; exists {
-		return
-	}
-
 	var userInfo msgs2.CMsgPlayerInfo
 	err := proto.Unmarshal(data, &userInfo)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse CMsgPlayerInfo msg"))
+	}
+
+	if _, exists := p.rawPlayers[int(userInfo.GetUserid())]; exists {
+		return
 	}
 
 	xuid := userInfo.GetXuid() // TODO: what to do with userInfo.GetSteamid()? (seems to be the same, but maybe not in China?)
@@ -624,7 +626,7 @@ func (p *parser) parseUserInfo(data []byte, playerIndex int) {
 		CustomFiles3:    0,
 		FilesDownloaded: 0,
 	}
-	p.setRawPlayer(playerIndex, playerInfo)
+	p.setRawPlayer(playerInfo.UserID, playerInfo)
 
 	povDemoDetected := p.recordingPlayerSlot == -1 && p.header.ClientName == playerInfo.Name
 	if povDemoDetected {

@@ -240,7 +240,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"item_remove":                     geh.itemRemove,                        // Dropped?
 		"jointeam_failed":                 nil,                                   // Dunno, only in locally recorded (POV) demos
 		"other_death":                     geh.otherDeath,                        // Other deaths, like chickens.
-		"player_blind":                    delay(geh.playerBlind),                // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
+		"player_blind":                    geh.playerBlind,                       // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
 		"player_changename":               nil,                                   // Name change
 		"player_connect":                  geh.playerConnect,                     // Bot connected or player reconnected, players normally come in via string tables & data tables
 		"player_connect_full":             nil,                                   // Connecting finished
@@ -255,7 +255,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"player_given_c4":                 nil,                                   // Dunno, only present in locally recorded (POV) demos
 		"player_ping":                     nil,                                   // When a player uses the "ping system" added with the operation Broken Fang, only present in locally recorded (POV) demos
 		"player_ping_stop":                nil,                                   // When a player's ping expired, only present in locally recorded (POV) demos
-		"player_sound":                    nil,                                   // When a player makes a sound. TODO: implement player_sound
+		"player_sound":                    geh.playerSound,                       // When a player makes a sound. TODO: implement player_sound
 
 		// Player changed team. Delayed for two reasons
 		// - team IDs of other players changing teams in the same tick might not have changed yet
@@ -285,8 +285,8 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"vote_cast":                      nil,                              // Dunno, only present in POV demos
 		"weapon_fire":                    delayIfNoPlayers(geh.weaponFire), // Weapon was fired
 		"weapon_fire_on_empty":           nil,                              // Sounds boring
-		"weapon_reload":                  geh.weaponReload,                 // Weapon reloaded
-		"weapon_zoom":                    nil,                              // Zooming in
+		"weapon_reload":                  nil,                              // Weapon reloaded
+		"weapon_zoom":                    geh.weaponZoom,                   // Zooming in
 		"weapon_zoom_rifle":              nil,                              // Dunno, only in locally recorded (POV) demo
 		"entity_killed":                  nil,
 
@@ -313,9 +313,12 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 		geh.parser.infernoExpired(inf)
 	}
 
+	for _, smk := range geh.gameState().smokes {
+		geh.parser.smokeExpired(smk)
+	}
+
 	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)
 	geh.gameState().thrownGrenades = make(map[*common.Player][]*common.Equipment)
-	geh.gameState().flyingFlashbangs = make([]*FlyingFlashbang, 0)
 }
 
 func (geh gameEventHandler) roundStart(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -391,7 +394,7 @@ func (geh gameEventHandler) botTakeover(data map[string]*msg.CSVCMsg_GameEventKe
 
 	unassert.True(!taker.IsBot)
 	unassert.True(taker.IsControllingBot())
-	unassert.NotNil(taker.ControlledBot())
+	unassert.NotNil(taker.ControlledPawn())
 
 	geh.dispatch(events.BotTakenOver{
 		Taker: taker,
@@ -404,11 +407,24 @@ func (geh gameEventHandler) beginNewMatch(map[string]*msg.CSVCMsg_GameEventKeyT)
 
 func (geh gameEventHandler) roundFreezeEnd(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.RoundFreezetimeEnd{})
+
+	for _, player := range geh.parser.gameState.playersBySteamID32 {
+		player.Distance.Running = 0
+		player.Distance.Walking = 0
+		player.Distance.Ducking = 0
+	}
 }
 
 func (geh gameEventHandler) playerFootstep(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.Footstep{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
+	})
+
+	geh.dispatch(events.FakePlayerSound{
+		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
+		Duration: 0.5,
+		Radius:   1100,
+		Sound:    events.STEP,
 	})
 }
 
@@ -416,6 +432,60 @@ func (geh gameEventHandler) playerJump(data map[string]*msg.CSVCMsg_GameEventKey
 	geh.dispatch(events.PlayerJump{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
+
+	geh.dispatch(events.FakePlayerSound{
+		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
+		Duration: 0.1,
+		Radius:   493,
+		Sound:    events.JUMP,
+	})
+}
+
+func (geh gameEventHandler) weaponZoom(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	geh.dispatch(events.WeaponZoom{
+		Player: geh.playerByUserID32(data["userid"].GetValShort()),
+	})
+
+	geh.dispatch(events.FakePlayerSound{
+		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
+		Duration: 0.1,
+		Radius:   597,
+		Sound:    events.ZOOM,
+	})
+}
+
+func (geh gameEventHandler) playerSound(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	sound := events.UNKNOWN
+	radius := data["radius"].GetValLong()
+	if data["step"].GetValBool() {
+		sound = events.STEP
+	} else if radius == 493 {
+		sound = events.JUMP
+	} else if radius == 597 {
+		sound = events.ZOOM
+	} else if radius == 600 {
+		sound = events.SILENCED_SHOT
+	} else if radius == 800 {
+		sound = events.KNIFE_SWING
+	} else if radius == 1000 {
+		sound = events.KNIFE_HIT
+	}
+
+	geh.dispatch(events.PlayerSound{
+		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
+		Duration: data["duration"].GetValFloat(),
+		Radius:   radius,
+		Sound:    sound,
+	})
+
+	if sound != events.UNKNOWN {
+		geh.dispatch(events.FakePlayerSound{
+			Player:   geh.playerByUserID32(data["userid"].GetValShort()),
+			Duration: data["duration"].GetValFloat(),
+			Radius:   radius,
+			Sound:    sound,
+		})
+	}
 }
 
 func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -425,35 +495,55 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKey
 
 	shooter := geh.playerByUserID32(data["userid"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
+	wep := getPlayerWeapon(shooter, wepType)
 
 	geh.dispatch(events.WeaponFire{
 		Shooter: shooter,
-		Weapon:  getPlayerWeapon(shooter, wepType),
+		Weapon:  wep,
 	})
-}
 
-func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	pl := geh.playerByUserID32(data["userid"].GetValShort())
-	if pl == nil {
-		// see #162, "unknown" players since November 2019 update
-		return
+	if wep.Silenced() {
+		geh.dispatch(events.FakePlayerSound{
+			Player:   shooter,
+			Duration: 0.5,
+			Radius:   600,
+			Sound:    events.SILENCED_SHOT,
+		})
 	}
 
-	pl.IsReloading = true
-
-	geh.dispatch(events.WeaponReload{
-		Player: pl,
-	})
+	if wep.Type == common.EqKnife {
+		geh.dispatch(events.FakePlayerSound{
+			Player:   shooter,
+			Duration: 0.5,
+			Radius:   800,
+			Sound:    events.KNIFE_SWING,
+		})
+	}
 }
+
+// func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+// 	pl := geh.playerByUserID32(data["userid"].GetValShort())
+// 	if pl == nil {
+// 		// see #162, "unknown" players since November 2019 update
+// 		return
+// 	}
+
+// 	pl.IsReloading = true
+
+// 	geh.dispatch(events.WeaponReload{
+// 		Player: pl,
+// 	})
+// }
 
 func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	killer := geh.playerByUserID32(data["attacker"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 	victimUserID := data["userid"].GetValShort()
+	victim := geh.playerByUserID32(data["userid"].GetValShort())
 	wepType = geh.attackerWeaponType(wepType, victimUserID)
 
 	geh.dispatch(events.Kill{
-		Victim:            geh.playerByUserID32(data["userid"].GetValShort()),
+		Victim:            victim,
 		Killer:            killer,
 		Assister:          geh.playerByUserID32(data["assister"].GetValShort()),
 		IsHeadshot:        data["headshot"].GetValBool(),
@@ -520,35 +610,17 @@ func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CSVCMsg_GameEv
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
-		return
-	}
-
-	attacker := geh.gameState().lastFlash.player
-	projectile := geh.gameState().lastFlash.projectileByPlayer[attacker]
-	unassert.NotNilf(projectile, "PlayerFlashed.Projectile should never be nil")
-
-	if projectile != nil {
-		unassert.Samef(attacker, projectile.Thrower, "PlayerFlashed.Attacker != PlayerFlashed.Projectile.Thrower")
-		unassert.NotNilf(projectile.WeaponInstance, "WeaponInstance == nil")
-
-		if projectile.WeaponInstance != nil {
-			unassert.Samef(projectile.WeaponInstance.Type, common.EqFlash, "PlayerFlashed.Projectile.Weapon != EqFlash")
-		}
-	}
-
 	geh.dispatch(events.PlayerFlashed{
 		Player:     geh.playerByUserID32(data["userid"].GetValShort()),
-		Attacker:   attacker,
-		Projectile: projectile,
+		Attacker:   geh.playerByUserID32(data["attacker"].GetValShort()),
+		Projectile: geh.gameState().grenadeProjectiles[int(data["entityid"].GetValShort())],
+		Duration:   data["blind_duration"].GetValFloat(),
 	})
 }
 
 func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 
 	nadeEvent := geh.nadeEvent(data, common.EqFlash)
-
-	geh.gameState().lastFlash.player = nadeEvent.Thrower
 
 	if !geh.parser.isSource2() || geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		geh.dispatch(events.FlashExplode{
@@ -1119,36 +1191,6 @@ func (p *parser) processRoundProgressEvents() {
 	p.dispatchMatchStartedEventIfNecessary()
 }
 
-func (p *parser) processFlyingFlashbangs() {
-	if len(p.gameState.flyingFlashbangs) == 0 {
-		return
-	}
-
-	flashbang := p.gameState.flyingFlashbangs[0]
-	if len(flashbang.flashedEntityIDs) == 0 {
-		// Flashbang exploded and didn't flash any players, remove it from the queue
-		if flashbang.explodedFrame > 0 && flashbang.explodedFrame < p.currentFrame {
-			p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
-		}
-		return
-	}
-
-	for _, entityID := range flashbang.flashedEntityIDs {
-		player := p.gameState.Participants().ByEntityID()[entityID]
-		if player == nil {
-			continue
-		}
-
-		p.gameEventHandler.dispatch(events.PlayerFlashed{
-			Player:     player,
-			Attacker:   flashbang.projectile.Thrower,
-			Projectile: flashbang.projectile,
-		})
-	}
-
-	p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
-}
-
 // Do some processing to dispatch game events at the end of the frame in correct order.
 // This is necessary because some prop updates are not in a order that we would expect, e.g.:
 // - The player prop m_flFlashDuration is updated after the game event player_blind have been parsed (used for CS:GO only)
@@ -1158,7 +1200,6 @@ func (p *parser) processFlyingFlashbangs() {
 // This makes sure game events are dispatched in a more expected order.
 func (p *parser) processFrameGameEvents() {
 	if p.isSource2() && !p.disableMimicSource1GameEvents {
-		p.processFlyingFlashbangs()
 		p.processRoundProgressEvents()
 	}
 

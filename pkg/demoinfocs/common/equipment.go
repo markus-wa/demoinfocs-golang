@@ -1,6 +1,7 @@
 package common
 
 import (
+	"math"
 	"math/rand"
 	"strings"
 
@@ -318,6 +319,7 @@ type Equipment struct {
 	// Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.) for Source 1 demos.
 	// It's always an empty string with Source 2 demos, you should use Type to know which weapon it is.
 	OriginalString string
+	Skin           *Skin
 
 	uniqueID  int64 // Deprecated, use uniqueID2, see UniqueID() for why
 	uniqueID2 ulid.ULID
@@ -460,6 +462,59 @@ func (e *Equipment) Silenced() bool {
 	return prop.Value().BoolVal()
 }
 
+func (e *Equipment) OwnerHandle() uint64 {
+	val, ok := e.Entity.PropertyValue("m_hOwnerEntity")
+	if ok {
+		return val.Handle()
+	}
+	return 0
+}
+
+type Skin struct {
+	ItemId  int32    `json:"item_id"`
+	PaintId *uint64  `json:"paint_id"`
+	Pattern *int32   `json:"pattern"`
+	Float   *float32 `json:"float"`
+}
+
+func (e *Equipment) GetSkin() *Skin {
+	if e.Entity == nil {
+		return nil
+	}
+	skin := &Skin{}
+
+	val, exists := e.Entity.PropertyValue("m_iItemDefinitionIndex")
+	if !exists {
+		return nil
+	}
+	skin.ItemId = int32(val.S2UInt64())
+
+	val, exists = e.Entity.PropertyValue("m_Attributes.0000.m_iRawValue32")
+	if !exists || val.Any == nil {
+		return skin
+	}
+	paintId := uint64(math.Round(float64(val.Float())))
+	skin.PaintId = &paintId
+
+	val, exists = e.Entity.PropertyValue("m_Attributes.0001.m_iRawValue32")
+	if exists && val.Any != nil {
+		patter := int32(val.Float())
+		skin.Pattern = &patter
+	}
+
+	val, exists = e.Entity.PropertyValue("m_Attributes.0002.m_iRawValue32")
+	if exists && val.Any != nil {
+		skinFloat := val.Float()
+		skin.Float = &skinFloat
+	}
+
+	return skin
+}
+
+func (e *Equipment) ReloadTime() int32 {
+	return ReloadTimeMapping[e.Type]
+}
+
 // NewEquipment creates a new Equipment and sets the UniqueID.
 //
 // Intended for internal use only.
@@ -482,6 +537,41 @@ var equipmentToAlternative = map[EquipmentType]EquipmentType{
 // Only works one way (default-to-alternative) as the Five-Seven and Tec-9 both map to the CZ-75.
 func EquipmentAlternative(eq EquipmentType) EquipmentType {
 	return equipmentToAlternative[eq]
+}
+
+var ReloadTimeMapping = map[EquipmentType]int32{
+	EqAUG:          99,
+	EqAWP:          129,
+	EqCZ:           99,
+	EqDeagle:       56,
+	EqDualBerettas: 186,
+	EqFamas:        105,
+	EqFiveSeven:    60,
+	EqG3SG1:        167,
+	EqGalil:        75,
+	EqGlock:        60,
+	EqM249:         239,
+	EqM4A1:         88,
+	EqM4A4:         88,
+	EqMac10:        82,
+	EqMag7:         69,
+	EqMP5:          129,
+	EqMP7:          92,
+	EqMP9:          56,
+	EqNegev:        246,
+	EqNova:         78,
+	EqP2000:        62,
+	EqP250:         60,
+	EqP90:          126,
+	EqBizon:        75,
+	EqRevolver:     126,
+	EqScar20:       90,
+	EqSSG08:        126,
+	EqSawedOff:     211,
+	EqTec9:         86,
+	EqUMP:          97,
+	EqUSP:          62,
+	EqXM1014:       203,
 }
 
 // Indexes are available in the game file located at 'scripts/items/items_game.txt'.

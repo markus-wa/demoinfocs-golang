@@ -22,6 +22,7 @@ type gameState struct {
 	ctState                      common.TeamState
 	playersByUserID              map[int]*common.Player    // Maps user-IDs to players
 	playersByEntityID            map[int]*common.Player    // Maps entity-IDs to players
+	aliveByEntityID              map[int]*common.Player    // Maps entity-IDs to alive players
 	playersBySteamID32           map[uint32]*common.Player // Maps 32-bit-steam-IDs to players
 	playerResourceEntity         st.Entity                 // CCSPlayerResource entity instance, contains scoreboard info and more
 	playerControllerEntities     map[int]st.Entity
@@ -37,7 +38,6 @@ type gameState struct {
 	isFreezetime                 bool
 	isMatchStarted               bool
 	overtimeCount                int
-	lastFlash                    lastFlash                              // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
 	currentDefuser               *common.Player                         // Player currently defusing the bomb, if any
 	currentPlanter               *common.Player                         // Player currently planting the bomb, if any
 	thrownGrenades               map[*common.Player][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
@@ -63,18 +63,8 @@ type gameState struct {
 	// to this projectile. As all m_flFlashDuration prop updates occur during the same frame, we batch dispatch
 	// player-flashed events at the end of the frame if there are any.
 	// This slice acts like a FIFO queue, the first projectile inserted is the first one to be removed when it exploded.
-	flyingFlashbangs []*FlyingFlashbang
-}
-
-type FlyingFlashbang struct {
-	projectile       *common.GrenadeProjectile
-	flashedEntityIDs []int
-	explodedFrame    int
-}
-
-type lastFlash struct {
-	player             *common.Player
-	projectileByPlayer map[*common.Player]*common.GrenadeProjectile
+	smokes       map[int]*common.Smoke // Maps entity-IDs to active smokes.
+	wepsToRemove map[int]*common.Equipment
 }
 
 type ingameTickNumber int
@@ -88,6 +78,22 @@ func (gs *gameState) indexPlayerBySteamID(pl *common.Player) {
 	if !pl.IsBot && pl.SteamID64 > 0 {
 		gs.playersBySteamID32[common.ConvertSteamID64To32(pl.SteamID64)] = pl
 	}
+}
+
+func (gs *gameState) indexPlayerByUserID(pl *common.Player) {
+	if _, ok := gs.playersByUserID[pl.UserID]; !ok {
+		gs.playersByUserID[pl.UserID] = pl
+	}
+}
+
+func (gs *gameState) setPlayerLifeState(pl *common.Player, alive bool) {
+	pl.Alive = alive
+	if pl.Entity == nil || !alive {
+		clear(pl.Inventory)
+		delete(gs.aliveByEntityID, pl.EntityID)
+		return
+	}
+	gs.aliveByEntityID[pl.Entity.ID()] = pl
 }
 
 // IngameTick returns the latest actual tick number of the server during the game.
@@ -131,6 +137,7 @@ func (gs gameState) Participants() Participants {
 	return participants{
 		playersByEntityID: gs.playersByEntityID,
 		playersByUserID:   gs.playersByUserID,
+		aliveByEntityID:   gs.aliveByEntityID,
 		getIsSource2:      gs.demoInfo.parser.isSource2,
 	}
 }
@@ -162,6 +169,11 @@ func (gs gameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 // Infernos returns a map from entity-IDs to all currently burning infernos (fires from incendiaries and Molotovs).
 func (gs gameState) Infernos() map[int]*common.Inferno {
 	return gs.infernos
+}
+
+// Smokes returns a map from entity-IDs to all smokes.
+func (gs gameState) Smokes() map[int]*common.Smoke {
+	return gs.smokes
 }
 
 // Weapons returns a map from entity-IDs to all weapons currently in the game.
@@ -243,17 +255,16 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		playerControllerEntities: make(map[int]st.Entity),
 		playersByEntityID:        make(map[int]*common.Player),
 		playersByUserID:          make(map[int]*common.Player),
+		aliveByEntityID:          make(map[int]*common.Player),
 		playersBySteamID32:       make(map[uint32]*common.Player),
 		grenadeProjectiles:       make(map[int]*common.GrenadeProjectile),
 		infernos:                 make(map[int]*common.Inferno),
+		smokes:                   make(map[int]*common.Smoke),
 		weapons:                  make(map[int]*common.Equipment),
+		wepsToRemove:             make(map[int]*common.Equipment),
 		hostages:                 make(map[int]*common.Hostage),
 		entities:                 make(map[int]st.Entity),
 		thrownGrenades:           make(map[*common.Player][]*common.Equipment),
-		flyingFlashbangs:         make([]*FlyingFlashbang, 0),
-		lastFlash: lastFlash{
-			projectileByPlayer: make(map[*common.Player]*common.GrenadeProjectile),
-		},
 		rules: gameRules{
 			conVars: make(map[string]string),
 		},
@@ -331,6 +342,7 @@ func (gr gameRules) Entity() st.Entity {
 type participants struct {
 	playersByUserID   map[int]*common.Player // Maps user-IDs to players
 	playersByEntityID map[int]*common.Player // Maps entity-IDs to players
+	aliveByEntityID   map[int]*common.Player
 	getIsSource2      func() bool
 }
 
@@ -411,11 +423,28 @@ func (ptcp participants) Playing() []*common.Player {
 	return res
 }
 
+// Alive returns all players that are currently alive.
+// The returned slice is a snapshot and is not updated on changes.
+func (ptcp participants) Alive() []*common.Player {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, p := range ptcp.playersByUserID {
+		if p.IsAlive() {
+			res = append(res, p)
+		}
+	}
+
+	return res
+}
+
+func (ptcp participants) AliveByEntID() map[int]*common.Player {
+	return ptcp.aliveByEntityID
+}
+
 // TeamMembers returns all players belonging to the requested team at this time.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
-	res, original := ptcp.initializeSliceFromByUserID()
-	for _, p := range original {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, p := range ptcp.playersByUserID {
 		if p.Team == team {
 			res = append(res, p)
 		}

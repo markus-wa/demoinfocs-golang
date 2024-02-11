@@ -7,11 +7,19 @@ func getInt(entity st.Entity, propName string) int {
 		return 0
 	}
 
-	return entity.PropertyValueMust(propName).Int()
+	val, ok := entity.PropertyValue(propName)
+	if !ok {
+		return 0
+	}
+	return val.Int()
 }
 
 func getUInt64(entity st.Entity, propName string) uint64 {
 	if entity == nil {
+		return 0
+	}
+
+	if entity.Property(propName) == nil {
 		return 0
 	}
 

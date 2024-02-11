@@ -34,9 +34,20 @@ type Player struct {
 	IsReloading           bool
 	IsUnknown             bool      // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 	PreviousFramePosition r3.Vector // CS2 only, used to compute velocity as it's not networked in CS2 demos
+	Distance              Distance  // Distance since last freezetime end
+	Alive                 bool      // True if player is alive
+}
+
+type Distance struct {
+	Running float64
+	Walking float64
+	Ducking float64
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
+	if p.Entity == nil {
+		return nil
+	}
 	pawn, exists := p.Entity.PropertyValue("m_hPawn")
 	if !exists {
 		return nil
@@ -80,18 +91,20 @@ func (p *Player) SteamID32() uint32 {
 
 // IsAlive returns true if the player is alive.
 func (p *Player) IsAlive() bool {
-	if p.Health() > 0 {
-		return true
+	if p.Team < 2 {
+		return false
 	}
 
-	if p.demoInfoProvider.IsSource2() {
-		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
-			return pawnEntity.PropertyValueMust("m_lifeState").S2UInt64() == 0
+	if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+		if lifeStateVal, ok := pawnEntity.PropertyValue("m_lifeState"); ok {
+			if lifeStateVal.S2UInt64() == 0 {
+				return p.Health() > 0
+			}
+			return false
 		}
-		return getBool(p.Entity, "m_bPawnIsAlive")
+		return p.Health() > 0
 	}
-
-	return getInt(p.Entity, "m_lifeState") == 0
+	return false
 }
 
 // IsBlinded returns true if the player is currently flashed.
@@ -168,6 +181,10 @@ This isn't very conclusive but it looks like IsFlashed isn't super reliable curr
 func (p *Player) activeWeaponID() int {
 	if p.demoInfoProvider.IsSource2() {
 		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+			if pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon") == nil {
+				return 0
+			}
+
 			return int(pawnEntity.PropertyValueMust("m_pWeaponServices.m_hActiveWeapon").S2UInt64() & constants.EntityHandleIndexMaskSource2)
 		}
 
@@ -180,6 +197,9 @@ func (p *Player) activeWeaponID() int {
 // ActiveWeapon returns the currently active / equipped weapon of the player.
 // ! Can be nil
 func (p *Player) ActiveWeapon() *Equipment {
+	if p.activeWeaponID() == 0 {
+		return nil
+	}
 	return p.demoInfoProvider.FindWeaponByEntityID(p.activeWeaponID())
 }
 
@@ -289,8 +309,16 @@ func (p *Player) IsDuckingInProgress() bool {
 		if pawnEntity == nil {
 			return false
 		}
-		duckAmount := pawnEntity.PropertyValueMust("m_pMovementServices.m_flDuckAmount").Float()
-		wantToDuck := pawnEntity.PropertyValueMust("m_pMovementServices.m_bDesiresDuck").BoolVal()
+		duckAmountVal, ok := pawnEntity.PropertyValue("m_pMovementServices.m_flDuckAmount")
+		if !ok {
+			return false
+		}
+		duckAmount := duckAmountVal.Float()
+		wantToDuckVal, ok := pawnEntity.PropertyValue("m_pMovementServices.m_bDesiresDuck")
+		if !ok {
+			return false
+		}
+		wantToDuck := wantToDuckVal.BoolVal()
 
 		return !p.Flags().Ducking() && wantToDuck && duckAmount > 0
 	}
@@ -306,8 +334,16 @@ func (p *Player) IsUnDuckingInProgress() bool {
 		if pawnEntity == nil {
 			return false
 		}
-		duckAmount := pawnEntity.PropertyValueMust("m_pMovementServices.m_flDuckAmount").Float()
-		wantToDuck := pawnEntity.PropertyValueMust("m_pMovementServices.m_bDesiresDuck").BoolVal()
+		duckAmountVal, ok := pawnEntity.PropertyValue("m_pMovementServices.m_flDuckAmount")
+		if !ok {
+			return false
+		}
+		duckAmount := duckAmountVal.Float()
+		wantToDuckVal, ok := pawnEntity.PropertyValue("m_pMovementServices.m_bDesiresDuck")
+		if !ok {
+			return false
+		}
+		wantToDuck := wantToDuckVal.BoolVal()
 
 		return !p.Flags().Ducking() && !wantToDuck && duckAmount > 0
 	}
@@ -320,6 +356,14 @@ func (p *Player) IsUnDuckingInProgress() bool {
 func (p *Player) IsStanding() bool {
 	return !p.Flags().Ducking() && !p.Flags().DuckingKeyPressed()
 }
+
+// func (p *Player) IsReloading() bool {
+// 	if p == nil || p.ActiveWeapon() == nil || p.ActiveWeapon().Entity.Property("m_bInReload") == nil {
+// 		return false
+// 	}
+
+// 	return p.ActiveWeapon().Entity.Property("m_bInReload").Value().BoolVal()
+// }
 
 // HasDefuseKit returns true if the player currently has a defuse kit in his inventory.
 func (p *Player) HasDefuseKit() bool {
@@ -349,22 +393,41 @@ func (p *Player) IsControllingBot() bool {
 	return getBool(p.Entity, "m_bIsControllingBot")
 }
 
-// ControlledBot returns the player instance of the bot that the player is controlling, if any.
-// Returns nil if the player is not controlling a bot.
-func (p *Player) ControlledBot() *Player {
+// ControlledPawn returns the player instance of the pawn that the player is controlling, if any.
+func (p *Player) ControlledPawn() *Player {
 	if p.Entity == nil {
-		return nil
+		return p
 	}
 
 	if p.demoInfoProvider.IsSource2() {
-		controllerHandler := p.Entity.Property("m_hOriginalControllerOfCurrentPawn").Value().S2UInt64()
+		playerPawn, exists := p.Entity.PropertyValue("m_hOriginalControllerOfCurrentPawn")
+		if !exists || !p.IsControllingBot() {
+			return p
+		}
 
-		return p.demoInfoProvider.FindPlayerByHandle(controllerHandler)
+		return p.demoInfoProvider.FindPlayerByHandle(playerPawn.S2UInt64())
 	}
 
-	botHandle := p.Entity.Property("m_iControlledBotEntIndex").Value().Int()
-
+	botHandle := p.Entity.Property("m_iControlledBotEntIndex").Value().IntVal
 	return p.demoInfoProvider.FindPlayerByHandle(uint64(botHandle))
+}
+
+// Controller returns the player instance of the controller that the is controlling player, if any.
+func (p *Player) Controller() *Player {
+	if p.Entity == nil {
+		return p
+	}
+
+	if p.demoInfoProvider.IsSource2() {
+		playerPawn, exists := p.Entity.PropertyValue("m_hOriginalControllerOfCurrentPawn")
+		if !exists || !p.IsBot {
+			return p
+		}
+
+		return p.demoInfoProvider.FindPlayerByHandle(playerPawn.S2UInt64())
+	}
+
+	return nil
 }
 
 // Health returns the player's health points, normally 0-100.
@@ -374,6 +437,10 @@ func (p *Player) Health() int {
 	}
 
 	return getInt(p.Entity, "m_iHealth")
+}
+
+func (p *Player) LifeState() int {
+	return int(getUInt64(p.PlayerPawnEntity(), "m_lifeState"))
 }
 
 // Armor returns the player's armor points, normally 0-100.
@@ -539,6 +606,10 @@ func (p *Player) Velocity() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
 		t := 64.0
 		diff := p.Position().Sub(p.PreviousFramePosition)
+
+		if p.ActiveWeapon() == nil {
+			return r3.Vector{}
+		}
 
 		return r3.Vector{
 			X: diff.X * t,

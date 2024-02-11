@@ -42,6 +42,8 @@ type GameState interface {
 	GrenadeProjectiles() map[int]*common.GrenadeProjectile
 	// Infernos returns a map from entity-IDs to all currently burning infernos (fires from incendiaries and Molotovs).
 	Infernos() map[int]*common.Inferno
+	// Smokes returns a map from entity-IDs to all smokes currently in the game.
+	Smokes() map[int]*common.Smoke
 	// Weapons returns a map from entity-IDs to all weapons currently in the game.
 	Weapons() map[int]*common.Equipment
 	// Entities returns all currently existing entities.

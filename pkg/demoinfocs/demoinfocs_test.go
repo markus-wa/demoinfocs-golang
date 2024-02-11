@@ -133,7 +133,7 @@ func TestDemoInfoCs(t *testing.T) {
 	})
 
 	// reload checks
-	p.RegisterEventHandler(func(reload events.WeaponReload) {
+	p.RegisterEventHandler(func(reload events.WeaponReloadBegin) {
 		assertions.True(reload.Player.IsReloading, "Player started reloading but IsReloading is false")
 	})
 
@@ -169,6 +169,7 @@ func TestDemoInfoCs(t *testing.T) {
 	p.RegisterEventHandler(func(events.RoundStart) {
 		assertions.Len(p.GameState().GrenadeProjectiles(), 0, "expected 0 GrenadeProjectiles at the start of the round")
 		assertions.Len(p.GameState().Infernos(), 0, "expected 0 Infernos at the start of the round")
+		assertions.Len(p.GameState().Smokes(), 0, "expected 0 Smokes at the start of the round")
 	})
 
 	// Net-message stuff

@@ -322,7 +322,7 @@ func TestPlayer_IsControllingBot(t *testing.T) {
 func TestPlayer_ControlledBot_NilEntity(t *testing.T) {
 	pl := new(Player)
 
-	assert.Nil(t, pl.ControlledBot())
+	assert.Nil(t, pl.ControlledPawn())
 }
 
 func TestPlayer_ControlledBot(t *testing.T) {
@@ -339,12 +339,12 @@ func TestPlayer_ControlledBot(t *testing.T) {
 	pl := playerWithProperty("m_iControlledBotEntIndex", st.PropertyValue{IntVal: 0})
 	pl.demoInfoProvider = demoInfoProvider
 
-	assert.Nil(t, pl.ControlledBot())
+	assert.Nil(t, pl.ControlledPawn())
 
 	pl = playerWithProperty("m_iControlledBotEntIndex", st.PropertyValue{IntVal: 12})
 	pl.demoInfoProvider = demoInfoProvider
 
-	assert.Same(t, dave, pl.ControlledBot())
+	assert.Same(t, dave, pl.ControlledPawn())
 }
 
 func TestPlayer_ControlledBotS2(t *testing.T) {
@@ -362,12 +362,12 @@ func TestPlayer_ControlledBotS2(t *testing.T) {
 	pl := playerWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(0)})
 	pl.demoInfoProvider = demoInfoProvider
 
-	assert.Nil(t, pl.ControlledBot())
+	assert.Nil(t, pl.ControlledPawn())
 
 	pl = playerWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(12)})
 	pl.demoInfoProvider = demoInfoProvider
 
-	assert.Same(t, dave, pl.ControlledBot())
+	assert.Same(t, dave, pl.ControlledPawn())
 }
 
 /*
