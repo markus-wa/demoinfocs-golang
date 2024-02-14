@@ -51,7 +51,7 @@ For business inquiries please use the contact information found on the [GitHub p
 
 ## Requirements
 
-This library requires at least `go 1.21` to run.
+This library requires at least `go 1.21` to run. ⚠️ right now `go 1.22` is not supported until https://github.com/golang/go/issues/65706 is resolved.
 You can download the latest version of Go [here](https://golang.org/).
 
 ## Quickstart Guide
