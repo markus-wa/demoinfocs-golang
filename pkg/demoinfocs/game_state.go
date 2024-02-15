@@ -430,6 +430,7 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 // Returns nil if not found.
 func (ptcp participants) FindByPawnHandle(handle uint64) *common.Player {
 	entityID := entityIDFromHandle(handle, ptcp.getIsSource2())
+
 	for _, player := range ptcp.All() {
 		pawnEntity := player.PlayerPawnEntity()
 
