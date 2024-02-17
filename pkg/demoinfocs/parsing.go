@@ -250,7 +250,6 @@ func (p *parser) parseFrameS1() bool {
 
 		debugAllServerClasses(p.ServerClasses())
 
-		p.mapEquipment()
 		p.bindEntities()
 
 		p.eventDispatcher.Dispatch(events.DataTablesParsed{})

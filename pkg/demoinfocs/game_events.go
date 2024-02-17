@@ -615,7 +615,7 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKe
 		return
 	}
 	geh.dispatch(events.PlayerFlashed{
-		Player:     geh.playerByUserID32(data["userid"].GetValShort()),
+		Player:     player,
 		Attacker:   geh.playerByUserID32(data["attacker"].GetValShort()),
 		Projectile: geh.gameState().grenadeProjectiles[int(data["entityid"].GetValShort())],
 		Duration:   data["blind_duration"].GetValFloat(),

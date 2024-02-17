@@ -34,7 +34,6 @@ func (p *parser) handleClassInfo(msg *msgs2.CDemoClassInfo) {
 
 	debugAllServerClasses(p.ServerClasses())
 
-	p.mapEquipment()
 	p.bindEntities()
 
 	p.eventDispatcher.Dispatch(events.DataTablesParsed{})
