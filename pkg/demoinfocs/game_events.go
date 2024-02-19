@@ -1109,7 +1109,7 @@ func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, vic
 func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType common.EquipmentType) *common.Equipment {
 	isGrenade := wepType.Class() == common.EqClassGrenade
 	if isGrenade {
-		return geh.getThrownGrenade(player, wepType)
+		return geh.getThrownGrenade(player.ControlledPawn(), wepType)
 	}
 
 	return getPlayerWeapon(player, wepType)
