@@ -2,8 +2,6 @@
 
 A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter-Strike 2 and Counter-Strike: Global Offensive (CS:GO) demos (aka replays).
 
-Counter-Strike 2 support is experimental.
-
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://vshymanskyy.github.io/StandWithUkraine)
 
 [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs?tab=doc)
@@ -53,7 +51,7 @@ For business inquiries please use the contact information found on the [GitHub p
 
 ## Requirements
 
-This library requires at least `go 1.21` to run.
+This library requires at least `go 1.21` to run. ⚠️ right now `go 1.22` is not supported until https://github.com/golang/go/issues/65706 is resolved.
 You can download the latest version of Go [here](https://golang.org/).
 
 ## Quickstart Guide
