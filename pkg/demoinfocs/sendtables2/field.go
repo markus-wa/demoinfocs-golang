@@ -208,31 +208,34 @@ func (f *field) getTypeForFieldPath(fp *fieldPath, pos int) *fieldType {
 	return f.fieldType
 }
 
-func (f *field) getDecoderForFieldPath(fp *fieldPath, pos int) fieldDecoder {
+func (f *field) getDecoderForFieldPath(fp *fieldPath, pos int) (fieldDecoder, bool) {
 	switch f.model {
 	case fieldModelFixedArray:
-		return f.decoder
+		return f.decoder, false
 
 	case fieldModelFixedTable:
 		if fp.last == pos-1 {
-			return f.baseDecoder
+			return f.baseDecoder, true
 		}
-		return f.serializer.getDecoderForFieldPath(fp, pos)
+
+		return f.serializer.getDecoderForFieldPath2(fp, pos)
 
 	case fieldModelVariableArray:
 		if fp.last == pos {
-			return f.childDecoder
+			return f.childDecoder, false
 		}
-		return f.baseDecoder
+
+		return f.baseDecoder, true
 
 	case fieldModelVariableTable:
 		if fp.last >= pos+1 {
-			return f.serializer.getDecoderForFieldPath(fp, pos+1)
+			return f.serializer.getDecoderForFieldPath2(fp, pos+1)
 		}
-		return f.baseDecoder
+
+		return f.baseDecoder, true
 	}
 
-	return f.decoder
+	return f.decoder, false
 }
 
 func (f *field) getFieldPathForName(fp *fieldPath, name string) bool {

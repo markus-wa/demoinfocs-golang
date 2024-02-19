@@ -112,7 +112,11 @@ func (p *parser) bindBomb() {
 		bombEntity.Property("m_bStartedArming").OnUpdate(func(val st.PropertyValue) {
 			if val.BoolVal() {
 				if p.isSource2() {
-					planter := p.gameState.Participants().FindByPawnHandle(bombEntity.PropertyValueMust("m_hOwnerEntity").Handle())
+					planterHandle := bombEntity.PropertyValueMust("m_hOwnerEntity").Handle()
+					ctlHandle := p.gameState.entities[entityIDFromHandle(planterHandle, true)].PropertyValueMust("m_hController").Handle()
+					ctlID := p.gameState.entities[entityIDFromHandle(ctlHandle, true)].ID()
+					planter := p.gameState.playersByEntityID[ctlID]
+
 					planter.IsPlanting = true
 					p.gameState.currentPlanter = planter
 
@@ -703,7 +707,7 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	const inventoryCapacity = 64
 
-	var inventorySize uint64 = 64
+	inventorySize := 64
 
 	type eq struct {
 		*common.Equipment
@@ -728,7 +732,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	setPlayerInventory := func() {
 		inventory := make(map[int]*common.Equipment, inventorySize)
 
-		for i := uint64(0); i < inventorySize; i++ {
+		for i := 0; i < inventorySize; i++ {
 			val := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i)).Value()
 			if val.Any == nil {
 				continue
@@ -742,7 +746,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	}
 
 	pawnEntity.Property("m_pWeaponServices.m_hMyWeapons").OnUpdate(func(pv st.PropertyValue) {
-		inventorySize = pv.S2UInt64()
+		inventorySize = len(pv.S2Array())
 		setPlayerInventory()
 	})
 
@@ -758,7 +762,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 
 			entityWasCreated := entityID != constants.EntityHandleIndexMaskSource2
 
-			if uint64(i) < inventorySize {
+			if i < inventorySize {
 				if entityWasCreated {
 					existingWeapon, exists := playerInventory[i]
 					if exists {

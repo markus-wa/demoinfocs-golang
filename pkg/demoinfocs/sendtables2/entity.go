@@ -58,6 +58,13 @@ func (p property) Name() string {
 }
 
 func (p property) Value() st.PropertyValue {
+	v := p.entity.Get(p.name)
+
+	fs, ok := v.(*fieldState)
+	if ok {
+		v = fs.state
+	}
+
 	return st.PropertyValue{
 		VectorVal: r3.Vector{},
 		IntVal:    0,
@@ -65,7 +72,7 @@ func (p property) Value() st.PropertyValue {
 		ArrayVal:  nil,
 		StringVal: "",
 		FloatVal:  0,
-		Any:       p.entity.Get(p.name),
+		Any:       v,
 		S2:        true,
 	}
 }
@@ -416,12 +423,30 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 	readFieldPaths(r, paths)
 
 	for _, fp := range *paths {
-		decoder := e.class.serializer.getDecoderForFieldPath(fp, 0)
+		f := e.class.serializer.getFieldForFieldPath(fp, 0)
+		name := e.class.getNameForFieldPath(fp)
+		decoder, base := e.class.serializer.getDecoderForFieldPath2(fp, 0)
 
 		val := decoder(r)
-		e.state.set(fp, val)
 
-		for _, h := range e.updateHandlers[e.class.getNameForFieldPath(fp)] {
+		if base && (f.model == fieldModelVariableArray || f.model == fieldModelVariableTable) {
+			oldFS := e.state.get(fp)
+			fs := newFieldState()
+
+			fs.state = make([]interface{}, val.(uint64))
+
+			if oldFS != nil {
+				copy(fs.state, oldFS.(*fieldState).state[:min(len(fs.state), len(oldFS.(*fieldState).state))])
+			}
+
+			e.state.set(fp, fs)
+
+			val = fs.state
+		} else {
+			e.state.set(fp, val)
+		}
+
+		for _, h := range e.updateHandlers[name] {
 			h(st.PropertyValue{
 				VectorVal: r3.Vector{},
 				IntVal:    0,
@@ -446,7 +471,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		index   = int32(-1)
 		updates = int(m.GetUpdatedEntries())
 		cmd     uint32
-		classId int32
+		classID int32
 		serial  int32
 	)
 
@@ -485,18 +510,18 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		}
 		if cmd&0x01 == 0 {
 			if cmd&0x02 != 0 {
-				classId = int32(r.readBits(p.classIdSize))
+				classID = int32(r.readBits(p.classIdSize))
 				serial = int32(r.readBits(17))
 				r.readVarUint32()
 
-				class := p.classesById[classId]
+				class := p.classesById[classID]
 				if class == nil {
-					_panicf("unable to find new class %d", classId)
+					_panicf("unable to find new class %d", classID)
 				}
 
-				baseline := p.classBaselines[classId]
+				baseline := p.classBaselines[classID]
 				if baseline == nil {
-					_panicf("unable to find new baseline %d", classId)
+					_panicf("unable to find new baseline %d", classID)
 				}
 
 				e = newEntity(index, serial, class)

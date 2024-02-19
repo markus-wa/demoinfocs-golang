@@ -15,7 +15,7 @@ func (s *fieldState) get(fp *fieldPath) interface{} {
 	z := 0
 	for i := 0; i <= fp.last; i++ {
 		z = fp.path[i]
-		if len(x.state) < z+2 {
+		if len(x.state) < z+1 {
 			return nil
 		}
 		if i == fp.last {
@@ -34,10 +34,16 @@ func (s *fieldState) set(fp *fieldPath, v interface{}) {
 	z := 0
 	for i := 0; i <= fp.last; i++ {
 		z = fp.path[i]
-		if y := len(x.state); y < z+2 {
-			z := make([]interface{}, max(z+2, y*2))
-			copy(z, x.state)
-			x.state = z
+		if y := len(x.state); y <= z {
+			newCap := max(z+2, y*2)
+			if newCap > cap(x.state) {
+				newSlice := make([]interface{}, z+1, newCap)
+				copy(newSlice, x.state)
+				x.state = newSlice
+			} else {
+				// Re-slice to update the length without allocating new memory
+				x.state = x.state[:z+1]
+			}
 		}
 		if i == fp.last {
 			if _, ok := x.state[z].(*fieldState); !ok {
@@ -56,5 +62,14 @@ func max(a, b int) int {
 	if a > b {
 		return a
 	}
+
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+
 	return b
 }
