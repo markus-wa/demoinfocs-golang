@@ -663,4 +663,5 @@ var EquipmentIndexMapping = map[uint64]EquipmentType{
 	522: EqKnife,                    // weapon_knife_stiletto
 	523: EqKnife,                    // weapon_knife_widowmaker
 	525: EqKnife,                    // weapon_knife_skeleton
+	526: EqKnife,                    // weapon_knife_skeleton
 }
