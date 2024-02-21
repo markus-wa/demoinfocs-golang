@@ -152,6 +152,10 @@ func (v PropertyValue) S2UInt64() uint64 {
 	return v.Any.(uint64)
 }
 
+func (v PropertyValue) S2Array() []any {
+	return v.Any.([]any)
+}
+
 func (v PropertyValue) S2UInt32() uint32 {
 	return v.Any.(uint32)
 }
