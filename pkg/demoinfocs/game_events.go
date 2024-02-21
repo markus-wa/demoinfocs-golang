@@ -664,11 +664,17 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEvent
 }
 
 func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	uid := int(data["userid"].GetValShort())
+	pl := geh.playerByUserID(uid)
+
 	if geh.parser.isSource2() {
+		if pl != nil && pl.IsBot {
+			geh.dispatch(events.PlayerDisconnected{
+				Player: pl,
+			})
+		}
 		return
 	}
-
-	uid := int(data["userid"].GetValShort())
 
 	for k, v := range geh.parser.rawPlayers {
 		if v.UserID == uid {
@@ -676,7 +682,6 @@ func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CSVCMsg_GameEv
 		}
 	}
 
-	pl := geh.playerByUserID(uid)
 	if pl != nil {
 		// Dispatch this event early since we delete the player on the next line
 		geh.dispatch(events.PlayerDisconnected{
