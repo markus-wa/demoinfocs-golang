@@ -676,6 +676,8 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	player := p.demoInfoProvider.FindPlayerByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
 	proj.Thrower = player
 	proj.Owner = player
+	proj.InitialPosition = entity.Property("m_vInitialPosition").Value().R3Vec()
+	proj.InitialVelocity = entity.Property("m_vInitialVelocity").Value().R3Vec()
 
 	var wep common.EquipmentType
 	entity.OnCreateFinished(func() { //nolint:wsl

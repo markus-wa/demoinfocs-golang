@@ -462,6 +462,13 @@ func (e *Equipment) Silenced() bool {
 	return prop.Value().BoolVal()
 }
 
+func (e *Equipment) AccuracyPenalty() float32 {
+	if e.Entity == nil {
+		return 0
+	}
+	return e.Entity.Property("m_fAccuracyPenalty").Value().Float()
+}
+
 func (e *Equipment) OwnerHandle() uint64 {
 	val, ok := e.Entity.PropertyValue("m_hOwnerEntity")
 	if ok {

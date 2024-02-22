@@ -65,10 +65,12 @@ func (h *DemoHeader) FrameTime() time.Duration {
 // GrenadeProjectile is a grenade thrown intentionally by a player. It is used to track grenade projectile
 // positions between the time at which they are thrown and until they detonate.
 type GrenadeProjectile struct {
-	Entity         st.Entity
-	WeaponInstance *Equipment
-	Thrower        *Player // Always seems to be the same as Owner, even if the grenade was picked up
-	Owner          *Player // Always seems to be the same as Thrower, even if the grenade was picked up
+	Entity          st.Entity
+	WeaponInstance  *Equipment
+	Thrower         *Player // Always seems to be the same as Owner, even if the grenade was picked up
+	Owner           *Player // Always seems to be the same as Thrower, even if the grenade was picked up
+	InitialPosition r3.Vector
+	InitialVelocity r3.Vector
 
 	// Deprecated: use Trajectory2 instead
 	Trajectory []r3.Vector // List of all known locations of the grenade up to the current point
@@ -86,7 +88,14 @@ func (g *GrenadeProjectile) Position() r3.Vector {
 
 // Velocity returns the projectile's velocity.
 func (g *GrenadeProjectile) Velocity() r3.Vector {
-	return g.Entity.PropertyValueMust("m_vecVelocity").VectorVal
+	x := g.Entity.Property("m_vecX").Value().Float()
+	y := g.Entity.Property("m_vecY").Value().Float()
+	z := g.Entity.Property("m_vecZ").Value().Float()
+	return r3.Vector{
+		X: float64(x),
+		Y: float64(y),
+		Z: float64(z),
+	}
 }
 
 // UniqueID returns the unique id of the grenade.
@@ -142,21 +151,12 @@ func (ts *TeamState) Team() Team {
 
 // ID returns the team ID, this stays the same even after switching sides.
 func (ts *TeamState) ID() int {
-	if ts.demoInfoProvider.IsSource2() {
-		return int(getUInt64(ts.Entity, "m_iTeamNum"))
-	}
-	return getInt(ts.Entity, "m_iTeamNum")
+	return int(getUInt64(ts.Entity, "m_iTeamNum"))
 }
 
 // Score returns the current score of the team (usually 0-16 without overtime).
 func (ts *TeamState) Score() int {
-	var propName string
-	if ts.demoInfoProvider.IsSource2() {
-		propName = "m_iScore"
-	} else {
-		propName = "m_scoreTotal"
-	}
-	return getInt(ts.Entity, propName)
+	return getInt(ts.Entity, "m_iScore")
 }
 
 // ClanName returns the team name (e.g. Fnatic).
