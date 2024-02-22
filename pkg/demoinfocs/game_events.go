@@ -672,6 +672,8 @@ func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CSVCMsg_GameEv
 			geh.dispatch(events.PlayerDisconnected{
 				Player: pl,
 			})
+
+			pl.IsConnected = false
 		}
 		return
 	}
