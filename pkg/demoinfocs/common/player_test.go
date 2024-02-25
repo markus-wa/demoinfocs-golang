@@ -419,25 +419,6 @@ func TestPlayer_Position_EntityNil(t *testing.T) {
 	assert.Empty(t, pl.Position())
 }
 
-func TestPlayer_PositionEyes(t *testing.T) {
-	entity := entityWithProperty("localdata.m_vecViewOffset[2]", st.PropertyValue{FloatVal: 2})
-	pos := r3.Vector{X: 1, Y: 2, Z: 3}
-
-	entity.On("Position").Return(pos)
-
-	pl := &Player{Entity: entity}
-	pl.demoInfoProvider = s1DemoInfoProvider
-
-	assert.Equal(t, r3.Vector{X: 1, Y: 2, Z: 5}, pl.PositionEyes())
-}
-
-func TestPlayer_PositionEyes_EntityNil(t *testing.T) {
-	pl := &Player{}
-	pl.demoInfoProvider = s1DemoInfoProvider
-
-	assert.Empty(t, pl.PositionEyes())
-}
-
 func TestPlayer_Velocity(t *testing.T) {
 	entity := new(stfake.Entity)
 	entity.On("PropertyValueMust", "localdata.m_vecVelocity[0]").Return(st.PropertyValue{FloatVal: 1})
@@ -552,31 +533,6 @@ func TestPlayer_Color(t *testing.T) {
 	assert.Equal(t, Grey, pl.Color())
 }
 
-func TestPlayer_ColorOrErr(t *testing.T) {
-	pl := playerWithResourceProperty("m_iCompTeammateColor", st.PropertyValue{IntVal: int(Yellow)})
-
-	color, err := pl.ColorOrErr()
-	assert.NoError(t, err)
-	assert.Equal(t, Yellow, color)
-
-	pl = &Player{demoInfoProvider: demoInfoProviderMock{}}
-
-	color, err = pl.ColorOrErr()
-	assert.ErrorIs(t, err, ErrDataNotAvailable)
-	assert.EqualValues(t, Grey, color)
-
-	pl = &Player{
-		EntityID: 1,
-		demoInfoProvider: demoInfoProviderMock{
-			playerResourceEntity: entityWithoutProperty("m_iCompTeammateColor.001"),
-		},
-	}
-
-	color, err = pl.ColorOrErr()
-	assert.ErrorIs(t, err, ErrNotSupportedByDemo)
-	assert.Equal(t, Grey, color)
-}
-
 func TestPlayer_Kills(t *testing.T) {
 	pl := playerWithResourceProperty("m_iKills", st.PropertyValue{IntVal: 5})
 
@@ -635,7 +591,7 @@ func TestPlayer_RankType(t *testing.T) {
 func TestPlayer_Rank(t *testing.T) {
 	pl := playerWithResourceProperty("m_iCompetitiveRanking", st.PropertyValue{IntVal: 10})
 
-	assert.Equal(t, 10, pl.Rank())
+	assert.Equal(t, 10, pl.Ranking())
 }
 
 func TestPlayer_CompetitiveWins(t *testing.T) {

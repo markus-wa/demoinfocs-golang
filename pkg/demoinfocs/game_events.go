@@ -478,7 +478,7 @@ func (geh gameEventHandler) playerSound(data map[string]*msg.CSVCMsg_GameEventKe
 		Sound:    sound,
 	})
 
-	if sound != events.UNKNOWN {
+	if sound == events.STEP || sound == events.JUMP || sound == events.ZOOM {
 		geh.dispatch(events.FakePlayerSound{
 			Player:   geh.playerByUserID32(data["userid"].GetValShort()),
 			Duration: data["duration"].GetValFloat(),
@@ -489,10 +489,6 @@ func (geh gameEventHandler) playerSound(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
-		return
-	}
-
 	shooter := geh.playerByUserID32(data["userid"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 	wep := getPlayerWeapon(shooter, wepType)

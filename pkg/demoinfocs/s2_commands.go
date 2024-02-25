@@ -380,9 +380,9 @@ func (p *parser) handleDemoFileHeader(msg *msgs2.CDemoFileHeader) {
 }
 
 func (p *parser) updatePlayersPreviousFramePosition() {
-	for _, player := range p.GameState().Participants().Alive() {
-		diffX := player.LastAlivePosition.X - player.PreviousFramePosition.X
-		diffY := player.LastAlivePosition.Y - player.PreviousFramePosition.Y
+	for _, player := range p.GameState().Participants().AliveByEntID() {
+		diffX := player.Position().X - player.PreviousFramePosition.X
+		diffY := player.Position().Y - player.PreviousFramePosition.Y
 		distance := math.Sqrt(diffX*diffX + diffY*diffY)
 
 		if player.IsDucking() || player.IsDuckingInProgress() || player.IsUnDuckingInProgress() {

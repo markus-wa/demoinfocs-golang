@@ -24,11 +24,7 @@ func (smk *Smoke) Thrower() *Player {
 	}
 
 	handleProp := smk.Entity.Property("m_hOwnerEntity").Value()
-	if smk.demoInfoProvider.IsSource2() {
-		return smk.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
-	}
-
-	return smk.demoInfoProvider.FindPlayerByHandle(handleProp.S2UInt64())
+	return smk.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
 }
 
 func (smk *Smoke) Voxel() []uint8 {

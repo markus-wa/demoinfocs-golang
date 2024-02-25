@@ -3,6 +3,7 @@ package common
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -96,6 +97,11 @@ func (g *GrenadeProjectile) Velocity() r3.Vector {
 		Y: float64(y),
 		Z: float64(z),
 	}
+}
+
+func (g *GrenadeProjectile) InitSpeed() float64 {
+	v := g.InitialVelocity
+	return math.Sqrt(v.X*v.X + v.Y*v.Y + v.Z*v.Z)
 }
 
 // UniqueID returns the unique id of the grenade.

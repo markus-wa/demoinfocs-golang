@@ -53,11 +53,7 @@ func (inf *Inferno) Thrower() *Player {
 	}
 
 	handleProp := inf.Entity.Property("m_hOwnerEntity").Value()
-	if inf.demoInfoProvider.IsSource2() {
-		return inf.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
-	}
-
-	return inf.demoInfoProvider.FindPlayerByHandle(uint64(handleProp.Int()))
+	return inf.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
 }
 
 // Fires returns all fires (past + present).
@@ -68,10 +64,7 @@ func (inf *Inferno) Fires() Fires {
 	nFires := entity.PropertyValueMust("m_fireCount").Int()
 	fires := make([]Fire, 0, nFires)
 
-	iFormat := "%03d"
-	if inf.demoInfoProvider.IsSource2() {
-		iFormat = "%04d"
-	}
+	iFormat := "%04d"
 	for i := 0; i < nFires; i++ {
 		iStr := fmt.Sprintf(iFormat, i)
 

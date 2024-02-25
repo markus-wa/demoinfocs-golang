@@ -699,7 +699,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
 
 		if !p.disableMimicSource1GameEvents {
-			p.eventDispatcher.Dispatch(events.WeaponFire{
+			p.eventDispatcher.Dispatch(events.FakeWeaponFire{
 				Shooter: proj.Owner,
 				Weapon:  proj.WeaponInstance,
 			})
@@ -907,7 +907,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 				shooter = equipment.Owner
 			}
 			if shooter != nil && val.Float() > 0 {
-				p.eventDispatcher.Dispatch(events.WeaponFire{
+				p.eventDispatcher.Dispatch(events.FakeWeaponFire{
 					Shooter: shooter,
 					Weapon:  equipment,
 				})

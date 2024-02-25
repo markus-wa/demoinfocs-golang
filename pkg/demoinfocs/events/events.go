@@ -209,12 +209,17 @@ type WeaponFire struct {
 	Weapon  *common.Equipment
 }
 
+type FakeWeaponFire struct {
+	Shooter *common.Player
+	Weapon  *common.Equipment
+}
+
 // WeaponReload signals that a player started to reload his weapon.
 type WeaponReloadBegin struct {
 	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 }
 
-// WeaponReload signals that a player ended to reload his weapon.
+// WeaponReload signals that a player finished reloading his weapon.
 type WeaponReloadEnd struct {
 	Player  *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Success bool
@@ -318,18 +323,6 @@ type PlayerFlashed struct {
 // FlashDuration returns the duration of the blinding effect.
 // This is just a shortcut for Player.FlashDurationTime().
 func (e PlayerFlashed) FlashDuration() time.Duration {
-	return e.Player.FlashDurationTime()
-}
-
-type FakePlayerFlashed struct {
-	Player     *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
-	Attacker   *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
-	Projectile *common.GrenadeProjectile
-}
-
-// FlashDuration returns the duration of the blinding effect.
-// This is just a shortcut for Player.FlashDurationTime().
-func (e FakePlayerFlashed) FlashDuration() time.Duration {
 	return e.Player.FlashDurationTime()
 }
 
