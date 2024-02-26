@@ -1389,7 +1389,7 @@ func (p *parser) bindGameRules() {
 
 				var winnerState *common.TeamState
 				var loserState *common.TeamState
-				if winner != common.TeamUnassigned {
+				if winner != common.TeamUnassigned && winner != common.TeamSpectators {
 					winnerState = p.gameState.Team(winner)
 					loserState = winnerState.Opponent
 				}
