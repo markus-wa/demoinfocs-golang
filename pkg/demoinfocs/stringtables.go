@@ -626,7 +626,11 @@ func (p *parser) parseUserInfo(data []byte, playerIndex int) {
 		CustomFiles3:    0,
 		FilesDownloaded: 0,
 	}
-	p.setRawPlayer(playerIndex, playerInfo)
+	if playerInfo.IsFakePlayer {
+		p.setRawPlayer(playerInfo.UserID, playerInfo)
+	} else {
+		p.setRawPlayer(playerIndex, playerInfo)
+	}
 
 	povDemoDetected := p.recordingPlayerSlot == -1 && p.header.ClientName == playerInfo.Name
 	if povDemoDetected {
