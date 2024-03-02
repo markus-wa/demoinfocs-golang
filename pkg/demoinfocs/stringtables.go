@@ -206,84 +206,6 @@ func (p *parser) handleCreateStringTableS2(tab *msgs2.CSVCMsg_CreateStringTable)
 	})
 }
 
-func (p *parser) processStringTableS1(tab createStringTable, br *bit.BitReader) {
-	hist := make([]string, 0)
-	idx := -1
-
-	nEntryBits := int(math.Ceil(math.Log2(float64(*tab.s1MaxEntries))))
-
-	for i := 0; i < int(tab.GetNumEntries()); i++ {
-		if br.ReadBit() {
-			idx++
-		} else {
-			idx = int(br.ReadInt(nEntryBits))
-		}
-
-		if idx < 0 || idx >= int(*tab.s1MaxEntries) {
-			panic("Something went to shit")
-		}
-
-		var entry string
-
-		if br.ReadBit() { //nolint:wsl
-			if br.ReadBit() {
-				idx := br.ReadInt(5)
-				bytes2cp := int(br.ReadInt(5))
-				entry = hist[idx][:bytes2cp]
-
-				entry += br.ReadString()
-			} else {
-				entry = br.ReadString()
-			}
-		}
-
-		const maxHistoryLength = 31
-		if len(hist) > maxHistoryLength {
-			hist = hist[1:]
-		}
-
-		hist = append(hist, entry)
-
-		var userdata []byte
-		if br.ReadBit() { //nolint:wsl
-			if tab.GetUserDataFixedSize() {
-				// Should always be < 8 bits => use faster ReadBitsToByte() over ReadBits()
-				userdata = []byte{br.ReadBitsToByte(int(tab.GetUserDataSizeBits()))}
-			} else {
-				const nUserdataBits = 14
-				userdata = br.ReadBytes(int(br.ReadInt(nUserdataBits)))
-			}
-		}
-
-		if len(userdata) == 0 {
-			continue
-		}
-
-		switch tab.GetName() {
-		case stNameUserInfo:
-			player := parsePlayerInfo(bytes.NewReader(userdata))
-
-			if p.header.ClientName == player.Name {
-				p.recordingPlayerSlot = idx
-				p.eventDispatcher.Dispatch(events.POVRecordingPlayerDetected{PlayerSlot: idx, PlayerInfo: player})
-			}
-
-			p.setRawPlayer(idx, player)
-
-		case stNameInstanceBaseline:
-			classID, err := strconv.Atoi(entry)
-			if err != nil {
-				panic(errors.Wrap(err, "failed to parse serverClassID"))
-			}
-
-			p.stParser.SetInstanceBaseline(classID, userdata)
-
-		case stNameModelPreCache:
-			p.modelPreCache[idx] = entry
-		}
-	}
-}
-
 // Holds and maintains a single entry in a string table.
 type stringTableItem struct {
 	Index int32
@@ -414,7 +336,7 @@ func parseStringTable(
 
 var instanceBaselineKeyRegex = regexp.MustCompile(`^\d+:\d+$`)
 
-func (p *parser) processStringTableS2(tab createStringTable, br *bit.BitReader) {
+func (p *parser) processStringTableS2(tab createStringTable) {
 	items := parseStringTable(tab.StringData, tab.GetNumEntries(), tab.GetName(), tab.GetUserDataFixedSize(), tab.GetUserDataSize(), tab.GetFlags(), tab.GetUsingVarintBitcounts())
 
 	for _, item := range items {
@@ -456,15 +378,7 @@ func (p *parser) processStringTable(tab createStringTable) {
 
 	br := bit.NewSmallBitReader(bytes.NewReader(tab.StringData))
 
-	if tab.isS2 {
-		p.processStringTableS2(tab, br)
-	} else {
-		if br.ReadBit() {
-			panic("unknown stringtable format")
-		}
-
-		p.processStringTableS1(tab, br)
-	}
+	p.processStringTableS2(tab)
 
 	if tab.GetName() == stNameModelPreCache {
 		p.processModelPreCacheUpdate()
@@ -591,14 +505,14 @@ func (p *parser) handleCreateStringTableS1(tab *msg.CSVCMsg_CreateStringTable) {
 }
 
 func (p *parser) parseUserInfo(data []byte, playerIndex int) {
+	if _, exists := p.rawPlayers[playerIndex]; exists {
+		return
+	}
+
 	var userInfo msgs2.CMsgPlayerInfo
 	err := proto.Unmarshal(data, &userInfo)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse CMsgPlayerInfo msg"))
-	}
-
-	if _, exists := p.rawPlayers[int(userInfo.GetUserid())]; exists {
-		return
 	}
 
 	xuid := userInfo.GetXuid() // TODO: what to do with userInfo.GetSteamid()? (seems to be the same, but maybe not in China?)

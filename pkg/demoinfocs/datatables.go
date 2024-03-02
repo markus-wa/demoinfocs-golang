@@ -419,20 +419,17 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 
 	pawnEntity.Property("m_hController").OnUpdate(func(controllerHandleVal st.PropertyValue) {
 		controllerHandle := controllerHandleVal.Handle()
-		if controllerHandle == constants.InvalidEntityHandleSource2 {
-			return
-		}
-
-		controllerEntityID := int(controllerHandle & constants.EntityHandleIndexMaskSource2)
-		controllerEntity := p.gameState.playerControllerEntities[controllerEntityID]
-		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
-		p.gameState.setPlayerLifeState(pl, pl.IsAlive())
-
-		if controllerHandle == prevControllerHandle {
+		if controllerHandle == constants.InvalidEntityHandleSource2 || controllerHandle == prevControllerHandle {
 			return
 		}
 
 		prevControllerHandle = controllerHandle
+
+		controllerEntityID := int(controllerHandle & constants.EntityHandleIndexMaskSource2)
+		controllerEntity := p.gameState.playerControllerEntities[controllerEntityID]
+
+		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
+		p.gameState.setPlayerLifeState(pl, pl.IsAlive())
 
 		p.bindPlayerWeaponsS2(pawnEntity, pl)
 	})
