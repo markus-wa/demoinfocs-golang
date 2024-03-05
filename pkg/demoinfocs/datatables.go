@@ -419,7 +419,16 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 
 	pawnEntity.Property("m_hController").OnUpdate(func(controllerHandleVal st.PropertyValue) {
 		controllerHandle := controllerHandleVal.Handle()
-		if controllerHandle == constants.InvalidEntityHandleSource2 || controllerHandle == prevControllerHandle {
+		if controllerHandle == constants.InvalidEntityHandleSource2 {
+			return
+		}
+
+		player := getPlayerFromPawnEntity(pawnEntity)
+		if player != nil {
+			p.gameState.setPlayerLifeState(player, player.IsAlive())
+		}
+
+		if controllerHandle == prevControllerHandle {
 			return
 		}
 
