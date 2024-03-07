@@ -1004,6 +1004,7 @@ func (p *parser) bindGameRules() {
 			}
 
 			p.gameEventHandler.clearGrenadeProjectiles()
+			p.delayedEventHandlers = make([]func(), 0)
 
 			for _, player := range p.gameState.playersByEntityID {
 				player.IsPlanting = false
