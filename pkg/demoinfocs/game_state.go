@@ -288,17 +288,17 @@ var ErrFailedToRetrieveGameRule = errors.New("failed to retrieve GameRule value,
 
 // RoundTime returns how long rounds in the current match last for (excluding freeze time).
 // May return error if cs_gamerules_data.m_iRoundTime is not set.
-func (gr gameRules) RoundTime() (time.Duration, error) {
+func (gr gameRules) RoundTime() int {
 	if gr.entity == nil {
-		return 0, ErrFailedToRetrieveGameRule
+		return 0
 	}
 
-	prop := gr.entity.Property("cs_gamerules_data.m_iRoundTime")
+	prop := gr.entity.Property("m_pGameRules.m_iRoundTime")
 	if prop == nil {
-		return 0, ErrFailedToRetrieveGameRule
+		return 0
 	}
 
-	return time.Duration(prop.Value().IntVal) * time.Second, nil
+	return prop.Value().Int()
 }
 
 // FreezeTime returns how long freeze time lasts for in the current match (mp_freezetime).

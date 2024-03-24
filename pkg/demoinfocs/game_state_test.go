@@ -318,28 +318,12 @@ func TestGameRules_FreezeTime(t *testing.T) {
 	assert.Equal(t, 5*time.Second, bt)
 }
 
-func TestGameRules_RoundTime(t *testing.T) {
-	prop := new(stfake.Property)
-	prop.On("Value").Return(st.PropertyValue{IntVal: 115})
-	ent := new(stfake.Entity)
-	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(prop)
-	gr := gameRules{entity: ent}
-
-	rt, err := gr.RoundTime()
-
-	assert.Nil(t, err)
-	assert.Equal(t, 115*time.Second, rt)
-}
-
 func TestGameRules(t *testing.T) {
 	gr := gameRules{
 		conVars: map[string]string{},
 	}
 
-	_, err := gr.RoundTime()
-	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
-
-	_, err = gr.BombTime()
+	_, err := gr.BombTime()
 	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
 
 	_, err = gr.FreezeTime()
@@ -347,10 +331,6 @@ func TestGameRules(t *testing.T) {
 
 	ent := new(stfake.Entity)
 	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(nil)
-	gr = gameRules{entity: ent}
-
-	_, err = gr.RoundTime()
-	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
 }
 
 func TestGameRules_IsFreezetimePeriod(t *testing.T) {

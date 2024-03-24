@@ -31,8 +31,8 @@ func (gr *GameRules) FreezeTime() (time.Duration, error) {
 }
 
 // RoundTime is a mock-implementation of GameRules.RoundTime().
-func (gr *GameRules) RoundTime() (time.Duration, error) {
-	return gr.Called().Get(0).(time.Duration), gr.Called().Get(0).(error)
+func (gr *GameRules) RoundTime() int {
+	return gr.Called().Get(0).(int)
 }
 
 // ConVars is a mock-implementation of GameRules.ConVars().
