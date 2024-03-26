@@ -581,6 +581,7 @@ const (
 	WarnTypeCantReadEncryptedNetMessage
 
 	WarnTypeUnknownEquipmentIndex
+	WarnTypeMissingItemDefinitionIndex
 )
 
 // ParserWarn signals that a non-fatal problem occurred during parsing.

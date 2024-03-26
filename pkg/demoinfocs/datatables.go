@@ -1003,7 +1003,18 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 func (p *parser) bindWeaponS2(entity st.Entity) {
 	entityID := entity.ID()
-	itemIndex := entity.PropertyValueMust("m_iItemDefinitionIndex").S2UInt64()
+	itemIndexVal := entity.PropertyValueMust("m_iItemDefinitionIndex")
+
+	if itemIndexVal.Any == nil {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Type:    events.WarnTypeMissingItemDefinitionIndex,
+			Message: "missing m_iItemDefinitionIndex property in weapon entity",
+		})
+
+		return
+	}
+
+	itemIndex := itemIndexVal.S2UInt64()
 	wepType := common.EquipmentIndexMapping[itemIndex]
 
 	if wepType == common.EqUnknown {

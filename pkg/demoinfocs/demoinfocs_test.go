@@ -38,6 +38,7 @@ const (
 	retakeDemPath           = csDemosPath + "/retake_unknwon_bombsite_index.dem"
 	unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
 	s2DemPath               = demSetPathS2 + "/s2.dem"
+	s2POVDemPath            = demSetPathS2 + "/pov.dem"
 )
 
 var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current demos")
@@ -225,6 +226,26 @@ func TestS2(t *testing.T) {
 	t.Log("Parsing header")
 	_, err = p.ParseHeader()
 	assertions.NoError(err, "error returned by Parser.ParseHeader()")
+
+	t.Log("Parsing to end")
+	err = p.ParseToEnd()
+	assertions.NoError(err, "error occurred in ParseToEnd()")
+}
+
+func TestS2POV(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	f, err := os.Open(s2POVDemPath)
+	assertions := assert.New(t)
+	assertions.NoError(err, "error opening demo %q", s2POVDemPath)
+
+	defer mustClose(t, f)
+
+	p := demoinfocs.NewParser(f)
 
 	t.Log("Parsing to end")
 	err = p.ParseToEnd()
@@ -522,6 +543,10 @@ func testDemoSet(t *testing.T, path string) {
 
 					case events.WarnTypeTeamSwapPlayerNil:
 						t.Log("expected known issue with team swaps occurred:", warn.Message)
+						return
+
+					case events.WarnTypeMissingItemDefinitionIndex:
+						t.Log("expected known issue with missing item definition index occurred:", warn.Message)
 						return
 
 					case events.WarnTypeGameEventBeforeDescriptors:

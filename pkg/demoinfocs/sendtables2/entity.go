@@ -519,16 +519,16 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 					_panicf("unable to find new class %d", classID)
 				}
 
-				baseline := p.classBaselines[classID]
-				if baseline == nil {
-					_panicf("unable to find new baseline %d", classID)
-				}
-
 				e = newEntity(index, serial, class)
 				p.entities[index] = e
 
-				e.readFields(newReader(baseline), &paths)
-				paths = paths[:0]
+				baseline := p.classBaselines[classID]
+
+				if baseline != nil {
+					// POV demos are missing some baselines?
+					e.readFields(newReader(baseline), &paths)
+					paths = paths[:0]
+				}
 
 				e.readFields(r, &paths)
 				paths = paths[:0]
