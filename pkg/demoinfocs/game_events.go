@@ -492,12 +492,13 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 		armorDamageTaken = 100
 	}
 
-	if player != nil {
-		if health == 0 {
+	if player != nil && (!geh.parser.isSource2() || (player.PlayerPawnEntity() != nil)) {
+		// m_iHealth & m_ArmorValue check for CS2 POV demos
+		if health == 0 && (!geh.parser.isSource2() || player.PlayerPawnEntity().Property("m_iHealth") != nil) {
 			healthDamageTaken = player.Health()
 		}
 
-		if armor == 0 {
+		if armor == 0 && (!geh.parser.isSource2() || player.PlayerPawnEntity().Property("m_ArmorValue") != nil) {
 			armorDamageTaken = player.Armor()
 		}
 	}
