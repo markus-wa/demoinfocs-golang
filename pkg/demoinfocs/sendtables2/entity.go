@@ -204,19 +204,23 @@ func coordFromCell(cell uint64, offset float32) float64 {
 }
 
 func (e *Entity) Position() r3.Vector {
-	cellXProp := e.Property(propCellX)
-	cellYProp := e.Property(propCellY)
-	cellZProp := e.Property(propCellZ)
-	offsetXProp := e.Property(propVecX)
-	offsetYProp := e.Property(propVecY)
-	offsetZProp := e.Property(propVecZ)
+	cellXVal := e.Property(propCellX).Value()
+	cellYVal := e.Property(propCellY).Value()
+	cellZVal := e.Property(propCellZ).Value()
+	offsetXVal := e.Property(propVecX).Value()
+	offsetYVal := e.Property(propVecY).Value()
+	offsetZVal := e.Property(propVecZ).Value()
 
-	cellX := cellXProp.Value().S2UInt64()
-	cellY := cellYProp.Value().S2UInt64()
-	cellZ := cellZProp.Value().S2UInt64()
-	offsetX := offsetXProp.Value().Float()
-	offsetY := offsetYProp.Value().Float()
-	offsetZ := offsetZProp.Value().Float()
+	if cellXVal.Any == nil || cellYVal.Any == nil || cellZVal.Any == nil || offsetXVal.Any == nil || offsetYVal.Any == nil || offsetZVal.Any == nil {
+		return r3.Vector{} // CS2 POV demos
+	}
+
+	cellX := cellXVal.S2UInt64()
+	cellY := cellYVal.S2UInt64()
+	cellZ := cellZVal.S2UInt64()
+	offsetX := offsetXVal.Float()
+	offsetY := offsetYVal.Float()
+	offsetZ := offsetZVal.Float()
 
 	return r3.Vector{
 		X: coordFromCell(cellX, offsetX),
@@ -519,16 +523,16 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 					_panicf("unable to find new class %d", classID)
 				}
 
-				baseline := p.classBaselines[classID]
-				if baseline == nil {
-					_panicf("unable to find new baseline %d", classID)
-				}
-
 				e = newEntity(index, serial, class)
 				p.entities[index] = e
 
-				e.readFields(newReader(baseline), &paths)
-				paths = paths[:0]
+				baseline := p.classBaselines[classID]
+
+				if baseline != nil {
+					// POV demos are missing some baselines?
+					e.readFields(newReader(baseline), &paths)
+					paths = paths[:0]
+				}
 
 				e.readFields(r, &paths)
 				paths = paths[:0]

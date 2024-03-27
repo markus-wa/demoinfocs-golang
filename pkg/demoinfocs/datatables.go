@@ -164,19 +164,30 @@ func (p *parser) bindBomb() {
 
 		if p.isSource2() {
 			ownerProp := bombEntity.PropertyValueMust("m_hOwnerEntity")
-			planter := p.gameState.Participants().FindByPawnHandle(ownerProp.Handle())
-			if planter == nil {
-				return
-			}
-			isTicking := true
-			planter.IsPlanting = false
 
-			siteNumber := bombEntity.PropertyValueMust("m_nBombSite").Int()
+			var planter *common.Player
+
+			if ownerProp.Any != nil {
+				planter = p.gameState.Participants().FindByPawnHandle(ownerProp.Handle())
+
+				if planter != nil {
+					planter.IsPlanting = false
+				}
+			}
+
+			isTicking := true
+
+			siteNumberVal := bombEntity.PropertyValueMust("m_nBombSite")
+
 			site := events.BomsiteUnknown
-			if siteNumber == 0 {
-				site = events.BombsiteA
-			} else if siteNumber == 1 {
-				site = events.BombsiteB
+
+			if siteNumberVal.Any != nil {
+				siteNumber := siteNumberVal.Int()
+				if siteNumber == 0 {
+					site = events.BombsiteA
+				} else if siteNumber == 1 {
+					site = events.BombsiteB
+				}
 			}
 
 			if !p.disableMimicSource1GameEvents {
@@ -190,6 +201,10 @@ func (p *parser) bindBomb() {
 
 			// Set to true when the bomb has been planted and to false when it has been defused or has exploded.
 			bombEntity.Property("m_bBombTicking").OnUpdate(func(val st.PropertyValue) {
+				if val.Any == nil {
+					return
+				}
+
 				isTicking = val.BoolVal()
 				if isTicking {
 					return
@@ -214,24 +229,40 @@ func (p *parser) bindBomb() {
 
 			// Updated when a player starts/stops defusing the bomb
 			bombEntity.Property("m_hBombDefuser").OnUpdate(func(val st.PropertyValue) {
+				if val.Any == nil {
+					return
+				}
+
 				isValidPlayer := val.Handle() != constants.InvalidEntityHandleSource2
 				if isValidPlayer {
 					defuser := p.gameState.Participants().FindByPawnHandle(val.Handle())
 					p.gameState.currentDefuser = defuser
+					hasKit := false
+
+					// defuser may be nil for POV demos
+					if defuser != nil {
+						hasKit = defuser.HasDefuseKit()
+					}
+
 					if !p.disableMimicSource1GameEvents {
 						p.eventDispatcher.Dispatch(events.BombDefuseStart{
 							Player: defuser,
-							HasKit: defuser.HasDefuseKit(),
+							HasKit: hasKit,
 						})
 					}
+
 					return
 				}
 
-				isDefused := bombEntity.PropertyValueMust("m_bBombDefused").BoolVal()
-				if !isDefused && p.gameState.currentDefuser != nil {
-					p.eventDispatcher.Dispatch(events.BombDefuseAborted{
-						Player: p.gameState.currentDefuser,
-					})
+				isDefusedVal := bombEntity.PropertyValueMust("m_bBombDefused")
+
+				if isDefusedVal.Any != nil {
+					isDefused := isDefusedVal.BoolVal()
+					if !isDefused && p.gameState.currentDefuser != nil {
+						p.eventDispatcher.Dispatch(events.BombDefuseAborted{
+							Player: p.gameState.currentDefuser,
+						})
+					}
 				}
 
 				p.gameState.currentDefuser = nil
@@ -239,6 +270,10 @@ func (p *parser) bindBomb() {
 
 			// Updated when the bomb has been planted and defused.
 			bombEntity.Property("m_bBombDefused").OnUpdate(func(val st.PropertyValue) {
+				if val.Any == nil {
+					return
+				}
+
 				isDefused := val.BoolVal()
 				if isDefused && !p.disableMimicSource1GameEvents {
 					defuser := p.gameState.Participants().FindByPawnHandle(bombEntity.PropertyValueMust("m_hBombDefuser").Handle())
@@ -1003,7 +1038,18 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 func (p *parser) bindWeaponS2(entity st.Entity) {
 	entityID := entity.ID()
-	itemIndex := entity.PropertyValueMust("m_iItemDefinitionIndex").S2UInt64()
+	itemIndexVal := entity.PropertyValueMust("m_iItemDefinitionIndex")
+
+	if itemIndexVal.Any == nil {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Type:    events.WarnTypeMissingItemDefinitionIndex,
+			Message: "missing m_iItemDefinitionIndex property in weapon entity",
+		})
+
+		return
+	}
+
+	itemIndex := itemIndexVal.S2UInt64()
 	wepType := common.EquipmentIndexMapping[itemIndex]
 
 	if wepType == common.EqUnknown {
