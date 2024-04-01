@@ -87,6 +87,11 @@ func (gs *gameState) indexPlayerByUserID(pl *common.Player) {
 }
 
 func (gs *gameState) setPlayerLifeState(pl *common.Player, alive bool) {
+	if alive && pl.Alive != alive {
+		gs.demoInfo.parser.gameEventHandler.dispatch(events.PlayerSpawn{
+			Player: pl,
+		})
+	}
 	pl.Alive = alive
 	if pl.Entity == nil || !alive {
 		clear(pl.Inventory)
