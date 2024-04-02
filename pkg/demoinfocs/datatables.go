@@ -890,20 +890,27 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	p.gameState.grenadeProjectiles[entityID] = proj
 
 	if p.demoInfoProvider.IsSource2() {
-		player := p.demoInfoProvider.FindPlayerByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
-		proj.Thrower = player
-		proj.Owner = player
+		ownerEntVal := entity.PropertyValueMust("m_hOwnerEntity")
+		if ownerEntVal.Any != nil {
+			player := p.demoInfoProvider.FindPlayerByPawnHandle(ownerEntVal.Handle())
+			proj.Thrower = player
+			proj.Owner = player
+		}
 	}
 
 	var wep common.EquipmentType
 	entity.OnCreateFinished(func() { //nolint:wsl
 		if p.demoInfoProvider.IsSource2() {
-			model := entity.PropertyValueMust("CBodyComponent.m_hModel").S2UInt64()
-			weaponType, exists := p.equipmentTypePerModel[model]
-			if exists {
-				wep = weaponType
-			} else {
-				fmt.Printf("unknown grenade model %d", model)
+			modelVal := entity.PropertyValueMust("CBodyComponent.m_hModel")
+
+			if modelVal.Any != nil {
+				model := modelVal.S2UInt64()
+				weaponType, exists := p.equipmentTypePerModel[model]
+				if exists {
+					wep = weaponType
+				} else {
+					fmt.Printf("unknown grenade model %d\n", model)
+				}
 			}
 		}
 
@@ -968,6 +975,10 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
 	entity.Property("m_hThrower").OnUpdate(func(val st.PropertyValue) {
+		if val.Any == nil {
+			return
+		}
+
 		if p.demoInfoProvider.IsSource2() {
 			proj.Thrower = p.demoInfoProvider.FindPlayerByPawnHandle(val.Handle())
 		} else {
@@ -976,6 +987,10 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	})
 
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+		if val.Any == nil {
+			return
+		}
+
 		if p.demoInfoProvider.IsSource2() {
 			proj.Owner = p.gameState.Participants().FindByPawnHandle(val.Handle())
 		} else {
@@ -997,6 +1012,10 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	// So we need to check for nil and can't send out bounce events if it's missing
 	if bounceProp := entity.Property("m_nBounces"); bounceProp != nil {
 		bounceProp.OnUpdate(func(val st.PropertyValue) {
+			if val.Any == nil {
+				return
+			}
+
 			bounceNumber := val.Int()
 			if bounceNumber != 0 {
 				p.eventDispatcher.Dispatch(events.GrenadeProjectileBounce{
@@ -1054,6 +1073,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 
 	if wepType == common.EqUnknown {
 		fmt.Println("unknown equipment with index", itemIndex)
+
 		p.msgDispatcher.Dispatch(events.ParserWarn{
 			Message: fmt.Sprintf("unknown equipment with index %d", itemIndex),
 			Type:    events.WarnTypeUnknownEquipmentIndex,
@@ -1118,10 +1138,15 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	// WeaponFire events for grenades are dispatched when the grenade's projectile is created.
 	if p.isSource2() && equipment.Class() != common.EqClassGrenade && !p.disableMimicSource1GameEvents {
 		entity.Property("m_fLastShotTime").OnUpdate(func(val st.PropertyValue) {
+			if val.Any == nil {
+				return
+			}
+
 			shooter := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
 			if shooter == nil {
 				shooter = equipment.Owner
 			}
+
 			if shooter != nil && val.Float() > 0 {
 				p.eventDispatcher.Dispatch(events.WeaponFire{
 					Shooter: shooter,
@@ -1191,13 +1216,22 @@ func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 }
 
 func (p *parser) bindNewInferno(entity st.Entity) {
-	throwerHandle := entity.PropertyValueMust("m_hOwnerEntity").Handle()
+	ownerEntVal := entity.PropertyValueMust("m_hOwnerEntity")
+
+	if ownerEntVal.Any == nil {
+		return
+	}
+
+	throwerHandle := ownerEntVal.Handle()
+
 	var thrower *common.Player
+
 	if p.isSource2() {
 		thrower = p.gameState.Participants().FindByPawnHandle(throwerHandle)
 	} else {
 		thrower = p.gameState.Participants().FindByHandle64(throwerHandle)
 	}
+
 	inf := common.NewInferno(p.demoInfoProvider, entity, thrower)
 	p.gameState.infernos[entity.ID()] = inf
 
