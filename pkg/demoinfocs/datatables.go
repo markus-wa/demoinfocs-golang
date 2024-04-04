@@ -1104,6 +1104,10 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	)
 
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+		if val.Any == nil {
+			return
+		}
+
 		owner := p.GameState().Participants().FindByPawnHandle(val.Handle())
 		if owner == nil {
 			equipment.Owner = nil
@@ -1142,7 +1146,14 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 				return
 			}
 
-			shooter := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
+			ownerHandleVal := entity.PropertyValueMust("m_hOwnerEntity")
+
+			var shooter *common.Player
+
+			if ownerHandleVal.Any != nil {
+				shooter = p.GameState().Participants().FindByPawnHandle(ownerHandleVal.Handle())
+			}
+
 			if shooter == nil {
 				shooter = equipment.Owner
 			}
