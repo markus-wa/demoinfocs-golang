@@ -607,6 +607,7 @@ message CMsgGCCStrike15_v2_MatchmakingServerRoundStats {
 	repeated int32 player_spawned = 29;
 	repeated int32 team_spawn_count = 30;
 	optional uint32 max_rounds = 31;
+	optional int32 map_id = 32;
 }
 
 message CMsgGCCStrike15_v2_MatchmakingClient2GCHello {
@@ -632,6 +633,7 @@ message CMsgGCCStrike15_v2_MatchmakingGC2ClientHello {
 	optional int32 player_cur_xp = 18;
 	optional int32 player_xp_bonus_flags = 19;
 	repeated PlayerRankingInfo rankings = 20;
+	optional uint64 owcaseid = 21;
 }
 
 message CMsgGCCStrike15_v2_AccountPrivacySettings {
@@ -876,6 +878,8 @@ message CEconItemPreviewDataBlock {
 		optional float scale = 4;
 		optional float rotation = 5;
 		optional uint32 tint_id = 6;
+		optional float offset_x = 7;
+		optional float offset_y = 8;
 	}
 
 	optional uint32 accountid = 1;

@@ -33,4 +33,5 @@ message CSGOUserCmdPB {
 	optional int32 attack1_start_history_index = 6 [default = -1];
 	optional int32 attack2_start_history_index = 7 [default = -1];
 	optional int32 attack3_start_history_index = 8 [default = -1];
+	optional bool left_hand_desired = 9 [default = false];
 }
