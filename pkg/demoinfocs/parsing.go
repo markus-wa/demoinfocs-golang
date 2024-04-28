@@ -340,6 +340,17 @@ func (p *parser) parseFrameS2() bool {
 
 	size := p.bitReader.ReadVarInt32()
 
+	msgCreator := demoCommandMsgsCreators[msgType]
+	if msgCreator == nil {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: fmt.Sprintf("skipping unknown demo commands message type with value %d", msgType),
+			Type:    events.WarnUnknownDemoCommandMessageType,
+		})
+		p.bitReader.Skip(int(size) << 3)
+
+		return true
+	}
+
 	buf := p.bitReader.ReadBytes(int(size))
 
 	if msgCompressed {
@@ -357,7 +368,7 @@ func (p *parser) parseFrameS2() bool {
 		}
 	}
 
-	msg := demoCommandMsgsCreators[msgType]()
+	msg := msgCreator()
 
 	if msg == nil {
 		panic(fmt.Sprintf("Unknown demo command: %d", msgType))
