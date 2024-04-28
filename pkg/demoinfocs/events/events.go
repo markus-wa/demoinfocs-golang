@@ -570,6 +570,7 @@ const (
 	WarnTypeBombsiteUnknown            // may occur on de_grind for bombsite B as the bounding box of the bombsite is wrong
 	WarnTypeTeamSwapPlayerNil          // TODO: figure out why this happens
 	WarnTypeGameEventBeforeDescriptors // may occur in POV demos
+	WarnUnknownDemoCommandMessageType  // occur when we have an unknown EDemoCommands message type, the protobuf messages probably need to be updated
 
 	// WarnTypeMissingNetMessageDecryptionKey occurs when encrypted net-messages are encountered and the decryption key is missing.
 	// See ParserConfig.NetMessageDecryptionKey
