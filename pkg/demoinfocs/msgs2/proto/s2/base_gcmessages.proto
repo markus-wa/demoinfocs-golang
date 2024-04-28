@@ -35,6 +35,7 @@ message CGCStorePurchaseInit_LineItem {
 	optional uint32 quantity = 2;
 	optional uint32 cost_in_local_currency = 3;
 	optional uint32 purchase_type = 4;
+	optional uint64 supplemental_data = 5;
 }
 
 message CMsgGCStorePurchaseInit {
