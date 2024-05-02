@@ -148,6 +148,13 @@ type PlayerJump struct {
 	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 }
 
+// PlayerSound signals that a player emitted a sound.
+type PlayerSound struct {
+	Player   *common.Player
+	Radius   int
+	Duration time.Duration
+}
+
 // Kill signals that a player has been killed.
 type Kill struct {
 	Weapon            *common.Equipment

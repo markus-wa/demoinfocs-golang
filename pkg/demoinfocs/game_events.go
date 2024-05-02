@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
@@ -256,7 +257,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"player_given_c4":                 nil,                                   // Dunno, only present in locally recorded (POV) demos
 		"player_ping":                     nil,                                   // When a player uses the "ping system" added with the operation Broken Fang, only present in locally recorded (POV) demos
 		"player_ping_stop":                nil,                                   // When a player's ping expired, only present in locally recorded (POV) demos
-		"player_sound":                    nil,                                   // When a player makes a sound. TODO: implement player_sound
+		"player_sound":                    delayIfNoPlayers(geh.playerSound),     // When a player makes a sound
 
 		// Player changed team. Delayed for two reasons
 		// - team IDs of other players changing teams in the same tick might not have changed yet
@@ -416,6 +417,14 @@ func (geh gameEventHandler) playerFootstep(data map[string]*msg.CSVCMsg_GameEven
 func (geh gameEventHandler) playerJump(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.PlayerJump{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
+	})
+}
+
+func (geh gameEventHandler) playerSound(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	geh.dispatch(events.PlayerSound{
+		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
+		Radius:   int(data["radius"].GetValLong()),
+		Duration: time.Duration(data["duration"].GetValFloat() * float32(time.Second)),
 	})
 }
 
