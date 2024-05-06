@@ -641,10 +641,6 @@ func (geh gameEventHandler) HostageRescuedAll(map[string]*msg.CSVCMsg_GameEventK
 }
 
 func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-	if geh.parser.isSource2() {
-		return
-	}
-
 	pl := common.PlayerInfo{
 		UserID:       int(data["userid"].GetValShort()),
 		Name:         data["name"].GetValString(),
@@ -662,7 +658,14 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEvent
 		}
 	}
 
-	geh.parser.setRawPlayer(int(data["index"].GetValByte()), pl)
+	var playerIndex int
+	if geh.parser.isSource2() {
+		playerIndex = pl.UserID
+	} else {
+		playerIndex = int(data["index"].GetValByte())
+	}
+
+	geh.parser.setRawPlayer(playerIndex, pl)
 }
 
 func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
