@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
@@ -661,6 +662,9 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEvent
 	var playerIndex int
 	if geh.parser.isSource2() {
 		playerIndex = pl.UserID
+		if !pl.IsFakePlayer && !pl.IsHltv && pl.XUID > 0 && pl.UserID <= math.MaxUint8 {
+			pl.UserID |= math.MaxUint8 << 8
+		}
 	} else {
 		playerIndex = int(data["index"].GetValByte())
 	}
