@@ -294,7 +294,9 @@ const (
 )
 
 // Parse a string table data blob, returning a list of item updates.
-func parseStringTable(
+//
+//nolint:funlen,gocognit
+func (p *parser) parseStringTable(
 	buf []byte,
 	numUpdates int32,
 	name string,
@@ -307,6 +309,16 @@ func parseStringTable(
 	if len(buf) == 0 {
 		return items
 	}
+
+	defer func() {
+		err := recover()
+		if err != nil {
+			p.eventDispatcher.Dispatch(events.ParserWarn{
+				Type:    events.WarnTypeStringTableParsingFailure,
+				Message: "failed to parse stringtable properly",
+			})
+		}
+	}()
 
 	// Create a reader for the buffer
 	r := bit.NewSmallBitReader(bytes.NewReader(buf))
@@ -372,41 +384,42 @@ func parseStringTable(
 			if len(keys) > stringtableKeyHistorySize {
 				keys = keys[1:]
 			}
+		}
 
-			// Some entries have a value.
-			hasValue := r.ReadBit()
-			if hasValue {
-				bitSize := uint(0)
-				isCompressed := false
+		// Some entries have a value.
+		hasValue := r.ReadBit()
+		//nolint:nestif
+		if hasValue {
+			bitSize := uint(0)
+			isCompressed := false
 
-				if userDataFixed {
-					bitSize = uint(userDataSize)
-				} else {
-					if (flags & 0x1) != 0 {
-						isCompressed = r.ReadBit()
-					}
-
-					if variantBitCount {
-						bitSize = r.ReadUBitInt() * 8
-					} else {
-						bitSize = r.ReadInt(17) * 8
-					}
+			if userDataFixed {
+				bitSize = uint(userDataSize)
+			} else {
+				if (flags & 0x1) != 0 {
+					isCompressed = r.ReadBit()
 				}
 
-				value = r.ReadBits(int(bitSize))
-
-				if isCompressed {
-					tmp, err := snappy.Decode(nil, value)
-					if err != nil {
-						panic(fmt.Sprintf("unable to decode snappy compressed stringtable item (%s, %d, %s): %s", name, index, key, err))
-					}
-
-					value = tmp
+				if variantBitCount {
+					bitSize = r.ReadUBitInt() * 8
+				} else {
+					bitSize = r.ReadInt(17) * 8
 				}
 			}
 
-			items = append(items, &stringTableItem{index, key, value})
+			value = r.ReadBits(int(bitSize))
+
+			if isCompressed {
+				tmp, err := snappy.Decode(nil, value)
+				if err != nil {
+					panic(fmt.Sprintf("unable to decode snappy compressed stringtable item (%s, %d, %s): %s", name, index, key, err))
+				}
+
+				value = tmp
+			}
 		}
+
+		items = append(items, &stringTableItem{index, key, value})
 	}
 
 	return items
@@ -415,7 +428,7 @@ func parseStringTable(
 var instanceBaselineKeyRegex = regexp.MustCompile(`^\d+:\d+$`)
 
 func (p *parser) processStringTableS2(tab createStringTable) {
-	items := parseStringTable(tab.StringData, tab.GetNumEntries(), tab.GetName(), tab.GetUserDataFixedSize(), tab.GetUserDataSize(), tab.GetFlags(), tab.GetUsingVarintBitcounts())
+	items := p.parseStringTable(tab.StringData, tab.GetNumEntries(), tab.GetName(), tab.GetUserDataFixedSize(), tab.GetUserDataSize(), tab.GetFlags(), tab.GetUsingVarintBitcounts())
 
 	for _, item := range items {
 		switch tab.GetName() {
