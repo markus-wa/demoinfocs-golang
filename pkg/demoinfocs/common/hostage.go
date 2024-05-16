@@ -3,6 +3,7 @@ package common
 import (
 	"github.com/golang/geo/r3"
 
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
@@ -54,7 +55,12 @@ func (hostage *Hostage) Health() int {
 // Returns nil if the hostage is not following a player.
 func (hostage *Hostage) Leader() *Player {
 	if hostage.demoInfoProvider.IsSource2() {
-		return hostage.demoInfoProvider.FindPlayerByPawnHandle(getUInt64(hostage.Entity, "m_leader"))
+		leaderHandle := getUInt64(hostage.Entity, "m_leader")
+		if leaderHandle != constants.InvalidEntityHandleSource2 {
+			return hostage.demoInfoProvider.FindPlayerByPawnHandle(leaderHandle)
+		}
+
+		return hostage.demoInfoProvider.FindPlayerByPawnHandle(getUInt64(hostage.Entity, "m_hHostageGrabber"))
 	}
 
 	return hostage.demoInfoProvider.FindPlayerByHandle(uint64(getInt(hostage.Entity, "m_leader")))
