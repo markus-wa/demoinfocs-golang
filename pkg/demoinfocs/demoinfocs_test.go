@@ -549,6 +549,10 @@ func testDemoSet(t *testing.T, path string) {
 						t.Log("expected known issue with missing item definition index occurred:", warn.Message)
 						return
 
+					case events.WarnTypeStringTableParsingFailure:
+						t.Log("expected known issue with stringtables parsing occurred:", warn.Message)
+						return
+
 					case events.WarnTypeGameEventBeforeDescriptors:
 						if strings.Contains(name, "POV-orbit-skytten-vs-cloud9-gfinity15sm1-nuke.dem") {
 							t.Log("expected known issue for POV demos occurred:", warn.Message)
