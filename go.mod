@@ -15,7 +15,7 @@ require (
 	github.com/samber/lo v1.38.1
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.34.1
 )
 
 require (

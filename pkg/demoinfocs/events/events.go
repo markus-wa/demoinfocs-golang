@@ -203,7 +203,7 @@ type GrenadeEvent struct {
 	GrenadeType     common.EquipmentType
 	Grenade         *common.Equipment // Maybe nil for InfernoStart & InfernoExpired since we don't know the thrower (at least in old demos)
 	Position        r3.Vector
-	Thrower         *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Thrower         *common.Player // May be nil with POV demos or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	GrenadeEntityID int
 }
 
@@ -308,7 +308,7 @@ const (
 // BombEvent contains the common attributes of bomb events. Dont register
 // handlers on this tho, you want BombEventIf for that.
 type BombEvent struct {
-	Player *common.Player
+	Player *common.Player // Can be nil with POV demos
 	Site   Bombsite
 }
 
@@ -421,7 +421,7 @@ const (
 
 // PlayerHurt signals that a player has been damaged.
 type PlayerHurt struct {
-	Player            *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Player            *common.Player // May be nil with POV demos or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Attacker          *common.Player // May be nil if the player is taking world damage (e.g. fall damage) or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Health            int
 	Armor             int
@@ -590,6 +590,7 @@ const (
 
 	WarnTypeUnknownEquipmentIndex
 	WarnTypeMissingItemDefinitionIndex
+	WarnTypeStringTableParsingFailure // Should happen only with CS2 POV demos
 )
 
 // ParserWarn signals that a non-fatal problem occurred during parsing.
