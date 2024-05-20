@@ -11,53 +11,104 @@ jobs:
       REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-    - name: Install Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.20.x
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.20.x
 
-    - name: Install Reviewdog
-      uses: reviewdog/action-setup@v1
-      with:
-        reviewdog_version: v0.11.0
+      - name: Install Reviewdog
+        uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: v0.11.0
 
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Download Go Deps
-      run: go mod download
+      - name: Download Go Deps
+        run: go mod download
 
-    - name: Install Tools
-      run: |
-        # install 7zip for decompressing test demos
-        sudo apt-get install -y p7zip-full
+      - name: Install Tools
+        run: |
+          # install 7zip for decompressing test demos
+          sudo apt-get install -y p7zip-full
 
-        # Install interface generator
-        go install github.com/vburenin/ifacemaker@v1.2.1
+          # Install interface generator
+          go install github.com/vburenin/ifacemaker@v1.2.1
 
-        # Fetch refs for linter
-        git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
-        git fetch
+          # Fetch refs for linter
+          git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+          git fetch
 
-        # Install golangci-lint
-        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.52.2
+          # Install golangci-lint
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.52.2
 
-    - name: Build
-      run: scripts/build.sh
+      - name: Build
+        run: scripts/build.sh
 
-    - name: Check Generated Code
-      run: scripts/check-interfaces-generated.sh
+      - name: Check Generated Code
+        run: scripts/check-interfaces-generated.sh
 
-    - name: Lint Changed Code
-      run: scripts/lint-changes.sh
-      continue-on-error: true
+      - name: Lint Changed Code
+        run: scripts/lint-changes.sh
+        continue-on-error: true
 
-    - name: Race Tests
-      run: scripts/race-tests.sh
+      - name: Race Tests
+        run: scripts/race-tests.sh
 
-    # Note: We run ALL tests again to get full coverage
-    #       Race tests are too slow and skip the regression set
-    - name: All Tests + Coverage
-      run: |
-        scripts/coverage.sh
-        bash <(curl -s https://codecov.io/bash)
+      # Note: We run ALL tests again to get full coverage
+      #       Race tests are too slow and skip the regression set
+      - name: All Tests + Coverage
+        run: |
+          scripts/coverage.sh
+          bash <(curl -s https://codecov.io/bash)
+
+  test-csda: # Run tests of CS Demo Analyzer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout demoinfocs-golang repo
+        uses: actions/checkout@v4
+        with:
+          path: demoinfocs-golang
+
+      - name: Checkout CSDA repo
+        uses: actions/checkout@v4
+        with:
+          repository: akiver/cs-demo-analyzer
+          path: cs-demo-analyzer
+          ref: main
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: cs-demo-analyzer/go.mod
+          cache-dependency-path: cs-demo-analyzer/go.sum
+
+      - name: Update CSDA mod
+        run: |
+          cd cs-demo-analyzer
+          go mod edit -replace github.com/markus-wa/demoinfocs-golang/v4=../demoinfocs-golang
+          go mod tidy
+
+      - name: Download demos cache file
+        run: |
+          cd cs-demo-analyzer
+          curl -L -o demos.txt https://gitlab.com/akiver/cs-demos/-/raw/main/demos.txt
+
+      - name: Restore demos cache
+        uses: actions/cache@v4
+        id: demos-cache
+        with:
+          path: cs-demo-analyzer/cs-demos
+          key: demos-${{ hashFiles('cs-demo-analyzer/demos.txt') }}
+
+      - name: Download demos
+        if: steps.demos-cache.outputs.cache-hit != 'true'
+        run: |
+          cd cs-demo-analyzer
+          ./download-demos.sh
+
+      - name: Test
+        run: |
+          cd cs-demo-analyzer
+          go test ./tests
