@@ -41,7 +41,7 @@ func (p *parser) handleClassInfo(msg *msgs2.CDemoClassInfo) {
 
 var netMsgCreators = map[msgs2.NET_Messages]NetMessageCreator{
 	msgs2.NET_Messages_net_NOP:                        func() proto.Message { return &msgs2.CNETMsg_NOP{} },
-	msgs2.NET_Messages_net_Disconnect:                 func() proto.Message { return &msgs2.CNETMsg_Disconnect{} },
+	msgs2.NET_Messages_net_Disconnect_Legacy:          func() proto.Message { return &msgs2.CNETMsg_Disconnect_Legacy{} },
 	msgs2.NET_Messages_net_SplitScreenUser:            func() proto.Message { return &msgs2.CNETMsg_SplitScreenUser{} },
 	msgs2.NET_Messages_net_Tick:                       func() proto.Message { return &msgs2.CNETMsg_Tick{} },
 	msgs2.NET_Messages_net_StringCmd:                  func() proto.Message { return &msgs2.CNETMsg_StringCmd{} },
@@ -86,6 +86,7 @@ var svcMsgCreators = map[msgs2.SVC_Messages]NetMessageCreator{
 	msgs2.SVC_Messages_svc_HltvReplay:              func() proto.Message { return &msgs2.CSVCMsg_HltvReplay{} },
 	msgs2.SVC_Messages_svc_Broadcast_Command:       func() proto.Message { return &msgs2.CSVCMsg_Broadcast_Command{} },
 	msgs2.SVC_Messages_svc_HltvFixupOperatorStatus: func() proto.Message { return &msgs2.CSVCMsg_HltvFixupOperatorStatus{} },
+	msgs2.SVC_Messages_svc_UserCmds:                func() proto.Message { return &msgs2.CSVCMsg_UserCommands{} },
 }
 
 var usrMsgCreators = map[msgs2.EBaseUserMessages]NetMessageCreator{
@@ -124,7 +125,6 @@ var usrMsgCreators = map[msgs2.EBaseUserMessages]NetMessageCreator{
 	msgs2.EBaseUserMessages_UM_AnimGraphUpdate:         func() proto.Message { return &msgs2.CUserMessageAnimStateGraphState{} },
 	msgs2.EBaseUserMessages_UM_HapticsManagerPulse:     func() proto.Message { return &msgs2.CUserMessageHapticsManagerPulse{} },
 	msgs2.EBaseUserMessages_UM_HapticsManagerEffect:    func() proto.Message { return &msgs2.CUserMessageHapticsManagerEffect{} },
-	msgs2.EBaseUserMessages_UM_CommandQueueState:       func() proto.Message { return &msgs2.CUserMessageCommandQueueState{} },
 	msgs2.EBaseUserMessages_UM_UpdateCssClasses:        func() proto.Message { return &msgs2.CUserMessageUpdateCssClasses{} },
 	msgs2.EBaseUserMessages_UM_ServerFrameTime:         func() proto.Message { return &msgs2.CUserMessageServerFrameTime{} },
 	msgs2.EBaseUserMessages_UM_LagCompensationError:    func() proto.Message { return &msgs2.CUserMessageLagCompensationError{} },
@@ -133,6 +133,11 @@ var usrMsgCreators = map[msgs2.EBaseUserMessages]NetMessageCreator{
 	msgs2.EBaseUserMessages_UM_RequestInventory:        func() proto.Message { return &msgs2.CUserMessageRequestInventory{} },
 	msgs2.EBaseUserMessages_UM_InventoryResponse:       func() proto.Message { return &msgs2.CUserMessage_Inventory_Response{} },
 	msgs2.EBaseUserMessages_UM_UtilActionResponse:      func() proto.Message { return &msgs2.CUserMessage_UtilMsg_Response{} },
+	msgs2.EBaseUserMessages_UM_DllStatusResponse:       func() proto.Message { return &msgs2.CUserMessage_DllStatus{} },
+	msgs2.EBaseUserMessages_UM_DiagnosticResponse:      func() proto.Message { return &msgs2.CUserMessage_Diagnostic_Response{} },
+	msgs2.EBaseUserMessages_UM_ExtraUserData:           func() proto.Message { return &msgs2.CUserMessage_ExtraUserData{} },
+	msgs2.EBaseUserMessages_UM_NotifyResponseFound:     func() proto.Message { return &msgs2.CUserMessage_NotifyResponseFound{} },
+	msgs2.EBaseUserMessages_UM_PlayResponseConditional: func() proto.Message { return &msgs2.CUserMessage_PlayResponseConditional{} },
 }
 
 var emCreators = map[msgs2.EBaseEntityMessages]NetMessageCreator{

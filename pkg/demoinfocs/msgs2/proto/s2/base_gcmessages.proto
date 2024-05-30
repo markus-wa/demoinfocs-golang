@@ -553,3 +553,21 @@ message CMsgAdjustEquipSlots {
 	repeated CMsgAdjustEquipSlot slots = 1;
 	optional uint32 change_num = 2;
 }
+
+message CMsgOpenCrate {
+	optional uint64 tool_item_id = 1;
+	optional uint64 subject_item_id = 2;
+	optional bool for_rental = 3;
+}
+
+message CSOEconRentalHistory {
+	optional uint32 account_id = 1 [(key_field) = true];
+	optional uint64 crate_item_id = 2 [(key_field) = true];
+	optional uint32 crate_def_index = 3;
+	optional uint32 issue_date = 4;
+	optional uint32 expiration_date = 5;
+}
+
+message CMsgAcknowledgeRentalExpiration {
+	optional uint64 crate_item_id = 1;
+}

@@ -53,6 +53,7 @@ enum SVC_Messages {
 	svc_HltvReplay = 73;
 	svc_Broadcast_Command = 74;
 	svc_HltvFixupOperatorStatus = 75;
+	svc_UserCmds = 76;
 }
 
 enum VoiceDataFormat_t {
@@ -358,14 +359,6 @@ message CSVCMsg_GameEventList {
 }
 
 message CSVCMsg_PacketEntities {
-	message command_queue_info_t {
-		optional uint32 commands_queued = 1;
-		optional uint32 command_queue_desired_size = 2;
-		optional uint32 starved_command_ticks = 3;
-		optional float time_dilation_percent = 4;
-		optional uint32 discarded_command_ticks = 5;
-	}
-
 	message alternate_baseline_t {
 		optional int32 entity_index = 1;
 		optional int32 baseline_index = 2;
@@ -390,11 +383,12 @@ message CSVCMsg_PacketEntities {
 	optional sint32 last_cmd_number_recv_delta = 17;
 	optional uint32 server_tick = 12;
 	optional bytes serialized_entities = 13;
-	optional CSVCMsg_PacketEntities.command_queue_info_t command_queue_info = 14;
 	repeated CSVCMsg_PacketEntities.alternate_baseline_t alternate_baselines = 15;
 	optional uint32 has_pvs_vis_bits = 16;
 	optional uint32 last_cmd_recv_margin = 18;
 	optional CSVCMsg_PacketEntities.non_transmitted_entities_t non_transmitted_entities = 19;
+	optional uint32 cq_starved_command_ticks = 20;
+	optional uint32 cq_discarded_command_ticks = 21;
 	optional bytes dev_padding = 999;
 }
 
@@ -617,4 +611,15 @@ message CCLCMsg_HltvFixupOperatorTick {
 message CSVCMsg_HltvFixupOperatorStatus {
 	optional uint32 mode = 1;
 	optional string override_operator_name = 2;
+}
+
+message CMsgServerUserCmd {
+	optional bytes data = 1;
+	optional int32 cmd_number = 2;
+	optional int32 player_slot = 3 [default = -1];
+	optional int32 server_tick_executed = 4;
+}
+
+message CSVCMsg_UserCommands {
+	repeated CMsgServerUserCmd commands = 1;
 }
