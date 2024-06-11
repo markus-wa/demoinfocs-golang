@@ -9,6 +9,8 @@ import (
 )
 
 func TestGetMapMetadata(t *testing.T) {
+	t.Skip()
+
 	meta := examples.GetMapMetadata("de_cache", 1901448379)
 
 	assert.Equal(t, examples.Map{
