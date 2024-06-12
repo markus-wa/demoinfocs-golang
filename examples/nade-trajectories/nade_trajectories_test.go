@@ -9,9 +9,9 @@ import (
 
 // Just make sure the example runs
 func TestBouncyNades(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping test")
-	}
+	// if testing.Short() {
+	t.Skip("skipping test")
+	// }
 
 	os.Args = []string{"cmd", "-demo", "../../test/cs-demos/default.dem"}
 

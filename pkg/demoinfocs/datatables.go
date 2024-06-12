@@ -416,10 +416,19 @@ func (p *parser) bindPlayers() {
 
 func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew bool, player *common.Player) {
 	player = p.gameState.playersByEntityID[entityID]
+	userID := -1
+
+	if rp != nil {
+		userID = rp.UserID
+	}
+
+	if p.isSource2() && userID <= math.MaxUint16 {
+		userID &= 0xff
+	}
 
 	if player == nil {
 		if rp != nil {
-			player = p.gameState.playersByUserID[rp.UserID]
+			player = p.gameState.playersByUserID[userID]
 
 			if player == nil {
 				isNew = true
@@ -428,7 +437,7 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew b
 				player.Name = rp.Name
 				player.SteamID64 = rp.XUID
 				player.IsBot = rp.IsFakePlayer || rp.GUID == "BOT"
-				player.UserID = rp.UserID
+				player.UserID = userID
 
 				p.gameState.indexPlayerBySteamID(player)
 			}
@@ -446,7 +455,7 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew b
 	p.gameState.playersByEntityID[entityID] = player
 
 	if rp != nil {
-		p.gameState.playersByUserID[rp.UserID] = player
+		p.gameState.playersByUserID[userID] = player
 	}
 
 	return isNew, player
