@@ -154,6 +154,10 @@ func (geh gameEventHandler) playerByUserID(userID int) *common.Player {
 }
 
 func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
+	if geh.parser.isSource2() && userID <= math.MaxUint16 {
+		userID &= 0xff
+	}
+
 	return geh.playerByUserID(int(userID))
 }
 
@@ -682,6 +686,10 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEvent
 
 func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	uid := int(data["userid"].GetValShort())
+	if geh.parser.isSource2() && uid <= math.MaxUint16 {
+		uid &= 0xff
+	}
+
 	pl := geh.playerByUserID(uid)
 
 	if geh.parser.isSource2() {
