@@ -320,7 +320,7 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 		ms = append(ms, pendingMessage{t, buf})
 	}
 
-	sort.Slice(ms, func(i, j int) bool {
+	sort.SliceStable(ms, func(i, j int) bool {
 		return ms[i].priority() < ms[j].priority() // TODO: taken from dotabuff/manta. do we really need this?
 	})
 
