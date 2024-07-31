@@ -191,11 +191,7 @@ func (p *parser) handleCreateStringTable(tab createStringTable) {
 	case stNameInstanceBaseline:
 		p.processStringTable(tab)
 	}
-
-	if tab.GetName() == "instancebaseline" || tab.GetName() == "genericprecache" || tab.GetName() == "decalprecache" {
-		p.stringTables = append(p.stringTables, tab)
-	}
-
+	p.stringTables = append(p.stringTables, tab)
 	p.eventDispatcher.Dispatch(events.StringTableCreated{TableName: tab.GetName()})
 }
 
