@@ -320,6 +320,11 @@ I would also like to specifically thank [@akiver](https://github.com/akiver) & [
 
 And a very special thanks goes out to all the [⭐contributors⭐](https://github.com/markus-wa/demoinfocs-golang/graphs/contributors)️, be it in the form of PRs, issues or anything else.
 
+Further shoutouts go to:
+
+- [@JuhaKiili](https://github.com/JuhaKiili) for financial contributions in the form of bug bounties
+- [@esportalgroup](https://github.com/esportalgroup), [@refrag](https://github.com/refrag) & [@pureskillgg](https://github.com/pureskillgg) for offering consulting work that pays my bills
+
 ## License
 
 This project is licensed under the [MIT license](LICENSE.md).
