@@ -3,7 +3,6 @@ package demoinfocs
 import (
 	"bytes"
 	"fmt"
-	"sort"
 	"time"
 
 	"github.com/pkg/errors"
