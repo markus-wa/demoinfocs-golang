@@ -109,6 +109,52 @@ func (p *parser) handleServerInfoS2(srvInfo *msgs2.CSVCMsg_ServerInfo) {
 	})
 }
 
+func (p *parser) handleMessageSayText(msg *msgs2.CUserMessageSayText) {
+	p.eventDispatcher.Dispatch(events.SayText{
+		EntIdx:    int(msg.GetPlayerindex()),
+		IsChat:    msg.GetChat(),
+		IsChatAll: false,
+		Text:      msg.GetText(),
+	})
+}
+
+func (p *parser) handleMessageSayText2(msg *msgs2.CUserMessageSayText2) {
+	p.eventDispatcher.Dispatch(events.SayText2{
+		EntIdx:    int(msg.GetEntityindex()),
+		IsChat:    msg.GetChat(),
+		IsChatAll: false,
+		MsgName:   msg.GetMessagename(),
+		Params:    []string{msg.GetParam1(), msg.GetParam2(), msg.GetParam3(), msg.GetParam4()},
+	})
+
+	switch msg.GetMessagename() {
+	case "Cstrike_Chat_All":
+		fallthrough
+	case "Cstrike_Chat_AllDead":
+		sender := p.gameState.playersByEntityID[int(msg.GetEntityindex())]
+
+		p.eventDispatcher.Dispatch(events.ChatMessage{
+			Sender:    sender,
+			Text:      msg.GetParam2(),
+			IsChatAll: false,
+		})
+
+	case "#CSGO_Coach_Join_T": // Ignore these
+	case "#CSGO_Coach_Join_CT":
+	case "#Cstrike_Name_Change":
+	case "Cstrike_Chat_T_Loc":
+	case "Cstrike_Chat_CT_Loc":
+	case "Cstrike_Chat_T_Dead":
+	case "Cstrike_Chat_CT_Dead":
+
+	default:
+		errMsg := fmt.Sprintf("skipped sending ChatMessageEvent for SayText2 with unknown MsgName %q", msg.GetMessagename())
+
+		p.eventDispatcher.Dispatch(events.ParserWarn{Message: errMsg})
+		unassert.Error(errMsg)
+	}
+}
+
 func (p *parser) handleServerRankUpdate(msg *msgs2.CCSUsrMsg_ServerRankUpdate) {
 	for _, v := range msg.RankUpdate {
 		steamID32 := uint32(v.GetAccountId())
