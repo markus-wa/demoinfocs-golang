@@ -399,6 +399,20 @@ type HostageStateChanged struct {
 	Hostage  *common.Hostage
 }
 
+// BulletDamage signals that a bullet did some damage.
+// Available only with CS2 demos after the 22/07/2024 update.
+type BulletDamage struct {
+	Attacker        *common.Player
+	Victim          *common.Player
+	Distance        float32
+	DamageDirX      float32
+	DamageDirY      float32
+	DamageDirZ      float32
+	NumPenetrations int
+	IsNoScope       bool
+	IsAttackerInAir bool
+}
+
 // HitGroup is the type for the various HitGroupXYZ constants.
 //
 // See PlayerHurt.
