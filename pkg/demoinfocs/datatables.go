@@ -563,6 +563,7 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
 	controllerEntity.Property("m_iConnected").OnUpdate(func(val st.PropertyValue) {
+		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 		state := val.S2UInt32()
 		wasConnected := pl.IsConnected
 		pl.IsConnected = state == 0
