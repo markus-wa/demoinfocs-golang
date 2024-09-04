@@ -3,7 +3,7 @@ package demoinfocs
 import (
 	"bytes"
 	"fmt"
-	"sort"
+	"slices"
 	"time"
 
 	"github.com/pkg/errors"
@@ -320,8 +320,8 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, buf})
 	}
 
-	sort.SliceStable(p.pendingMessagesCache, func(i, j int) bool {
-		return p.pendingMessagesCache[i].priority() < p.pendingMessagesCache[j].priority()
+	slices.SortStableFunc(p.pendingMessagesCache, func(a, b pendingMessage) int {
+		return a.priority() - b.priority()
 	})
 
 	for _, m := range p.pendingMessagesCache {
