@@ -51,6 +51,11 @@ var itemCounts = map[string]int{
 	"MAX_ABILITY_DRAFT_ABILITIES": 48,
 }
 
+type tuple struct {
+	ent *Entity
+	op  st.EntityOp
+}
+
 type Parser struct {
 	serializers       map[string]*serializer
 	classIdSize       uint32
@@ -61,6 +66,7 @@ type Parser struct {
 	entities          map[int32]*Entity
 	entityHandlers    []st.EntityHandler
 	pathCache         []*fieldPath
+	tuplesCache       []tuple
 }
 
 func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity {

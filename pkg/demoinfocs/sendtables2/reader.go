@@ -39,13 +39,15 @@ func (r *reader) remBytes() uint32 {
 
 // nextByte reads the next byte from the buffer
 func (r *reader) nextByte() byte {
-	r.pos++
-
-	if r.pos > r.size {
+	if r.pos >= r.size {
 		_panicf("nextByte: insufficient buffer (%d of %d)", r.pos, r.size)
 	}
 
-	return r.buf[r.pos-1]
+	x := r.buf[r.pos]
+
+	r.pos++
+
+	return x
 }
 
 // readBits returns the uint32 value for the given number of sequential bits
@@ -77,22 +79,31 @@ func (r *reader) readBytes(n uint32) []byte {
 	// Fast path if we're byte aligned
 	if r.bitCount == 0 {
 		r.pos += n
+
 		if r.pos > r.size {
 			_panicf("readBytes: insufficient buffer (%d of %d)", r.pos, r.size)
 		}
+
 		return r.buf[r.pos-n : r.pos]
 	}
 
 	buf := make([]byte, n)
+
 	for i := uint32(0); i < n; i++ {
 		buf[i] = byte(r.readBits(8))
 	}
+
 	return buf
 }
 
 // readLeUint32 reads an little-endian uint32
 func (r *reader) readLeUint32() uint32 {
-	return binary.LittleEndian.Uint32(r.readBytes(4))
+	// Fast path if we're byte aligned
+	if r.bitCount == 0 {
+		return binary.LittleEndian.Uint32(r.readBytes(4))
+	}
+
+	return r.readBits(32)
 }
 
 // readLeUint64 reads a little-endian uint64
