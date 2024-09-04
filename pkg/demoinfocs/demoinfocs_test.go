@@ -493,7 +493,7 @@ func TestConcurrent(t *testing.T) {
 func parseDefaultDemo(tb testing.TB) {
 	tb.Helper()
 
-	f := openFile(tb, defaultDemPath)
+	f := openFile(tb, s2DemPath)
 	defer mustClose(tb, f)
 
 	p := demoinfocs.NewParser(f)
@@ -599,15 +599,15 @@ func BenchmarkDemoInfoCs(b *testing.B) {
 }
 
 func BenchmarkInMemory(b *testing.B) {
-	f := openFile(b, defaultDemPath)
+	f := openFile(b, s2DemPath)
 	defer mustClose(b, f)
 
 	inf, err := f.Stat()
-	assert.NoError(b, err, "failed to stat file %q", defaultDemPath)
+	assert.NoError(b, err, "failed to stat file %q", s2DemPath)
 
 	d := make([]byte, inf.Size())
 	n, err := f.Read(d)
-	assert.NoError(b, err, "failed to read file %q", defaultDemPath)
+	assert.NoError(b, err, "failed to read file %q", s2DemPath)
 	assert.Equal(b, int64(n), inf.Size(), "byte count not as expected")
 
 	b.ResetTimer()
