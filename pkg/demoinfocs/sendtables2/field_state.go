@@ -38,7 +38,7 @@ func (s *fieldState) set(fp *fieldPath, v interface{}) {
 
 		if y := len(x.state); y <= z {
 			newCap := max(z+2, y*2)
-			if newCap > cap(x.state) {
+			if z+2 > cap(x.state) {
 				newSlice := make([]interface{}, z+1, newCap)
 				copy(newSlice, x.state)
 				x.state = newSlice
