@@ -478,13 +478,6 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 		pl.Entity = nil
 	})
 
-	// Position
-	playerEntity.OnPositionUpdate(func(pos r3.Vector) {
-		if pl.IsAlive() {
-			pl.LastAlivePosition = pos
-		}
-	})
-
 	// General info
 	playerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
 		pl.Team = common.Team(val.IntVal)
@@ -630,18 +623,6 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
 		p.bindPlayerWeaponsS2(pawnEntity, pl)
-	})
-
-	// Position
-	pawnEntity.OnPositionUpdate(func(pos r3.Vector) {
-		pl := getPlayerFromPawnEntity(pawnEntity)
-		if pl == nil {
-			return
-		}
-
-		if pl.IsAlive() {
-			pl.LastAlivePosition = pos
-		}
 	})
 
 	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
