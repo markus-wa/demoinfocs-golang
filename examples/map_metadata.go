@@ -1,10 +1,10 @@
 package examples
 
 import (
-	"encoding/json"
-	"fmt"
 	"image"
-	"net/http"
+	"os"
+
+	"github.com/chai2010/webp"
 )
 
 // Map represents a CS:GO map. It contains information required to translate
@@ -31,38 +31,35 @@ func (m Map) TranslateScale(x, y float64) (float64, float64) {
 // `https://radar-overviews.csgo.saiko.tech/<map>/<crc>/info.json`.
 // Panics if any error occurs.
 func GetMapMetadata(name string, crc uint32) Map {
-	url := fmt.Sprintf("https://radar-overviews.csgo.saiko.tech/%s/%d/info.json", name, crc)
-
-	resp, err := http.Get(url)
-	checkError(err)
-
-	defer resp.Body.Close()
-
-	var data map[string]Map
-
-	err = json.NewDecoder(resp.Body).Decode(&data)
-	checkError(err)
-
-	mapInfo, ok := data[name]
-	if !ok {
-		panic(fmt.Sprintf("failed to get map info.json entry for %q", name))
-	}
-
-	return mapInfo
+	return map[string]Map{
+		"ar_baggage": {
+			PosX:  -1316,
+			PosY:  1288,
+			Scale: 2.539062,
+		},
+		"de_nuke": {
+			PosX:  -3453,
+			PosY:  2887,
+			Scale: 7,
+		},
+		"de_vertigo": {
+			PosX:  -3168,
+			PosY:  1762,
+			Scale: 4,
+		},
+	}[name]
 }
 
 // GetMapRadar fetches the radar image for a specific map version from
 // `https://radar-overviews.csgo.saiko.tech/<map>/<crc>/radar.png`.
 // Panics if any error occurs.
 func GetMapRadar(name string, crc uint32) image.Image {
-	url := fmt.Sprintf("https://radar-overviews.csgo.saiko.tech/%s/%d/radar.png", name, crc)
-
-	resp, err := http.Get(url)
+	f, err := os.Open("assets/" + name + ".webp")
 	checkError(err)
 
-	defer resp.Body.Close()
+	defer f.Close()
 
-	img, _, err := image.Decode(resp.Body)
+	img, err := webp.Decode(f)
 	checkError(err)
 
 	return img
