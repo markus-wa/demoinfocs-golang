@@ -104,6 +104,7 @@ type parser struct {
 	equipmentTypePerModel map[uint64]common.EquipmentType                 // Used to retrieve the EquipmentType of grenade projectiles based on models value. Source 2 only.
 	stringTables          []createStringTable                             // Contains all created sendtables, needed when updating them
 	delayedEventHandlers  []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
+	pendingMessagesCache  []pendingMessage                                // Cache for pending messages that need to be dispatched after the current tick
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.

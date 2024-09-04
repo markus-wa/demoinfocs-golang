@@ -16,7 +16,7 @@ type Player struct {
 	demoInfoProvider demoInfoProvider // provider for demo info such as tick-rate or current tick
 
 	SteamID64             uint64             // 64-bit representation of the user's Steam ID. See https://developer.valvesoftware.com/wiki/SteamID
-	LastAlivePosition     r3.Vector          // The location where the player was last alive. Should be equal to Position if the player is still alive.
+	LastAlivePosition     r3.Vector          // Deprecated: will be removed in v5 due to performance concerns, track this yourself.
 	UserID                int                // Mostly used in game-events to address this player
 	Name                  string             // Steam / in-game user name
 	Inventory             map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
@@ -33,7 +33,7 @@ type Player struct {
 	IsPlanting            bool
 	IsReloading           bool
 	IsUnknown             bool      // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
-	PreviousFramePosition r3.Vector // CS2 only, used to compute velocity as it's not networked in CS2 demos
+	PreviousFramePosition r3.Vector // Deprecated: may be removed in v5 due to performance concerns, track this yourself.
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
@@ -85,9 +85,11 @@ func (p *Player) IsAlive() bool {
 	}
 
 	if p.demoInfoProvider.IsSource2() {
-		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
+		pawnEntity := p.PlayerPawnEntity()
+		if pawnEntity != nil {
 			return pawnEntity.PropertyValueMust("m_lifeState").S2UInt64() == 0
 		}
+
 		return getBool(p.Entity, "m_bPawnIsAlive")
 	}
 
@@ -535,6 +537,7 @@ func (p *Player) PositionEyes() r3.Vector {
 }
 
 // Velocity returns the player's velocity.
+// Deprecated: will be removed due to performance concerns, you will need to track this yourself.
 func (p *Player) Velocity() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
 		t := 64.0

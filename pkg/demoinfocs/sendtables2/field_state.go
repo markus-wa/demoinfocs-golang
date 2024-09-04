@@ -32,11 +32,13 @@ func (s *fieldState) get(fp *fieldPath) interface{} {
 func (s *fieldState) set(fp *fieldPath, v interface{}) {
 	x := s
 	z := 0
+
 	for i := 0; i <= fp.last; i++ {
 		z = fp.path[i]
+
 		if y := len(x.state); y <= z {
 			newCap := max(z+2, y*2)
-			if newCap > cap(x.state) {
+			if z+2 > cap(x.state) {
 				newSlice := make([]interface{}, z+1, newCap)
 				copy(newSlice, x.state)
 				x.state = newSlice
@@ -45,15 +47,18 @@ func (s *fieldState) set(fp *fieldPath, v interface{}) {
 				x.state = x.state[:z+1]
 			}
 		}
+
 		if i == fp.last {
 			if _, ok := x.state[z].(*fieldState); !ok {
 				x.state[z] = v
 			}
 			return
 		}
+
 		if _, ok := x.state[z].(*fieldState); !ok {
 			x.state[z] = newFieldState()
 		}
+
 		x = x.state[z].(*fieldState)
 	}
 }
