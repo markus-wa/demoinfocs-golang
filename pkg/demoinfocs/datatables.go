@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"fmt"
 	"math"
+	"os"
 	"strings"
 
 	"github.com/golang/geo/r3"
@@ -637,6 +638,7 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		if pl == nil {
 			return
 		}
+
 		if pl.IsAlive() {
 			pl.LastAlivePosition = pos
 		}
@@ -919,7 +921,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 				if exists {
 					wep = weaponType
 				} else {
-					fmt.Printf("unknown grenade model %d\n", model)
+					fmt.Fprintf(os.Stderr, "unknown grenade model %d\n", model)
 				}
 			}
 		}
