@@ -484,12 +484,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		p.entityFullPackets++
 	}
 
-	type tuple struct {
-		ent *Entity
-		op  st.EntityOp
-	}
-
-	var tuples []tuple
+	p.tuplesCache = p.tuplesCache[:0]
 
 	for ; updates > 0; updates-- {
 		var (
@@ -575,10 +570,10 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 			}
 		}
 
-		tuples = append(tuples, tuple{e, op})
+		p.tuplesCache = append(p.tuplesCache, tuple{e, op})
 	}
 
-	for _, t := range tuples {
+	for _, t := range p.tuplesCache {
 		e := t.ent
 
 		for _, h := range p.entityHandlers {

@@ -310,21 +310,21 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 
 	r := bitread.NewSmallBitReader(bytes.NewReader(b))
 
-	ms := make([]pendingMessage, 0)
+	p.pendingMessagesCache = p.pendingMessagesCache[:0]
 
 	for len(b)*8-r.ActualPosition() > 7 {
 		t := int32(r.ReadUBitInt())
 		size := r.ReadVarInt32()
 		buf := r.ReadBytes(int(size))
 
-		ms = append(ms, pendingMessage{t, buf})
+		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, buf})
 	}
 
-	sort.SliceStable(ms, func(i, j int) bool {
-		return ms[i].priority() < ms[j].priority() // TODO: taken from dotabuff/manta. do we really need this?
+	sort.SliceStable(p.pendingMessagesCache, func(i, j int) bool {
+		return p.pendingMessagesCache[i].priority() < p.pendingMessagesCache[j].priority()
 	})
 
-	for _, m := range ms {
+	for _, m := range p.pendingMessagesCache {
 		var msgCreator NetMessageCreator
 
 		if m.t < int32(msgs2.SVC_Messages_svc_ServerInfo) {
