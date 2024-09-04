@@ -11,7 +11,7 @@ import (
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/stretchr/testify/assert"
 
-	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 )
 
 func TestParser_CurrentFrame(t *testing.T) {

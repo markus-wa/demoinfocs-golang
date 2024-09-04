@@ -9,9 +9,9 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	"github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msgs2"
 )
 
 func (p *parser) handleSendTables(msg *msgs2.CDemoSendTables) {

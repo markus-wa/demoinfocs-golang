@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"testing"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
+	bit "github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
 	"github.com/stretchr/testify/assert"
 )
 

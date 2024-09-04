@@ -14,7 +14,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.20.x
+          go-version: 1.23.x
 
       - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
@@ -87,7 +87,7 @@ jobs:
       - name: Update CSDA mod
         run: |
           cd cs-demo-analyzer
-          go mod edit -replace github.com/markus-wa/demoinfocs-golang/v4=../demoinfocs-golang
+          go mod edit -replace github.com/markus-wa/demoinfocs-golang/v5=../demoinfocs-golang
           go mod tidy
 
       - name: Download demos cache file

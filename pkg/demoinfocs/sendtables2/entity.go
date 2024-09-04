@@ -6,10 +6,10 @@ import (
 
 	"github.com/golang/geo/r3"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	bit "github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/constants"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msgs2"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 // Entity represents a single game entity in the replay

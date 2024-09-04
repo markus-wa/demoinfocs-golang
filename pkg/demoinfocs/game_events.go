@@ -10,10 +10,10 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msgs2"
 )
 
 func (p *parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
