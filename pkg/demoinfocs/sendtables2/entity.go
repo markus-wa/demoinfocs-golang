@@ -424,9 +424,9 @@ func (p *Parser) FilterEntity(fb func(*Entity) bool) []*Entity {
 }
 
 func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
-	readFieldPaths(r, paths)
+	n := readFieldPaths(r, paths)
 
-	for _, fp := range *paths {
+	for _, fp := range (*paths)[:n] {
 		f := e.class.serializer.getFieldForFieldPath(fp, 0)
 		name := e.class.getNameForFieldPath(fp)
 		decoder, base := e.class.serializer.getDecoderForFieldPath2(fp, 0)
@@ -462,8 +462,6 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 				S2:        true,
 			})
 		}
-
-		fp.release()
 	}
 }
 
@@ -491,10 +489,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		op  st.EntityOp
 	}
 
-	var (
-		tuples []tuple
-		paths  = make([]*fieldPath, 0)
-	)
+	var tuples []tuple
 
 	for ; updates > 0; updates-- {
 		var (
@@ -530,12 +525,10 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 
 				if baseline != nil {
 					// POV demos are missing some baselines?
-					e.readFields(newReader(baseline), &paths)
-					paths = paths[:0]
+					e.readFields(newReader(baseline), &p.pathCache)
 				}
 
-				e.readFields(r, &paths)
-				paths = paths[:0]
+				e.readFields(r, &p.pathCache)
 
 				// Fire created-handlers so update-handlers can be registered
 				for _, h := range class.createdHandlers {
@@ -559,8 +552,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 					op |= st.EntityOpEntered
 				}
 
-				e.readFields(r, &paths)
-				paths = paths[:0]
+				e.readFields(r, &p.pathCache)
 			}
 		} else {
 			e = p.entities[index]
