@@ -16,7 +16,7 @@ type Player struct {
 	demoInfoProvider demoInfoProvider // provider for demo info such as tick-rate or current tick
 
 	SteamID64             uint64             // 64-bit representation of the user's Steam ID. See https://developer.valvesoftware.com/wiki/SteamID
-	LastAlivePosition     r3.Vector          // The location where the player was last alive. Should be equal to Position if the player is still alive.
+	LastAlivePosition     r3.Vector          // Deprecated: will be removed in v5 due to performance concerns, track this yourself.
 	UserID                int                // Mostly used in game-events to address this player
 	Name                  string             // Steam / in-game user name
 	Inventory             map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
