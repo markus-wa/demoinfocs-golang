@@ -1084,7 +1084,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	wepType := common.EquipmentIndexMapping[itemIndex]
 
 	if wepType == common.EqUnknown {
-		fmt.Println("unknown equipment with index", itemIndex)
+		fmt.Fprintln(os.Stderr, "unknown equipment with index", itemIndex)
 
 		p.msgDispatcher.Dispatch(events.ParserWarn{
 			Message: fmt.Sprintf("unknown equipment with index %d", itemIndex),
