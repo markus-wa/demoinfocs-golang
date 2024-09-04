@@ -33,7 +33,7 @@ type Player struct {
 	IsPlanting            bool
 	IsReloading           bool
 	IsUnknown             bool      // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
-	PreviousFramePosition r3.Vector // CS2 only, used to compute velocity as it's not networked in CS2 demos
+	PreviousFramePosition r3.Vector // Deprecated: may be removed in v5 due to performance concerns, track this yourself.
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
@@ -537,6 +537,7 @@ func (p *Player) PositionEyes() r3.Vector {
 }
 
 // Velocity returns the player's velocity.
+// Deprecated: will be removed due to performance concerns, you will need to track this yourself.
 func (p *Player) Velocity() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
 		t := 64.0
