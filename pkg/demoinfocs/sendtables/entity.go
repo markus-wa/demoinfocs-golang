@@ -5,7 +5,7 @@ import (
 
 	"github.com/golang/geo/r3"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
+	bit "github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
 )
 
 //go:generate ifacemaker -f entity.go -s entity -i Entity -p sendtables -D -y "Entity is an auto-generated interface for entity, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o entity_interface.go

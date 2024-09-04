@@ -260,6 +260,7 @@ func quantizedFactory(f *field) fieldDecoder {
 	}
 
 	qfd := newQuantizedFloatDecoder(f.bitCount, f.encodeFlags, f.lowValue, f.highValue)
+
 	return func(r *reader) interface{} {
 		return qfd.decode(r)
 	}
@@ -274,9 +275,11 @@ func vectorFactory(n int) fieldFactory {
 		d := floatFactory(f)
 		return func(r *reader) interface{} {
 			x := make([]float32, n)
+
 			for i := 0; i < n; i++ {
 				x[i] = d(r).(float32)
 			}
+
 			return x
 		}
 	}
@@ -319,7 +322,7 @@ func ammoDecoder(r *reader) interface{} {
 }
 
 func noscaleDecoder(r *reader) interface{} {
-	return math.Float32frombits(r.readBits(32))
+	return math.Float32frombits(r.readLeUint32())
 }
 
 func runeTimeDecoder(r *reader) interface{} {

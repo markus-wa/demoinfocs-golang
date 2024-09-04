@@ -3,15 +3,16 @@ package demoinfocs
 import (
 	"fmt"
 	"math"
+	"os"
 	"strings"
 
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
 
-	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
-	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/constants"
+	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 func (p *parser) mapEquipment() {
@@ -477,13 +478,6 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 		pl.Entity = nil
 	})
 
-	// Position
-	playerEntity.OnPositionUpdate(func(pos r3.Vector) {
-		if pl.IsAlive() {
-			pl.LastAlivePosition = pos
-		}
-	})
-
 	// General info
 	playerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
 		pl.Team = common.Team(val.IntVal)
@@ -629,17 +623,6 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
 		p.bindPlayerWeaponsS2(pawnEntity, pl)
-	})
-
-	// Position
-	pawnEntity.OnPositionUpdate(func(pos r3.Vector) {
-		pl := getPlayerFromPawnEntity(pawnEntity)
-		if pl == nil {
-			return
-		}
-		if pl.IsAlive() {
-			pl.LastAlivePosition = pos
-		}
 	})
 
 	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
@@ -919,7 +902,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 				if exists {
 					wep = weaponType
 				} else {
-					fmt.Printf("unknown grenade model %d\n", model)
+					fmt.Fprintf(os.Stderr, "unknown grenade model %d\n", model)
 				}
 			}
 		}

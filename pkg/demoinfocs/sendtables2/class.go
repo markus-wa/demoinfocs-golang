@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 type fpNameTreeCache struct {

@@ -6,8 +6,8 @@ import (
 	_ "embed"
 	"time"
 
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 	dp "github.com/markus-wa/godispatch"
 )
 

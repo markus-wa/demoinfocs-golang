@@ -3,8 +3,8 @@ package fake
 import (
 	"github.com/stretchr/testify/mock"
 
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 )
 
 var _ demoinfocs.Participants = new(Participants)

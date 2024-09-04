@@ -13,12 +13,12 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	bit "github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msgs2"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 //go:generate ifacemaker -f parser.go -f parsing.go -s parser -i Parser -p demoinfocs -D -y "Parser is an auto-generated interface for Parser, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o parser_interface.go
@@ -104,6 +104,7 @@ type parser struct {
 	equipmentTypePerModel map[uint64]common.EquipmentType                 // Used to retrieve the EquipmentType of grenade projectiles based on models value. Source 2 only.
 	stringTables          []createStringTable                             // Contains all created sendtables, needed when updating them
 	delayedEventHandlers  []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
+	pendingMessagesCache  []pendingMessage                                // Cache for pending messages that need to be dispatched after the current tick
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
