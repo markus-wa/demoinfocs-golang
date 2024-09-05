@@ -13,7 +13,7 @@ import (
 	ex "github.com/markus-wa/demoinfocs-golang/v4/examples"
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 )
 
 const (
@@ -36,27 +36,27 @@ func main() {
 	p := demoinfocs.NewParser(f)
 	defer p.Close()
 
-	// Parse header (contains map-name etc.)
-	header, err := p.ParseHeader()
-	checkError(err)
-
 	var (
 		mapMetadata ex.Map
 		mapRadarImg image.Image
 	)
 
-	p.RegisterNetMessageHandler(func(msg *msg.CSVCMsg_ServerInfo) {
+	p.RegisterNetMessageHandler(func(msg *msgs2.CSVCMsg_ServerInfo) {
 		// Get metadata for the map that the game was played on for coordinate translations
-		mapMetadata = ex.GetMapMetadata(header.MapName, msg.GetMapCrc())
+		mapMetadata = ex.GetMapMetadata(msg.GetMapName(), 0)
 
 		// Load map overview image
-		mapRadarImg = ex.GetMapRadar(header.MapName, msg.GetMapCrc())
+		mapRadarImg = ex.GetMapRadar(msg.GetMapName(), 0)
 	})
 
 	// Register handler for WeaponFire, triggered every time a shot is fired
 	var points []r2.Point
 
 	p.RegisterEventHandler(func(e events.WeaponFire) {
+		if e.Shooter == nil {
+			return
+		}
+
 		// Translate positions from in-game coordinates to radar overview image pixels
 		x, y := mapMetadata.TranslateScale(e.Shooter.Position().X, e.Shooter.Position().Y)
 
