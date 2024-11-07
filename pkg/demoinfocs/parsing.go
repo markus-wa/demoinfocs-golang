@@ -71,7 +71,18 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 	case "PBDEMS2":
 		p.bitReader.Skip(8 << 3) // skip 8 bytes
 
-		p.stParser = sendtables2.NewParser()
+		var warnFunc func(error)
+
+		if p.ignorePacketEntitiesPanic {
+			warnFunc = func(err error) {
+				p.eventDispatcher.Dispatch(events.ParserWarn{
+					Type:    events.WarnTypePacketEntitiesPanic,
+					Message: fmt.Sprintf("encountered PacketEntities panic: %v", err),
+				})
+			}
+		}
+
+		p.stParser = sendtables2.NewParser(warnFunc)
 
 		p.stParser.OnEntity(p.onEntity)
 

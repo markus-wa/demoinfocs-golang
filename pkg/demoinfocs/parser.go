@@ -84,6 +84,7 @@ type parser struct {
 	errLock                         sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
 	decryptionKey                   []byte           // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
 	source2FallbackGameEventListBin []byte           // sv_hibernate_when_empty bug workaround
+	ignorePacketEntitiesPanic       bool             // Used to ignore PacketEntities parsing panics (some POV demos seem to have broken rare broken PacketEntities)
 	/**
 	 * Set to the client slot of the recording player.
 	 * Always -1 for GOTV demos.
@@ -361,6 +362,10 @@ type ParserConfig struct {
 	// It's used when the game event list is not found in the demo file.
 	// This can happen due to a CS2 bug with sv_hibernate_when_empty.
 	Source2FallbackGameEventListBin []byte
+
+	// IgnorePacketEntitiesPanic tells the parser to ignore PacketEntities parsing panics.
+	// This is required as a workaround for some POV demos that seem to contain rare PacketEntities parsing issues.
+	IgnorePacketEntitiesPanic bool
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
@@ -398,6 +403,8 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	if p.source2FallbackGameEventListBin == nil {
 		p.source2FallbackGameEventListBin = defaultSource2FallbackGameEventListBin
 	}
+
+	p.ignorePacketEntitiesPanic = config.IgnorePacketEntitiesPanic
 
 	dispatcherCfg := dp.Config{
 		PanicHandler: func(v any) {

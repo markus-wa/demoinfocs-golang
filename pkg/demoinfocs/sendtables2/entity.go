@@ -2,6 +2,7 @@ package sendtables2
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/golang/geo/r3"
@@ -252,6 +253,8 @@ func (e *Entity) OnDestroy(delegate func()) {
 }
 
 func (e *Entity) Destroy() {
+	e.active = false
+
 	for _, delegate := range e.onDestroy {
 		delegate()
 	}
@@ -467,6 +470,17 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 
 // Internal Callback for OnCSVCMsg_PacketEntities.
 func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
+	defer func() {
+		if p.packetEntitiesPanicWarnFunc == nil {
+			return
+		}
+
+		r := recover()
+		if r != nil {
+			fmt.Fprintf(os.Stderr, "error in OnPacketEntities: %v\n", r)
+		}
+	}()
+
 	r := newReader(m.GetEntityData())
 
 	var (
@@ -481,6 +495,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		if p.entityFullPackets > 0 {
 			return nil
 		}
+
 		p.entityFullPackets++
 	}
 
@@ -496,12 +511,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		index = next
 
 		cmd = r.readBits(2)
-		if cmd == 0 && m.GetHasPvsVisBits() > 0 {
-			cmd = r.readBits(2) << 3
-			if cmd&0x08 == 8 {
-				continue
-			}
-		}
+
 		if cmd&0x01 == 0 {
 			if cmd&0x02 != 0 {
 				classID = int32(r.readBits(p.classIdSize))
@@ -537,7 +547,12 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 
 				op = st.EntityOpCreated | st.EntityOpEntered
 			} else {
-				if e = p.entities[index]; e == nil {
+				if m.GetHasPvsVisBits() > 0 && r.readBits(2)&0x01 != 0 {
+					continue
+				}
+
+				e = p.entities[index]
+				if e == nil {
 					_panicf("unable to find existing entity %d", index)
 				}
 
@@ -552,12 +567,11 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		} else {
 			e = p.entities[index]
 			if e == nil {
-				continue
 				_panicf("unable to find existing entity %d", index)
 			}
 
 			if !e.active {
-				_panicf("entity %d (%s) ordered to leave, already inactive", e.class.classId, e.class.name)
+				continue // entity has already been destroyed
 			}
 
 			op = st.EntityOpLeft
@@ -565,8 +579,6 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 				op |= st.EntityOpDeleted
 
 				e.Destroy()
-
-				delete(p.entities, index)
 			}
 		}
 
