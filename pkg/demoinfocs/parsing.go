@@ -13,13 +13,13 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables2"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msgs2"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables2"
 
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 )
 
 const maxOsPath = 260
@@ -584,10 +584,6 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.FrameDone{})
-
-	if p.isSource2() {
-		p.updatePlayersPreviousFramePosition()
-	}
 }
 
 // CS2 demos playback info are available in the CDemoFileInfo message that should be parsed at the end of the demo.

@@ -13,13 +13,13 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/cstv"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	bit "github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/cstv"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msgs2"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 //go:generate ifacemaker -f parser.go -f parsing.go -s parser -i Parser -p demoinfocs -D -y "Parser is an auto-generated interface for Parser, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o parser_interface.go

@@ -10,7 +10,7 @@ import (
 
 	"github.com/golang/geo/r3"
 
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 // Team is the type for the various TeamXYZ constants.

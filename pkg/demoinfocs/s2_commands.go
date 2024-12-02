@@ -3,15 +3,15 @@ package demoinfocs
 import (
 	"bytes"
 	"fmt"
-	"sort"
+	"slices"
 	"time"
 
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	"github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msgs2"
 )
 
 func (p *parser) handleSendTables(msg *msgs2.CDemoSendTables) {
@@ -316,8 +316,8 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, buf})
 	}
 
-	sort.SliceStable(p.pendingMessagesCache, func(i, j int) bool {
-		return p.pendingMessagesCache[i].priority() < p.pendingMessagesCache[j].priority()
+	slices.SortStableFunc(p.pendingMessagesCache, func(a, b pendingMessage) int {
+		return a.priority() - b.priority()
 	})
 
 	for _, m := range p.pendingMessagesCache {
@@ -378,10 +378,4 @@ func (p *parser) handleDemoFileHeader(msg *msgs2.CDemoFileHeader) {
 	p.header.GameDirectory = msg.GetGameDirectory()
 	p.header.MapName = msg.GetMapName()
 	p.header.NetworkProtocol = int(msg.GetNetworkProtocol())
-}
-
-func (p *parser) updatePlayersPreviousFramePosition() {
-	for _, player := range p.GameState().Participants().Playing() {
-		player.PreviousFramePosition = player.Position()
-	}
 }
