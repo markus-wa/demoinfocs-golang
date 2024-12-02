@@ -128,7 +128,7 @@ func (p *parser) handleMessageSayText2(msg *msgs2.CUserMessageSayText2) {
 	})
 
 	switch msg.GetMessagename() {
-	case "Cstrike_Chat_All":
+	case "Cstrike_Chat_All", "Cstrike_Chat_AllSpec":
 		fallthrough
 	case "Cstrike_Chat_AllDead":
 		sender := p.gameState.playersByEntityID[int(msg.GetEntityindex())]
