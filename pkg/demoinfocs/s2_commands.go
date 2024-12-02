@@ -15,8 +15,6 @@ import (
 )
 
 func (p *parser) handleSendTables(msg *msgs2.CDemoSendTables) {
-	p.msgDispatcher.SyncAllQueues()
-
 	err := p.stParser.ParsePacket(msg.Data)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to unmarshal flattened serializer"))
@@ -24,8 +22,6 @@ func (p *parser) handleSendTables(msg *msgs2.CDemoSendTables) {
 }
 
 func (p *parser) handleClassInfo(msg *msgs2.CDemoClassInfo) {
-	p.msgDispatcher.SyncAllQueues()
-
 	err := p.stParser.OnDemoClassInfo(msg)
 	if err != nil {
 		panic(err)

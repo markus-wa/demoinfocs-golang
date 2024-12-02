@@ -544,8 +544,6 @@ func (p *parser) processModelPreCacheUpdate() {
 // XXX TODO: decide if we want to at all integrate these updates,
 // or trust create/update entirely. Let's ignore them for now.
 func (p *parser) handleStringTables(msg *msgs2.CDemoStringTables) {
-	p.msgDispatcher.SyncAllQueues()
-
 	for _, tab := range msg.GetTables() {
 		if tab.GetTableName() == stNameInstanceBaseline {
 			for _, item := range tab.GetItems() {
