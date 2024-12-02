@@ -311,6 +311,13 @@ type frameParsedTokenType struct{}
 
 var frameParsedToken = new(frameParsedTokenType)
 
+func (p *parser) handleFrameParsed(*frameParsedTokenType) {
+	p.processFrameGameEvents()
+
+	p.currentFrame++
+	p.eventDispatcher.Dispatch(events.FrameDone{})
+}
+
 // CS2 demos playback info are available in the CDemoFileInfo message that should be parsed at the end of the demo.
 // Demos may not contain it, as a workaround we update values with the last parser information at the end of parsing.
 func (p *parser) ensurePlaybackValuesAreSet() {

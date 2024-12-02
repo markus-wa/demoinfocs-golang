@@ -1,0 +1,28 @@
+"de_train"
+{
+	"material"		"overviews/de_train"
+	"pos_x"		"-2308"
+	"pos_y"		"2078"
+	"scale"		"4.082077"
+		"verticalsections"
+	{
+		"default" // use the primary radar image
+		{
+			"AltitudeMax" "20000"
+			"AltitudeMin" "-50"
+		}
+		"lower" // i.e. de_nuke_lower_radar.dds
+		{
+			"AltitudeMax" "-50"
+			"AltitudeMin" "-5000"
+		}
+	}
+	"CTSpawn_x"		"0.860000"
+	"CTSpawn_y"		"0.770000"
+	"TSpawn_x"		"0.120000"
+	"TSpawn_y"		"0.250000"
+	"bombA_x"		"0.630000"
+	"bombA_y"		"0.490000"
+	"bombB_x"		"0.520000"
+	"bombB_y"		"0.760000"
+}

@@ -411,7 +411,6 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 	p.eventDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 
-	// Source 2
 	p.msgDispatcher.RegisterHandler(p.handleGameEventList)
 	p.msgDispatcher.RegisterHandler(p.handleGameEvent)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfoS2)
@@ -426,6 +425,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.handleDemoFileHeader)
 	p.msgDispatcher.RegisterHandler(p.handleClassInfo)
 	p.msgDispatcher.RegisterHandler(p.handleStringTables)
+	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
 
 	if config.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(config.MsgQueueBufferSize)

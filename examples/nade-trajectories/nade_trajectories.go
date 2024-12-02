@@ -9,19 +9,19 @@ import (
 	"os"
 
 	"github.com/golang/geo/r2"
-	"github.com/golang/geo/r3"
 	"github.com/llgcode/draw2d/draw2dimg"
+
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 
 	ex "github.com/markus-wa/demoinfocs-golang/v4/examples"
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 )
 
 type nadePath struct {
 	wep  common.EquipmentType
-	path []r3.Vector
+	path []common.TrajectoryEntry
 	team common.Team
 }
 
@@ -48,19 +48,16 @@ func main() {
 	p := demoinfocs.NewParser(f)
 	defer p.Close()
 
-	header, err := p.ParseHeader()
-	checkError(err)
-
 	var (
 		mapRadarImg image.Image
 	)
 
 	p.RegisterNetMessageHandler(func(msg *msg.CSVCMsg_ServerInfo) {
 		// Get metadata for the map that the game was played on for coordinate translations
-		curMap = ex.GetMapMetadata(header.MapName, msg.GetMapCrc())
+		curMap = ex.GetMapMetadata(msg.GetMapName())
 
 		// Load map overview image
-		mapRadarImg = ex.GetMapRadar(header.MapName, msg.GetMapCrc())
+		mapRadarImg = ex.GetMapRadar(msg.GetMapName())
 	})
 
 	nadeTrajectories := make(map[int64]*nadePath) // Trajectories of all destroyed nades
@@ -81,7 +78,7 @@ func main() {
 			}
 		}
 
-		nadeTrajectories[id].path = e.Projectile.Trajectory
+		nadeTrajectories[id].path = e.Projectile.Trajectory2
 	})
 
 	var infernos []*common.Inferno
@@ -96,7 +93,7 @@ func main() {
 		round                        = 0
 	)
 
-	p.RegisterEventHandler(func(start events.RoundStart) {
+	p.RegisterEventHandler(func(start events.RoundEnd) {
 		// We only want the data from the first 5 rounds so the image is not too cluttered
 		// This is a very cheap way to do it. Won't work with demos that have match-restarts etc.
 		if round == 5 {
@@ -207,11 +204,11 @@ func drawTrajectories(gc *draw2dimg.GraphicContext, trajectories []*nadePath) {
 		}
 
 		// Draw path
-		x, y := curMap.TranslateScale(np.path[0].X, np.path[0].Y)
+		x, y := curMap.TranslateScale(np.path[0].Position.X, np.path[0].Position.Y)
 		gc.MoveTo(x, y) // Move to a position to start the new path
 
 		for _, pos := range np.path[1:] {
-			x, y := curMap.TranslateScale(pos.X, pos.Y)
+			x, y := curMap.TranslateScale(pos.Position.X, pos.Position.Y)
 			gc.LineTo(x, y)
 		}
 

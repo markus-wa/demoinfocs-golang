@@ -1,0 +1,20 @@
+// HLTV overview description file for de_inferno.bsp
+
+"de_inferno"
+{
+	"material"	"overviews/de_inferno"	// texture file
+	"pos_x"		"-2087"	// upper left world coordinate
+	"pos_y"		"3870"
+	"scale"		"4.9" 
+
+	// loading screen icons and positions
+	"CTSpawn_x"	"0.9"
+	"CTSpawn_y"	"0.35"
+	"TSpawn_x"	"0.1"
+	"TSpawn_y"	"0.67"
+
+	"bombA_x"	"0.81"
+	"bombA_y"	"0.69"
+	"bombB_x"	"0.49"
+	"bombB_y"	"0.22"
+}
