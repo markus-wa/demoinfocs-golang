@@ -437,25 +437,13 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 		val := decoder(r)
 
 		if base && (f.model == fieldModelVariableArray || f.model == fieldModelVariableTable) {
-			fs := fieldState{}
+			oldFS := e.state.get(fp)
+			fs := newFieldState()
 
-			oldFS, ok := e.state.get(fp).(*fieldState)
+			fs.state = make([]interface{}, val.(uint64))
 
-			if !ok {
-				fs.state = make([]any, val.(uint64))
-			}
-
-			if ok {
-				if uint64(len(oldFS.state)) >= val.(uint64) {
-					fs.state = oldFS.state[:val.(uint64)]
-				} else {
-					if uint64(cap(oldFS.state)) >= val.(uint64) {
-						fs.state = oldFS.state[:val.(uint64)]
-					} else {
-						fs.state = make([]any, val.(uint64))
-						copy(fs.state, oldFS.state)
-					}
-				}
+			if oldFS != nil {
+				copy(fs.state, oldFS.(*fieldState).state[:min(len(fs.state), len(oldFS.(*fieldState).state))])
 			}
 
 			e.state.set(fp, fs)
