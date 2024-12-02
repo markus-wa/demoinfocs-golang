@@ -1,18 +1,19 @@
 package sendtables2
 
 type fieldState struct {
-	state []interface{}
+	state []any
 }
 
 func newFieldState() *fieldState {
 	return &fieldState{
-		state: make([]interface{}, 8),
+		state: make([]any, 8),
 	}
 }
 
-func (s *fieldState) get(fp *fieldPath) interface{} {
+func (s *fieldState) get(fp *fieldPath) any {
 	x := s
 	z := 0
+
 	for i := 0; i <= fp.last; i++ {
 		z = fp.path[i]
 		if len(x.state) < z+1 {
@@ -26,10 +27,11 @@ func (s *fieldState) get(fp *fieldPath) interface{} {
 		}
 		x = x.state[z].(*fieldState)
 	}
+
 	return nil
 }
 
-func (s *fieldState) set(fp *fieldPath, v interface{}) {
+func (s *fieldState) set(fp *fieldPath, v any) {
 	x := s
 	z := 0
 
@@ -37,9 +39,9 @@ func (s *fieldState) set(fp *fieldPath, v interface{}) {
 		z = fp.path[i]
 
 		if y := len(x.state); y <= z {
-			newCap := max(z+2, y*2)
-			if z+2 > cap(x.state) {
-				newSlice := make([]interface{}, z+1, newCap)
+			newCap := max(z*2, y*2)
+			if z+1 > cap(x.state) {
+				newSlice := make([]any, z+1, newCap)
 				copy(newSlice, x.state)
 				x.state = newSlice
 			} else {
