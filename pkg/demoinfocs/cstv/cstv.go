@@ -47,6 +47,8 @@ func (c *Reader) Read(p []byte) (n int, err error) {
 			return n, fmt.Errorf("failed to get %q: %w", deltaUrl, err)
 		}
 
+		defer deltaResp.Body.Close()
+
 		if deltaResp.StatusCode != http.StatusOK {
 			time.Sleep(backoff)
 
@@ -91,9 +93,16 @@ func NewReader(baseUrl string, timeout time.Duration) (*Reader, error) {
 		return nil, fmt.Errorf("failed to get sync from %q: %w", syncUrl, err)
 	}
 
+	defer syncResp.Body.Close()
+
+	b, err := io.ReadAll(syncResp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response from %q: %w", syncUrl, err)
+	}
+
 	var s sync
 
-	err = json.NewDecoder(syncResp.Body).Decode(&s)
+	err = json.Unmarshal(b, &s)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode response from %q: %w", syncUrl, err)
 	}
@@ -104,6 +113,8 @@ func NewReader(baseUrl string, timeout time.Duration) (*Reader, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get %q: %w", startUrl, err)
 	}
+
+	defer startResp.Body.Close()
 
 	var buf bytes.Buffer
 
@@ -118,6 +129,8 @@ func NewReader(baseUrl string, timeout time.Duration) (*Reader, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get %q: %w", fullUrl, err)
 	}
+
+	defer fullResp.Body.Close()
 
 	_, err = io.Copy(&buf, fullResp.Body)
 	if err != nil {
