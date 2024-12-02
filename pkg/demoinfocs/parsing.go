@@ -51,7 +51,14 @@ var (
 // Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match HL2DEMO.
 func (p *parser) ParseHeader() (common.DemoHeader, error) {
 	var h common.DemoHeader
-	h.Filestamp = p.bitReader.ReadCString(8)
+
+	isCSTVBroadcast := p.config.Format == DemoFormatCSTVBroadcast
+
+	if isCSTVBroadcast {
+		h.Filestamp = "PBDEMS2"
+	} else {
+		h.Filestamp = p.bitReader.ReadCString(8)
+	}
 
 	switch h.Filestamp {
 	case "HL2DEMO":
@@ -69,7 +76,9 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 		p.stParser = st.NewSendTableParser()
 
 	case "PBDEMS2":
-		p.bitReader.Skip(8 << 3) // skip 8 bytes
+		if !isCSTVBroadcast {
+			p.bitReader.Skip(8 << 3) // skip 8 bytes
+		}
 
 		var warnFunc func(error)
 
@@ -337,19 +346,41 @@ var demoCommandMsgsCreators = map[msgs2.EDemoCommands]NetMessageCreator{
 func (p *parser) parseFrameS2() bool {
 	cmd := msgs2.EDemoCommands(p.bitReader.ReadVarInt32())
 
-	msgType := cmd & ^msgs2.EDemoCommands_DEM_IsCompressed
-	msgCompressed := (cmd & msgs2.EDemoCommands_DEM_IsCompressed) != 0
+	var (
+		tick uint32
+		size uint32
+	)
 
-	tick := p.bitReader.ReadVarInt32()
+	isCSTVBroadcast := p.config.Format == DemoFormatCSTVBroadcast
 
-	// This appears to actually be an int32, where a -1 means pre-game.
-	if tick == 4294967295 {
-		tick = 0
+	if isCSTVBroadcast {
+		tick = uint32(p.bitReader.ReadInt(32))
+
+		p.bitReader.Skip(8)
+
+		if cmd == msgs2.EDemoCommands_DEM_Stop {
+			p.msgQueue <- ingameTickNumber(int32(tick))
+			p.msgQueue <- frameParsedToken
+
+			return false
+		}
+
+		size = uint32(p.bitReader.ReadInt(32))
+	} else {
+		tick = p.bitReader.ReadVarInt32()
+
+		// This appears to actually be an int32, where a -1 means pre-game.
+		if tick == 4294967295 {
+			tick = 0
+		}
+
+		size = p.bitReader.ReadVarInt32()
 	}
 
 	p.msgQueue <- ingameTickNumber(int32(tick))
 
-	size := p.bitReader.ReadVarInt32()
+	msgType := cmd & ^msgs2.EDemoCommands_DEM_IsCompressed
+	msgCompressed := (cmd & msgs2.EDemoCommands_DEM_IsCompressed) != 0
 
 	msgCreator := demoCommandMsgsCreators[msgType]
 	if msgCreator == nil {
@@ -385,9 +416,25 @@ func (p *parser) parseFrameS2() bool {
 		panic(fmt.Sprintf("Unknown demo command: %d", msgType))
 	}
 
-	err := proto.Unmarshal(buf, msg)
-	if err != nil {
-		panic(err) // FIXME: avoid panic
+	if isCSTVBroadcast {
+		switch m := msg.(type) {
+		case *msgs2.CDemoPacket:
+			m.Data = buf
+
+		case *msgs2.CDemoSpawnGroups:
+			m.Msgs = [][]byte{buf[1:]} // TODO: index might be a varint, also we should collect all entries into one msg
+
+		default:
+			err := proto.Unmarshal(buf, msg)
+			if err != nil {
+				panic(err) // FIXME: avoid panic
+			}
+		}
+	} else {
+		err := proto.Unmarshal(buf, msg)
+		if err != nil {
+			panic(err) // FIXME: avoid panic
+		}
 	}
 
 	p.msgQueue <- msg
