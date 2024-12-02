@@ -80,7 +80,6 @@ type parser struct {
 	demoInfoProvider                demoInfoProvider // Provides demo infos to other packages that the core package depends on
 	err                             error            // Contains a error that occurred during parsing if any
 	errLock                         sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
-	decryptionKey                   []byte           // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
 	source2FallbackGameEventListBin []byte           // sv_hibernate_when_empty bug workaround
 	ignorePacketEntitiesPanic       bool             // Used to ignore PacketEntities parsing panics (some POV demos seem to have broken rare broken PacketEntities)
 	/**
@@ -347,10 +346,6 @@ type ParserConfig struct {
 	// See https://github.com/markus-wa/demoinfocs-golang/issues/314
 	IgnoreErrBombsiteIndexNotFound bool
 
-	// NetMessageDecryptionKey tells the parser how to decrypt certain encrypted net-messages.
-	// See MatchInfoDecryptionKey() on how to retrieve the key from `match730_*.dem.info` files.
-	NetMessageDecryptionKey []byte
-
 	// DisableMimicSource1Events tells the parser to not mimic Source 1 game events for Source 2 demos.
 	// Unfortunately Source 2 demos *may* not contain Source 1 game events, that's why the parser will try to mimic them.
 	// It has an impact only with Source 2 demos and is false by default.
@@ -392,7 +387,6 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.gameEventHandler = newGameEventHandler(&p, config.IgnoreErrBombsiteIndexNotFound)
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1
-	p.decryptionKey = config.NetMessageDecryptionKey
 	p.recordingPlayerSlot = -1
 	p.disableMimicSource1GameEvents = config.DisableMimicSource1Events
 	p.source2FallbackGameEventListBin = config.Source2FallbackGameEventListBin

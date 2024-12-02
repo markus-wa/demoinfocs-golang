@@ -592,16 +592,6 @@ const (
 	WarnTypeTeamSwapPlayerNil          // TODO: figure out why this happens
 	WarnTypeGameEventBeforeDescriptors // may occur in POV demos
 	WarnUnknownDemoCommandMessageType  // occur when we have an unknown EDemoCommands message type, the protobuf messages probably need to be updated
-
-	// WarnTypeMissingNetMessageDecryptionKey occurs when encrypted net-messages are encountered and the decryption key is missing.
-	// See ParserConfig.NetMessageDecryptionKey
-	WarnTypeMissingNetMessageDecryptionKey
-
-	// WarnTypeCantReadEncryptedNetMessage occurs when an encrypted net-messages can't be decrypted even though the decryption key is set.
-	// May occur because the decryption key used is incorrect.
-	// See ParserConfig.NetMessageDecryptionKey
-	WarnTypeCantReadEncryptedNetMessage
-
 	WarnTypeUnknownEquipmentIndex
 	WarnTypeMissingItemDefinitionIndex
 	WarnTypeStringTableParsingFailure // Should happen only with CS2 POV demos

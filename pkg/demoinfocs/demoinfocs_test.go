@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"runtime"
@@ -245,89 +244,6 @@ func TestS2POV(t *testing.T) {
 	t.Log("Parsing to end")
 	err = p.ParseToEnd()
 	assertions.NoError(err, "error occurred in ParseToEnd()")
-}
-
-func TestEncryptedNetMessages(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	infoF, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem.info")
-	assert.NoError(t, err)
-
-	b, err := ioutil.ReadAll(infoF)
-	assert.NoError(t, err)
-
-	k, err := demoinfocs.MatchInfoDecryptionKey(b)
-	assert.NoError(t, err)
-
-	f, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem")
-	assert.NoError(t, err)
-	defer mustClose(t, f)
-
-	cfg := demoinfocs.DefaultParserConfig
-	cfg.NetMessageDecryptionKey = k
-
-	p := demoinfocs.NewParserWithConfig(f, cfg)
-
-	p.RegisterEventHandler(func(message events.ChatMessage) {
-		t.Log(message)
-	})
-
-	err = p.ParseToEnd()
-	assert.NoError(t, err)
-}
-
-func TestMatchInfoDecryptionKey_Error(t *testing.T) {
-	_, err := demoinfocs.MatchInfoDecryptionKey([]byte{0})
-	assert.Error(t, err)
-}
-
-func TestBadNetMessageDecryptionKey(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	const (
-		demPath  = csDemosPath + "/match730_003528806449641685104_1453182610_271.dem"
-		infoPath = csDemosPath + "/match730_003449478367177343081_1946274414_112.dem.info"
-	)
-
-	infoF, err := os.Open(infoPath)
-	assert.NoError(t, err)
-
-	b, err := ioutil.ReadAll(infoF)
-	assert.NoError(t, err)
-
-	k, err := demoinfocs.MatchInfoDecryptionKey(b)
-	assert.NoError(t, err)
-
-	f, err := os.Open(demPath)
-	assert.NoError(t, err)
-
-	defer f.Close()
-
-	cfg := demoinfocs.DefaultParserConfig
-	cfg.NetMessageDecryptionKey = k
-
-	p := demoinfocs.NewParserWithConfig(f, cfg)
-
-	var cantReadEncNetMsgWarns []events.ParserWarn
-
-	p.RegisterEventHandler(func(warn events.ParserWarn) {
-		if warn.Type == events.WarnTypeCantReadEncryptedNetMessage {
-			cantReadEncNetMsgWarns = append(cantReadEncNetMsgWarns, warn)
-		}
-	})
-
-	err = p.ParseToEnd()
-	assert.NoError(t, err)
-
-	assert.NotEmpty(t, cantReadEncNetMsgWarns)
 }
 
 func TestParseToEnd_Cancel(t *testing.T) {
@@ -605,7 +521,7 @@ func assertGolden(tb testing.TB, assertions *assert.Assertions, testCase string,
 		gzipReader, err := gzip.NewReader(f)
 		assertions.NoError(err, "error creating gzip reader for %q", goldenFile)
 
-		expected, err := ioutil.ReadAll(gzipReader)
+		expected, err := io.ReadAll(gzipReader)
 		assertions.NoError(err, "error reading gzipped data from %q", goldenFile)
 
 		mustCloseAssert(assertions, gzipReader, f)
@@ -627,7 +543,7 @@ func removePointers(s []byte) []byte {
 }
 
 func writeFile(assertions *assert.Assertions, file string, data []byte) {
-	err := ioutil.WriteFile(file, data, 0600)
+	err := os.WriteFile(file, data, 0600)
 	assertions.NoError(err, "failed to write to file %q", file)
 }
 
