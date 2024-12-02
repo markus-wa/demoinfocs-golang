@@ -1,0 +1,11 @@
+"ar_shoots"
+{
+	"material"		"overviews/ar_shoots"
+	"pos_x"		"-1368"
+	"pos_y"		"1952"
+	"scale"		"2.687500"
+	"CTSpawn_x"		"0.520000"
+	"CTSpawn_y"		"0.270000"
+	"TSpawn_x"		"0.520000"
+	"TSpawn_y"		"0.710000"
+}

@@ -434,6 +434,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.handleDemoFileHeader)
 	p.msgDispatcher.RegisterHandler(p.handleClassInfo)
 	p.msgDispatcher.RegisterHandler(p.handleStringTables)
+	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
 
 	if config.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(config.MsgQueueBufferSize)

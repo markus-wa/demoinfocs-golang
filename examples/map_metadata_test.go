@@ -9,13 +9,11 @@ import (
 )
 
 func TestGetMapMetadata(t *testing.T) {
-	t.Skip()
-
-	meta := examples.GetMapMetadata("de_cache", 1901448379)
+	meta := examples.GetMapMetadata("de_dust2")
 
 	assert.Equal(t, examples.Map{
-		PosX:  -2000,
-		PosY:  3250,
-		Scale: 5.5,
+		PosX:  -2476,
+		PosY:  3239,
+		Scale: 4.4,
 	}, meta)
 }

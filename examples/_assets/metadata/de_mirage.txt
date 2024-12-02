@@ -1,0 +1,25 @@
+"de_mirage"
+{
+	"material"	"overviews/de_mirage"	// texture file
+	"pos_x"		"-3230"	// X coordinate,
+	"pos_y"		"1713"	// Y coordinate,
+	"scale"		"5.00" 	// and used scale used when taking the screenshot
+	"rotate"	"0"	// map was rotated by 90 degress in image editor
+	"zoom"		"0"	// optimal zoom factor if map is shown in full size
+
+	// loading screen icons and positions
+	"CTSpawn_x"	"0.28"
+	"CTSpawn_y"	"0.70"
+	"TSpawn_x"	"0.87"
+	"TSpawn_y"	"0.36"
+
+	"bombA_x"	"0.54"
+	"bombA_y"	"0.76"
+	"bombB_x"	"0.23"
+	"bombB_y"	"0.28"
+	
+	"inset_left"		"0.135"
+	"inset_top"			"0.08"
+	"inset_right"		"0.105"
+	"inset_bottom"		"0.08"
+}

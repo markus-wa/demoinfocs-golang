@@ -1,0 +1,12 @@
+// TAVR - AUTO RADAR. v 2.5.0a
+"de_anubis"
+{
+	"CTSpawn_x" "0.610000"
+	"CTSpawn_y" "0.220000"
+	"TSpawn_x" "0.580000"
+	"TSpawn_y" "0.930000"
+	"material" "overviews/de_anubis"
+	"pos_x" "-2796.000000"
+	"pos_y" "3328.000000"
+	"scale" "5.220000"
+}

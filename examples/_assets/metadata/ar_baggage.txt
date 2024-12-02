@@ -1,0 +1,29 @@
+"ar_baggage"
+{
+	"material"		"overviews/ar_baggage"
+	"pos_x"		"-1316"
+	"pos_y"		"1288"
+	"scale"		"2.539062"
+	"rotate"		"1"
+	"zoom"		"1.300000"
+
+	"verticalsections"
+	{
+		"default" // use the primary radar image
+		{
+			"AltitudeMax" "10000"
+			"AltitudeMin" "-5"
+		}
+		"lower" // i.e. de_nuke_lower_radar.dds
+		{
+			"AltitudeMax" "-5"
+			"AltitudeMin" "-10000"
+		}
+	}
+
+
+	"CTSpawn_x"		"0.510000"
+	"CTSpawn_y"		"0.820000"
+	"TSpawn_x"		"0.510000"
+	"TSpawn_y"		"0.290000"
+}

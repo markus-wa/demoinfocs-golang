@@ -11,7 +11,7 @@ func TestEntities(t *testing.T) {
 		t.Skip("skipping test")
 	}
 
-	os.Args = []string{"cmd", "-demo", "../../test/cs-demos/default.dem"}
+	os.Args = []string{"cmd", "-demo", "../../test/cs-demos/s2/s2.dem"}
 
 	main()
 }

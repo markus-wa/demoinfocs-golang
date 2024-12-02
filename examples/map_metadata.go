@@ -1,10 +1,12 @@
 package examples
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"image"
-	"net/http"
+
+	"github.com/andygrunwald/vdf"
 )
 
 // Map represents a CS:GO map. It contains information required to translate
@@ -27,20 +29,27 @@ func (m Map) TranslateScale(x, y float64) (float64, float64) {
 	return x / m.Scale, y / m.Scale
 }
 
+//go:embed _assets/*
+var fs embed.FS
+
 // GetMapMetadata fetches metadata for a specific map version from
 // `https://radar-overviews.csgo.saiko.tech/<map>/<crc>/info.json`.
 // Panics if any error occurs.
-func GetMapMetadata(name string, crc uint32) Map {
-	url := fmt.Sprintf("https://radar-overviews.csgo.saiko.tech/%s/%d/info.json", name, crc)
-
-	resp, err := http.Get(url)
+func GetMapMetadata(name string) Map {
+	f, err := fs.Open(fmt.Sprintf("_assets/metadata/%s.txt", name))
 	checkError(err)
 
-	defer resp.Body.Close()
+	defer f.Close()
+
+	m, err := vdf.NewParser(f).Parse()
+	checkError(err)
+
+	b, err := json.Marshal(m)
+	checkError(err)
 
 	var data map[string]Map
 
-	err = json.NewDecoder(resp.Body).Decode(&data)
+	err = json.Unmarshal(b, &data)
 	checkError(err)
 
 	mapInfo, ok := data[name]
@@ -54,15 +63,13 @@ func GetMapMetadata(name string, crc uint32) Map {
 // GetMapRadar fetches the radar image for a specific map version from
 // `https://radar-overviews.csgo.saiko.tech/<map>/<crc>/radar.png`.
 // Panics if any error occurs.
-func GetMapRadar(name string, crc uint32) image.Image {
-	url := fmt.Sprintf("https://radar-overviews.csgo.saiko.tech/%s/%d/radar.png", name, crc)
-
-	resp, err := http.Get(url)
+func GetMapRadar(name string) image.Image {
+	f, err := fs.Open(fmt.Sprintf("_assets/radar/%s_radar_psd.png", name))
 	checkError(err)
 
-	defer resp.Body.Close()
+	defer f.Close()
 
-	img, _, err := image.Decode(resp.Body)
+	img, _, err := image.Decode(f)
 	checkError(err)
 
 	return img

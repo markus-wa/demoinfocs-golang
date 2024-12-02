@@ -23,13 +23,13 @@ func main() {
 	p.RegisterEventHandler(func(events.DataTablesParsed) {
 		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent st.Entity) {
 			ent.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
-				x := p.GameState().Participants().FindByHandle(val.IntVal)
+				x := p.GameState().Participants().FindByHandle64(val.S2UInt64())
 				if x != nil {
 					var prev string
-					prevHandle := ent.Property("m_hPrevOwner").Value().IntVal
-					prevPlayer := p.GameState().Participants().FindByHandle(prevHandle)
+					prevHandle := ent.Property("m_hPrevOwner").Value().S2UInt64()
+					prevPlayer := p.GameState().Participants().FindByHandle64(prevHandle)
 					if prevPlayer != nil {
-						if prevHandle != val.IntVal {
+						if prevHandle != val.S2UInt64() {
 							prev = prevPlayer.Name + "'s"
 						} else {
 							prev = "his dropped"

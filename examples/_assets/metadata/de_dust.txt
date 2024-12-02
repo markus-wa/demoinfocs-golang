@@ -1,0 +1,23 @@
+// HLTV overview description file for de_dust.bsp
+
+"de_dust"
+{
+	"material"	"overviews/de_dust"	// texture file
+	"pos_x"		"-2850"	// upper left world coordinate
+	"pos_y"		"4073"
+	"scale"		"6" 
+	"rotate"	"1"
+	"zoom"		"1.3"
+
+	// loading screen icons and positions
+	"CTSpawn_x"	"0.47"
+	"CTSpawn_y"	"0.92"
+	"TSpawn_x"	"0.47"
+	"TSpawn_y"	"0.10"
+
+	"bombA_x"	"0.80"
+	"bombA_y"	"0.55"
+	"bombB_x"	"0.53"
+	"bombB_y"	"0.74"
+}
+
