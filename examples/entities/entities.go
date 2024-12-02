@@ -8,7 +8,7 @@ import (
 	ex "github.com/markus-wa/demoinfocs-golang/v4/examples"
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables2"
 )
 
 // Run like this: go run entities.go -demo /path/to/demo.dem

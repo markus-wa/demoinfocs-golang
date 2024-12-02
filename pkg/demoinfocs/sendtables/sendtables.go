@@ -3,103 +3,102 @@
 package sendtables
 
 import (
-	"bytes"
 	"fmt"
-	"strings"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
+	"github.com/golang/geo/r3"
 )
 
-// sendPropertyFlags stores multiple send property flags.
-type sendPropertyFlags int
+// PropertyValueType specifies the type of PropertyValue
+type PropertyValueType int
 
-// hasFlagSet returns true if the given flag is set
-func (spf sendPropertyFlags) hasFlagSet(flag sendPropertyFlags) bool {
-	return int(spf)&int(flag) == int(flag)
+// Possible types of property values.
+// See Property.Bind()
+const (
+	ValTypeInt PropertyValueType = iota
+	ValTypeFloat32
+	ValTypeFloat64 // Like ValTypeFloat32 but with additional cast to float64
+	ValTypeString
+	ValTypeVector
+	ValTypeArray
+	ValTypeBoolInt // Int that is treated as bool (1 -> true, != 1 -> false)
+)
+
+// PropertyType identifies the data type of property.
+type PropertyType int
+
+// PropertyValue stores parsed & decoded send-table values.
+// For instance player health, location etc.
+type PropertyValue struct {
+	Any any
 }
 
-type sendTable struct {
-	properties []sendTableProperty
-	name       string
-	isEnd      bool
+func (v PropertyValue) R3Vec() r3.Vector {
+	fs := v.Any.([]float32)
+
+	return r3.Vector{
+		X: float64(fs[0]),
+		Y: float64(fs[1]),
+		Z: float64(fs[2]),
+	}
 }
 
-type sendTableProperty struct {
-	flags            sendPropertyFlags
-	name             string
-	dataTableName    string
-	lowValue         float32
-	highValue        float32
-	numberOfBits     int
-	numberOfElements int
-	priority         int
-	rawType          int
-}
-
-// Stores meta information about a property of an Entity.
-type flattenedPropEntry struct {
-	prop             *sendTableProperty
-	arrayElementProp *sendTableProperty
-	name             string
-}
-
-//go:generate ifacemaker -f sendtables.go -s serverClass -i ServerClass -p sendtables -D -y "ServerClass is an auto-generated interface for property, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o serverclass_interface.go
-
-// serverClass stores meta information about Entity types (e.g. palyers, teams etc.).
-type serverClass struct {
-	id              int
-	name            string
-	dataTableID     int
-	dataTableName   string
-	baseClasses     []*serverClass
-	flattenedProps  []flattenedPropEntry
-	propNameToIndex map[string]int
-
-	createdHandlers      []EntityCreatedHandler
-	instanceBaseline     []byte                // Raw baseline
-	preprocessedBaseline map[int]PropertyValue // Preprocessed baseline
-}
-
-// ID returns the server-class's ID.
-func (sc *serverClass) ID() int {
-	return sc.id
-}
-
-// Name returns the server-class's name.
-func (sc *serverClass) Name() string {
-	return sc.name
-}
-
-// DataTableID returns the data-table ID.
-func (sc *serverClass) DataTableID() int {
-	return sc.dataTableID
-}
-
-// DataTableName returns the data-table name.
-func (sc *serverClass) DataTableName() string {
-	return sc.dataTableName
-}
-
-// BaseClasses returns the base-classes of this server-class.
-func (sc *serverClass) BaseClasses() (res []ServerClass) {
-	for _, v := range sc.baseClasses {
-		res = append(res, v)
+func (v PropertyValue) R3VecOrNil() *r3.Vector {
+	if v.Any == nil {
+		return nil
 	}
 
-	return
-}
+	fs := v.Any.([]float32)
 
-// PropertyEntries returns the names of all property-entries on this server-class.
-func (sc *serverClass) PropertyEntries() []string {
-	propEntryCount := len(sc.flattenedProps)
-	names := make([]string, propEntryCount)
-
-	for i := 0; i < propEntryCount; i++ {
-		names[i] = sc.flattenedProps[i].name
+	return &r3.Vector{
+		X: float64(fs[0]),
+		Y: float64(fs[1]),
+		Z: float64(fs[2]),
 	}
-
-	return names
 }
+
+func (v PropertyValue) Int() int {
+	return int(v.Any.(int32))
+}
+
+func (v PropertyValue) Int64() int64 {
+	return v.Any.(int64)
+}
+
+func (v PropertyValue) S2UInt64() uint64 {
+	return v.Any.(uint64)
+}
+
+func (v PropertyValue) S2Array() []any {
+	return v.Any.([]any)
+}
+
+func (v PropertyValue) S2UInt32() uint32 {
+	return v.Any.(uint32)
+}
+
+func (v PropertyValue) Handle() uint64 {
+	return v.S2UInt64()
+}
+
+func (v PropertyValue) Float() float32 {
+	return v.Any.(float32)
+}
+
+func (v PropertyValue) Str() string {
+	return v.Any.(string)
+}
+
+func (v PropertyValue) String() string {
+	return fmt.Sprint(v.Any)
+}
+
+// BoolVal returns true if IntVal > 0.
+func (v PropertyValue) BoolVal() bool {
+	return v.Any.(bool)
+}
+
+// PropertyUpdateHandler is the interface for handlers that are interested in property changes.
+type PropertyUpdateHandler func(PropertyValue)
 
 type PropertyEntry struct {
 	Name    string
@@ -107,97 +106,52 @@ type PropertyEntry struct {
 	Type    PropertyType
 }
 
-// PropertyEntryDefinitions returns all property-entries on this server-class.
-func (sc *serverClass) PropertyEntryDefinitions() []PropertyEntry {
-	propEntryCount := len(sc.flattenedProps)
-	res := make([]PropertyEntry, propEntryCount)
-
-	for i := 0; i < propEntryCount; i++ {
-		res[i].Name = sc.flattenedProps[i].name
-		res[i].IsArray = sc.flattenedProps[i].prop.rawType == propTypeArray
-
-		if res[i].IsArray {
-			res[i].Type = PropertyType(sc.flattenedProps[i].arrayElementProp.rawType)
-		} else {
-			res[i].Type = PropertyType(sc.flattenedProps[i].prop.rawType)
-		}
-	}
-
-	return res
-}
-
-func (sc *serverClass) newEntity(entityDataReader *bit.BitReader, entityID int, serialNum int, recordingPlayerSlot int) *entity {
-	props := make([]property, len(sc.flattenedProps))
-
-	for i := range sc.flattenedProps {
-		props[i] = property{entry: &sc.flattenedProps[i]}
-	}
-
-	entity := &entity{serverClass: sc, id: entityID, serialNum: serialNum, props: props}
-
-	entity.initialize(recordingPlayerSlot)
-
-	if sc.preprocessedBaseline != nil {
-		entity.applyBaseline(sc.preprocessedBaseline)
-	} else if sc.instanceBaseline != nil {
-		r := bit.NewSmallBitReader(bytes.NewReader(sc.instanceBaseline))
-		sc.preprocessedBaseline = entity.initializeBaseline(r)
-		r.Pool()
-	} else {
-		sc.preprocessedBaseline = make(map[int]PropertyValue)
-	}
-
-	entity.ApplyUpdate(entityDataReader)
-
-	// Fire created-handlers so update-handlers can be registered
-	for _, h := range sc.createdHandlers {
-		h(entity)
-	}
-
-	// Fire all post-creation actions
-	for _, f := range entity.onCreateFinished {
-		f()
-	}
-
-	return entity
-}
-
-// OnEntityCreated registers a function to be called when a new entity is created from this serverClass.
-func (sc *serverClass) OnEntityCreated(handler EntityCreatedHandler) {
-	sc.createdHandlers = append(sc.createdHandlers, handler)
-}
-
 // EntityCreatedHandler is the interface for handlers that are interested in EntityCreatedEvents.
 type EntityCreatedHandler func(Entity)
 
-var serverClassStringFormat = `serverClass: id=%d name=%s
-	dataTableId=%d
-	dataTableName=%s
-	baseClasses:
-		%s
-	properties:
-		%s`
-
-func (sc *serverClass) String() string {
-	baseClasses := make([]string, len(sc.baseClasses))
-	for i, bc := range sc.baseClasses {
-		baseClasses[i] = bc.name
-	}
-
-	props := make([]string, len(sc.flattenedProps))
-	for i, fProp := range sc.flattenedProps {
-		props[i] = fProp.name
-	}
-
-	baseClassesStr := "-"
-	if len(baseClasses) > 0 {
-		baseClassesStr = strings.Join(baseClasses, "\n\t\t")
-	}
-
-	propsStr := "-"
-	if len(props) > 0 {
-		propsStr = strings.Join(props, "\n\t\t")
-	}
-
-	return fmt.Sprintf(serverClassStringFormat, sc.id, sc.name, sc.dataTableID, sc.dataTableName, baseClassesStr, propsStr)
+// ServerClasses is a searchable list of ServerClasses.
+type ServerClasses interface {
+	All() []ServerClass
+	FindByName(name string) ServerClass
 }
+
+// EntityOp is a bitmask representing the type of operation performed on an Entity
+type EntityOp int
+
+const (
+	EntityOpNone           EntityOp = 0x00
+	EntityOpCreated        EntityOp = 0x01
+	EntityOpUpdated        EntityOp = 0x02
+	EntityOpDeleted        EntityOp = 0x04
+	EntityOpEntered        EntityOp = 0x08
+	EntityOpLeft           EntityOp = 0x10
+	EntityOpCreatedEntered EntityOp = EntityOpCreated | EntityOpEntered
+	EntityOpUpdatedEntered EntityOp = EntityOpUpdated | EntityOpEntered
+	EntityOpDeletedLeft    EntityOp = EntityOpDeleted | EntityOpLeft
+)
+
+var entityOpNames = map[EntityOp]string{
+	EntityOpNone:           "None",
+	EntityOpCreated:        "Created",
+	EntityOpUpdated:        "Updated",
+	EntityOpDeleted:        "Deleted",
+	EntityOpEntered:        "Entered",
+	EntityOpLeft:           "Left",
+	EntityOpCreatedEntered: "Created+Entered",
+	EntityOpUpdatedEntered: "Updated+Entered",
+	EntityOpDeletedLeft:    "Deleted+Left",
+}
+
+// Flag determines whether an EntityOp includes another. This is primarily
+// offered to prevent bit flag errors in downstream clients.
+func (o EntityOp) Flag(p EntityOp) bool {
+	return o&p != 0
+}
+
+// String returns a human identifiable string for the EntityOp
+func (o EntityOp) String() string {
+	return entityOpNames[o]
+}
+
+// EntityHandler is a function that receives Entity updates
+type EntityHandler func(Entity, EntityOp) error

@@ -478,27 +478,20 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 		pl.Entity = nil
 	})
 
-	// Position
-	playerEntity.OnPositionUpdate(func(pos r3.Vector) {
-		if pl.IsAlive() {
-			pl.LastAlivePosition = pos
-		}
-	})
-
 	// General info
 	playerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
-		pl.Team = common.Team(val.IntVal)
+		pl.Team = common.Team(val.Int())
 		pl.TeamState = p.gameState.Team(pl.Team)
 	})
 
 	playerEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
-		if val.FloatVal == 0 {
+		if val.Float() == 0 {
 			pl.FlashTick = 0
 		} else {
 			pl.FlashTick = p.gameState.ingameTick
 		}
 
-		pl.FlashDuration = val.FloatVal
+		pl.FlashDuration = val.Float()
 	})
 
 	p.bindPlayerWeapons(playerEntity, pl)
@@ -515,12 +508,12 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 	})
 
 	playerEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
-		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.IntVal == 0 {
+		if p.gameState.currentDefuser == pl && pl.IsDefusing && val.Int() == 0 {
 			p.eventDispatcher.Dispatch(events.BombDefuseAborted{Player: pl})
 			p.gameState.currentDefuser = nil
 		}
 
-		pl.IsDefusing = val.IntVal != 0
+		pl.IsDefusing = val.Int() != 0
 	})
 
 	spottedByMaskProp := playerEntity.Property("m_bSpottedByMask.000")
@@ -638,10 +631,6 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		if pl == nil {
 			return
 		}
-
-		if pl.IsAlive() {
-			pl.LastAlivePosition = pos
-		}
 	})
 
 	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
@@ -715,7 +704,7 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 	for i := range cache {
 		i2 := i // Copy for passing to handler
 		playerEntity.Property(wepPrefix + fmt.Sprintf("%03d", i)).OnUpdate(func(val st.PropertyValue) {
-			entityID := val.IntVal & constants.EntityHandleIndexMask
+			entityID := val.Int() & constants.EntityHandleIndexMask
 			if entityID != constants.EntityHandleIndexMask {
 				if cache[i2] != 0 {
 					// Player already has a weapon in this slot.
@@ -901,28 +890,24 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	proj.Entity = entity
 	p.gameState.grenadeProjectiles[entityID] = proj
 
-	if p.demoInfoProvider.IsSource2() {
-		ownerEntVal := entity.PropertyValueMust("m_hOwnerEntity")
-		if ownerEntVal.Any != nil {
-			player := p.demoInfoProvider.FindPlayerByPawnHandle(ownerEntVal.Handle())
-			proj.Thrower = player
-			proj.Owner = player
-		}
+	ownerEntVal := entity.PropertyValueMust("m_hOwnerEntity")
+	if ownerEntVal.Any != nil {
+		player := p.demoInfoProvider.FindPlayerByPawnHandle(ownerEntVal.Handle())
+		proj.Thrower = player
+		proj.Owner = player
 	}
 
 	var wep common.EquipmentType
 	entity.OnCreateFinished(func() { //nolint:wsl
-		if p.demoInfoProvider.IsSource2() {
-			modelVal := entity.PropertyValueMust("CBodyComponent.m_hModel")
+		modelVal := entity.PropertyValueMust("CBodyComponent.m_hModel")
 
-			if modelVal.Any != nil {
-				model := modelVal.S2UInt64()
-				weaponType, exists := p.equipmentTypePerModel[model]
-				if exists {
-					wep = weaponType
-				} else {
-					fmt.Fprintf(os.Stderr, "unknown grenade model %d\n", model)
-				}
+		if modelVal.Any != nil {
+			model := modelVal.S2UInt64()
+			weaponType, exists := p.equipmentTypePerModel[model]
+			if exists {
+				wep = weaponType
+			} else {
+				fmt.Fprintf(os.Stderr, "unknown grenade model %d\n", model)
 			}
 		}
 
@@ -937,12 +922,10 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 		p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
 
-		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash {
-			p.gameState.flyingFlashbangs = append(p.gameState.flyingFlashbangs, &FlyingFlashbang{
-				projectile:       proj,
-				flashedEntityIDs: []int{},
-			})
-		}
+		p.gameState.flyingFlashbangs = append(p.gameState.flyingFlashbangs, &FlyingFlashbang{
+			projectile:       proj,
+			flashedEntityIDs: []int{},
+		})
 
 		if p.isSource2() && !p.disableMimicSource1GameEvents {
 			p.eventDispatcher.Dispatch(events.WeaponFire{
@@ -957,7 +940,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	})
 
 	entity.OnDestroy(func() {
-		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash && !p.disableMimicSource1GameEvents {
+		if wep == common.EqFlash && !p.disableMimicSource1GameEvents {
 			p.gameEventHandler.dispatch(events.FlashExplode{
 				GrenadeEvent: events.GrenadeEvent{
 					GrenadeType:     common.EqFlash,
@@ -979,23 +962,13 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		p.nadeProjectileDestroyed(proj)
 	})
 
-	if !p.demoInfoProvider.IsSource2() {
-		entity.Property("m_nModelIndex").OnUpdate(func(val st.PropertyValue) {
-			wep = p.grenadeModelIndices[val.Int()]
-		})
-	}
-
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
 	entity.Property("m_hThrower").OnUpdate(func(val st.PropertyValue) {
 		if val.Any == nil {
 			return
 		}
 
-		if p.demoInfoProvider.IsSource2() {
-			proj.Thrower = p.demoInfoProvider.FindPlayerByPawnHandle(val.Handle())
-		} else {
-			proj.Thrower = p.gameState.Participants().FindByHandle(val.Int())
-		}
+		proj.Thrower = p.demoInfoProvider.FindPlayerByPawnHandle(val.Handle())
 	})
 
 	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
@@ -1003,16 +976,10 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			return
 		}
 
-		if p.demoInfoProvider.IsSource2() {
-			proj.Owner = p.gameState.Participants().FindByPawnHandle(val.Handle())
-		} else {
-			proj.Owner = p.gameState.Participants().FindByHandle(val.Int())
-		}
+		proj.Owner = p.gameState.Participants().FindByPawnHandle(val.Handle())
 	})
 
 	entity.OnPositionUpdate(func(newPos r3.Vector) {
-		proj.Trajectory = append(proj.Trajectory, newPos)
-
 		proj.Trajectory2 = append(proj.Trajectory2, common.TrajectoryEntry{
 			Position: newPos,
 			FrameID:  p.CurrentFrame(),
@@ -1214,7 +1181,7 @@ func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 	})
 
 	// Detect alternative weapons (P2k -> USP, M4A4 -> M4A1-S etc.)
-	modelIndex := entity.Property("m_nModelIndex").Value().IntVal
+	modelIndex := entity.Property("m_nModelIndex").Value().Int()
 	eq.OriginalString = p.modelPreCache[modelIndex]
 
 	wepFix := func(altName string, alt common.EquipmentType) {

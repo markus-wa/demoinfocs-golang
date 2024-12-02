@@ -218,10 +218,10 @@ func TestParticipants_SpottersOf(t *testing.T) {
 	entity := new(stfake.Entity)
 	entity.On("ID").Return(3)
 	prop0 := new(stfake.Property)
-	prop0.On("Value").Return(st.PropertyValue{IntVal: 1})
+	prop0.On("Value").Return(st.PropertyValue{Any: 1})
 	entity.On("Property", "m_bSpottedByMask.000").Return(prop0)
 	prop1 := new(stfake.Property)
-	prop1.On("Value").Return(st.PropertyValue{IntVal: 1 << 2})
+	prop1.On("Value").Return(st.PropertyValue{Any: 1 << 2})
 	entity.On("Property", "m_bSpottedByMask.001").Return(prop1)
 	spotted.Entity = entity
 
@@ -246,7 +246,7 @@ func TestParticipants_SpottedBy(t *testing.T) {
 	spotted2.EntityID = 35
 
 	prop0 := new(stfake.Property)
-	prop0.On("Value").Return(st.PropertyValue{IntVal: 1})
+	prop0.On("Value").Return(st.PropertyValue{Any: 1})
 	spotted1Entity := new(stfake.Entity)
 	spotted1Entity.On("Property", "m_bSpottedByMask.000").Return(prop0)
 	spotted1.Entity = spotted1Entity
@@ -261,7 +261,7 @@ func TestParticipants_SpottedBy(t *testing.T) {
 	spotter.EntityID = 1
 
 	unSpottedProp := new(stfake.Property)
-	unSpottedProp.On("Value").Return(st.PropertyValue{IntVal: 0})
+	unSpottedProp.On("Value").Return(st.PropertyValue{Any: 0})
 	unSpottedEntity := new(stfake.Entity)
 	unSpottedEntity.On("Property", "m_bSpottedByMask.000").Return(unSpottedProp)
 	unSpotted.Entity = unSpottedEntity
@@ -292,7 +292,7 @@ func TestGameRules_ConVars(t *testing.T) {
 }
 
 func TestGameRules_Entity(t *testing.T) {
-	ent := stfake.NewEntityWithProperty("m_iGameMode", st.PropertyValue{IntVal: 1})
+	ent := stfake.NewEntityWithProperty("m_iGameMode", st.PropertyValue{Any: 1})
 	gr := gameRules{
 		entity: ent,
 	}
@@ -320,7 +320,7 @@ func TestGameRules_FreezeTime(t *testing.T) {
 
 func TestGameRules_RoundTime(t *testing.T) {
 	prop := new(stfake.Property)
-	prop.On("Value").Return(st.PropertyValue{IntVal: 115})
+	prop.On("Value").Return(st.PropertyValue{Any: 115})
 	ent := new(stfake.Entity)
 	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(prop)
 	gr := gameRules{entity: ent}

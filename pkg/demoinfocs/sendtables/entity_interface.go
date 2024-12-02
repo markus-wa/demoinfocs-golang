@@ -1,9 +1,8 @@
-// DO NOT EDIT: Auto generated
-
 package sendtables
 
 import (
 	"github.com/golang/geo/r3"
+
 	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
 )
 

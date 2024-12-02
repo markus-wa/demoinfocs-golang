@@ -67,14 +67,7 @@ func (p property) Value() st.PropertyValue {
 	}
 
 	return st.PropertyValue{
-		VectorVal: r3.Vector{},
-		IntVal:    0,
-		Int64Val:  0,
-		ArrayVal:  nil,
-		StringVal: "",
-		FloatVal:  0,
-		Any:       v,
-		S2:        true,
+		Any: v,
 	}
 }
 
@@ -105,7 +98,7 @@ var bindFactoryByType = map[st.PropertyValueType]bindFactory{
 	},
 	st.ValTypeArray: func(variable any) st.PropertyUpdateHandler {
 		return func(v st.PropertyValue) {
-			*variable.(*[]st.PropertyValue) = v.ArrayVal
+			*variable.(*[]any) = v.S2Array()
 		}
 	},
 	st.ValTypeString: func(variable any) st.PropertyUpdateHandler {
@@ -157,7 +150,7 @@ func (e *Entity) BindProperty(prop string, variable any, t st.PropertyValueType)
 func (e *Entity) PropertyValue(name string) (st.PropertyValue, bool) {
 	prop := e.Property(name)
 	if prop == nil {
-		return st.PropertyValue{S2: true}, false
+		return st.PropertyValue{}, false
 	}
 
 	v := prop.Value()
@@ -469,14 +462,7 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 
 		for _, h := range e.updateHandlers[name] {
 			h(st.PropertyValue{
-				VectorVal: r3.Vector{},
-				IntVal:    0,
-				Int64Val:  0,
-				ArrayVal:  nil,
-				StringVal: "",
-				FloatVal:  0,
-				Any:       val,
-				S2:        true,
+				Any: val,
 			})
 		}
 	}

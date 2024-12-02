@@ -54,16 +54,12 @@ func (hostage *Hostage) Health() int {
 // Leader returns the possible player leading the hostage.
 // Returns nil if the hostage is not following a player.
 func (hostage *Hostage) Leader() *Player {
-	if hostage.demoInfoProvider.IsSource2() {
-		leaderHandle := getUInt64(hostage.Entity, "m_leader")
-		if leaderHandle != constants.InvalidEntityHandleSource2 {
-			return hostage.demoInfoProvider.FindPlayerByPawnHandle(leaderHandle)
-		}
-
-		return hostage.demoInfoProvider.FindPlayerByPawnHandle(getUInt64(hostage.Entity, "m_hHostageGrabber"))
+	leaderHandle := getUInt64(hostage.Entity, "m_leader")
+	if leaderHandle != constants.InvalidEntityHandleSource2 {
+		return hostage.demoInfoProvider.FindPlayerByPawnHandle(leaderHandle)
 	}
 
-	return hostage.demoInfoProvider.FindPlayerByHandle(uint64(getInt(hostage.Entity, "m_leader")))
+	return hostage.demoInfoProvider.FindPlayerByPawnHandle(getUInt64(hostage.Entity, "m_hHostageGrabber"))
 }
 
 // NewHostage creates a hostage.

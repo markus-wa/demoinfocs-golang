@@ -16,7 +16,6 @@ import (
 	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
@@ -73,7 +72,6 @@ type parser struct {
 	msgQueue                        chan any                  // Queue of net-messages
 	msgDispatcher                   *dp.Dispatcher            // Net-message dispatcher
 	gameEventHandler                gameEventHandler
-	userMessageHandler              userMessageHandler
 	eventDispatcher                 *dp.Dispatcher
 	currentFrame                    int                // Demo-frame, not ingame-tick
 	tickInterval                    float32            // Duration between ticks in seconds
@@ -96,16 +94,16 @@ type parser struct {
 
 	bombsiteA             bombsite
 	bombsiteB             bombsite
-	equipmentMapping      map[st.ServerClass]common.EquipmentType         // Maps server classes to equipment-types
-	rawPlayers            map[int]*common.PlayerInfo                      // Maps entity IDs to 'raw' player info
-	modelPreCache         []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id) for Source 1 demos only
-	triggers              map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
-	gameEventDescs        map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
-	grenadeModelIndices   map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
-	equipmentTypePerModel map[uint64]common.EquipmentType                 // Used to retrieve the EquipmentType of grenade projectiles based on models value. Source 2 only.
-	stringTables          []createStringTable                             // Contains all created sendtables, needed when updating them
-	delayedEventHandlers  []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
-	pendingMessagesCache  []pendingMessage                                // Cache for pending messages that need to be dispatched after the current tick
+	equipmentMapping      map[st.ServerClass]common.EquipmentType                    // Maps server classes to equipment-types
+	rawPlayers            map[int]*common.PlayerInfo                                 // Maps entity IDs to 'raw' player info
+	modelPreCache         []string                                                   // Used to find out whether a weapon is a p250 or cz for example (same id) for Source 1 demos only
+	triggers              map[int]*boundingBoxInformation                            // Maps entity IDs to triggers (used for bombsites)
+	gameEventDescs        map[int32]*msgs2.CMsgSource1LegacyGameEventListDescriptorT // Maps game-event IDs to descriptors
+	grenadeModelIndices   map[int]common.EquipmentType                               // Used to map model indices to grenades (used for grenade projectiles)
+	equipmentTypePerModel map[uint64]common.EquipmentType                            // Used to retrieve the EquipmentType of grenade projectiles based on models value. Source 2 only.
+	stringTables          []createStringTable                                        // Contains all created sendtables, needed when updating them
+	delayedEventHandlers  []func()                                                   // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
+	pendingMessagesCache  []pendingMessage                                           // Cache for pending messages that need to be dispatched after the current tick
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
@@ -392,7 +390,6 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.equipmentTypePerModel = make(map[uint64]common.EquipmentType)
 	p.gameEventHandler = newGameEventHandler(&p, config.IgnoreErrBombsiteIndexNotFound)
-	p.userMessageHandler = newUserMessageHandler(&p)
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1
 	p.decryptionKey = config.NetMessageDecryptionKey
@@ -414,22 +411,9 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 	p.eventDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 
-	// Attach proto msg handlers
-	p.msgDispatcher.RegisterHandler(p.handlePacketEntitiesS1)
+	// Source 2
 	p.msgDispatcher.RegisterHandler(p.handleGameEventList)
 	p.msgDispatcher.RegisterHandler(p.handleGameEvent)
-	p.msgDispatcher.RegisterHandler(p.handleCreateStringTableS1)
-	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTableS1)
-	p.msgDispatcher.RegisterHandler(p.handleUserMessage)
-	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
-	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
-	p.msgDispatcher.RegisterHandler(p.handleServerInfo)
-	p.msgDispatcher.RegisterHandler(p.handleEncryptedData)
-	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
-
-	// Source 2
-	p.msgDispatcher.RegisterHandler(p.handleGameEventListS2)
-	p.msgDispatcher.RegisterHandler(p.handleGameEventS2)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfoS2)
 	p.msgDispatcher.RegisterHandler(p.handleCreateStringTableS2)
 	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTableS2)
@@ -463,10 +447,6 @@ func (p *parser) isSource2() bool {
 
 type demoInfoProvider struct {
 	parser *parser
-}
-
-func (p demoInfoProvider) IsSource2() bool {
-	return p.parser.isSource2()
 }
 
 func (p demoInfoProvider) IngameTick() int {

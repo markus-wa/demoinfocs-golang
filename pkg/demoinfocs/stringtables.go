@@ -17,7 +17,6 @@ import (
 	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 )
 
@@ -571,34 +570,6 @@ func (p *parser) handleStringTables(msg *msgs2.CDemoStringTables) {
 			}
 		}
 	}
-}
-
-func (p *parser) handleUpdateStringTableS1(tab *msg.CSVCMsg_UpdateStringTable) {
-	p.handleUpdateStringTable(&msgs2.CSVCMsg_UpdateStringTable{
-		TableId:           tab.TableId,
-		NumChangedEntries: tab.NumChangedEntries,
-		StringData:        tab.StringData,
-	}, false)
-}
-
-func (p *parser) handleCreateStringTableS1(tab *msg.CSVCMsg_CreateStringTable) {
-	size := int32(len(tab.StringData))
-	compressed := false
-
-	p.handleCreateStringTable(createStringTable{
-		CSVCMsg_CreateStringTable: &msgs2.CSVCMsg_CreateStringTable{
-			Name:              tab.Name,
-			NumEntries:        tab.NumEntries,
-			UserDataFixedSize: tab.UserDataFixedSize,
-			UserDataSize:      tab.UserDataSize,
-			UserDataSizeBits:  tab.UserDataSizeBits,
-			Flags:             tab.Flags,
-			StringData:        tab.StringData,
-			UncompressedSize:  &size,
-			DataCompressed:    &compressed,
-		},
-		s1MaxEntries: tab.MaxEntries,
-	})
 }
 
 func (p *parser) parseUserInfo(data []byte, playerIndex int) {

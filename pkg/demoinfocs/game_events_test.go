@@ -9,7 +9,7 @@ import (
 
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 	stfake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables/fake"
 )
@@ -21,8 +21,8 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 		Filestamp: "HL2DEMO",
 	}
 
-	p.gameState.tState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{IntVal: 1})
-	p.gameState.ctState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{IntVal: 2})
+	p.gameState.tState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{Any: 1})
+	p.gameState.ctState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{Any: 2})
 	eventOccurred := 0
 
 	p.RegisterEventHandler(func(e events.RoundEnd) {
@@ -36,10 +36,10 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 		})
 	})
 
-	p.gameEventDescs = map[int32]*msg.CSVCMsg_GameEventListDescriptorT{
+	p.gameEventDescs = map[int32]*msg.CMsgSource1LegacyGameEventListDescriptorT{
 		1: {
 			Name: proto.String("round_end"),
-			Keys: []*msg.CSVCMsg_GameEventListKeyT{
+			Keys: []*msg.CMsgSource1LegacyGameEventListKeyT{
 				{Name: proto.String("winner")},
 				{Name: proto.String("message")},
 				{Name: proto.String("reason")},
@@ -47,10 +47,10 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 		},
 	}
 
-	ge := new(msg.CSVCMsg_GameEvent)
+	ge := new(msg.CMsgSource1LegacyGameEvent)
 	ge.Eventid = proto.Int32(1)
 	ge.EventName = proto.String("round_end")
-	ge.Keys = []*msg.CSVCMsg_GameEventKeyT{
+	ge.Keys = []*msg.CMsgSource1LegacyGameEventKeyT{
 		{ValByte: proto.Int32(2)},
 		{ValString: proto.String("test")},
 		{ValByte: proto.Int32(9)},

@@ -108,7 +108,7 @@ func testPlayerSpotted(t *testing.T, propName string) {
 		actual = e
 	})
 
-	spottedByUpdateHandler(st.PropertyValue{IntVal: 1})
+	spottedByUpdateHandler(st.PropertyValue{Any: 1})
 
 	expected := events.PlayerSpottersChanged{
 		Spotted: p.gameState.playersByEntityID[1],

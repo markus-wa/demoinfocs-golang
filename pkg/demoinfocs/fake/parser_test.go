@@ -10,7 +10,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 	fake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/fake"
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 )
 
 func TestParseHeader(t *testing.T) {
@@ -128,6 +128,6 @@ func TestParseToEndNetMessages(t *testing.T) {
 
 func cmdKey(b ...byte) msg.CSVCMsg_CmdKeyValues {
 	return msg.CSVCMsg_CmdKeyValues{
-		Keyvalues: b,
+		Data: b,
 	}
 }

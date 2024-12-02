@@ -50,7 +50,9 @@ func TestGrenadeProjectile_Velocity(t *testing.T) {
 	}
 
 	p := GrenadeProjectile{
-		Entity: entityWithProperty("m_vecVelocity", st.PropertyValue{VectorVal: expected}),
+		Entity: entityWithProperty("m_vecVelocity", st.PropertyValue{
+			Any: []float32{1, 2, 3},
+		}),
 	}
 
 	assert.Equal(t, expected, p.Velocity())

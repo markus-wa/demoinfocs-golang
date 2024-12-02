@@ -79,11 +79,6 @@ type lastFlash struct {
 
 type ingameTickNumber int
 
-func (gs *gameState) handleIngameTickNumber(n ingameTickNumber) {
-	gs.ingameTick = int(n)
-	debugIngameTick(gs.ingameTick)
-}
-
 func (gs *gameState) indexPlayerBySteamID(pl *common.Player) {
 	if !pl.IsBot && pl.SteamID64 > 0 {
 		gs.playersBySteamID32[common.ConvertSteamID64To32(pl.SteamID64)] = pl
@@ -287,7 +282,7 @@ func (gr gameRules) RoundTime() (time.Duration, error) {
 		return 0, ErrFailedToRetrieveGameRule
 	}
 
-	return time.Duration(prop.Value().IntVal) * time.Second, nil
+	return time.Duration(prop.Value().Int()) * time.Second, nil // FIXME: test
 }
 
 // FreezeTime returns how long freeze time lasts for in the current match (mp_freezetime).

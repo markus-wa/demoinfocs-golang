@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
@@ -21,14 +22,11 @@ const (
 // e.g. `go run -tags debugdemoinfocs -ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs.debugDemoCommands=YES'" examples/print-events/print_events.go -demo example.dem`
 // Oh and btw we cant use bools for this, Go says 'cannot use -X with non-string symbol'
 var (
-	debugGameEvents        = yes
-	debugUnhandledMessages = no
-	debugIngameTicks       = yes
-	debugDemoCommands      = no
-	debugServerClasses     = no
+	debugGameEvents    = yes
+	debugServerClasses = no
 )
 
-func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_GameEvent) {
+func debugGameEvent(descriptor *msg.CMsgSource1LegacyGameEventListDescriptorT, ge *msg.CMsgSource1LegacyGameEvent) {
 	const (
 		typeStr    = 1
 		typeFloat  = 2
@@ -63,49 +61,6 @@ func debugGameEvent(d *msg.CSVCMsg_GameEventListDescriptorT, ge *msg.CSVCMsg_Gam
 		}
 
 		fmt.Println("GameEvent:", d.GetName(), "Data:", data)
-	}
-}
-
-func debugUnhandledMessage(cmd int, name string) {
-	if debugUnhandledMessages == yes {
-		fmt.Printf("UnhandledMessage: id=%d name=%s\n", cmd, name)
-	}
-}
-
-func debugIngameTick(tickNr int) {
-	if debugIngameTicks == yes {
-		fmt.Printf("IngameTick=%d\n", tickNr)
-	}
-}
-
-func (dc demoCommand) String() string {
-	switch dc {
-	case dcConsoleCommand:
-		return "ConsoleCommand"
-	case dcCustomData:
-		return "CustomData"
-	case dcDataTables:
-		return "DataTables"
-	case dcPacket:
-		return "Packet"
-	case dcSignon:
-		return "Signon"
-	case dcStop:
-		return "Stop"
-	case dcStringTables:
-		return "StringTables"
-	case dcSynctick:
-		return "Synctick"
-	case dcUserCommand:
-		return "UserCommand"
-	default:
-		return "UnknownCommand"
-	}
-}
-
-func debugDemoCommand(cmd demoCommand) {
-	if debugDemoCommands == yes {
-		fmt.Println("Demo-Command:", cmd)
 	}
 }
 

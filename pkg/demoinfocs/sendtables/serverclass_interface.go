@@ -1,5 +1,3 @@
-// DO NOT EDIT: Auto generated
-
 package sendtables
 
 // ServerClass is an auto-generated interface for property, intended to be used when mockability is needed.

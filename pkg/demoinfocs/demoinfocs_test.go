@@ -25,20 +25,15 @@ import (
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 )
 
 const (
-	testDataPath            = "../../test"
-	csDemosPath             = testDataPath + "/cs-demos"
-	demSetPath              = csDemosPath + "/set"
-	demSetPathS2            = csDemosPath + "/s2"
-	defaultDemPath          = csDemosPath + "/default.dem"
-	retakeDemPath           = csDemosPath + "/retake_unknwon_bombsite_index.dem"
-	unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
-	s2DemPath               = demSetPathS2 + "/s2.dem"
-	s2POVDemPath            = demSetPathS2 + "/pov.dem"
+	testDataPath = "../../test"
+	csDemosPath  = testDataPath + "/cs-demos"
+	demSetPathS2 = csDemosPath + "/s2"
+	s2DemPath    = demSetPathS2 + "/s2.dem"
+	s2POVDemPath = demSetPathS2 + "/pov.dem"
 )
 
 var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current demos")
@@ -53,16 +48,16 @@ func TestDemoInfoCs(t *testing.T) {
 		t.Skip("skipping test due to -short flag")
 	}
 
-	f, err := os.Open(defaultDemPath)
+	f, err := os.Open(s2DemPath)
 	assertions := assert.New(t)
-	assertions.NoError(err, "error opening demo %q", defaultDemPath)
+	assertions.NoError(err, "error opening demo %q", s2DemPath)
 
 	defer mustClose(t, f)
 
 	p := demoinfocs.NewParserWithConfig(f, demoinfocs.ParserConfig{
 		MsgQueueBufferSize: 1000,
 		AdditionalNetMessageCreators: map[int]demoinfocs.NetMessageCreator{
-			4: func() proto.Message { return new(msg.CNETMsg_Tick) },
+			4: func() proto.Message { return new(msgs2.CNETMsg_Tick) },
 		},
 	})
 
@@ -174,7 +169,7 @@ func TestDemoInfoCs(t *testing.T) {
 
 	// Net-message stuff
 	var netTickHandlerID dispatch.HandlerIdentifier
-	netTickHandlerID = p.RegisterNetMessageHandler(func(tick *msg.CNETMsg_Tick) {
+	netTickHandlerID = p.RegisterNetMessageHandler(func(tick *msgs2.CNETMsg_Tick) {
 		t.Log("Net-message tick handled, unregistering - tick:", tick.Tick)
 		p.UnregisterNetMessageHandler(netTickHandlerID)
 	})
@@ -290,57 +285,6 @@ func TestMatchInfoDecryptionKey_Error(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestRetake_BadBombsiteIndex(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	f := openFile(t, retakeDemPath)
-	defer mustClose(t, f)
-
-	p := demoinfocs.NewParser(f)
-
-	err := p.ParseToEnd()
-	assert.Error(t, err, demoinfocs.ErrBombsiteIndexNotFound)
-}
-
-func TestRetake_IgnoreBombsiteIndexNotFound(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	f := openFile(t, retakeDemPath)
-	defer mustClose(t, f)
-
-	cfg := demoinfocs.DefaultParserConfig
-	cfg.IgnoreErrBombsiteIndexNotFound = true
-
-	p := demoinfocs.NewParserWithConfig(f, cfg)
-
-	err := p.ParseToEnd()
-	assert.NoError(t, err)
-}
-
-func TestUnexpectedEndOfDemo(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	f := openFile(t, unexpectedEndOfDemoPath)
-	defer mustClose(t, f)
-
-	p := demoinfocs.NewParser(f)
-
-	err := p.ParseToEnd()
-	assert.ErrorIs(t, err, demoinfocs.ErrUnexpectedEndOfDemo, "parsing cancelled but error was not ErrUnexpectedEndOfDemo")
-}
-
 func TestBadNetMessageDecryptionKey(t *testing.T) {
 	t.Parallel()
 
@@ -393,7 +337,7 @@ func TestParseToEnd_Cancel(t *testing.T) {
 		t.Skip("skipping test")
 	}
 
-	f := openFile(t, defaultDemPath)
+	f := openFile(t, s2DemPath)
 	defer mustClose(t, f)
 
 	p := demoinfocs.NewParser(f)
@@ -425,7 +369,7 @@ func TestParseToEnd_MultiCancel(t *testing.T) {
 		t.Skip("skipping test")
 	}
 
-	f := openFile(t, defaultDemPath)
+	f := openFile(t, s2DemPath)
 	defer mustClose(t, f)
 
 	p := demoinfocs.NewParser(f)
@@ -566,20 +510,10 @@ func testDemoSet(t *testing.T, path string) {
 				})
 
 				err = p.ParseToEnd()
-				assert.NoError(t, err, "parsing of '%s/%s' failed", demSetPath, name)
+				assert.NoError(t, err, "parsing of '%s/%s' failed", path, name)
 			}()
 		}
 	}
-}
-
-func TestDemoSet(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	t.Parallel()
-
-	testDemoSet(t, demSetPath)
 }
 
 func TestDemoSetS2(t *testing.T) {

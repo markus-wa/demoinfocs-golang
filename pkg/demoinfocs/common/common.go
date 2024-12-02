@@ -70,9 +70,6 @@ type GrenadeProjectile struct {
 	Thrower        *Player // Always seems to be the same as Owner, even if the grenade was picked up
 	Owner          *Player // Always seems to be the same as Thrower, even if the grenade was picked up
 
-	// Deprecated: use Trajectory2 instead
-	Trajectory []r3.Vector // List of all known locations of the grenade up to the current point
-
 	Trajectory2 []TrajectoryEntry // List of all known locations and the point in time of the grenade up to the current point
 
 	// uniqueID is used to distinguish different grenades (which potentially have the same, reused entityID) from each other.
@@ -86,7 +83,7 @@ func (g *GrenadeProjectile) Position() r3.Vector {
 
 // Velocity returns the projectile's velocity.
 func (g *GrenadeProjectile) Velocity() r3.Vector {
-	return g.Entity.PropertyValueMust("m_vecVelocity").VectorVal
+	return g.Entity.PropertyValueMust("m_vecVelocity").R3Vec()
 }
 
 // UniqueID returns the unique id of the grenade.
@@ -141,21 +138,12 @@ func (ts *TeamState) Team() Team {
 
 // ID returns the team ID, this stays the same even after switching sides.
 func (ts *TeamState) ID() int {
-	if ts.demoInfoProvider.IsSource2() {
-		return int(getUInt64(ts.Entity, "m_iTeamNum"))
-	}
-	return getInt(ts.Entity, "m_iTeamNum")
+	return int(getUInt64(ts.Entity, "m_iTeamNum"))
 }
 
 // Score returns the current score of the team (usually 0-16 without overtime).
 func (ts *TeamState) Score() int {
-	var propName string
-	if ts.demoInfoProvider.IsSource2() {
-		propName = "m_iScore"
-	} else {
-		propName = "m_scoreTotal"
-	}
-	return getInt(ts.Entity, propName)
+	return getInt(ts.Entity, "m_iScore")
 }
 
 // ClanName returns the team name (e.g. Fnatic).

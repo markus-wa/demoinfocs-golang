@@ -1,7 +1,6 @@
 package common
 
 import (
-	"math/rand"
 	"strings"
 
 	"github.com/oklog/ulid/v2"
@@ -319,7 +318,6 @@ type Equipment struct {
 	// It's always an empty string with Source 2 demos, you should use Type to know which weapon it is.
 	OriginalString string
 
-	uniqueID  int64 // Deprecated, use uniqueID2, see UniqueID() for why
 	uniqueID2 ulid.ULID
 }
 
@@ -333,15 +331,6 @@ func (e *Equipment) String() string {
 // E.g. pistol, smg, heavy etc.
 func (e *Equipment) Class() EquipmentClass {
 	return e.Type.Class()
-}
-
-// UniqueID returns a randomly generated unique id of the equipment element.
-// The unique id is a random int generated internally by this library and can be used to differentiate
-// equipment from each other. This is needed because demo-files reuse entity ids.
-// Deprecated: Use UniqueID2 instead. Since UniqueID is randomly generated, duplicate IDs are possible.
-// See the birthday problem for why repeatedly generating random 64 bit integers is likely to produce a collision.
-func (e *Equipment) UniqueID() int64 {
-	return e.uniqueID
 }
 
 // UniqueID2 returns a unique id of the equipment element that can be sorted efficiently.
@@ -361,18 +350,9 @@ func (e *Equipment) AmmoInMagazine() int {
 	case e.Entity == nil:
 		return 0
 	default:
-		val, ok := e.Entity.PropertyValue("m_iClip1")
-		if !ok {
-			return -1
-		}
+		ammo := e.Entity.PropertyValueMust("m_iClip1").S2UInt32()
 
-		s1Ammo, isSource1 := val.Any.(int)
-		if isSource1 {
-			// need to subtract 1 as m_iClip1 is nrOfBullets + 1
-			return s1Ammo - 1
-		}
-
-		return int(val.S2UInt32())
+		return int(ammo - 1)
 	}
 }
 
@@ -433,7 +413,7 @@ func (e *Equipment) AmmoReserve() int {
 	// if the property doesn't exist we return 0 by default
 	val, _ := e.Entity.PropertyValue("m_iPrimaryReserveAmmoCount")
 
-	return val.IntVal
+	return val.Int()
 }
 
 // RecoilIndex returns the weapon's recoil index
@@ -464,7 +444,7 @@ func (e *Equipment) Silenced() bool {
 //
 // Intended for internal use only.
 func NewEquipment(wep EquipmentType) *Equipment {
-	return &Equipment{Type: wep, uniqueID: rand.Int63(), uniqueID2: ulid.Make()} //nolint:gosec
+	return &Equipment{Type: wep, uniqueID2: ulid.Make()} //nolint:gosec
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{
