@@ -79,6 +79,11 @@ type lastFlash struct {
 
 type ingameTickNumber int
 
+func (gs *gameState) handleIngameTickNumber(n ingameTickNumber) {
+	gs.ingameTick = int(n)
+	debugIngameTick(gs.ingameTick)
+}
+
 func (gs *gameState) indexPlayerBySteamID(pl *common.Player) {
 	if !pl.IsBot && pl.SteamID64 > 0 {
 		gs.playersBySteamID32[common.ConvertSteamID64To32(pl.SteamID64)] = pl
@@ -126,7 +131,6 @@ func (gs gameState) Participants() Participants {
 	return participants{
 		playersByEntityID: gs.playersByEntityID,
 		playersByUserID:   gs.playersByUserID,
-		getIsSource2:      gs.demoInfo.parser.isSource2,
 	}
 }
 
@@ -211,26 +215,18 @@ func (gs gameState) PlayerResourceEntity() st.Entity {
 	return gs.playerResourceEntity
 }
 
-func entityIDFromHandle(handle uint64, isS2 bool) int {
-	if isS2 {
-		if handle == constants.InvalidEntityHandleSource2 {
-			return -1
-		}
-
-		return int(handle & constants.EntityHandleIndexMaskSource2)
-	}
-
-	if handle == constants.InvalidEntityHandle {
+func entityIDFromHandle(handle uint64) int {
+	if handle == constants.InvalidEntityHandleSource2 {
 		return -1
 	}
 
-	return int(handle & constants.EntityHandleIndexMask)
+	return int(handle & constants.EntityHandleIndexMaskSource2)
 }
 
 // EntityByHandle returns the entity corresponding to the given handle.
 // Returns nil if the handle is invalid.
 func (gs gameState) EntityByHandle(handle uint64) st.Entity {
-	return gs.entities[entityIDFromHandle(handle, gs.demoInfo.parser.isSource2())]
+	return gs.entities[entityIDFromHandle(handle)]
 }
 
 func newGameState(demoInfo demoInfoProvider) *gameState {
@@ -326,7 +322,6 @@ func (gr gameRules) Entity() st.Entity {
 type participants struct {
 	playersByUserID   map[int]*common.Player // Maps user-IDs to players
 	playersByEntityID map[int]*common.Player // Maps entity-IDs to players
-	getIsSource2      func() bool
 }
 
 // ByUserID returns all currently connected players in a map where the key is the user-ID.
@@ -424,7 +419,7 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 //
 // Returns nil if not found.
 func (ptcp participants) FindByPawnHandle(handle uint64) *common.Player {
-	entityID := entityIDFromHandle(handle, ptcp.getIsSource2())
+	entityID := entityIDFromHandle(handle)
 
 	for _, player := range ptcp.All() {
 		pawnEntity := player.PlayerPawnEntity()
@@ -446,17 +441,7 @@ func (ptcp participants) FindByPawnHandle(handle uint64) *common.Player {
 //
 // Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
 func (ptcp participants) FindByHandle64(handle uint64) *common.Player {
-	return ptcp.playersByEntityID[entityIDFromHandle(handle, ptcp.getIsSource2())]
-}
-
-// FindByHandle attempts to find a player by his entity-handle.
-// The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
-//
-// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
-//
-// Deprecated: Use FindByHandle64 instead.
-func (ptcp participants) FindByHandle(handle int) *common.Player {
-	return ptcp.FindByHandle64(uint64(handle))
+	return ptcp.playersByEntityID[entityIDFromHandle(handle)]
 }
 
 func (ptcp participants) initializeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {

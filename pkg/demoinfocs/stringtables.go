@@ -17,7 +17,7 @@ import (
 	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 )
 
 const (
@@ -137,7 +137,7 @@ func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
 	})
 }
 
-func (p *parser) handleUpdateStringTable(tab *msgs2.CSVCMsg_UpdateStringTable, s2 bool) {
+func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -156,28 +156,20 @@ func (p *parser) handleUpdateStringTable(tab *msgs2.CSVCMsg_UpdateStringTable, s
 	case stNameInstanceBaseline:
 		// Only handle updates for the above types
 		// Create fake CreateStringTable and handle it like one of those
-		p.processStringTable(createStringTable{
-			CSVCMsg_CreateStringTable: &msgs2.CSVCMsg_CreateStringTable{
-				Name:                 cTab.Name,
-				NumEntries:           tab.NumChangedEntries,
-				UserDataFixedSize:    cTab.UserDataFixedSize,
-				UserDataSize:         cTab.UserDataSize,
-				UserDataSizeBits:     cTab.UserDataSizeBits,
-				Flags:                cTab.Flags,
-				StringData:           tab.StringData,
-				UsingVarintBitcounts: cTab.UsingVarintBitcounts,
-			},
-			isS2:         s2,
-			s1MaxEntries: cTab.s1MaxEntries,
+		p.processStringTable(&msg.CSVCMsg_CreateStringTable{
+			Name:                 cTab.Name,
+			NumEntries:           tab.NumChangedEntries,
+			UserDataFixedSize:    cTab.UserDataFixedSize,
+			UserDataSize:         cTab.UserDataSize,
+			UserDataSizeBits:     cTab.UserDataSizeBits,
+			Flags:                cTab.Flags,
+			StringData:           tab.StringData,
+			UsingVarintBitcounts: cTab.UsingVarintBitcounts,
 		})
 	}
 }
 
-func (p *parser) handleUpdateStringTableS2(tab *msgs2.CSVCMsg_UpdateStringTable) {
-	p.handleUpdateStringTable(tab, true)
-}
-
-func (p *parser) handleCreateStringTable(tab createStringTable) {
+func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -194,91 +186,6 @@ func (p *parser) handleCreateStringTable(tab createStringTable) {
 	p.stringTables = append(p.stringTables, tab)
 
 	p.eventDispatcher.Dispatch(events.StringTableCreated{TableName: tab.GetName()})
-}
-
-func (p *parser) handleCreateStringTableS2(tab *msgs2.CSVCMsg_CreateStringTable) {
-	p.handleCreateStringTable(createStringTable{
-		CSVCMsg_CreateStringTable: tab,
-		isS2:                      true,
-	})
-}
-
-func (p *parser) processStringTableS1(tab createStringTable, br *bit.BitReader) {
-	hist := make([]string, 0)
-	idx := -1
-
-	nEntryBits := int(math.Ceil(math.Log2(float64(*tab.s1MaxEntries))))
-
-	for i := 0; i < int(tab.GetNumEntries()); i++ {
-		if br.ReadBit() {
-			idx++
-		} else {
-			idx = int(br.ReadInt(nEntryBits))
-		}
-
-		if idx < 0 || idx >= int(*tab.s1MaxEntries) {
-			panic("Something went to shit")
-		}
-
-		var entry string
-
-		if br.ReadBit() { //nolint:wsl
-			if br.ReadBit() {
-				idx := br.ReadInt(5)
-				bytes2cp := int(br.ReadInt(5))
-				entry = hist[idx][:bytes2cp]
-
-				entry += br.ReadString()
-			} else {
-				entry = br.ReadString()
-			}
-		}
-
-		const maxHistoryLength = 31
-		if len(hist) > maxHistoryLength {
-			hist = hist[1:]
-		}
-
-		hist = append(hist, entry)
-
-		var userdata []byte
-		if br.ReadBit() { //nolint:wsl
-			if tab.GetUserDataFixedSize() {
-				// Should always be < 8 bits => use faster ReadBitsToByte() over ReadBits()
-				userdata = []byte{br.ReadBitsToByte(int(tab.GetUserDataSizeBits()))}
-			} else {
-				const nUserdataBits = 14
-				userdata = br.ReadBytes(int(br.ReadInt(nUserdataBits)))
-			}
-		}
-
-		if len(userdata) == 0 {
-			continue
-		}
-
-		switch tab.GetName() {
-		case stNameUserInfo:
-			player := parsePlayerInfo(bytes.NewReader(userdata))
-
-			if p.header.ClientName == player.Name {
-				p.recordingPlayerSlot = idx
-				p.eventDispatcher.Dispatch(events.POVRecordingPlayerDetected{PlayerSlot: idx, PlayerInfo: player})
-			}
-
-			p.setRawPlayer(idx, player)
-
-		case stNameInstanceBaseline:
-			classID, err := strconv.Atoi(entry)
-			if err != nil {
-				panic(errors.Wrap(err, "failed to parse serverClassID"))
-			}
-
-			p.stParser.SetInstanceBaseline(classID, userdata)
-
-		case stNameModelPreCache:
-			p.modelPreCache[idx] = entry
-		}
-	}
 }
 
 // Holds and maintains a single entry in a string table.
@@ -426,7 +333,24 @@ func (p *parser) parseStringTable(
 
 var instanceBaselineKeyRegex = regexp.MustCompile(`^\d+:\d+$`)
 
-func (p *parser) processStringTableS2(tab createStringTable) {
+func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+	if tab.GetName() == stNameModelPreCache {
+		for i := len(p.modelPreCache); i < int(tab.GetNumEntries()); i++ {
+			p.modelPreCache = append(p.modelPreCache, "")
+		}
+	}
+
+	if tab.GetDataCompressed() {
+		tmp := make([]byte, tab.GetUncompressedSize())
+
+		b, err := snappy.Decode(tmp, tab.StringData)
+		if err != nil {
+			panic(err)
+		}
+
+		tab.StringData = b
+	}
+
 	items := p.parseStringTable(tab.StringData, tab.GetNumEntries(), tab.GetName(), tab.GetUserDataFixedSize(), tab.GetUserDataSize(), tab.GetFlags(), tab.GetUsingVarintBitcounts())
 
 	for _, item := range items {
@@ -445,39 +369,6 @@ func (p *parser) processStringTableS2(tab createStringTable) {
 		case stNameUserInfo:
 			p.parseUserInfo(item.Value, int(item.Index))
 		}
-	}
-}
-
-func (p *parser) processStringTable(tab createStringTable) {
-	if tab.GetName() == stNameModelPreCache {
-		for i := len(p.modelPreCache); i < int(tab.GetNumEntries()); i++ {
-			p.modelPreCache = append(p.modelPreCache, "")
-		}
-	}
-
-	if tab.GetDataCompressed() {
-		tmp := make([]byte, tab.GetUncompressedSize())
-
-		b, err := snappy.Decode(tmp, tab.StringData)
-		if err != nil {
-			panic(err)
-		}
-
-		tab.StringData = b
-	}
-
-	if tab.isS2 {
-		p.processStringTableS2(tab)
-	} else {
-		br := bit.NewSmallBitReader(bytes.NewReader(tab.StringData))
-
-		if br.ReadBit() {
-			panic("unknown stringtable format")
-		}
-
-		p.processStringTableS1(tab, br)
-
-		p.poolBitReader(br)
 	}
 
 	if tab.GetName() == stNameModelPreCache {
@@ -542,7 +433,7 @@ func (p *parser) processModelPreCacheUpdate() {
 // These appear to be periodic state dumps and appear every 1800 outer ticks.
 // XXX TODO: decide if we want to at all integrate these updates,
 // or trust create/update entirely. Let's ignore them for now.
-func (p *parser) handleStringTables(msg *msgs2.CDemoStringTables) {
+func (p *parser) handleStringTables(msg *msg.CDemoStringTables) {
 	for _, tab := range msg.GetTables() {
 		if tab.GetTableName() == stNameInstanceBaseline {
 			for _, item := range tab.GetItems() {
@@ -577,7 +468,7 @@ func (p *parser) parseUserInfo(data []byte, playerIndex int) {
 		return
 	}
 
-	var userInfo msgs2.CMsgPlayerInfo
+	var userInfo msg.CMsgPlayerInfo
 	err := proto.Unmarshal(data, &userInfo)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse CMsgPlayerInfo msg"))

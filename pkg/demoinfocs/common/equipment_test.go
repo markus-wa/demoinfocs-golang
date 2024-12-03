@@ -45,13 +45,13 @@ func TestEquipment_Class(t *testing.T) {
 }
 
 func TestEquipment_UniqueID(t *testing.T) {
-	assert.NotEqual(t, NewEquipment(EqAK47).UniqueID(), NewEquipment(EqAK47).UniqueID(), "UniqueIDs of different equipment instances should be different")
+	assert.NotEqual(t, NewEquipment(EqAK47).UniqueID2(), NewEquipment(EqAK47).UniqueID2(), "UniqueIDs of different equipment instances should be different")
 }
 
 func TestEquipment_AmmoInMagazine(t *testing.T) {
 	wep := &Equipment{
 		Type:   EqAK47,
-		Entity: entityWithProperty("m_iClip1", st.PropertyValue{IntVal: 31, Any: uint32(30)}),
+		Entity: entityWithProperty("m_iClip1", st.PropertyValue{Any: uint32(31)}),
 	}
 
 	// returned value should be minus 1, m_iClip1 is always 1 more than the actual number of bullets
@@ -60,7 +60,9 @@ func TestEquipment_AmmoInMagazine(t *testing.T) {
 
 func TestEquipment_AmmoInMagazine_NotFound(t *testing.T) {
 	entity := entityWithID(1)
-	entity.On("PropertyValue", "m_iClip1").Return(st.PropertyValue{}, false)
+	entity.On("PropertyValue", "m_iClip1").Return(st.PropertyValue{
+		Any: uint32(0),
+	}, false)
 
 	wep := &Equipment{
 		Type:   EqAK47,
@@ -96,7 +98,7 @@ func TestEquipment_AmmoReserve(t *testing.T) {
 		},
 		{
 			propName: "m_iPrimaryReserveAmmoCount",
-			value:    st.PropertyValue{IntVal: 60},
+			value:    st.PropertyValue{Any: int32(60)},
 			isNil:    false,
 		},
 	})
@@ -120,7 +122,7 @@ func TestEquipment_AmmoReserve_Grenade(t *testing.T) {
 		},
 		{
 			propName: "LocalWeaponData.m_iPrimaryAmmoType",
-			value:    st.PropertyValue{IntVal: 1},
+			value:    st.PropertyValue{Any: int32(1)},
 			isNil:    false,
 		},
 	})
@@ -152,7 +154,7 @@ func TestEquipment_AmmoReserve_EntityNil(t *testing.T) {
 func TestEquipment_ZoomLevel(t *testing.T) {
 	wep := &Equipment{
 		Type:   EqAK47,
-		Entity: entityWithProperty("m_zoomLevel", st.PropertyValue{IntVal: 2}),
+		Entity: entityWithProperty("m_zoomLevel", st.PropertyValue{Any: int32(2)}),
 	}
 
 	assert.Equal(t, ZoomFull, wep.ZoomLevel())
@@ -169,7 +171,7 @@ func TestEquipment_ZoomLevel_EntityNil(t *testing.T) {
 func TestEquipment_Not_Silenced(t *testing.T) {
 	wep := &Equipment{
 		Type:   EqAK47,
-		Entity: entityWithProperty("m_bSilencerOn", st.PropertyValue{IntVal: 0}),
+		Entity: entityWithProperty("m_bSilencerOn", st.PropertyValue{Any: false}),
 	}
 
 	assert.Equal(t, false, wep.Silenced())
@@ -178,11 +180,11 @@ func TestEquipment_Not_Silenced(t *testing.T) {
 func TestEquipment_Silenced_On_Off(t *testing.T) {
 	wep := &Equipment{
 		Type:   EqUSP,
-		Entity: entityWithProperty("m_bSilencerOn", st.PropertyValue{IntVal: 1}),
+		Entity: entityWithProperty("m_bSilencerOn", st.PropertyValue{Any: true}),
 	}
 	assert.Equal(t, true, wep.Silenced(), "Weapon should be silenced after the property value has been set to 1.")
 
-	wep.Entity = entityWithProperty("m_bSilencerOn", st.PropertyValue{IntVal: 0})
+	wep.Entity = entityWithProperty("m_bSilencerOn", st.PropertyValue{Any: false})
 	assert.Equal(t, false, wep.Silenced(), "Weapon should not be silenced after the property value has been set to 0.")
 }
 

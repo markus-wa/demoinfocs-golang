@@ -10,7 +10,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 	fake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/fake"
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 )
 
 func TestParseHeader(t *testing.T) {

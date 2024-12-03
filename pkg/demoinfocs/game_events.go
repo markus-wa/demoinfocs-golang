@@ -12,7 +12,7 @@ import (
 
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 )
 
 func (p *parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
@@ -82,7 +82,7 @@ func (geh gameEventHandler) gameState() *gameState {
 
 func (geh gameEventHandler) playerByUserID(userID int) *common.Player {
 	player := geh.gameState().playersByUserID[userID]
-	if player != nil || !geh.parser.isSource2() {
+	if player != nil {
 		return player
 	}
 
@@ -95,7 +95,7 @@ func (geh gameEventHandler) playerByUserID(userID int) *common.Player {
 }
 
 func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
-	if geh.parser.isSource2() && userID <= math.MaxUint16 {
+	if userID <= math.MaxUint16 {
 		userID &= 0xff
 	}
 
@@ -268,7 +268,7 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 }
 
 func (geh gameEventHandler) roundStart(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -294,7 +294,7 @@ func (geh gameEventHandler) roundAnnounceLastRoundHalf(map[string]*msg.CMsgSourc
 }
 
 func (geh gameEventHandler) roundEnd(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -319,7 +319,7 @@ func (geh gameEventHandler) roundEnd(data map[string]*msg.CMsgSource1LegacyGameE
 }
 
 func (geh gameEventHandler) roundOfficiallyEnded(map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -376,7 +376,7 @@ func (geh gameEventHandler) playerSound(data map[string]*msg.CMsgSource1LegacyGa
 }
 
 func (geh gameEventHandler) weaponFire(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -477,7 +477,7 @@ func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CMsgSource1Leg
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -507,7 +507,7 @@ func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CMsgSource1Le
 
 	geh.gameState().lastFlash.player = nadeEvent.Thrower
 
-	if !geh.parser.isSource2() || geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		geh.dispatch(events.FlashExplode{
 			GrenadeEvent: nadeEvent,
 		})
@@ -629,46 +629,22 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CMsgSource1Legacy
 		}
 	}
 
-	var playerIndex int
-	if geh.parser.isSource2() {
-		playerIndex = pl.UserID
-		if !pl.IsFakePlayer && !pl.IsHltv && pl.XUID > 0 && pl.UserID <= math.MaxUint8 {
-			pl.UserID |= math.MaxUint8 << 8
-		}
-	} else {
-		playerIndex = int(data["index"].GetValByte())
+	if !pl.IsFakePlayer && !pl.IsHltv && pl.XUID > 0 && pl.UserID <= math.MaxUint8 {
+		pl.UserID |= math.MaxUint8 << 8
 	}
 
-	geh.parser.setRawPlayer(playerIndex, pl)
+	geh.parser.setRawPlayer(pl.UserID, pl)
 }
 
 func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
 	uid := int(data["userid"].GetValShort())
-	if geh.parser.isSource2() && uid <= math.MaxUint16 {
+	if uid <= math.MaxUint16 {
 		uid &= 0xff
 	}
 
 	pl := geh.playerByUserID(uid)
 
-	if geh.parser.isSource2() {
-		if pl != nil && pl.IsBot {
-			geh.dispatch(events.PlayerDisconnected{
-				Player: pl,
-			})
-
-			pl.IsConnected = false
-		}
-		return
-	}
-
-	for k, v := range geh.parser.rawPlayers {
-		if v.UserID == uid {
-			delete(geh.parser.rawPlayers, k)
-		}
-	}
-
-	if pl != nil {
-		// Dispatch this event early since we delete the player on the next line
+	if pl != nil && pl.IsBot {
 		geh.dispatch(events.PlayerDisconnected{
 			Player: pl,
 		})
@@ -683,14 +659,11 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CMsgSource1LegacyGam
 
 	if player != nil {
 		if player.Team != newTeam {
-			if geh.parser.isSource2() {
-				// The "team" field may be incorrect with CS2 demos.
-				// As the prop m_iTeamNum (bound to player.Team) is updated before the game-event is fired we can force
-				// the correct team here.
-				// https://github.com/markus-wa/demoinfocs-golang/issues/494
-				newTeam = player.Team
-			}
-
+			// The "team" field may be incorrect with CS2 demos.
+			// As the prop m_iTeamNum (bound to player.Team) is updated before the game-event is fired we can force
+			// the correct team here.
+			// https://github.com/markus-wa/demoinfocs-golang/issues/494
+			newTeam = player.Team
 			player.Team = newTeam
 		}
 
@@ -715,7 +688,7 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CMsgSource1LegacyGam
 }
 
 func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -732,7 +705,7 @@ func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CMsgSource1Legac
 }
 
 func (geh gameEventHandler) bombPlanted(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -753,7 +726,7 @@ func (geh gameEventHandler) bombPlanted(data map[string]*msg.CMsgSource1LegacyGa
 }
 
 func (geh gameEventHandler) bombDefused(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -768,7 +741,7 @@ func (geh gameEventHandler) bombDefused(data map[string]*msg.CMsgSource1LegacyGa
 }
 
 func (geh gameEventHandler) bombExploded(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -836,7 +809,7 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CMsgSource1LegacyGame
 }
 
 func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -911,7 +884,7 @@ func (geh gameEventHandler) itemEvent(data map[string]*msg.CMsgSource1LegacyGame
 }
 
 func (geh gameEventHandler) bombDropped(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -925,7 +898,7 @@ func (geh gameEventHandler) bombDropped(data map[string]*msg.CMsgSource1LegacyGa
 }
 
 func (geh gameEventHandler) bombPickup(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -1147,7 +1120,7 @@ func (p *parser) processFlyingFlashbangs() {
 //
 // This makes sure game events are dispatched in a more expected order.
 func (p *parser) processFrameGameEvents() {
-	if p.isSource2() && !p.disableMimicSource1GameEvents {
+	if !p.disableMimicSource1GameEvents {
 		p.processFlyingFlashbangs()
 		p.processRoundProgressEvents()
 	}

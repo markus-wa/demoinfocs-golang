@@ -4,7 +4,7 @@
 // 	protoc        v3.20.3
 // source: s2/demo.proto
 
-package msgs2
+package msg
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"

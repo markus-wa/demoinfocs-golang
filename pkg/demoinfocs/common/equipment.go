@@ -350,9 +350,12 @@ func (e *Equipment) AmmoInMagazine() int {
 	case e.Entity == nil:
 		return 0
 	default:
-		ammo := e.Entity.PropertyValueMust("m_iClip1").S2UInt32()
+		ammo, ok := e.Entity.PropertyValue("m_iClip1")
+		if !ok {
+			return -1
+		}
 
-		return int(ammo - 1)
+		return int(ammo.S2UInt32() - 1)
 	}
 }
 

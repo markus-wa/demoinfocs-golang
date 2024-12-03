@@ -6,7 +6,7 @@ import (
 	"github.com/markus-wa/go-unassert"
 
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
@@ -20,7 +20,7 @@ func (p *parser) onEntity(e sendtables.Entity, op sendtables.EntityOp) error {
 	return nil
 }
 
-func (p *parser) handleSetConVarS2(setConVar *msgs2.CNETMsg_SetConVar) {
+func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 	updated := make(map[string]string)
 	for _, cvar := range setConVar.Convars.Cvars {
 		updated[cvar.GetName()] = cvar.GetValue()
@@ -32,8 +32,7 @@ func (p *parser) handleSetConVarS2(setConVar *msgs2.CNETMsg_SetConVar) {
 	})
 }
 
-// FIXME: combine with above
-func (p *parser) handleServerInfoS2(srvInfo *msgs2.CSVCMsg_ServerInfo) {
+func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
 	// srvInfo.MapCrc might be interesting as well
 	p.tickInterval = srvInfo.GetTickInterval()
 
@@ -43,7 +42,7 @@ func (p *parser) handleServerInfoS2(srvInfo *msgs2.CSVCMsg_ServerInfo) {
 	})
 }
 
-func (p *parser) handleMessageSayText(msg *msgs2.CUserMessageSayText) {
+func (p *parser) handleMessageSayText(msg *msg.CUserMessageSayText) {
 	p.eventDispatcher.Dispatch(events.SayText{
 		EntIdx:    int(msg.GetPlayerindex()),
 		IsChat:    msg.GetChat(),
@@ -52,7 +51,7 @@ func (p *parser) handleMessageSayText(msg *msgs2.CUserMessageSayText) {
 	})
 }
 
-func (p *parser) handleMessageSayText2(msg *msgs2.CUserMessageSayText2) {
+func (p *parser) handleMessageSayText2(msg *msg.CUserMessageSayText2) {
 	p.eventDispatcher.Dispatch(events.SayText2{
 		EntIdx:    int(msg.GetEntityindex()),
 		IsChat:    msg.GetChat(),
@@ -89,7 +88,7 @@ func (p *parser) handleMessageSayText2(msg *msgs2.CUserMessageSayText2) {
 	}
 }
 
-func (p *parser) handleServerRankUpdate(msg *msgs2.CCSUsrMsg_ServerRankUpdate) {
+func (p *parser) handleServerRankUpdate(msg *msg.CCSUsrMsg_ServerRankUpdate) {
 	for _, v := range msg.RankUpdate {
 		steamID32 := uint32(v.GetAccountId())
 		player, ok := p.gameState.playersBySteamID32[steamID32]

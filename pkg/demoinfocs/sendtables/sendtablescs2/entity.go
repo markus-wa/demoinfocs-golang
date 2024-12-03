@@ -1,4 +1,4 @@
-package sendtables2
+package sendtablescs2
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
@@ -469,7 +469,7 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 }
 
 // Internal Callback for OnCSVCMsg_PacketEntities.
-func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
+func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 	defer func() {
 		if p.packetEntitiesPanicWarnFunc == nil {
 			return

@@ -11,8 +11,8 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables2"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables/sendtablescs2"
 
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
@@ -66,7 +66,7 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 			}
 		}
 
-		p.stParser = sendtables2.NewParser(warnFunc)
+		p.stParser = sendtablescs2.NewParser(warnFunc)
 
 		p.stParser.OnEntity(p.onEntity)
 
@@ -137,7 +137,7 @@ func (p *parser) ParseToEnd() (err error) {
 	}
 
 	for {
-		if !p.parseFrameS2() {
+		if !p.parseFrame() {
 			return p.error()
 		}
 
@@ -206,36 +206,36 @@ func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 		}
 	}
 
-	moreFrames = p.parseFrameS2()
+	moreFrames = p.parseFrame()
 
 	return moreFrames, p.error()
 }
 
-var demoCommandMsgsCreators = map[msgs2.EDemoCommands]NetMessageCreator{
-	msgs2.EDemoCommands_DEM_Stop:            func() proto.Message { return &msgs2.CDemoStop{} },
-	msgs2.EDemoCommands_DEM_FileHeader:      func() proto.Message { return &msgs2.CDemoFileHeader{} },
-	msgs2.EDemoCommands_DEM_FileInfo:        func() proto.Message { return &msgs2.CDemoFileInfo{} },
-	msgs2.EDemoCommands_DEM_SyncTick:        func() proto.Message { return &msgs2.CDemoSyncTick{} },
-	msgs2.EDemoCommands_DEM_SendTables:      func() proto.Message { return &msgs2.CDemoSendTables{} },
-	msgs2.EDemoCommands_DEM_ClassInfo:       func() proto.Message { return &msgs2.CDemoClassInfo{} },
-	msgs2.EDemoCommands_DEM_StringTables:    func() proto.Message { return &msgs2.CDemoStringTables{} },
-	msgs2.EDemoCommands_DEM_Packet:          func() proto.Message { return &msgs2.CDemoPacket{} },
-	msgs2.EDemoCommands_DEM_SignonPacket:    func() proto.Message { return &msgs2.CDemoPacket{} },
-	msgs2.EDemoCommands_DEM_ConsoleCmd:      func() proto.Message { return &msgs2.CDemoConsoleCmd{} },
-	msgs2.EDemoCommands_DEM_CustomData:      func() proto.Message { return &msgs2.CDemoCustomData{} },
-	msgs2.EDemoCommands_DEM_UserCmd:         func() proto.Message { return &msgs2.CDemoUserCmd{} },
-	msgs2.EDemoCommands_DEM_FullPacket:      func() proto.Message { return &msgs2.CDemoFullPacket{} },
-	msgs2.EDemoCommands_DEM_SaveGame:        func() proto.Message { return &msgs2.CDemoSaveGame{} },
-	msgs2.EDemoCommands_DEM_SpawnGroups:     func() proto.Message { return &msgs2.CDemoSpawnGroups{} },
-	msgs2.EDemoCommands_DEM_AnimationData:   func() proto.Message { return &msgs2.CDemoAnimationData{} },
-	msgs2.EDemoCommands_DEM_AnimationHeader: func() proto.Message { return &msgs2.CDemoAnimationHeader{} },
+var demoCommandMsgsCreators = map[msg.EDemoCommands]NetMessageCreator{
+	msg.EDemoCommands_DEM_Stop:            func() proto.Message { return &msg.CDemoStop{} },
+	msg.EDemoCommands_DEM_FileHeader:      func() proto.Message { return &msg.CDemoFileHeader{} },
+	msg.EDemoCommands_DEM_FileInfo:        func() proto.Message { return &msg.CDemoFileInfo{} },
+	msg.EDemoCommands_DEM_SyncTick:        func() proto.Message { return &msg.CDemoSyncTick{} },
+	msg.EDemoCommands_DEM_SendTables:      func() proto.Message { return &msg.CDemoSendTables{} },
+	msg.EDemoCommands_DEM_ClassInfo:       func() proto.Message { return &msg.CDemoClassInfo{} },
+	msg.EDemoCommands_DEM_StringTables:    func() proto.Message { return &msg.CDemoStringTables{} },
+	msg.EDemoCommands_DEM_Packet:          func() proto.Message { return &msg.CDemoPacket{} },
+	msg.EDemoCommands_DEM_SignonPacket:    func() proto.Message { return &msg.CDemoPacket{} },
+	msg.EDemoCommands_DEM_ConsoleCmd:      func() proto.Message { return &msg.CDemoConsoleCmd{} },
+	msg.EDemoCommands_DEM_CustomData:      func() proto.Message { return &msg.CDemoCustomData{} },
+	msg.EDemoCommands_DEM_UserCmd:         func() proto.Message { return &msg.CDemoUserCmd{} },
+	msg.EDemoCommands_DEM_FullPacket:      func() proto.Message { return &msg.CDemoFullPacket{} },
+	msg.EDemoCommands_DEM_SaveGame:        func() proto.Message { return &msg.CDemoSaveGame{} },
+	msg.EDemoCommands_DEM_SpawnGroups:     func() proto.Message { return &msg.CDemoSpawnGroups{} },
+	msg.EDemoCommands_DEM_AnimationData:   func() proto.Message { return &msg.CDemoAnimationData{} },
+	msg.EDemoCommands_DEM_AnimationHeader: func() proto.Message { return &msg.CDemoAnimationHeader{} },
 }
 
-func (p *parser) parseFrameS2() bool {
-	cmd := msgs2.EDemoCommands(p.bitReader.ReadVarInt32())
+func (p *parser) parseFrame() bool {
+	cmd := msg.EDemoCommands(p.bitReader.ReadVarInt32())
 
-	msgType := cmd & ^msgs2.EDemoCommands_DEM_IsCompressed
-	msgCompressed := (cmd & msgs2.EDemoCommands_DEM_IsCompressed) != 0
+	msgType := cmd & ^msg.EDemoCommands_DEM_IsCompressed
+	msgCompressed := (cmd & msg.EDemoCommands_DEM_IsCompressed) != 0
 
 	tick := p.bitReader.ReadVarInt32()
 
@@ -276,24 +276,24 @@ func (p *parser) parseFrameS2() bool {
 		}
 	}
 
-	msg := msgCreator()
+	m := msgCreator()
 
-	if msg == nil {
+	if m == nil {
 		panic(fmt.Sprintf("Unknown demo command: %d", msgType))
 	}
 
-	err := proto.Unmarshal(buf, msg)
+	err := proto.Unmarshal(buf, m)
 	if err != nil {
 		panic(err) // FIXME: avoid panic
 	}
 
-	p.msgQueue <- msg
+	p.msgQueue <- m
 
-	switch m := msg.(type) {
-	case *msgs2.CDemoPacket:
+	switch m := m.(type) {
+	case *msg.CDemoPacket:
 		p.handleDemoPacket(m)
 
-	case *msgs2.CDemoFullPacket:
+	case *msg.CDemoFullPacket:
 		p.msgQueue <- m.StringTable
 
 		if m.Packet.GetData() != nil {
@@ -304,7 +304,7 @@ func (p *parser) parseFrameS2() bool {
 	// Queue up some post processing
 	p.msgQueue <- frameParsedToken
 
-	return msgType != msgs2.EDemoCommands_DEM_Stop
+	return msgType != msg.EDemoCommands_DEM_Stop
 }
 
 type frameParsedTokenType struct{}

@@ -1,7 +1,7 @@
 // decoding the quantized float is a bit to messy to do in one function, so
 // all the decoder steps are located in this file
 
-package sendtables2
+package sendtablescs2
 
 import (
 	"math"

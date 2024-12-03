@@ -1,4 +1,4 @@
-package sendtables2
+package sendtablescs2
 
 import (
 	"math"

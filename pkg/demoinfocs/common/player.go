@@ -467,23 +467,6 @@ func (p *Player) Score() int {
 	return getInt(p.Entity, "m_iScore")
 }
 
-// Color returns the players color as shown on the minimap.
-// It will return Grey (-1) if the resource entity does not exist when the function is called or when the demo does not support player colors.
-// Deprecated: Use ColorOrErr() instead.
-func (p *Player) Color() Color {
-	resourceEnt := p.resourceEntity()
-	if resourceEnt == nil {
-		return Grey
-	}
-
-	n, ok := resourceEnt.PropertyValue("m_iCompTeammateColor." + p.entityIDStr())
-	if !ok {
-		return Grey
-	}
-
-	return Color(n.Int())
-}
-
 var (
 	ErrDataNotAvailable   = errors.New("some data is not (yet) available (reading the same data later during parsing may work)")
 	ErrNotSupportedByDemo = errors.New("this data is not supported by the demo (this may be because the demos is too old)")
@@ -493,7 +476,11 @@ var (
 // Returns ErrDataNotAvailable if the resource entity does not exist (it may exist later during parsing).
 // Returns ErrNotSupportedByDemo if the demo does not support player colors (e.g. very old demos).
 func (p *Player) ColorOrErr() (Color, error) {
-	return Color(getInt(p.Entity, "m_iCompTeammateColor")), nil
+	if p.Entity == nil {
+		return 0, ErrDataNotAvailable
+	}
+
+	return Color(p.Entity.PropertyValueMust("m_iCompTeammateColor").Int()), nil
 }
 
 // Kills returns the amount of kills the player has as shown on the scoreboard.

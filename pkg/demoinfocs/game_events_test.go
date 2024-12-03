@@ -9,7 +9,7 @@ import (
 
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 	stfake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables/fake"
 )
@@ -17,9 +17,7 @@ import (
 // See #90
 func TestRoundEnd_LoserState_Score(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	p.header = &common.DemoHeader{
-		Filestamp: "HL2DEMO",
-	}
+	p.disableMimicSource1GameEvents = true
 
 	p.gameState.tState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{Any: 1})
 	p.gameState.ctState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{Any: 2})

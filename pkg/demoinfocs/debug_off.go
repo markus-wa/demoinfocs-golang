@@ -6,11 +6,15 @@
 package demoinfocs
 
 import (
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
 func debugGameEvent(descriptor *msg.CMsgSource1LegacyGameEventListDescriptorT, ge *msg.CMsgSource1LegacyGameEvent) {
+	// NOP
+}
+
+func debugIngameTick(tickNr int) {
 	// NOP
 }
 

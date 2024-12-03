@@ -1,3 +1,3 @@
-package msgs2
+package msg
 
 //go:generate ./generate.sh

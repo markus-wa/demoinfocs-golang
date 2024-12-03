@@ -1,4 +1,4 @@
-package sendtables2
+package sendtablescs2
 
 type fieldPatch struct {
 	minBuild uint32

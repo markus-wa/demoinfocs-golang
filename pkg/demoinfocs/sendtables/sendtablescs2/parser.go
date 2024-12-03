@@ -1,4 +1,4 @@
-package sendtables2
+package sendtablescs2
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
 
@@ -119,14 +119,14 @@ func NewParser(packetEntitiesPanicWarnFunc func(error)) *Parser {
 }
 
 // Internal callback for OnCSVCMsg_ServerInfo.
-func (p *Parser) OnServerInfo(m *msgs2.CSVCMsg_ServerInfo) error {
+func (p *Parser) OnServerInfo(m *msg.CSVCMsg_ServerInfo) error {
 	// This may be needed to parse PacketEntities.
 	p.classIdSize = uint32(math.Log(float64(m.GetMaxClasses()))/math.Log(2)) + 1
 
 	return nil
 }
 
-func (p *Parser) OnDemoClassInfo(m *msgs2.CDemoClassInfo) error {
+func (p *Parser) OnDemoClassInfo(m *msg.CDemoClassInfo) error {
 	for _, c := range m.GetClasses() {
 		classId := c.GetClassId()
 		networkName := c.GetNetworkName()
@@ -161,7 +161,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 	r := newReader(b)
 	buf := r.readBytes(r.readVarUint32())
 
-	msg := &msgs2.CSVCMsg_FlattenedSerializer{}
+	msg := &msg.CSVCMsg_FlattenedSerializer{}
 	if err := proto.Unmarshal(buf, msg); err != nil {
 		return err
 	}

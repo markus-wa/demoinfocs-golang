@@ -1,10 +1,10 @@
-package sendtables2
+package sendtablescs2
 
 import (
 	"fmt"
 	"strconv"
 
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 )
 
 const (
@@ -55,7 +55,7 @@ func (f *field) modelString() string {
 	}
 }
 
-func newField(serializers map[string]*serializer, ser *msgs2.CSVCMsg_FlattenedSerializer, f *msgs2.ProtoFlattenedSerializerFieldT) *field {
+func newField(serializers map[string]*serializer, ser *msg.CSVCMsg_FlattenedSerializer, f *msg.ProtoFlattenedSerializerFieldT) *field {
 	resolve := func(p *int32) string {
 		if p == nil {
 			return ""

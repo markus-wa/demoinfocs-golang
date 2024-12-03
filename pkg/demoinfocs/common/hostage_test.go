@@ -15,7 +15,7 @@ func TestHostage_Leader(t *testing.T) {
 	provider := demoInfoProviderMock{
 		playersByHandle: map[uint64]*Player{10: player},
 	}
-	hostage := hostageWithProperty("m_leader", st.PropertyValue{IntVal: 10}, provider)
+	hostage := hostageWithProperty("m_leader", st.PropertyValue{Any: uint64(10)}, provider)
 
 	assert.Equal(t, player, hostage.Leader())
 }
@@ -25,7 +25,6 @@ func TestHostage_LeaderWithInvalidHandleS2(t *testing.T) {
 	player.EntityID = 10
 	provider := demoInfoProviderMock{
 		playersByHandle: map[uint64]*Player{10: player},
-		isSource2:       true,
 	}
 	hostage := hostageWithProperties([]fakeProp{
 		{
@@ -44,13 +43,13 @@ func TestHostage_LeaderWithInvalidHandleS2(t *testing.T) {
 }
 
 func TestHostage_State(t *testing.T) {
-	hostage := hostageWithProperty("m_nHostageState", st.PropertyValue{IntVal: int(HostageStateFollowingPlayer)}, demoInfoProviderMock{})
+	hostage := hostageWithProperty("m_nHostageState", st.PropertyValue{Any: int32(HostageStateFollowingPlayer)}, demoInfoProviderMock{})
 
 	assert.Equal(t, HostageStateFollowingPlayer, hostage.State())
 }
 
 func TestHostage_Health(t *testing.T) {
-	hostage := hostageWithProperty("m_iHealth", st.PropertyValue{IntVal: 40}, demoInfoProviderMock{})
+	hostage := hostageWithProperty("m_iHealth", st.PropertyValue{Any: int32(40)}, demoInfoProviderMock{})
 
 	assert.Equal(t, 40, hostage.Health())
 }

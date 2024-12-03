@@ -47,13 +47,6 @@ type Participants interface {
 	//
 	// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
 	FindByHandle64(handle uint64) *common.Player
-	// FindByHandle attempts to find a player by his entity-handle.
-	// The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
-	//
-	// Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
-	//
-	// Deprecated: Use FindByHandle64 instead.
-	FindByHandle(handle int) *common.Player
 	// SpottersOf returns a list of all players who have spotted the passed player.
 	// This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
 	// May not behave as expected with multiple spotters.

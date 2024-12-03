@@ -112,7 +112,7 @@ func TestInferno_ConvexHull3D(t *testing.T) {
 }
 
 func TestInferno_Thrower(t *testing.T) {
-	entity := entityWithProperty("m_hOwnerEntity", st.PropertyValue{IntVal: 1})
+	entity := entityWithProperty("m_hOwnerEntity", st.PropertyValue{Any: uint64(1)})
 
 	player := new(Player)
 	provider := demoInfoProviderMock{

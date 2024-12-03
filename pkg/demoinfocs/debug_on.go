@@ -64,6 +64,12 @@ func debugGameEvent(descriptor *msg.CMsgSource1LegacyGameEventListDescriptorT, g
 	}
 }
 
+func debugIngameTick(tickNr int) {
+	if debugIngameTicks == yes {
+		fmt.Printf("IngameTick=%d\n", tickNr)
+	}
+}
+
 func debugAllServerClasses(classes st.ServerClasses) {
 	if debugServerClasses == yes {
 		for _, sc := range classes.All() {
