@@ -49,8 +49,8 @@ func TestGameState_Participants(t *testing.T) {
 	allByUserID := ptcp.AllByUserID()
 
 	// Should update ptcp as well since it uses the same map
-	gs.playersByEntityID[0] = newPlayerS1()
-	gs.playersByUserID[0] = newPlayerS1()
+	gs.playersByEntityID[0] = newPlayer()
+	gs.playersByUserID[0] = newPlayer()
 
 	assert.Equal(t, gs.playersByEntityID, ptcp.ByEntityID())
 	assert.Equal(t, gs.playersByUserID, ptcp.ByUserID())
@@ -74,7 +74,7 @@ func TestGameState_Participants(t *testing.T) {
 }
 
 func TestParticipants_All(t *testing.T) {
-	pl := newPlayerS1()
+	pl := newPlayer()
 	ptcps := participants{
 		playersByUserID: map[int]*common.Player{0: pl},
 	}
@@ -85,15 +85,15 @@ func TestParticipants_All(t *testing.T) {
 }
 
 func TestParticipants_Playing(t *testing.T) {
-	terrorist := newPlayerS1()
+	terrorist := newPlayer()
 	terrorist.Team = common.TeamTerrorists
-	ct := newPlayerS1()
+	ct := newPlayer()
 	ct.Team = common.TeamCounterTerrorists
-	unassigned := newPlayerS1()
+	unassigned := newPlayer()
 	unassigned.Team = common.TeamUnassigned
-	spectator := newPlayerS1()
+	spectator := newPlayer()
 	spectator.Team = common.TeamSpectators
-	def := newPlayerS1()
+	def := newPlayer()
 
 	ptcps := participants{
 		playersByUserID: map[int]*common.Player{
@@ -112,15 +112,15 @@ func TestParticipants_Playing(t *testing.T) {
 }
 
 func TestParticipants_TeamMembers(t *testing.T) {
-	terrorist := newPlayerS1()
+	terrorist := newPlayer()
 	terrorist.Team = common.TeamTerrorists
-	ct := newPlayerS1()
+	ct := newPlayer()
 	ct.Team = common.TeamCounterTerrorists
-	unassigned := newPlayerS1()
+	unassigned := newPlayer()
 	unassigned.Team = common.TeamUnassigned
-	spectator := newPlayerS1()
+	spectator := newPlayer()
 	spectator.Team = common.TeamSpectators
-	def := newPlayerS1()
+	def := newPlayer()
 
 	ptcps := participants{
 		playersByUserID: map[int]*common.Player{
@@ -138,7 +138,7 @@ func TestParticipants_TeamMembers(t *testing.T) {
 }
 
 func TestParticipants_FindByHandle(t *testing.T) {
-	pl := newPlayerS1()
+	pl := newPlayer()
 	pl.Team = common.TeamTerrorists
 
 	ptcps := participants{
@@ -153,7 +153,7 @@ func TestParticipants_FindByHandle(t *testing.T) {
 }
 
 func TestParticipants_FindByHandle_InvalidEntityHandle(t *testing.T) {
-	pl := newPlayerS1()
+	pl := newPlayer()
 	pl.Team = common.TeamTerrorists
 	ptcps := participants{
 		playersByEntityID: map[int]*common.Player{
@@ -167,7 +167,7 @@ func TestParticipants_FindByHandle_InvalidEntityHandle(t *testing.T) {
 }
 
 func TestParticipants_Connected_SuppressNoEntity(t *testing.T) {
-	pl := newPlayerS1()
+	pl := newPlayer()
 	pl2 := common.NewPlayer(nil)
 	pl2.IsConnected = true
 
@@ -184,8 +184,8 @@ func TestParticipants_Connected_SuppressNoEntity(t *testing.T) {
 }
 
 func TestParticipants_Connected_SuppressNotConnected(t *testing.T) {
-	pl := newPlayerS1()
-	pl2 := newPlayerS1()
+	pl := newPlayer()
+	pl2 := newPlayer()
 	pl2.IsConnected = false
 
 	ptcps := participants{
@@ -275,12 +275,12 @@ func TestGameRules_IsFreezetimePeriod(t *testing.T) {
 	assert.Equal(t, true, gs.IsFreezetimePeriod())
 }
 
-func newPlayerS1() *common.Player {
-	pl := newPlayerWithEntityIDS1(1)
+func newPlayer() *common.Player {
+	pl := newPlayerWithEntityID(1)
 	return pl
 }
 
-func newPlayerWithEntityIDS1(id int) *common.Player {
+func newPlayerWithEntityID(id int) *common.Player {
 	pl := common.NewPlayer(demoInfoProvider{
 		parser: &parser{header: &common.DemoHeader{Filestamp: "HL2DEMO"}},
 	})

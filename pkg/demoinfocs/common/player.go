@@ -189,6 +189,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 	bit := uint(clientSlot)
 
 	var mask st.Property
+
 	if bit < 32 {
 		mask = p.PlayerPawnEntity().Property("m_bSpottedByMask.0000")
 	} else {

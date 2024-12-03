@@ -234,8 +234,6 @@ func entityWithProperty(propName string, value st.PropertyValue) *stfake.Entity 
 func entityWithProperties(properties []fakeProp) *stfake.Entity {
 	entity := entityWithID(1)
 
-	entity.On("Property", mock.Anything).Return(nil)
-
 	for _, prop := range properties {
 		if prop.isNil {
 			entity.On("Property", prop.propName).Return(nil)
@@ -250,6 +248,8 @@ func entityWithProperties(properties []fakeProp) *stfake.Entity {
 		entity.On("PropertyValue", prop.propName).Return(prop.value, true)
 		entity.On("PropertyValueMust", prop.propName).Return(prop.value)
 	}
+
+	entity.On("Property", mock.Anything).Return(nil)
 
 	return entity
 }
