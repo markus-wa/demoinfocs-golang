@@ -6,8 +6,8 @@
 package demoinfocs
 
 import (
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 func debugGameEvent(descriptor *msg.CMsgSource1LegacyGameEventListDescriptorT, ge *msg.CMsgSource1LegacyGameEvent) {

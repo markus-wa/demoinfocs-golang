@@ -11,12 +11,12 @@ import (
 	"github.com/golang/geo/r2"
 	"github.com/llgcode/draw2d/draw2dimg"
 
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 
-	ex "github.com/markus-wa/demoinfocs-golang/v4/examples"
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	ex "github.com/markus-wa/demoinfocs-golang/v5/examples"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 )
 
 type nadePath struct {

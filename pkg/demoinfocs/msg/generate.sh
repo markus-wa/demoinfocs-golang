@@ -5,20 +5,20 @@
 
 protoc -Iproto \
        --go_out=. \
-       --go_opt=Ms2/cstrike15_usermessages.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/cstrike15_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/engine_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/netmessages.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/steammessages.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/gcsdk_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/networkbasetypes.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/network_connection.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/demo.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/gameevents.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/usermessages.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/cs_gameevents.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=Ms2/te.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
-       --go_opt=module=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg \
+       --go_opt=Ms2/cstrike15_usermessages.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/cstrike15_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/engine_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/netmessages.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/steammessages.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/gcsdk_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/networkbasetypes.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/network_connection.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/demo.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/gameevents.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/usermessages.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/cs_gameevents.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=Ms2/te.proto=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
+       --go_opt=module=github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg \
        s2/cstrike15_gcmessages.proto \
        s2/cstrike15_usermessages.proto \
        s2/engine_gcmessages.proto \
