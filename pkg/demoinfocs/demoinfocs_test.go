@@ -19,6 +19,7 @@ import (
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
@@ -468,6 +469,18 @@ func BenchmarkInMemory(b *testing.B) {
 		err = p.ParseToEnd()
 		assert.NoError(b, err, "ParseToEnd() returned an error")
 	}
+}
+
+func TestCSTVBroadcast(t *testing.T) {
+	p, err := demoinfocs.NewCSTVBroadcastParser("http://localhost:8080/s85568392932860274t1733099899")
+	require.NoError(t, err)
+
+	p.RegisterEventHandler(func(e events.GenericGameEvent) {
+		fmt.Printf("GameEvent: %+v\n", e)
+	})
+
+	err = p.ParseToEnd()
+	assert.NoError(t, err, "ParseToEnd() returned an error")
 }
 
 func BenchmarkConcurrent(b *testing.B) {

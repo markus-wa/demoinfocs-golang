@@ -46,14 +46,22 @@ var (
 func (p *parser) ParseHeader() (common.DemoHeader, error) {
 	var h common.DemoHeader
 
-	h.Filestamp = p.bitReader.ReadCString(8)
+	isCSTVBroadcast := p.config.Format == DemoFormatCSTVBroadcast
+
+	if isCSTVBroadcast {
+		h.Filestamp = "PBDEMS2"
+	} else {
+		h.Filestamp = p.bitReader.ReadCString(8)
+	}
 
 	switch h.Filestamp {
 	case "HL2DEMO":
 		return h, fmt.Errorf("%w: CS:GO demos are no longer supported, downgrade to v3", ErrInvalidFileType)
 
 	case "PBDEMS2":
-		p.bitReader.Skip(8 << 3) // skip 8 bytes
+		if !isCSTVBroadcast {
+			p.bitReader.Skip(8 << 3) // skip 8 bytes
+		}
 
 		var warnFunc func(error)
 
@@ -237,16 +245,38 @@ func (p *parser) parseFrame() bool {
 	msgType := cmd & ^msg.EDemoCommands_DEM_IsCompressed
 	msgCompressed := (cmd & msg.EDemoCommands_DEM_IsCompressed) != 0
 
-	tick := p.bitReader.ReadVarInt32()
+	var (
+		tick uint32
+		size uint32
+	)
 
-	// This appears to actually be an int32, where a -1 means pre-game.
-	if tick == 4294967295 {
-		tick = 0
+	isCSTVBroadcast := p.config.Format == DemoFormatCSTVBroadcast
+
+	if isCSTVBroadcast {
+		tick = uint32(p.bitReader.ReadInt(32))
+
+		p.bitReader.Skip(8)
+
+		if cmd == msg.EDemoCommands_DEM_Stop {
+			p.msgQueue <- ingameTickNumber(int32(tick))
+			p.msgQueue <- frameParsedToken
+
+			return false
+		}
+
+		size = uint32(p.bitReader.ReadInt(32))
+	} else {
+		tick = p.bitReader.ReadVarInt32()
+
+		// This appears to actually be an int32, where a -1 means pre-game.
+		if tick == 4294967295 {
+			tick = 0
+		}
+
+		size = p.bitReader.ReadVarInt32()
 	}
 
 	p.msgQueue <- ingameTickNumber(int32(tick))
-
-	size := p.bitReader.ReadVarInt32()
 
 	msgCreator := demoCommandMsgsCreators[msgType]
 	if msgCreator == nil {
@@ -282,9 +312,25 @@ func (p *parser) parseFrame() bool {
 		panic(fmt.Sprintf("Unknown demo command: %d", msgType))
 	}
 
-	err := proto.Unmarshal(buf, m)
-	if err != nil {
-		panic(err) // FIXME: avoid panic
+	if isCSTVBroadcast {
+		switch m := m.(type) {
+		case *msg.CDemoPacket:
+			m.Data = buf
+
+		case *msg.CDemoSpawnGroups:
+			m.Msgs = [][]byte{buf[1:]} // TODO: index might be a varint, also we should collect all entries into one msg
+
+		default:
+			err := proto.Unmarshal(buf, m)
+			if err != nil {
+				panic(err) // FIXME: avoid panic
+			}
+		}
+	} else {
+		err := proto.Unmarshal(buf, m)
+		if err != nil {
+			panic(err) // FIXME: avoid panic
+		}
 	}
 
 	p.msgQueue <- m

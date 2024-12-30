@@ -463,14 +463,6 @@ func (p *parser) bindNewPlayerPawn(pawnEntity st.Entity) {
 		p.bindPlayerWeapons(pawnEntity, pl)
 	})
 
-	// Position
-	pawnEntity.OnPositionUpdate(func(pos r3.Vector) {
-		pl := getPlayerFromPawnEntity(pawnEntity)
-		if pl == nil {
-			return
-		}
-	})
-
 	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
 		pl := getPlayerFromPawnEntity(pawnEntity)
 		if pl == nil {

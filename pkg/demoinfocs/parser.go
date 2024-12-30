@@ -15,6 +15,7 @@ import (
 
 	bit "github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/cstv"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
@@ -60,6 +61,7 @@ Prints out '{A/B} site went BOOM!' when a bomb explodes.
 type parser struct {
 	// Important fields
 
+	config                          ParserConfig
 	bitReader                       *bit.BitReader
 	stParser                        sendTableParser
 	additionalNetMessageCreators    map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
@@ -318,6 +320,36 @@ func NewParser(demostream io.Reader) Parser {
 	return NewParserWithConfig(demostream, DefaultParserConfig)
 }
 
+type DemoFormat byte
+
+const (
+	DemoFormatFile DemoFormat = iota
+	DemoFormatCSTVBroadcast
+)
+
+// NewCSTVBroadcastParser creates a new Parser for a live CSTV broadcast.
+// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+//
+// See also: NewParserWithConfig() & DefaultParserConfig
+func NewCSTVBroadcastParser(baseUrl string) (Parser, error) {
+	return NewCSTVBroadcastParserWithConfig(baseUrl, DefaultParserConfig)
+}
+
+// NewCSTVBroadcastParserWithConfig creates a new Parser for a live CSTV broadcast with a custom configuration.
+// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+//
+// See also: NewParserWithConfig() & DefaultParserConfig
+func NewCSTVBroadcastParserWithConfig(baseUrl string, config ParserConfig) (Parser, error) {
+	r, err := cstv.NewReader(baseUrl, config.CSTVTimeout)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create CSTV reader: %w", err)
+	}
+
+	config.Format = DemoFormatCSTVBroadcast
+
+	return NewParserWithConfig(r, config), nil
+}
+
 // ParserConfig contains the configuration for creating a new Parser.
 type ParserConfig struct {
 	// MsgQueueBufferSize defines the size of the internal net-message queue.
@@ -353,11 +385,20 @@ type ParserConfig struct {
 	// IgnorePacketEntitiesPanic tells the parser to ignore PacketEntities parsing panics.
 	// This is required as a workaround for some POV demos that seem to contain rare PacketEntities parsing issues.
 	IgnorePacketEntitiesPanic bool
+
+	// DemoFormat is the format of the demo file (e.g. ".dem" file or live CSTV broadcast).
+	Format DemoFormat
+
+	// CSTVTimeout is the timeout for CSTV broadcasts.
+	// It's the maximum time to retry for a response from the CSTV server, using an exponential backoff mechanism, starting at 1s.
+	// Only used when Format is DemoFormatCSTVBroadcast.
+	CSTVTimeout time.Duration
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
 var DefaultParserConfig = ParserConfig{
 	MsgQueueBufferSize: -1,
+	CSTVTimeout:        10 * time.Second,
 }
 
 //go:embed s2_CMsgSource1LegacyGameEventList.pb.bin
@@ -370,7 +411,12 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	var p parser
 
 	// Init parser
-	p.bitReader = bit.NewLargeBitReader(demostream)
+	p.config = config
+	if p.config.Format == DemoFormatFile {
+		p.bitReader = bit.NewLargeBitReader(demostream)
+	} else {
+		p.bitReader = bit.NewSmallBitReader(demostream)
+	}
 	p.equipmentMapping = make(map[st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
