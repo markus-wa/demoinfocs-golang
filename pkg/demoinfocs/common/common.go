@@ -27,7 +27,6 @@ const (
 // DemoHeader contains information from a demo's header.
 type DemoHeader struct {
 	Filestamp       string        // aka. File-type, must be HL2DEMO
-	Protocol        int           // Should be 4
 	NetworkProtocol int           // Not sure what this is for
 	ServerName      string        // Server's 'hostname' config value
 	ClientName      string        // Usually 'GOTV Demo'
@@ -36,7 +35,6 @@ type DemoHeader struct {
 	PlaybackTime    time.Duration // Demo duration in seconds (= PlaybackTicks / Server's tickrate)
 	PlaybackTicks   int           // Game duration in ticks (= PlaybackTime * Server's tickrate)
 	PlaybackFrames  int           // Amount of 'frames' aka demo-ticks recorded (= PlaybackTime * Demo's recording rate)
-	SignonLength    int           // Length of the Signon package in bytes
 }
 
 // FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
