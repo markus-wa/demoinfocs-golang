@@ -735,7 +735,8 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	})
 
 	entity.OnPositionUpdate(func(newPos r3.Vector) {
-		proj.Trajectory2 = append(proj.Trajectory2, common.TrajectoryEntry{
+		proj.Trajectory = append(proj.Trajectory, common.TrajectoryEntry{
+			Tick:     p.gameState.ingameTick,
 			Position: newPos,
 			FrameID:  p.CurrentFrame(),
 			Time:     p.CurrentTime(),
