@@ -151,8 +151,8 @@ Going by the last two lines, the player should not have been blinded at ~49m57.0
 This isn't very conclusive but it looks like IsFlashed isn't super reliable currently.
 */
 
-// Used internally to set the active weapon, see ActiveWeapon()
-func (p *Player) activeWeaponID() int {
+// ActiveWeaponID is used internally to set the active weapon, see ActiveWeapon()
+func (p *Player) ActiveWeaponID() int {
 	if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
 		return int(pawnEntity.PropertyValueMust("m_pWeaponServices.m_hActiveWeapon").S2UInt64() & constants.EntityHandleIndexMaskSource2)
 	}
@@ -163,7 +163,7 @@ func (p *Player) activeWeaponID() int {
 // ActiveWeapon returns the currently active / equipped weapon of the player.
 // ! Can be nil
 func (p *Player) ActiveWeapon() *Equipment {
-	return p.demoInfoProvider.FindWeaponByEntityID(p.activeWeaponID())
+	return p.demoInfoProvider.FindWeaponByEntityID(p.ActiveWeaponID())
 }
 
 // Weapons returns all weapons in the player's possession.
