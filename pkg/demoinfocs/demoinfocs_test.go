@@ -214,7 +214,7 @@ func TestS2(t *testing.T) {
 
 	if *update {
 		p.RegisterNetMessageHandler(func(gel *msg.CMsgSource1LegacyGameEventList) {
-			lo.Must0(os.WriteFile("s2_CMsgSource1LegacyGameEventList.pb.bin", lo.Must(proto.Marshal(gel)), 0600))
+			lo.Must0(os.WriteFile("event-list-dump/s2_CMsgSource1LegacyGameEventList.pb.bin", lo.Must(proto.Marshal(gel)), 0600))
 		})
 	}
 

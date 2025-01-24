@@ -401,9 +401,6 @@ var DefaultParserConfig = ParserConfig{
 	CSTVTimeout:        10 * time.Second,
 }
 
-//go:embed s2_CMsgSource1LegacyGameEventList.pb.bin
-var defaultSource2FallbackGameEventListBin []byte
-
 // NewParserWithConfig returns a new Parser with a custom configuration.
 //
 // See also: NewParser() & ParserConfig
@@ -430,11 +427,6 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.recordingPlayerSlot = -1
 	p.disableMimicSource1GameEvents = config.DisableMimicSource1Events
 	p.source2FallbackGameEventListBin = config.Source2FallbackGameEventListBin
-
-	if p.source2FallbackGameEventListBin == nil {
-		p.source2FallbackGameEventListBin = defaultSource2FallbackGameEventListBin
-	}
-
 	p.ignorePacketEntitiesPanic = config.IgnorePacketEntitiesPanic
 
 	dispatcherCfg := dp.Config{

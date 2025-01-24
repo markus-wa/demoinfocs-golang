@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"slices"
 	"time"
@@ -371,10 +372,34 @@ func (p *parser) handleFileInfo(msg *msg.CDemoFileInfo) {
 	p.header.PlaybackTime = time.Duration(*msg.PlaybackTime) * time.Second
 }
 
+//go:embed event-list-dump/*.bin
+var eventListFolder embed.FS
+
+func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
+	switch {
+	case networkProtocol < 13992:
+		return eventListFolder.ReadFile("event-list-dump/13990.bin")
+	case networkProtocol >= 13992 && networkProtocol < 14023:
+		return eventListFolder.ReadFile("event-list-dump/13992.bin")
+	default:
+		return eventListFolder.ReadFile("event-list-dump/14023.bin")
+	}
+}
+
 func (p *parser) handleDemoFileHeader(msg *msg.CDemoFileHeader) {
 	p.header.ClientName = msg.GetClientName()
 	p.header.ServerName = msg.GetServerName()
 	p.header.GameDirectory = msg.GetGameDirectory()
 	p.header.MapName = msg.GetMapName()
-	p.header.NetworkProtocol = int(msg.GetNetworkProtocol())
+	networkProtocol := int(msg.GetNetworkProtocol())
+	p.header.NetworkProtocol = networkProtocol
+
+	if p.source2FallbackGameEventListBin == nil {
+		gameEventListBin, err := getGameEventListBinForProtocol(networkProtocol)
+		if err != nil {
+			panic(fmt.Sprintf("failed to load game event list for protocol %d: %v", networkProtocol, err))
+		}
+
+		p.source2FallbackGameEventListBin = gameEventListBin
+	}
 }
