@@ -500,10 +500,6 @@ func (p demoInfoProvider) FindEntityByHandle(handle uint64) st.Entity {
 	return p.parser.gameState.EntityByHandle(handle)
 }
 
-func (p demoInfoProvider) PlayerResourceEntity() st.Entity {
-	return p.parser.gameState.playerResourceEntity
-}
-
 func (p demoInfoProvider) FindWeaponByEntityID(entityID int) *common.Equipment {
 	return p.parser.gameState.weapons[entityID]
 }

@@ -23,7 +23,6 @@ type gameState struct {
 	playersByUserID              map[int]*common.Player    // Maps user-IDs to players
 	playersByEntityID            map[int]*common.Player    // Maps entity-IDs to players
 	playersBySteamID32           map[uint32]*common.Player // Maps 32-bit-steam-IDs to players
-	playerResourceEntity         st.Entity                 // CCSPlayerResource entity instance, contains scoreboard info and more
 	playerControllerEntities     map[int]st.Entity
 	grenadeProjectiles           map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos                     map[int]*common.Inferno           // Maps entity-IDs to active infernos.
@@ -207,12 +206,6 @@ func (gs gameState) IsMatchStarted() bool {
 // OvertimeCount returns the number of overtime according to CCSGameRulesProxy.
 func (gs gameState) OvertimeCount() int {
 	return gs.overtimeCount
-}
-
-// PlayerResourceEntity returns the game's CCSPlayerResource entity.
-// Contains scoreboard information and more.
-func (gs gameState) PlayerResourceEntity() st.Entity {
-	return gs.playerResourceEntity
 }
 
 func entityIDFromHandle(handle uint64) int {

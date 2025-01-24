@@ -1,7 +1,6 @@
 package common
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -436,17 +435,9 @@ func (p *Player) Flags() PlayerFlags {
 	return PlayerFlags(getUInt64(p.PlayerPawnEntity(), "m_fFlags"))
 }
 
-// //////////////////////////
-// CCSPlayerResource stuff //
-// //////////////////////////
-
-func (p *Player) entityIDStr() string {
-	return fmt.Sprintf("%03d", p.EntityID)
-}
-
-func (p *Player) resourceEntity() st.Entity {
-	return p.demoInfoProvider.PlayerResourceEntity()
-}
+// ///////////////////
+// Scoreboard stuff //
+// ///////////////////
 
 // ClanTag returns the player's individual clan tag (Steam Groups etc.).
 func (p *Player) ClanTag() string {
@@ -549,7 +540,6 @@ type demoInfoProvider interface {
 	TickRate() float64 // in-game tick rate, used for Player.IsBlinded()
 	FindPlayerByHandle(handle uint64) *Player
 	FindPlayerByPawnHandle(handle uint64) *Player
-	PlayerResourceEntity() st.Entity
 	FindWeaponByEntityID(id int) *Equipment
 	FindEntityByHandle(handle uint64) st.Entity
 }

@@ -375,16 +375,9 @@ func TestPlayer_Color(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, Yellow, color)
 
-	pl = &Player{demoInfoProvider: demoInfoProviderMock{}}
-
-	color, err = pl.ColorOrErr()
-	assert.ErrorIs(t, ErrDataNotAvailable, err)
-
 	pl = &Player{
-		EntityID: 1,
-		demoInfoProvider: demoInfoProviderMock{
-			playerResourceEntity: entityWithoutProperty("m_iCompTeammateColor.001"),
-		},
+		EntityID:         1,
+		demoInfoProvider: demoInfoProviderMock{},
 	}
 
 	color, err = pl.ColorOrErr()
@@ -480,13 +473,4 @@ func playerWithPawnProperty(propName string, value st.PropertyValue) *Player {
 		propName: propName,
 		value:    value,
 	}})
-}
-
-func playerWithResourceProperty(propName string, value st.PropertyValue) *Player {
-	return &Player{
-		EntityID: 1,
-		demoInfoProvider: demoInfoProviderMock{
-			playerResourceEntity: entityWithProperty(propName+".001", value),
-		},
-	}
 }

@@ -100,11 +100,6 @@ func (gs *GameState) Rules() demoinfocs.GameRules {
 	return gs.Called().Get(0).(demoinfocs.GameRules)
 }
 
-// PlayerResourceEntity is a mock-implementation of GameState.PlayerResourceEntity().
-func (gs *GameState) PlayerResourceEntity() st.Entity {
-	return gs.Called().Get(0).(st.Entity)
-}
-
 // Hostages is a mock-implementation of GameState.Hostages().
 func (gs *GameState) Hostages() []*common.Hostage {
 	return gs.Called().Get(0).([]*common.Hostage)
