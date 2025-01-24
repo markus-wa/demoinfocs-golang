@@ -944,6 +944,16 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			})
 		}
 
+		newPos := proj.Position()
+
+		proj.Trajectory = append(proj.Trajectory, newPos)
+
+		proj.Trajectory2 = append(proj.Trajectory2, common.TrajectoryEntry{
+			Position: newPos,
+			FrameID:  p.CurrentFrame(),
+			Time:     p.CurrentTime(),
+		})
+
 		if p.isSource2() && !p.disableMimicSource1GameEvents {
 			p.eventDispatcher.Dispatch(events.WeaponFire{
 				Shooter: proj.Owner,
@@ -957,6 +967,16 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	})
 
 	entity.OnDestroy(func() {
+		newPos := proj.Position()
+
+		proj.Trajectory = append(proj.Trajectory, newPos)
+
+		proj.Trajectory2 = append(proj.Trajectory2, common.TrajectoryEntry{
+			Position: newPos,
+			FrameID:  p.CurrentFrame(),
+			Time:     p.CurrentTime(),
+		})
+
 		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash && !p.disableMimicSource1GameEvents {
 			p.gameEventHandler.dispatch(events.FlashExplode{
 				GrenadeEvent: events.GrenadeEvent{
@@ -1010,16 +1030,6 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		}
 	})
 
-	entity.OnPositionUpdate(func(newPos r3.Vector) {
-		proj.Trajectory = append(proj.Trajectory, newPos)
-
-		proj.Trajectory2 = append(proj.Trajectory2, common.TrajectoryEntry{
-			Position: newPos,
-			FrameID:  p.CurrentFrame(),
-			Time:     p.CurrentTime(),
-		})
-	})
-
 	// Some demos don't have this property as it seems
 	// So we need to check for nil and can't send out bounce events if it's missing
 	if bounceProp := entity.Property("m_nBounces"); bounceProp != nil {
@@ -1035,6 +1045,16 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 					BounceNr:   bounceNumber,
 				})
 			}
+
+			newPos := proj.Position()
+
+			proj.Trajectory = append(proj.Trajectory, newPos)
+
+			proj.Trajectory2 = append(proj.Trajectory2, common.TrajectoryEntry{
+				Position: newPos,
+				FrameID:  p.CurrentFrame(),
+				Time:     p.CurrentTime(),
+			})
 		})
 	}
 }
