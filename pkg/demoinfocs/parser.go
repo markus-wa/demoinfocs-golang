@@ -414,7 +414,6 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTableS1)
 	p.msgDispatcher.RegisterHandler(p.handleUserMessage)
 	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
-	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfo)
 	p.msgDispatcher.RegisterHandler(p.handleEncryptedData)
 	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
