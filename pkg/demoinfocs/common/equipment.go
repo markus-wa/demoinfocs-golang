@@ -437,10 +437,6 @@ func (e *Equipment) AmmoReserve() int {
 	// if the property doesn't exist we return 0 by default
 	val, _ := e.Entity.PropertyValue("m_iPrimaryReserveAmmoCount")
 
-	if val.Any == nil {
-		return 0
-	}
-
 	return val.IntVal
 }
 
