@@ -1,9 +1,7 @@
 package demoinfocs_test
 
 import (
-	"fmt"
 	"log"
-	"os"
 	"testing"
 
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
@@ -15,33 +13,25 @@ This will print all kills of a demo in the format '[[killer]] <[[weapon]] [(HS)]
 */
 //noinspection GoUnhandledErrorResult
 func ExampleParser() {
-	f, err := os.Open("../../test/cs-demos/s2/s2.dem")
-	if err != nil {
-		log.Panic("failed to open demo file: ", err)
-	}
-
-	defer f.Close()
-
-	p := demoinfocs.NewParser(f)
-	defer p.Close()
-
-	// Register handler on kill events
-	p.RegisterEventHandler(func(e events.Kill) {
+	onKill := func(kill events.Kill) {
 		var hs string
-		if e.IsHeadshot {
+		if kill.IsHeadshot {
 			hs = " (HS)"
 		}
 
 		var wallBang string
-		if e.PenetratedObjects > 0 {
+		if kill.PenetratedObjects > 0 {
 			wallBang = " (WB)"
 		}
 
-		fmt.Printf("%s <%v%s%s> %s\n", e.Killer, e.Weapon, hs, wallBang, e.Victim)
-	})
+		log.Printf("%s <%v%s%s> %s\n", kill.Killer, kill.Weapon, hs, wallBang, kill.Victim)
+	}
 
-	// Parse to end
-	err = p.ParseToEnd()
+	err := demoinfocs.ParseFile("../../test/cs-demos/s2/s2.dem", func(p demoinfocs.Parser) error {
+		p.RegisterEventHandler(onKill)
+
+		return nil
+	})
 	if err != nil {
 		log.Panic("failed to parse demo: ", err)
 	}

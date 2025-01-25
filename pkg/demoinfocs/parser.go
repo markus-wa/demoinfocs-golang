@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"io"
+	"os"
 	"runtime/debug"
 	"sync"
 	"time"
@@ -348,6 +349,60 @@ func NewCSTVBroadcastParserWithConfig(baseUrl string, config ParserConfig) (Pars
 	config.Format = DemoFormatCSTVBroadcast
 
 	return NewParserWithConfig(r, config), nil
+}
+
+type ConfigureParserCallback func(Parser) error
+
+// ParseWithConfig parses a demo from the given io.Reader with a custom configuration.
+// The handler is called with the Parser instance.
+//
+// Returns an error if the parser encounters an error.
+func ParseWithConfig(r io.Reader, config ParserConfig, configure ConfigureParserCallback) error {
+	p := NewParserWithConfig(r, config)
+	defer p.Close()
+
+	err := configure(p)
+	if err != nil {
+		return fmt.Errorf("failed to configure parser: %w", err)
+	}
+
+	err = p.ParseToEnd()
+	if err != nil {
+		return fmt.Errorf("failed to parse demo: %w", err)
+	}
+
+	return nil
+}
+
+// Parse parses a demo from the given io.Reader.
+// The handler is called with the Parser instance.
+//
+// Returns an error if the parser encounters an error.
+func Parse(r io.Reader, configure ConfigureParserCallback) error {
+	return ParseWithConfig(r, DefaultParserConfig, configure)
+}
+
+// ParseFileWithConfig parses a demo file at the given path with a custom configuration.
+// The handler is called with the Parser instance.
+//
+// Returns an error if the file can't be opened or if the parser encounters an error.
+func ParseFileWithConfig(path string, config ParserConfig, configure ConfigureParserCallback) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+
+	defer f.Close()
+
+	return ParseWithConfig(f, config, configure)
+}
+
+// ParseFile parses a demo file at the given path.
+// The handler is called with the Parser instance.
+//
+// Returns an error if the file can't be opened or if the parser encounters an error.
+func ParseFile(path string, configure ConfigureParserCallback) error {
+	return ParseFileWithConfig(path, DefaultParserConfig, configure)
 }
 
 // ParserConfig contains the configuration for creating a new Parser.

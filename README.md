@@ -80,39 +80,32 @@ Check out the [godoc of the `events` package](https://godoc.org/github.com/marku
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
 
-	dem "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
 	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 )
 
 func main() {
-	f, err := os.Open("/path/to/demo.dem")
-	if err != nil {
-		log.Panic("failed to open demo file: ", err)
-	}
-	defer f.Close()
-
-	p := dem.NewParser(f)
-	defer p.Close()
-
-	// Register handler on kill events
-	p.RegisterEventHandler(func(e events.Kill) {
+	onKill := func(kill events.Kill) {
 		var hs string
-		if e.IsHeadshot {
+		if kill.IsHeadshot {
 			hs = " (HS)"
 		}
+
 		var wallBang string
-		if e.PenetratedObjects > 0 {
+		if kill.PenetratedObjects > 0 {
 			wallBang = " (WB)"
 		}
-		fmt.Printf("%s <%v%s%s> %s\n", e.Killer, e.Weapon, hs, wallBang, e.Victim)
-	})
 
-	// Parse to end
-	err = p.ParseToEnd()
+		log.Printf("%s <%v%s%s> %s\n", kill.Killer, kill.Weapon, hs, wallBang, kill.Victim)
+	}
+
+	err := demoinfocs.ParseFile("/path/to/demo.dem", func(p demoinfocs.Parser) error {
+		p.RegisterEventHandler(onKill)
+
+		return nil
+	})
 	if err != nil {
 		log.Panic("failed to parse demo: ", err)
 	}
