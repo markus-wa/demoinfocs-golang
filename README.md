@@ -199,20 +199,27 @@ ok      github.com/markus-wa/demoinfocs-golang  134.244s
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/markus-wa/demoinfocs-golang/tags).
 There is one caveat however: Beta features - which are marked as such via comments and in release notes - may change in minor releases.
 
-## Projects Using demoinfocs-golang
+## Services, Projects & Companies Using demoinfocs-golang
 
-- [noesis.gg](https://www.noesis.gg/) - A suite of explorative tools to help you analyze and improve your CS:GO performance
+- [noesis.gg](https://www.noesis.gg/) - A suite of explorative tools to help you analyze and improve your CS2 performance
 - [esportal.com](https://esportal.com/) - An alternative Matchmaking service that aims to provide a friendly environment free from trolls and misbehaving individuals
+- [pglesports.com](https://www.pglesports.com/) - Premier eSports tournaments and circuits for massive audiences
+- [hltv.org](https://www.hltv.org/) - Leading Counter-Strike site featuring news, demos, pictures, statistics, on-site coverage and more
+- [refrag.gg](https://refrag.gg/) - The world's premier CS2 training tool
 - [esportslab.gg](https://esportslab.gg/) - Building ML/AI tools for professional esports players
-- [scope.gg](https://scope.gg/) - Analytical and advisory service for advanced CS:GO players
-- [PureSkill.gg](https://pureskill.gg/) - An automated coach to help you get better at CS:GO.
+- [scope.gg](https://scope.gg/) - Analytical and advisory service for advanced CS2 players
+- [PureSkill.gg](https://pureskill.gg/) - An automated coach to help you get better at CS2
+- [cs2lens.com](https://www.cs2lens.com/) - Professional CS2 demo replayer and analysis tool
+- [awpy](https://github.com/pnxenopoulos/awpy) - A wrapper for the Golang parser in Python
+
+### CS:GO projects (may no longer work with CS2)
+
 - [cs-demo-minifier](https://github.com/markus-wa/cs-demo-minifier) - Converts demos to JSON, MessagePack and more
 - [csgo_spray_pattern_plotter](https://github.com/o40/csgo_spray_pattern_plotter) - A tool to extract and plot spray patterns from CS:GO replays
 - [CS:GO Player Skill Prediction](https://drive.google.com/file/d/1JXIB57BA2XBTYVLSy6Xg_5nfL6dWyDmG/view) - Machine learning master thesis by [@quancore](https://github.com/quancore) about predicting player performance
 - [csgoverview](https://github.com/Linus4/csgoverview) - A 2D demo replay tool for CS:GO
 - [csgo-coach-bug-detector](https://github.com/softarn/csgo-coach-bug-detector) - Detects the abuse of an exploit used by some team coaches in professional matches
 - [megaclan3000](https://github.com/megaclan3000/megaclan3000) - A CS:GO stats page for clans with recent matches and player statistics
-- [awpy](https://github.com/pnxenopoulos/awpy) - A wrapper for the Golang parser in Python
 
 If your project is using this library feel free to submit a PR or send a message via [Discord](https://discord.gg/eTVBgKeHnh) to be included in the list.
 
@@ -313,7 +320,7 @@ To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, y
 
 ## Acknowledgements
 
-This library was originally based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a> (although today it shares little resemblence with these two).
+This library was originally based on <a href="https://github.com/ValveSoftware/csgo-demoinfo" rel="external">Valve's demoinfogo</a> and <a href="https://github.com/StatsHelix/demoinfo" rel="external">SatsHelix's demoinfo</a>.
 
 For Counter-Strike 2, [dotabuff/manta](https://github.com/dotabuff/manta) was an amazing resource for how to parse Source 2 demos and CS2 support would not have been possible without it.<br>
 I would also like to specifically thank [@akiver](https://github.com/akiver) & [@LaihoE](https://github.com/LaihoE) for their brilliant help with CS2.
@@ -323,7 +330,7 @@ And a very special thanks goes out to all the [⭐contributors⭐](https://githu
 Further shoutouts go to:
 
 - [@JuhaKiili](https://github.com/JuhaKiili) for financial contributions in the form of bug bounties
-- [@esportalgroup](https://github.com/esportalgroup), [@refrag](https://github.com/refrag) & [@pureskillgg](https://github.com/pureskillgg) for offering consulting work that pays my bills
+- [@PGL-ESPORTS](https://github.com/PGL-ESPORTS), [@esportalgroup](https://github.com/esportalgroup), [@refrag](https://github.com/refrag) & [@pureskillgg](https://github.com/pureskillgg) for offering past & present consulting work that keeps my lights on
 
 ## License
 
