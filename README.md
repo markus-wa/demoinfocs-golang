@@ -86,21 +86,21 @@ import (
 	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 )
 
-func main() {
-	onKill := func(kill events.Kill) {
-		var hs string
-		if kill.IsHeadshot {
-			hs = " (HS)"
-		}
-
-		var wallBang string
-		if kill.PenetratedObjects > 0 {
-			wallBang = " (WB)"
-		}
-
-		log.Printf("%s <%v%s%s> %s\n", kill.Killer, kill.Weapon, hs, wallBang, kill.Victim)
+func onKill(kill events.Kill) {
+	var hs string
+	if kill.IsHeadshot {
+		hs = " (HS)"
 	}
 
+	var wallBang string
+	if kill.PenetratedObjects > 0 {
+		wallBang = " (WB)"
+	}
+
+	log.Printf("%s <%v%s%s> %s\n", kill.Killer, kill.Weapon, hs, wallBang, kill.Victim)
+}
+
+func main() {
 	err := demoinfocs.ParseFile("/path/to/demo.dem", func(p demoinfocs.Parser) error {
 		p.RegisterEventHandler(onKill)
 
