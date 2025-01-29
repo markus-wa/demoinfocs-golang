@@ -332,6 +332,7 @@ var demoCommandMsgsCreators = map[msgs2.EDemoCommands]NetMessageCreator{
 	msgs2.EDemoCommands_DEM_SpawnGroups:     func() proto.Message { return &msgs2.CDemoSpawnGroups{} },
 	msgs2.EDemoCommands_DEM_AnimationData:   func() proto.Message { return &msgs2.CDemoAnimationData{} },
 	msgs2.EDemoCommands_DEM_AnimationHeader: func() proto.Message { return &msgs2.CDemoAnimationHeader{} },
+	msgs2.EDemoCommands_DEM_Recovery:        func() proto.Message { return &msgs2.CDemoRecovery{} },
 }
 
 func (p *parser) parseFrameS2() bool {

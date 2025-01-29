@@ -79,6 +79,8 @@ enum ECstrike15UserMessages {
 	CS_UM_CurrentRoundOdds = 380;
 	CS_UM_DeepStats = 381;
 	CS_UM_ShootInfo = 383;
+	CS_UM_CounterStrafe = 385;
+	CS_UM_DamagePrediction = 386;
 }
 
 enum ECSUsrMsg_DisconnectToLobby_Action {
@@ -594,4 +596,20 @@ message CCSUsrMsgPreMatchSayText {
 	optional uint32 account_id = 1;
 	optional string text = 2;
 	optional bool all_chat = 3;
+}
+
+message CCSUsrMsg_CounterStrafe {
+	optional int32 press_to_release_ns = 1;
+	optional int32 total_keys_down = 2;
+}
+
+message CCSUsrMsg_DamagePrediction {
+	optional int32 command_num = 1;
+	optional int32 pellet_idx = 2;
+	optional int32 victim_slot = 3;
+	optional int32 victim_starting_health = 4;
+	optional int32 victim_damage = 5;
+	optional CMsgVector shoot_pos = 6;
+	optional CMsgQAngle shoot_dir = 7;
+	optional CMsgQAngle aim_punch = 8;
 }

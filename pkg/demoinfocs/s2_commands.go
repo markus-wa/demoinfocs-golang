@@ -38,7 +38,6 @@ func (p *parser) handleClassInfo(msg *msgs2.CDemoClassInfo) {
 
 var netMsgCreators = map[msgs2.NET_Messages]NetMessageCreator{
 	msgs2.NET_Messages_net_NOP:                        func() proto.Message { return &msgs2.CNETMsg_NOP{} },
-	msgs2.NET_Messages_net_Disconnect_Legacy:          func() proto.Message { return &msgs2.CNETMsg_Disconnect_Legacy{} },
 	msgs2.NET_Messages_net_SplitScreenUser:            func() proto.Message { return &msgs2.CNETMsg_SplitScreenUser{} },
 	msgs2.NET_Messages_net_Tick:                       func() proto.Message { return &msgs2.CNETMsg_Tick{} },
 	msgs2.NET_Messages_net_StringCmd:                  func() proto.Message { return &msgs2.CNETMsg_StringCmd{} },
@@ -80,7 +79,6 @@ var svcMsgCreators = map[msgs2.SVC_Messages]NetMessageCreator{
 	msgs2.SVC_Messages_svc_FullFrameSplit:          func() proto.Message { return &msgs2.CSVCMsg_FullFrameSplit{} },
 	msgs2.SVC_Messages_svc_RconServerDetails:       func() proto.Message { return &msgs2.CSVCMsg_RconServerDetails{} },
 	msgs2.SVC_Messages_svc_UserMessage:             func() proto.Message { return &msgs2.CSVCMsg_UserMessage{} },
-	msgs2.SVC_Messages_svc_HltvReplay:              func() proto.Message { return &msgs2.CSVCMsg_HltvReplay{} },
 	msgs2.SVC_Messages_svc_Broadcast_Command:       func() proto.Message { return &msgs2.CSVCMsg_Broadcast_Command{} },
 	msgs2.SVC_Messages_svc_HltvFixupOperatorStatus: func() proto.Message { return &msgs2.CSVCMsg_HltvFixupOperatorStatus{} },
 	msgs2.SVC_Messages_svc_UserCmds:                func() proto.Message { return &msgs2.CSVCMsg_UserCommands{} },
