@@ -129,6 +129,7 @@ var usrMsgCreators = map[msgs2.EBaseUserMessages]NetMessageCreator{
 	msgs2.EBaseUserMessages_UM_InventoryResponse:       func() proto.Message { return &msgs2.CUserMessage_Inventory_Response{} },
 	msgs2.EBaseUserMessages_UM_UtilActionResponse:      func() proto.Message { return &msgs2.CUserMessage_UtilMsg_Response{} },
 	msgs2.EBaseUserMessages_UM_DllStatusResponse:       func() proto.Message { return &msgs2.CUserMessage_DllStatus{} },
+	msgs2.EBaseUserMessages_UM_RequestDiagnostic:       func() proto.Message { return &msgs2.CUserMessageRequestDiagnostic{} },
 	msgs2.EBaseUserMessages_UM_DiagnosticResponse:      func() proto.Message { return &msgs2.CUserMessage_Diagnostic_Response{} },
 	msgs2.EBaseUserMessages_UM_ExtraUserData:           func() proto.Message { return &msgs2.CUserMessage_ExtraUserData{} },
 	msgs2.EBaseUserMessages_UM_NotifyResponseFound:     func() proto.Message { return &msgs2.CUserMessage_NotifyResponseFound{} },
