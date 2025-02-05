@@ -175,8 +175,6 @@ Here are some benchmark results from a system with an Intel i7 6700k CPU and a S
 |`BenchmarkDemoInfoCs`|Read demo from drive and parse|0.89 s|~ 25 min of gameplay per second|
 |`BenchmarkInMemory`|Read demo from memory and parse|0.88 s|~ 25 min of gameplay per second|
 
-*That's almost 1.5 hours of gameplay per second when parsing in parallel (recorded at 64 ticks per second) - or 25 minues per second when only parsing a single demo at a time.*
-
 ### Raw Output
 
 ```
