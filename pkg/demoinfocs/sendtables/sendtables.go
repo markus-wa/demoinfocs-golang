@@ -23,9 +23,6 @@ const (
 	ValTypeBoolInt // Int that is treated as bool (1 -> true, != 1 -> false)
 )
 
-// PropertyType identifies the data type of property.
-type PropertyType int
-
 // PropertyValue stores parsed & decoded send-table values.
 // For instance player health, location etc.
 type PropertyValue struct {
@@ -103,7 +100,6 @@ type PropertyUpdateHandler func(PropertyValue)
 type PropertyEntry struct {
 	Name    string
 	IsArray bool
-	Type    PropertyType
 }
 
 // EntityCreatedHandler is the interface for handlers that are interested in EntityCreatedEvents.

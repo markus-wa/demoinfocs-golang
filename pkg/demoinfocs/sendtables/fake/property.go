@@ -23,11 +23,6 @@ func (p *Property) Value() st.PropertyValue {
 	return p.Called().Get(0).(st.PropertyValue)
 }
 
-// Type is a mock-implementation of Property.Type().
-func (p *Property) Type() st.PropertyType {
-	return p.Called().Get(0).(st.PropertyType)
-}
-
 // OnUpdate is a mock-implementation of Property.OnUpdate().
 func (p *Property) OnUpdate(handler st.PropertyUpdateHandler) {
 	p.Called(handler)
@@ -36,9 +31,4 @@ func (p *Property) OnUpdate(handler st.PropertyUpdateHandler) {
 // Bind is a mock-implementation of Property.Bind().
 func (p *Property) Bind(variable any, valueType st.PropertyValueType) {
 	p.Called(variable, valueType)
-}
-
-// ArrayElementType is a mock-implementation of Property.ArrayElementType().
-func (p *Property) ArrayElementType() st.PropertyType {
-	return p.Called().Get(0).(st.PropertyType)
 }

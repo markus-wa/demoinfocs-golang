@@ -71,14 +71,6 @@ func (p property) Value() st.PropertyValue {
 	}
 }
 
-func (p property) Type() st.PropertyType {
-	panic("not implemented")
-}
-
-func (p property) ArrayElementType() st.PropertyType {
-	panic("not implemented")
-}
-
 func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
 	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], handler)
 }

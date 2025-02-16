@@ -7,16 +7,8 @@ type ServerClass interface {
 	ID() int
 	// Name returns the server-class's name.
 	Name() string
-	// DataTableID returns the data-table ID.
-	DataTableID() int
-	// DataTableName returns the data-table name.
-	DataTableName() string
-	// BaseClasses returns the base-classes of this server-class.
-	BaseClasses() (res []ServerClass)
 	// PropertyEntries returns the names of all property-entries on this server-class.
 	PropertyEntries() []string
-	// PropertyEntryDefinitions returns all property-entries on this server-class.
-	PropertyEntryDefinitions() []PropertyEntry
 	// OnEntityCreated registers a function to be called when a new entity is created from this serverClass.
 	OnEntityCreated(handler EntityCreatedHandler)
 	String() string

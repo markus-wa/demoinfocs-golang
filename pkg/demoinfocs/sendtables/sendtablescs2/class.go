@@ -28,24 +28,8 @@ func (c *class) Name() string {
 	return c.name
 }
 
-func (c *class) DataTableID() int {
-	panic("not implemented")
-}
-
-func (c *class) DataTableName() string {
-	panic("not implemented")
-}
-
-func (c *class) BaseClasses() (res []st.ServerClass) {
-	panic("not implemented")
-}
-
 func (c *class) PropertyEntries() []string {
 	return c.collectFieldsEntries(c.serializer.fields, "")
-}
-
-func (c *class) PropertyEntryDefinitions() []st.PropertyEntry {
-	panic("not implemented")
 }
 
 func (c *class) OnEntityCreated(handler st.EntityCreatedHandler) {
