@@ -379,10 +379,15 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 	switch {
 	case networkProtocol < 13992:
 		return eventListFolder.ReadFile("event-list-dump/13990.bin")
-	case networkProtocol >= 13992 && networkProtocol < 14023:
+
+	case networkProtocol < 14023:
 		return eventListFolder.ReadFile("event-list-dump/13992.bin")
-	default:
+
+	case networkProtocol < 14069:
 		return eventListFolder.ReadFile("event-list-dump/14023.bin")
+
+	default:
+		return eventListFolder.ReadFile("event-list-dump/14070.bin")
 	}
 }
 
