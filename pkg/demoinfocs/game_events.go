@@ -228,6 +228,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"exit_buyzone":                    nil,                                   // Dunno, only in locally recorded (POV) demo
 		"flashbang_detonate":              geh.flashBangDetonate,                 // Flash exploded
 		"firstbombs_incoming_warning":     nil,                                   // First wave artillery incoming (Danger zone mode)
+		"grenade_thrown":                  nil,                                   // CS2 only, not reliable as it's not always present in demos and always fired. You should use "weapon_fire".
 		"hegrenade_detonate":              geh.heGrenadeDetonate,                 // HE exploded
 		"hostage_killed":                  geh.hostageKilled,                     // Hostage killed
 		"hostage_hurt":                    geh.hostageHurt,                       // Hostage hurt
@@ -237,6 +238,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"hltv_fixed":                      nil,                                   // Dunno
 		"hltv_message":                    nil,                                   // No clue
 		"hltv_status":                     nil,                                   // Don't know
+		"hltv_title":                      nil,                                   // Don't know
 		"hostname_changed":                nil,                                   // Only present in locally recorded (POV) demos
 		"inferno_expire":                  geh.infernoExpire,                     // Incendiary expired
 		"inferno_startburn":               delay(geh.infernoStartBurn),           // Incendiary exploded/started. Delayed because inferno entity is not yet created
