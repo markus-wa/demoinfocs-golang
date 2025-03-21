@@ -136,7 +136,7 @@ func (p *parser) ServerClasses() st.ServerClasses {
 }
 
 // Header returns the DemoHeader which contains the demo's metadata.
-// Only possible after ParserHeader() has been called.
+// Only possible after ParseHeader() has been called.
 func (p *parser) Header() common.DemoHeader {
 	return *p.header
 }
