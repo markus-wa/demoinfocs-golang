@@ -2,33 +2,15 @@ package fake_test
 
 import (
 	"testing"
-	"time"
 
 	assert "github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 
-	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	fake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/fake"
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	fake "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/fake"
+	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 )
-
-func TestParseHeader(t *testing.T) {
-	p := fake.NewParser()
-	expected := common.DemoHeader{
-		Filestamp:      "HL2DEMO",
-		MapName:        "de_cache",
-		PlaybackFrames: 64 * 1000,
-		PlaybackTicks:  128 * 1000,
-		PlaybackTime:   time.Second * 1000,
-	}
-	p.On("ParseHeader").Return(expected, nil)
-
-	actual, err := p.ParseHeader()
-
-	assert.Nil(t, err)
-	assert.Equal(t, expected, actual)
-}
 
 func TestParseNextFrameEvents(t *testing.T) {
 	p := fake.NewParser()
@@ -128,6 +110,6 @@ func TestParseToEndNetMessages(t *testing.T) {
 
 func cmdKey(b ...byte) msg.CSVCMsg_CmdKeyValues {
 	return msg.CSVCMsg_CmdKeyValues{
-		Keyvalues: b,
+		Data: b,
 	}
 }

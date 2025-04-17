@@ -3,8 +3,8 @@ package fake
 import (
 	"github.com/stretchr/testify/mock"
 
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 )
 
 var _ demoinfocs.Participants = new(Participants)
@@ -47,11 +47,6 @@ func (ptcp *Participants) Playing() []*common.Player {
 // TeamMembers is a mock-implementation of Participants.TeamMembers().
 func (ptcp *Participants) TeamMembers(team common.Team) []*common.Player {
 	return ptcp.Called().Get(0).([]*common.Player)
-}
-
-// FindByHandle is a mock-implementation of Participants.FindByHandle().
-func (ptcp *Participants) FindByHandle(handle int) *common.Player {
-	return ptcp.Called().Get(0).(*common.Player)
 }
 
 // FindByHandle64 is a mock-implementation of Participants.FindByHandle64().

@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"io"
+	"os"
 	"runtime/debug"
 	"sync"
 	"time"
@@ -13,12 +14,12 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	bit "github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/cstv"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 //go:generate ifacemaker -f parser.go -f parsing.go -s parser -i Parser -p demoinfocs -D -y "Parser is an auto-generated interface for Parser, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o parser_interface.go
@@ -28,16 +29,46 @@ type sendTableParser interface {
 	ServerClasses() st.ServerClasses
 	ParsePacket(b []byte) error
 	SetInstanceBaseline(classID int, data []byte)
-	OnDemoClassInfo(m *msgs2.CDemoClassInfo) error
-	OnServerInfo(m *msgs2.CSVCMsg_ServerInfo) error
-	OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error
+	OnDemoClassInfo(m *msg.CDemoClassInfo) error
+	OnServerInfo(m *msg.CSVCMsg_ServerInfo) error
+	OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error
 	OnEntity(h st.EntityHandler)
 }
 
-type createStringTable struct {
-	*msgs2.CSVCMsg_CreateStringTable
-	isS2         bool
-	s1MaxEntries *int32
+// header contains information from a demo's header.
+type header struct {
+	Filestamp       string        // aka. File-type, must be HL2DEMO
+	NetworkProtocol int           // Not sure what this is for
+	ServerName      string        // Server's 'hostname' config value
+	ClientName      string        // Usually 'GOTV Demo'
+	MapName         string        // E.g. de_cache, de_nuke, cs_office, etc.
+	GameDirectory   string        // Usually 'csgo'
+	PlaybackTime    time.Duration // Demo duration in seconds (= PlaybackTicks / Server's tickrate)
+	PlaybackTicks   int           // Game duration in ticks (= PlaybackTime * Server's tickrate)
+	PlaybackFrames  int           // Amount of 'frames' aka demo-ticks recorded (= PlaybackTime * Demo's recording rate)
+}
+
+// FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
+// Not necessarily the tick-rate the server ran on during the game.
+//
+// Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
+func (h *header) FrameRate() float64 {
+	if h.PlaybackTime == 0 {
+		return 0
+	}
+
+	return float64(h.PlaybackFrames) / h.PlaybackTime.Seconds()
+}
+
+// FrameTime returns the time a frame / demo-tick takes in seconds.
+//
+// Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
+func (h *header) FrameTime() time.Duration {
+	if h.PlaybackFrames == 0 {
+		return 0
+	}
+
+	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackFrames))
 }
 
 /*
@@ -55,8 +86,6 @@ Example (without error handling):
 	f, _ := os.Open("/path/to/demo.dem")
 	p := dem.NewParser(f)
 	defer p.Close()
-	header := p.ParseHeader()
-	fmt.Println("Map:", header.MapName)
 	p.RegisterEventHandler(func(e events.BombExplode) {
 		fmt.Printf(e.Site, "went BOOM!")
 	})
@@ -67,22 +96,21 @@ Prints out '{A/B} site went BOOM!' when a bomb explodes.
 type parser struct {
 	// Important fields
 
+	config                          ParserConfig
 	bitReader                       *bit.BitReader
 	stParser                        sendTableParser
 	additionalNetMessageCreators    map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                        chan any                  // Queue of net-messages
 	msgDispatcher                   *dp.Dispatcher            // Net-message dispatcher
 	gameEventHandler                gameEventHandler
-	userMessageHandler              userMessageHandler
 	eventDispatcher                 *dp.Dispatcher
-	currentFrame                    int                // Demo-frame, not ingame-tick
-	tickInterval                    float32            // Duration between ticks in seconds
-	header                          *common.DemoHeader // Pointer so we can check for nil
+	currentFrame                    int     // Demo-frame, not ingame-tick
+	tickInterval                    float32 // Duration between ticks in seconds
+	header                          *header // Pointer so we can check for nil
 	gameState                       *gameState
 	demoInfoProvider                demoInfoProvider // Provides demo infos to other packages that the core package depends on
 	err                             error            // Contains a error that occurred during parsing if any
 	errLock                         sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
-	decryptionKey                   []byte           // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
 	source2FallbackGameEventListBin []byte           // sv_hibernate_when_empty bug workaround
 	ignorePacketEntitiesPanic       bool             // Used to ignore PacketEntities parsing panics (some POV demos seem to have broken rare broken PacketEntities)
 	/**
@@ -96,16 +124,16 @@ type parser struct {
 
 	bombsiteA             bombsite
 	bombsiteB             bombsite
-	equipmentMapping      map[st.ServerClass]common.EquipmentType         // Maps server classes to equipment-types
-	rawPlayers            map[int]*common.PlayerInfo                      // Maps entity IDs to 'raw' player info
-	modelPreCache         []string                                        // Used to find out whether a weapon is a p250 or cz for example (same id) for Source 1 demos only
-	triggers              map[int]*boundingBoxInformation                 // Maps entity IDs to triggers (used for bombsites)
-	gameEventDescs        map[int32]*msg.CSVCMsg_GameEventListDescriptorT // Maps game-event IDs to descriptors
-	grenadeModelIndices   map[int]common.EquipmentType                    // Used to map model indices to grenades (used for grenade projectiles)
-	equipmentTypePerModel map[uint64]common.EquipmentType                 // Used to retrieve the EquipmentType of grenade projectiles based on models value. Source 2 only.
-	stringTables          []createStringTable                             // Contains all created sendtables, needed when updating them
-	delayedEventHandlers  []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
-	pendingMessagesCache  []pendingMessage                                // Cache for pending messages that need to be dispatched after the current tick
+	equipmentMapping      map[st.ServerClass]common.EquipmentType                  // Maps server classes to equipment-types
+	rawPlayers            map[int]*common.PlayerInfo                               // Maps entity IDs to 'raw' player info
+	modelPreCache         []string                                                 // Used to find out whether a weapon is a p250 or cz for example (same id) for Source 1 demos only
+	triggers              map[int]*boundingBoxInformation                          // Maps entity IDs to triggers (used for bombsites)
+	gameEventDescs        map[int32]*msg.CMsgSource1LegacyGameEventListDescriptorT // Maps game-event IDs to descriptors
+	grenadeModelIndices   map[int]common.EquipmentType                             // Used to map model indices to grenades (used for grenade projectiles)
+	equipmentTypePerModel map[uint64]common.EquipmentType                          // Used to retrieve the EquipmentType of grenade projectiles based on models value. Source 2 only.
+	stringTables          []*msg.CSVCMsg_CreateStringTable                         // Contains all created sendtables, needed when updating them
+	delayedEventHandlers  []func()                                                 // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
+	pendingMessagesCache  []pendingMessage                                         // Cache for pending messages that need to be dispatched after the current tick
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
@@ -135,12 +163,6 @@ func (p *parser) ServerClasses() st.ServerClasses {
 	return p.stParser.ServerClasses()
 }
 
-// Header returns the DemoHeader which contains the demo's metadata.
-// Only possible after ParserHeader() has been called.
-func (p *parser) Header() common.DemoHeader {
-	return *p.header
-}
-
 // GameState returns the current game-state.
 // It contains most of the relevant information about the game such as players, teams, scores, grenades etc.
 func (p *parser) GameState() GameState {
@@ -148,7 +170,7 @@ func (p *parser) GameState() GameState {
 }
 
 // CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
-// Starts with frame 0, should go up to DemoHeader.PlaybackFrames but might not be the case (usually it's just close to it).
+// Starts with frame 0, should go up to header.PlaybackFrames but might not be the case (usually it's just close to it).
 func (p *parser) CurrentFrame() int {
 	return p.currentFrame
 }
@@ -174,7 +196,7 @@ func (p *parser) TickRate() float64 {
 	return -1
 }
 
-func legacyTickRate(h common.DemoHeader) float64 {
+func legacyTickRate(h header) float64 {
 	if h.PlaybackTime == 0 {
 		return 0
 	}
@@ -198,7 +220,7 @@ func (p *parser) TickTime() time.Duration {
 	return -1
 }
 
-func legayTickTime(h common.DemoHeader) time.Duration {
+func legayTickTime(h header) time.Duration {
 	if h.PlaybackTicks == 0 {
 		return 0
 	}
@@ -327,12 +349,96 @@ func NewParser(demostream io.Reader) Parser {
 	return NewParserWithConfig(demostream, DefaultParserConfig)
 }
 
+type DemoFormat byte
+
+const (
+	DemoFormatFile DemoFormat = iota
+	DemoFormatCSTVBroadcast
+)
+
+// NewCSTVBroadcastParser creates a new Parser for a live CSTV broadcast.
+// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+//
+// See also: NewParserWithConfig() & DefaultParserConfig
+func NewCSTVBroadcastParser(baseUrl string) (Parser, error) {
+	return NewCSTVBroadcastParserWithConfig(baseUrl, DefaultParserConfig)
+}
+
+// NewCSTVBroadcastParserWithConfig creates a new Parser for a live CSTV broadcast with a custom configuration.
+// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+//
+// See also: NewParserWithConfig() & DefaultParserConfig
+func NewCSTVBroadcastParserWithConfig(baseUrl string, config ParserConfig) (Parser, error) {
+	r, err := cstv.NewReader(baseUrl, config.CSTVTimeout)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create CSTV reader: %w", err)
+	}
+
+	config.Format = DemoFormatCSTVBroadcast
+
+	return NewParserWithConfig(r, config), nil
+}
+
+type ConfigureParserCallback func(Parser) error
+
+// ParseWithConfig parses a demo from the given io.Reader with a custom configuration.
+// The handler is called with the Parser instance.
+//
+// Returns an error if the parser encounters an error.
+func ParseWithConfig(r io.Reader, config ParserConfig, configure ConfigureParserCallback) error {
+	p := NewParserWithConfig(r, config)
+	defer p.Close()
+
+	err := configure(p)
+	if err != nil {
+		return fmt.Errorf("failed to configure parser: %w", err)
+	}
+
+	err = p.ParseToEnd()
+	if err != nil {
+		return fmt.Errorf("failed to parse demo: %w", err)
+	}
+
+	return nil
+}
+
+// Parse parses a demo from the given io.Reader.
+// The handler is called with the Parser instance.
+//
+// Returns an error if the parser encounters an error.
+func Parse(r io.Reader, configure ConfigureParserCallback) error {
+	return ParseWithConfig(r, DefaultParserConfig, configure)
+}
+
+// ParseFileWithConfig parses a demo file at the given path with a custom configuration.
+// The handler is called with the Parser instance.
+//
+// Returns an error if the file can't be opened or if the parser encounters an error.
+func ParseFileWithConfig(path string, config ParserConfig, configure ConfigureParserCallback) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+
+	defer f.Close()
+
+	return ParseWithConfig(f, config, configure)
+}
+
+// ParseFile parses a demo file at the given path.
+// The handler is called with the Parser instance.
+//
+// Returns an error if the file can't be opened or if the parser encounters an error.
+func ParseFile(path string, configure ConfigureParserCallback) error {
+	return ParseFileWithConfig(path, DefaultParserConfig, configure)
+}
+
 // ParserConfig contains the configuration for creating a new Parser.
 type ParserConfig struct {
 	// MsgQueueBufferSize defines the size of the internal net-message queue.
 	// For large demos, fast i/o and slow CPUs higher numbers are suggested and vice versa.
 	// The buffer size can easily be in the hundred-thousands to low millions for the best performance.
-	// A negative value will make the Parser automatically decide the buffer size during ParseHeader()
+	// A negative value will make the Parser automatically decide the buffer size during parseHeader()
 	// based on the number of ticks in the demo (nubmer of ticks = buffer size);
 	// this is the default behavior for DefaultParserConfig.
 	// Zero enforces sequential parsing.
@@ -349,10 +455,6 @@ type ParserConfig struct {
 	// See https://github.com/markus-wa/demoinfocs-golang/issues/314
 	IgnoreErrBombsiteIndexNotFound bool
 
-	// NetMessageDecryptionKey tells the parser how to decrypt certain encrypted net-messages.
-	// See MatchInfoDecryptionKey() on how to retrieve the key from `match730_*.dem.info` files.
-	NetMessageDecryptionKey []byte
-
 	// DisableMimicSource1Events tells the parser to not mimic Source 1 game events for Source 2 demos.
 	// Unfortunately Source 2 demos *may* not contain Source 1 game events, that's why the parser will try to mimic them.
 	// It has an impact only with Source 2 demos and is false by default.
@@ -366,11 +468,20 @@ type ParserConfig struct {
 	// IgnorePacketEntitiesPanic tells the parser to ignore PacketEntities parsing panics.
 	// This is required as a workaround for some POV demos that seem to contain rare PacketEntities parsing issues.
 	IgnorePacketEntitiesPanic bool
+
+	// DemoFormat is the format of the demo file (e.g. ".dem" file or live CSTV broadcast).
+	Format DemoFormat
+
+	// CSTVTimeout is the timeout for CSTV broadcasts.
+	// It's the maximum time to retry for a response from the CSTV server, using an exponential backoff mechanism, starting at 1s.
+	// Only used when Format is DemoFormatCSTVBroadcast.
+	CSTVTimeout time.Duration
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
 var DefaultParserConfig = ParserConfig{
 	MsgQueueBufferSize: -1,
+	CSTVTimeout:        10 * time.Second,
 }
 
 // NewParserWithConfig returns a new Parser with a custom configuration.
@@ -380,7 +491,12 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	var p parser
 
 	// Init parser
-	p.bitReader = bit.NewLargeBitReader(demostream)
+	p.config = config
+	if p.config.Format == DemoFormatFile {
+		p.bitReader = bit.NewLargeBitReader(demostream)
+	} else {
+		p.bitReader = bit.NewSmallBitReader(demostream)
+	}
 	p.equipmentMapping = make(map[st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
@@ -389,10 +505,8 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.equipmentTypePerModel = make(map[uint64]common.EquipmentType)
 	p.gameEventHandler = newGameEventHandler(&p, config.IgnoreErrBombsiteIndexNotFound)
-	p.userMessageHandler = newUserMessageHandler(&p)
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1
-	p.decryptionKey = config.NetMessageDecryptionKey
 	p.recordingPlayerSlot = -1
 	p.disableMimicSource1GameEvents = config.DisableMimicSource1Events
 	p.source2FallbackGameEventListBin = config.Source2FallbackGameEventListBin
@@ -406,25 +520,12 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 	p.eventDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 
-	// Attach proto msg handlers
-	p.msgDispatcher.RegisterHandler(p.handlePacketEntitiesS1)
 	p.msgDispatcher.RegisterHandler(p.handleGameEventList)
 	p.msgDispatcher.RegisterHandler(p.handleGameEvent)
-	p.msgDispatcher.RegisterHandler(p.handleCreateStringTableS1)
-	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTableS1)
-	p.msgDispatcher.RegisterHandler(p.handleUserMessage)
-	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfo)
-	p.msgDispatcher.RegisterHandler(p.handleEncryptedData)
-	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
-
-	// Source 2
-	p.msgDispatcher.RegisterHandler(p.handleGameEventListS2)
-	p.msgDispatcher.RegisterHandler(p.handleGameEventS2)
-	p.msgDispatcher.RegisterHandler(p.handleServerInfoS2)
-	p.msgDispatcher.RegisterHandler(p.handleCreateStringTableS2)
-	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTableS2)
-	p.msgDispatcher.RegisterHandler(p.handleSetConVarS2)
+	p.msgDispatcher.RegisterHandler(p.handleCreateStringTable)
+	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTable)
+	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
 	p.msgDispatcher.RegisterHandler(p.handleServerRankUpdate)
 	p.msgDispatcher.RegisterHandler(p.handleMessageSayText)
 	p.msgDispatcher.RegisterHandler(p.handleMessageSayText2)
@@ -434,6 +535,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.handleClassInfo)
 	p.msgDispatcher.RegisterHandler(p.handleStringTables)
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
+	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
 
 	if config.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(config.MsgQueueBufferSize)
@@ -449,16 +551,8 @@ func (p *parser) initMsgQueue(buf int) {
 	p.msgDispatcher.AddQueues(p.msgQueue)
 }
 
-func (p *parser) isSource2() bool {
-	return p.header.Filestamp == "PBDEMS2"
-}
-
 type demoInfoProvider struct {
 	parser *parser
-}
-
-func (p demoInfoProvider) IsSource2() bool {
-	return p.parser.isSource2()
 }
 
 func (p demoInfoProvider) IngameTick() int {
@@ -479,10 +573,6 @@ func (p demoInfoProvider) FindPlayerByPawnHandle(handle uint64) *common.Player {
 
 func (p demoInfoProvider) FindEntityByHandle(handle uint64) st.Entity {
 	return p.parser.gameState.EntityByHandle(handle)
-}
-
-func (p demoInfoProvider) PlayerResourceEntity() st.Entity {
-	return p.parser.gameState.playerResourceEntity
 }
 
 func (p demoInfoProvider) FindWeaponByEntityID(entityID int) *common.Equipment {

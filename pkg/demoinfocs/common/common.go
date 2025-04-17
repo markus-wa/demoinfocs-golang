@@ -10,7 +10,7 @@ import (
 
 	"github.com/golang/geo/r3"
 
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 // Team is the type for the various TeamXYZ constants.
@@ -24,44 +24,6 @@ const (
 	TeamCounterTerrorists Team = 3
 )
 
-// DemoHeader contains information from a demo's header.
-type DemoHeader struct {
-	Filestamp       string        // aka. File-type, must be HL2DEMO
-	Protocol        int           // Should be 4
-	NetworkProtocol int           // Not sure what this is for
-	ServerName      string        // Server's 'hostname' config value
-	ClientName      string        // Usually 'GOTV Demo'
-	MapName         string        // E.g. de_cache, de_nuke, cs_office, etc.
-	GameDirectory   string        // Usually 'csgo'
-	PlaybackTime    time.Duration // Demo duration in seconds (= PlaybackTicks / Server's tickrate)
-	PlaybackTicks   int           // Game duration in ticks (= PlaybackTime * Server's tickrate)
-	PlaybackFrames  int           // Amount of 'frames' aka demo-ticks recorded (= PlaybackTime * Demo's recording rate)
-	SignonLength    int           // Length of the Signon package in bytes
-}
-
-// FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
-// Not necessarily the tick-rate the server ran on during the game.
-//
-// Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
-func (h *DemoHeader) FrameRate() float64 {
-	if h.PlaybackTime == 0 {
-		return 0
-	}
-
-	return float64(h.PlaybackFrames) / h.PlaybackTime.Seconds()
-}
-
-// FrameTime returns the time a frame / demo-tick takes in seconds.
-//
-// Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
-func (h *DemoHeader) FrameTime() time.Duration {
-	if h.PlaybackFrames == 0 {
-		return 0
-	}
-
-	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackFrames))
-}
-
 // GrenadeProjectile is a grenade thrown intentionally by a player. It is used to track grenade projectile
 // positions between the time at which they are thrown and until they detonate.
 type GrenadeProjectile struct {
@@ -70,10 +32,7 @@ type GrenadeProjectile struct {
 	Thrower        *Player // Always seems to be the same as Owner, even if the grenade was picked up
 	Owner          *Player // Always seems to be the same as Thrower, even if the grenade was picked up
 
-	// Deprecated: use Trajectory2 instead
-	Trajectory []r3.Vector // List of all known locations of the grenade up to the current point
-
-	Trajectory2 []TrajectoryEntry // List of all known locations and the point in time of the grenade up to the current point
+	Trajectory []TrajectoryEntry // List of all known locations and the point in time of the grenade up to the current point
 
 	// uniqueID is used to distinguish different grenades (which potentially have the same, reused entityID) from each other.
 	uniqueID int64
@@ -86,7 +45,7 @@ func (g *GrenadeProjectile) Position() r3.Vector {
 
 // Velocity returns the projectile's velocity.
 func (g *GrenadeProjectile) Velocity() r3.Vector {
-	return g.Entity.PropertyValueMust("m_vecVelocity").VectorVal
+	return g.Entity.PropertyValueMust("m_vecVelocity").R3Vec()
 }
 
 // UniqueID returns the unique id of the grenade.
@@ -141,21 +100,12 @@ func (ts *TeamState) Team() Team {
 
 // ID returns the team ID, this stays the same even after switching sides.
 func (ts *TeamState) ID() int {
-	if ts.demoInfoProvider.IsSource2() {
-		return int(getUInt64(ts.Entity, "m_iTeamNum"))
-	}
-	return getInt(ts.Entity, "m_iTeamNum")
+	return int(getUInt64(ts.Entity, "m_iTeamNum"))
 }
 
 // Score returns the current score of the team (usually 0-16 without overtime).
 func (ts *TeamState) Score() int {
-	var propName string
-	if ts.demoInfoProvider.IsSource2() {
-		propName = "m_iScore"
-	} else {
-		propName = "m_scoreTotal"
-	}
-	return getInt(ts.Entity, propName)
+	return getInt(ts.Entity, "m_iScore")
 }
 
 // ClanName returns the team name (e.g. Fnatic).
@@ -231,6 +181,7 @@ func NewTeamState(team Team, membersCallback func(Team) []*Player, demoInfoProvi
 
 // TrajectoryEntry represents the location of a grenade's trajectory at a specific point in time.
 type TrajectoryEntry struct {
+	Tick     int
 	Position r3.Vector
 	FrameID  int
 	Time     time.Duration

@@ -10,8 +10,8 @@ import (
 
 	"github.com/golang/geo/r3"
 
-	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 )
 
 // FrameDone signals that a demo-frame has been processed.
@@ -592,16 +592,6 @@ const (
 	WarnTypeTeamSwapPlayerNil          // TODO: figure out why this happens
 	WarnTypeGameEventBeforeDescriptors // may occur in POV demos
 	WarnUnknownDemoCommandMessageType  // occur when we have an unknown EDemoCommands message type, the protobuf messages probably need to be updated
-
-	// WarnTypeMissingNetMessageDecryptionKey occurs when encrypted net-messages are encountered and the decryption key is missing.
-	// See ParserConfig.NetMessageDecryptionKey
-	WarnTypeMissingNetMessageDecryptionKey
-
-	// WarnTypeCantReadEncryptedNetMessage occurs when an encrypted net-messages can't be decrypted even though the decryption key is set.
-	// May occur because the decryption key used is incorrect.
-	// See ParserConfig.NetMessageDecryptionKey
-	WarnTypeCantReadEncryptedNetMessage
-
 	WarnTypeUnknownEquipmentIndex
 	WarnTypeMissingItemDefinitionIndex
 	WarnTypeStringTableParsingFailure // Should happen only with CS2 POV demos
@@ -618,7 +608,7 @@ type ParserWarn struct {
 // It contains the raw data as received from the net-message.
 type GenericGameEvent struct {
 	Name string
-	Data map[string]*msg.CSVCMsg_GameEventKeyT
+	Data map[string]*msg.CMsgSource1LegacyGameEventKeyT
 }
 
 // InfernoStart signals that the fire of a incendiary or Molotov is starting.
@@ -685,11 +675,6 @@ type PlayerSpottersChanged struct {
 // See GameState.ConVars().
 type ConVarsUpdated struct {
 	UpdatedConVars map[string]string
-}
-
-// RoundImpactScoreData contains impact assessments of events that happened during the last round.
-type RoundImpactScoreData struct {
-	RawMessage *msg.CCSUsrMsg_RoundImpactScoreData
 }
 
 // PlayerInfo signals that basic player information was read via stringtables.

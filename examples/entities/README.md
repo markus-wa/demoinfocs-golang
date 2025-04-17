@@ -6,7 +6,7 @@ This example shows how to use unhandled data of entities by registering entity-c
 
 You can use the build tag `debugdemoinfocs` and the set `debugServerClasses=YES` with ldflags to find interesting server-classes and their properties.
 
-Example: `go run myprogram.go -tags debugdemoinfocs -ldflags '-X github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs.debugServerClasses=YES' | grep ServerClass`
+Example: `go run myprogram.go -tags debugdemoinfocs -ldflags '-X github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs.debugServerClasses=YES' | grep ServerClass`
 
 This gives you a list of all server-classes from any demo that was parsed in `myprogram.go`.
 
@@ -814,13 +814,13 @@ This example prints the life-cycle of all AWPs during the game - i.e. who picked
 p.RegisterEventHandler(func(events.DataTablesParsed) {
 	p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent st.Entity) {
 		ent.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
-			x := p.GameState().Participants().FindByHandle(val.IntVal)
+			x := p.GameState().Participants().FindByHandle64(uint64(val.Int()))
 			if x != nil {
 				var prev string
 				prevHandle := ent.Property("m_hPrevOwner").Value().IntVal
-				prevPlayer := p.GameState().Participants().FindByHandle(prevHandle)
+				prevPlayer := p.GameState().Participants().FindByHandle64(uint64(prevHandle))
 				if prevPlayer != nil {
-					if prevHandle != val.IntVal {
+					if prevHandle != val.Int() {
 						prev = prevPlayer.Name + "'s"
 					} else {
 						prev = "his dropped"

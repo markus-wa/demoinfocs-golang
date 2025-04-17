@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"runtime"
@@ -22,23 +21,18 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
-	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 )
 
 const (
-	testDataPath            = "../../test"
-	csDemosPath             = testDataPath + "/cs-demos"
-	demSetPath              = csDemosPath + "/set"
-	demSetPathS2            = csDemosPath + "/s2"
-	defaultDemPath          = csDemosPath + "/default.dem"
-	retakeDemPath           = csDemosPath + "/retake_unknwon_bombsite_index.dem"
-	unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
-	s2DemPath               = demSetPathS2 + "/s2.dem"
-	s2POVDemPath            = demSetPathS2 + "/pov.dem"
+	testDataPath = "../../test"
+	csDemosPath  = testDataPath + "/cs-demos"
+	demSetPathS2 = csDemosPath + "/s2"
+	s2DemPath    = demSetPathS2 + "/s2.dem"
+	s2POVDemPath = demSetPathS2 + "/pov.dem"
 )
 
 var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current demos")
@@ -53,9 +47,9 @@ func TestDemoInfoCs(t *testing.T) {
 		t.Skip("skipping test due to -short flag")
 	}
 
-	f, err := os.Open(defaultDemPath)
+	f, err := os.Open(s2DemPath)
 	assertions := assert.New(t)
-	assertions.NoError(err, "error opening demo %q", defaultDemPath)
+	assertions.NoError(err, "error opening demo %q", s2DemPath)
 
 	defer mustClose(t, f)
 
@@ -70,12 +64,6 @@ func TestDemoInfoCs(t *testing.T) {
 	p.RegisterEventHandler(func(e any) {
 		actual.WriteString(fmt.Sprintf("%#v\n", e))
 	})
-
-	t.Log("Parsing header")
-	h, err := p.ParseHeader()
-	assertions.NoError(err, "error returned by Parser.ParseHeader()")
-	assertions.Equal(h, p.Header(), "values returned by ParseHeader() and Header() don't match")
-	t.Logf("Header: %v - FrameRate()=%.2f frames/s ; FrameTime()=%s ; TickRate()=%.2f frames/s ; TickTime()=%s\n", h, h.FrameRate(), h.FrameTime(), p.TickRate(), p.TickTime())
 
 	t.Log("Registering handlers")
 	gs := p.GameState()
@@ -111,7 +99,7 @@ func TestDemoInfoCs(t *testing.T) {
 
 		// Score + 1 for winner because it hasn't actually been updated yet
 		t.Logf("Round finished: score=%d:%d ; winnerSide=%s ; clanName=%q ; teamId=%d ; teamFlag=%s ; ingameTime=%s ; progress=%.1f%% ; tick=%d ; frame=%d\n", winner.Score()+1, loser.Score(), winnerSide, winnerClan, winnerID, winnerFlag, ingameTime, progressPercent, ingameTick, currentFrame)
-		if len(winnerClan) == 0 || winnerID == 0 || len(winnerFlag) == 0 || ingameTime == 0 || progressPercent == 0 || ingameTick == 0 || currentFrame == 0 {
+		if winnerID == 0 || ingameTime == 0 || ingameTick == 0 || currentFrame == 0 {
 			t.Error("Unexprected default value, check output of last round")
 		}
 	})
@@ -218,14 +206,10 @@ func TestS2(t *testing.T) {
 	p := demoinfocs.NewParserWithConfig(f, cfg)
 
 	if *update {
-		p.RegisterNetMessageHandler(func(gel *msgs2.CMsgSource1LegacyGameEventList) {
+		p.RegisterNetMessageHandler(func(gel *msg.CMsgSource1LegacyGameEventList) {
 			lo.Must0(os.WriteFile("event-list-dump/s2_CMsgSource1LegacyGameEventList.pb.bin", lo.Must(proto.Marshal(gel)), 0600))
 		})
 	}
-
-	t.Log("Parsing header")
-	_, err = p.ParseHeader()
-	assertions.NoError(err, "error returned by Parser.ParseHeader()")
 
 	t.Log("Parsing to end")
 	err = p.ParseToEnd()
@@ -252,140 +236,6 @@ func TestS2POV(t *testing.T) {
 	assertions.NoError(err, "error occurred in ParseToEnd()")
 }
 
-func TestEncryptedNetMessages(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	infoF, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem.info")
-	assert.NoError(t, err)
-
-	b, err := ioutil.ReadAll(infoF)
-	assert.NoError(t, err)
-
-	k, err := demoinfocs.MatchInfoDecryptionKey(b)
-	assert.NoError(t, err)
-
-	f, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem")
-	assert.NoError(t, err)
-	defer mustClose(t, f)
-
-	cfg := demoinfocs.DefaultParserConfig
-	cfg.NetMessageDecryptionKey = k
-
-	p := demoinfocs.NewParserWithConfig(f, cfg)
-
-	p.RegisterEventHandler(func(message events.ChatMessage) {
-		t.Log(message)
-	})
-
-	err = p.ParseToEnd()
-	assert.NoError(t, err)
-}
-
-func TestMatchInfoDecryptionKey_Error(t *testing.T) {
-	_, err := demoinfocs.MatchInfoDecryptionKey([]byte{0})
-	assert.Error(t, err)
-}
-
-func TestRetake_BadBombsiteIndex(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	f := openFile(t, retakeDemPath)
-	defer mustClose(t, f)
-
-	p := demoinfocs.NewParser(f)
-
-	err := p.ParseToEnd()
-	assert.Error(t, err, demoinfocs.ErrBombsiteIndexNotFound)
-}
-
-func TestRetake_IgnoreBombsiteIndexNotFound(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	f := openFile(t, retakeDemPath)
-	defer mustClose(t, f)
-
-	cfg := demoinfocs.DefaultParserConfig
-	cfg.IgnoreErrBombsiteIndexNotFound = true
-
-	p := demoinfocs.NewParserWithConfig(f, cfg)
-
-	err := p.ParseToEnd()
-	assert.NoError(t, err)
-}
-
-func TestUnexpectedEndOfDemo(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	f := openFile(t, unexpectedEndOfDemoPath)
-	defer mustClose(t, f)
-
-	p := demoinfocs.NewParser(f)
-
-	err := p.ParseToEnd()
-	assert.ErrorIs(t, err, demoinfocs.ErrUnexpectedEndOfDemo, "parsing cancelled but error was not ErrUnexpectedEndOfDemo")
-}
-
-func TestBadNetMessageDecryptionKey(t *testing.T) {
-	t.Parallel()
-
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	const (
-		demPath  = csDemosPath + "/match730_003528806449641685104_1453182610_271.dem"
-		infoPath = csDemosPath + "/match730_003449478367177343081_1946274414_112.dem.info"
-	)
-
-	infoF, err := os.Open(infoPath)
-	assert.NoError(t, err)
-
-	b, err := ioutil.ReadAll(infoF)
-	assert.NoError(t, err)
-
-	k, err := demoinfocs.MatchInfoDecryptionKey(b)
-	assert.NoError(t, err)
-
-	f, err := os.Open(demPath)
-	assert.NoError(t, err)
-
-	defer f.Close()
-
-	cfg := demoinfocs.DefaultParserConfig
-	cfg.NetMessageDecryptionKey = k
-
-	p := demoinfocs.NewParserWithConfig(f, cfg)
-
-	var cantReadEncNetMsgWarns []events.ParserWarn
-
-	p.RegisterEventHandler(func(warn events.ParserWarn) {
-		if warn.Type == events.WarnTypeCantReadEncryptedNetMessage {
-			cantReadEncNetMsgWarns = append(cantReadEncNetMsgWarns, warn)
-		}
-	})
-
-	err = p.ParseToEnd()
-	assert.NoError(t, err)
-
-	assert.NotEmpty(t, cantReadEncNetMsgWarns)
-}
-
 func TestParseToEnd_Cancel(t *testing.T) {
 	t.Parallel()
 
@@ -393,7 +243,7 @@ func TestParseToEnd_Cancel(t *testing.T) {
 		t.Skip("skipping test")
 	}
 
-	f := openFile(t, defaultDemPath)
+	f := openFile(t, s2DemPath)
 	defer mustClose(t, f)
 
 	p := demoinfocs.NewParser(f)
@@ -425,7 +275,7 @@ func TestParseToEnd_MultiCancel(t *testing.T) {
 		t.Skip("skipping test")
 	}
 
-	f := openFile(t, defaultDemPath)
+	f := openFile(t, s2DemPath)
 	defer mustClose(t, f)
 
 	p := demoinfocs.NewParser(f)
@@ -454,10 +304,6 @@ func TestInvalidFileType(t *testing.T) {
 	msgWrongError := "invalid demo but error was not ErrInvalidFileType"
 
 	p := demoinfocs.NewParser(bytes.NewBuffer(invalidDemoData))
-	_, err = p.ParseHeader()
-	assert.Equal(t, demoinfocs.ErrInvalidFileType, err, msgWrongError)
-
-	p = demoinfocs.NewParser(bytes.NewBuffer(invalidDemoData))
 	_, err = p.ParseNextFrame()
 	assert.Equal(t, demoinfocs.ErrInvalidFileType, err, msgWrongError)
 
@@ -534,13 +380,6 @@ func testDemoSet(t *testing.T, path string) {
 
 				p.RegisterEventHandler(func(warn events.ParserWarn) {
 					switch warn.Type {
-					case events.WarnTypeBombsiteUnknown:
-						if p.Header().MapName == "de_grind" {
-							t.Log("expected known issue with bomb sites on de_grind occurred:", warn.Message)
-
-							return
-						}
-
 					case events.WarnTypeTeamSwapPlayerNil:
 						t.Log("expected known issue with team swaps occurred:", warn.Message)
 						return
@@ -566,20 +405,10 @@ func testDemoSet(t *testing.T, path string) {
 				})
 
 				err = p.ParseToEnd()
-				assert.NoError(t, err, "parsing of '%s/%s' failed", demSetPath, name)
+				assert.NoError(t, err, "parsing of '%s/%s' failed", path, name)
 			}()
 		}
 	}
-}
-
-func TestDemoSet(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping test due to -short flag")
-	}
-
-	t.Parallel()
-
-	testDemoSet(t, demSetPath)
 }
 
 func TestDemoSetS2(t *testing.T) {
@@ -671,7 +500,7 @@ func assertGolden(tb testing.TB, assertions *assert.Assertions, testCase string,
 		gzipReader, err := gzip.NewReader(f)
 		assertions.NoError(err, "error creating gzip reader for %q", goldenFile)
 
-		expected, err := ioutil.ReadAll(gzipReader)
+		expected, err := io.ReadAll(gzipReader)
 		assertions.NoError(err, "error reading gzipped data from %q", goldenFile)
 
 		mustCloseAssert(assertions, gzipReader, f)
@@ -693,7 +522,7 @@ func removePointers(s []byte) []byte {
 }
 
 func writeFile(assertions *assert.Assertions, file string, data []byte) {
-	err := ioutil.WriteFile(file, data, 0600)
+	err := os.WriteFile(file, data, 0600)
 	assertions.NoError(err, "failed to write to file %q", file)
 }
 

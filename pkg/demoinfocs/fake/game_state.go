@@ -3,9 +3,9 @@ package fake
 import (
 	"github.com/stretchr/testify/mock"
 
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 var _ demoinfocs.GameState = new(GameState)
@@ -98,11 +98,6 @@ func (gs *GameState) IsMatchStarted() bool {
 // Rules is a mock-implementation of GameState.Rules().
 func (gs *GameState) Rules() demoinfocs.GameRules {
 	return gs.Called().Get(0).(demoinfocs.GameRules)
-}
-
-// PlayerResourceEntity is a mock-implementation of GameState.PlayerResourceEntity().
-func (gs *GameState) PlayerResourceEntity() st.Entity {
-	return gs.Called().Get(0).(st.Entity)
 }
 
 // Hostages is a mock-implementation of GameState.Hostages().

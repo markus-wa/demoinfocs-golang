@@ -14,7 +14,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.20.x
+          go-version: 1.23.x
 
       - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
@@ -40,7 +40,7 @@ jobs:
           git fetch
 
           # Install golangci-lint
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.52.2
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.1.2
 
       - name: Build
         run: scripts/build.sh
@@ -87,7 +87,7 @@ jobs:
       - name: Update CSDA mod
         run: |
           cd cs-demo-analyzer
-          go mod edit -replace github.com/markus-wa/demoinfocs-golang/v4=../demoinfocs-golang
+          go mod edit -replace github.com/markus-wa/demoinfocs-golang/v5=../demoinfocs-golang
           go mod tidy
 
       - name: Download demos cache file

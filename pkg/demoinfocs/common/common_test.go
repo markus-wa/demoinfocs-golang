@@ -2,41 +2,14 @@ package common
 
 import (
 	"testing"
-	"time"
 
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables/fake"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables/fake"
 )
-
-var s1DemoInfoProvider = demoInfoProviderMock{
-	isSource2: false,
-}
-
-func TestBombPosition(t *testing.T) {
-	groundPos := r3.Vector{X: 1, Y: 2, Z: 3}
-	bomb := Bomb{
-		LastOnGroundPosition: groundPos,
-	}
-
-	assert.Equal(t, groundPos, bomb.Position(), "Bomb position should be LastOnGroundPosition")
-
-	playerPos := r3.Vector{X: 4, Y: 5, Z: 6}
-
-	plEntity := entityWithID(1)
-	plEntity.On("Position").Return(playerPos)
-
-	bomb.Carrier = &Player{
-		Entity: plEntity,
-		demoInfoProvider: demoInfoProviderMock{
-			isSource2: false,
-		},
-	}
-	assert.Equal(t, playerPos, bomb.Position(), "Bomb position should be Player.Position")
-}
 
 func TestGrenadeProjectileUniqueID(t *testing.T) {
 	assert.NotEqual(t, NewGrenadeProjectile().UniqueID(), NewGrenadeProjectile().UniqueID(), "UniqueIDs of different grenade projectiles should be different")
@@ -50,29 +23,12 @@ func TestGrenadeProjectile_Velocity(t *testing.T) {
 	}
 
 	p := GrenadeProjectile{
-		Entity: entityWithProperty("m_vecVelocity", st.PropertyValue{VectorVal: expected}),
+		Entity: entityWithProperty("m_vecVelocity", st.PropertyValue{
+			Any: []float32{1, 2, 3},
+		}),
 	}
 
 	assert.Equal(t, expected, p.Velocity())
-}
-
-func TestDemoHeader(t *testing.T) {
-	header := DemoHeader{
-		PlaybackFrames: 256,
-		PlaybackTicks:  512,
-		PlaybackTime:   4 * time.Second,
-	}
-
-	assert.Equal(t, float64(64), header.FrameRate(), "FrameRate should be 64")
-	assert.Equal(t, time.Second/64, header.FrameTime(), "FrameTime should be 1/64 sec")
-}
-
-func TestDemoHeader_FrameRate_PlaybackTime_Zero(t *testing.T) {
-	assert.Zero(t, new(DemoHeader).FrameRate())
-}
-
-func TestDemoHeader_FrameTime_PlaybackFrames_Zero(t *testing.T) {
-	assert.Zero(t, new(DemoHeader).FrameTime())
 }
 
 func TestTeamState_Team(t *testing.T) {
@@ -92,17 +48,11 @@ func TestTeamState_Members(t *testing.T) {
 
 func TestTeamState_EquipmentValueCurrent(t *testing.T) {
 	members := []*Player{
-		playerWithProperty("m_unCurrentEquipmentValue", st.PropertyValue{IntVal: 100}),
-		playerWithProperty("m_unCurrentEquipmentValue", st.PropertyValue{IntVal: 200}),
+		playerWithPawnProperty("m_unCurrentEquipmentValue", st.PropertyValue{Any: uint64(100)}),
+		playerWithPawnProperty("m_unCurrentEquipmentValue", st.PropertyValue{Any: uint64(200)}),
 	}
 
-	dip := demoInfoProviderMock{
-		isSource2: false,
-	}
-
-	for _, p := range members {
-		p.demoInfoProvider = dip
-	}
+	dip := demoInfoProviderMock{}
 
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, dip)
 
@@ -111,17 +61,11 @@ func TestTeamState_EquipmentValueCurrent(t *testing.T) {
 
 func TestTeamState_EquipmentValueRoundStart(t *testing.T) {
 	members := []*Player{
-		playerWithProperty("m_unRoundStartEquipmentValue", st.PropertyValue{IntVal: 100}),
-		playerWithProperty("m_unRoundStartEquipmentValue", st.PropertyValue{IntVal: 200}),
+		playerWithPawnProperty("m_unRoundStartEquipmentValue", st.PropertyValue{Any: uint64(100)}),
+		playerWithPawnProperty("m_unRoundStartEquipmentValue", st.PropertyValue{Any: uint64(200)}),
 	}
 
-	dip := demoInfoProviderMock{
-		isSource2: false,
-	}
-
-	for _, p := range members {
-		p.demoInfoProvider = dip
-	}
+	dip := demoInfoProviderMock{}
 
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, dip)
 
@@ -130,17 +74,11 @@ func TestTeamState_EquipmentValueRoundStart(t *testing.T) {
 
 func TestTeamState_EquipmentValueFreezeTimeEnd(t *testing.T) {
 	members := []*Player{
-		playerWithProperty("m_unFreezetimeEndEquipmentValue", st.PropertyValue{IntVal: 100}),
-		playerWithProperty("m_unFreezetimeEndEquipmentValue", st.PropertyValue{IntVal: 200}),
+		playerWithPawnProperty("m_unFreezetimeEndEquipmentValue", st.PropertyValue{Any: uint64(100)}),
+		playerWithPawnProperty("m_unFreezetimeEndEquipmentValue", st.PropertyValue{Any: uint64(200)}),
 	}
 
-	dip := demoInfoProviderMock{
-		isSource2: false,
-	}
-
-	for _, p := range members {
-		p.demoInfoProvider = dip
-	}
+	dip := demoInfoProviderMock{}
 
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, dip)
 
@@ -149,8 +87,8 @@ func TestTeamState_EquipmentValueFreezeTimeEnd(t *testing.T) {
 
 func TestTeamState_MoneySpentThisRound(t *testing.T) {
 	members := []*Player{
-		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iCashSpentThisRound.000", st.PropertyValue{IntVal: 100})}),
-		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iCashSpentThisRound.000", st.PropertyValue{IntVal: 200})}),
+		playerWithProperty("m_pInGameMoneyServices.m_iCashSpentThisRound", st.PropertyValue{Any: int32(100)}),
+		playerWithProperty("m_pInGameMoneyServices.m_iCashSpentThisRound", st.PropertyValue{Any: int32(200)}),
 	}
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, demoInfoProviderMock{})
 
@@ -159,8 +97,8 @@ func TestTeamState_MoneySpentThisRound(t *testing.T) {
 
 func TestTeamState_MoneySpentTotal(t *testing.T) {
 	members := []*Player{
-		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iTotalCashSpent.000", st.PropertyValue{IntVal: 100})}),
-		NewPlayer(demoInfoProviderMock{playerResourceEntity: entityWithProperty("m_iTotalCashSpent.000", st.PropertyValue{IntVal: 200})}),
+		playerWithProperty("m_pInGameMoneyServices.m_iTotalCashSpent", st.PropertyValue{Any: int32(100)}),
+		playerWithProperty("m_pInGameMoneyServices.m_iTotalCashSpent", st.PropertyValue{Any: int32(200)}),
 	}
 	state := NewTeamState(TeamTerrorists, func(Team) []*Player { return members }, demoInfoProviderMock{})
 
@@ -210,21 +148,15 @@ type fakeProp struct {
 }
 
 type demoInfoProviderMock struct {
-	tickRate             float64
-	ingameTick           int
-	playersByHandle      map[uint64]*Player
-	entitiesByHandle     map[uint64]st.Entity
-	playerResourceEntity st.Entity
-	equipment            *Equipment
-	isSource2            bool
+	tickRate         float64
+	ingameTick       int
+	playersByHandle  map[uint64]*Player
+	entitiesByHandle map[uint64]st.Entity
+	equipment        *Equipment
 }
 
 func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
 	return p.entitiesByHandle[handle]
-}
-
-func (p demoInfoProviderMock) IsSource2() bool {
-	return p.isSource2
 }
 
 func (p demoInfoProviderMock) TickRate() float64 {
@@ -241,10 +173,6 @@ func (p demoInfoProviderMock) FindPlayerByHandle(handle uint64) *Player {
 
 func (p demoInfoProviderMock) FindPlayerByPawnHandle(handle uint64) *Player {
 	return p.playersByHandle[handle]
-}
-
-func (p demoInfoProviderMock) PlayerResourceEntity() st.Entity {
-	return p.playerResourceEntity
 }
 
 func (p demoInfoProviderMock) FindWeaponByEntityID(id int) *Equipment {
@@ -281,8 +209,6 @@ func entityWithProperty(propName string, value st.PropertyValue) *stfake.Entity 
 func entityWithProperties(properties []fakeProp) *stfake.Entity {
 	entity := entityWithID(1)
 
-	entity.On("Property", mock.Anything).Return(nil)
-
 	for _, prop := range properties {
 		if prop.isNil {
 			entity.On("Property", prop.propName).Return(nil)
@@ -297,6 +223,8 @@ func entityWithProperties(properties []fakeProp) *stfake.Entity {
 		entity.On("PropertyValue", prop.propName).Return(prop.value, true)
 		entity.On("PropertyValueMust", prop.propName).Return(prop.value)
 	}
+
+	entity.On("Property", mock.Anything).Return(nil)
 
 	return entity
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/quickhull-go/v2"
 
-	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 // Inferno is a list of Fires with helper functions.
@@ -53,11 +53,7 @@ func (inf *Inferno) Thrower() *Player {
 	}
 
 	handleProp := inf.Entity.Property("m_hOwnerEntity").Value()
-	if inf.demoInfoProvider.IsSource2() {
-		return inf.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
-	}
-
-	return inf.demoInfoProvider.FindPlayerByHandle(uint64(handleProp.Int()))
+	return inf.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
 }
 
 // Fires returns all fires (past + present).
@@ -67,11 +63,8 @@ func (inf *Inferno) Fires() Fires {
 	origin := entity.Position()
 	nFires := entity.PropertyValueMust("m_fireCount").Int()
 	fires := make([]Fire, 0, nFires)
+	iFormat := "%04d"
 
-	iFormat := "%03d"
-	if inf.demoInfoProvider.IsSource2() {
-		iFormat = "%04d"
-	}
 	for i := 0; i < nFires; i++ {
 		iStr := fmt.Sprintf(iFormat, i)
 
