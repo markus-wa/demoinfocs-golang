@@ -27,7 +27,7 @@ jobs:
         if: env.PROTOBUFS_CHANGED == 'true'
         uses: actions/setup-go@v5
         with:
-          go-version: 1.23.x
+          go-version: 1.24.x
 
       - name: Install Protobuf tools
         if: env.PROTOBUFS_CHANGED == 'true'

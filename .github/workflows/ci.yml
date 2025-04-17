@@ -14,7 +14,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.23.x
+          go-version: 1.24.x
 
       - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
