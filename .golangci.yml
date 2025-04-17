@@ -1,31 +1,32 @@
+version: 2
 run:
-  deadline: 5m
-  build-tags:
-    - debugdemoinfocs
-  skip-dirs:
-    - msg
-  skip-files:
-    - parser_interface.go
-    - game_state_interface.go
   allow-parallel-runners: true
 
+exclusions:
+  paths:
+    - parser_interface.go
+    - '*\\.pb\\.go$'
+    - parser_interface.go
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+
 linters:
-  disable-all: true
+  default: none
   enable:
     - bodyclose
     - dogsled
     - dupl
-    - exportloopref
     - exhaustive
-    - funlen
     - goconst
     - gocritic
     - gocyclo
-    - gofmt
-    - goimports
     - goprintffuncname
     - gosec
-    - gosimple
     - govet
     - ineffassign
     - misspell
@@ -34,7 +35,6 @@ linters:
     - nolintlint
     - rowserrcheck
     - staticcheck
-    - stylecheck
     - unconvert
     - unparam
     - unused
@@ -45,19 +45,3 @@ linters:
     - nestif
     - prealloc
     - revive
-    - wsl
-
-issues:
-  exclude-rules:
-    # Exclude some linters from running on tests files.
-    - path: _test\.go
-      linters:
-        - wsl
-        - funlen
-
-linters-settings:
-  gocritic:
-    disabled-checks:
-      - ifElseChain
-  gci:
-    local-prefixes: github.com/markus-wa/demoinfocs-golang/v5
