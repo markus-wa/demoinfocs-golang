@@ -3,9 +3,11 @@ package sendtablescs2
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/golang/geo/r3"
+	"golang.org/x/exp/maps"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/constants"
@@ -587,10 +589,13 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 		}
 
 		if t.op&st.EntityOpCreated != 0 {
-			for prop, hs := range e.updateHandlers {
+			props := maps.Keys(e.updateHandlers)
+			slices.Sort(props) // TODO: should either be ordered by prop-order or handler registration order
+
+			for _, prop := range props {
 				v := e.PropertyValueMust(prop)
 
-				for _, h := range hs {
+				for _, h := range e.updateHandlers[prop] {
 					h(v)
 				}
 			}
