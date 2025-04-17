@@ -29,7 +29,7 @@ message CClientMsg_CustomGameEventBounce {
 }
 
 message CClientMsg_ClientUIEvent {
-	optional EClientUIEvent event = 1 [default = EClientUIEvent_Invalid];
+	optional com.github.markus_wa.demoinfocs_golang.s2.EClientUIEvent event = 1 [default = EClientUIEvent_Invalid];
 	optional uint32 ent_ehandle = 2;
 	optional uint32 client_ehandle = 3;
 	optional string data1 = 4;

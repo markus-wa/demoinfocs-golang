@@ -96,7 +96,7 @@ message CCSUsrMsg_VGUIMenu {
 
 	optional string name = 1;
 	optional bool show = 2;
-	repeated CCSUsrMsg_VGUIMenu.Keys keys = 3;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VGUIMenu.Keys keys = 3;
 }
 
 message CCSUsrMsg_Geiger {
@@ -113,9 +113,9 @@ message CCSUsrMsg_HudText {
 
 message CCSUsrMsg_HudMsg {
 	optional int32 channel = 1;
-	optional CMsgVector2D pos = 2;
-	optional CMsgRGBA clr1 = 3;
-	optional CMsgRGBA clr2 = 4;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector2D pos = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA clr1 = 3;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA clr2 = 4;
 	optional int32 effect = 5;
 	optional float fade_in_time = 6;
 	optional float fade_out_time = 7;
@@ -135,7 +135,7 @@ message CCSUsrMsg_Fade {
 	optional int32 duration = 1;
 	optional int32 hold_time = 2;
 	optional int32 flags = 3;
-	optional CMsgRGBA clr = 4;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA clr = 4;
 }
 
 message CCSUsrMsg_Rumble {
@@ -174,13 +174,13 @@ message CCSUsrMsg_VoiceMask {
 		optional int32 ban_masks = 2;
 	}
 
-	repeated CCSUsrMsg_VoiceMask.PlayerMask player_masks = 1;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VoiceMask.PlayerMask player_masks = 1;
 	optional bool player_mod_enable = 2;
 }
 
 message CCSUsrMsg_Damage {
 	optional int32 amount = 1;
-	optional CMsgVector inflictor_world_pos = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector inflictor_world_pos = 2;
 	optional int32 victim_entindex = 3 [default = -1];
 }
 
@@ -213,15 +213,15 @@ message CCSUsrMsg_ProcessSpottedEntityUpdate {
 	}
 
 	optional bool new_update = 1;
-	repeated CCSUsrMsg_ProcessSpottedEntityUpdate.SpottedEntityUpdate entity_updates = 2;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ProcessSpottedEntityUpdate.SpottedEntityUpdate entity_updates = 2;
 }
 
 message CCSUsrMsg_SendPlayerItemDrops {
-	repeated CEconItemPreviewDataBlock entity_updates = 1;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock entity_updates = 1;
 }
 
 message CCSUsrMsg_SendPlayerItemFound {
-	optional CEconItemPreviewDataBlock iteminfo = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock iteminfo = 1;
 	optional int32 playerslot = 2 [default = -1];
 }
 
@@ -303,7 +303,7 @@ message CCSUsrMsg_PlayerStatsUpdate {
 	}
 
 	optional int32 version = 1;
-	repeated CCSUsrMsg_PlayerStatsUpdate.Stat stats = 4;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_PlayerStatsUpdate.Stat stats = 4;
 	optional uint32 ehandle = 5;
 	optional int32 crc = 6;
 }
@@ -316,11 +316,11 @@ message CCSUsrMsg_QuestProgress {
 }
 
 message CCSUsrMsg_ScoreLeaderboardData {
-	optional ScoreLeaderboardData data = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.ScoreLeaderboardData data = 1;
 }
 
 message CCSUsrMsg_PlayerDecalDigitalSignature {
-	optional PlayerDecalDigitalSignature data = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.PlayerDecalDigitalSignature data = 1;
 }
 
 message CCSUsrMsg_XRankGet {
@@ -385,11 +385,11 @@ message CCSUsrMsg_ServerRankUpdate {
 		optional int32 rank_type_id = 6;
 	}
 
-	repeated CCSUsrMsg_ServerRankUpdate.RankUpdate rank_update = 1;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ServerRankUpdate.RankUpdate rank_update = 1;
 }
 
 message CCSUsrMsg_XpUpdate {
-	optional CMsgGCCstrike15_v2_GC2ServerNotifyXPRewarded data = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCstrike15_v2_GC2ServerNotifyXPRewarded data = 1;
 }
 
 message CCSUsrMsg_ItemPickup {
@@ -463,9 +463,9 @@ message CCSUsrMsg_SurvivalStats {
 	}
 
 	optional uint64 xuid = 1;
-	repeated CCSUsrMsg_SurvivalStats.Fact facts = 2;
-	repeated CCSUsrMsg_SurvivalStats.Placement users = 3;
-	repeated CCSUsrMsg_SurvivalStats.Damage damages = 5;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Fact facts = 2;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Placement users = 3;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Damage damages = 5;
 	optional int32 ticknumber = 4;
 }
 
@@ -481,13 +481,13 @@ message CCSUsrMsg_EndOfMatchAllPlayersData {
 		optional uint64 xuid = 2;
 		optional string name = 3;
 		optional int32 teamnumber = 4;
-		optional CCSUsrMsg_EndOfMatchAllPlayersData.Accolade nomination = 5;
-		repeated CEconItemPreviewDataBlock items = 6;
+		optional com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.Accolade nomination = 5;
+		repeated com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock items = 6;
 		optional int32 playercolor = 7;
 		optional bool isbot = 8;
 	}
 
-	repeated CCSUsrMsg_EndOfMatchAllPlayersData.PlayerData allplayerdata = 1;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.PlayerData allplayerdata = 1;
 	optional int32 scene = 2;
 }
 
@@ -519,9 +519,9 @@ message CCSUsrMsg_RoundEndReportData {
 		optional int32 terrorist_odds = 2;
 		optional int32 ct_alive = 3;
 		optional int32 t_alive = 4;
-		optional CCSUsrMsg_RoundEndReportData.RerEvent.Victim victim_data = 5;
-		optional CCSUsrMsg_RoundEndReportData.RerEvent.Objective objective_data = 6;
-		repeated CCSUsrMsg_RoundEndReportData.RerEvent.Damage all_damage_data = 7;
+		optional com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Victim victim_data = 5;
+		optional com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Objective objective_data = 6;
+		repeated com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Damage all_damage_data = 7;
 	}
 
 	message InitialConditions {
@@ -530,8 +530,8 @@ message CCSUsrMsg_RoundEndReportData {
 		optional int32 terrorist_odds = 3;
 	}
 
-	optional CCSUsrMsg_RoundEndReportData.InitialConditions init_conditions = 1;
-	repeated CCSUsrMsg_RoundEndReportData.RerEvent all_rer_event_data = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.InitialConditions init_conditions = 1;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent all_rer_event_data = 2;
 }
 
 message CCSUsrMsg_PostRoundDamageReport {
@@ -549,14 +549,14 @@ message CCSUsrMsg_CurrentRoundOdds {
 }
 
 message CCSUsrMsg_DeepStats {
-	optional CMsgGCCStrike15_ClientDeepStats stats = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_ClientDeepStats stats = 1;
 }
 
 message CCSUsrMsg_ShootInfo {
 	optional int32 frame_number = 1;
-	repeated CMsgTransform hitbox_transforms = 2;
-	optional CMsgVector shoot_pos = 3;
-	optional CMsgQAngle shoot_dir = 4;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgTransform hitbox_transforms = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector shoot_pos = 3;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle shoot_dir = 4;
 }
 
 message CCSUsrMsg_ResetHud {
@@ -589,7 +589,7 @@ message CCSUsrMsg_ClientInfo {
 
 message CCSUsrMsg_ServerRankRevealAll {
 	optional int32 seconds_till_shutdown = 1;
-	optional CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve reservation = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve reservation = 2;
 }
 
 message CCSUsrMsgPreMatchSayText {
@@ -609,7 +609,7 @@ message CCSUsrMsg_DamagePrediction {
 	optional int32 victim_slot = 3;
 	optional int32 victim_starting_health = 4;
 	optional int32 victim_damage = 5;
-	optional CMsgVector shoot_pos = 6;
-	optional CMsgQAngle shoot_dir = 7;
-	optional CMsgQAngle aim_punch = 8;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector shoot_pos = 6;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle shoot_dir = 7;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle aim_punch = 8;
 }

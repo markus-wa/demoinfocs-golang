@@ -32,8 +32,8 @@ enum ETEProtobufIds {
 }
 
 message CMsgTEArmorRicochet {
-	optional CMsgVector pos = 1;
-	optional CMsgVector dir = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector pos = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector dir = 2;
 }
 
 message CMsgTEBaseBeam {
@@ -52,68 +52,68 @@ message CMsgTEBaseBeam {
 }
 
 message CMsgTEBeamEntPoint {
-	optional CMsgTEBaseBeam base = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBaseBeam base = 1;
 	optional uint32 startentity = 2;
 	optional uint32 endentity = 3;
-	optional CMsgVector start = 4;
-	optional CMsgVector end = 5;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector start = 4;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector end = 5;
 }
 
 message CMsgTEBeamEnts {
-	optional CMsgTEBaseBeam base = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBaseBeam base = 1;
 	optional uint32 startentity = 2;
 	optional uint32 endentity = 3;
 }
 
 message CMsgTEBeamPoints {
-	optional CMsgTEBaseBeam base = 1;
-	optional CMsgVector start = 2;
-	optional CMsgVector end = 3;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBaseBeam base = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector start = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector end = 3;
 }
 
 message CMsgTEBeamRing {
-	optional CMsgTEBaseBeam base = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBaseBeam base = 1;
 	optional uint32 startentity = 2;
 	optional uint32 endentity = 3;
 }
 
 message CMsgTEBSPDecal {
-	optional CMsgVector origin = 1;
-	optional CMsgVector normal = 2;
-	optional CMsgVector saxis = 3;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector normal = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector saxis = 3;
 	optional int32 entity = 4 [default = -1];
 	optional uint32 index = 5;
 }
 
 message CMsgTEBubbles {
-	optional CMsgVector mins = 1;
-	optional CMsgVector maxs = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector mins = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector maxs = 2;
 	optional float height = 3;
 	optional uint32 count = 4;
 	optional float speed = 5;
 }
 
 message CMsgTEBubbleTrail {
-	optional CMsgVector mins = 1;
-	optional CMsgVector maxs = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector mins = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector maxs = 2;
 	optional float waterz = 3;
 	optional uint32 count = 4;
 	optional float speed = 5;
 }
 
 message CMsgTEDecal {
-	optional CMsgVector origin = 1;
-	optional CMsgVector start = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector start = 2;
 	optional int32 entity = 3 [default = -1];
 	optional uint32 hitbox = 4;
 	optional uint32 index = 5;
 }
 
 message CMsgEffectData {
-	optional CMsgVector origin = 1;
-	optional CMsgVector start = 2;
-	optional CMsgVector normal = 3;
-	optional CMsgQAngle angles = 4;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector start = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector normal = 3;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle angles = 4;
 	optional fixed32 entity = 5 [default = 16777215];
 	optional fixed32 otherentity = 6 [default = 16777215];
 	optional float scale = 7;
@@ -132,12 +132,12 @@ message CMsgEffectData {
 }
 
 message CMsgTEEffectDispatch {
-	optional CMsgEffectData effectdata = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData effectdata = 1;
 }
 
 message CMsgTEEnergySplash {
-	optional CMsgVector pos = 1;
-	optional CMsgVector dir = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector pos = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector dir = 2;
 	optional bool explosive = 3;
 }
 
@@ -148,10 +148,10 @@ message CMsgTEFizz {
 }
 
 message CMsgTEShatterSurface {
-	optional CMsgVector origin = 1;
-	optional CMsgQAngle angles = 2;
-	optional CMsgVector force = 3;
-	optional CMsgVector forcepos = 4;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle angles = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector force = 3;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector forcepos = 4;
 	optional float width = 5;
 	optional float height = 6;
 	optional float shardsize = 7;
@@ -161,37 +161,37 @@ message CMsgTEShatterSurface {
 }
 
 message CMsgTEGlowSprite {
-	optional CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
 	optional float scale = 2;
 	optional float life = 3;
 	optional uint32 brightness = 4;
 }
 
 message CMsgTEImpact {
-	optional CMsgVector origin = 1;
-	optional CMsgVector normal = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector normal = 2;
 	optional uint32 type = 3;
 }
 
 message CMsgTEMuzzleFlash {
-	optional CMsgVector origin = 1;
-	optional CMsgQAngle angles = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle angles = 2;
 	optional float scale = 3;
 	optional uint32 type = 4;
 }
 
 message CMsgTEBloodStream {
-	optional CMsgVector origin = 1;
-	optional CMsgVector direction = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector direction = 2;
 	optional fixed32 color = 3;
 	optional uint32 amount = 4;
 }
 
 message CMsgTEExplosion {
-	optional CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
 	optional uint32 framerate = 2;
 	optional uint32 flags = 3;
-	optional CMsgVector normal = 4;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector normal = 4;
 	optional uint32 materialtype = 5;
 	optional uint32 radius = 6;
 	optional uint32 magnitude = 7;
@@ -200,33 +200,33 @@ message CMsgTEExplosion {
 	optional string effect_name = 10;
 	optional uint32 explosion_type = 11;
 	optional bool create_debris = 12;
-	optional CMsgVector debris_origin = 13;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector debris_origin = 13;
 	optional fixed32 debris_surfaceprop = 14;
 }
 
 message CMsgTEDust {
-	optional CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
 	optional float size = 2;
 	optional float speed = 3;
-	optional CMsgVector direction = 4;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector direction = 4;
 }
 
 message CMsgTELargeFunnel {
-	optional CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
 	optional uint32 reversed = 2;
 }
 
 message CMsgTESparks {
-	optional CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
 	optional uint32 magnitude = 2;
 	optional uint32 length = 3;
-	optional CMsgVector direction = 4;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector direction = 4;
 }
 
 message CMsgTEPhysicsProp {
-	optional CMsgVector origin = 1;
-	optional CMsgVector velocity = 2;
-	optional CMsgQAngle angles = 3;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector velocity = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle angles = 3;
 	optional fixed32 skin = 4;
 	optional uint32 flags = 5;
 	optional uint32 effects = 6;
@@ -234,31 +234,31 @@ message CMsgTEPhysicsProp {
 	optional fixed64 modelindex = 8;
 	optional uint32 unused_breakmodelsnottomake = 9;
 	optional float scale = 10;
-	optional CMsgVector dmgpos = 11;
-	optional CMsgVector dmgdir = 12;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector dmgpos = 11;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector dmgdir = 12;
 	optional int32 dmgtype = 13;
 }
 
 message CMsgTEPlayerDecal {
-	optional CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
 	optional int32 player = 2 [default = -1];
 	optional int32 entity = 3 [default = -1];
 }
 
 message CMsgTEProjectedDecal {
-	optional CMsgVector origin = 1;
-	optional CMsgQAngle angles = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle angles = 2;
 	optional uint32 index = 3;
 	optional float distance = 4;
 }
 
 message CMsgTESmoke {
-	optional CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
 	optional float scale = 2;
 }
 
 message CMsgTEWorldDecal {
-	optional CMsgVector origin = 1;
-	optional CMsgVector normal = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector origin = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector normal = 2;
 	optional uint32 index = 3;
 }

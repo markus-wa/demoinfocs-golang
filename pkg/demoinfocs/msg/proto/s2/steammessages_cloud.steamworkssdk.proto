@@ -26,7 +26,7 @@ message CCloud_UserFile {
 }
 
 message CCloud_GetFileDetails_Response {
-	optional CCloud_UserFile details = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CCloud_UserFile details = 1;
 }
 
 message CCloud_EnumerateUserFiles_Request {
@@ -37,7 +37,7 @@ message CCloud_EnumerateUserFiles_Request {
 }
 
 message CCloud_EnumerateUserFiles_Response {
-	repeated CCloud_UserFile files = 1;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CCloud_UserFile files = 1;
 	optional uint32 total_files = 2;
 }
 

@@ -16,10 +16,10 @@ message CMsgSteamDatagramCertificate {
 		ED25519 = 1;
 	}
 
-	optional CMsgSteamDatagramCertificate.EKeyType key_type = 1 [default = INVALID];
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramCertificate.EKeyType key_type = 1 [default = INVALID];
 	optional bytes key_data = 2;
 	optional fixed64 legacy_steam_id = 4;
-	optional CMsgSteamNetworkingIdentityLegacyBinary legacy_identity_binary = 11;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamNetworkingIdentityLegacyBinary legacy_identity_binary = 11;
 	optional string identity_string = 12;
 	repeated fixed32 gameserver_datacenter_ids = 5;
 	optional fixed32 time_created = 8;
@@ -36,5 +36,5 @@ message CMsgSteamDatagramCertificateSigned {
 }
 
 message CMsgSteamDatagramCertificateRequest {
-	optional CMsgSteamDatagramCertificate cert = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramCertificate cert = 1;
 }

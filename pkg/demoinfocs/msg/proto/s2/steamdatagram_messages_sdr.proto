@@ -49,7 +49,7 @@ message CMsgSteamNetworkingIPAddress {
 }
 
 message CMsgSteamDatagramSignedMessageGeneric {
-	optional CMsgSteamDatagramCertificateSigned cert = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramCertificateSigned cert = 1;
 	optional bytes signed_data = 2;
 	optional bytes signature = 3;
 	optional bytes dummy_pad = 1023;
@@ -70,7 +70,7 @@ message CMsgSteamDatagramRouterPingReply {
 		optional fixed32 ipv4 = 1;
 		optional uint32 port = 2;
 		optional uint32 penalty = 3;
-		optional CMsgSteamDatagramRouterPingReply.AltAddress.Protocol protocol = 4 [default = DefaultProtocol];
+		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramRouterPingReply.AltAddress.Protocol protocol = 4 [default = DefaultProtocol];
 		optional string id = 5;
 	}
 
@@ -96,24 +96,24 @@ message CMsgSteamDatagramRouterPingReply {
 	optional uint32 echo_request_reply_tos = 19;
 	optional uint32 scoring_penalty_relay_cluster = 9;
 	optional uint32 flags = 12;
-	repeated CMsgSteamDatagramRouterPingReply.RouteException route_exceptions = 10;
-	repeated CMsgSteamDatagramRouterPingReply.AltAddress alt_addresses = 13;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramRouterPingReply.RouteException route_exceptions = 10;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramRouterPingReply.AltAddress alt_addresses = 13;
 	optional bytes dummy_pad = 99;
 	optional uint64 dummy_varint = 100;
 }
 
 message CMsgSteamDatagramGameserverPingRequestBody {
 	optional fixed32 relay_popid = 1;
-	optional CMsgSteamNetworkingIPAddress your_public_ip = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamNetworkingIPAddress your_public_ip = 2;
 	optional uint32 your_public_port = 3;
 	optional uint64 relay_unix_time = 4;
 	optional fixed64 routing_secret = 5;
-	repeated CMsgSteamNetworkingIPAddress my_ips = 6;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamNetworkingIPAddress my_ips = 6;
 	optional bytes echo = 8;
 }
 
 message CMsgSteamDatagramGameserverPingRequestEnvelope {
-	optional CMsgSteamDatagramCertificateSigned cert = 6;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramCertificateSigned cert = 6;
 	optional bytes signed_data = 7;
 	optional bytes signature = 8;
 	optional fixed32 legacy_your_public_ip = 1;
@@ -175,7 +175,7 @@ message CMsgSteamDatagramClientPingSampleReply {
 		optional fixed32 pop_id = 1;
 		optional uint32 default_front_ping_ms = 2;
 		optional uint32 cluster_penalty = 4;
-		repeated CMsgSteamDatagramClientPingSampleReply.POP.AltAddress alt_addresses = 7;
+		repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramClientPingSampleReply.POP.AltAddress alt_addresses = 7;
 		optional uint32 default_e2e_ping_ms = 3;
 		optional uint32 default_e2e_score = 5;
 		optional fixed32 p2p_via_peer_relay_pop_id = 6;
@@ -198,9 +198,9 @@ message CMsgSteamDatagramClientPingSampleReply {
 
 	optional fixed32 connection_id = 1;
 	optional bool relay_override_active = 5;
-	optional CMsgTOSTreatment tos = 6;
-	repeated CMsgSteamDatagramClientPingSampleReply.POP pops = 2;
-	repeated CMsgSteamDatagramClientPingSampleReply.LegacyDataCenter legacy_data_centers = 3;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgTOSTreatment tos = 6;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramClientPingSampleReply.POP pops = 2;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramClientPingSampleReply.LegacyDataCenter legacy_data_centers = 3;
 }
 
 message CMsgSteamDatagramClientSwitchedPrimary {
@@ -219,10 +219,10 @@ message CMsgSteamDatagramClientSwitchedPrimary {
 	optional uint32 from_active_packets_recv = 6;
 	optional string from_dropped_reason = 7;
 	optional uint32 gap_ms = 8;
-	optional CMsgSteamDatagramClientSwitchedPrimary.RouterQuality from_quality_now = 9;
-	optional CMsgSteamDatagramClientSwitchedPrimary.RouterQuality to_quality_now = 10;
-	optional CMsgSteamDatagramClientSwitchedPrimary.RouterQuality from_quality_then = 11;
-	optional CMsgSteamDatagramClientSwitchedPrimary.RouterQuality to_quality_then = 12;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramClientSwitchedPrimary.RouterQuality from_quality_now = 9;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramClientSwitchedPrimary.RouterQuality to_quality_now = 10;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramClientSwitchedPrimary.RouterQuality from_quality_then = 11;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramClientSwitchedPrimary.RouterQuality to_quality_then = 12;
 }
 
 message CMsgSteamDatagramConnectRequest {
@@ -231,8 +231,8 @@ message CMsgSteamDatagramConnectRequest {
 	optional uint32 ping_est_ms = 5;
 	optional uint32 virtual_port = 9;
 	optional uint32 gameserver_relay_session_id = 2;
-	optional CMsgSteamDatagramSessionCryptInfoSigned crypt = 6;
-	optional CMsgSteamDatagramCertificateSigned cert = 7;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramSessionCryptInfoSigned crypt = 6;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramCertificateSigned cert = 7;
 	optional fixed64 routing_secret = 10;
 	optional fixed64 legacy_client_steam_id = 3;
 }
@@ -243,8 +243,8 @@ message CMsgSteamDatagramConnectOK {
 	optional fixed64 your_timestamp = 3;
 	optional uint32 delay_time_usec = 4;
 	optional uint32 gameserver_relay_session_id = 2;
-	optional CMsgSteamDatagramSessionCryptInfoSigned crypt = 5;
-	optional CMsgSteamDatagramCertificateSigned cert = 6;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramSessionCryptInfoSigned crypt = 5;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramCertificateSigned cert = 6;
 }
 
 message CMsgSteamNetworkingP2PSDRRoutingSummary {
@@ -266,8 +266,8 @@ message CMsgSteamNetworkingP2PSDRRoutingSummary {
 }
 
 message CMsgSteamDatagramP2PRoutingSummary {
-	optional CMsgSteamNetworkingICESessionSummary ice = 2;
-	optional CMsgSteamNetworkingP2PSDRRoutingSummary sdr = 3;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamNetworkingICESessionSummary ice = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamNetworkingP2PSDRRoutingSummary sdr = 3;
 }
 
 message CMsgSteamDatagramConnectionClosed {
@@ -280,23 +280,23 @@ message CMsgSteamDatagramConnectionClosed {
 	optional fixed32 to_connection_id = 7;
 	optional fixed32 from_connection_id = 8;
 	optional string from_identity_string = 15;
-	optional CMsgSteamNetworkingIdentityLegacyBinary legacy_from_identity_binary = 13;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamNetworkingIdentityLegacyBinary legacy_from_identity_binary = 13;
 	optional fixed64 legacy_from_steam_id = 3;
 	optional uint32 legacy_gameserver_relay_session_id = 2;
 	optional fixed32 to_relay_session_id = 9;
 	optional fixed32 from_relay_session_id = 10;
 	optional bytes forward_target_relay_routing_token = 11;
 	optional uint32 forward_target_revision = 12;
-	optional CMsgSteamDatagramConnectionClosed.ERelayMode relay_mode = 4 [default = None];
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionClosed.ERelayMode relay_mode = 4 [default = None];
 	optional string debug = 5;
 	optional uint32 reason_code = 6;
 	optional fixed64 routing_secret = 14;
 	optional bool not_primary_session = 16;
 	optional bool not_primary_transport = 19;
 	optional bool relay_override_active = 22;
-	optional CMsgSteamDatagramConnectionQuality quality_relay = 17;
-	optional CMsgSteamDatagramConnectionQuality quality_e2e = 18;
-	optional CMsgSteamDatagramP2PRoutingSummary p2p_routing_summary = 21;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_relay = 17;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_e2e = 18;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramP2PRoutingSummary p2p_routing_summary = 21;
 }
 
 message CMsgSteamDatagramNoConnection {
@@ -311,9 +311,9 @@ message CMsgSteamDatagramNoConnection {
 	optional bool not_primary_session = 12;
 	optional bool not_primary_transport = 15;
 	optional bool relay_override_active = 17;
-	optional CMsgSteamDatagramConnectionQuality quality_relay = 13;
-	optional CMsgSteamDatagramConnectionQuality quality_e2e = 14;
-	optional CMsgSteamDatagramP2PRoutingSummary p2p_routing_summary = 16;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_relay = 13;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_e2e = 14;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramP2PRoutingSummary p2p_routing_summary = 16;
 	optional fixed64 routing_secret = 11;
 	optional fixed32 dummy_pad = 1023;
 }
@@ -329,7 +329,7 @@ message CMsgSteamDatagramGameserverSessionRequest {
 	optional string platform = 9;
 	optional string build = 10;
 	optional string dev_gameserver_identity = 100;
-	optional CMsgSteamDatagramCertificateSigned dev_client_cert = 101;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramCertificateSigned dev_client_cert = 101;
 }
 
 message CMsgSteamDatagramGameserverSessionEstablished {
@@ -350,8 +350,8 @@ message CMsgSteamDatagramConnectionStatsClientToRouter {
 		CLIENT_RELAY_OVERRIDE = 32;
 	}
 
-	optional CMsgSteamDatagramConnectionQuality quality_relay = 1;
-	optional CMsgSteamDatagramConnectionQuality quality_e2e = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_relay = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_e2e = 2;
 	repeated fixed32 ack_relay = 4;
 	repeated fixed32 legacy_ack_e2e = 5;
 	optional uint32 flags = 6;
@@ -367,8 +367,8 @@ message CMsgSteamDatagramConnectionStatsRouterToClient {
 		ACK_REQUEST_IMMEDIATE = 4;
 	}
 
-	optional CMsgSteamDatagramConnectionQuality quality_relay = 1;
-	optional CMsgSteamDatagramConnectionQuality quality_e2e = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_relay = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_e2e = 2;
 	optional uint32 seconds_until_shutdown = 6;
 	optional fixed32 migrate_request_ip = 10;
 	optional uint32 migrate_request_port = 11;
@@ -388,8 +388,8 @@ message CMsgSteamDatagramConnectionStatsRouterToServer {
 		ACK_REQUEST_IMMEDIATE = 4;
 	}
 
-	optional CMsgSteamDatagramConnectionQuality quality_relay = 1;
-	optional CMsgSteamDatagramConnectionQuality quality_e2e = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_relay = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_e2e = 2;
 	repeated fixed32 ack_relay = 10;
 	repeated fixed32 legacy_ack_e2e = 11;
 	optional uint32 flags = 12;
@@ -410,8 +410,8 @@ message CMsgSteamDatagramConnectionStatsServerToRouter {
 		ACK_REQUEST_IMMEDIATE = 4;
 	}
 
-	optional CMsgSteamDatagramConnectionQuality quality_relay = 1;
-	optional CMsgSteamDatagramConnectionQuality quality_e2e = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_relay = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_e2e = 2;
 	repeated fixed32 ack_relay = 8;
 	repeated fixed32 legacy_ack_e2e = 9;
 	optional uint32 flags = 10;
@@ -443,7 +443,7 @@ message CMsgSteamDatagramP2PSessionRequestBody {
 }
 
 message CMsgSteamDatagramP2PSessionRequest {
-	optional CMsgSteamDatagramCertificateSigned cert = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramCertificateSigned cert = 1;
 	optional bytes body = 2;
 	optional bytes signature = 3;
 }
@@ -465,9 +465,9 @@ message CMsgSteamDatagramConnectionStatsP2PClientToRouter {
 		CLIENT_RELAY_OVERRIDE = 32;
 	}
 
-	optional CMsgSteamDatagramConnectionQuality quality_relay = 1;
-	optional CMsgSteamDatagramConnectionQuality quality_e2e = 2;
-	optional CMsgSteamDatagramP2PRoutingSummary p2p_routing_summary = 14;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_relay = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_e2e = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramP2PRoutingSummary p2p_routing_summary = 14;
 	repeated fixed32 ack_relay = 3;
 	repeated fixed32 legacy_ack_e2e = 4;
 	optional uint32 flags = 5;
@@ -488,8 +488,8 @@ message CMsgSteamDatagramConnectionStatsP2PRouterToClient {
 		NOT_PRIMARY_TRANSPORT_E2E = 16;
 	}
 
-	optional CMsgSteamDatagramConnectionQuality quality_relay = 1;
-	optional CMsgSteamDatagramConnectionQuality quality_e2e = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_relay = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality quality_e2e = 2;
 	optional uint32 seconds_until_shutdown = 3;
 	optional fixed32 migrate_request_ip = 4;
 	optional uint32 migrate_request_port = 5;
@@ -527,8 +527,8 @@ message CMsgSteamDatagramP2PRoutes {
 		optional uint32 interior_score = 4;
 	}
 
-	repeated CMsgSteamDatagramP2PRoutes.RelayCluster relay_clusters = 1;
-	repeated CMsgSteamDatagramP2PRoutes.Route routes = 2;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramP2PRoutes.RelayCluster relay_clusters = 1;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramP2PRoutes.Route routes = 2;
 	optional uint32 revision = 3;
 }
 

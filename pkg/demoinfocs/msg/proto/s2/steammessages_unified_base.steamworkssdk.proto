@@ -11,7 +11,7 @@ extend .google.protobuf.FieldOptions {
 
 extend .google.protobuf.ServiceOptions {
 	optional string service_description = 50000;
-	optional EProtoExecutionSite service_execution_site = 50008 [default = k_EProtoExecutionSiteUnknown];
+	optional com.github.markus_wa.demoinfocs_golang.s2.EProtoExecutionSite service_execution_site = 50008 [default = k_EProtoExecutionSiteUnknown];
 }
 
 extend .google.protobuf.MethodOptions {

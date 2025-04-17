@@ -46,7 +46,7 @@ message MLDict {
 
 message MLEvent {
 	optional string event_name = 1;
-	repeated MLDict data = 2;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.MLDict data = 2;
 }
 
 message MLMatchState {
@@ -59,14 +59,14 @@ message MLMatchState {
 
 message MLRoundState {
 	optional string phase = 1;
-	optional ETeam win_team = 2 [default = ET_Unknown];
+	optional com.github.markus_wa.demoinfocs_golang.s2.ETeam win_team = 2 [default = ET_Unknown];
 	optional string bomb_state = 3;
 }
 
 message MLWeaponState {
 	optional int32 index = 1;
 	optional string name = 2;
-	optional EWeaponType type = 3 [default = EWT_Knife];
+	optional com.github.markus_wa.demoinfocs_golang.s2.EWeaponType type = 3 [default = EWT_Knife];
 	optional int32 ammo_clip = 4;
 	optional int32 ammo_clip_max = 5;
 	optional int32 ammo_reserve = 6;
@@ -80,10 +80,10 @@ message MLPlayerState {
 	optional int32 entindex = 3;
 	optional string name = 4;
 	optional string clan = 5;
-	optional ETeam team = 6 [default = ET_Unknown];
-	optional CMsgVector abspos = 7;
-	optional CMsgQAngle eyeangle = 8;
-	optional CMsgVector eyeangle_fwd = 9;
+	optional com.github.markus_wa.demoinfocs_golang.s2.ETeam team = 6 [default = ET_Unknown];
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector abspos = 7;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle eyeangle = 8;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector eyeangle_fwd = 9;
 	optional int32 health = 10;
 	optional int32 armor = 11;
 	optional float flashed = 12;
@@ -94,13 +94,13 @@ message MLPlayerState {
 	optional float burning = 17;
 	optional bool helmet = 18;
 	optional bool defuse_kit = 19;
-	repeated MLWeaponState weapons = 20;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.MLWeaponState weapons = 20;
 }
 
 message MLGameState {
-	optional MLMatchState match = 1;
-	optional MLRoundState round = 2;
-	repeated MLPlayerState players = 3;
+	optional com.github.markus_wa.demoinfocs_golang.s2.MLMatchState match = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.MLRoundState round = 2;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.MLPlayerState players = 3;
 }
 
 message MLDemoHeader {
@@ -112,8 +112,8 @@ message MLDemoHeader {
 
 message MLTick {
 	optional int32 tick_count = 1;
-	optional MLGameState state = 2;
-	repeated MLEvent events = 3;
+	optional com.github.markus_wa.demoinfocs_golang.s2.MLGameState state = 2;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.MLEvent events = 3;
 }
 
 message VacNetShot {

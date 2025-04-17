@@ -42,7 +42,7 @@ message CMsgGCStorePurchaseInit {
 	optional string country = 1;
 	optional int32 language = 2;
 	optional int32 currency = 3;
-	repeated CGCStorePurchaseInit_LineItem line_items = 4;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CGCStorePurchaseInit_LineItem line_items = 4;
 }
 
 message CMsgGCStorePurchaseInitResponse {
@@ -125,7 +125,7 @@ message CSOItemCriteria {
 	optional uint32 initial_inventory = 5;
 	optional uint32 initial_quantity = 6;
 	optional bool ignore_enabled_flag = 8;
-	repeated CSOItemCriteriaCondition conditions = 9;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CSOItemCriteriaCondition conditions = 9;
 	optional int32 item_rarity = 10;
 	optional bool item_rarity_set = 11;
 	optional bool recent_only = 12;
@@ -148,14 +148,14 @@ message CSOItemRecipe {
 	optional int32 class_usage_for_output = 14;
 	optional int32 slot_usage_for_output = 15;
 	optional int32 set_for_output = 16;
-	repeated CSOItemCriteria input_items_criteria = 20;
-	repeated CSOItemCriteria output_items_criteria = 21;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CSOItemCriteria input_items_criteria = 20;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CSOItemCriteria output_items_criteria = 21;
 	repeated uint32 input_item_dupe_counts = 22;
 }
 
 message CMsgDevNewItemRequest {
 	optional fixed64 receiver = 1;
-	optional CSOItemCriteria criteria = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CSOItemCriteria criteria = 2;
 }
 
 message CMsgIncrementKillCountAttribute {
@@ -230,12 +230,12 @@ message CSOEconItem {
 	optional uint32 origin = 9;
 	optional string custom_name = 10;
 	optional string custom_desc = 11;
-	repeated CSOEconItemAttribute attribute = 12;
-	optional CSOEconItem interior_item = 13;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CSOEconItemAttribute attribute = 12;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CSOEconItem interior_item = 13;
 	optional bool in_use = 14 [default = false];
 	optional uint32 style = 15 [default = 0];
 	optional uint64 original_id = 16 [default = 0];
-	repeated CSOEconItemEquipped equipped_state = 18;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CSOEconItemEquipped equipped_state = 18;
 	optional uint32 rarity = 19;
 }
 
@@ -295,7 +295,7 @@ message CMsgConVarValue {
 }
 
 message CMsgReplicateConVars {
-	repeated CMsgConVarValue convars = 1;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgConVarValue convars = 1;
 }
 
 message CMsgUseItem {
@@ -333,7 +333,7 @@ message CMsgSetItemPositions {
 		optional uint64 item_id = 3;
 	}
 
-	repeated CMsgSetItemPositions.ItemPosition item_positions = 1;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSetItemPositions.ItemPosition item_positions = 1;
 }
 
 message CMsgGCReportAbuse {
@@ -436,17 +436,17 @@ message CMsgGCRequestAnnouncementsResponse {
 
 message CMsgGCBannedWord {
 	optional uint32 word_id = 1;
-	optional GC_BannedWordType word_type = 2 [default = GC_BANNED_WORD_DISABLE_WORD];
+	optional com.github.markus_wa.demoinfocs_golang.s2.GC_BannedWordType word_type = 2 [default = GC_BANNED_WORD_DISABLE_WORD];
 	optional string word = 3;
 }
 
 message CMsgGCBannedWordListResponse {
 	optional uint32 ban_list_group_id = 1;
-	repeated CMsgGCBannedWord word_list = 2;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCBannedWord word_list = 2;
 }
 
 message CMsgGCToGCBannedWordListBroadcast {
-	optional CMsgGCBannedWordListResponse broadcast = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCBannedWordListResponse broadcast = 1;
 }
 
 message CMsgGCToGCBannedWordListUpdated {
@@ -524,7 +524,7 @@ message CMsgGameServerInfo {
 	optional uint32 server_tv_port = 4;
 	optional string server_key = 5;
 	optional bool server_hibernation = 6;
-	optional CMsgGameServerInfo.ServerType server_type = 7 [default = UNSPECIFIED];
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGameServerInfo.ServerType server_type = 7 [default = UNSPECIFIED];
 	optional uint32 server_region = 8;
 	optional float server_loadavg = 9;
 	optional float server_tv_broadcast_time = 10;
@@ -553,7 +553,7 @@ message CMsgAdjustEquipSlot {
 }
 
 message CMsgAdjustEquipSlots {
-	repeated CMsgAdjustEquipSlot slots = 1;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgAdjustEquipSlot slots = 1;
 	optional uint32 change_num = 2;
 }
 

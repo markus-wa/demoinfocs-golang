@@ -138,16 +138,16 @@ message PublishedFileDetails {
 	optional string shortcutname = 48;
 	optional uint32 num_children = 49;
 	optional uint32 num_reports = 50;
-	repeated PublishedFileDetails.Preview previews = 51;
-	repeated PublishedFileDetails.Tag tags = 52;
-	repeated PublishedFileDetails.Child children = 53;
-	repeated PublishedFileDetails.KVTag kvtags = 54;
-	optional PublishedFileDetails.VoteData vote_data = 55;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.PublishedFileDetails.Preview previews = 51;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.PublishedFileDetails.Tag tags = 52;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.PublishedFileDetails.Child children = 53;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.PublishedFileDetails.KVTag kvtags = 54;
+	optional com.github.markus_wa.demoinfocs_golang.s2.PublishedFileDetails.VoteData vote_data = 55;
 	optional uint32 time_subscribed = 56 [(description) = "Only valid in PublishedFile.GetUserFiles and not normal PublishedFile.GetDetail calls"];
 }
 
 message CPublishedFile_GetDetails_Response {
-	repeated PublishedFileDetails publishedfiledetails = 1;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.PublishedFileDetails publishedfiledetails = 1;
 }
 
 message CPublishedFile_GetUserFiles_Request {
@@ -172,8 +172,8 @@ message CPublishedFile_GetUserFiles_Response {
 
 	optional uint32 total = 1;
 	optional uint32 startindex = 2;
-	repeated PublishedFileDetails publishedfiledetails = 3;
-	repeated CPublishedFile_GetUserFiles_Response.App apps = 4;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.PublishedFileDetails publishedfiledetails = 3;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CPublishedFile_GetUserFiles_Response.App apps = 4;
 }
 
 message CPublishedFile_Update_Request {

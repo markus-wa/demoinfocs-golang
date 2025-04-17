@@ -17,11 +17,11 @@ message CMsgSteamDatagramSessionCryptInfo {
 		CURVE25519 = 1;
 	}
 
-	optional CMsgSteamDatagramSessionCryptInfo.EKeyType key_type = 1 [default = INVALID];
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramSessionCryptInfo.EKeyType key_type = 1 [default = INVALID];
 	optional bytes key_data = 2;
 	optional fixed64 nonce = 3;
 	optional uint32 protocol_version = 4;
-	repeated ESteamNetworkingSocketsCipher ciphers = 5;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.ESteamNetworkingSocketsCipher ciphers = 5;
 }
 
 message CMsgSteamDatagramSessionCryptInfoSigned {
@@ -96,8 +96,8 @@ message CMsgSteamDatagramLinkLifetimeStats {
 }
 
 message CMsgSteamDatagramConnectionQuality {
-	optional CMsgSteamDatagramLinkInstantaneousStats instantaneous = 1;
-	optional CMsgSteamDatagramLinkLifetimeStats lifetime = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramLinkInstantaneousStats instantaneous = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramLinkLifetimeStats lifetime = 2;
 }
 
 message CMsgICECandidate {
@@ -109,22 +109,22 @@ message CMsgICERendezvous {
 		optional string pwd_frag = 1;
 	}
 
-	optional CMsgICERendezvous.Auth auth = 2;
-	optional CMsgICECandidate add_candidate = 1;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgICERendezvous.Auth auth = 2;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgICECandidate add_candidate = 1;
 }
 
 message CMsgSteamNetworkingP2PRendezvous {
 	message ConnectRequest {
-		optional CMsgSteamDatagramSessionCryptInfoSigned crypt = 6;
-		optional CMsgSteamDatagramCertificateSigned cert = 7;
+		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramSessionCryptInfoSigned crypt = 6;
+		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramCertificateSigned cert = 7;
 		optional uint32 to_virtual_port = 9;
 		optional uint32 from_virtual_port = 10;
 		optional string from_fakeip = 11;
 	}
 
 	message ConnectOK {
-		optional CMsgSteamDatagramSessionCryptInfoSigned crypt = 5;
-		optional CMsgSteamDatagramCertificateSigned cert = 6;
+		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramSessionCryptInfoSigned crypt = 5;
+		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramCertificateSigned cert = 6;
 	}
 
 	message ConnectionClosed {
@@ -133,7 +133,7 @@ message CMsgSteamNetworkingP2PRendezvous {
 	}
 
 	message ReliableMessage {
-		optional CMsgICERendezvous ice = 1;
+		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgICERendezvous ice = 1;
 	}
 
 	message ApplicationMessage {
@@ -151,13 +151,13 @@ message CMsgSteamNetworkingP2PRendezvous {
 	optional uint32 ack_peer_routes_revision = 3;
 	optional bool ice_enabled = 7;
 	optional bytes hosted_server_ticket = 14;
-	optional CMsgSteamNetworkingP2PRendezvous.ConnectRequest connect_request = 4;
-	optional CMsgSteamNetworkingP2PRendezvous.ConnectOK connect_ok = 5;
-	optional CMsgSteamNetworkingP2PRendezvous.ConnectionClosed connection_closed = 6;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamNetworkingP2PRendezvous.ConnectRequest connect_request = 4;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamNetworkingP2PRendezvous.ConnectOK connect_ok = 5;
+	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamNetworkingP2PRendezvous.ConnectionClosed connection_closed = 6;
 	optional uint32 ack_reliable_msg = 11;
 	optional uint32 first_reliable_msg = 12;
-	repeated CMsgSteamNetworkingP2PRendezvous.ReliableMessage reliable_messages = 13;
-	repeated CMsgSteamNetworkingP2PRendezvous.ApplicationMessage application_messages = 15;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamNetworkingP2PRendezvous.ReliableMessage reliable_messages = 13;
+	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamNetworkingP2PRendezvous.ApplicationMessage application_messages = 15;
 }
 
 message CMsgSteamNetworkingICESessionSummary {
