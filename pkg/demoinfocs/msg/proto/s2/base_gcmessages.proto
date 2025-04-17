@@ -102,6 +102,7 @@ message CMsgLANServerAvailable {
 
 message CSOEconGameAccountClient {
 	optional uint32 additional_backpack_slots = 1 [default = 0];
+	optional fixed32 trade_ban_expiration = 6;
 	optional fixed32 bonus_xp_timestamp_refresh = 12;
 	optional uint32 bonus_xp_usedflags = 13;
 	optional uint32 elevated_state = 14;
@@ -175,6 +176,8 @@ message CMsgApplySticker {
 	optional float sticker_scale = 7;
 	optional float sticker_offset_x = 8;
 	optional float sticker_offset_y = 9;
+	optional float sticker_offset_z = 10;
+	optional float sticker_wear_target = 11;
 }
 
 message CMsgModifyItemAttribute {

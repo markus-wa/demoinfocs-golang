@@ -37,7 +37,6 @@ func (p *parser) handleClassInfo(msg *msg.CDemoClassInfo) {
 
 var netMsgCreators = map[msg.NET_Messages]NetMessageCreator{
 	msg.NET_Messages_net_NOP:                        func() proto.Message { return &msg.CNETMsg_NOP{} },
-	msg.NET_Messages_net_Disconnect_Legacy:          func() proto.Message { return &msg.CNETMsg_Disconnect_Legacy{} },
 	msg.NET_Messages_net_SplitScreenUser:            func() proto.Message { return &msg.CNETMsg_SplitScreenUser{} },
 	msg.NET_Messages_net_Tick:                       func() proto.Message { return &msg.CNETMsg_Tick{} },
 	msg.NET_Messages_net_StringCmd:                  func() proto.Message { return &msg.CNETMsg_StringCmd{} },
@@ -79,7 +78,6 @@ var svcMsgCreators = map[msg.SVC_Messages]NetMessageCreator{
 	msg.SVC_Messages_svc_FullFrameSplit:          func() proto.Message { return &msg.CSVCMsg_FullFrameSplit{} },
 	msg.SVC_Messages_svc_RconServerDetails:       func() proto.Message { return &msg.CSVCMsg_RconServerDetails{} },
 	msg.SVC_Messages_svc_UserMessage:             func() proto.Message { return &msg.CSVCMsg_UserMessage{} },
-	msg.SVC_Messages_svc_HltvReplay:              func() proto.Message { return &msg.CSVCMsg_HltvReplay{} },
 	msg.SVC_Messages_svc_Broadcast_Command:       func() proto.Message { return &msg.CSVCMsg_Broadcast_Command{} },
 	msg.SVC_Messages_svc_HltvFixupOperatorStatus: func() proto.Message { return &msg.CSVCMsg_HltvFixupOperatorStatus{} },
 	msg.SVC_Messages_svc_UserCmds:                func() proto.Message { return &msg.CSVCMsg_UserCommands{} },
@@ -130,6 +128,7 @@ var usrMsgCreators = map[msg.EBaseUserMessages]NetMessageCreator{
 	msg.EBaseUserMessages_UM_InventoryResponse:       func() proto.Message { return &msg.CUserMessage_Inventory_Response{} },
 	msg.EBaseUserMessages_UM_UtilActionResponse:      func() proto.Message { return &msg.CUserMessage_UtilMsg_Response{} },
 	msg.EBaseUserMessages_UM_DllStatusResponse:       func() proto.Message { return &msg.CUserMessage_DllStatus{} },
+	msg.EBaseUserMessages_UM_RequestDiagnostic:       func() proto.Message { return &msg.CUserMessageRequestDiagnostic{} },
 	msg.EBaseUserMessages_UM_DiagnosticResponse:      func() proto.Message { return &msg.CUserMessage_Diagnostic_Response{} },
 	msg.EBaseUserMessages_UM_ExtraUserData:           func() proto.Message { return &msg.CUserMessage_ExtraUserData{} },
 	msg.EBaseUserMessages_UM_NotifyResponseFound:     func() proto.Message { return &msg.CUserMessage_NotifyResponseFound{} },
@@ -379,10 +378,15 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 	switch {
 	case networkProtocol < 13992:
 		return eventListFolder.ReadFile("event-list-dump/13990.bin")
-	case networkProtocol >= 13992 && networkProtocol < 14023:
+
+	case networkProtocol < 14023:
 		return eventListFolder.ReadFile("event-list-dump/13992.bin")
-	default:
+
+	case networkProtocol < 14069:
 		return eventListFolder.ReadFile("event-list-dump/14023.bin")
+
+	default:
+		return eventListFolder.ReadFile("event-list-dump/14070.bin")
 	}
 }
 

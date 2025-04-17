@@ -263,6 +263,7 @@ func (p *parser) parseFrame() bool {
 
 			return false
 		}
+	msgs2.EDemoCommands_DEM_Recovery:        func() proto.Message { return &msgs2.CDemoRecovery{} },
 
 		size = uint32(p.bitReader.ReadInt(32))
 	} else {

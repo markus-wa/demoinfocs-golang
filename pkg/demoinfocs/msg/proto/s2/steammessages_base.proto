@@ -88,7 +88,17 @@ message CMsgIPAddressBucket {
 	optional fixed64 bucket = 2;
 }
 
+message CMsgGCRoutingProtoBufHeader {
+	optional uint64 dst_gcid_queue = 1;
+	optional uint32 dst_gc_dir_index = 2;
+}
+
 message CMsgProtoBufHeader {
+	enum ESessionDisposition {
+		k_ESessionDispositionNormal = 0;
+		k_ESessionDispositionDisconnect = 1;
+	}
+
 	optional fixed64 steamid = 1;
 	optional int32 client_sessionid = 2;
 	optional uint32 routing_appid = 3;
@@ -114,6 +124,12 @@ message CMsgProtoBufHeader {
 	optional uint32 realm = 32 [default = 0];
 	optional int32 timeout_ms = 33 [default = -1];
 	optional string debug_source = 34;
+	optional uint32 debug_source_string_index = 35;
+	optional uint64 token_id = 36;
+	optional CMsgGCRoutingProtoBufHeader routing_gc = 37;
+	optional CMsgProtoBufHeader.ESessionDisposition session_disposition = 38 [default = k_ESessionDispositionNormal];
+	optional string wg_token = 39;
+	optional string webui_auth_key = 40;
 
 	oneof ip_addr {
 		uint32 ip = 15;
@@ -138,6 +154,8 @@ message CMsgAuthTicket {
 	optional uint32 h_steam_pipe = 5;
 	optional uint32 ticket_crc = 6;
 	optional bytes ticket = 7;
+	optional bytes server_secret = 8;
+	optional uint32 ticket_type = 9;
 }
 
 message CCDDBAppDetailCommon {
@@ -153,6 +171,9 @@ message CCDDBAppDetailCommon {
 	optional bool has_adult_content = 12;
 	optional bool is_visible_in_steam_china = 13;
 	optional uint32 app_type = 14;
+	optional bool has_adult_content_sex = 15;
+	optional bool has_adult_content_violence = 16;
+	repeated uint32 content_descriptorids = 17;
 }
 
 message CMsgAppRights {
@@ -234,6 +255,7 @@ message CCommunity_ClanAnnouncementInfo {
 	optional int32 voteupcount = 14;
 	optional int32 votedowncount = 15;
 	optional EBanContentCheckResult ban_check_result = 16 [default = k_EBanContentCheckResult_NotScanned];
+	optional bool banned = 17;
 }
 
 message CClanEventData {
@@ -300,4 +322,13 @@ message CMsgKeyValuePair {
 
 message CMsgKeyValueSet {
 	repeated CMsgKeyValuePair pairs = 1;
+}
+
+message UserContentDescriptorPreferences {
+	message ContentDescriptor {
+		optional uint32 content_descriptorid = 1;
+		optional uint32 timestamp_added = 2;
+	}
+
+	repeated UserContentDescriptorPreferences.ContentDescriptor content_descriptors_to_exclude = 1;
 }

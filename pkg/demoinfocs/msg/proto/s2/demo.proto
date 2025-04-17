@@ -20,7 +20,8 @@ enum EDemoCommands {
 	DEM_SpawnGroups = 15;
 	DEM_AnimationData = 16;
 	DEM_AnimationHeader = 17;
-	DEM_Max = 18;
+	DEM_Recovery = 18;
+	DEM_Max = 19;
 	DEM_IsCompressed = 64;
 }
 
@@ -55,7 +56,7 @@ message CGameInfo {
 		message CHeroSelectEvent {
 			optional bool is_pick = 1;
 			optional uint32 team = 2;
-			optional uint32 hero_id = 3;
+			optional int32 hero_id = 3;
 		}
 
 		optional uint64 match_id = 1;
@@ -172,4 +173,14 @@ message CDemoUserCmd {
 
 message CDemoSpawnGroups {
 	repeated bytes msgs = 3;
+}
+
+message CDemoRecovery {
+	message DemoInitialSpawnGroupEntry {
+		optional uint32 spawngrouphandle = 1;
+		optional bool was_created = 2;
+	}
+
+	optional CDemoRecovery.DemoInitialSpawnGroupEntry initial_spawn_group = 1;
+	optional bytes spawn_group_message = 2;
 }
