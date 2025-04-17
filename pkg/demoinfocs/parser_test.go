@@ -10,8 +10,6 @@ import (
 
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/stretchr/testify/assert"
-
-	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 )
 
 func TestParser_CurrentFrame(t *testing.T) {
@@ -38,7 +36,7 @@ func TestParser_TickRate(t *testing.T) {
 
 func TestParser_TickRate_FallbackToHeader(t *testing.T) {
 	p := &parser{
-		header: &common.DemoHeader{
+		header: &header{
 			PlaybackTime:  time.Second,
 			PlaybackTicks: 5,
 		},
@@ -53,7 +51,7 @@ func TestParser_TickTime(t *testing.T) {
 
 func TestParser_TickTime_FallbackToHeader(t *testing.T) {
 	p := &parser{
-		header: &common.DemoHeader{
+		header: &header{
 			PlaybackTime:  time.Second,
 			PlaybackTicks: 5,
 		},
@@ -64,7 +62,7 @@ func TestParser_TickTime_FallbackToHeader(t *testing.T) {
 
 func TestParser_Progress_NoHeader(t *testing.T) {
 	assert.Zero(t, new(parser).Progress())
-	assert.Zero(t, (&parser{header: &common.DemoHeader{}}).Progress())
+	assert.Zero(t, (&parser{header: &header{}}).Progress())
 }
 
 func TestRecoverFromUnexpectedEOF(t *testing.T) {

@@ -8,6 +8,7 @@ import (
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
 	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 )
 
 // Run like this: go run print_events.go -demo /path/to/demo.dem
@@ -20,10 +21,9 @@ func main() {
 	p := demoinfocs.NewParser(f)
 	defer p.Close()
 
-	// Parse header
-	header, err := p.ParseHeader()
-	checkError(err)
-	fmt.Println("Map:", header.MapName)
+	p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_ServerInfo) {
+		fmt.Println("Map:", m.GetMapName())
+	})
 
 	// Register handler on kill events
 	p.RegisterEventHandler(func(e events.Kill) {

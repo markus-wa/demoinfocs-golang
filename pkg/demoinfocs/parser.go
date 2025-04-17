@@ -35,6 +35,42 @@ type sendTableParser interface {
 	OnEntity(h st.EntityHandler)
 }
 
+// header contains information from a demo's header.
+type header struct {
+	Filestamp       string        // aka. File-type, must be HL2DEMO
+	NetworkProtocol int           // Not sure what this is for
+	ServerName      string        // Server's 'hostname' config value
+	ClientName      string        // Usually 'GOTV Demo'
+	MapName         string        // E.g. de_cache, de_nuke, cs_office, etc.
+	GameDirectory   string        // Usually 'csgo'
+	PlaybackTime    time.Duration // Demo duration in seconds (= PlaybackTicks / Server's tickrate)
+	PlaybackTicks   int           // Game duration in ticks (= PlaybackTime * Server's tickrate)
+	PlaybackFrames  int           // Amount of 'frames' aka demo-ticks recorded (= PlaybackTime * Demo's recording rate)
+}
+
+// FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
+// Not necessarily the tick-rate the server ran on during the game.
+//
+// Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
+func (h *header) FrameRate() float64 {
+	if h.PlaybackTime == 0 {
+		return 0
+	}
+
+	return float64(h.PlaybackFrames) / h.PlaybackTime.Seconds()
+}
+
+// FrameTime returns the time a frame / demo-tick takes in seconds.
+//
+// Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
+func (h *header) FrameTime() time.Duration {
+	if h.PlaybackFrames == 0 {
+		return 0
+	}
+
+	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackFrames))
+}
+
 /*
 Parser can parse a CS:GO demo.
 Creating a new instance is done via NewParser().
@@ -50,8 +86,6 @@ Example (without error handling):
 	f, _ := os.Open("/path/to/demo.dem")
 	p := dem.NewParser(f)
 	defer p.Close()
-	header := p.ParseHeader()
-	fmt.Println("Map:", header.MapName)
 	p.RegisterEventHandler(func(e events.BombExplode) {
 		fmt.Printf(e.Site, "went BOOM!")
 	})
@@ -70,9 +104,9 @@ type parser struct {
 	msgDispatcher                   *dp.Dispatcher            // Net-message dispatcher
 	gameEventHandler                gameEventHandler
 	eventDispatcher                 *dp.Dispatcher
-	currentFrame                    int                // Demo-frame, not ingame-tick
-	tickInterval                    float32            // Duration between ticks in seconds
-	header                          *common.DemoHeader // Pointer so we can check for nil
+	currentFrame                    int     // Demo-frame, not ingame-tick
+	tickInterval                    float32 // Duration between ticks in seconds
+	header                          *header // Pointer so we can check for nil
 	gameState                       *gameState
 	demoInfoProvider                demoInfoProvider // Provides demo infos to other packages that the core package depends on
 	err                             error            // Contains a error that occurred during parsing if any
@@ -129,12 +163,6 @@ func (p *parser) ServerClasses() st.ServerClasses {
 	return p.stParser.ServerClasses()
 }
 
-// Header returns the DemoHeader which contains the demo's metadata.
-// Only possible after ParserHeader() has been called.
-func (p *parser) Header() common.DemoHeader {
-	return *p.header
-}
-
 // GameState returns the current game-state.
 // It contains most of the relevant information about the game such as players, teams, scores, grenades etc.
 func (p *parser) GameState() GameState {
@@ -142,7 +170,7 @@ func (p *parser) GameState() GameState {
 }
 
 // CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
-// Starts with frame 0, should go up to DemoHeader.PlaybackFrames but might not be the case (usually it's just close to it).
+// Starts with frame 0, should go up to header.PlaybackFrames but might not be the case (usually it's just close to it).
 func (p *parser) CurrentFrame() int {
 	return p.currentFrame
 }
@@ -168,7 +196,7 @@ func (p *parser) TickRate() float64 {
 	return -1
 }
 
-func legacyTickRate(h common.DemoHeader) float64 {
+func legacyTickRate(h header) float64 {
 	if h.PlaybackTime == 0 {
 		return 0
 	}
@@ -192,7 +220,7 @@ func (p *parser) TickTime() time.Duration {
 	return -1
 }
 
-func legayTickTime(h common.DemoHeader) time.Duration {
+func legayTickTime(h header) time.Duration {
 	if h.PlaybackTicks == 0 {
 		return 0
 	}
@@ -410,7 +438,7 @@ type ParserConfig struct {
 	// MsgQueueBufferSize defines the size of the internal net-message queue.
 	// For large demos, fast i/o and slow CPUs higher numbers are suggested and vice versa.
 	// The buffer size can easily be in the hundred-thousands to low millions for the best performance.
-	// A negative value will make the Parser automatically decide the buffer size during ParseHeader()
+	// A negative value will make the Parser automatically decide the buffer size during parseHeader()
 	// based on the number of ticks in the demo (nubmer of ticks = buffer size);
 	// this is the default behavior for DefaultParserConfig.
 	// Zero enforces sequential parsing.

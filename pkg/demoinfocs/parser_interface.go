@@ -8,8 +8,6 @@ import (
 
 	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 	dp "github.com/markus-wa/godispatch"
-
-	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 )
 
 // Parser is an auto-generated interface for Parser, intended to be used when mockability is needed.
@@ -27,8 +25,6 @@ import (
 //	f, _ := os.Open("/path/to/demo.dem")
 //	p := dem.NewParser(f)
 //	defer p.Close()
-//	header := p.ParseHeader()
-//	fmt.Println("Map:", header.MapName)
 //	p.RegisterEventHandler(func(e events.BombExplode) {
 //		fmt.Printf(e.Site, "went BOOM!")
 //	})
@@ -39,14 +35,11 @@ type Parser interface {
 	// ServerClasses returns the server-classes of this demo.
 	// These are available after events.DataTablesParsed has been fired.
 	ServerClasses() st.ServerClasses
-	// Header returns the DemoHeader which contains the demo's metadata.
-	// Only possible after ParserHeader() has been called.
-	Header() common.DemoHeader
 	// GameState returns the current game-state.
 	// It contains most of the relevant information about the game such as players, teams, scores, grenades etc.
 	GameState() GameState
 	// CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
-	// Starts with frame 0, should go up to DemoHeader.PlaybackFrames but might not be the case (usually it's just close to it).
+	// Starts with frame 0, should go up to header.PlaybackFrames but might not be the case (usually it's just close to it).
 	CurrentFrame() int
 	// CurrentTime returns the time elapsed since the start of the demo
 	CurrentTime() time.Duration
@@ -107,11 +100,6 @@ type Parser interface {
 	// This must be called before discarding the Parser to avoid memory leaks.
 	// Returns an error if closing of underlying resources fails.
 	Close() error
-	// ParseHeader attempts to parse the header of the demo and returns it.
-	// If not done manually this will be called by Parser.ParseNextFrame() or Parser.ParseToEnd().
-	//
-	// Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match HL2DEMO.
-	ParseHeader() (common.DemoHeader, error)
 	// ParseToEnd attempts to parse the demo until the end.
 	// Aborts and returns ErrCancelled if Cancel() is called before the end.
 	//

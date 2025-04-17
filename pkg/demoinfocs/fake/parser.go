@@ -10,7 +10,6 @@ import (
 	"golang.org/x/exp/constraints"
 
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
-	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
@@ -91,11 +90,6 @@ func (p *Parser) ServerClasses() st.ServerClasses {
 	return p.Called().Get(0).(st.ServerClasses)
 }
 
-// Header is a mock-implementation of Parser.Header().
-func (p *Parser) Header() common.DemoHeader {
-	return p.Called().Get(0).(common.DemoHeader)
-}
-
 // GameState is a mock-implementation of Parser.GameState().
 func (p *Parser) GameState() demoinfocs.GameState {
 	return p.Called().Get(0).(demoinfocs.GameState)
@@ -150,12 +144,6 @@ func (p *Parser) RegisterNetMessageHandler(handler any) dp.HandlerIdentifier {
 func (p *Parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 	p.Called()
 	p.msgDispatcher.UnregisterHandler(identifier)
-}
-
-// ParseHeader is a mock-implementation of Parser.ParseHeader().
-func (p *Parser) ParseHeader() (common.DemoHeader, error) {
-	args := p.Called()
-	return args.Get(0).(common.DemoHeader), args.Error(1)
 }
 
 // ParseToEnd is a mock-implementation of Parser.ParseToEnd().

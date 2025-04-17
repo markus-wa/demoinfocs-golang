@@ -66,12 +66,6 @@ func TestDemoInfoCs(t *testing.T) {
 		actual.WriteString(fmt.Sprintf("%#v\n", e))
 	})
 
-	t.Log("Parsing header")
-	h, err := p.ParseHeader()
-	assertions.NoError(err, "error returned by Parser.ParseHeader()")
-	assertions.Equal(h, p.Header(), "values returned by ParseHeader() and Header() don't match")
-	t.Logf("Header: %v - FrameRate()=%.2f frames/s ; FrameTime()=%s ; TickRate()=%.2f frames/s ; TickTime()=%s\n", h, h.FrameRate(), h.FrameTime(), p.TickRate(), p.TickTime())
-
 	t.Log("Registering handlers")
 	gs := p.GameState()
 	p.RegisterEventHandler(func(e events.RoundEnd) {
@@ -218,10 +212,6 @@ func TestS2(t *testing.T) {
 		})
 	}
 
-	t.Log("Parsing header")
-	_, err = p.ParseHeader()
-	assertions.NoError(err, "error returned by Parser.ParseHeader()")
-
 	t.Log("Parsing to end")
 	err = p.ParseToEnd()
 	assertions.NoError(err, "error occurred in ParseToEnd()")
@@ -315,10 +305,6 @@ func TestInvalidFileType(t *testing.T) {
 	msgWrongError := "invalid demo but error was not ErrInvalidFileType"
 
 	p := demoinfocs.NewParser(bytes.NewBuffer(invalidDemoData))
-	_, err = p.ParseHeader()
-	assert.Equal(t, demoinfocs.ErrInvalidFileType, err, msgWrongError)
-
-	p = demoinfocs.NewParser(bytes.NewBuffer(invalidDemoData))
 	_, err = p.ParseNextFrame()
 	assert.Equal(t, demoinfocs.ErrInvalidFileType, err, msgWrongError)
 
@@ -395,13 +381,6 @@ func testDemoSet(t *testing.T, path string) {
 
 				p.RegisterEventHandler(func(warn events.ParserWarn) {
 					switch warn.Type {
-					case events.WarnTypeBombsiteUnknown:
-						if p.Header().MapName == "de_grind" {
-							t.Log("expected known issue with bomb sites on de_grind occurred:", warn.Message)
-
-							return
-						}
-
 					case events.WarnTypeTeamSwapPlayerNil:
 						t.Log("expected known issue with team swaps occurred:", warn.Message)
 						return

@@ -24,42 +24,6 @@ const (
 	TeamCounterTerrorists Team = 3
 )
 
-// DemoHeader contains information from a demo's header.
-type DemoHeader struct {
-	Filestamp       string        // aka. File-type, must be HL2DEMO
-	NetworkProtocol int           // Not sure what this is for
-	ServerName      string        // Server's 'hostname' config value
-	ClientName      string        // Usually 'GOTV Demo'
-	MapName         string        // E.g. de_cache, de_nuke, cs_office, etc.
-	GameDirectory   string        // Usually 'csgo'
-	PlaybackTime    time.Duration // Demo duration in seconds (= PlaybackTicks / Server's tickrate)
-	PlaybackTicks   int           // Game duration in ticks (= PlaybackTime * Server's tickrate)
-	PlaybackFrames  int           // Amount of 'frames' aka demo-ticks recorded (= PlaybackTime * Demo's recording rate)
-}
-
-// FrameRate returns the frame rate of the demo (frames / demo-ticks per second).
-// Not necessarily the tick-rate the server ran on during the game.
-//
-// Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
-func (h *DemoHeader) FrameRate() float64 {
-	if h.PlaybackTime == 0 {
-		return 0
-	}
-
-	return float64(h.PlaybackFrames) / h.PlaybackTime.Seconds()
-}
-
-// FrameTime returns the time a frame / demo-tick takes in seconds.
-//
-// Returns 0 if PlaybackTime or PlaybackFrames are 0 (corrupt demo headers).
-func (h *DemoHeader) FrameTime() time.Duration {
-	if h.PlaybackFrames == 0 {
-		return 0
-	}
-
-	return time.Duration(h.PlaybackTime.Nanoseconds() / int64(h.PlaybackFrames))
-}
-
 // GrenadeProjectile is a grenade thrown intentionally by a player. It is used to track grenade projectile
 // positions between the time at which they are thrown and until they detonate.
 type GrenadeProjectile struct {

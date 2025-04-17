@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 	stfake "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables/fake"
 )
@@ -21,7 +20,7 @@ func (DevNullReader) Read(p []byte) (n int, err error) {
 
 func newParser() *parser {
 	p := NewParser(new(DevNullReader)).(*parser)
-	p.header = &common.DemoHeader{}
+	p.header = &header{}
 
 	return p
 }

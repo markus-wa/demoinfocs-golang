@@ -14,7 +14,6 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables/sendtablescs2"
 
-	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 )
 
@@ -39,12 +38,12 @@ var (
 	ErrInvalidFileType = errors.New("invalid File-Type; expecting HL2DEMO in the first 8 bytes (ErrInvalidFileType)")
 )
 
-// ParseHeader attempts to parse the header of the demo and returns it.
+// parseHeader attempts to parse the header of the demo and returns it.
 // If not done manually this will be called by Parser.ParseNextFrame() or Parser.ParseToEnd().
 //
 // Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match HL2DEMO.
-func (p *parser) ParseHeader() (common.DemoHeader, error) {
-	var h common.DemoHeader
+func (p *parser) parseHeader() (header, error) {
+	var h header
 
 	isCSTVBroadcast := p.config.Format == DemoFormatCSTVBroadcast
 
@@ -138,7 +137,7 @@ func (p *parser) ParseToEnd() (err error) {
 	}()
 
 	if p.header == nil {
-		_, err = p.ParseHeader()
+		_, err = p.parseHeader()
 		if err != nil {
 			return
 		}
@@ -208,7 +207,7 @@ func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 	}()
 
 	if p.header == nil {
-		_, err = p.ParseHeader()
+		_, err = p.parseHeader()
 		if err != nil {
 			return
 		}
@@ -237,6 +236,7 @@ var demoCommandMsgsCreators = map[msg.EDemoCommands]NetMessageCreator{
 	msg.EDemoCommands_DEM_SpawnGroups:     func() proto.Message { return &msg.CDemoSpawnGroups{} },
 	msg.EDemoCommands_DEM_AnimationData:   func() proto.Message { return &msg.CDemoAnimationData{} },
 	msg.EDemoCommands_DEM_AnimationHeader: func() proto.Message { return &msg.CDemoAnimationHeader{} },
+	msg.EDemoCommands_DEM_Recovery:        func() proto.Message { return &msg.CDemoRecovery{} },
 }
 
 func (p *parser) parseFrame() bool {
@@ -263,7 +263,6 @@ func (p *parser) parseFrame() bool {
 
 			return false
 		}
-	msgs2.EDemoCommands_DEM_Recovery:        func() proto.Message { return &msgs2.CDemoRecovery{} },
 
 		size = uint32(p.bitReader.ReadInt(32))
 	} else {

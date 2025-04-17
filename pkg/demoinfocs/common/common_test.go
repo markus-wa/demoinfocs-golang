@@ -2,7 +2,6 @@ package common
 
 import (
 	"testing"
-	"time"
 
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
@@ -30,25 +29,6 @@ func TestGrenadeProjectile_Velocity(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, p.Velocity())
-}
-
-func TestDemoHeader(t *testing.T) {
-	header := DemoHeader{
-		PlaybackFrames: 256,
-		PlaybackTicks:  512,
-		PlaybackTime:   4 * time.Second,
-	}
-
-	assert.Equal(t, float64(64), header.FrameRate(), "FrameRate should be 64")
-	assert.Equal(t, time.Second/64, header.FrameTime(), "FrameTime should be 1/64 sec")
-}
-
-func TestDemoHeader_FrameRate_PlaybackTime_Zero(t *testing.T) {
-	assert.Zero(t, new(DemoHeader).FrameRate())
-}
-
-func TestDemoHeader_FrameTime_PlaybackFrames_Zero(t *testing.T) {
-	assert.Zero(t, new(DemoHeader).FrameTime())
 }
 
 func TestTeamState_Team(t *testing.T) {
