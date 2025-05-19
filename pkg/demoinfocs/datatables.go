@@ -115,8 +115,11 @@ func (p *parser) bindBomb() {
 				if p.isSource2() {
 					planterHandle := bombEntity.PropertyValueMust("m_hOwnerEntity").Handle()
 					ctlHandle := p.gameState.entities[entityIDFromHandle(planterHandle, true)].PropertyValueMust("m_hController").Handle()
-					ctlID := p.gameState.entities[entityIDFromHandle(ctlHandle, true)].ID()
-					planter := p.gameState.playersByEntityID[ctlID]
+					ctl := p.gameState.entities[entityIDFromHandle(ctlHandle, true)]
+					if ctl == nil {
+						return
+					}
+					planter := p.gameState.playersByEntityID[ctl.ID()]
 
 					planter.IsPlanting = true
 					p.gameState.currentPlanter = planter
