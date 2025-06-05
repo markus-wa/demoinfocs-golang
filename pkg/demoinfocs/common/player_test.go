@@ -656,6 +656,65 @@ func TestPlayer_IsGrabbingHostage(t *testing.T) {
 	assert.True(t, pl.IsGrabbingHostage())
 }
 
+func TestPlayer_ViewmodelOffsetS1(t *testing.T) {
+	// Test CS:GO demo
+	pl := newPlayer(0)
+	assert.Equal(t, r3.Vector{}, pl.ViewmodelOffset())
+}
+
+func TestPlayer_ViewmodelOffsetS2(t *testing.T) {
+	// Set up controller entity with pawn references
+	controllerEntity := entityWithProperties([]fakeProp{
+		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
+		{propName: "m_hPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
+	})
+
+	// Set up pawn entity with viewmodel offset properties
+	pawnEntity := entityWithProperties([]fakeProp{
+		{propName: "m_flViewmodelOffsetX", value: st.PropertyValue{FloatVal: -1.5}},
+		{propName: "m_flViewmodelOffsetY", value: st.PropertyValue{FloatVal: 2.0}},
+		{propName: "m_flViewmodelOffsetZ", value: st.PropertyValue{FloatVal: -0.5}},
+	})
+
+	pl := &Player{Entity: controllerEntity}
+	pl.demoInfoProvider = demoInfoProviderMock{
+		isSource2: true,
+		entitiesByHandle: map[uint64]st.Entity{
+			1: pawnEntity,
+		},
+	}
+
+	assert.Equal(t, r3.Vector{X: -1.5, Y: 2.0, Z: -0.5}, pl.ViewmodelOffset())
+}
+
+func TestPlayer_ViewmodelFOVS1(t *testing.T) {
+	// Test CS:GO demo (should return 0 even with property)
+	pl := playerWithProperty("m_flViewmodelFOV", st.PropertyValue{FloatVal: 60})
+	pl.demoInfoProvider = s1DemoInfoProvider
+	assert.Equal(t, float32(0), pl.ViewmodelFOV())
+}
+
+func TestPlayer_ViewmodelFOVS2(t *testing.T) {
+	// Set up controller entity with pawn references
+	controllerEntity := entityWithProperties([]fakeProp{
+		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
+		{propName: "m_hPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
+	})
+
+	// Set up pawn entity with viewmodel FOV property
+	pawnEntity := entityWithProperty("m_flViewmodelFOV", st.PropertyValue{FloatVal: 60})
+
+	pl := &Player{Entity: controllerEntity}
+	pl.demoInfoProvider = demoInfoProviderMock{
+		isSource2: true,
+		entitiesByHandle: map[uint64]st.Entity{
+			1: pawnEntity,
+		},
+	}
+
+	assert.Equal(t, float32(60), pl.ViewmodelFOV())
+}
+
 func newPlayer(tick int) *Player {
 	return NewPlayer(mockDemoInfoProvider(128, tick))
 }
