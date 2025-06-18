@@ -651,6 +651,40 @@ func (p *Player) CrosshairCode() string {
 	return val.StringVal
 }
 
+// ViewmodelOffset returns the player's viewmodel offset as a 3D vector (X, Y, Z).
+// Returns zero vector if not available (CS:GO demos or player not alive).
+func (p *Player) ViewmodelOffset() r3.Vector {
+	if !p.demoInfoProvider.IsSource2() {
+		return r3.Vector{}
+	}
+
+	pawn := p.PlayerPawnEntity()
+	if pawn == nil {
+		return r3.Vector{}
+	}
+
+	return r3.Vector{
+		X: float64(getFloat(pawn, "m_flViewmodelOffsetX")),
+		Y: float64(getFloat(pawn, "m_flViewmodelOffsetY")),
+		Z: float64(getFloat(pawn, "m_flViewmodelOffsetZ")),
+	}
+}
+
+// ViewmodelFOV returns the player's viewmodel field of view.
+// Returns 0 if not available (CS:GO demos or player not alive).
+func (p *Player) ViewmodelFOV() float32 {
+	if !p.demoInfoProvider.IsSource2() {
+		return 0
+	}
+
+	pawn := p.PlayerPawnEntity()
+	if pawn == nil {
+		return 0
+	}
+
+	return getFloat(pawn, "m_flViewmodelFOV")
+}
+
 // Ping returns the players latency to the game server.
 func (p *Player) Ping() int {
 	// TODO change this func return type to uint64? (small BC)
