@@ -263,7 +263,7 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 	}
 
 	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)
-	geh.gameState().thrownGrenades = make(map[*common.Player][]*common.Equipment)
+	geh.gameState().thrownGrenades = make(map[*common.Player]map[common.EquipmentType]*common.Equipment)
 	geh.gameState().flyingFlashbangs = make([]*FlyingFlashbang, 0)
 }
 
@@ -933,7 +933,12 @@ func (geh gameEventHandler) addThrownGrenade(p *common.Player, wep *common.Equip
 	}
 
 	gameState := geh.gameState()
-	gameState.thrownGrenades[p] = append(gameState.thrownGrenades[p], wep)
+
+	if gameState.thrownGrenades[p] == nil {
+		gameState.thrownGrenades[p] = make(map[common.EquipmentType]*common.Equipment)
+	}
+
+	gameState.thrownGrenades[p][wep.Type] = wep
 }
 
 func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.EquipmentType) *common.Equipment {
@@ -942,14 +947,11 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 		return nil
 	}
 
-	// Get the first weapon we found for this player with this weapon type
-	for _, thrownGrenade := range geh.gameState().thrownGrenades[p] {
-		if isSameEquipmentElement(thrownGrenade.Type, wepType) {
-			return thrownGrenade
-		}
+	if geh.gameState().thrownGrenades[p] == nil {
+		return nil
 	}
 
-	return nil
+	return geh.gameState().thrownGrenades[p][wepType]
 }
 
 func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common.EquipmentType) {
@@ -958,17 +960,7 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 		return
 	}
 
-	gameState := geh.gameState()
-
-	// Delete the first weapon we found with this weapon type
-	for i, weapon := range gameState.thrownGrenades[p] {
-		// If same weapon type
-		// OR if it's an EqIncendiary we must check for EqMolotov too because of geh.infernoExpire() handling ?
-		if isSameEquipmentElement(wepType, weapon.Type) {
-			gameState.thrownGrenades[p] = append(gameState.thrownGrenades[p][:i], gameState.thrownGrenades[p][i+1:]...)
-			return
-		}
-	}
+	delete(geh.gameState().thrownGrenades[p], wepType)
 }
 
 func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, victimUserID int32) common.EquipmentType {
