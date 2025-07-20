@@ -239,19 +239,6 @@ message CSOEconItem {
 	optional uint32 rarity = 19;
 }
 
-message CMsgAdjustItemEquippedState {
-	optional uint64 item_id = 1;
-	optional uint32 new_class = 2;
-	optional uint32 new_slot = 3;
-	optional bool swap = 4;
-}
-
-message CMsgAdjustItemEquippedStateMulti {
-	repeated uint64 t_equips = 1;
-	repeated uint64 ct_equips = 2;
-	repeated uint64 noteam_equips = 3;
-}
-
 message CMsgSortItems {
 	optional uint32 sort_type = 1;
 }
@@ -451,13 +438,6 @@ message CMsgGCToGCBannedWordListBroadcast {
 
 message CMsgGCToGCBannedWordListUpdated {
 	optional uint32 group_id = 1;
-}
-
-message CSOEconDefaultEquippedDefinitionInstanceClient {
-	optional uint32 account_id = 1 [(key_field) = true];
-	optional uint32 item_definition = 2;
-	optional uint32 class_id = 3 [(key_field) = true];
-	optional uint32 slot_id = 4 [(key_field) = true];
 }
 
 message CMsgGCToGCDirtySDOCache {

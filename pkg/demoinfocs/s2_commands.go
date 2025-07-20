@@ -239,6 +239,9 @@ var csUsrMsgCreators = map[msgs2.ECstrike15UserMessages]NetMessageCreator{
 	msgs2.ECstrike15UserMessages_CS_UM_CurrentRoundOdds:             func() proto.Message { return &msgs2.CCSUsrMsg_CurrentRoundOdds{} },
 	msgs2.ECstrike15UserMessages_CS_UM_DeepStats:                    func() proto.Message { return &msgs2.CCSUsrMsg_DeepStats{} },
 	msgs2.ECstrike15UserMessages_CS_UM_ShootInfo:                    func() proto.Message { return &msgs2.CCSUsrMsg_ShootInfo{} },
+	msgs2.ECstrike15UserMessages_CS_UM_CounterStrafe:                func() proto.Message { return &msgs2.CCSUsrMsg_CounterStrafe{} },
+	msgs2.ECstrike15UserMessages_CS_UM_DamagePrediction:             func() proto.Message { return &msgs2.CCSUsrMsg_DamagePrediction{} },
+	msgs2.ECstrike15UserMessages_CS_UM_RecurringMissionSchema:       func() proto.Message { return &msgs2.CCSUsrMsg_RecurringMissionSchema{} },
 }
 
 var teCreators = map[msgs2.ETEProtobufIds]NetMessageCreator{
