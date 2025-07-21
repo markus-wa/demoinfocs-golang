@@ -7,20 +7,22 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 
-	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables/fake"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables/fake"
 )
 
 // See #90
 func TestRoundEnd_LoserState_Score(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	p.disableMimicSource1GameEvents = true
+	p.header = &common.DemoHeader{
+		Filestamp: "HL2DEMO",
+	}
 
-	p.gameState.tState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{Any: 1})
-	p.gameState.ctState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{Any: 2})
+	p.gameState.tState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{IntVal: 1})
+	p.gameState.ctState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{IntVal: 2})
 	eventOccurred := 0
 
 	p.RegisterEventHandler(func(e events.RoundEnd) {
@@ -34,10 +36,10 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 		})
 	})
 
-	p.gameEventDescs = map[int32]*msg.CMsgSource1LegacyGameEventListDescriptorT{
+	p.gameEventDescs = map[int32]*msg.CSVCMsg_GameEventListDescriptorT{
 		1: {
 			Name: proto.String("round_end"),
-			Keys: []*msg.CMsgSource1LegacyGameEventListKeyT{
+			Keys: []*msg.CSVCMsg_GameEventListKeyT{
 				{Name: proto.String("winner")},
 				{Name: proto.String("message")},
 				{Name: proto.String("reason")},
@@ -45,10 +47,10 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 		},
 	}
 
-	ge := new(msg.CMsgSource1LegacyGameEvent)
+	ge := new(msg.CSVCMsg_GameEvent)
 	ge.Eventid = proto.Int32(1)
 	ge.EventName = proto.String("round_end")
-	ge.Keys = []*msg.CMsgSource1LegacyGameEventKeyT{
+	ge.Keys = []*msg.CSVCMsg_GameEventKeyT{
 		{ValByte: proto.Int32(2)},
 		{ValString: proto.String("test")},
 		{ValByte: proto.Int32(9)},
@@ -113,7 +115,7 @@ func TestAddThrownGrenade(t *testing.T) {
 
 	assert.NotEmpty(t, p.gameState.thrownGrenades)
 	assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
-	assert.Equal(t, p.gameState.thrownGrenades[pl][common.EqHE], he)
+	assert.Equal(t, p.gameState.thrownGrenades[pl][common.EqHE][0], he)
 }
 
 func TestGetThrownGrenade_NilPlayer(t *testing.T) {

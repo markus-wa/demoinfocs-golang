@@ -10,35 +10,52 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
-	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
+	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 )
 
-func (p *parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
-	p.gameEventDescs = make(map[int32]*msg.CMsgSource1LegacyGameEventListDescriptorT)
+func (p *parser) handleGameEventList(gel *msg.CSVCMsg_GameEventList) {
+	p.gameEventDescs = make(map[int32]*msg.CSVCMsg_GameEventListDescriptorT)
 	for _, d := range gel.GetDescriptors() {
 		p.gameEventDescs[d.GetEventid()] = d
 	}
 }
 
-func (p *parser) handleGameEvent(ge *msg.CMsgSource1LegacyGameEvent) {
+func (p *parser) handleGameEventListS2(gel *msgs2.CMsgSource1LegacyGameEventList) {
+	s1desc := make([]*msg.CSVCMsg_GameEventListDescriptorT, 0, len(gel.GetDescriptors()))
+
+	for _, d := range gel.GetDescriptors() {
+		s1keys := make([]*msg.CSVCMsg_GameEventListKeyT, 0, len(d.Keys))
+
+		for _, k := range d.Keys {
+			s1keys = append(s1keys, &msg.CSVCMsg_GameEventListKeyT{
+				Type: k.Type,
+				Name: k.Name,
+			})
+		}
+
+		s1desc = append(s1desc, &msg.CSVCMsg_GameEventListDescriptorT{
+			Eventid: d.Eventid,
+			Name:    d.Name,
+			Keys:    s1keys,
+		})
+	}
+
+	p.handleGameEventList(&msg.CSVCMsg_GameEventList{
+		Descriptors: s1desc,
+	})
+}
+
+func (p *parser) handleGameEvent(ge *msg.CSVCMsg_GameEvent) {
 	if p.gameEventDescs == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: "received GameEvent but event descriptors are missing",
 			Type:    events.WarnTypeGameEventBeforeDescriptors,
 		})
 
-		list := new(msg.CMsgSource1LegacyGameEventList)
-
-		err := proto.Unmarshal(p.source2FallbackGameEventListBin, list)
-		if err != nil {
-			p.setError(err)
-
-			return
-		}
-
-		p.handleGameEventList(list)
+		return
 	}
 
 	desc := p.gameEventDescs[ge.GetEventid()]
@@ -64,6 +81,48 @@ func (p *parser) handleGameEvent(ge *msg.CMsgSource1LegacyGameEvent) {
 	})
 }
 
+func (p *parser) handleGameEventS2(ge *msgs2.CMsgSource1LegacyGameEvent) {
+	if p.gameEventDescs == nil {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "received GameEvent but event descriptors are missing",
+			Type:    events.WarnTypeGameEventBeforeDescriptors,
+		})
+
+		list := new(msgs2.CMsgSource1LegacyGameEventList)
+
+		err := proto.Unmarshal(p.source2FallbackGameEventListBin, list)
+		if err != nil {
+			p.setError(err)
+
+			return
+		}
+
+		p.handleGameEventListS2(list)
+	}
+
+	keys := make([]*msg.CSVCMsg_GameEventKeyT, 0, len(ge.Keys))
+
+	for _, k := range ge.Keys {
+		keys = append(keys, &msg.CSVCMsg_GameEventKeyT{
+			Type:      k.Type,
+			ValString: k.ValString,
+			ValFloat:  k.ValFloat,
+			ValLong:   k.ValLong,
+			ValShort:  k.ValShort,
+			ValByte:   k.ValByte,
+			ValBool:   k.ValBool,
+			ValUint64: k.ValUint64,
+		})
+	}
+
+	p.handleGameEvent(&msg.CSVCMsg_GameEvent{
+		EventName:   ge.EventName,
+		Eventid:     ge.Eventid,
+		Keys:        keys,
+		Passthrough: ge.Passthrough,
+	})
+}
+
 type gameEventHandler struct {
 	parser                      *parser
 	gameEventNameToHandler      map[string]gameEventHandlerFunc
@@ -82,7 +141,7 @@ func (geh gameEventHandler) gameState() *gameState {
 
 func (geh gameEventHandler) playerByUserID(userID int) *common.Player {
 	player := geh.gameState().playersByUserID[userID]
-	if player != nil {
+	if player != nil || !geh.parser.isSource2() {
 		return player
 	}
 
@@ -95,14 +154,14 @@ func (geh gameEventHandler) playerByUserID(userID int) *common.Player {
 }
 
 func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
-	if userID <= math.MaxUint16 {
+	if geh.parser.isSource2() && userID <= math.MaxUint16 {
 		userID &= 0xff
 	}
 
 	return geh.playerByUserID(int(userID))
 }
 
-type gameEventHandlerFunc func(map[string]*msg.CMsgSource1LegacyGameEventKeyT)
+type gameEventHandlerFunc func(map[string]*msg.CSVCMsg_GameEventKeyT)
 
 //nolint:funlen
 func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameEventHandler {
@@ -117,7 +176,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 	// some events can't be delayed because the required state is lost by the end of the tick
 	// TODO: maybe we're supposed to delay all of them and store the data we need until the end of the tick
 	delay := func(f gameEventHandlerFunc) gameEventHandlerFunc {
-		return func(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+		return func(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 			parser.delayedEventHandlers = append(parser.delayedEventHandlers, func() {
 				f(data)
 			})
@@ -126,7 +185,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 
 	// some events only need to be delayed at the start of the demo until players are connected
 	delayIfNoPlayers := func(f gameEventHandlerFunc) gameEventHandlerFunc {
-		return func(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+		return func(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 			if len(parser.gameState.playersByUserID) == 0 {
 				delay(f)(data)
 			} else {
@@ -169,6 +228,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"exit_buyzone":                    nil,                                   // Dunno, only in locally recorded (POV) demo
 		"flashbang_detonate":              geh.flashBangDetonate,                 // Flash exploded
 		"firstbombs_incoming_warning":     nil,                                   // First wave artillery incoming (Danger zone mode)
+		"grenade_thrown":                  nil,                                   // CS2 only, not reliable as it's not always present in demos and always fired. You should use "weapon_fire".
 		"hegrenade_detonate":              geh.heGrenadeDetonate,                 // HE exploded
 		"hostage_killed":                  geh.hostageKilled,                     // Hostage killed
 		"hostage_hurt":                    geh.hostageHurt,                       // Hostage hurt
@@ -178,6 +238,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"hltv_fixed":                      nil,                                   // Dunno
 		"hltv_message":                    nil,                                   // No clue
 		"hltv_status":                     nil,                                   // Don't know
+		"hltv_title":                      nil,                                   // Don't know
 		"hostname_changed":                nil,                                   // Only present in locally recorded (POV) demos
 		"inferno_expire":                  geh.infernoExpire,                     // Incendiary expired
 		"inferno_startburn":               delay(geh.infernoStartBurn),           // Incendiary exploded/started. Delayed because inferno entity is not yet created
@@ -267,8 +328,8 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 	geh.gameState().flyingFlashbangs = make([]*FlyingFlashbang, 0)
 }
 
-func (geh gameEventHandler) roundStart(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) roundStart(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -281,20 +342,20 @@ func (geh gameEventHandler) roundStart(data map[string]*msg.CMsgSource1LegacyGam
 	})
 }
 
-func (geh gameEventHandler) csWinPanelMatch(map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) csWinPanelMatch(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.AnnouncementWinPanelMatch{})
 }
 
-func (geh gameEventHandler) roundAnnounceFinal(map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) roundAnnounceFinal(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.AnnouncementFinalRound{})
 }
 
-func (geh gameEventHandler) roundAnnounceLastRoundHalf(map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) roundAnnounceLastRoundHalf(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.AnnouncementLastRoundHalf{})
 }
 
-func (geh gameEventHandler) roundEnd(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) roundEnd(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -318,8 +379,8 @@ func (geh gameEventHandler) roundEnd(data map[string]*msg.CMsgSource1LegacyGameE
 	})
 }
 
-func (geh gameEventHandler) roundOfficiallyEnded(map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) roundOfficiallyEnded(map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -328,14 +389,14 @@ func (geh gameEventHandler) roundOfficiallyEnded(map[string]*msg.CMsgSource1Lega
 	geh.dispatch(events.RoundEndOfficial{})
 }
 
-func (geh gameEventHandler) roundMVP(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) roundMVP(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.RoundMVPAnnouncement{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 		Reason: events.RoundMVPReason(data["reason"].GetValShort()),
 	})
 }
 
-func (geh gameEventHandler) botTakeover(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) botTakeover(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	taker := geh.playerByUserID32(data["userid"].GetValShort())
 
 	unassert.True(!taker.IsBot)
@@ -347,27 +408,27 @@ func (geh gameEventHandler) botTakeover(data map[string]*msg.CMsgSource1LegacyGa
 	})
 }
 
-func (geh gameEventHandler) beginNewMatch(map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) beginNewMatch(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.MatchStart{})
 }
 
-func (geh gameEventHandler) roundFreezeEnd(map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) roundFreezeEnd(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.RoundFreezetimeEnd{})
 }
 
-func (geh gameEventHandler) playerFootstep(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) playerFootstep(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.Footstep{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
 }
 
-func (geh gameEventHandler) playerJump(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) playerJump(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.PlayerJump{
 		Player: geh.playerByUserID32(data["userid"].GetValShort()),
 	})
 }
 
-func (geh gameEventHandler) playerSound(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) playerSound(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.PlayerSound{
 		Player:   geh.playerByUserID32(data["userid"].GetValShort()),
 		Radius:   int(data["radius"].GetValLong()),
@@ -375,8 +436,8 @@ func (geh gameEventHandler) playerSound(data map[string]*msg.CMsgSource1LegacyGa
 	})
 }
 
-func (geh gameEventHandler) weaponFire(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -389,7 +450,7 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CMsgSource1LegacyGam
 	})
 }
 
-func (geh gameEventHandler) weaponReload(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	pl := geh.playerByUserID32(data["userid"].GetValShort())
 	if pl == nil {
 		// see #162, "unknown" players since November 2019 update
@@ -403,11 +464,16 @@ func (geh gameEventHandler) weaponReload(data map[string]*msg.CMsgSource1LegacyG
 	})
 }
 
-func (geh gameEventHandler) playerDeath(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	killer := geh.playerByUserID32(data["attacker"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 	victimUserID := data["userid"].GetValShort()
 	wepType = geh.attackerWeaponType(wepType, victimUserID)
+
+	if killer == nil && data["attacker_pawn"] != nil {
+		// CS2 only, fallback to pawn handle if the killer was not found by its user ID
+		killer = geh.parser.gameState.Participants().FindByPawnHandle(uint64(data["attacker_pawn"].GetValLong()))
+	}
 
 	geh.dispatch(events.Kill{
 		Victim:            geh.playerByUserID32(data["userid"].GetValShort()),
@@ -424,7 +490,7 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CMsgSource1LegacyGa
 	})
 }
 
-func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	userID := data["userid"].GetValShort()
 	player := geh.playerByUserID32(userID)
 	attacker := geh.playerByUserID32(data["attacker"].GetValShort())
@@ -472,12 +538,12 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 	})
 }
 
-func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.userIDToFallDamageFrame[data["userid"].GetValShort()] = geh.parser.currentFrame
 }
 
-func (geh gameEventHandler) playerBlind(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -501,32 +567,32 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CMsgSource1LegacyGa
 	})
 }
 
-func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 
 	nadeEvent := geh.nadeEvent(data, common.EqFlash)
 
 	geh.gameState().lastFlash.player = nadeEvent.Thrower
 
-	if !geh.parser.disableMimicSource1GameEvents {
+	if !geh.parser.isSource2() || geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		geh.dispatch(events.FlashExplode{
 			GrenadeEvent: nadeEvent,
 		})
 	}
 }
 
-func (geh gameEventHandler) heGrenadeDetonate(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) heGrenadeDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.HeExplode{
 		GrenadeEvent: geh.nadeEvent(data, common.EqHE),
 	})
 }
 
-func (geh gameEventHandler) decoyStarted(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) decoyStarted(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.DecoyStart{
 		GrenadeEvent: geh.nadeEvent(data, common.EqDecoy),
 	})
 }
 
-func (geh gameEventHandler) decoyDetonate(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) decoyDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	event := geh.nadeEvent(data, common.EqDecoy)
 	geh.dispatch(events.DecoyExpired{
 		GrenadeEvent: event,
@@ -537,13 +603,13 @@ func (geh gameEventHandler) decoyDetonate(data map[string]*msg.CMsgSource1Legacy
 	})
 }
 
-func (geh gameEventHandler) smokeGrenadeDetonate(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) smokeGrenadeDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.SmokeStart{
 		GrenadeEvent: geh.nadeEvent(data, common.EqSmoke),
 	})
 }
 
-func (geh gameEventHandler) smokeGrenadeExpired(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) smokeGrenadeExpired(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	event := geh.nadeEvent(data, common.EqSmoke)
 	geh.dispatch(events.SmokeExpired{
 		GrenadeEvent: event,
@@ -552,19 +618,19 @@ func (geh gameEventHandler) smokeGrenadeExpired(data map[string]*msg.CMsgSource1
 	geh.deleteThrownGrenade(event.Thrower, common.EqSmoke)
 }
 
-func (geh gameEventHandler) infernoStartBurn(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) infernoStartBurn(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.FireGrenadeStart{
 		GrenadeEvent: geh.nadeEvent(data, common.EqIncendiary),
 	})
 }
 
-func (geh gameEventHandler) infernoExpire(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) infernoExpire(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.FireGrenadeExpired{
 		GrenadeEvent: geh.nadeEvent(data, common.EqIncendiary),
 	})
 }
 
-func (geh gameEventHandler) hostageHurt(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) hostageHurt(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	event := events.HostageHurt{
 		Player:  geh.playerByUserID32(data["userid"].GetValShort()),
 		Hostage: geh.gameState().hostages[int(data["hostage"].GetValShort())],
@@ -573,7 +639,7 @@ func (geh gameEventHandler) hostageHurt(data map[string]*msg.CMsgSource1LegacyGa
 	geh.dispatch(event)
 }
 
-func (geh gameEventHandler) hostageKilled(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) hostageKilled(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	event := events.HostageKilled{
 		Killer:  geh.playerByUserID32(data["userid"].GetValShort()),
 		Hostage: geh.gameState().hostages[int(data["hostage"].GetValShort())],
@@ -582,7 +648,7 @@ func (geh gameEventHandler) hostageKilled(data map[string]*msg.CMsgSource1Legacy
 	geh.dispatch(event)
 }
 
-func (geh gameEventHandler) hostageRescued(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) hostageRescued(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	event := events.HostageRescued{
 		Player:  geh.playerByUserID32(data["userid"].GetValShort()),
 		Hostage: geh.gameState().hostages[int(data["hostage"].GetValShort())],
@@ -591,11 +657,11 @@ func (geh gameEventHandler) hostageRescued(data map[string]*msg.CMsgSource1Legac
 	geh.dispatch(event)
 }
 
-func (geh gameEventHandler) HostageRescuedAll(map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) HostageRescuedAll(map[string]*msg.CSVCMsg_GameEventKeyT) {
 	geh.dispatch(events.HostageRescuedAll{})
 }
 
-func (geh gameEventHandler) bulletDamage(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) bulletDamage(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	event := events.BulletDamage{
 		Attacker:        geh.playerByUserID32(data["attacker"].GetValShort()),
 		Victim:          geh.playerByUserID32(data["victim"].GetValShort()),
@@ -611,7 +677,7 @@ func (geh gameEventHandler) bulletDamage(data map[string]*msg.CMsgSource1LegacyG
 	geh.dispatch(event)
 }
 
-func (geh gameEventHandler) playerConnect(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	pl := common.PlayerInfo{
 		UserID:       int(data["userid"].GetValShort()),
 		Name:         data["name"].GetValString(),
@@ -629,22 +695,46 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CMsgSource1Legacy
 		}
 	}
 
-	if !pl.IsFakePlayer && !pl.IsHltv && pl.XUID > 0 && pl.UserID <= math.MaxUint8 {
-		pl.UserID |= math.MaxUint8 << 8
+	var playerIndex int
+	if geh.parser.isSource2() {
+		playerIndex = pl.UserID
+		if !pl.IsFakePlayer && !pl.IsHltv && pl.XUID > 0 && pl.UserID <= math.MaxUint8 {
+			pl.UserID |= math.MaxUint8 << 8
+		}
+	} else {
+		playerIndex = int(data["index"].GetValByte())
 	}
 
-	geh.parser.setRawPlayer(pl.UserID, pl)
+	geh.parser.setRawPlayer(playerIndex, pl)
 }
 
-func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	uid := int(data["userid"].GetValShort())
-	if uid <= math.MaxUint16 {
+	if geh.parser.isSource2() && uid <= math.MaxUint16 {
 		uid &= 0xff
 	}
 
 	pl := geh.playerByUserID(uid)
 
-	if pl != nil && pl.IsBot {
+	if geh.parser.isSource2() {
+		if pl != nil && pl.IsBot {
+			geh.dispatch(events.PlayerDisconnected{
+				Player: pl,
+			})
+
+			pl.IsConnected = false
+		}
+		return
+	}
+
+	for k, v := range geh.parser.rawPlayers {
+		if v.UserID == uid {
+			delete(geh.parser.rawPlayers, k)
+		}
+	}
+
+	if pl != nil {
+		// Dispatch this event early since we delete the player on the next line
 		geh.dispatch(events.PlayerDisconnected{
 			Player: pl,
 		})
@@ -653,17 +743,20 @@ func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CMsgSource1Leg
 	}
 }
 
-func (geh gameEventHandler) playerTeam(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) playerTeam(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 	newTeam := common.Team(data["team"].GetValByte())
 
 	if player != nil {
 		if player.Team != newTeam {
-			// The "team" field may be incorrect with CS2 demos.
-			// As the prop m_iTeamNum (bound to player.Team) is updated before the game-event is fired we can force
-			// the correct team here.
-			// https://github.com/markus-wa/demoinfocs-golang/issues/494
-			newTeam = player.Team
+			if geh.parser.isSource2() {
+				// The "team" field may be incorrect with CS2 demos.
+				// As the prop m_iTeamNum (bound to player.Team) is updated before the game-event is fired we can force
+				// the correct team here.
+				// https://github.com/markus-wa/demoinfocs-golang/issues/494
+				newTeam = player.Team
+			}
+
 			player.Team = newTeam
 		}
 
@@ -687,8 +780,8 @@ func (geh gameEventHandler) playerTeam(data map[string]*msg.CMsgSource1LegacyGam
 	}
 }
 
-func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -704,8 +797,8 @@ func (geh gameEventHandler) bombBeginPlant(data map[string]*msg.CMsgSource1Legac
 	geh.dispatch(event)
 }
 
-func (geh gameEventHandler) bombPlanted(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) bombPlanted(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -725,8 +818,8 @@ func (geh gameEventHandler) bombPlanted(data map[string]*msg.CMsgSource1LegacyGa
 	geh.dispatch(event)
 }
 
-func (geh gameEventHandler) bombDefused(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) bombDefused(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -740,8 +833,8 @@ func (geh gameEventHandler) bombDefused(data map[string]*msg.CMsgSource1LegacyGa
 	geh.dispatch(events.BombDefused{BombEvent: bombEvent})
 }
 
-func (geh gameEventHandler) bombExploded(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) bombExploded(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -760,7 +853,7 @@ func (geh gameEventHandler) bombExploded(data map[string]*msg.CMsgSource1LegacyG
 // See https://github.com/markus-wa/demoinfocs-golang/issues/314
 var ErrBombsiteIndexNotFound = errors.New("bombsite index not found - see https://github.com/markus-wa/demoinfocs-golang/issues/314")
 
-func (geh gameEventHandler) bombEvent(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) (events.BombEvent, error) {
+func (geh gameEventHandler) bombEvent(data map[string]*msg.CSVCMsg_GameEventKeyT) (events.BombEvent, error) {
 	bombEvent := events.BombEvent{Player: geh.playerByUserID32(data["userid"].GetValShort())}
 
 	const gameEventKeyTypeLong = 3
@@ -808,8 +901,8 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CMsgSource1LegacyGame
 	return bombEvent, nil
 }
 
-func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -821,7 +914,7 @@ func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CMsgSource1Lega
 	})
 }
 
-func (geh gameEventHandler) itemEquip(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) itemEquip(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	player, weapon := geh.itemEvent(data)
 	geh.dispatch(events.ItemEquip{
 		Player: player,
@@ -829,7 +922,7 @@ func (geh gameEventHandler) itemEquip(data map[string]*msg.CMsgSource1LegacyGame
 	})
 }
 
-func (geh gameEventHandler) itemPickup(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) itemPickup(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	player, weapon := geh.itemEvent(data)
 	geh.dispatch(events.ItemPickup{
 		Player: player,
@@ -837,7 +930,7 @@ func (geh gameEventHandler) itemPickup(data map[string]*msg.CMsgSource1LegacyGam
 	})
 }
 
-func (geh gameEventHandler) itemRemove(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) itemRemove(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	player, weapon := geh.itemEvent(data)
 	geh.dispatch(events.ItemDrop{
 		Player: player,
@@ -845,7 +938,7 @@ func (geh gameEventHandler) itemRemove(data map[string]*msg.CMsgSource1LegacyGam
 	})
 }
 
-func (geh gameEventHandler) otherDeath(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+func (geh gameEventHandler) otherDeath(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	killer := geh.playerByUserID32(data["attacker"].GetValShort())
 	otherType := data["othertype"].GetValString()
 	otherID := data["otherid"].GetValShort()
@@ -874,7 +967,7 @@ func (geh gameEventHandler) otherDeath(data map[string]*msg.CMsgSource1LegacyGam
 	})
 }
 
-func (geh gameEventHandler) itemEvent(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) (*common.Player, *common.Equipment) {
+func (geh gameEventHandler) itemEvent(data map[string]*msg.CSVCMsg_GameEventKeyT) (*common.Player, *common.Equipment) {
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 
 	wepType := common.MapEquipment(data["item"].GetValString())
@@ -883,8 +976,8 @@ func (geh gameEventHandler) itemEvent(data map[string]*msg.CMsgSource1LegacyGame
 	return player, weapon
 }
 
-func (geh gameEventHandler) bombDropped(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) bombDropped(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -897,8 +990,8 @@ func (geh gameEventHandler) bombDropped(data map[string]*msg.CMsgSource1LegacyGa
 	})
 }
 
-func (geh gameEventHandler) bombPickup(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	if !geh.parser.disableMimicSource1GameEvents {
+func (geh gameEventHandler) bombPickup(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	if geh.parser.isSource2() && !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
 
@@ -908,8 +1001,19 @@ func (geh gameEventHandler) bombPickup(data map[string]*msg.CMsgSource1LegacyGam
 }
 
 // Just so we can nicely create GrenadeEvents in one line
-func (geh gameEventHandler) nadeEvent(data map[string]*msg.CMsgSource1LegacyGameEventKeyT, nadeType common.EquipmentType) events.GrenadeEvent {
-	thrower := geh.playerByUserID32(data["userid"].GetValShort())
+func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT, nadeType common.EquipmentType) events.GrenadeEvent {
+	var thrower *common.Player
+	// Sometimes only the position and the entityid are present.
+	// Since GetValShort() returns 0 for nil values, the thrower would be the player with UserID 0, so we need to check for the existence of the key.
+	if data["userid"] != nil {
+		thrower = geh.playerByUserID32(data["userid"].GetValShort())
+	}
+
+	// CS2 only - userid may be missing, but userid_pawn present.
+	if thrower == nil && data["userid_pawn"] != nil {
+		thrower = geh.gameState().Participants().FindByPawnHandle(uint64(data["userid_pawn"].GetValLong()))
+	}
+
 	position := r3.Vector{
 		X: float64(data["x"].GetValFloat()),
 		Y: float64(data["y"].GetValFloat()),
@@ -933,12 +1037,11 @@ func (geh gameEventHandler) addThrownGrenade(p *common.Player, wep *common.Equip
 	}
 
 	gameState := geh.gameState()
-
 	if gameState.thrownGrenades[p] == nil {
-		gameState.thrownGrenades[p] = make(map[common.EquipmentType]*common.Equipment)
+		gameState.thrownGrenades[p] = make(map[common.EquipmentType][]*common.Equipment)
 	}
 
-	gameState.thrownGrenades[p][wep.Type] = wep
+	gameState.thrownGrenades[p][wep.Type] = append(gameState.thrownGrenades[p][wep.Type], wep)
 }
 
 func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.EquipmentType) *common.Equipment {
@@ -947,11 +1050,32 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 		return nil
 	}
 
-	if geh.gameState().thrownGrenades[p] == nil {
+	playerGrenades := geh.gameState().thrownGrenades[p]
+	grenades := playerGrenades[wepType]
+
+	if len(grenades) == 0 {
+		// Molotovs/incendiaries may be reported as the opposite type in game-events. (i.e. incendiary reported as molotov and vice versa)
+		switch wepType { //nolint:exhaustive
+		case common.EqIncendiary:
+			grenades = playerGrenades[common.EqMolotov]
+		case common.EqMolotov:
+			grenades = playerGrenades[common.EqIncendiary]
+		}
+	}
+
+	if len(grenades) == 0 {
+		// The player might be controlling a bot, in such case the thrown grenade is stored in the bot's state.
+		bot := p.ControlledBot()
+		if bot != nil && bot.SteamID64 != p.SteamID64 {
+			return geh.getThrownGrenade(bot, wepType)
+		}
+	}
+
+	if len(grenades) == 0 {
 		return nil
 	}
 
-	return geh.gameState().thrownGrenades[p][wepType]
+	return grenades[len(grenades)-1]
 }
 
 func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common.EquipmentType) {
@@ -960,7 +1084,21 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 		return
 	}
 
-	delete(geh.gameState().thrownGrenades[p], wepType)
+	playerGrenades := geh.gameState().thrownGrenades[p]
+	if len(playerGrenades) == 0 {
+		return
+	}
+
+	grenades := playerGrenades[wepType]
+	if len(grenades) == 0 {
+		return
+	}
+
+	// Delete the first grenade thrown by the player and this grenade type.
+	playerGrenades[wepType] = grenades[:len(grenades)-1]
+	if len(playerGrenades[wepType]) == 0 {
+		delete(playerGrenades, wepType)
+	}
 }
 
 func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, victimUserID int32) common.EquipmentType {
@@ -994,13 +1132,6 @@ func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType 
 	return getPlayerWeapon(player, wepType)
 }
 
-// checks if two EquipmentElements are the same, considering that incendiary and molotov should be treated as identical
-func isSameEquipmentElement(a common.EquipmentType, b common.EquipmentType) bool {
-	return a == b ||
-		(a == common.EqIncendiary && b == common.EqMolotov) ||
-		(b == common.EqIncendiary && a == common.EqMolotov)
-}
-
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
 func getPlayerWeapon(player *common.Player, wepType common.EquipmentType) *common.Equipment {
 	if player != nil {
@@ -1017,8 +1148,8 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentType) *commo
 	return wep
 }
 
-func mapGameEventData(d *msg.CMsgSource1LegacyGameEventListDescriptorT, e *msg.CMsgSource1LegacyGameEvent) map[string]*msg.CMsgSource1LegacyGameEventKeyT {
-	data := make(map[string]*msg.CMsgSource1LegacyGameEventKeyT, len(d.Keys))
+func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_GameEvent) map[string]*msg.CSVCMsg_GameEventKeyT {
+	data := make(map[string]*msg.CSVCMsg_GameEventKeyT, len(d.Keys))
 	for i, k := range d.Keys {
 		data[k.GetName()] = e.Keys[i]
 	}
@@ -1112,7 +1243,7 @@ func (p *parser) processFlyingFlashbangs() {
 //
 // This makes sure game events are dispatched in a more expected order.
 func (p *parser) processFrameGameEvents() {
-	if !p.disableMimicSource1GameEvents {
+	if p.isSource2() && !p.disableMimicSource1GameEvents {
 		p.processFlyingFlashbangs()
 		p.processRoundProgressEvents()
 	}

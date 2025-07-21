@@ -56,7 +56,6 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_DraftSummary = 9162;
 	k_EMsgGCCStrike15_v2_ClientRequestJoinFriendData = 9163;
 	k_EMsgGCCStrike15_v2_ClientRequestJoinServerData = 9164;
-	k_EMsgGCCStrike15_v2_ClientRequestNewMission = 9165;
 	k_EMsgGCCStrike15_v2_GC2ClientTournamentInfo = 9167;
 	k_EMsgGC_GlobalGame_Subscribe = 9168;
 	k_EMsgGC_GlobalGame_Unsubscribe = 9169;
@@ -111,12 +110,19 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_Client2GcAckXPShopTracks = 9222;
 	k_EMsgGCCStrike15_v2_MatchmakingGC2ClientSearchStats = 9223;
 	k_EMsgGCCStrike15_v2_PremierSeasonSummary = 9224;
+	k_EMsgGCCStrike15_v2_RequestRecurringMissionSchedule = 9225;
+	k_EMsgGCCStrike15_v2_RecurringMissionSchema = 9226;
 }
 
 enum ECsgoSteamUserStat {
 	k_ECsgoSteamUserStat_XpEarnedGames = 1;
 	k_ECsgoSteamUserStat_MatchWinsCompetitive = 2;
 	k_ECsgoSteamUserStat_SurvivedDangerZone = 3;
+}
+
+enum QuestType {
+	k_EQuestType_Operation = 1;
+	k_EQuestType_RecurringMission = 2;
 }
 
 enum EClientReportingVersion {
@@ -169,7 +175,7 @@ message TournamentTeam {
 	optional string team_tag = 2;
 	optional string team_flag = 3;
 	optional string team_name = 4;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.TournamentPlayer players = 5;
+	repeated TournamentPlayer players = 5;
 }
 
 message TournamentEvent {
@@ -191,7 +197,7 @@ message GlobalStatistics {
 	optional uint32 servers_available = 4;
 	optional uint32 ongoing_matches = 5;
 	optional uint32 search_time_avg = 6;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.DetailedSearchStatistic search_statistics = 7;
+	repeated DetailedSearchStatistic search_statistics = 7;
 	optional string main_post_url = 8;
 	optional uint32 required_appid_version = 9;
 	optional uint32 pricesheet_version = 10;
@@ -199,7 +205,6 @@ message GlobalStatistics {
 	optional uint32 active_tournament_eventid = 12;
 	optional uint32 active_survey_id = 13;
 	optional uint32 rtime32_cur = 14;
-	optional uint32 rtime32_event_start = 15;
 	optional uint32 required_appid_version2 = 16;
 }
 
@@ -216,7 +221,7 @@ message OperationalStatisticElement {
 message OperationalStatisticsPacket {
 	optional int32 packetid = 1;
 	optional int32 mstimestamp = 2;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.OperationalStatisticElement values = 3;
+	repeated OperationalStatisticElement values = 3;
 }
 
 message OperationalVarValue {
@@ -244,10 +249,9 @@ message PlayerRankingInfo {
 	optional uint32 rank_if_win = 10;
 	optional uint32 rank_if_lose = 11;
 	optional uint32 rank_if_tie = 12;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.PlayerRankingInfo.PerMapRank per_map_rank = 13;
+	repeated PlayerRankingInfo.PerMapRank per_map_rank = 13;
 	optional uint32 leaderboard_name_status = 14;
 	optional uint32 highest_rank = 15;
-	optional uint32 rank_expiry = 16;
 }
 
 message PlayerCommendationInfo {
@@ -332,13 +336,13 @@ message ScoreLeaderboardData {
 
 	message AccountEntries {
 		optional uint32 accountid = 1;
-		repeated com.github.markus_wa.demoinfocs_golang.s2.ScoreLeaderboardData.Entry entries = 2;
+		repeated ScoreLeaderboardData.Entry entries = 2;
 	}
 
 	optional uint64 quest_id = 1;
 	optional uint32 score = 2;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.ScoreLeaderboardData.AccountEntries accountentries = 3;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.ScoreLeaderboardData.Entry matchentries = 5;
+	repeated ScoreLeaderboardData.AccountEntries accountentries = 3;
+	repeated ScoreLeaderboardData.Entry matchentries = 5;
 	optional string leaderboard_name = 6;
 }
 
@@ -347,16 +351,20 @@ message PlayerQuestData {
 		optional uint64 quest_id = 1;
 		optional int32 quest_normal_points_earned = 2;
 		optional int32 quest_bonus_points_earned = 3;
+		repeated int32 quest_normal_points_required = 4;
+		repeated int32 quest_reward_xp = 5;
+		optional int32 quest_period = 6;
+		optional QuestType quest_type = 7 [default = k_EQuestType_Operation];
 	}
 
 	optional uint32 quester_account_id = 1;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.PlayerQuestData.QuestItemData quest_item_data = 2;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.XpProgressData xp_progress_data = 3;
+	repeated PlayerQuestData.QuestItemData quest_item_data = 2;
+	repeated XpProgressData xp_progress_data = 3;
 	optional uint32 time_played = 4;
 	optional uint32 mm_game_mode = 5;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.MatchEndItemUpdates item_updates = 6;
+	repeated MatchEndItemUpdates item_updates = 6;
 	optional bool operation_points_eligible = 7;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgCsgoSteamUserStatChange userstatchanges = 8;
+	repeated CMsgCsgoSteamUserStatChange userstatchanges = 8;
 }
 
 message DeepPlayerStatsEntry {
@@ -408,10 +416,10 @@ message DeepPlayerMatchEvent {
 }
 
 message CMsgGC_ServerQuestUpdateData {
-	repeated com.github.markus_wa.demoinfocs_golang.s2.PlayerQuestData player_quest_data = 1;
+	repeated PlayerQuestData player_quest_data = 1;
 	optional bytes binary_data = 2;
 	optional uint32 mm_game_mode = 3;
-	optional com.github.markus_wa.demoinfocs_golang.s2.ScoreLeaderboardData missionlbsdata = 4;
+	optional ScoreLeaderboardData missionlbsdata = 4;
 	optional uint32 flags = 5;
 }
 
@@ -432,7 +440,7 @@ message CMsgGCCStrike15_v2_MatchmakingStart {
 	optional uint32 game_type = 2;
 	optional string ticket_data = 3;
 	optional uint32 client_version = 4;
-	optional com.github.markus_wa.demoinfocs_golang.s2.TournamentMatchSetup tournament_match = 5;
+	optional TournamentMatchSetup tournament_match = 5;
 	optional bool prime_only = 6;
 	optional uint32 tv_control = 7;
 	optional uint64 lobby_id = 8;
@@ -450,14 +458,14 @@ message CMsgGCCStrike15_v2_MatchmakingGC2ClientUpdate_Note {
 }
 
 message CMsgGCCStrike15_v2_MatchmakingClient2ServerPing {
-	repeated com.github.markus_wa.demoinfocs_golang.s2.GameServerPing gameserverpings = 1;
+	repeated GameServerPing gameserverpings = 1;
 	optional int32 offset_index = 2;
 	optional int32 final_batch = 3;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.DataCenterPing data_center_pings = 4;
+	repeated DataCenterPing data_center_pings = 4;
 	optional uint32 max_ping = 5;
 	optional fixed32 test_token = 6;
 	optional bytes search_key = 7;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ClientUpdate_Note notes = 8;
+	repeated CMsgGCCStrike15_v2_MatchmakingGC2ClientUpdate_Note notes = 8;
 	optional string debug_message = 9;
 }
 
@@ -466,13 +474,13 @@ message CMsgGCCStrike15_v2_MatchmakingGC2ClientUpdate {
 	repeated uint32 waiting_account_id_sessions = 2;
 	optional string error = 3;
 	repeated uint32 ongoingmatch_account_id_sessions = 6;
-	optional com.github.markus_wa.demoinfocs_golang.s2.GlobalStatistics global_stats = 7;
+	optional GlobalStatistics global_stats = 7;
 	repeated uint32 failping_account_id_sessions = 8;
 	repeated uint32 penalty_account_id_sessions = 9;
 	repeated uint32 failready_account_id_sessions = 10;
 	repeated uint32 vacbanned_account_id_sessions = 11;
-	optional com.github.markus_wa.demoinfocs_golang.s2.IpAddressMask server_ipaddress_mask = 12;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ClientUpdate_Note notes = 13;
+	optional IpAddressMask server_ipaddress_mask = 12;
+	repeated CMsgGCCStrike15_v2_MatchmakingGC2ClientUpdate_Note notes = 13;
 	repeated uint32 penalty_account_id_sessions_green = 14;
 	repeated uint32 insufficientlevel_sessions = 15;
 	repeated uint32 vsncheck_account_id_sessions = 16;
@@ -495,7 +503,7 @@ message CDataGCCStrike15_v2_TournamentMatchDraft {
 	optional int32 team_id_start = 7;
 	optional int32 team_id_veto1 = 8;
 	optional int32 team_id_pickn = 9;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CDataGCCStrike15_v2_TournamentMatchDraft.Entry drafts = 10;
+	repeated CDataGCCStrike15_v2_TournamentMatchDraft.Entry drafts = 10;
 	repeated int32 vote_mapid_0 = 11;
 	repeated int32 vote_mapid_1 = 12;
 	repeated int32 vote_mapid_2 = 13;
@@ -516,8 +524,8 @@ message CPreMatchInfoData {
 	}
 
 	optional int32 predictions_pct = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CDataGCCStrike15_v2_TournamentMatchDraft draft = 4;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CPreMatchInfoData.TeamStats stats = 5;
+	optional CDataGCCStrike15_v2_TournamentMatchDraft draft = 4;
+	repeated CPreMatchInfoData.TeamStats stats = 5;
 	repeated int32 wins = 6;
 }
 
@@ -527,31 +535,31 @@ message CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve {
 	optional uint64 match_id = 3;
 	optional uint32 server_version = 4;
 	optional uint32 flags = 18;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.PlayerRankingInfo rankings = 5;
+	repeated PlayerRankingInfo rankings = 5;
 	optional uint64 encryption_key = 6;
 	optional uint64 encryption_key_pub = 7;
 	repeated uint32 party_ids = 8;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.IpAddressMask whitelist = 9;
+	repeated IpAddressMask whitelist = 9;
 	optional uint64 tv_master_steamid = 10;
-	optional com.github.markus_wa.demoinfocs_golang.s2.TournamentEvent tournament_event = 11;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.TournamentTeam tournament_teams = 12;
+	optional TournamentEvent tournament_event = 11;
+	repeated TournamentTeam tournament_teams = 12;
 	repeated uint32 tournament_casters_account_ids = 13;
 	optional uint64 tv_relay_steamid = 14;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CPreMatchInfoData pre_match_data = 15;
-	optional uint32 rtime32_event_start = 16;
+	optional CPreMatchInfoData pre_match_data = 15;
 	optional uint32 tv_control = 17;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.OperationalVarValue op_var_values = 19;
+	repeated OperationalVarValue op_var_values = 19;
 	optional uint32 socache_control = 20;
 	repeated int32 teammate_colors = 21;
+	optional uint32 match_id_additional = 22;
 }
 
 message CMsgGCCStrike15_v2_MatchmakingServerReservationResponse {
 	optional uint64 reservationid = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve reservation = 2;
+	optional CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve reservation = 2;
 	optional string map = 3;
 	optional uint64 gc_reservation_sent = 4;
 	optional uint32 server_version = 5;
-	optional com.github.markus_wa.demoinfocs_golang.s2.ServerHltvInfo tv_info = 6;
+	optional ServerHltvInfo tv_info = 6;
 	repeated uint32 reward_player_accounts = 7;
 	repeated uint32 idle_player_accounts = 8;
 	optional uint32 reward_item_attr_def_idx = 9;
@@ -572,10 +580,10 @@ message CMsgGCCStrike15_v2_MatchmakingGC2ClientReserve {
 	optional uint32 direct_udp_ip = 2;
 	optional uint32 direct_udp_port = 3;
 	optional uint64 reservationid = 4;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve reservation = 5;
+	optional CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve reservation = 5;
 	optional string map = 6;
 	optional string server_address = 7;
-	optional com.github.markus_wa.demoinfocs_golang.s2.DataCenterPing gs_ping = 8;
+	optional DataCenterPing gs_ping = 8;
 	optional uint32 gs_location_id = 9;
 }
 
@@ -585,7 +593,7 @@ message CMsgGCCStrike15_v2_MatchmakingServerRoundStats {
 	}
 
 	optional uint64 reservationid = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve reservation = 2;
+	optional CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve reservation = 2;
 	optional string map = 3;
 	optional int32 round = 4;
 	repeated int32 kills = 5;
@@ -596,7 +604,7 @@ message CMsgGCCStrike15_v2_MatchmakingServerRoundStats {
 	optional int32 round_result = 10;
 	optional int32 match_result = 11;
 	repeated int32 team_scores = 12;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ServerConfirm confirm = 13;
+	optional CMsgGCCStrike15_v2_MatchmakingGC2ServerConfirm confirm = 13;
 	optional int32 reservation_stage = 14;
 	optional int32 match_duration = 15;
 	repeated int32 enemy_kills = 16;
@@ -609,7 +617,7 @@ message CMsgGCCStrike15_v2_MatchmakingServerRoundStats {
 	optional uint32 spectators_count_tv = 23;
 	optional uint32 spectators_count_lnk = 24;
 	repeated int32 enemy_kills_agg = 25;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingServerRoundStats.DropInfo drop_info = 26;
+	optional CMsgGCCStrike15_v2_MatchmakingServerRoundStats.DropInfo drop_info = 26;
 	optional bool b_switched_teams = 27;
 	repeated int32 enemy_2ks = 28;
 	repeated int32 player_spawned = 29;
@@ -623,24 +631,24 @@ message CMsgGCCStrike15_v2_MatchmakingClient2GCHello {
 
 message CMsgGCCStrike15_v2_MatchmakingGC2ClientHello {
 	optional uint32 account_id = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ClientReserve ongoingmatch = 2;
-	optional com.github.markus_wa.demoinfocs_golang.s2.GlobalStatistics global_stats = 3;
+	optional CMsgGCCStrike15_v2_MatchmakingGC2ClientReserve ongoingmatch = 2;
+	optional GlobalStatistics global_stats = 3;
 	optional uint32 penalty_seconds = 4;
 	optional uint32 penalty_reason = 5;
 	optional int32 vac_banned = 6;
-	optional com.github.markus_wa.demoinfocs_golang.s2.PlayerRankingInfo ranking = 7;
-	optional com.github.markus_wa.demoinfocs_golang.s2.PlayerCommendationInfo commendation = 8;
-	optional com.github.markus_wa.demoinfocs_golang.s2.PlayerMedalsInfo medals = 9;
-	optional com.github.markus_wa.demoinfocs_golang.s2.TournamentEvent my_current_event = 10;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.TournamentTeam my_current_event_teams = 11;
-	optional com.github.markus_wa.demoinfocs_golang.s2.TournamentTeam my_current_team = 12;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.TournamentEvent my_current_event_stages = 13;
+	optional PlayerRankingInfo ranking = 7;
+	optional PlayerCommendationInfo commendation = 8;
+	optional PlayerMedalsInfo medals = 9;
+	optional TournamentEvent my_current_event = 10;
+	repeated TournamentTeam my_current_event_teams = 11;
+	optional TournamentTeam my_current_team = 12;
+	repeated TournamentEvent my_current_event_stages = 13;
 	optional uint32 survey_vote = 14;
-	optional com.github.markus_wa.demoinfocs_golang.s2.AccountActivity activity = 15;
+	optional AccountActivity activity = 15;
 	optional int32 player_level = 17;
 	optional int32 player_cur_xp = 18;
 	optional int32 player_xp_bonus_flags = 19;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.PlayerRankingInfo rankings = 20;
+	repeated PlayerRankingInfo rankings = 20;
 	optional uint64 owcaseid = 21;
 }
 
@@ -650,18 +658,18 @@ message CMsgGCCStrike15_v2_AccountPrivacySettings {
 		optional uint32 setting_value = 2;
 	}
 
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_AccountPrivacySettings.Setting settings = 1;
+	repeated CMsgGCCStrike15_v2_AccountPrivacySettings.Setting settings = 1;
 }
 
 message CMsgGCCStrike15_v2_MatchmakingGC2ClientAbandon {
 	optional uint32 account_id = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ClientReserve abandoned_match = 2;
+	optional CMsgGCCStrike15_v2_MatchmakingGC2ClientReserve abandoned_match = 2;
 	optional uint32 penalty_seconds = 3;
 	optional uint32 penalty_reason = 4;
 }
 
 message CMsgGCCStrike15_v2_ClientGCRankUpdate {
-	repeated com.github.markus_wa.demoinfocs_golang.s2.PlayerRankingInfo rankings = 1;
+	repeated PlayerRankingInfo rankings = 1;
 }
 
 message CMsgGCCStrike15_v2_MatchmakingOperator2GCBlogUpdate {
@@ -690,7 +698,7 @@ message CMsgGCCStrike15_v2_ClientReportPlayer {
 message CMsgGCCStrike15_v2_ClientCommendPlayer {
 	optional uint32 account_id = 1;
 	optional uint64 match_id = 8;
-	optional com.github.markus_wa.demoinfocs_golang.s2.PlayerCommendationInfo commendation = 9;
+	optional PlayerCommendationInfo commendation = 9;
 	optional uint32 tokens = 10;
 }
 
@@ -718,7 +726,7 @@ message CMsgGCCStrike15_v2_ClientRequestWatchInfoFriends {
 	optional uint64 serverid = 3;
 	optional uint64 matchid = 4;
 	optional uint32 client_launcher = 5;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.DataCenterPing data_center_pings = 6;
+	repeated DataCenterPing data_center_pings = 6;
 }
 
 message WatchableMatchInfo {
@@ -742,7 +750,7 @@ message CMsgGCCStrike15_v2_ClientRequestJoinFriendData {
 	optional uint32 account_id = 2;
 	optional uint32 join_token = 3;
 	optional uint32 join_ipp = 4;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ClientReserve res = 5;
+	optional CMsgGCCStrike15_v2_MatchmakingGC2ClientReserve res = 5;
 	optional string errormsg = 6;
 }
 
@@ -752,13 +760,8 @@ message CMsgGCCStrike15_v2_ClientRequestJoinServerData {
 	optional uint64 serverid = 3;
 	optional uint32 server_ip = 4;
 	optional uint32 server_port = 5;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ClientReserve res = 6;
+	optional CMsgGCCStrike15_v2_MatchmakingGC2ClientReserve res = 6;
 	optional string errormsg = 7;
-}
-
-message CMsgGCCstrike15_v2_ClientRequestNewMission {
-	optional uint32 mission_id = 2;
-	optional uint32 campaign_id = 3;
 }
 
 message CMsgGCCstrike15_v2_ClientRedeemMissionReward {
@@ -766,6 +769,7 @@ message CMsgGCCstrike15_v2_ClientRedeemMissionReward {
 	optional uint32 redeem_id = 2;
 	optional uint32 redeemable_balance = 3;
 	optional uint32 expected_cost = 4;
+	optional int32 bid_control = 5;
 }
 
 message CMsgGCCstrike15_v2_ClientRedeemFreeReward {
@@ -775,7 +779,7 @@ message CMsgGCCstrike15_v2_ClientRedeemFreeReward {
 }
 
 message CMsgGCCstrike15_v2_GC2ServerNotifyXPRewarded {
-	repeated com.github.markus_wa.demoinfocs_golang.s2.XpProgressData xp_progress_data = 1;
+	repeated XpProgressData xp_progress_data = 1;
 	optional uint32 account_id = 2;
 	optional uint32 current_xp = 3;
 	optional uint32 current_level = 4;
@@ -799,19 +803,19 @@ message CMsgGCCStrike15_ClientDeepStats {
 	}
 
 	message DeepStatsMatch {
-		optional com.github.markus_wa.demoinfocs_golang.s2.DeepPlayerStatsEntry player = 1;
-		repeated com.github.markus_wa.demoinfocs_golang.s2.DeepPlayerMatchEvent events = 2;
+		optional DeepPlayerStatsEntry player = 1;
+		repeated DeepPlayerMatchEvent events = 2;
 	}
 
 	optional uint32 account_id = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_ClientDeepStats.DeepStatsRange range = 2;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_ClientDeepStats.DeepStatsMatch matches = 3;
+	optional CMsgGCCStrike15_ClientDeepStats.DeepStatsRange range = 2;
+	repeated CMsgGCCStrike15_ClientDeepStats.DeepStatsMatch matches = 3;
 }
 
 message CMsgGCCStrike15_v2_WatchInfoUsers {
 	optional uint32 request_id = 1;
 	repeated uint32 account_ids = 2;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.WatchableMatchInfo watchable_match_infos = 3;
+	repeated WatchableMatchInfo watchable_match_infos = 3;
 	optional uint32 extended_timeout = 5;
 }
 
@@ -824,7 +828,7 @@ message CMsgGCCStrike15_v2_ClientRequestPlayersProfile {
 
 message CMsgGCCStrike15_v2_PlayersProfile {
 	optional uint32 request_id = 1;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ClientHello account_profiles = 2;
+	repeated CMsgGCCStrike15_v2_MatchmakingGC2ClientHello account_profiles = 2;
 }
 
 message CMsgGCCStrike15_v2_PremierSeasonSummary {
@@ -852,8 +856,8 @@ message CMsgGCCStrike15_v2_PremierSeasonSummary {
 
 	optional uint32 account_id = 1;
 	optional uint32 season_id = 2;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_PremierSeasonSummary.DataPerWeek data_per_week = 3;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_PremierSeasonSummary.DataPerMap data_per_map = 4;
+	repeated CMsgGCCStrike15_v2_PremierSeasonSummary.DataPerWeek data_per_week = 3;
+	repeated CMsgGCCStrike15_v2_PremierSeasonSummary.DataPerMap data_per_map = 4;
 }
 
 message CMsgGCCStrike15_v2_PlayerOverwatchCaseUpdate {
@@ -903,8 +907,8 @@ message CMsgGCCStrike15_v2_Client2GCTextMsg {
 }
 
 message CMsgGCCStrike15_v2_MatchEndRunRewardDrops {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingServerReservationResponse serverinfo = 3;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGC_ServerQuestUpdateData match_end_quest_data = 4;
+	optional CMsgGCCStrike15_v2_MatchmakingServerReservationResponse serverinfo = 3;
+	optional CMsgGC_ServerQuestUpdateData match_end_quest_data = 4;
 }
 
 message CEconItemPreviewDataBlock {
@@ -919,6 +923,7 @@ message CEconItemPreviewDataBlock {
 		optional float offset_y = 8;
 		optional float offset_z = 9;
 		optional uint32 pattern = 10;
+		optional uint32 highlight_reel = 11;
 	}
 
 	optional uint32 accountid = 1;
@@ -932,7 +937,7 @@ message CEconItemPreviewDataBlock {
 	optional uint32 killeaterscoretype = 9;
 	optional uint32 killeatervalue = 10;
 	optional string customname = 11;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock.Sticker stickers = 12;
+	repeated CEconItemPreviewDataBlock.Sticker stickers = 12;
 	optional uint32 inventory = 13;
 	optional uint32 origin = 14;
 	optional uint32 questid = 15;
@@ -940,15 +945,18 @@ message CEconItemPreviewDataBlock {
 	optional uint32 musicindex = 17;
 	optional int32 entindex = 18;
 	optional uint32 petindex = 19;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock.Sticker keychains = 20;
+	repeated CEconItemPreviewDataBlock.Sticker keychains = 20;
+	optional uint32 style = 21;
+	repeated CEconItemPreviewDataBlock.Sticker variations = 22;
+	optional uint32 upgrade_level = 23;
 }
 
 message CMsgGCCStrike15_v2_MatchEndRewardDropsNotification {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock iteminfo = 6;
+	optional CEconItemPreviewDataBlock iteminfo = 6;
 }
 
 message CMsgItemAcknowledged {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock iteminfo = 1;
+	optional CEconItemPreviewDataBlock iteminfo = 1;
 }
 
 message CMsgGCCStrike15_v2_Client2GCEconPreviewDataBlockRequest {
@@ -959,7 +967,7 @@ message CMsgGCCStrike15_v2_Client2GCEconPreviewDataBlockRequest {
 }
 
 message CMsgGCCStrike15_v2_Client2GCEconPreviewDataBlockResponse {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock iteminfo = 1;
+	optional CEconItemPreviewDataBlock iteminfo = 1;
 }
 
 message CMsgGCCStrike15_v2_MatchListRequestCurrentLiveGames {
@@ -986,9 +994,9 @@ message CMsgGCCStrike15_v2_MatchListRequestFullGameInfo {
 message CDataGCCStrike15_v2_MatchInfo {
 	optional uint64 matchid = 1;
 	optional uint32 matchtime = 2;
-	optional com.github.markus_wa.demoinfocs_golang.s2.WatchableMatchInfo watchablematchinfo = 3;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingServerRoundStats roundstats_legacy = 4;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingServerRoundStats roundstatsall = 5;
+	optional WatchableMatchInfo watchablematchinfo = 3;
+	optional CMsgGCCStrike15_v2_MatchmakingServerRoundStats roundstats_legacy = 4;
+	repeated CMsgGCCStrike15_v2_MatchmakingServerRoundStats roundstatsall = 5;
 }
 
 message CDataGCCStrike15_v2_TournamentGroupTeam {
@@ -1006,39 +1014,39 @@ message CDataGCCStrike15_v2_TournamentGroup {
 	optional string name = 2;
 	optional string desc = 3;
 	optional uint32 picks__deprecated = 4;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CDataGCCStrike15_v2_TournamentGroupTeam teams = 5;
+	repeated CDataGCCStrike15_v2_TournamentGroupTeam teams = 5;
 	repeated int32 stage_ids = 6;
 	optional uint32 picklockuntiltime = 7;
 	optional uint32 pickableteams = 8;
 	optional uint32 points_per_pick = 9;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CDataGCCStrike15_v2_TournamentGroup.Picks picks = 10;
+	repeated CDataGCCStrike15_v2_TournamentGroup.Picks picks = 10;
 }
 
 message CDataGCCStrike15_v2_TournamentSection {
 	optional uint32 sectionid = 1;
 	optional string name = 2;
 	optional string desc = 3;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CDataGCCStrike15_v2_TournamentGroup groups = 4;
+	repeated CDataGCCStrike15_v2_TournamentGroup groups = 4;
 }
 
 message CDataGCCStrike15_v2_TournamentInfo {
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CDataGCCStrike15_v2_TournamentSection sections = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.TournamentEvent tournament_event = 2;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.TournamentTeam tournament_teams = 3;
+	repeated CDataGCCStrike15_v2_TournamentSection sections = 1;
+	optional TournamentEvent tournament_event = 2;
+	repeated TournamentTeam tournament_teams = 3;
 }
 
 message CMsgGCCStrike15_v2_MatchList {
 	optional uint32 msgrequestid = 1;
 	optional uint32 accountid = 2;
 	optional uint32 servertime = 3;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CDataGCCStrike15_v2_MatchInfo matches = 4;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.TournamentTeam streams = 5;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CDataGCCStrike15_v2_TournamentInfo tournamentinfo = 6;
+	repeated CDataGCCStrike15_v2_MatchInfo matches = 4;
+	repeated TournamentTeam streams = 5;
+	optional CDataGCCStrike15_v2_TournamentInfo tournamentinfo = 6;
 }
 
 message CMsgGCCStrike15_v2_MatchListTournamentOperatorMgmt {
 	optional int32 eventid = 1;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CDataGCCStrike15_v2_MatchInfo matches = 2;
+	repeated CDataGCCStrike15_v2_MatchInfo matches = 2;
 	optional uint32 accountid = 3;
 }
 
@@ -1052,7 +1060,7 @@ message CMsgGCCStrike15_v2_Predictions {
 	}
 
 	optional uint32 event_id = 1;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_Predictions.GroupMatchTeamPick group_match_team_picks = 2;
+	repeated CMsgGCCStrike15_v2_Predictions.GroupMatchTeamPick group_match_team_picks = 2;
 }
 
 message CMsgGCCStrike15_v2_Fantasy {
@@ -1064,11 +1072,11 @@ message CMsgGCCStrike15_v2_Fantasy {
 
 	message FantasyTeam {
 		optional int32 sectionid = 1;
-		repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_Fantasy.FantasySlot slots = 2;
+		repeated CMsgGCCStrike15_v2_Fantasy.FantasySlot slots = 2;
 	}
 
 	optional uint32 event_id = 1;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_Fantasy.FantasyTeam teams = 2;
+	repeated CMsgGCCStrike15_v2_Fantasy.FantasyTeam teams = 2;
 }
 
 message CAttribute_String {
@@ -1084,9 +1092,9 @@ message CMsgLegacySource1ClientWelcome {
 
 	optional uint32 version = 1;
 	optional bytes game_data = 2;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSOCacheSubscribed outofdate_subscribed_caches = 3;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgSOCacheSubscriptionCheck uptodate_subscribed_caches = 4;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgLegacySource1ClientWelcome.Location location = 5;
+	repeated CMsgSOCacheSubscribed outofdate_subscribed_caches = 3;
+	repeated CMsgSOCacheSubscriptionCheck uptodate_subscribed_caches = 4;
+	optional CMsgLegacySource1ClientWelcome.Location location = 5;
 	optional bytes game_data2 = 6;
 	optional uint32 rtime32_gc_welcome_timestamp = 7;
 	optional uint32 currency = 8;
@@ -1133,7 +1141,7 @@ message CMsgGCCStrike15_v2_GiftsLeaderboardResponse {
 	optional uint32 time_period_seconds = 2;
 	optional uint32 total_gifts_given = 3;
 	optional uint32 total_givers = 4;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_GiftsLeaderboardResponse.GiftLeaderboardEntry entries = 5;
+	repeated CMsgGCCStrike15_v2_GiftsLeaderboardResponse.GiftLeaderboardEntry entries = 5;
 }
 
 message CMsgGCCStrike15_v2_ClientSubmitSurveyVote {
@@ -1170,6 +1178,13 @@ message CSOAccountXpShop {
 	repeated uint32 xp_tracks = 3;
 }
 
+message CSOAccountXpShopBids {
+	optional uint32 campaign_id = 1 [(key_field) = true];
+	optional uint32 redeem_id = 2 [(key_field) = true];
+	optional uint32 expected_cost = 3;
+	optional uint32 generation_time = 4;
+}
+
 message CSOAccountKeychainRemoveToolCharges {
 	optional uint32 charges = 1;
 }
@@ -1195,23 +1210,24 @@ message CSOAccountRecurringSubscription {
 	optional uint32 time_initiated = 2;
 }
 
-message CSOGameAccountSteamChina {
-	optional uint32 time_last_update = 1;
-	optional uint32 time_comms_ban = 2;
-	optional uint32 time_play_ban = 3;
-}
-
 message CSOPersonaDataPublic {
 	optional int32 player_level = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.PlayerCommendationInfo commendation = 2;
+	optional PlayerCommendationInfo commendation = 2;
 	optional bool elevated_state = 3;
 	optional uint32 xp_trail_timestamp_refresh = 4;
 	optional uint32 xp_trail_level = 5;
 }
 
+message CSOAccountRecurringMission {
+	optional uint32 account_id = 1;
+	optional uint32 mission_id = 2;
+	optional uint32 period = 3;
+	optional uint32 progress = 4;
+}
+
 message CMsgGCCStrike15_v2_GC2ClientNotifyXPShop {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CSOAccountXpShop prematch = 1;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CSOAccountXpShop postmatch = 2;
+	optional CSOAccountXpShop prematch = 1;
+	optional CSOAccountXpShop postmatch = 2;
 	optional uint32 current_xp = 3;
 	optional uint32 current_level = 4;
 }
@@ -1277,7 +1293,7 @@ message CMsgGCCStrike15_v2_ClientAuthKeyCode {
 }
 
 message CMsgGCCStrike15_GotvSyncPacket {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CEngineGotvSyncPacket data = 1;
+	optional CEngineGotvSyncPacket data = 1;
 }
 
 message PlayerDecalDigitalSignature {
@@ -1298,7 +1314,7 @@ message PlayerDecalDigitalSignature {
 }
 
 message CMsgGCCStrike15_v2_ClientPlayerDecalSign {
-	optional com.github.markus_wa.demoinfocs_golang.s2.PlayerDecalDigitalSignature data = 1;
+	optional PlayerDecalDigitalSignature data = 1;
 	optional uint64 itemid = 2;
 }
 
@@ -1350,7 +1366,7 @@ message CMsgGCCStrike15_v2_Party_SearchResults {
 		optional uint32 accountid = 7;
 	}
 
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_Party_SearchResults.Entry entries = 1;
+	repeated CMsgGCCStrike15_v2_Party_SearchResults.Entry entries = 1;
 }
 
 message CMsgGCCStrike15_v2_Party_Invite {
@@ -1365,7 +1381,7 @@ message CMsgGCCStrike15_v2_Account_RequestCoPlays {
 		optional bool online = 3;
 	}
 
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_Account_RequestCoPlays.Player players = 1;
+	repeated CMsgGCCStrike15_v2_Account_RequestCoPlays.Player players = 1;
 	optional uint32 servertime = 2;
 }
 
@@ -1405,7 +1421,7 @@ message CMsgGCCStrike15_v2_ClientPartyWarning {
 		optional uint32 warntype = 2;
 	}
 
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_ClientPartyWarning.Entry entries = 1;
+	repeated CMsgGCCStrike15_v2_ClientPartyWarning.Entry entries = 1;
 }
 
 message CMsgGCCStrike15_v2_SetEventFavorite {
@@ -1433,7 +1449,7 @@ message CMsgGCCStrike15_v2_ClientPerfReport {
 		optional uint32 status = 6;
 	}
 
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_ClientPerfReport.Entry entries = 1;
+	repeated CMsgGCCStrike15_v2_ClientPerfReport.Entry entries = 1;
 }
 
 message CVDiagnostic {
@@ -1463,7 +1479,7 @@ message CMsgGCCStrike15_v2_ClientReportValidation {
 	optional uint64 client_time = 17;
 	optional uint64 diagnostic4 = 18;
 	optional uint64 diagnostic5 = 19;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CVDiagnostic diagnostics = 20;
+	repeated CVDiagnostic diagnostics = 20;
 }
 
 message CMsgGCCStrike15_v2_GC2ClientRefuseSecureMode {
@@ -1503,11 +1519,23 @@ message CMsgGCCStrike15_v2_GC2ClientInitSystem_Response {
 	optional int32 error_code1 = 5;
 	optional int32 error_code2 = 6;
 	optional int64 handle = 7;
-	optional com.github.markus_wa.demoinfocs_golang.s2.EInitSystemResult einit_result = 8 [default = k_EInitSystemResult_Invalid];
+	optional EInitSystemResult einit_result = 8 [default = k_EInitSystemResult_Invalid];
 	optional int32 aux_system1 = 9;
 	optional int32 aux_system2 = 10;
 }
 
 message CMsgGCCStrike15_v2_SetPlayerLeaderboardSafeName {
 	optional string leaderboard_safe_name = 1;
+}
+
+message CMsgRequestRecurringMissionSchedule {
+}
+
+message CMsgRecurringMissionSchema {
+	message MissionTemplateList {
+		optional uint32 period = 1;
+		repeated bytes mission_templates = 2;
+	}
+
+	repeated CMsgRecurringMissionSchema.MissionTemplateList missions = 1;
 }
