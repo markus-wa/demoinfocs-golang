@@ -469,6 +469,10 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKe
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 	victimUserID := data["userid"].GetValShort()
 	wepType = geh.attackerWeaponType(wepType, victimUserID)
+	if killer == nil && data["attacker_pawn"] != nil {
+		// CS2 only, fallback to pawn handle if the killer was not found by its user ID
+		killer = geh.parser.gameState.Participants().FindByPawnHandle(uint64(data["attacker_pawn"].GetValLong()))
+	}
 
 	geh.dispatch(events.Kill{
 		Victim:            geh.playerByUserID32(data["userid"].GetValShort()),
@@ -997,7 +1001,18 @@ func (geh gameEventHandler) bombPickup(data map[string]*msg.CSVCMsg_GameEventKey
 
 // Just so we can nicely create GrenadeEvents in one line
 func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT, nadeType common.EquipmentType) events.GrenadeEvent {
-	thrower := geh.playerByUserID32(data["userid"].GetValShort())
+	var thrower *common.Player
+	// Sometimes only the position and the entityid are present.
+	// Since GetValShort() returns 0 for nil values, the thrower would be the player with UserID 0, so we need to check for the existence of the key.
+	if data["userid"] != nil {
+		thrower = geh.playerByUserID32(data["userid"].GetValShort())
+	}
+
+	// CS2 only - userid may be missing, but userid_pawn present.
+	if thrower == nil && data["userid_pawn"] != nil {
+		thrower = geh.gameState().Participants().FindByPawnHandle(uint64(data["userid_pawn"].GetValLong()))
+	}
+
 	position := r3.Vector{
 		X: float64(data["x"].GetValFloat()),
 		Y: float64(data["y"].GetValFloat()),
