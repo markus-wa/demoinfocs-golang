@@ -23,7 +23,7 @@ For business inquiries please use the contact information found on the [GitHub p
 
 	go get -u github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs
 
-See [v5 branch with broadcast example](https://github.com/markus-wa/demoinfocs-golang/tree/v5/examples/broadcasts)
+See [broadcast example for live CSTV+ parsing](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/broadcasts)
 
 ### CS:GO
 

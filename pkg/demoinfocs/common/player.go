@@ -452,10 +452,6 @@ func (p *Player) CrosshairCode() string {
 // ViewmodelOffset returns the player's viewmodel offset as a 3D vector (X, Y, Z).
 // Returns zero vector if not available (CS:GO demos or player not alive).
 func (p *Player) ViewmodelOffset() r3.Vector {
-	if !p.demoInfoProvider.IsSource2() {
-		return r3.Vector{}
-	}
-
 	pawn := p.PlayerPawnEntity()
 	if pawn == nil {
 		return r3.Vector{}
@@ -471,10 +467,6 @@ func (p *Player) ViewmodelOffset() r3.Vector {
 // ViewmodelFOV returns the player's viewmodel field of view.
 // Returns 0 if not available (CS:GO demos or player not alive).
 func (p *Player) ViewmodelFOV() float32 {
-	if !p.demoInfoProvider.IsSource2() {
-		return 0
-	}
-
 	pawn := p.PlayerPawnEntity()
 	if pawn == nil {
 		return 0

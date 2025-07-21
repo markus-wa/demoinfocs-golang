@@ -81,7 +81,6 @@ enum ECstrike15UserMessages {
 	CS_UM_ShootInfo = 383;
 	CS_UM_CounterStrafe = 385;
 	CS_UM_DamagePrediction = 386;
-	CS_UM_RecurringMissionSchema = 387;
 }
 
 enum ECSUsrMsg_DisconnectToLobby_Action {
@@ -613,9 +612,4 @@ message CCSUsrMsg_DamagePrediction {
 	optional CMsgVector shoot_pos = 6;
 	optional CMsgQAngle shoot_dir = 7;
 	optional CMsgQAngle aim_punch = 8;
-}
-
-message CCSUsrMsg_RecurringMissionSchema {
-	optional uint32 period = 1;
-	optional bytes mission_schema = 2;
 }
