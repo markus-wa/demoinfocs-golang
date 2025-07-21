@@ -161,10 +161,6 @@ func (e *Entity) PropertyValueMust(name string) st.PropertyValue {
 	return val
 }
 
-func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
-	panic("not implemented")
-}
-
 const (
 	serverClassPlayer = "CCSPlayerPawn"
 

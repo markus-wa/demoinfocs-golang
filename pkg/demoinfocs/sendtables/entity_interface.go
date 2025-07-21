@@ -2,8 +2,6 @@ package sendtables
 
 import (
 	"github.com/golang/geo/r3"
-
-	bit "github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
 )
 
 // Entity is an auto-generated interface for entity, intended to be used when mockability is needed.
@@ -33,11 +31,6 @@ type Entity interface {
 	//
 	// Panics with nil pointer dereference error if the property was not found.
 	PropertyValueMust(name string) PropertyValue
-	// ApplyUpdate reads an update to an Enitiy's properties and
-	// triggers registered PropertyUpdateHandlers if values changed.
-	//
-	// Intended for internal use only.
-	ApplyUpdate(reader *bit.BitReader)
 	// Position returns the entity's position in world coordinates.
 	Position() r3.Vector
 	// OnPositionUpdate registers a handler for the entity's position update.
