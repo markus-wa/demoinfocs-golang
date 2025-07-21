@@ -37,10 +37,10 @@ type gameState struct {
 	isFreezetime                 bool
 	isMatchStarted               bool
 	overtimeCount                int
-	lastFlash                    lastFlash                                                     // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
-	currentDefuser               *common.Player                                                // Player currently defusing the bomb, if any
-	currentPlanter               *common.Player                                                // Player currently planting the bomb, if any
-	thrownGrenades               map[*common.Player]map[common.EquipmentType]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
+	lastFlash                    lastFlash                                                       // Information about the last flash that exploded, used to find the attacker and projectile for player_blind events
+	currentDefuser               *common.Player                                                  // Player currently defusing the bomb, if any
+	currentPlanter               *common.Player                                                  // Player currently planting the bomb, if any
+	thrownGrenades               map[*common.Player]map[common.EquipmentType][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
 	rules                        gameRules
 	demoInfo                     demoInfoProvider
 	lastRoundStartEvent          *events.RoundStart             // Used to dispatch this event after a possible MatchStartedChanged event
@@ -249,7 +249,7 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		weapons:                  make(map[int]*common.Equipment),
 		hostages:                 make(map[int]*common.Hostage),
 		entities:                 make(map[int]st.Entity),
-		thrownGrenades:           make(map[*common.Player]map[common.EquipmentType]*common.Equipment),
+		thrownGrenades:           make(map[*common.Player]map[common.EquipmentType][]*common.Equipment),
 		flyingFlashbangs:         make([]*FlyingFlashbang, 0),
 		lastFlash: lastFlash{
 			projectileByPlayer: make(map[*common.Player]*common.GrenadeProjectile),

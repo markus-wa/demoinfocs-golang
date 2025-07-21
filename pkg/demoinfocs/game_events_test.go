@@ -115,7 +115,7 @@ func TestAddThrownGrenade(t *testing.T) {
 
 	assert.NotEmpty(t, p.gameState.thrownGrenades)
 	assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
-	assert.Equal(t, p.gameState.thrownGrenades[pl][common.EqHE], he)
+	assert.Equal(t, p.gameState.thrownGrenades[pl][common.EqHE][0], he)
 }
 
 func TestGetThrownGrenade_NilPlayer(t *testing.T) {
