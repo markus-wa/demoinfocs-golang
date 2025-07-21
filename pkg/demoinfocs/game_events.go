@@ -469,6 +469,7 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKe
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 	victimUserID := data["userid"].GetValShort()
 	wepType = geh.attackerWeaponType(wepType, victimUserID)
+
 	if killer == nil && data["attacker_pawn"] != nil {
 		// CS2 only, fallback to pawn handle if the killer was not found by its user ID
 		killer = geh.parser.gameState.Participants().FindByPawnHandle(uint64(data["attacker_pawn"].GetValLong()))

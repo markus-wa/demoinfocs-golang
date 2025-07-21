@@ -107,6 +107,7 @@ func (umh userMessageHandler) sayText2(um *msg.CSVCMsg_UserMessage) {
 
 	case "#CSGO_Coach_Join_T": // Ignore these
 	case "#CSGO_Coach_Join_CT":
+	case "#CSGO_No_Longer_Coach":
 	case "#Cstrike_Name_Change":
 	case "Cstrike_Chat_T_Loc":
 	case "Cstrike_Chat_CT_Loc":
