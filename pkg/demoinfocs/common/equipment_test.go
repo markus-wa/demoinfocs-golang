@@ -120,7 +120,7 @@ func TestEquipment_AmmoReserve_Grenade(t *testing.T) {
 			isNil:    true,
 		},
 		{
-			propName: "LocalWeaponData.m_iPrimaryAmmoType",
+			propName: "m_iPrimaryReserveAmmoCount",
 			value:    st.PropertyValue{Any: int32(1)},
 			isNil:    false,
 		},
