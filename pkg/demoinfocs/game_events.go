@@ -215,7 +215,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"round_announce_final":           geh.roundAnnounceFinal,           // 30th round for normal de_, not necessarily matchpoint
 		"round_announce_last_round_half": geh.roundAnnounceLastRoundHalf,   // Last round of the half
 		"round_announce_match_point":     nil,                              // Match point announcement
-		"round_announce_match_start":     nil,                              // Special match start announcement
+		"round_announce_match_start":     geh.roundAnnounceMatchStart,      // Special match start announcement
 		"round_announce_warmup":          nil,                              // Dunno
 		"round_end":                      geh.roundEnd,                     // Round ended and the winner was announced
 		"round_end_upload_stats":         nil,                              // Dunno, only present in POV demos
@@ -289,6 +289,10 @@ func (geh gameEventHandler) csWinPanelMatch(map[string]*msg.CMsgSource1LegacyGam
 
 func (geh gameEventHandler) roundAnnounceFinal(map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
 	geh.dispatch(events.AnnouncementFinalRound{})
+}
+
+func (geh gameEventHandler) roundAnnounceMatchStart(map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+	geh.dispatch(events.AnnouncementMatchStarted{})
 }
 
 func (geh gameEventHandler) roundAnnounceLastRoundHalf(map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
