@@ -112,7 +112,6 @@ func TestEquipment_AmmoReserve(t *testing.T) {
 
 func TestEquipment_AmmoReserve_Grenade(t *testing.T) {
 	owner := new(Player)
-	owner.AmmoLeft[1] = 2
 
 	entity := entityWithProperties([]fakeProp{
 		{
