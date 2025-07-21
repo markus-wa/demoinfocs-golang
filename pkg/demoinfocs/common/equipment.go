@@ -356,7 +356,7 @@ func (e *Equipment) AmmoInMagazine() int {
 			return -1
 		}
 
-		return int(ammo.S2UInt32() - 1)
+		return int(ammo.UInt32() - 1)
 	}
 }
 
@@ -400,18 +400,9 @@ func (e *Equipment) AmmoReserve() int {
 		return 0
 	}
 
-	s2Prop := e.Entity.Property("m_pReserveAmmo.0000")
-	if s2Prop != nil && s2Prop.Value().Any != nil {
-		return s2Prop.Value().Int()
-	}
-
-	if e.Class() == EqClassGrenade {
-		if e.Owner != nil {
-			// minus one for 'InMagazine'
-			return e.Owner.AmmoLeft[e.AmmoType()] - 1
-		}
-
-		return 0
+	prop := e.Entity.Property("m_pReserveAmmo.0000")
+	if prop != nil && prop.Value().Any != nil {
+		return prop.Value().Int()
 	}
 
 	if e.Class() == EqClassEquipment {

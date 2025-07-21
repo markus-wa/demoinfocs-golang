@@ -92,7 +92,7 @@ var bindFactoryByType = map[st.PropertyValueType]bindFactory{
 	},
 	st.ValTypeArray: func(variable any) st.PropertyUpdateHandler {
 		return func(v st.PropertyValue) {
-			*variable.(*[]any) = v.S2Array()
+			*variable.(*[]any) = v.Array()
 		}
 	},
 	st.ValTypeString: func(variable any) st.PropertyUpdateHandler {
@@ -203,9 +203,9 @@ func (e *Entity) Position() r3.Vector {
 		return r3.Vector{} // CS2 POV demos
 	}
 
-	cellX := cellXVal.S2UInt64()
-	cellY := cellYVal.S2UInt64()
-	cellZ := cellZVal.S2UInt64()
+	cellX := cellXVal.UInt64()
+	cellY := cellYVal.UInt64()
+	cellZ := cellZVal.UInt64()
 	offsetX := offsetXVal.Float()
 	offsetY := offsetYVal.Float()
 	offsetZ := offsetZVal.Float()

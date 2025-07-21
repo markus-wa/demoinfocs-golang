@@ -61,20 +61,20 @@ func (v PropertyValue) Int64() int64 {
 	return v.Any.(int64)
 }
 
-func (v PropertyValue) S2UInt64() uint64 {
+func (v PropertyValue) UInt64() uint64 {
 	return v.Any.(uint64)
 }
 
-func (v PropertyValue) S2Array() []any {
+func (v PropertyValue) Array() []any {
 	return v.Any.([]any)
 }
 
-func (v PropertyValue) S2UInt32() uint32 {
+func (v PropertyValue) UInt32() uint32 {
 	return v.Any.(uint32)
 }
 
 func (v PropertyValue) Handle() uint64 {
-	return v.S2UInt64()
+	return v.UInt64()
 }
 
 func (v PropertyValue) Float() float32 {

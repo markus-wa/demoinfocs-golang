@@ -396,7 +396,7 @@ func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 
 	controllerEntity.Property("m_iConnected").OnUpdate(func(val st.PropertyValue) {
 		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
-		state := val.S2UInt32()
+		state := val.UInt32()
 		wasConnected := pl.IsConnected
 		pl.IsConnected = state == 0
 
@@ -425,7 +425,7 @@ func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 	})
 
 	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
-		pl.Team = common.Team(val.S2UInt64())
+		pl.Team = common.Team(val.UInt64())
 		pl.TeamState = p.gameState.Team(pl.Team)
 	})
 
@@ -531,7 +531,7 @@ func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, pl *common.Player) {
 	playerInventory := make(map[int]eq)
 
 	getWep := func(wepSlotPropertyValue st.PropertyValue) (uint64, *common.Equipment) {
-		entityID := wepSlotPropertyValue.S2UInt64() & constants.EntityHandleIndexMaskSource2
+		entityID := wepSlotPropertyValue.UInt64() & constants.EntityHandleIndexMaskSource2
 		wep := p.gameState.weapons[int(entityID)]
 
 		if wep == nil {
@@ -560,7 +560,7 @@ func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, pl *common.Player) {
 	}
 
 	pawnEntity.Property("m_pWeaponServices.m_hMyWeapons").OnUpdate(func(pv st.PropertyValue) {
-		inventorySize = len(pv.S2Array())
+		inventorySize = len(pv.Array())
 		setPlayerInventory()
 	})
 
@@ -657,7 +657,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		modelVal := entity.PropertyValueMust("CBodyComponent.m_hModel")
 
 		if modelVal.Any != nil {
-			model := modelVal.S2UInt64()
+			model := modelVal.UInt64()
 			weaponType, exists := p.equipmentTypePerModel[model]
 			if exists {
 				wep = weaponType
@@ -815,7 +815,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		return
 	}
 
-	itemIndex := itemIndexVal.S2UInt64()
+	itemIndex := itemIndexVal.UInt64()
 	wepType := common.EquipmentIndexMapping[itemIndex]
 
 	if wepType == common.EqUnknown {
@@ -826,7 +826,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 			Type:    events.WarnTypeUnknownEquipmentIndex,
 		})
 	} else {
-		model := entity.PropertyValueMust("CBodyComponent.m_hModel").S2UInt64()
+		model := entity.PropertyValueMust("CBodyComponent.m_hModel").UInt64()
 		p.equipmentTypePerModel[model] = wepType
 	}
 

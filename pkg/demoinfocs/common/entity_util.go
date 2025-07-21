@@ -15,7 +15,7 @@ func getUInt64(entity st.Entity, propName string) uint64 {
 		return 0
 	}
 
-	return entity.PropertyValueMust(propName).S2UInt64()
+	return entity.PropertyValueMust(propName).UInt64()
 }
 
 func getFloat(entity st.Entity, propName string) float32 {

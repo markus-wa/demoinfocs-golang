@@ -18,7 +18,6 @@ type Player struct {
 	UserID        int                // Mostly used in game-events to address this player
 	Name          string             // Steam / in-game user name
 	Inventory     map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
-	AmmoLeft      [32]int            // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
 	EntityID      int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
 	Entity        st.Entity          // May be nil between player-death and re-spawn
 	FlashDuration float32            // Blindness duration from the flashbang currently affecting the player (seconds)
@@ -52,7 +51,7 @@ func (p *Player) PlayerPawnEntity() st.Entity {
 }
 
 func (p *Player) GetTeam() Team {
-	return Team(p.PlayerPawnEntity().PropertyValueMust("m_iTeamNum").S2UInt64())
+	return Team(p.PlayerPawnEntity().PropertyValueMust("m_iTeamNum").UInt64())
 }
 
 func (p *Player) GetFlashDuration() float32 {
@@ -83,7 +82,7 @@ func (p *Player) IsAlive() bool {
 
 	pawnEntity := p.PlayerPawnEntity()
 	if pawnEntity != nil {
-		return pawnEntity.PropertyValueMust("m_lifeState").S2UInt64() == 0
+		return pawnEntity.PropertyValueMust("m_lifeState").UInt64() == 0
 	}
 
 	return getBool(p.Entity, "m_bPawnIsAlive")
@@ -153,7 +152,7 @@ This isn't very conclusive but it looks like IsFlashed isn't super reliable curr
 // ActiveWeaponID is used internally to set the active weapon, see ActiveWeapon()
 func (p *Player) ActiveWeaponID() int {
 	if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
-		return int(pawnEntity.PropertyValueMust("m_pWeaponServices.m_hActiveWeapon").S2UInt64() & constants.EntityHandleIndexMaskSource2)
+		return int(pawnEntity.PropertyValueMust("m_pWeaponServices.m_hActiveWeapon").UInt64() & constants.EntityHandleIndexMaskSource2)
 	}
 
 	return 0
@@ -196,7 +195,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 		mask = p.PlayerPawnEntity().Property("m_bSpottedByMask.0001")
 	}
 
-	return (mask.Value().S2UInt64() & (1 << bit)) != 0
+	return (mask.Value().UInt64() & (1 << bit)) != 0
 }
 
 // HasSpotted returns true if the player has spotted the other player.
@@ -289,7 +288,7 @@ func (p *Player) ControlledBot() *Player {
 		return nil
 	}
 
-	controllerHandler := p.Entity.Property("m_hOriginalControllerOfCurrentPawn").Value().S2UInt64()
+	controllerHandler := p.Entity.Property("m_hOriginalControllerOfCurrentPawn").Value().UInt64()
 
 	return p.demoInfoProvider.FindPlayerByHandle(controllerHandler)
 }
