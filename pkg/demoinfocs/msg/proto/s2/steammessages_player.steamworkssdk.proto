@@ -19,7 +19,7 @@ message CPlayer_IncomingInviteMutualFriendList {
 }
 
 message CPlayer_GetMutualFriendsForIncomingInvites_Response {
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CPlayer_IncomingInviteMutualFriendList incoming_invite_mutual_friends_lists = 1;
+	repeated CPlayer_IncomingInviteMutualFriendList incoming_invite_mutual_friends_lists = 1;
 }
 
 message CPlayer_GetFriendsGameplayInfo_Request {
@@ -41,12 +41,12 @@ message CPlayer_GetFriendsGameplayInfo_Response {
 		optional bool owned = 5;
 	}
 
-	optional com.github.markus_wa.demoinfocs_golang.s2.CPlayer_GetFriendsGameplayInfo_Response.OwnGameplayInfo your_info = 1;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo in_game = 2;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo played_recently = 3;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo played_ever = 4;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo owns = 5;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo in_wishlist = 6;
+	optional CPlayer_GetFriendsGameplayInfo_Response.OwnGameplayInfo your_info = 1;
+	repeated CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo in_game = 2;
+	repeated CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo played_recently = 3;
+	repeated CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo played_ever = 4;
+	repeated CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo owns = 5;
+	repeated CPlayer_GetFriendsGameplayInfo_Response.FriendsGameplayInfo in_wishlist = 6;
 }
 
 message CPlayer_GetGameBadgeLevels_Request {
@@ -61,7 +61,7 @@ message CPlayer_GetGameBadgeLevels_Response {
 	}
 
 	optional uint32 player_level = 1;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CPlayer_GetGameBadgeLevels_Response.Badge badges = 2;
+	repeated CPlayer_GetGameBadgeLevels_Response.Badge badges = 2;
 }
 
 message CPlayer_GetLastPlayedTimes_Request {
@@ -77,7 +77,7 @@ message CPlayer_GetLastPlayedTimes_Response {
 		optional uint32 first_playtime = 5;
 	}
 
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CPlayer_GetLastPlayedTimes_Response.Game games = 1;
+	repeated CPlayer_GetLastPlayedTimes_Response.Game games = 1;
 }
 
 message CPlayer_AcceptSSA_Request {
@@ -95,7 +95,7 @@ message CPlayer_GetNicknameList_Response {
 		optional string nickname = 2;
 	}
 
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CPlayer_GetNicknameList_Response.PlayerNickname nicknames = 1;
+	repeated CPlayer_GetNicknameList_Response.PlayerNickname nicknames = 1;
 }
 
 message CPlayer_GetPerFriendPreferences_Request {
@@ -104,21 +104,21 @@ message CPlayer_GetPerFriendPreferences_Request {
 message PerFriendPreferences {
 	optional fixed32 accountid = 1;
 	optional string nickname = 2;
-	optional com.github.markus_wa.demoinfocs_golang.s2.ENotificationSetting notifications_showingame = 3 [default = k_ENotificationSettingNotifyUseDefault];
-	optional com.github.markus_wa.demoinfocs_golang.s2.ENotificationSetting notifications_showonline = 4 [default = k_ENotificationSettingNotifyUseDefault];
-	optional com.github.markus_wa.demoinfocs_golang.s2.ENotificationSetting notifications_showmessages = 5 [default = k_ENotificationSettingNotifyUseDefault];
-	optional com.github.markus_wa.demoinfocs_golang.s2.ENotificationSetting sounds_showingame = 6 [default = k_ENotificationSettingNotifyUseDefault];
-	optional com.github.markus_wa.demoinfocs_golang.s2.ENotificationSetting sounds_showonline = 7 [default = k_ENotificationSettingNotifyUseDefault];
-	optional com.github.markus_wa.demoinfocs_golang.s2.ENotificationSetting sounds_showmessages = 8 [default = k_ENotificationSettingNotifyUseDefault];
-	optional com.github.markus_wa.demoinfocs_golang.s2.ENotificationSetting notifications_sendmobile = 9 [default = k_ENotificationSettingNotifyUseDefault];
+	optional ENotificationSetting notifications_showingame = 3 [default = k_ENotificationSettingNotifyUseDefault];
+	optional ENotificationSetting notifications_showonline = 4 [default = k_ENotificationSettingNotifyUseDefault];
+	optional ENotificationSetting notifications_showmessages = 5 [default = k_ENotificationSettingNotifyUseDefault];
+	optional ENotificationSetting sounds_showingame = 6 [default = k_ENotificationSettingNotifyUseDefault];
+	optional ENotificationSetting sounds_showonline = 7 [default = k_ENotificationSettingNotifyUseDefault];
+	optional ENotificationSetting sounds_showmessages = 8 [default = k_ENotificationSettingNotifyUseDefault];
+	optional ENotificationSetting notifications_sendmobile = 9 [default = k_ENotificationSettingNotifyUseDefault];
 }
 
 message CPlayer_GetPerFriendPreferences_Response {
-	repeated com.github.markus_wa.demoinfocs_golang.s2.PerFriendPreferences preferences = 1;
+	repeated PerFriendPreferences preferences = 1;
 }
 
 message CPlayer_SetPerFriendPreferences_Request {
-	optional com.github.markus_wa.demoinfocs_golang.s2.PerFriendPreferences preferences = 1;
+	optional PerFriendPreferences preferences = 1;
 }
 
 message CPlayer_SetPerFriendPreferences_Response {
@@ -161,11 +161,11 @@ message CPlayer_CommunityPreferences {
 }
 
 message CPlayer_GetCommunityPreferences_Response {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CPlayer_CommunityPreferences preferences = 1;
+	optional CPlayer_CommunityPreferences preferences = 1;
 }
 
 message CPlayer_SetCommunityPreferences_Request {
-	optional com.github.markus_wa.demoinfocs_golang.s2.CPlayer_CommunityPreferences preferences = 1;
+	optional CPlayer_CommunityPreferences preferences = 1;
 }
 
 message CPlayer_SetCommunityPreferences_Response {

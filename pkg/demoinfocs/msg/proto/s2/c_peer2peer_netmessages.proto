@@ -26,7 +26,7 @@ message CP2P_Voice {
 		Played_Audio = 1;
 	}
 
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVoiceAudio audio = 1;
+	optional CMsgVoiceAudio audio = 1;
 	optional uint32 broadcast_group = 2;
 }
 
@@ -37,11 +37,11 @@ message CP2P_Ping {
 
 message CP2P_VRAvatarPosition {
 	message COrientation {
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgVector pos = 1;
-		optional com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle ang = 2;
+		optional CMsgVector pos = 1;
+		optional CMsgQAngle ang = 2;
 	}
 
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CP2P_VRAvatarPosition.COrientation body_parts = 1;
+	repeated CP2P_VRAvatarPosition.COrientation body_parts = 1;
 	optional int32 hat_id = 2;
 	optional int32 scene_id = 3;
 	optional int32 world_scale = 4;

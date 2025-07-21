@@ -252,6 +252,7 @@ message PlayerRankingInfo {
 	repeated PlayerRankingInfo.PerMapRank per_map_rank = 13;
 	optional uint32 leaderboard_name_status = 14;
 	optional uint32 highest_rank = 15;
+	optional uint32 rank_expiry = 16;
 }
 
 message PlayerCommendationInfo {
@@ -1208,6 +1209,12 @@ message CSOAccountSeasonalOperation {
 message CSOAccountRecurringSubscription {
 	optional uint32 time_next_cycle = 1;
 	optional uint32 time_initiated = 2;
+}
+
+message CSOGameAccountSteamChina {
+	optional uint32 time_last_update = 1;
+	optional uint32 time_comms_ban = 2;
+	optional uint32 time_play_ban = 3;
 }
 
 message CSOPersonaDataPublic {

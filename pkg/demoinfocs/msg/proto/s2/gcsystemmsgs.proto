@@ -197,7 +197,7 @@ message CQuest_PublisherAddCommunityItemsToPlayer_Request {
 	optional uint32 match_item_type = 3;
 	optional uint32 match_item_class = 4;
 	optional string prefix_item_name = 5;
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CQuest_PublisherAddCommunityItemsToPlayer_Request.Attribute attributes = 6;
+	repeated CQuest_PublisherAddCommunityItemsToPlayer_Request.Attribute attributes = 6;
 	optional string note = 7;
 }
 
@@ -217,7 +217,7 @@ message CCommunity_GetGamePersonalDataCategories_Request {
 }
 
 message CCommunity_GetGamePersonalDataCategories_Response {
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CCommunity_GamePersonalDataCategoryInfo categories = 1;
+	repeated CCommunity_GamePersonalDataCategoryInfo categories = 1;
 	optional string app_assets_basename = 2;
 }
 

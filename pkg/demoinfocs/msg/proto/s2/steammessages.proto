@@ -2,11 +2,11 @@ package com.github.markus_wa.demoinfocs_golang.s2;
 
 import "google/protobuf/descriptor.proto";
 
-extend .google.protobuf.FieldOptions {
+extend google.protobuf.FieldOptions {
 	optional bool key_field = 60000 [default = false];
 }
 
-extend .google.protobuf.MessageOptions {
+extend google.protobuf.MessageOptions {
 	optional int32 msgpool_soft_limit = 60000 [default = 32];
 	optional int32 msgpool_hard_limit = 60001 [default = 384];
 }
@@ -32,7 +32,7 @@ message CMsgProtoBufHeader {
 	optional int32 eresult = 13 [default = 2];
 	optional string error_message = 14;
 	optional uint32 ip = 15;
-	optional com.github.markus_wa.demoinfocs_golang.s2.GCProtoBufMsgSrc gc_msg_src = 200 [default = GCProtoBufMsgSrc_Unspecified];
+	optional GCProtoBufMsgSrc gc_msg_src = 200 [default = GCProtoBufMsgSrc_Unspecified];
 	optional uint32 gc_dir_index_source = 201;
 }
 

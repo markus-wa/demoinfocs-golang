@@ -25,22 +25,22 @@ message CGameNetworkingUI_ConnectionState {
 	optional string sdrpopid_local = 21;
 	optional string sdrpopid_remote = 22;
 	optional string address_remote = 23;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramP2PRoutingSummary p2p_routing = 24;
+	optional CMsgSteamDatagramP2PRoutingSummary p2p_routing = 24;
 	optional uint32 ping_interior = 25;
 	optional uint32 ping_remote_front = 26;
 	optional uint32 ping_default_internet_route = 27;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality e2e_quality_local = 30;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality e2e_quality_remote = 31;
+	optional CMsgSteamDatagramConnectionQuality e2e_quality_local = 30;
+	optional CMsgSteamDatagramConnectionQuality e2e_quality_remote = 31;
 	optional uint64 e2e_quality_remote_instantaneous_time = 32;
 	optional uint64 e2e_quality_remote_lifetime_time = 33;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality front_quality_local = 40;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CMsgSteamDatagramConnectionQuality front_quality_remote = 41;
+	optional CMsgSteamDatagramConnectionQuality front_quality_local = 40;
+	optional CMsgSteamDatagramConnectionQuality front_quality_remote = 41;
 	optional uint64 front_quality_remote_instantaneous_time = 42;
 	optional uint64 front_quality_remote_lifetime_time = 43;
 }
 
 message CGameNetworkingUI_Message {
-	repeated com.github.markus_wa.demoinfocs_golang.s2.CGameNetworkingUI_ConnectionState connection_state = 1;
+	repeated CGameNetworkingUI_ConnectionState connection_state = 1;
 }
 
 message CGameNetworkingUI_ConnectionSummary {
@@ -59,5 +59,5 @@ message CGameNetworkingUI_AppSummary {
 	optional bool ip_was_shared_with_friend = 10;
 	optional bool ip_was_shared_with_nonfriend = 11;
 	optional uint32 active_connections = 20;
-	optional com.github.markus_wa.demoinfocs_golang.s2.CGameNetworkingUI_ConnectionSummary main_cxn = 30;
+	optional CGameNetworkingUI_ConnectionSummary main_cxn = 30;
 }
