@@ -197,7 +197,7 @@ func (p *Player) Weapons() []*Equipment {
 }
 
 // FlashbangCount returns the amount of flashbangs the player currently has in his inventory.
-func (p *Player) FlashbangCount() int {
+func (p *Player) FlashbangCount() uint64 {
 	if p.demoInfoProvider.IsSource2() {
 		pawn := p.PlayerPawnEntity()
 		if pawn == nil {
@@ -209,10 +209,10 @@ func (p *Player) FlashbangCount() int {
 			return 0
 		}
 
-		return int(flashCountProp.S2UInt64())
+		return flashCountProp.S2UInt64()
 	}
 
-	return p.Entity.PropertyValueMust("m_iAmmo.015").Int()
+	return uint64(p.Entity.PropertyValueMust("m_iAmmo.015").Int())
 }
 
 // IsSpottedBy returns true if the player has been spotted by the other player.
