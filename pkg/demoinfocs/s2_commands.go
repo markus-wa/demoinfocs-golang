@@ -269,6 +269,13 @@ var teCreators = map[msg.ETEProtobufIds]NetMessageCreator{
 	msg.ETEProtobufIds_TE_SmokeId:          func() proto.Message { return &msg.CMsgTESmoke{} },
 }
 
+var bidirectionalMessageCreators = map[msg.Bidirectional_Messages]NetMessageCreator{
+	msg.Bidirectional_Messages_bi_RebroadcastGameEvent: func() proto.Message { return &msg.CBidirMsg_RebroadcastGameEvent{} },
+	msg.Bidirectional_Messages_bi_RebroadcastSource:    func() proto.Message { return &msg.CBidirMsg_RebroadcastSource{} },
+	msg.Bidirectional_Messages_bi_GameEvent:            func() proto.Message { return &msg.CBidirMsg_RebroadcastGameEvent{} },
+	msg.Bidirectional_Messages_bi_PredictionEvent:      func() proto.Message { return &msg.CBidirMsg_PredictionEvent{} },
+}
+
 type pendingMessage struct {
 	t   int32
 	buf []byte
@@ -324,6 +331,10 @@ func (p *parser) handleDemoPacket(pack *msg.CDemoPacket) {
 
 		if m.t < int32(msg.SVC_Messages_svc_ServerInfo) {
 			msgCreator = netMsgCreators[msg.NET_Messages(m.t)]
+
+			if msgCreator == nil {
+				msgCreator = bidirectionalMessageCreators[msg.Bidirectional_Messages(m.t)]
+			}
 		} else if m.t < int32(msg.EBaseUserMessages_UM_AchievementEvent) {
 			msgCreator = svcMsgCreators[msg.SVC_Messages(m.t)]
 		} else if m.t < int32(msg.EBaseGameEvents_GE_VDebugGameSessionIDEvent) {
