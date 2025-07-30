@@ -547,7 +547,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 
 				op = st.EntityOpCreated | st.EntityOpEntered
 			} else {
-				if m.GetHasPvsVisBits() > 0 && r.readBits(2)&0x01 != 0 {
+				if m.GetHasPvsVisBitsDeprecated() > 0 && r.readBits(2)&0x01 != 0 {
 					continue
 				}
 

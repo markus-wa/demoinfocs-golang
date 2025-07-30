@@ -1649,15 +1649,12 @@ func (x *CMsgTEBloodStream) GetAmount() uint32 {
 type CMsgTEExplosion struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	Origin            *CMsgVector            `protobuf:"bytes,1,opt,name=origin" json:"origin,omitempty"`
-	Framerate         *uint32                `protobuf:"varint,2,opt,name=framerate" json:"framerate,omitempty"`
 	Flags             *uint32                `protobuf:"varint,3,opt,name=flags" json:"flags,omitempty"`
 	Normal            *CMsgVector            `protobuf:"bytes,4,opt,name=normal" json:"normal,omitempty"`
-	Materialtype      *uint32                `protobuf:"varint,5,opt,name=materialtype" json:"materialtype,omitempty"`
 	Radius            *uint32                `protobuf:"varint,6,opt,name=radius" json:"radius,omitempty"`
 	Magnitude         *uint32                `protobuf:"varint,7,opt,name=magnitude" json:"magnitude,omitempty"`
-	Scale             *float32               `protobuf:"fixed32,8,opt,name=scale" json:"scale,omitempty"`
 	AffectRagdolls    *bool                  `protobuf:"varint,9,opt,name=affect_ragdolls,json=affectRagdolls" json:"affect_ragdolls,omitempty"`
-	EffectName        *string                `protobuf:"bytes,10,opt,name=effect_name,json=effectName" json:"effect_name,omitempty"`
+	SoundName         *string                `protobuf:"bytes,10,opt,name=sound_name,json=soundName" json:"sound_name,omitempty"`
 	ExplosionType     *uint32                `protobuf:"varint,11,opt,name=explosion_type,json=explosionType" json:"explosion_type,omitempty"`
 	CreateDebris      *bool                  `protobuf:"varint,12,opt,name=create_debris,json=createDebris" json:"create_debris,omitempty"`
 	DebrisOrigin      *CMsgVector            `protobuf:"bytes,13,opt,name=debris_origin,json=debrisOrigin" json:"debris_origin,omitempty"`
@@ -1703,13 +1700,6 @@ func (x *CMsgTEExplosion) GetOrigin() *CMsgVector {
 	return nil
 }
 
-func (x *CMsgTEExplosion) GetFramerate() uint32 {
-	if x != nil && x.Framerate != nil {
-		return *x.Framerate
-	}
-	return 0
-}
-
 func (x *CMsgTEExplosion) GetFlags() uint32 {
 	if x != nil && x.Flags != nil {
 		return *x.Flags
@@ -1722,13 +1712,6 @@ func (x *CMsgTEExplosion) GetNormal() *CMsgVector {
 		return x.Normal
 	}
 	return nil
-}
-
-func (x *CMsgTEExplosion) GetMaterialtype() uint32 {
-	if x != nil && x.Materialtype != nil {
-		return *x.Materialtype
-	}
-	return 0
 }
 
 func (x *CMsgTEExplosion) GetRadius() uint32 {
@@ -1745,13 +1728,6 @@ func (x *CMsgTEExplosion) GetMagnitude() uint32 {
 	return 0
 }
 
-func (x *CMsgTEExplosion) GetScale() float32 {
-	if x != nil && x.Scale != nil {
-		return *x.Scale
-	}
-	return 0
-}
-
 func (x *CMsgTEExplosion) GetAffectRagdolls() bool {
 	if x != nil && x.AffectRagdolls != nil {
 		return *x.AffectRagdolls
@@ -1759,9 +1735,9 @@ func (x *CMsgTEExplosion) GetAffectRagdolls() bool {
 	return false
 }
 
-func (x *CMsgTEExplosion) GetEffectName() string {
-	if x != nil && x.EffectName != nil {
-		return *x.EffectName
+func (x *CMsgTEExplosion) GetSoundName() string {
+	if x != nil && x.SoundName != nil {
+		return *x.SoundName
 	}
 	return ""
 }
@@ -2510,20 +2486,17 @@ const file_s2_te_proto_rawDesc = "" +
 	"\x06origin\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06origin\x12S\n" +
 	"\tdirection\x18\x02 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\tdirection\x12\x14\n" +
 	"\x05color\x18\x03 \x01(\aR\x05color\x12\x16\n" +
-	"\x06amount\x18\x04 \x01(\rR\x06amount\"\xf4\x04\n" +
+	"\x06amount\x18\x04 \x01(\rR\x06amount\"\x9a\x04\n" +
 	"\x0fCMsgTEExplosion\x12M\n" +
-	"\x06origin\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06origin\x12\x1c\n" +
-	"\tframerate\x18\x02 \x01(\rR\tframerate\x12\x14\n" +
+	"\x06origin\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06origin\x12\x14\n" +
 	"\x05flags\x18\x03 \x01(\rR\x05flags\x12M\n" +
-	"\x06normal\x18\x04 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06normal\x12\"\n" +
-	"\fmaterialtype\x18\x05 \x01(\rR\fmaterialtype\x12\x16\n" +
+	"\x06normal\x18\x04 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06normal\x12\x16\n" +
 	"\x06radius\x18\x06 \x01(\rR\x06radius\x12\x1c\n" +
-	"\tmagnitude\x18\a \x01(\rR\tmagnitude\x12\x14\n" +
-	"\x05scale\x18\b \x01(\x02R\x05scale\x12'\n" +
-	"\x0faffect_ragdolls\x18\t \x01(\bR\x0eaffectRagdolls\x12\x1f\n" +
-	"\veffect_name\x18\n" +
-	" \x01(\tR\n" +
-	"effectName\x12%\n" +
+	"\tmagnitude\x18\a \x01(\rR\tmagnitude\x12'\n" +
+	"\x0faffect_ragdolls\x18\t \x01(\bR\x0eaffectRagdolls\x12\x1d\n" +
+	"\n" +
+	"sound_name\x18\n" +
+	" \x01(\tR\tsoundName\x12%\n" +
 	"\x0eexplosion_type\x18\v \x01(\rR\rexplosionType\x12#\n" +
 	"\rcreate_debris\x18\f \x01(\bR\fcreateDebris\x12Z\n" +
 	"\rdebris_origin\x18\r \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\fdebrisOrigin\x12-\n" +
