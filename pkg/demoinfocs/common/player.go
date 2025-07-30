@@ -196,6 +196,25 @@ func (p *Player) Weapons() []*Equipment {
 	return res
 }
 
+// FlashbangCount returns the amount of flashbangs the player currently has in his inventory.
+func (p *Player) FlashbangCount() int {
+	if p.demoInfoProvider.IsSource2() {
+		pawn := p.PlayerPawnEntity()
+		if pawn == nil {
+			return 0
+		}
+
+		flashCountProp, ok := pawn.PropertyValue("m_pWeaponServices.m_iAmmo.0014")
+		if !ok {
+			return 0
+		}
+
+		return int(flashCountProp.S2UInt64())
+	}
+
+	return p.Entity.PropertyValueMust("m_iAmmo.015").Int()
+}
+
 // IsSpottedBy returns true if the player has been spotted by the other player.
 // This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
 // May not behave as expected with multiple spotters.
