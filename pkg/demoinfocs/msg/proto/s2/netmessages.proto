@@ -97,6 +97,7 @@ enum Bidirectional_Messages {
 	bi_RebroadcastGameEvent = 16;
 	bi_RebroadcastSource = 17;
 	bi_GameEvent = 18;
+	bi_PredictionEvent = 19;
 }
 
 enum Bidirectional_Messages_LowFrequency {
@@ -273,6 +274,8 @@ message CMsgSource2NetworkFlowQuality {
 message CCLCMsg_Diagnostic {
 	optional CMsgSource2SystemSpecs system_specs = 1;
 	optional CMsgSource2VProfLiteReport vprof_report = 2;
+	optional CMsgSource2NetworkFlowQuality downstream_flow = 3;
+	optional CMsgSource2NetworkFlowQuality upstream_flow = 4;
 }
 
 message CSource2Metrics_MatchPerfSummary_Notification {
@@ -280,6 +283,8 @@ message CSource2Metrics_MatchPerfSummary_Notification {
 		optional CMsgSource2SystemSpecs system_specs = 1;
 		optional CMsgSource2VProfLiteReport profile = 2;
 		optional uint32 build_id = 3;
+		optional CMsgSource2NetworkFlowQuality downstream_flow = 4;
+		optional CMsgSource2NetworkFlowQuality upstream_flow = 5;
 		optional fixed64 steamid = 10;
 	}
 
@@ -455,6 +460,11 @@ message CSVCMsg_PacketEntities {
 		optional bytes data = 2;
 	}
 
+	message outofpvs_entity_updates_t {
+		optional int32 count = 1;
+		optional bytes data = 2;
+	}
+
 	optional int32 max_entries = 1;
 	optional int32 updated_entries = 2;
 	optional bool legacy_is_delta = 3;
@@ -470,11 +480,12 @@ message CSVCMsg_PacketEntities {
 	optional uint32 server_tick = 12;
 	optional bytes serialized_entities = 13;
 	repeated CSVCMsg_PacketEntities.alternate_baseline_t alternate_baselines = 15;
-	optional uint32 has_pvs_vis_bits = 16;
+	optional uint32 has_pvs_vis_bits_deprecated = 16;
 	repeated sint32 cmd_recv_status = 22 [packed = true];
 	optional CSVCMsg_PacketEntities.non_transmitted_entities_t non_transmitted_entities = 19;
 	optional uint32 cq_starved_command_ticks = 20;
 	optional uint32 cq_discarded_command_ticks = 21;
+	optional CSVCMsg_PacketEntities.outofpvs_entity_updates_t outofpvs_entity_updates = 23;
 	optional bytes dev_padding = 999;
 }
 
@@ -614,6 +625,18 @@ message CBidirMsg_RebroadcastGameEvent {
 
 message CBidirMsg_RebroadcastSource {
 	optional int32 eventsource = 1;
+}
+
+message CBidirMsg_PredictionEvent {
+	enum ESyncType {
+		ST_Tick = 0;
+		ST_UserCmdNum = 1;
+	}
+
+	required uint32 event_id = 1;
+	required bytes event_data = 2;
+	optional uint32 sync_type = 3;
+	optional uint32 sync_val_uint32 = 4;
 }
 
 message CMsgServerNetworkStats {

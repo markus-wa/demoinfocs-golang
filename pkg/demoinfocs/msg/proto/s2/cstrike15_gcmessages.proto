@@ -56,7 +56,6 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_DraftSummary = 9162;
 	k_EMsgGCCStrike15_v2_ClientRequestJoinFriendData = 9163;
 	k_EMsgGCCStrike15_v2_ClientRequestJoinServerData = 9164;
-	k_EMsgGCCStrike15_v2_ClientRequestNewMission = 9165;
 	k_EMsgGCCStrike15_v2_GC2ClientTournamentInfo = 9167;
 	k_EMsgGC_GlobalGame_Subscribe = 9168;
 	k_EMsgGC_GlobalGame_Unsubscribe = 9169;
@@ -111,12 +110,19 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_Client2GcAckXPShopTracks = 9222;
 	k_EMsgGCCStrike15_v2_MatchmakingGC2ClientSearchStats = 9223;
 	k_EMsgGCCStrike15_v2_PremierSeasonSummary = 9224;
+	k_EMsgGCCStrike15_v2_RequestRecurringMissionSchedule = 9225;
+	k_EMsgGCCStrike15_v2_RecurringMissionSchema = 9226;
 }
 
 enum ECsgoSteamUserStat {
 	k_ECsgoSteamUserStat_XpEarnedGames = 1;
 	k_ECsgoSteamUserStat_MatchWinsCompetitive = 2;
 	k_ECsgoSteamUserStat_SurvivedDangerZone = 3;
+}
+
+enum QuestType {
+	k_EQuestType_Operation = 1;
+	k_EQuestType_RecurringMission = 2;
 }
 
 enum EClientReportingVersion {
@@ -199,7 +205,6 @@ message GlobalStatistics {
 	optional uint32 active_tournament_eventid = 12;
 	optional uint32 active_survey_id = 13;
 	optional uint32 rtime32_cur = 14;
-	optional uint32 rtime32_event_start = 15;
 	optional uint32 required_appid_version2 = 16;
 }
 
@@ -347,6 +352,10 @@ message PlayerQuestData {
 		optional uint64 quest_id = 1;
 		optional int32 quest_normal_points_earned = 2;
 		optional int32 quest_bonus_points_earned = 3;
+		repeated int32 quest_normal_points_required = 4;
+		repeated int32 quest_reward_xp = 5;
+		optional int32 quest_period = 6;
+		optional QuestType quest_type = 7 [default = k_EQuestType_Operation];
 	}
 
 	optional uint32 quester_account_id = 1;
@@ -538,11 +547,11 @@ message CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve {
 	repeated uint32 tournament_casters_account_ids = 13;
 	optional uint64 tv_relay_steamid = 14;
 	optional CPreMatchInfoData pre_match_data = 15;
-	optional uint32 rtime32_event_start = 16;
 	optional uint32 tv_control = 17;
 	repeated OperationalVarValue op_var_values = 19;
 	optional uint32 socache_control = 20;
 	repeated int32 teammate_colors = 21;
+	optional uint32 match_id_additional = 22;
 }
 
 message CMsgGCCStrike15_v2_MatchmakingServerReservationResponse {
@@ -756,16 +765,12 @@ message CMsgGCCStrike15_v2_ClientRequestJoinServerData {
 	optional string errormsg = 7;
 }
 
-message CMsgGCCstrike15_v2_ClientRequestNewMission {
-	optional uint32 mission_id = 2;
-	optional uint32 campaign_id = 3;
-}
-
 message CMsgGCCstrike15_v2_ClientRedeemMissionReward {
 	optional uint32 campaign_id = 1;
 	optional uint32 redeem_id = 2;
 	optional uint32 redeemable_balance = 3;
 	optional uint32 expected_cost = 4;
+	optional int32 bid_control = 5;
 }
 
 message CMsgGCCstrike15_v2_ClientRedeemFreeReward {
@@ -919,6 +924,7 @@ message CEconItemPreviewDataBlock {
 		optional float offset_y = 8;
 		optional float offset_z = 9;
 		optional uint32 pattern = 10;
+		optional uint32 highlight_reel = 11;
 	}
 
 	optional uint32 accountid = 1;
@@ -941,6 +947,9 @@ message CEconItemPreviewDataBlock {
 	optional int32 entindex = 18;
 	optional uint32 petindex = 19;
 	repeated CEconItemPreviewDataBlock.Sticker keychains = 20;
+	optional uint32 style = 21;
+	repeated CEconItemPreviewDataBlock.Sticker variations = 22;
+	optional uint32 upgrade_level = 23;
 }
 
 message CMsgGCCStrike15_v2_MatchEndRewardDropsNotification {
@@ -1170,6 +1179,13 @@ message CSOAccountXpShop {
 	repeated uint32 xp_tracks = 3;
 }
 
+message CSOAccountXpShopBids {
+	optional uint32 campaign_id = 1 [(key_field) = true];
+	optional uint32 redeem_id = 2 [(key_field) = true];
+	optional uint32 expected_cost = 3;
+	optional uint32 generation_time = 4;
+}
+
 message CSOAccountKeychainRemoveToolCharges {
 	optional uint32 charges = 1;
 }
@@ -1207,6 +1223,13 @@ message CSOPersonaDataPublic {
 	optional bool elevated_state = 3;
 	optional uint32 xp_trail_timestamp_refresh = 4;
 	optional uint32 xp_trail_level = 5;
+}
+
+message CSOAccountRecurringMission {
+	optional uint32 account_id = 1;
+	optional uint32 mission_id = 2;
+	optional uint32 period = 3;
+	optional uint32 progress = 4;
 }
 
 message CMsgGCCStrike15_v2_GC2ClientNotifyXPShop {
@@ -1510,4 +1533,16 @@ message CMsgGCCStrike15_v2_GC2ClientInitSystem_Response {
 
 message CMsgGCCStrike15_v2_SetPlayerLeaderboardSafeName {
 	optional string leaderboard_safe_name = 1;
+}
+
+message CMsgRequestRecurringMissionSchedule {
+}
+
+message CMsgRecurringMissionSchema {
+	message MissionTemplateList {
+		optional uint32 period = 1;
+		repeated bytes mission_templates = 2;
+	}
+
+	repeated CMsgRecurringMissionSchema.MissionTemplateList missions = 1;
 }
