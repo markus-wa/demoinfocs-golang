@@ -432,6 +432,8 @@ func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 	controllerEntity.OnDestroy(func() {
 		pl.IsConnected = false
 		delete(p.gameState.playersByEntityID, controllerEntity.ID())
+		delete(p.gameState.playerControllerEntities, controllerEntity.ID())
+		delete(p.gameState.playersByUserID, pl.UserID)
 	})
 }
 
