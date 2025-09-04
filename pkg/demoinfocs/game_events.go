@@ -252,6 +252,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"player_activate":                 nil,                                   // CS2 POV demos
 		"player_blind":                    delay(geh.playerBlind),                // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
 		"player_changename":               nil,                                   // Name change
+		"player_chat":                     nil,                                   // CS2 only, not always present and ChatMessage events are already dispatched through CUserMessageSayText2
 		"player_connect":                  geh.playerConnect,                     // Bot connected or player reconnected, players normally come in via string tables & data tables
 		"player_connect_full":             nil,                                   // Connecting finished
 		"player_death":                    delayIfNoPlayers(geh.playerDeath),     // Player died
