@@ -3,7 +3,7 @@ module github.com/markus-wa/demoinfocs-golang/v5
 require (
 	github.com/andygrunwald/vdf v1.1.0
 	github.com/golang/geo v0.0.0-20230421003525-6adc56603217
-	github.com/golang/snappy v0.0.4
+	github.com/golang/snappy v1.0.0
 	github.com/llgcode/draw2d v0.0.0-20230723155556-e595d7c7e75e
 	github.com/markus-wa/go-heatmap/v2 v2.0.0
 	github.com/markus-wa/go-unassert v0.1.3
