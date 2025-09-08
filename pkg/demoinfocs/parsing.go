@@ -350,6 +350,11 @@ func (p *parser) parseFrameS2() bool {
 
 	p.msgQueue <- ingameTickNumber(int32(tick))
 
+	if msgType == msgs2.EDemoCommands_DEM_Stop {
+		p.msgQueue <- frameParsedToken
+		return false
+	}
+
 	size := p.bitReader.ReadVarInt32()
 
 	msgCreator := demoCommandMsgsCreators[msgType]
