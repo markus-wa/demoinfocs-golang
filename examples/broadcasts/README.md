@@ -4,11 +4,12 @@ This example shows how to parse live [CSTV broadcasts](https://developer.valveso
 
 ## Running the example
 
-1. `cs2 -dedicated -port 27016 +sv_setsteamaccount <GSLT> +game_type 0 +game_mode 1 +sv_hibernate_when_empty 0 +map de_overpass`
-2. After startup: `tv_delay 0; tv_broadcast_url "http://localhost:8080"; tv_broadcast 1`
+1. `node cstv.js`
+2. `LD_LIBRARY_PATH=".../game/bin/linuxsteamrt64:$LD_LIBRARY_PATH" cs2 -dedicated -port 27016 +sv_setsteamaccount 0F81C7E09971B48600F6642E21183EEC +game_type 0 +game_mode 1 +sv_hibernate_when_empty 0 +map de_overpass`
+3. After startup: `tv_delay 0; tv_broadcast_url "http://localhost:8080"; tv_broadcast 1`
    -> `http://localhost:8080/<token>`
-3. Check the broadcast works by running `playcast "http://localhost:8080/<token>"` in your game client - NOTE: the double quotes around the URL are strictly required
-4. `go run broadcasts.go -url "http://localhost:8080/<token>"`
+4. Check the broadcast works by running `playcast "http://localhost:8080/<token>"` in your game client - NOTE: the double quotes around the URL are strictly required
+5. `go run broadcasts.go -url "http://localhost:8080/<token>"`
 
 ### Sample output
 
