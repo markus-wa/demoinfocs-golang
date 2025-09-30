@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/pkg/errors"
@@ -23,6 +24,7 @@ type sync struct {
 	KeyframeInterval int     `json:"keyframe_interval"`
 	Map              string  `json:"map"`
 	Protocol         int     `json:"protocol"`
+	TokenRedirect    string  `json:"token_redirect"`
 }
 
 type Reader struct {
@@ -105,6 +107,11 @@ func NewReader(baseUrl string, timeout time.Duration) (*Reader, error) {
 	err = json.Unmarshal(b, &s)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode response from %q: %w", syncUrl, err)
+	}
+
+	baseUrl, err = url.JoinPath(baseUrl, s.TokenRedirect)
+	if err != nil {
+		return nil, fmt.Errorf("failed to join base url and token redirect: %w", err)
 	}
 
 	startUrl := fmt.Sprintf(baseUrl+"/%d/start", s.SignupFragment)
