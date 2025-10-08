@@ -338,10 +338,17 @@ func readBitCoordPres(r *reader) float32 {
 }
 
 func qanglePreciseDecoder(r *reader) interface{} {
-	v := make([]float32, 3)
 	hasX := r.readBoolean()
 	hasY := r.readBoolean()
 	hasZ := r.readBoolean()
+
+	// Early return optimization: if no components are set, return zero slice immediately
+	if !hasX && !hasY && !hasZ {
+		return []float32{0, 0, 0}
+	}
+
+	// Pre-allocate slice with explicit length and capacity
+	v := make([]float32, 3, 3)
 
 	if hasX {
 		v[0] = readBitCoordPres(r)
