@@ -411,6 +411,14 @@ func (p *Parser) FilterEntity(fb func(*Entity) bool) []*Entity {
 func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 	n := readFieldPaths(r, paths)
 
+	// Early exit optimization
+	if n == 0 {
+		return
+	}
+
+	// PropertyValue reuse optimization - avoids allocation in tight loop
+	reusablePV := st.PropertyValue{}
+
 	for _, fp := range (*paths)[:n] {
 		f := e.class.serializer.getFieldForFieldPath(fp, 0)
 		name := e.class.getNameForFieldPath(fp)
@@ -428,15 +436,21 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 			}
 
 			if oldFS != nil {
-				if uint64(len(oldFS.state)) >= val.(uint64) {
-					fs.state = oldFS.state[:val.(uint64)]
+				newSize := val.(uint64)
+				oldLen := uint64(len(oldFS.state))
+				
+				if oldLen >= newSize {
+					fs.state = oldFS.state[:newSize]
 				} else {
-					if uint64(cap(oldFS.state)) >= val.(uint64) {
-						prevSize := uint64(len(oldFS.state))
-						fs.state = oldFS.state[:val.(uint64)]
-						clear(fs.state[prevSize:])
+					if uint64(cap(oldFS.state)) >= newSize {
+						prevSize := oldLen
+						fs.state = oldFS.state[:newSize]
+						// Optimized clearing: clear only newly exposed elements
+						for i := prevSize; i < newSize; i++ {
+							fs.state[i] = nil
+						}
 					} else {
-						fs.state = make([]any, val.(uint64))
+						fs.state = make([]any, newSize)
 						copy(fs.state, oldFS.state)
 					}
 				}
@@ -449,10 +463,13 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 			e.state.set(fp, val)
 		}
 
-		for _, h := range e.updateHandlers[name] {
-			h(st.PropertyValue{
-				Any: val,
-			})
+		// Optimized handler invocation: reuse PropertyValue struct
+		handlers := e.updateHandlers[name]
+		if len(handlers) > 0 {
+			reusablePV.Any = val
+			for _, h := range handlers {
+				h(reusablePV)
+			}
 		}
 	}
 }
