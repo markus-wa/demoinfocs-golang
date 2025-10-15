@@ -84,6 +84,11 @@ var bindFactoryByType = map[st.PropertyValueType]bindFactory{
 			*variable.(*r3.Vector) = v.R3Vec()
 		}
 	},
+	st.ValTypeVectorSlice: func(variable any) st.PropertyUpdateHandler {
+		return func(v st.PropertyValue) {
+			*variable.(*r3.Vector) = v.R3VecSlice()
+		}
+	},
 	st.ValTypeInt: func(variable any) st.PropertyUpdateHandler {
 		return func(v st.PropertyValue) {
 			*variable.(*int) = v.Int()

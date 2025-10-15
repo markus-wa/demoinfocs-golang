@@ -280,11 +280,12 @@ func (r *reader) readNormal() float32 {
 }
 
 // read3BitNormal reads a normalized float vector
-func (r *reader) read3BitNormal() []float32 {
-	ret := []float32{0.0, 0.0, 0.0}
+func (r *reader) read3BitNormal() [3]float32 {
+	ret := [3]float32{0.0, 0.0, 0.0}
 
-	hasX := r.readBoolean()
-	haxY := r.readBoolean()
+	bits := r.readBits(2)
+	hasX := bits&1 > 0
+	haxY := bits&2 > 0
 
 	if hasX {
 		ret[0] = r.readNormal()
@@ -313,12 +314,15 @@ func (r *reader) read3BitNormal() []float32 {
 // readBitsAsBytes reads the given number of bits in groups of bytes
 func (r *reader) readBitsAsBytes(n uint32) []byte {
 	tmp := make([]byte, 0)
+
 	for n >= 8 {
 		tmp = append(tmp, r.readByte())
 		n -= 8
 	}
+
 	if n > 0 {
 		tmp = append(tmp, byte(r.readBits(n)))
 	}
+
 	return tmp
 }

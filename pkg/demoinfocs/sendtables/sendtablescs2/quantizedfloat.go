@@ -64,7 +64,7 @@ func (qfd *quantizedFloatDecoder) validateFlags() {
 	}
 }
 
-var qFloatMultipliers = []float32{0.9999, 0.99, 0.9, 0.8, 0.7}
+var qFloatMultipliers = [5]float32{0.9999, 0.99, 0.9, 0.8, 0.7}
 
 // Assign multipliers
 func (qfd *quantizedFloatDecoder) assignMultipliers(steps uint32) {

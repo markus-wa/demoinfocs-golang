@@ -24,7 +24,7 @@ func TestGrenadeProjectile_Velocity(t *testing.T) {
 
 	p := GrenadeProjectile{
 		Entity: entityWithProperty("m_vecVelocity", st.PropertyValue{
-			Any: []float32{1, 2, 3},
+			Any: [3]float32{1, 2, 3},
 		}),
 	}
 

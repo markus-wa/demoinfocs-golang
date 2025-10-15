@@ -21,6 +21,7 @@ const (
 	ValTypeVector
 	ValTypeArray
 	ValTypeBoolInt // Int that is treated as bool (1 -> true, != 1 -> false)
+	ValTypeVectorSlice
 )
 
 // PropertyValue stores parsed & decoded send-table values.
@@ -30,6 +31,16 @@ type PropertyValue struct {
 }
 
 func (v PropertyValue) R3Vec() r3.Vector {
+	fs := v.Any.([3]float32)
+
+	return r3.Vector{
+		X: float64(fs[0]),
+		Y: float64(fs[1]),
+		Z: float64(fs[2]),
+	}
+}
+
+func (v PropertyValue) R3VecSlice() r3.Vector {
 	fs := v.Any.([]float32)
 
 	return r3.Vector{
@@ -44,7 +55,7 @@ func (v PropertyValue) R3VecOrNil() *r3.Vector {
 		return nil
 	}
 
-	fs := v.Any.([]float32)
+	fs := v.Any.([3]float32)
 
 	return &r3.Vector{
 		X: float64(fs[0]),

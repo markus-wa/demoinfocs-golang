@@ -295,16 +295,16 @@ func (p *parser) bindTeamStates() {
 
 func (p *parser) bindBombSites() {
 	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(playerResource st.Entity) {
-		playerResource.BindProperty("m_bombsiteCenterA", &p.bombsiteA.center, st.ValTypeVector)
-		playerResource.BindProperty("m_bombsiteCenterB", &p.bombsiteB.center, st.ValTypeVector)
+		playerResource.BindProperty("m_bombsiteCenterA", &p.bombsiteA.center, st.ValTypeVectorSlice)
+		playerResource.BindProperty("m_bombsiteCenterB", &p.bombsiteB.center, st.ValTypeVectorSlice)
 	})
 
 	onBombTargetEntityCreated := func(target st.Entity) {
 		t := new(boundingBoxInformation)
 		p.triggers[target.ID()] = t
 
-		target.BindProperty("m_vecMins", &t.min, st.ValTypeVector)
-		target.BindProperty("m_vecMaxs", &t.max, st.ValTypeVector)
+		target.BindProperty("m_vecMins", &t.min, st.ValTypeVectorSlice)
+		target.BindProperty("m_vecMaxs", &t.max, st.ValTypeVectorSlice)
 	}
 
 	// CBombTarget is not available with CS2 demos created in the early days of the limited test.

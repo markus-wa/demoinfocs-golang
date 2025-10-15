@@ -339,10 +339,12 @@ func readBitCoordPres(r *reader) float32 {
 }
 
 func qanglePreciseDecoder(r *reader) interface{} {
-	v := make([]float32, 3)
-	hasX := r.readBoolean()
-	hasY := r.readBoolean()
-	hasZ := r.readBoolean()
+	bits := r.readBits(3)
+	hasX := bits&1 != 0
+	hasY := bits&2 != 0
+	hasZ := bits&4 != 0
+
+	v := [3]float32{0, 0, 0}
 
 	if hasX {
 		v[0] = readBitCoordPres(r)
@@ -367,7 +369,7 @@ func qangleFactory(f *field) fieldDecoder {
 	if f.bitCount != nil && *f.bitCount != 0 {
 		n := uint32(*f.bitCount)
 		return func(r *reader) interface{} {
-			return []float32{
+			return [3]float32{
 				r.readAngle(n),
 				r.readAngle(n),
 				r.readAngle(n),
@@ -376,19 +378,25 @@ func qangleFactory(f *field) fieldDecoder {
 	}
 
 	return func(r *reader) interface{} {
-		ret := make([]float32, 3)
-		rX := r.readBoolean()
-		rY := r.readBoolean()
-		rZ := r.readBoolean()
+		bits := r.readBits(3)
+		rX := bits&1 != 0
+		rY := bits&2 != 0
+		rZ := bits&4 != 0
+
+		ret := [3]float32{0, 0, 0}
+
 		if rX {
 			ret[0] = r.readCoord()
 		}
+
 		if rY {
 			ret[1] = r.readCoord()
 		}
+
 		if rZ {
 			ret[2] = r.readCoord()
 		}
+
 		return ret
 	}
 }
