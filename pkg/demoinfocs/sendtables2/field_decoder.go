@@ -27,6 +27,7 @@ var fieldTypeFactories = map[string]fieldFactory{
 		DemoSimpleEncoders_t { m_Name = "CTransform"							m_VarType = "NET_DATA_TYPE_FLOAT32"		m_nComponents="6" },
 	*/
 	"Vector":     vectorFactory(3),
+	"VectorWS":   vectorFactory(3),
 	"Vector2D":   vectorFactory(2),
 	"Vector4D":   vectorFactory(4),
 	"Quaternion": vectorFactory(4),
