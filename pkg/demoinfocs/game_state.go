@@ -282,7 +282,7 @@ func (gr gameRules) RoundTime() (time.Duration, error) {
 		return 0, ErrFailedToRetrieveGameRule
 	}
 
-	prop := gr.entity.Property("cs_gamerules_data.m_iRoundTime")
+	prop := gr.entity.Property(gameRulesPrefix + ".m_iRoundTime")
 	if prop == nil {
 		return 0, ErrFailedToRetrieveGameRule
 	}

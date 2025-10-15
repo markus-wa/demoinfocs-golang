@@ -709,17 +709,17 @@ const maxWeapons = 64
 func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 	// Some demos have an additional prefix for player weapons weapon
 	var wepPrefix string
-	if playerEntity.Property(playerWeaponPrefix+"000") != nil {
+	if playerEntity.Property(playerWeaponPrefix+".000") != nil {
 		wepPrefix = playerWeaponPrefix
 	} else {
-		wepPrefix = playerWeaponPrePrefix + playerWeaponPrefix
+		wepPrefix = "bcc_nonlocaldata." + playerWeaponPrefix
 	}
 
 	// Weapons
 	var cache [maxWeapons]int
 	for i := range cache {
 		i2 := i // Copy for passing to handler
-		playerEntity.Property(wepPrefix + fmt.Sprintf("%03d", i)).OnUpdate(func(val st.PropertyValue) {
+		playerEntity.Property(wepPrefix + fmt.Sprintf(".%03d", i)).OnUpdate(func(val st.PropertyValue) {
 			entityID := val.IntVal & constants.EntityHandleIndexMask
 			if entityID != constants.EntityHandleIndexMask {
 				if cache[i2] != 0 {
@@ -785,7 +785,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 		inventory := make(map[int]*common.Equipment, inventorySize)
 
 		for i := 0; i < inventorySize; i++ {
-			val := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i)).Value()
+			val := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf(".%04d", i)).Value()
 			if val.Any == nil {
 				continue
 			}
@@ -797,7 +797,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 		pl.Inventory = inventory
 	}
 
-	pawnEntity.Property("m_pWeaponServices.m_hMyWeapons").OnUpdate(func(pv st.PropertyValue) {
+	pawnEntity.Property(playerWeaponPrefixS2).OnUpdate(func(pv st.PropertyValue) {
 		inventorySize = len(pv.S2Array())
 		setPlayerInventory()
 	})
@@ -834,7 +834,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 			}
 		}
 
-		property := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i))
+		property := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf(".%04d", i))
 		updateWeapon(property.Value())
 		property.OnUpdate(updateWeapon)
 	}

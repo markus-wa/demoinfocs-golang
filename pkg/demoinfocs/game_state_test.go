@@ -322,7 +322,7 @@ func TestGameRules_RoundTime(t *testing.T) {
 	prop := new(stfake.Property)
 	prop.On("Value").Return(st.PropertyValue{IntVal: 115})
 	ent := new(stfake.Entity)
-	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(prop)
+	ent.On("Property", gameRulesPrefix+".m_iRoundTime").Return(prop)
 	gr := gameRules{entity: ent}
 
 	rt, err := gr.RoundTime()
@@ -346,7 +346,7 @@ func TestGameRules(t *testing.T) {
 	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
 
 	ent := new(stfake.Entity)
-	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(nil)
+	ent.On("Property", gameRulesPrefix+".m_iRoundTime").Return(nil)
 	gr = gameRules{entity: ent}
 
 	_, err = gr.RoundTime()
