@@ -1,0 +1,35 @@
+import "networkbasetypes.proto";
+
+enum ECsgoGameEvents {
+	GE_PlayerAnimEventId = 450;
+	GE_RadioIconEventId = 451;
+	GE_FireBulletsId = 452;
+}
+
+message CMsgTEPlayerAnimEvent {
+	optional fixed32 player = 1 [default = 16777215];
+	optional uint32 event = 2;
+	optional int32 data = 3;
+}
+
+message CMsgTERadioIcon {
+	optional fixed32 player = 1 [default = 16777215];
+}
+
+message CMsgTEFireBullets {
+	optional .CMsgVector origin = 1;
+	optional .CMsgQAngle angles = 2;
+	optional uint32 weapon_id = 3 [default = 16777215];
+	optional uint32 mode = 4;
+	optional uint32 seed = 5;
+	optional fixed32 player = 6 [default = 16777215];
+	optional float inaccuracy = 7;
+	optional float recoil_index = 8;
+	optional float spread = 9;
+	optional int32 sound_type = 10;
+	optional uint32 item_def_index = 11;
+	optional fixed32 sound_dsp_effect = 12;
+	optional .CMsgVector ent_origin = 13;
+	optional uint32 num_bullets_remaining = 14;
+	optional uint32 attack_type = 15;
+}
