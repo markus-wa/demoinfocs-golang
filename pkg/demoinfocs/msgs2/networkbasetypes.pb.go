@@ -9,6 +9,7 @@ package msgs2
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	descriptorpb "google.golang.org/protobuf/types/descriptorpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -2208,11 +2209,28 @@ func (x *CSVCMsgList_GameEventsEventT) GetEvent() *CSVCMsg_GameEvent {
 	return nil
 }
 
+var file_s2_networkbasetypes_proto_extTypes = []protoimpl.ExtensionInfo{
+	{
+		ExtendedType:  (*descriptorpb.MessageOptions)(nil),
+		ExtensionType: (*int32)(nil),
+		Field:         50000,
+		Name:          "com.github.markus_wa.demoinfocs_golang.s2.maximum_size_bytes",
+		Tag:           "varint,50000,opt,name=maximum_size_bytes",
+		Filename:      "s2/networkbasetypes.proto",
+	},
+}
+
+// Extension fields to descriptorpb.MessageOptions.
+var (
+	// optional int32 maximum_size_bytes = 50000;
+	E_MaximumSizeBytes = &file_s2_networkbasetypes_proto_extTypes[0]
+)
+
 var File_s2_networkbasetypes_proto protoreflect.FileDescriptor
 
 const file_s2_networkbasetypes_proto_rawDesc = "" +
 	"\n" +
-	"\x19s2/networkbasetypes.proto\x12)com.github.markus_wa.demoinfocs_golang.s2\x1a\x1bs2/network_connection.proto\"D\n" +
+	"\x19s2/networkbasetypes.proto\x12)com.github.markus_wa.demoinfocs_golang.s2\x1a google/protobuf/descriptor.proto\x1a\x1bs2/network_connection.proto\"D\n" +
 	"\n" +
 	"CMsgVector\x12\f\n" +
 	"\x01x\x18\x01 \x01(\x02R\x01x\x12\f\n" +
@@ -2276,9 +2294,9 @@ const file_s2_networkbasetypes_proto_rawDesc = "" +
 	"$host_frame_irregular_arrival_pct_x10\x18\r \x01(\rR\x1fhostFrameIrregularArrivalPctX10\"V\n" +
 	"\x11CNETMsg_StringCmd\x12\x18\n" +
 	"\acommand\x18\x01 \x01(\tR\acommand\x12'\n" +
-	"\x0fprediction_sync\x18\x02 \x01(\rR\x0epredictionSync\"d\n" +
+	"\x0fprediction_sync\x18\x02 \x01(\rR\x0epredictionSync\"k\n" +
 	"\x11CNETMsg_SetConVar\x12O\n" +
-	"\aconvars\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsg_CVarsR\aconvars\"\xb5\x02\n" +
+	"\aconvars\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsg_CVarsR\aconvars:\x05\x80\xb5\x18\x80 \"\xb5\x02\n" +
 	"\x13CNETMsg_SignonState\x12m\n" +
 	"\fsignon_state\x18\x01 \x01(\x0e28.com.github.markus_wa.demoinfocs_golang.s2.SignonState_t:\x10SIGNONSTATE_NONER\vsignonState\x12\x1f\n" +
 	"\vspawn_count\x18\x02 \x01(\rR\n" +
@@ -2307,7 +2325,7 @@ const file_s2_networkbasetypes_proto_rawDesc = "" +
 	"\x06events\x18\x01 \x03(\v2I.com.github.markus_wa.demoinfocs_golang.s2.CSVCMsgList_GameEvents.event_tR\x06events\x1aq\n" +
 	"\aevent_t\x12\x12\n" +
 	"\x04tick\x18\x01 \x01(\x05R\x04tick\x12R\n" +
-	"\x05event\x18\x02 \x01(\v2<.com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventR\x05event\"\xd3\a\n" +
+	"\x05event\x18\x02 \x01(\v2<.com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventR\x05event\"\xdb\a\n" +
 	"\x17CNETMsg_SpawnGroup_Load\x12\x1c\n" +
 	"\tworldname\x18\x01 \x01(\tR\tworldname\x12&\n" +
 	"\x0eentitylumpname\x18\x02 \x01(\tR\x0eentitylumpname\x12*\n" +
@@ -2329,7 +2347,7 @@ const file_s2_networkbasetypes_proto_rawDesc = "" +
 	"\x10savegamefilename\x18\x11 \x01(\tR\x10savegamefilename\x126\n" +
 	"\x16spawngroupparenthandle\x18\x12 \x01(\rR\x16spawngroupparenthandle\x12(\n" +
 	"\x0fleveltransition\x18\x13 \x01(\bR\x0fleveltransition\x12&\n" +
-	"\x0eworldgroupname\x18\x14 \x01(\tR\x0eworldgroupname\"\xaf\x01\n" +
+	"\x0eworldgroupname\x18\x14 \x01(\tR\x0eworldgroupname:\x06\x80\xb5\x18\x80\x80\b\"\xaf\x01\n" +
 	"!CNETMsg_SpawnGroup_ManifestUpdate\x12*\n" +
 	"\x10spawngrouphandle\x18\x01 \x01(\rR\x10spawngrouphandle\x12.\n" +
 	"\x12spawngroupmanifest\x18\x02 \x01(\fR\x12spawngroupmanifest\x12.\n" +
@@ -2410,7 +2428,8 @@ const file_s2_networkbasetypes_proto_rawDesc = "" +
 	"'SPAWN_GROUP_CREATE_CLIENT_ONLY_ENTITIES\x10\x10\x12\"\n" +
 	"\x1eSPAWN_GROUP_BLOCK_UNTIL_LOADED\x10@\x12$\n" +
 	"\x1fSPAWN_GROUP_LOAD_STREAMING_DATA\x10\x80\x01\x12'\n" +
-	"\"SPAWN_GROUP_CREATE_NEW_SCENE_WORLD\x10\x80\x02"
+	"\"SPAWN_GROUP_CREATE_NEW_SCENE_WORLD\x10\x80\x02:O\n" +
+	"\x12maximum_size_bytes\x12\x1f.google.protobuf.MessageOptions\x18І\x03 \x01(\x05R\x10maximumSizeBytes"
 
 var (
 	file_s2_networkbasetypes_proto_rawDescOnce sync.Once
@@ -2457,6 +2476,7 @@ var file_s2_networkbasetypes_proto_goTypes = []any{
 	(*CMsg_CVars_CVar)(nil),                    // 27: com.github.markus_wa.demoinfocs_golang.s2.CMsg_CVars.CVar
 	(*CSVCMsg_GameEventKeyT)(nil),              // 28: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEvent.key_t
 	(*CSVCMsgList_GameEventsEventT)(nil),       // 29: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsgList_GameEvents.event_t
+	(*descriptorpb.MessageOptions)(nil),        // 30: google.protobuf.MessageOptions
 }
 var file_s2_networkbasetypes_proto_depIdxs = []int32{
 	3,  // 0: com.github.markus_wa.demoinfocs_golang.s2.CMsgTransform.position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
@@ -2471,10 +2491,11 @@ var file_s2_networkbasetypes_proto_depIdxs = []int32{
 	3,  // 9: com.github.markus_wa.demoinfocs_golang.s2.CNETMsg_DebugOverlay.vectors:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
 	8,  // 10: com.github.markus_wa.demoinfocs_golang.s2.CNETMsg_DebugOverlay.colors:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA
 	18, // 11: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsgList_GameEvents.event_t.event:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEvent
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
+	30, // 12: com.github.markus_wa.demoinfocs_golang.s2.maximum_size_bytes:extendee -> google.protobuf.MessageOptions
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	12, // [12:13] is the sub-list for extension extendee
 	0,  // [0:12] is the sub-list for field type_name
 }
 
@@ -2491,13 +2512,14 @@ func file_s2_networkbasetypes_proto_init() {
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_s2_networkbasetypes_proto_rawDesc), len(file_s2_networkbasetypes_proto_rawDesc)),
 			NumEnums:      3,
 			NumMessages:   27,
-			NumExtensions: 0,
+			NumExtensions: 1,
 			NumServices:   0,
 		},
 		GoTypes:           file_s2_networkbasetypes_proto_goTypes,
 		DependencyIndexes: file_s2_networkbasetypes_proto_depIdxs,
 		EnumInfos:         file_s2_networkbasetypes_proto_enumTypes,
 		MessageInfos:      file_s2_networkbasetypes_proto_msgTypes,
+		ExtensionInfos:    file_s2_networkbasetypes_proto_extTypes,
 	}.Build()
 	File_s2_networkbasetypes_proto = out.File
 	file_s2_networkbasetypes_proto_goTypes = nil

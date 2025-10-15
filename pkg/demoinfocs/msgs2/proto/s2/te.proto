@@ -9,7 +9,6 @@ enum ETEProtobufIds {
 	TE_BeamEntsId = 403;
 	TE_BeamPointsId = 404;
 	TE_BeamRingId = 405;
-	TE_BSPDecalId = 407;
 	TE_BubblesId = 408;
 	TE_BubbleTrailId = 409;
 	TE_DecalId = 410;
@@ -26,8 +25,6 @@ enum ETEProtobufIds {
 	TE_LargeFunnelId = 421;
 	TE_SparksId = 422;
 	TE_PhysicsPropId = 423;
-	TE_PlayerDecalId = 424;
-	TE_ProjectedDecalId = 425;
 	TE_SmokeId = 426;
 }
 
@@ -75,14 +72,6 @@ message CMsgTEBeamRing {
 	optional CMsgTEBaseBeam base = 1;
 	optional uint32 startentity = 2;
 	optional uint32 endentity = 3;
-}
-
-message CMsgTEBSPDecal {
-	optional CMsgVector origin = 1;
-	optional CMsgVector normal = 2;
-	optional CMsgVector saxis = 3;
-	optional int32 entity = 4 [default = -1];
-	optional uint32 index = 5;
 }
 
 message CMsgTEBubbles {
@@ -234,19 +223,6 @@ message CMsgTEPhysicsProp {
 	optional CMsgVector dmgpos = 11;
 	optional CMsgVector dmgdir = 12;
 	optional int32 dmgtype = 13;
-}
-
-message CMsgTEPlayerDecal {
-	optional CMsgVector origin = 1;
-	optional int32 player = 2 [default = -1];
-	optional int32 entity = 3 [default = -1];
-}
-
-message CMsgTEProjectedDecal {
-	optional CMsgVector origin = 1;
-	optional CMsgQAngle angles = 2;
-	optional uint32 index = 3;
-	optional float distance = 4;
 }
 
 message CMsgTESmoke {

@@ -146,19 +146,19 @@ var emCreators = map[msgs2.EBaseEntityMessages]NetMessageCreator{
 }
 
 var gameEventCreators = map[msgs2.EBaseGameEvents]NetMessageCreator{
-	msgs2.EBaseGameEvents_GE_VDebugGameSessionIDEvent:            func() proto.Message { return &msgs2.CMsgVDebugGameSessionIDEvent{} },
-	msgs2.EBaseGameEvents_GE_PlaceDecalEvent:                     func() proto.Message { return &msgs2.CMsgPlaceDecalEvent{} },
-	msgs2.EBaseGameEvents_GE_ClearWorldDecalsEvent:               func() proto.Message { return &msgs2.CMsgClearWorldDecalsEvent{} },
-	msgs2.EBaseGameEvents_GE_ClearEntityDecalsEvent:              func() proto.Message { return &msgs2.CMsgClearEntityDecalsEvent{} },
-	msgs2.EBaseGameEvents_GE_ClearDecalsForSkeletonInstanceEvent: func() proto.Message { return &msgs2.CMsgClearDecalsForSkeletonInstanceEvent{} },
-	msgs2.EBaseGameEvents_GE_Source1LegacyGameEventList:          func() proto.Message { return &msgs2.CMsgSource1LegacyGameEventList{} },
-	msgs2.EBaseGameEvents_GE_Source1LegacyListenEvents:           func() proto.Message { return &msgs2.CMsgSource1LegacyListenEvents{} },
-	msgs2.EBaseGameEvents_GE_Source1LegacyGameEvent:              func() proto.Message { return &msgs2.CMsgSource1LegacyGameEvent{} },
-	msgs2.EBaseGameEvents_GE_SosStartSoundEvent:                  func() proto.Message { return &msgs2.CMsgSosStartSoundEvent{} },
-	msgs2.EBaseGameEvents_GE_SosStopSoundEvent:                   func() proto.Message { return &msgs2.CMsgSosStopSoundEvent{} },
-	msgs2.EBaseGameEvents_GE_SosSetSoundEventParams:              func() proto.Message { return &msgs2.CMsgSosSetSoundEventParams{} },
-	msgs2.EBaseGameEvents_GE_SosSetLibraryStackFields:            func() proto.Message { return &msgs2.CMsgSosSetLibraryStackFields{} },
-	msgs2.EBaseGameEvents_GE_SosStopSoundEventHash:               func() proto.Message { return &msgs2.CMsgSosStopSoundEventHash{} },
+	msgs2.EBaseGameEvents_GE_VDebugGameSessionIDEvent:   func() proto.Message { return &msgs2.CMsgVDebugGameSessionIDEvent{} },
+	msgs2.EBaseGameEvents_GE_PlaceDecalEvent:            func() proto.Message { return &msgs2.CMsgPlaceDecalEvent{} },
+	msgs2.EBaseGameEvents_GE_ClearWorldDecalsEvent:      func() proto.Message { return &msgs2.CMsgClearWorldDecalsEvent{} },
+	msgs2.EBaseGameEvents_GE_ClearEntityDecalsEvent:     func() proto.Message { return &msgs2.CMsgClearEntityDecalsEvent{} },
+	msgs2.EBaseGameEvents_GE_ClearDecalsForEntityEvent:  func() proto.Message { return &msgs2.CMsgClearDecalsForEntityEvent{} },
+	msgs2.EBaseGameEvents_GE_Source1LegacyGameEventList: func() proto.Message { return &msgs2.CMsgSource1LegacyGameEventList{} },
+	msgs2.EBaseGameEvents_GE_Source1LegacyListenEvents:  func() proto.Message { return &msgs2.CMsgSource1LegacyListenEvents{} },
+	msgs2.EBaseGameEvents_GE_Source1LegacyGameEvent:     func() proto.Message { return &msgs2.CMsgSource1LegacyGameEvent{} },
+	msgs2.EBaseGameEvents_GE_SosStartSoundEvent:         func() proto.Message { return &msgs2.CMsgSosStartSoundEvent{} },
+	msgs2.EBaseGameEvents_GE_SosStopSoundEvent:          func() proto.Message { return &msgs2.CMsgSosStopSoundEvent{} },
+	msgs2.EBaseGameEvents_GE_SosSetSoundEventParams:     func() proto.Message { return &msgs2.CMsgSosSetSoundEventParams{} },
+	msgs2.EBaseGameEvents_GE_SosSetLibraryStackFields:   func() proto.Message { return &msgs2.CMsgSosSetLibraryStackFields{} },
+	msgs2.EBaseGameEvents_GE_SosStopSoundEventHash:      func() proto.Message { return &msgs2.CMsgSosStopSoundEventHash{} },
 }
 
 var csgoGameEventCreators = map[msgs2.ECsgoGameEvents]NetMessageCreator{
@@ -199,7 +199,6 @@ var csUsrMsgCreators = map[msgs2.ECstrike15UserMessages]NetMessageCreator{
 	msgs2.ECstrike15UserMessages_CS_UM_MatchEndConditions:           func() proto.Message { return &msgs2.CCSUsrMsg_MatchEndConditions{} },
 	msgs2.ECstrike15UserMessages_CS_UM_DisconnectToLobby:            func() proto.Message { return &msgs2.CCSUsrMsg_DisconnectToLobby{} },
 	msgs2.ECstrike15UserMessages_CS_UM_PlayerStatsUpdate:            func() proto.Message { return &msgs2.CCSUsrMsg_PlayerStatsUpdate{} },
-	msgs2.ECstrike15UserMessages_CS_UM_WarmupHasEnded:               func() proto.Message { return &msgs2.CCSUsrMsg_WarmupHasEnded{} },
 	msgs2.ECstrike15UserMessages_CS_UM_ClientInfo:                   func() proto.Message { return &msgs2.CCSUsrMsg_ClientInfo{} },
 	msgs2.ECstrike15UserMessages_CS_UM_XRankGet:                     func() proto.Message { return &msgs2.CCSUsrMsg_XRankGet{} },
 	msgs2.ECstrike15UserMessages_CS_UM_XRankUpd:                     func() proto.Message { return &msgs2.CCSUsrMsg_XRankUpd{} },
@@ -218,7 +217,6 @@ var csUsrMsgCreators = map[msgs2.ECstrike15UserMessages]NetMessageCreator{
 	msgs2.ECstrike15UserMessages_CS_UM_MarkAchievement:              func() proto.Message { return &msgs2.CCSUsrMsg_MarkAchievement{} },
 	msgs2.ECstrike15UserMessages_CS_UM_MatchStatsUpdate:             func() proto.Message { return &msgs2.CCSUsrMsg_MatchStatsUpdate{} },
 	msgs2.ECstrike15UserMessages_CS_UM_ItemDrop:                     func() proto.Message { return &msgs2.CCSUsrMsg_ItemDrop{} },
-	msgs2.ECstrike15UserMessages_CS_UM_GlowPropTurnOff:              func() proto.Message { return &msgs2.CCSUsrMsg_GlowPropTurnOff{} },
 	msgs2.ECstrike15UserMessages_CS_UM_SendPlayerItemDrops:          func() proto.Message { return &msgs2.CCSUsrMsg_SendPlayerItemDrops{} },
 	msgs2.ECstrike15UserMessages_CS_UM_RoundBackupFilenames:         func() proto.Message { return &msgs2.CCSUsrMsg_RoundBackupFilenames{} },
 	msgs2.ECstrike15UserMessages_CS_UM_SendPlayerItemFound:          func() proto.Message { return &msgs2.CCSUsrMsg_SendPlayerItemFound{} },
@@ -251,7 +249,6 @@ var teCreators = map[msgs2.ETEProtobufIds]NetMessageCreator{
 	msgs2.ETEProtobufIds_TE_BeamEntsId:       func() proto.Message { return &msgs2.CMsgTEBeamEnts{} },
 	msgs2.ETEProtobufIds_TE_BeamPointsId:     func() proto.Message { return &msgs2.CMsgTEBeamPoints{} },
 	msgs2.ETEProtobufIds_TE_BeamRingId:       func() proto.Message { return &msgs2.CMsgTEBeamRing{} },
-	msgs2.ETEProtobufIds_TE_BSPDecalId:       func() proto.Message { return &msgs2.CMsgTEBSPDecal{} },
 	msgs2.ETEProtobufIds_TE_BubblesId:        func() proto.Message { return &msgs2.CMsgTEBubbles{} },
 	msgs2.ETEProtobufIds_TE_BubbleTrailId:    func() proto.Message { return &msgs2.CMsgTEBubbleTrail{} },
 	msgs2.ETEProtobufIds_TE_DecalId:          func() proto.Message { return &msgs2.CMsgTEDecal{} },
@@ -268,8 +265,6 @@ var teCreators = map[msgs2.ETEProtobufIds]NetMessageCreator{
 	msgs2.ETEProtobufIds_TE_LargeFunnelId:    func() proto.Message { return &msgs2.CMsgTELargeFunnel{} },
 	msgs2.ETEProtobufIds_TE_SparksId:         func() proto.Message { return &msgs2.CMsgTESparks{} },
 	msgs2.ETEProtobufIds_TE_PhysicsPropId:    func() proto.Message { return &msgs2.CMsgTEPhysicsProp{} },
-	msgs2.ETEProtobufIds_TE_PlayerDecalId:    func() proto.Message { return &msgs2.CMsgTEPlayerDecal{} },
-	msgs2.ETEProtobufIds_TE_ProjectedDecalId: func() proto.Message { return &msgs2.CMsgTEProjectedDecal{} },
 	msgs2.ETEProtobufIds_TE_SmokeId:          func() proto.Message { return &msgs2.CMsgTESmoke{} },
 }
 
@@ -357,7 +352,12 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 		}
 
 		if msgCreator == nil {
-			panic(fmt.Errorf("unknown message type %d", m.t))
+			p.msgDispatcher.Dispatch(events.ParserWarn{
+				Message: fmt.Sprintf("unknown message type: %d", m.t),
+				Type:    events.WarnTypeUnknownProtobufMessage,
+			})
+
+			continue
 		}
 
 		msg := msgCreator()

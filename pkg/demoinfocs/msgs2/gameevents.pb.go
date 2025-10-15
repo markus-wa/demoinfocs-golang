@@ -24,19 +24,19 @@ const (
 type EBaseGameEvents int32
 
 const (
-	EBaseGameEvents_GE_VDebugGameSessionIDEvent            EBaseGameEvents = 200
-	EBaseGameEvents_GE_PlaceDecalEvent                     EBaseGameEvents = 201
-	EBaseGameEvents_GE_ClearWorldDecalsEvent               EBaseGameEvents = 202
-	EBaseGameEvents_GE_ClearEntityDecalsEvent              EBaseGameEvents = 203
-	EBaseGameEvents_GE_ClearDecalsForSkeletonInstanceEvent EBaseGameEvents = 204
-	EBaseGameEvents_GE_Source1LegacyGameEventList          EBaseGameEvents = 205
-	EBaseGameEvents_GE_Source1LegacyListenEvents           EBaseGameEvents = 206
-	EBaseGameEvents_GE_Source1LegacyGameEvent              EBaseGameEvents = 207
-	EBaseGameEvents_GE_SosStartSoundEvent                  EBaseGameEvents = 208
-	EBaseGameEvents_GE_SosStopSoundEvent                   EBaseGameEvents = 209
-	EBaseGameEvents_GE_SosSetSoundEventParams              EBaseGameEvents = 210
-	EBaseGameEvents_GE_SosSetLibraryStackFields            EBaseGameEvents = 211
-	EBaseGameEvents_GE_SosStopSoundEventHash               EBaseGameEvents = 212
+	EBaseGameEvents_GE_VDebugGameSessionIDEvent   EBaseGameEvents = 200
+	EBaseGameEvents_GE_PlaceDecalEvent            EBaseGameEvents = 201
+	EBaseGameEvents_GE_ClearWorldDecalsEvent      EBaseGameEvents = 202
+	EBaseGameEvents_GE_ClearEntityDecalsEvent     EBaseGameEvents = 203
+	EBaseGameEvents_GE_ClearDecalsForEntityEvent  EBaseGameEvents = 204
+	EBaseGameEvents_GE_Source1LegacyGameEventList EBaseGameEvents = 205
+	EBaseGameEvents_GE_Source1LegacyListenEvents  EBaseGameEvents = 206
+	EBaseGameEvents_GE_Source1LegacyGameEvent     EBaseGameEvents = 207
+	EBaseGameEvents_GE_SosStartSoundEvent         EBaseGameEvents = 208
+	EBaseGameEvents_GE_SosStopSoundEvent          EBaseGameEvents = 209
+	EBaseGameEvents_GE_SosSetSoundEventParams     EBaseGameEvents = 210
+	EBaseGameEvents_GE_SosSetLibraryStackFields   EBaseGameEvents = 211
+	EBaseGameEvents_GE_SosStopSoundEventHash      EBaseGameEvents = 212
 )
 
 // Enum value maps for EBaseGameEvents.
@@ -46,7 +46,7 @@ var (
 		201: "GE_PlaceDecalEvent",
 		202: "GE_ClearWorldDecalsEvent",
 		203: "GE_ClearEntityDecalsEvent",
-		204: "GE_ClearDecalsForSkeletonInstanceEvent",
+		204: "GE_ClearDecalsForEntityEvent",
 		205: "GE_Source1LegacyGameEventList",
 		206: "GE_Source1LegacyListenEvents",
 		207: "GE_Source1LegacyGameEvent",
@@ -57,19 +57,19 @@ var (
 		212: "GE_SosStopSoundEventHash",
 	}
 	EBaseGameEvents_value = map[string]int32{
-		"GE_VDebugGameSessionIDEvent":            200,
-		"GE_PlaceDecalEvent":                     201,
-		"GE_ClearWorldDecalsEvent":               202,
-		"GE_ClearEntityDecalsEvent":              203,
-		"GE_ClearDecalsForSkeletonInstanceEvent": 204,
-		"GE_Source1LegacyGameEventList":          205,
-		"GE_Source1LegacyListenEvents":           206,
-		"GE_Source1LegacyGameEvent":              207,
-		"GE_SosStartSoundEvent":                  208,
-		"GE_SosStopSoundEvent":                   209,
-		"GE_SosSetSoundEventParams":              210,
-		"GE_SosSetLibraryStackFields":            211,
-		"GE_SosStopSoundEventHash":               212,
+		"GE_VDebugGameSessionIDEvent":   200,
+		"GE_PlaceDecalEvent":            201,
+		"GE_ClearWorldDecalsEvent":      202,
+		"GE_ClearEntityDecalsEvent":     203,
+		"GE_ClearDecalsForEntityEvent":  204,
+		"GE_Source1LegacyGameEventList": 205,
+		"GE_Source1LegacyListenEvents":  206,
+		"GE_Source1LegacyGameEvent":     207,
+		"GE_SosStartSoundEvent":         208,
+		"GE_SosStopSoundEvent":          209,
+		"GE_SosSetSoundEventParams":     210,
+		"GE_SosSetLibraryStackFields":   211,
+		"GE_SosStopSoundEventHash":      212,
 	}
 )
 
@@ -163,24 +163,28 @@ func (x *CMsgVDebugGameSessionIDEvent) GetGamesessionid() string {
 }
 
 type CMsgPlaceDecalEvent struct {
-	state                protoimpl.MessageState `protogen:"open.v1"`
-	Position             *CMsgVector            `protobuf:"bytes,1,opt,name=position" json:"position,omitempty"`
-	Normal               *CMsgVector            `protobuf:"bytes,2,opt,name=normal" json:"normal,omitempty"`
-	Saxis                *CMsgVector            `protobuf:"bytes,3,opt,name=saxis" json:"saxis,omitempty"`
-	Decalmaterialindex   *uint32                `protobuf:"varint,4,opt,name=decalmaterialindex" json:"decalmaterialindex,omitempty"`
-	Flags                *uint32                `protobuf:"varint,5,opt,name=flags" json:"flags,omitempty"`
-	Color                *uint32                `protobuf:"fixed32,6,opt,name=color" json:"color,omitempty"`
-	Width                *float32               `protobuf:"fixed32,7,opt,name=width" json:"width,omitempty"`
-	Height               *float32               `protobuf:"fixed32,8,opt,name=height" json:"height,omitempty"`
-	Depth                *float32               `protobuf:"fixed32,9,opt,name=depth" json:"depth,omitempty"`
-	Entityhandleindex    *uint32                `protobuf:"varint,10,opt,name=entityhandleindex" json:"entityhandleindex,omitempty"`
-	Skeletoninstancehash *uint32                `protobuf:"fixed32,11,opt,name=skeletoninstancehash" json:"skeletoninstancehash,omitempty"`
-	Boneindex            *int32                 `protobuf:"varint,12,opt,name=boneindex" json:"boneindex,omitempty"`
-	Translucenthit       *bool                  `protobuf:"varint,13,opt,name=translucenthit" json:"translucenthit,omitempty"`
-	IsAdjacent           *bool                  `protobuf:"varint,14,opt,name=is_adjacent,json=isAdjacent" json:"is_adjacent,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Position       *CMsgVector            `protobuf:"bytes,1,opt,name=position" json:"position,omitempty"`
+	Normal         *CMsgVector            `protobuf:"bytes,2,opt,name=normal" json:"normal,omitempty"`
+	Saxis          *CMsgVector            `protobuf:"bytes,3,opt,name=saxis" json:"saxis,omitempty"`
+	Boneindex      *int32                 `protobuf:"varint,4,opt,name=boneindex" json:"boneindex,omitempty"`
+	Triangleindex  *int32                 `protobuf:"varint,13,opt,name=triangleindex" json:"triangleindex,omitempty"`
+	Flags          *uint32                `protobuf:"varint,5,opt,name=flags" json:"flags,omitempty"`
+	Color          *uint32                `protobuf:"fixed32,6,opt,name=color" json:"color,omitempty"`
+	RandomSeed     *int32                 `protobuf:"varint,7,opt,name=random_seed,json=randomSeed" json:"random_seed,omitempty"`
+	DecalGroupName *uint32                `protobuf:"varint,8,opt,name=decal_group_name,json=decalGroupName" json:"decal_group_name,omitempty"`
+	SizeOverride   *float32               `protobuf:"fixed32,9,opt,name=size_override,json=sizeOverride" json:"size_override,omitempty"`
+	Entityhandle   *uint32                `protobuf:"varint,10,opt,name=entityhandle,def=16777215" json:"entityhandle,omitempty"`
+	MaterialId     *uint64                `protobuf:"varint,11,opt,name=material_id,json=materialId" json:"material_id,omitempty"`
+	SequenceName   *uint32                `protobuf:"varint,12,opt,name=sequence_name,json=sequenceName" json:"sequence_name,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
+
+// Default values for CMsgPlaceDecalEvent fields.
+const (
+	Default_CMsgPlaceDecalEvent_Entityhandle = uint32(16777215)
+)
 
 func (x *CMsgPlaceDecalEvent) Reset() {
 	*x = CMsgPlaceDecalEvent{}
@@ -233,9 +237,16 @@ func (x *CMsgPlaceDecalEvent) GetSaxis() *CMsgVector {
 	return nil
 }
 
-func (x *CMsgPlaceDecalEvent) GetDecalmaterialindex() uint32 {
-	if x != nil && x.Decalmaterialindex != nil {
-		return *x.Decalmaterialindex
+func (x *CMsgPlaceDecalEvent) GetBoneindex() int32 {
+	if x != nil && x.Boneindex != nil {
+		return *x.Boneindex
+	}
+	return 0
+}
+
+func (x *CMsgPlaceDecalEvent) GetTriangleindex() int32 {
+	if x != nil && x.Triangleindex != nil {
+		return *x.Triangleindex
 	}
 	return 0
 }
@@ -254,60 +265,46 @@ func (x *CMsgPlaceDecalEvent) GetColor() uint32 {
 	return 0
 }
 
-func (x *CMsgPlaceDecalEvent) GetWidth() float32 {
-	if x != nil && x.Width != nil {
-		return *x.Width
+func (x *CMsgPlaceDecalEvent) GetRandomSeed() int32 {
+	if x != nil && x.RandomSeed != nil {
+		return *x.RandomSeed
 	}
 	return 0
 }
 
-func (x *CMsgPlaceDecalEvent) GetHeight() float32 {
-	if x != nil && x.Height != nil {
-		return *x.Height
+func (x *CMsgPlaceDecalEvent) GetDecalGroupName() uint32 {
+	if x != nil && x.DecalGroupName != nil {
+		return *x.DecalGroupName
 	}
 	return 0
 }
 
-func (x *CMsgPlaceDecalEvent) GetDepth() float32 {
-	if x != nil && x.Depth != nil {
-		return *x.Depth
+func (x *CMsgPlaceDecalEvent) GetSizeOverride() float32 {
+	if x != nil && x.SizeOverride != nil {
+		return *x.SizeOverride
 	}
 	return 0
 }
 
-func (x *CMsgPlaceDecalEvent) GetEntityhandleindex() uint32 {
-	if x != nil && x.Entityhandleindex != nil {
-		return *x.Entityhandleindex
+func (x *CMsgPlaceDecalEvent) GetEntityhandle() uint32 {
+	if x != nil && x.Entityhandle != nil {
+		return *x.Entityhandle
+	}
+	return Default_CMsgPlaceDecalEvent_Entityhandle
+}
+
+func (x *CMsgPlaceDecalEvent) GetMaterialId() uint64 {
+	if x != nil && x.MaterialId != nil {
+		return *x.MaterialId
 	}
 	return 0
 }
 
-func (x *CMsgPlaceDecalEvent) GetSkeletoninstancehash() uint32 {
-	if x != nil && x.Skeletoninstancehash != nil {
-		return *x.Skeletoninstancehash
+func (x *CMsgPlaceDecalEvent) GetSequenceName() uint32 {
+	if x != nil && x.SequenceName != nil {
+		return *x.SequenceName
 	}
 	return 0
-}
-
-func (x *CMsgPlaceDecalEvent) GetBoneindex() int32 {
-	if x != nil && x.Boneindex != nil {
-		return *x.Boneindex
-	}
-	return 0
-}
-
-func (x *CMsgPlaceDecalEvent) GetTranslucenthit() bool {
-	if x != nil && x.Translucenthit != nil {
-		return *x.Translucenthit
-	}
-	return false
-}
-
-func (x *CMsgPlaceDecalEvent) GetIsAdjacent() bool {
-	if x != nil && x.IsAdjacent != nil {
-		return *x.IsAdjacent
-	}
-	return false
 }
 
 type CMsgClearWorldDecalsEvent struct {
@@ -398,29 +395,33 @@ func (x *CMsgClearEntityDecalsEvent) GetFlagstoclear() uint32 {
 	return 0
 }
 
-type CMsgClearDecalsForSkeletonInstanceEvent struct {
-	state                protoimpl.MessageState `protogen:"open.v1"`
-	Flagstoclear         *uint32                `protobuf:"varint,1,opt,name=flagstoclear" json:"flagstoclear,omitempty"`
-	Entityhandleindex    *uint32                `protobuf:"varint,2,opt,name=entityhandleindex" json:"entityhandleindex,omitempty"`
-	Skeletoninstancehash *uint32                `protobuf:"varint,3,opt,name=skeletoninstancehash" json:"skeletoninstancehash,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+type CMsgClearDecalsForEntityEvent struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Flagstoclear  *uint32                `protobuf:"varint,1,opt,name=flagstoclear" json:"flagstoclear,omitempty"`
+	Entityhandle  *uint32                `protobuf:"varint,2,opt,name=entityhandle,def=16777215" json:"entityhandle,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CMsgClearDecalsForSkeletonInstanceEvent) Reset() {
-	*x = CMsgClearDecalsForSkeletonInstanceEvent{}
+// Default values for CMsgClearDecalsForEntityEvent fields.
+const (
+	Default_CMsgClearDecalsForEntityEvent_Entityhandle = uint32(16777215)
+)
+
+func (x *CMsgClearDecalsForEntityEvent) Reset() {
+	*x = CMsgClearDecalsForEntityEvent{}
 	mi := &file_s2_gameevents_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CMsgClearDecalsForSkeletonInstanceEvent) String() string {
+func (x *CMsgClearDecalsForEntityEvent) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CMsgClearDecalsForSkeletonInstanceEvent) ProtoMessage() {}
+func (*CMsgClearDecalsForEntityEvent) ProtoMessage() {}
 
-func (x *CMsgClearDecalsForSkeletonInstanceEvent) ProtoReflect() protoreflect.Message {
+func (x *CMsgClearDecalsForEntityEvent) ProtoReflect() protoreflect.Message {
 	mi := &file_s2_gameevents_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -432,30 +433,23 @@ func (x *CMsgClearDecalsForSkeletonInstanceEvent) ProtoReflect() protoreflect.Me
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CMsgClearDecalsForSkeletonInstanceEvent.ProtoReflect.Descriptor instead.
-func (*CMsgClearDecalsForSkeletonInstanceEvent) Descriptor() ([]byte, []int) {
+// Deprecated: Use CMsgClearDecalsForEntityEvent.ProtoReflect.Descriptor instead.
+func (*CMsgClearDecalsForEntityEvent) Descriptor() ([]byte, []int) {
 	return file_s2_gameevents_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *CMsgClearDecalsForSkeletonInstanceEvent) GetFlagstoclear() uint32 {
+func (x *CMsgClearDecalsForEntityEvent) GetFlagstoclear() uint32 {
 	if x != nil && x.Flagstoclear != nil {
 		return *x.Flagstoclear
 	}
 	return 0
 }
 
-func (x *CMsgClearDecalsForSkeletonInstanceEvent) GetEntityhandleindex() uint32 {
-	if x != nil && x.Entityhandleindex != nil {
-		return *x.Entityhandleindex
+func (x *CMsgClearDecalsForEntityEvent) GetEntityhandle() uint32 {
+	if x != nil && x.Entityhandle != nil {
+		return *x.Entityhandle
 	}
-	return 0
-}
-
-func (x *CMsgClearDecalsForSkeletonInstanceEvent) GetSkeletoninstancehash() uint32 {
-	if x != nil && x.Skeletoninstancehash != nil {
-		return *x.Skeletoninstancehash
-	}
-	return 0
+	return Default_CMsgClearDecalsForEntityEvent_Entityhandle
 }
 
 type CMsgSource1LegacyGameEventList struct {
@@ -1143,32 +1137,31 @@ const file_s2_gameevents_proto_rawDesc = "" +
 	"\x13s2/gameevents.proto\x12)com.github.markus_wa.demoinfocs_golang.s2\x1a\x19s2/networkbasetypes.proto\"`\n" +
 	"\x1cCMsgVDebugGameSessionIDEvent\x12\x1a\n" +
 	"\bclientid\x18\x01 \x01(\x05R\bclientid\x12$\n" +
-	"\rgamesessionid\x18\x02 \x01(\tR\rgamesessionid\"\xed\x04\n" +
+	"\rgamesessionid\x18\x02 \x01(\tR\rgamesessionid\"\xd8\x04\n" +
 	"\x13CMsgPlaceDecalEvent\x12Q\n" +
 	"\bposition\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\bposition\x12M\n" +
 	"\x06normal\x18\x02 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06normal\x12K\n" +
-	"\x05saxis\x18\x03 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x05saxis\x12.\n" +
-	"\x12decalmaterialindex\x18\x04 \x01(\rR\x12decalmaterialindex\x12\x14\n" +
+	"\x05saxis\x18\x03 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x05saxis\x12\x1c\n" +
+	"\tboneindex\x18\x04 \x01(\x05R\tboneindex\x12$\n" +
+	"\rtriangleindex\x18\r \x01(\x05R\rtriangleindex\x12\x14\n" +
 	"\x05flags\x18\x05 \x01(\rR\x05flags\x12\x14\n" +
-	"\x05color\x18\x06 \x01(\aR\x05color\x12\x14\n" +
-	"\x05width\x18\a \x01(\x02R\x05width\x12\x16\n" +
-	"\x06height\x18\b \x01(\x02R\x06height\x12\x14\n" +
-	"\x05depth\x18\t \x01(\x02R\x05depth\x12,\n" +
-	"\x11entityhandleindex\x18\n" +
-	" \x01(\rR\x11entityhandleindex\x122\n" +
-	"\x14skeletoninstancehash\x18\v \x01(\aR\x14skeletoninstancehash\x12\x1c\n" +
-	"\tboneindex\x18\f \x01(\x05R\tboneindex\x12&\n" +
-	"\x0etranslucenthit\x18\r \x01(\bR\x0etranslucenthit\x12\x1f\n" +
-	"\vis_adjacent\x18\x0e \x01(\bR\n" +
-	"isAdjacent\"?\n" +
+	"\x05color\x18\x06 \x01(\aR\x05color\x12\x1f\n" +
+	"\vrandom_seed\x18\a \x01(\x05R\n" +
+	"randomSeed\x12(\n" +
+	"\x10decal_group_name\x18\b \x01(\rR\x0edecalGroupName\x12#\n" +
+	"\rsize_override\x18\t \x01(\x02R\fsizeOverride\x12,\n" +
+	"\fentityhandle\x18\n" +
+	" \x01(\r:\b16777215R\fentityhandle\x12\x1f\n" +
+	"\vmaterial_id\x18\v \x01(\x04R\n" +
+	"materialId\x12#\n" +
+	"\rsequence_name\x18\f \x01(\rR\fsequenceName\"?\n" +
 	"\x19CMsgClearWorldDecalsEvent\x12\"\n" +
 	"\fflagstoclear\x18\x01 \x01(\rR\fflagstoclear\"@\n" +
 	"\x1aCMsgClearEntityDecalsEvent\x12\"\n" +
-	"\fflagstoclear\x18\x01 \x01(\rR\fflagstoclear\"\xaf\x01\n" +
-	"'CMsgClearDecalsForSkeletonInstanceEvent\x12\"\n" +
+	"\fflagstoclear\x18\x01 \x01(\rR\fflagstoclear\"q\n" +
+	"\x1dCMsgClearDecalsForEntityEvent\x12\"\n" +
 	"\fflagstoclear\x18\x01 \x01(\rR\fflagstoclear\x12,\n" +
-	"\x11entityhandleindex\x18\x02 \x01(\rR\x11entityhandleindex\x122\n" +
-	"\x14skeletoninstancehash\x18\x03 \x01(\rR\x14skeletoninstancehash\"\xef\x02\n" +
+	"\fentityhandle\x18\x02 \x01(\r:\b16777215R\fentityhandle\"\xf7\x02\n" +
 	"\x1eCMsgSource1LegacyGameEventList\x12x\n" +
 	"\vdescriptors\x18\x01 \x03(\v2V.com.github.markus_wa.demoinfocs_golang.s2.CMsgSource1LegacyGameEventList.descriptor_tR\vdescriptors\x1a/\n" +
 	"\x05key_t\x12\x12\n" +
@@ -1177,7 +1170,7 @@ const file_s2_gameevents_proto_rawDesc = "" +
 	"\fdescriptor_t\x12\x18\n" +
 	"\aeventid\x18\x01 \x01(\x05R\aeventid\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12c\n" +
-	"\x04keys\x18\x03 \x03(\v2O.com.github.markus_wa.demoinfocs_golang.s2.CMsgSource1LegacyGameEventList.key_tR\x04keys\"g\n" +
+	"\x04keys\x18\x03 \x03(\v2O.com.github.markus_wa.demoinfocs_golang.s2.CMsgSource1LegacyGameEventList.key_tR\x04keys:\x06\x80\xb5\x18\x80\xc0\x01\"g\n" +
 	"\x1dCMsgSource1LegacyListenEvents\x12\x1e\n" +
 	"\n" +
 	"playerslot\x18\x01 \x01(\x05R\n" +
@@ -1221,13 +1214,13 @@ const file_s2_gameevents_proto_rawDesc = "" +
 	"\x1cCMsgSosSetLibraryStackFields\x12\x1d\n" +
 	"\n" +
 	"stack_hash\x18\x01 \x01(\aR\tstackHash\x12#\n" +
-	"\rpacked_fields\x18\x05 \x01(\fR\fpackedFields*\xb7\x03\n" +
+	"\rpacked_fields\x18\x05 \x01(\fR\fpackedFields*\xad\x03\n" +
 	"\x0fEBaseGameEvents\x12 \n" +
 	"\x1bGE_VDebugGameSessionIDEvent\x10\xc8\x01\x12\x17\n" +
 	"\x12GE_PlaceDecalEvent\x10\xc9\x01\x12\x1d\n" +
 	"\x18GE_ClearWorldDecalsEvent\x10\xca\x01\x12\x1e\n" +
-	"\x19GE_ClearEntityDecalsEvent\x10\xcb\x01\x12+\n" +
-	"&GE_ClearDecalsForSkeletonInstanceEvent\x10\xcc\x01\x12\"\n" +
+	"\x19GE_ClearEntityDecalsEvent\x10\xcb\x01\x12!\n" +
+	"\x1cGE_ClearDecalsForEntityEvent\x10\xcc\x01\x12\"\n" +
 	"\x1dGE_Source1LegacyGameEventList\x10\xcd\x01\x12!\n" +
 	"\x1cGE_Source1LegacyListenEvents\x10\xce\x01\x12\x1e\n" +
 	"\x19GE_Source1LegacyGameEvent\x10\xcf\x01\x12\x1a\n" +
@@ -1257,7 +1250,7 @@ var file_s2_gameevents_proto_goTypes = []any{
 	(*CMsgPlaceDecalEvent)(nil),                       // 2: com.github.markus_wa.demoinfocs_golang.s2.CMsgPlaceDecalEvent
 	(*CMsgClearWorldDecalsEvent)(nil),                 // 3: com.github.markus_wa.demoinfocs_golang.s2.CMsgClearWorldDecalsEvent
 	(*CMsgClearEntityDecalsEvent)(nil),                // 4: com.github.markus_wa.demoinfocs_golang.s2.CMsgClearEntityDecalsEvent
-	(*CMsgClearDecalsForSkeletonInstanceEvent)(nil),   // 5: com.github.markus_wa.demoinfocs_golang.s2.CMsgClearDecalsForSkeletonInstanceEvent
+	(*CMsgClearDecalsForEntityEvent)(nil),             // 5: com.github.markus_wa.demoinfocs_golang.s2.CMsgClearDecalsForEntityEvent
 	(*CMsgSource1LegacyGameEventList)(nil),            // 6: com.github.markus_wa.demoinfocs_golang.s2.CMsgSource1LegacyGameEventList
 	(*CMsgSource1LegacyListenEvents)(nil),             // 7: com.github.markus_wa.demoinfocs_golang.s2.CMsgSource1LegacyListenEvents
 	(*CMsgSource1LegacyGameEvent)(nil),                // 8: com.github.markus_wa.demoinfocs_golang.s2.CMsgSource1LegacyGameEvent

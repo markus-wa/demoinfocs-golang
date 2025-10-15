@@ -112,6 +112,7 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_PremierSeasonSummary = 9224;
 	k_EMsgGCCStrike15_v2_RequestRecurringMissionSchedule = 9225;
 	k_EMsgGCCStrike15_v2_RecurringMissionSchema = 9226;
+	k_EMsgGCCStrike15_v2_VolatileItemClaimReward = 9227;
 }
 
 enum ECsgoSteamUserStat {
@@ -1184,6 +1185,18 @@ message CSOAccountXpShopBids {
 	optional uint32 redeem_id = 2 [(key_field) = true];
 	optional uint32 expected_cost = 3;
 	optional uint32 generation_time = 4;
+}
+
+message CSOVolatileItemOffer {
+	optional uint32 defidx = 1 [(key_field) = true];
+	repeated uint64 faux_itemid = 2;
+	repeated uint32 generation_time = 3;
+}
+
+message CSOVolatileItemClaimedRewards {
+	optional uint32 defidx = 1 [(key_field) = true];
+	repeated uint32 reward = 2;
+	repeated uint32 generation_time = 3;
 }
 
 message CSOAccountKeychainRemoveToolCharges {

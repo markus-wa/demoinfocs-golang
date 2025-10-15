@@ -606,7 +606,11 @@ const (
 	WarnTypeMissingItemDefinitionIndex
 	WarnTypeStringTableParsingFailure // Should happen only with CS2 POV demos
 	WarnTypePacketEntitiesPanic
+	WarnTypeUnknownProtobufMessage
 )
+
+// WarnTypeUnknownDemoCommandMessageType occurs when a demo-command message type is unknown - contact a maintainer.
+const WarnTypeUnknownDemoCommandMessageType = WarnUnknownDemoCommandMessageType
 
 // ParserWarn signals that a non-fatal problem occurred during parsing.
 type ParserWarn struct {

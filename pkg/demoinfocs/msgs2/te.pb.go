@@ -30,7 +30,6 @@ const (
 	ETEProtobufIds_TE_BeamEntsId       ETEProtobufIds = 403
 	ETEProtobufIds_TE_BeamPointsId     ETEProtobufIds = 404
 	ETEProtobufIds_TE_BeamRingId       ETEProtobufIds = 405
-	ETEProtobufIds_TE_BSPDecalId       ETEProtobufIds = 407
 	ETEProtobufIds_TE_BubblesId        ETEProtobufIds = 408
 	ETEProtobufIds_TE_BubbleTrailId    ETEProtobufIds = 409
 	ETEProtobufIds_TE_DecalId          ETEProtobufIds = 410
@@ -47,8 +46,6 @@ const (
 	ETEProtobufIds_TE_LargeFunnelId    ETEProtobufIds = 421
 	ETEProtobufIds_TE_SparksId         ETEProtobufIds = 422
 	ETEProtobufIds_TE_PhysicsPropId    ETEProtobufIds = 423
-	ETEProtobufIds_TE_PlayerDecalId    ETEProtobufIds = 424
-	ETEProtobufIds_TE_ProjectedDecalId ETEProtobufIds = 425
 	ETEProtobufIds_TE_SmokeId          ETEProtobufIds = 426
 )
 
@@ -61,7 +58,6 @@ var (
 		403: "TE_BeamEntsId",
 		404: "TE_BeamPointsId",
 		405: "TE_BeamRingId",
-		407: "TE_BSPDecalId",
 		408: "TE_BubblesId",
 		409: "TE_BubbleTrailId",
 		410: "TE_DecalId",
@@ -78,8 +74,6 @@ var (
 		421: "TE_LargeFunnelId",
 		422: "TE_SparksId",
 		423: "TE_PhysicsPropId",
-		424: "TE_PlayerDecalId",
-		425: "TE_ProjectedDecalId",
 		426: "TE_SmokeId",
 	}
 	ETEProtobufIds_value = map[string]int32{
@@ -89,7 +83,6 @@ var (
 		"TE_BeamEntsId":       403,
 		"TE_BeamPointsId":     404,
 		"TE_BeamRingId":       405,
-		"TE_BSPDecalId":       407,
 		"TE_BubblesId":        408,
 		"TE_BubbleTrailId":    409,
 		"TE_DecalId":          410,
@@ -106,8 +99,6 @@ var (
 		"TE_LargeFunnelId":    421,
 		"TE_SparksId":         422,
 		"TE_PhysicsPropId":    423,
-		"TE_PlayerDecalId":    424,
-		"TE_ProjectedDecalId": 425,
 		"TE_SmokeId":          426,
 	}
 )
@@ -589,87 +580,6 @@ func (x *CMsgTEBeamRing) GetEndentity() uint32 {
 	return 0
 }
 
-type CMsgTEBSPDecal struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Origin        *CMsgVector            `protobuf:"bytes,1,opt,name=origin" json:"origin,omitempty"`
-	Normal        *CMsgVector            `protobuf:"bytes,2,opt,name=normal" json:"normal,omitempty"`
-	Saxis         *CMsgVector            `protobuf:"bytes,3,opt,name=saxis" json:"saxis,omitempty"`
-	Entity        *int32                 `protobuf:"varint,4,opt,name=entity,def=-1" json:"entity,omitempty"`
-	Index         *uint32                `protobuf:"varint,5,opt,name=index" json:"index,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-// Default values for CMsgTEBSPDecal fields.
-const (
-	Default_CMsgTEBSPDecal_Entity = int32(-1)
-)
-
-func (x *CMsgTEBSPDecal) Reset() {
-	*x = CMsgTEBSPDecal{}
-	mi := &file_s2_te_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CMsgTEBSPDecal) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CMsgTEBSPDecal) ProtoMessage() {}
-
-func (x *CMsgTEBSPDecal) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CMsgTEBSPDecal.ProtoReflect.Descriptor instead.
-func (*CMsgTEBSPDecal) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *CMsgTEBSPDecal) GetOrigin() *CMsgVector {
-	if x != nil {
-		return x.Origin
-	}
-	return nil
-}
-
-func (x *CMsgTEBSPDecal) GetNormal() *CMsgVector {
-	if x != nil {
-		return x.Normal
-	}
-	return nil
-}
-
-func (x *CMsgTEBSPDecal) GetSaxis() *CMsgVector {
-	if x != nil {
-		return x.Saxis
-	}
-	return nil
-}
-
-func (x *CMsgTEBSPDecal) GetEntity() int32 {
-	if x != nil && x.Entity != nil {
-		return *x.Entity
-	}
-	return Default_CMsgTEBSPDecal_Entity
-}
-
-func (x *CMsgTEBSPDecal) GetIndex() uint32 {
-	if x != nil && x.Index != nil {
-		return *x.Index
-	}
-	return 0
-}
-
 type CMsgTEBubbles struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Mins          *CMsgVector            `protobuf:"bytes,1,opt,name=mins" json:"mins,omitempty"`
@@ -683,7 +593,7 @@ type CMsgTEBubbles struct {
 
 func (x *CMsgTEBubbles) Reset() {
 	*x = CMsgTEBubbles{}
-	mi := &file_s2_te_proto_msgTypes[7]
+	mi := &file_s2_te_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -695,7 +605,7 @@ func (x *CMsgTEBubbles) String() string {
 func (*CMsgTEBubbles) ProtoMessage() {}
 
 func (x *CMsgTEBubbles) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[7]
+	mi := &file_s2_te_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -708,7 +618,7 @@ func (x *CMsgTEBubbles) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEBubbles.ProtoReflect.Descriptor instead.
 func (*CMsgTEBubbles) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{7}
+	return file_s2_te_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CMsgTEBubbles) GetMins() *CMsgVector {
@@ -759,7 +669,7 @@ type CMsgTEBubbleTrail struct {
 
 func (x *CMsgTEBubbleTrail) Reset() {
 	*x = CMsgTEBubbleTrail{}
-	mi := &file_s2_te_proto_msgTypes[8]
+	mi := &file_s2_te_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -771,7 +681,7 @@ func (x *CMsgTEBubbleTrail) String() string {
 func (*CMsgTEBubbleTrail) ProtoMessage() {}
 
 func (x *CMsgTEBubbleTrail) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[8]
+	mi := &file_s2_te_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -784,7 +694,7 @@ func (x *CMsgTEBubbleTrail) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEBubbleTrail.ProtoReflect.Descriptor instead.
 func (*CMsgTEBubbleTrail) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{8}
+	return file_s2_te_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CMsgTEBubbleTrail) GetMins() *CMsgVector {
@@ -840,7 +750,7 @@ const (
 
 func (x *CMsgTEDecal) Reset() {
 	*x = CMsgTEDecal{}
-	mi := &file_s2_te_proto_msgTypes[9]
+	mi := &file_s2_te_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -852,7 +762,7 @@ func (x *CMsgTEDecal) String() string {
 func (*CMsgTEDecal) ProtoMessage() {}
 
 func (x *CMsgTEDecal) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[9]
+	mi := &file_s2_te_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -865,7 +775,7 @@ func (x *CMsgTEDecal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEDecal.ProtoReflect.Descriptor instead.
 func (*CMsgTEDecal) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{9}
+	return file_s2_te_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CMsgTEDecal) GetOrigin() *CMsgVector {
@@ -936,7 +846,7 @@ const (
 
 func (x *CMsgEffectData) Reset() {
 	*x = CMsgEffectData{}
-	mi := &file_s2_te_proto_msgTypes[10]
+	mi := &file_s2_te_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -948,7 +858,7 @@ func (x *CMsgEffectData) String() string {
 func (*CMsgEffectData) ProtoMessage() {}
 
 func (x *CMsgEffectData) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[10]
+	mi := &file_s2_te_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -961,7 +871,7 @@ func (x *CMsgEffectData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgEffectData.ProtoReflect.Descriptor instead.
 func (*CMsgEffectData) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{10}
+	return file_s2_te_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CMsgEffectData) GetOrigin() *CMsgVector {
@@ -1106,7 +1016,7 @@ type CMsgTEEffectDispatch struct {
 
 func (x *CMsgTEEffectDispatch) Reset() {
 	*x = CMsgTEEffectDispatch{}
-	mi := &file_s2_te_proto_msgTypes[11]
+	mi := &file_s2_te_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1118,7 +1028,7 @@ func (x *CMsgTEEffectDispatch) String() string {
 func (*CMsgTEEffectDispatch) ProtoMessage() {}
 
 func (x *CMsgTEEffectDispatch) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[11]
+	mi := &file_s2_te_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1131,7 +1041,7 @@ func (x *CMsgTEEffectDispatch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEEffectDispatch.ProtoReflect.Descriptor instead.
 func (*CMsgTEEffectDispatch) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{11}
+	return file_s2_te_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *CMsgTEEffectDispatch) GetEffectdata() *CMsgEffectData {
@@ -1152,7 +1062,7 @@ type CMsgTEEnergySplash struct {
 
 func (x *CMsgTEEnergySplash) Reset() {
 	*x = CMsgTEEnergySplash{}
-	mi := &file_s2_te_proto_msgTypes[12]
+	mi := &file_s2_te_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1164,7 +1074,7 @@ func (x *CMsgTEEnergySplash) String() string {
 func (*CMsgTEEnergySplash) ProtoMessage() {}
 
 func (x *CMsgTEEnergySplash) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[12]
+	mi := &file_s2_te_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1177,7 +1087,7 @@ func (x *CMsgTEEnergySplash) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEEnergySplash.ProtoReflect.Descriptor instead.
 func (*CMsgTEEnergySplash) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{12}
+	return file_s2_te_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CMsgTEEnergySplash) GetPos() *CMsgVector {
@@ -1217,7 +1127,7 @@ const (
 
 func (x *CMsgTEFizz) Reset() {
 	*x = CMsgTEFizz{}
-	mi := &file_s2_te_proto_msgTypes[13]
+	mi := &file_s2_te_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1229,7 +1139,7 @@ func (x *CMsgTEFizz) String() string {
 func (*CMsgTEFizz) ProtoMessage() {}
 
 func (x *CMsgTEFizz) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[13]
+	mi := &file_s2_te_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1242,7 +1152,7 @@ func (x *CMsgTEFizz) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEFizz.ProtoReflect.Descriptor instead.
 func (*CMsgTEFizz) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{13}
+	return file_s2_te_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *CMsgTEFizz) GetEntity() int32 {
@@ -1284,7 +1194,7 @@ type CMsgTEShatterSurface struct {
 
 func (x *CMsgTEShatterSurface) Reset() {
 	*x = CMsgTEShatterSurface{}
-	mi := &file_s2_te_proto_msgTypes[14]
+	mi := &file_s2_te_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1296,7 +1206,7 @@ func (x *CMsgTEShatterSurface) String() string {
 func (*CMsgTEShatterSurface) ProtoMessage() {}
 
 func (x *CMsgTEShatterSurface) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[14]
+	mi := &file_s2_te_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1309,7 +1219,7 @@ func (x *CMsgTEShatterSurface) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEShatterSurface.ProtoReflect.Descriptor instead.
 func (*CMsgTEShatterSurface) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{14}
+	return file_s2_te_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *CMsgTEShatterSurface) GetOrigin() *CMsgVector {
@@ -1394,7 +1304,7 @@ type CMsgTEGlowSprite struct {
 
 func (x *CMsgTEGlowSprite) Reset() {
 	*x = CMsgTEGlowSprite{}
-	mi := &file_s2_te_proto_msgTypes[15]
+	mi := &file_s2_te_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1406,7 +1316,7 @@ func (x *CMsgTEGlowSprite) String() string {
 func (*CMsgTEGlowSprite) ProtoMessage() {}
 
 func (x *CMsgTEGlowSprite) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[15]
+	mi := &file_s2_te_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1419,7 +1329,7 @@ func (x *CMsgTEGlowSprite) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEGlowSprite.ProtoReflect.Descriptor instead.
 func (*CMsgTEGlowSprite) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{15}
+	return file_s2_te_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CMsgTEGlowSprite) GetOrigin() *CMsgVector {
@@ -1461,7 +1371,7 @@ type CMsgTEImpact struct {
 
 func (x *CMsgTEImpact) Reset() {
 	*x = CMsgTEImpact{}
-	mi := &file_s2_te_proto_msgTypes[16]
+	mi := &file_s2_te_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1473,7 +1383,7 @@ func (x *CMsgTEImpact) String() string {
 func (*CMsgTEImpact) ProtoMessage() {}
 
 func (x *CMsgTEImpact) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[16]
+	mi := &file_s2_te_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1486,7 +1396,7 @@ func (x *CMsgTEImpact) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEImpact.ProtoReflect.Descriptor instead.
 func (*CMsgTEImpact) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{16}
+	return file_s2_te_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *CMsgTEImpact) GetOrigin() *CMsgVector {
@@ -1522,7 +1432,7 @@ type CMsgTEMuzzleFlash struct {
 
 func (x *CMsgTEMuzzleFlash) Reset() {
 	*x = CMsgTEMuzzleFlash{}
-	mi := &file_s2_te_proto_msgTypes[17]
+	mi := &file_s2_te_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1534,7 +1444,7 @@ func (x *CMsgTEMuzzleFlash) String() string {
 func (*CMsgTEMuzzleFlash) ProtoMessage() {}
 
 func (x *CMsgTEMuzzleFlash) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[17]
+	mi := &file_s2_te_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1547,7 +1457,7 @@ func (x *CMsgTEMuzzleFlash) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEMuzzleFlash.ProtoReflect.Descriptor instead.
 func (*CMsgTEMuzzleFlash) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{17}
+	return file_s2_te_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *CMsgTEMuzzleFlash) GetOrigin() *CMsgVector {
@@ -1590,7 +1500,7 @@ type CMsgTEBloodStream struct {
 
 func (x *CMsgTEBloodStream) Reset() {
 	*x = CMsgTEBloodStream{}
-	mi := &file_s2_te_proto_msgTypes[18]
+	mi := &file_s2_te_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1602,7 +1512,7 @@ func (x *CMsgTEBloodStream) String() string {
 func (*CMsgTEBloodStream) ProtoMessage() {}
 
 func (x *CMsgTEBloodStream) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[18]
+	mi := &file_s2_te_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1615,7 +1525,7 @@ func (x *CMsgTEBloodStream) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEBloodStream.ProtoReflect.Descriptor instead.
 func (*CMsgTEBloodStream) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{18}
+	return file_s2_te_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CMsgTEBloodStream) GetOrigin() *CMsgVector {
@@ -1665,7 +1575,7 @@ type CMsgTEExplosion struct {
 
 func (x *CMsgTEExplosion) Reset() {
 	*x = CMsgTEExplosion{}
-	mi := &file_s2_te_proto_msgTypes[19]
+	mi := &file_s2_te_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1677,7 +1587,7 @@ func (x *CMsgTEExplosion) String() string {
 func (*CMsgTEExplosion) ProtoMessage() {}
 
 func (x *CMsgTEExplosion) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[19]
+	mi := &file_s2_te_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1690,7 +1600,7 @@ func (x *CMsgTEExplosion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEExplosion.ProtoReflect.Descriptor instead.
 func (*CMsgTEExplosion) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{19}
+	return file_s2_te_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CMsgTEExplosion) GetOrigin() *CMsgVector {
@@ -1782,7 +1692,7 @@ type CMsgTEDust struct {
 
 func (x *CMsgTEDust) Reset() {
 	*x = CMsgTEDust{}
-	mi := &file_s2_te_proto_msgTypes[20]
+	mi := &file_s2_te_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1794,7 +1704,7 @@ func (x *CMsgTEDust) String() string {
 func (*CMsgTEDust) ProtoMessage() {}
 
 func (x *CMsgTEDust) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[20]
+	mi := &file_s2_te_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1807,7 +1717,7 @@ func (x *CMsgTEDust) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEDust.ProtoReflect.Descriptor instead.
 func (*CMsgTEDust) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{20}
+	return file_s2_te_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *CMsgTEDust) GetOrigin() *CMsgVector {
@@ -1848,7 +1758,7 @@ type CMsgTELargeFunnel struct {
 
 func (x *CMsgTELargeFunnel) Reset() {
 	*x = CMsgTELargeFunnel{}
-	mi := &file_s2_te_proto_msgTypes[21]
+	mi := &file_s2_te_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1860,7 +1770,7 @@ func (x *CMsgTELargeFunnel) String() string {
 func (*CMsgTELargeFunnel) ProtoMessage() {}
 
 func (x *CMsgTELargeFunnel) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[21]
+	mi := &file_s2_te_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1873,7 +1783,7 @@ func (x *CMsgTELargeFunnel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTELargeFunnel.ProtoReflect.Descriptor instead.
 func (*CMsgTELargeFunnel) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{21}
+	return file_s2_te_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CMsgTELargeFunnel) GetOrigin() *CMsgVector {
@@ -1902,7 +1812,7 @@ type CMsgTESparks struct {
 
 func (x *CMsgTESparks) Reset() {
 	*x = CMsgTESparks{}
-	mi := &file_s2_te_proto_msgTypes[22]
+	mi := &file_s2_te_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1914,7 +1824,7 @@ func (x *CMsgTESparks) String() string {
 func (*CMsgTESparks) ProtoMessage() {}
 
 func (x *CMsgTESparks) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[22]
+	mi := &file_s2_te_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1927,7 +1837,7 @@ func (x *CMsgTESparks) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTESparks.ProtoReflect.Descriptor instead.
 func (*CMsgTESparks) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{22}
+	return file_s2_te_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CMsgTESparks) GetOrigin() *CMsgVector {
@@ -1979,7 +1889,7 @@ type CMsgTEPhysicsProp struct {
 
 func (x *CMsgTEPhysicsProp) Reset() {
 	*x = CMsgTEPhysicsProp{}
-	mi := &file_s2_te_proto_msgTypes[23]
+	mi := &file_s2_te_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1991,7 +1901,7 @@ func (x *CMsgTEPhysicsProp) String() string {
 func (*CMsgTEPhysicsProp) ProtoMessage() {}
 
 func (x *CMsgTEPhysicsProp) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[23]
+	mi := &file_s2_te_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2004,7 +1914,7 @@ func (x *CMsgTEPhysicsProp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEPhysicsProp.ProtoReflect.Descriptor instead.
 func (*CMsgTEPhysicsProp) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{23}
+	return file_s2_te_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *CMsgTEPhysicsProp) GetOrigin() *CMsgVector {
@@ -2098,140 +2008,6 @@ func (x *CMsgTEPhysicsProp) GetDmgtype() int32 {
 	return 0
 }
 
-type CMsgTEPlayerDecal struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Origin        *CMsgVector            `protobuf:"bytes,1,opt,name=origin" json:"origin,omitempty"`
-	Player        *int32                 `protobuf:"varint,2,opt,name=player,def=-1" json:"player,omitempty"`
-	Entity        *int32                 `protobuf:"varint,3,opt,name=entity,def=-1" json:"entity,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-// Default values for CMsgTEPlayerDecal fields.
-const (
-	Default_CMsgTEPlayerDecal_Player = int32(-1)
-	Default_CMsgTEPlayerDecal_Entity = int32(-1)
-)
-
-func (x *CMsgTEPlayerDecal) Reset() {
-	*x = CMsgTEPlayerDecal{}
-	mi := &file_s2_te_proto_msgTypes[24]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CMsgTEPlayerDecal) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CMsgTEPlayerDecal) ProtoMessage() {}
-
-func (x *CMsgTEPlayerDecal) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[24]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CMsgTEPlayerDecal.ProtoReflect.Descriptor instead.
-func (*CMsgTEPlayerDecal) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{24}
-}
-
-func (x *CMsgTEPlayerDecal) GetOrigin() *CMsgVector {
-	if x != nil {
-		return x.Origin
-	}
-	return nil
-}
-
-func (x *CMsgTEPlayerDecal) GetPlayer() int32 {
-	if x != nil && x.Player != nil {
-		return *x.Player
-	}
-	return Default_CMsgTEPlayerDecal_Player
-}
-
-func (x *CMsgTEPlayerDecal) GetEntity() int32 {
-	if x != nil && x.Entity != nil {
-		return *x.Entity
-	}
-	return Default_CMsgTEPlayerDecal_Entity
-}
-
-type CMsgTEProjectedDecal struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Origin        *CMsgVector            `protobuf:"bytes,1,opt,name=origin" json:"origin,omitempty"`
-	Angles        *CMsgQAngle            `protobuf:"bytes,2,opt,name=angles" json:"angles,omitempty"`
-	Index         *uint32                `protobuf:"varint,3,opt,name=index" json:"index,omitempty"`
-	Distance      *float32               `protobuf:"fixed32,4,opt,name=distance" json:"distance,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CMsgTEProjectedDecal) Reset() {
-	*x = CMsgTEProjectedDecal{}
-	mi := &file_s2_te_proto_msgTypes[25]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CMsgTEProjectedDecal) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CMsgTEProjectedDecal) ProtoMessage() {}
-
-func (x *CMsgTEProjectedDecal) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[25]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CMsgTEProjectedDecal.ProtoReflect.Descriptor instead.
-func (*CMsgTEProjectedDecal) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{25}
-}
-
-func (x *CMsgTEProjectedDecal) GetOrigin() *CMsgVector {
-	if x != nil {
-		return x.Origin
-	}
-	return nil
-}
-
-func (x *CMsgTEProjectedDecal) GetAngles() *CMsgQAngle {
-	if x != nil {
-		return x.Angles
-	}
-	return nil
-}
-
-func (x *CMsgTEProjectedDecal) GetIndex() uint32 {
-	if x != nil && x.Index != nil {
-		return *x.Index
-	}
-	return 0
-}
-
-func (x *CMsgTEProjectedDecal) GetDistance() float32 {
-	if x != nil && x.Distance != nil {
-		return *x.Distance
-	}
-	return 0
-}
-
 type CMsgTESmoke struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Origin        *CMsgVector            `protobuf:"bytes,1,opt,name=origin" json:"origin,omitempty"`
@@ -2242,7 +2018,7 @@ type CMsgTESmoke struct {
 
 func (x *CMsgTESmoke) Reset() {
 	*x = CMsgTESmoke{}
-	mi := &file_s2_te_proto_msgTypes[26]
+	mi := &file_s2_te_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2254,7 +2030,7 @@ func (x *CMsgTESmoke) String() string {
 func (*CMsgTESmoke) ProtoMessage() {}
 
 func (x *CMsgTESmoke) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[26]
+	mi := &file_s2_te_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2267,7 +2043,7 @@ func (x *CMsgTESmoke) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTESmoke.ProtoReflect.Descriptor instead.
 func (*CMsgTESmoke) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{26}
+	return file_s2_te_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *CMsgTESmoke) GetOrigin() *CMsgVector {
@@ -2295,7 +2071,7 @@ type CMsgTEWorldDecal struct {
 
 func (x *CMsgTEWorldDecal) Reset() {
 	*x = CMsgTEWorldDecal{}
-	mi := &file_s2_te_proto_msgTypes[27]
+	mi := &file_s2_te_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2307,7 +2083,7 @@ func (x *CMsgTEWorldDecal) String() string {
 func (*CMsgTEWorldDecal) ProtoMessage() {}
 
 func (x *CMsgTEWorldDecal) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_te_proto_msgTypes[27]
+	mi := &file_s2_te_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2320,7 +2096,7 @@ func (x *CMsgTEWorldDecal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CMsgTEWorldDecal.ProtoReflect.Descriptor instead.
 func (*CMsgTEWorldDecal) Descriptor() ([]byte, []int) {
-	return file_s2_te_proto_rawDescGZIP(), []int{27}
+	return file_s2_te_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CMsgTEWorldDecal) GetOrigin() *CMsgVector {
@@ -2389,13 +2165,7 @@ const file_s2_te_proto_rawDesc = "" +
 	"\x0eCMsgTEBeamRing\x12M\n" +
 	"\x04base\x18\x01 \x01(\v29.com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBaseBeamR\x04base\x12 \n" +
 	"\vstartentity\x18\x02 \x01(\rR\vstartentity\x12\x1c\n" +
-	"\tendentity\x18\x03 \x01(\rR\tendentity\"\xad\x02\n" +
-	"\x0eCMsgTEBSPDecal\x12M\n" +
-	"\x06origin\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06origin\x12M\n" +
-	"\x06normal\x18\x02 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06normal\x12K\n" +
-	"\x05saxis\x18\x03 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x05saxis\x12\x1a\n" +
-	"\x06entity\x18\x04 \x01(\x05:\x02-1R\x06entity\x12\x14\n" +
-	"\x05index\x18\x05 \x01(\rR\x05index\"\xe9\x01\n" +
+	"\tendentity\x18\x03 \x01(\rR\tendentity\"\xe9\x01\n" +
 	"\rCMsgTEBubbles\x12I\n" +
 	"\x04mins\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x04mins\x12I\n" +
 	"\x04maxs\x18\x02 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x04maxs\x12\x16\n" +
@@ -2531,31 +2301,21 @@ const file_s2_te_proto_rawDesc = "" +
 	" \x01(\x02R\x05scale\x12M\n" +
 	"\x06dmgpos\x18\v \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06dmgpos\x12M\n" +
 	"\x06dmgdir\x18\f \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06dmgdir\x12\x18\n" +
-	"\admgtype\x18\r \x01(\x05R\admgtype\"\x9a\x01\n" +
-	"\x11CMsgTEPlayerDecal\x12M\n" +
-	"\x06origin\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06origin\x12\x1a\n" +
-	"\x06player\x18\x02 \x01(\x05:\x02-1R\x06player\x12\x1a\n" +
-	"\x06entity\x18\x03 \x01(\x05:\x02-1R\x06entity\"\xe6\x01\n" +
-	"\x14CMsgTEProjectedDecal\x12M\n" +
-	"\x06origin\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06origin\x12M\n" +
-	"\x06angles\x18\x02 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngleR\x06angles\x12\x14\n" +
-	"\x05index\x18\x03 \x01(\rR\x05index\x12\x1a\n" +
-	"\bdistance\x18\x04 \x01(\x02R\bdistance\"r\n" +
+	"\admgtype\x18\r \x01(\x05R\admgtype\"r\n" +
 	"\vCMsgTESmoke\x12M\n" +
 	"\x06origin\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06origin\x12\x14\n" +
 	"\x05scale\x18\x02 \x01(\x02R\x05scale\"\xc6\x01\n" +
 	"\x10CMsgTEWorldDecal\x12M\n" +
 	"\x06origin\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06origin\x12M\n" +
 	"\x06normal\x18\x02 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06normal\x12\x14\n" +
-	"\x05index\x18\x03 \x01(\rR\x05index*\xbd\x04\n" +
+	"\x05index\x18\x03 \x01(\rR\x05index*\xf8\x03\n" +
 	"\x0eETEProtobufIds\x12\x18\n" +
 	"\x13TE_EffectDispatchId\x10\x90\x03\x12\x17\n" +
 	"\x12TE_ArmorRicochetId\x10\x91\x03\x12\x16\n" +
 	"\x11TE_BeamEntPointId\x10\x92\x03\x12\x12\n" +
 	"\rTE_BeamEntsId\x10\x93\x03\x12\x14\n" +
 	"\x0fTE_BeamPointsId\x10\x94\x03\x12\x12\n" +
-	"\rTE_BeamRingId\x10\x95\x03\x12\x12\n" +
-	"\rTE_BSPDecalId\x10\x97\x03\x12\x11\n" +
+	"\rTE_BeamRingId\x10\x95\x03\x12\x11\n" +
 	"\fTE_BubblesId\x10\x98\x03\x12\x15\n" +
 	"\x10TE_BubbleTrailId\x10\x99\x03\x12\x0f\n" +
 	"\n" +
@@ -2572,9 +2332,7 @@ const file_s2_te_proto_rawDesc = "" +
 	"\tTE_DustId\x10\xa4\x03\x12\x15\n" +
 	"\x10TE_LargeFunnelId\x10\xa5\x03\x12\x10\n" +
 	"\vTE_SparksId\x10\xa6\x03\x12\x15\n" +
-	"\x10TE_PhysicsPropId\x10\xa7\x03\x12\x15\n" +
-	"\x10TE_PlayerDecalId\x10\xa8\x03\x12\x18\n" +
-	"\x13TE_ProjectedDecalId\x10\xa9\x03\x12\x0f\n" +
+	"\x10TE_PhysicsPropId\x10\xa7\x03\x12\x0f\n" +
 	"\n" +
 	"TE_SmokeId\x10\xaa\x03"
 
@@ -2591,7 +2349,7 @@ func file_s2_te_proto_rawDescGZIP() []byte {
 }
 
 var file_s2_te_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_s2_te_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_s2_te_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_s2_te_proto_goTypes = []any{
 	(ETEProtobufIds)(0),          // 0: com.github.markus_wa.demoinfocs_golang.s2.ETEProtobufIds
 	(*CMsgTEArmorRicochet)(nil),  // 1: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEArmorRicochet
@@ -2600,93 +2358,84 @@ var file_s2_te_proto_goTypes = []any{
 	(*CMsgTEBeamEnts)(nil),       // 4: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamEnts
 	(*CMsgTEBeamPoints)(nil),     // 5: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamPoints
 	(*CMsgTEBeamRing)(nil),       // 6: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamRing
-	(*CMsgTEBSPDecal)(nil),       // 7: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBSPDecal
-	(*CMsgTEBubbles)(nil),        // 8: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbles
-	(*CMsgTEBubbleTrail)(nil),    // 9: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbleTrail
-	(*CMsgTEDecal)(nil),          // 10: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDecal
-	(*CMsgEffectData)(nil),       // 11: com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData
-	(*CMsgTEEffectDispatch)(nil), // 12: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEEffectDispatch
-	(*CMsgTEEnergySplash)(nil),   // 13: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEEnergySplash
-	(*CMsgTEFizz)(nil),           // 14: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFizz
-	(*CMsgTEShatterSurface)(nil), // 15: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEShatterSurface
-	(*CMsgTEGlowSprite)(nil),     // 16: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEGlowSprite
-	(*CMsgTEImpact)(nil),         // 17: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEImpact
-	(*CMsgTEMuzzleFlash)(nil),    // 18: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEMuzzleFlash
-	(*CMsgTEBloodStream)(nil),    // 19: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBloodStream
-	(*CMsgTEExplosion)(nil),      // 20: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEExplosion
-	(*CMsgTEDust)(nil),           // 21: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDust
-	(*CMsgTELargeFunnel)(nil),    // 22: com.github.markus_wa.demoinfocs_golang.s2.CMsgTELargeFunnel
-	(*CMsgTESparks)(nil),         // 23: com.github.markus_wa.demoinfocs_golang.s2.CMsgTESparks
-	(*CMsgTEPhysicsProp)(nil),    // 24: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp
-	(*CMsgTEPlayerDecal)(nil),    // 25: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPlayerDecal
-	(*CMsgTEProjectedDecal)(nil), // 26: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEProjectedDecal
-	(*CMsgTESmoke)(nil),          // 27: com.github.markus_wa.demoinfocs_golang.s2.CMsgTESmoke
-	(*CMsgTEWorldDecal)(nil),     // 28: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEWorldDecal
-	(*CMsgVector)(nil),           // 29: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	(*CMsgQAngle)(nil),           // 30: com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	(*CMsgTEBubbles)(nil),        // 7: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbles
+	(*CMsgTEBubbleTrail)(nil),    // 8: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbleTrail
+	(*CMsgTEDecal)(nil),          // 9: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDecal
+	(*CMsgEffectData)(nil),       // 10: com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData
+	(*CMsgTEEffectDispatch)(nil), // 11: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEEffectDispatch
+	(*CMsgTEEnergySplash)(nil),   // 12: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEEnergySplash
+	(*CMsgTEFizz)(nil),           // 13: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFizz
+	(*CMsgTEShatterSurface)(nil), // 14: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEShatterSurface
+	(*CMsgTEGlowSprite)(nil),     // 15: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEGlowSprite
+	(*CMsgTEImpact)(nil),         // 16: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEImpact
+	(*CMsgTEMuzzleFlash)(nil),    // 17: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEMuzzleFlash
+	(*CMsgTEBloodStream)(nil),    // 18: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBloodStream
+	(*CMsgTEExplosion)(nil),      // 19: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEExplosion
+	(*CMsgTEDust)(nil),           // 20: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDust
+	(*CMsgTELargeFunnel)(nil),    // 21: com.github.markus_wa.demoinfocs_golang.s2.CMsgTELargeFunnel
+	(*CMsgTESparks)(nil),         // 22: com.github.markus_wa.demoinfocs_golang.s2.CMsgTESparks
+	(*CMsgTEPhysicsProp)(nil),    // 23: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp
+	(*CMsgTESmoke)(nil),          // 24: com.github.markus_wa.demoinfocs_golang.s2.CMsgTESmoke
+	(*CMsgTEWorldDecal)(nil),     // 25: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEWorldDecal
+	(*CMsgVector)(nil),           // 26: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	(*CMsgQAngle)(nil),           // 27: com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
 }
 var file_s2_te_proto_depIdxs = []int32{
-	29, // 0: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEArmorRicochet.pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 1: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEArmorRicochet.dir:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 0: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEArmorRicochet.pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 1: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEArmorRicochet.dir:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
 	2,  // 2: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamEntPoint.base:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBaseBeam
-	29, // 3: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamEntPoint.start:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 4: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamEntPoint.end:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 3: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamEntPoint.start:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 4: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamEntPoint.end:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
 	2,  // 5: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamEnts.base:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBaseBeam
 	2,  // 6: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamPoints.base:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBaseBeam
-	29, // 7: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamPoints.start:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 8: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamPoints.end:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 7: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamPoints.start:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 8: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamPoints.end:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
 	2,  // 9: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBeamRing.base:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBaseBeam
-	29, // 10: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBSPDecal.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 11: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBSPDecal.normal:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 12: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBSPDecal.saxis:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 13: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbles.mins:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 14: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbles.maxs:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 15: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbleTrail.mins:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 16: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbleTrail.maxs:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 17: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDecal.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 18: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDecal.start:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 19: com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 20: com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData.start:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 21: com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData.normal:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	30, // 22: com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	11, // 23: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEEffectDispatch.effectdata:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData
-	29, // 24: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEEnergySplash.pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 25: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEEnergySplash.dir:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 26: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEShatterSurface.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	30, // 27: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEShatterSurface.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	29, // 28: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEShatterSurface.force:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 29: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEShatterSurface.forcepos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 30: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEGlowSprite.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 31: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEImpact.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 32: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEImpact.normal:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 33: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEMuzzleFlash.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	30, // 34: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEMuzzleFlash.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	29, // 35: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBloodStream.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 36: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBloodStream.direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 37: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEExplosion.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 38: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEExplosion.normal:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 39: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEExplosion.debris_origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 40: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDust.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 41: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDust.direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 42: com.github.markus_wa.demoinfocs_golang.s2.CMsgTELargeFunnel.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 43: com.github.markus_wa.demoinfocs_golang.s2.CMsgTESparks.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 44: com.github.markus_wa.demoinfocs_golang.s2.CMsgTESparks.direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 45: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 46: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp.velocity:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	30, // 47: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	29, // 48: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp.dmgpos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 49: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp.dmgdir:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 50: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPlayerDecal.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 51: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEProjectedDecal.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	30, // 52: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEProjectedDecal.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	29, // 53: com.github.markus_wa.demoinfocs_golang.s2.CMsgTESmoke.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 54: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEWorldDecal.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	29, // 55: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEWorldDecal.normal:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	56, // [56:56] is the sub-list for method output_type
-	56, // [56:56] is the sub-list for method input_type
-	56, // [56:56] is the sub-list for extension type_name
-	56, // [56:56] is the sub-list for extension extendee
-	0,  // [0:56] is the sub-list for field type_name
+	26, // 10: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbles.mins:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 11: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbles.maxs:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 12: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbleTrail.mins:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 13: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBubbleTrail.maxs:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 14: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDecal.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 15: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDecal.start:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 16: com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 17: com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData.start:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 18: com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData.normal:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	27, // 19: com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	10, // 20: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEEffectDispatch.effectdata:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgEffectData
+	26, // 21: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEEnergySplash.pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 22: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEEnergySplash.dir:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 23: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEShatterSurface.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	27, // 24: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEShatterSurface.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	26, // 25: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEShatterSurface.force:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 26: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEShatterSurface.forcepos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 27: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEGlowSprite.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 28: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEImpact.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 29: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEImpact.normal:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 30: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEMuzzleFlash.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	27, // 31: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEMuzzleFlash.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	26, // 32: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBloodStream.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 33: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEBloodStream.direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 34: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEExplosion.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 35: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEExplosion.normal:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 36: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEExplosion.debris_origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 37: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDust.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 38: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEDust.direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 39: com.github.markus_wa.demoinfocs_golang.s2.CMsgTELargeFunnel.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 40: com.github.markus_wa.demoinfocs_golang.s2.CMsgTESparks.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 41: com.github.markus_wa.demoinfocs_golang.s2.CMsgTESparks.direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 42: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 43: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp.velocity:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	27, // 44: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	26, // 45: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp.dmgpos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 46: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPhysicsProp.dmgdir:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 47: com.github.markus_wa.demoinfocs_golang.s2.CMsgTESmoke.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 48: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEWorldDecal.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	26, // 49: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEWorldDecal.normal:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	50, // [50:50] is the sub-list for method output_type
+	50, // [50:50] is the sub-list for method input_type
+	50, // [50:50] is the sub-list for extension type_name
+	50, // [50:50] is the sub-list for extension extendee
+	0,  // [0:50] is the sub-list for field type_name
 }
 
 func init() { file_s2_te_proto_init() }
@@ -2701,7 +2450,7 @@ func file_s2_te_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_s2_te_proto_rawDesc), len(file_s2_te_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   28,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

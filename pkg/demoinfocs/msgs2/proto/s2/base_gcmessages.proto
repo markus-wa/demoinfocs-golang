@@ -33,7 +33,7 @@ enum GC_BannedWordType {
 message CGCStorePurchaseInit_LineItem {
 	optional uint32 item_def_id = 1;
 	optional uint32 quantity = 2;
-	optional uint32 cost_in_local_currency = 3;
+	optional uint64 cost_in_local_currency = 3;
 	optional uint32 purchase_type = 4;
 	optional uint64 supplemental_data = 5;
 }
@@ -541,6 +541,7 @@ message CMsgOpenCrate {
 	optional uint64 tool_item_id = 1;
 	optional uint64 subject_item_id = 2;
 	optional bool for_rental = 3;
+	optional uint32 points_remaining = 4;
 }
 
 message CSOEconRentalHistory {

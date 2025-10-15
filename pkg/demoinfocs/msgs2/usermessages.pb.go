@@ -399,6 +399,7 @@ const (
 	PARTICLE_MESSAGE_GAME_PARTICLE_MANAGER_EVENT_ADD_FAN                         PARTICLE_MESSAGE = 36
 	PARTICLE_MESSAGE_GAME_PARTICLE_MANAGER_EVENT_UPDATE_FAN                      PARTICLE_MESSAGE = 37
 	PARTICLE_MESSAGE_GAME_PARTICLE_MANAGER_EVENT_SET_CLUSTER_GROWTH              PARTICLE_MESSAGE = 38
+	PARTICLE_MESSAGE_GAME_PARTICLE_MANAGER_EVENT_REMOVE_FAN                      PARTICLE_MESSAGE = 39
 )
 
 // Enum value maps for PARTICLE_MESSAGE.
@@ -443,6 +444,7 @@ var (
 		36: "GAME_PARTICLE_MANAGER_EVENT_ADD_FAN",
 		37: "GAME_PARTICLE_MANAGER_EVENT_UPDATE_FAN",
 		38: "GAME_PARTICLE_MANAGER_EVENT_SET_CLUSTER_GROWTH",
+		39: "GAME_PARTICLE_MANAGER_EVENT_REMOVE_FAN",
 	}
 	PARTICLE_MESSAGE_value = map[string]int32{
 		"GAME_PARTICLE_MANAGER_EVENT_CREATE":                          0,
@@ -484,6 +486,7 @@ var (
 		"GAME_PARTICLE_MANAGER_EVENT_ADD_FAN":                         36,
 		"GAME_PARTICLE_MANAGER_EVENT_UPDATE_FAN":                      37,
 		"GAME_PARTICLE_MANAGER_EVENT_SET_CLUSTER_GROWTH":              38,
+		"GAME_PARTICLE_MANAGER_EVENT_REMOVE_FAN":                      39,
 	}
 )
 
@@ -2817,6 +2820,7 @@ type CUserMsg_ParticleManager struct {
 	AddFan                           *CUserMsg_ParticleManager_AddFan                           `protobuf:"bytes,39,opt,name=add_fan,json=addFan" json:"add_fan,omitempty"`
 	UpdateFan                        *CUserMsg_ParticleManager_UpdateFan                        `protobuf:"bytes,40,opt,name=update_fan,json=updateFan" json:"update_fan,omitempty"`
 	SetParticleClusterGrowth         *CUserMsg_ParticleManager_SetParticleClusterGrowth         `protobuf:"bytes,41,opt,name=set_particle_cluster_growth,json=setParticleClusterGrowth" json:"set_particle_cluster_growth,omitempty"`
+	RemoveFan                        *CUserMsg_ParticleManager_RemoveFan                        `protobuf:"bytes,42,opt,name=remove_fan,json=removeFan" json:"remove_fan,omitempty"`
 	extensionFields                  protoimpl.ExtensionFields
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
@@ -3133,6 +3137,13 @@ func (x *CUserMsg_ParticleManager) GetUpdateFan() *CUserMsg_ParticleManager_Upda
 func (x *CUserMsg_ParticleManager) GetSetParticleClusterGrowth() *CUserMsg_ParticleManager_SetParticleClusterGrowth {
 	if x != nil {
 		return x.SetParticleClusterGrowth
+	}
+	return nil
+}
+
+func (x *CUserMsg_ParticleManager) GetRemoveFan() *CUserMsg_ParticleManager_RemoveFan {
+	if x != nil {
+		return x.RemoveFan
 	}
 	return nil
 }
@@ -6606,9 +6617,20 @@ type CUserMsg_ParticleManager_AddFan struct {
 	PullTowardsPoint *bool                  `protobuf:"varint,10,opt,name=pull_towards_point,json=pullTowardsPoint" json:"pull_towards_point,omitempty"`
 	CurveMinDist     *float32               `protobuf:"fixed32,11,opt,name=curve_min_dist,json=curveMinDist" json:"curve_min_dist,omitempty"`
 	CurveMaxDist     *float32               `protobuf:"fixed32,12,opt,name=curve_max_dist,json=curveMaxDist" json:"curve_max_dist,omitempty"`
+	FanType          *uint32                `protobuf:"varint,13,opt,name=fan_type,json=fanType" json:"fan_type,omitempty"`
+	ConeStartRadius  *float32               `protobuf:"fixed32,14,opt,name=cone_start_radius,json=coneStartRadius" json:"cone_start_radius,omitempty"`
+	ConeEndRadius    *float32               `protobuf:"fixed32,15,opt,name=cone_end_radius,json=coneEndRadius" json:"cone_end_radius,omitempty"`
+	ConeLength       *float32               `protobuf:"fixed32,16,opt,name=cone_length,json=coneLength" json:"cone_length,omitempty"`
+	EntityHandle     *uint32                `protobuf:"varint,17,opt,name=entity_handle,json=entityHandle,def=16777215" json:"entity_handle,omitempty"`
+	AttachmentName   *string                `protobuf:"bytes,18,opt,name=attachment_name,json=attachmentName" json:"attachment_name,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
+
+// Default values for CUserMsg_ParticleManager_AddFan fields.
+const (
+	Default_CUserMsg_ParticleManager_AddFan_EntityHandle = uint32(16777215)
+)
 
 func (x *CUserMsg_ParticleManager_AddFan) Reset() {
 	*x = CUserMsg_ParticleManager_AddFan{}
@@ -6724,6 +6746,48 @@ func (x *CUserMsg_ParticleManager_AddFan) GetCurveMaxDist() float32 {
 	return 0
 }
 
+func (x *CUserMsg_ParticleManager_AddFan) GetFanType() uint32 {
+	if x != nil && x.FanType != nil {
+		return *x.FanType
+	}
+	return 0
+}
+
+func (x *CUserMsg_ParticleManager_AddFan) GetConeStartRadius() float32 {
+	if x != nil && x.ConeStartRadius != nil {
+		return *x.ConeStartRadius
+	}
+	return 0
+}
+
+func (x *CUserMsg_ParticleManager_AddFan) GetConeEndRadius() float32 {
+	if x != nil && x.ConeEndRadius != nil {
+		return *x.ConeEndRadius
+	}
+	return 0
+}
+
+func (x *CUserMsg_ParticleManager_AddFan) GetConeLength() float32 {
+	if x != nil && x.ConeLength != nil {
+		return *x.ConeLength
+	}
+	return 0
+}
+
+func (x *CUserMsg_ParticleManager_AddFan) GetEntityHandle() uint32 {
+	if x != nil && x.EntityHandle != nil {
+		return *x.EntityHandle
+	}
+	return Default_CUserMsg_ParticleManager_AddFan_EntityHandle
+}
+
+func (x *CUserMsg_ParticleManager_AddFan) GetAttachmentName() string {
+	if x != nil && x.AttachmentName != nil {
+		return *x.AttachmentName
+	}
+	return ""
+}
+
 type CUserMsg_ParticleManager_UpdateFan struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Active          *bool                  `protobuf:"varint,1,opt,name=active" json:"active,omitempty"`
@@ -6816,6 +6880,42 @@ func (x *CUserMsg_ParticleManager_UpdateFan) GetBoundsMaxs() *CMsgVector {
 	return nil
 }
 
+type CUserMsg_ParticleManager_RemoveFan struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CUserMsg_ParticleManager_RemoveFan) Reset() {
+	*x = CUserMsg_ParticleManager_RemoveFan{}
+	mi := &file_s2_usermessages_proto_msgTypes[94]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CUserMsg_ParticleManager_RemoveFan) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CUserMsg_ParticleManager_RemoveFan) ProtoMessage() {}
+
+func (x *CUserMsg_ParticleManager_RemoveFan) ProtoReflect() protoreflect.Message {
+	mi := &file_s2_usermessages_proto_msgTypes[94]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CUserMsg_ParticleManager_RemoveFan.ProtoReflect.Descriptor instead.
+func (*CUserMsg_ParticleManager_RemoveFan) Descriptor() ([]byte, []int) {
+	return file_s2_usermessages_proto_rawDescGZIP(), []int{36, 37}
+}
+
 type CUserMsg_ParticleManager_SetParticleClusterGrowth struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Duration      *float32               `protobuf:"fixed32,1,opt,name=duration" json:"duration,omitempty"`
@@ -6826,7 +6926,7 @@ type CUserMsg_ParticleManager_SetParticleClusterGrowth struct {
 
 func (x *CUserMsg_ParticleManager_SetParticleClusterGrowth) Reset() {
 	*x = CUserMsg_ParticleManager_SetParticleClusterGrowth{}
-	mi := &file_s2_usermessages_proto_msgTypes[94]
+	mi := &file_s2_usermessages_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6838,7 +6938,7 @@ func (x *CUserMsg_ParticleManager_SetParticleClusterGrowth) String() string {
 func (*CUserMsg_ParticleManager_SetParticleClusterGrowth) ProtoMessage() {}
 
 func (x *CUserMsg_ParticleManager_SetParticleClusterGrowth) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[94]
+	mi := &file_s2_usermessages_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6851,7 +6951,7 @@ func (x *CUserMsg_ParticleManager_SetParticleClusterGrowth) ProtoReflect() proto
 
 // Deprecated: Use CUserMsg_ParticleManager_SetParticleClusterGrowth.ProtoReflect.Descriptor instead.
 func (*CUserMsg_ParticleManager_SetParticleClusterGrowth) Descriptor() ([]byte, []int) {
-	return file_s2_usermessages_proto_rawDescGZIP(), []int{36, 37}
+	return file_s2_usermessages_proto_rawDescGZIP(), []int{36, 38}
 }
 
 func (x *CUserMsg_ParticleManager_SetParticleClusterGrowth) GetDuration() float32 {
@@ -6878,7 +6978,7 @@ type CUserMsg_ParticleManager_SetParticleNamedValueContext_FloatContextValue str
 
 func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_FloatContextValue) Reset() {
 	*x = CUserMsg_ParticleManager_SetParticleNamedValueContext_FloatContextValue{}
-	mi := &file_s2_usermessages_proto_msgTypes[95]
+	mi := &file_s2_usermessages_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6890,7 +6990,7 @@ func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_FloatContextValue
 func (*CUserMsg_ParticleManager_SetParticleNamedValueContext_FloatContextValue) ProtoMessage() {}
 
 func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_FloatContextValue) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[95]
+	mi := &file_s2_usermessages_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6930,7 +7030,7 @@ type CUserMsg_ParticleManager_SetParticleNamedValueContext_VectorContextValue st
 
 func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_VectorContextValue) Reset() {
 	*x = CUserMsg_ParticleManager_SetParticleNamedValueContext_VectorContextValue{}
-	mi := &file_s2_usermessages_proto_msgTypes[96]
+	mi := &file_s2_usermessages_proto_msgTypes[97]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6942,7 +7042,7 @@ func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_VectorContextValu
 func (*CUserMsg_ParticleManager_SetParticleNamedValueContext_VectorContextValue) ProtoMessage() {}
 
 func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_VectorContextValue) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[96]
+	mi := &file_s2_usermessages_proto_msgTypes[97]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6983,7 +7083,7 @@ type CUserMsg_ParticleManager_SetParticleNamedValueContext_TransformContextValue
 
 func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_TransformContextValue) Reset() {
 	*x = CUserMsg_ParticleManager_SetParticleNamedValueContext_TransformContextValue{}
-	mi := &file_s2_usermessages_proto_msgTypes[97]
+	mi := &file_s2_usermessages_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6995,7 +7095,7 @@ func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_TransformContextV
 func (*CUserMsg_ParticleManager_SetParticleNamedValueContext_TransformContextValue) ProtoMessage() {}
 
 func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_TransformContextValue) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[97]
+	mi := &file_s2_usermessages_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7047,7 +7147,7 @@ const (
 
 func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_EHandleContext) Reset() {
 	*x = CUserMsg_ParticleManager_SetParticleNamedValueContext_EHandleContext{}
-	mi := &file_s2_usermessages_proto_msgTypes[98]
+	mi := &file_s2_usermessages_proto_msgTypes[99]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7059,7 +7159,7 @@ func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_EHandleContext) S
 func (*CUserMsg_ParticleManager_SetParticleNamedValueContext_EHandleContext) ProtoMessage() {}
 
 func (x *CUserMsg_ParticleManager_SetParticleNamedValueContext_EHandleContext) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[98]
+	mi := &file_s2_usermessages_proto_msgTypes[99]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7101,7 +7201,7 @@ type CUserMessage_UtilMsg_Response_ItemDetail struct {
 
 func (x *CUserMessage_UtilMsg_Response_ItemDetail) Reset() {
 	*x = CUserMessage_UtilMsg_Response_ItemDetail{}
-	mi := &file_s2_usermessages_proto_msgTypes[99]
+	mi := &file_s2_usermessages_proto_msgTypes[100]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7113,7 +7213,7 @@ func (x *CUserMessage_UtilMsg_Response_ItemDetail) String() string {
 func (*CUserMessage_UtilMsg_Response_ItemDetail) ProtoMessage() {}
 
 func (x *CUserMessage_UtilMsg_Response_ItemDetail) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[99]
+	mi := &file_s2_usermessages_proto_msgTypes[100]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7169,7 +7269,7 @@ type CUserMessage_DllStatus_CVDiagnostic struct {
 
 func (x *CUserMessage_DllStatus_CVDiagnostic) Reset() {
 	*x = CUserMessage_DllStatus_CVDiagnostic{}
-	mi := &file_s2_usermessages_proto_msgTypes[100]
+	mi := &file_s2_usermessages_proto_msgTypes[101]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7181,7 +7281,7 @@ func (x *CUserMessage_DllStatus_CVDiagnostic) String() string {
 func (*CUserMessage_DllStatus_CVDiagnostic) ProtoMessage() {}
 
 func (x *CUserMessage_DllStatus_CVDiagnostic) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[100]
+	mi := &file_s2_usermessages_proto_msgTypes[101]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7237,7 +7337,7 @@ type CUserMessage_DllStatus_CModule struct {
 
 func (x *CUserMessage_DllStatus_CModule) Reset() {
 	*x = CUserMessage_DllStatus_CModule{}
-	mi := &file_s2_usermessages_proto_msgTypes[101]
+	mi := &file_s2_usermessages_proto_msgTypes[102]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7249,7 +7349,7 @@ func (x *CUserMessage_DllStatus_CModule) String() string {
 func (*CUserMessage_DllStatus_CModule) ProtoMessage() {}
 
 func (x *CUserMessage_DllStatus_CModule) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[101]
+	mi := &file_s2_usermessages_proto_msgTypes[102]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7311,7 +7411,7 @@ type CUserMessage_Inventory_Response_InventoryDetail struct {
 
 func (x *CUserMessage_Inventory_Response_InventoryDetail) Reset() {
 	*x = CUserMessage_Inventory_Response_InventoryDetail{}
-	mi := &file_s2_usermessages_proto_msgTypes[102]
+	mi := &file_s2_usermessages_proto_msgTypes[103]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7323,7 +7423,7 @@ func (x *CUserMessage_Inventory_Response_InventoryDetail) String() string {
 func (*CUserMessage_Inventory_Response_InventoryDetail) ProtoMessage() {}
 
 func (x *CUserMessage_Inventory_Response_InventoryDetail) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[102]
+	mi := &file_s2_usermessages_proto_msgTypes[103]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7430,7 +7530,7 @@ type CUserMessageRequestDiagnostic_Diagnostic struct {
 
 func (x *CUserMessageRequestDiagnostic_Diagnostic) Reset() {
 	*x = CUserMessageRequestDiagnostic_Diagnostic{}
-	mi := &file_s2_usermessages_proto_msgTypes[103]
+	mi := &file_s2_usermessages_proto_msgTypes[104]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7442,7 +7542,7 @@ func (x *CUserMessageRequestDiagnostic_Diagnostic) String() string {
 func (*CUserMessageRequestDiagnostic_Diagnostic) ProtoMessage() {}
 
 func (x *CUserMessageRequestDiagnostic_Diagnostic) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[103]
+	mi := &file_s2_usermessages_proto_msgTypes[104]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7572,7 +7672,7 @@ type CUserMessage_Diagnostic_Response_Diagnostic struct {
 
 func (x *CUserMessage_Diagnostic_Response_Diagnostic) Reset() {
 	*x = CUserMessage_Diagnostic_Response_Diagnostic{}
-	mi := &file_s2_usermessages_proto_msgTypes[104]
+	mi := &file_s2_usermessages_proto_msgTypes[105]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7584,7 +7684,7 @@ func (x *CUserMessage_Diagnostic_Response_Diagnostic) String() string {
 func (*CUserMessage_Diagnostic_Response_Diagnostic) ProtoMessage() {}
 
 func (x *CUserMessage_Diagnostic_Response_Diagnostic) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[104]
+	mi := &file_s2_usermessages_proto_msgTypes[105]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7715,7 +7815,7 @@ type CUserMessage_NotifyResponseFound_Criteria struct {
 
 func (x *CUserMessage_NotifyResponseFound_Criteria) Reset() {
 	*x = CUserMessage_NotifyResponseFound_Criteria{}
-	mi := &file_s2_usermessages_proto_msgTypes[105]
+	mi := &file_s2_usermessages_proto_msgTypes[106]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7727,7 +7827,7 @@ func (x *CUserMessage_NotifyResponseFound_Criteria) String() string {
 func (*CUserMessage_NotifyResponseFound_Criteria) ProtoMessage() {}
 
 func (x *CUserMessage_NotifyResponseFound_Criteria) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_usermessages_proto_msgTypes[105]
+	mi := &file_s2_usermessages_proto_msgTypes[106]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7924,7 +8024,7 @@ const file_s2_usermessages_proto_rawDesc = "" +
 	"\x15Transition_DataDriven\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12,\n" +
 	"\x10attach_ent_index\x18\x02 \x01(\x05:\x02-1R\x0eattachEntIndex\x12\x1a\n" +
-	"\bduration\x18\x03 \x01(\x02R\bduration\"\xe6f\n" +
+	"\bduration\x18\x03 \x01(\x02R\bduration\"\xd0i\n" +
 	"\x18CUserMsg_ParticleManager\x12s\n" +
 	"\x04type\x18\x01 \x02(\x0e2;.com.github.markus_wa.demoinfocs_golang.s2.PARTICLE_MESSAGE:\"GAME_PARTICLE_MANAGER_EVENT_CREATER\x04type\x12\x14\n" +
 	"\x05index\x18\x02 \x02(\rR\x05index\x12\x8e\x01\n" +
@@ -7967,7 +8067,9 @@ const file_s2_usermessages_proto_rawDesc = "" +
 	"\aadd_fan\x18' \x01(\v2J.com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFanR\x06addFan\x12l\n" +
 	"\n" +
 	"update_fan\x18( \x01(\v2M.com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFanR\tupdateFan\x12\x9b\x01\n" +
-	"\x1bset_particle_cluster_growth\x18) \x01(\v2\\.com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleClusterGrowthR\x18setParticleClusterGrowth\x1a\x16\n" +
+	"\x1bset_particle_cluster_growth\x18) \x01(\v2\\.com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleClusterGrowthR\x18setParticleClusterGrowth\x12l\n" +
+	"\n" +
+	"remove_fan\x18* \x01(\v2M.com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.RemoveFanR\tremoveFan\x1a\x16\n" +
 	"\x14ReleaseParticleIndex\x1a\x96\x04\n" +
 	"\x0eCreateParticle\x12.\n" +
 	"\x13particle_name_index\x18\x01 \x01(\x06R\x11particleNameIndex\x12\x1f\n" +
@@ -8117,7 +8219,7 @@ const file_s2_usermessages_proto_rawDesc = "" +
 	"vdata_name\x18\x01 \x01(\tR\tvdataName\x1ae\n" +
 	"\x13SetMaterialOverride\x12#\n" +
 	"\rmaterial_name\x18\x01 \x01(\tR\fmaterialName\x12)\n" +
-	"\x10include_children\x18\x02 \x01(\bR\x0fincludeChildren\x1a\xb7\x05\n" +
+	"\x10include_children\x18\x02 \x01(\bR\x0fincludeChildren\x1a\x9f\a\n" +
 	"\x06AddFan\x12\x16\n" +
 	"\x06active\x18\x01 \x01(\bR\x06active\x12V\n" +
 	"\vbounds_mins\x18\x02 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\n" +
@@ -8134,7 +8236,14 @@ const file_s2_usermessages_proto_rawDesc = "" +
 	"\x12pull_towards_point\x18\n" +
 	" \x01(\bR\x10pullTowardsPoint\x12$\n" +
 	"\x0ecurve_min_dist\x18\v \x01(\x02R\fcurveMinDist\x12$\n" +
-	"\x0ecurve_max_dist\x18\f \x01(\x02R\fcurveMaxDist\x1a\x8e\x04\n" +
+	"\x0ecurve_max_dist\x18\f \x01(\x02R\fcurveMaxDist\x12\x19\n" +
+	"\bfan_type\x18\r \x01(\rR\afanType\x12*\n" +
+	"\x11cone_start_radius\x18\x0e \x01(\x02R\x0fconeStartRadius\x12&\n" +
+	"\x0fcone_end_radius\x18\x0f \x01(\x02R\rconeEndRadius\x12\x1f\n" +
+	"\vcone_length\x18\x10 \x01(\x02R\n" +
+	"coneLength\x12-\n" +
+	"\rentity_handle\x18\x11 \x01(\r:\b16777215R\fentityHandle\x12'\n" +
+	"\x0fattachment_name\x18\x12 \x01(\tR\x0eattachmentName\x1a\x8e\x04\n" +
 	"\tUpdateFan\x12\x16\n" +
 	"\x06active\x18\x01 \x01(\bR\x06active\x12T\n" +
 	"\n" +
@@ -8145,10 +8254,11 @@ const file_s2_usermessages_proto_rawDesc = "" +
 	"\vbounds_mins\x18\x05 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\n" +
 	"boundsMins\x12V\n" +
 	"\vbounds_maxs\x18\x06 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\n" +
-	"boundsMaxs\x1a\x85\x01\n" +
+	"boundsMaxs\x1a\v\n" +
+	"\tRemoveFan\x1a\x85\x01\n" +
 	"\x18SetParticleClusterGrowth\x12\x1a\n" +
 	"\bduration\x18\x01 \x01(\x02R\bduration\x12M\n" +
-	"\x06origin\x18\x02 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06origin*\x05\bd\x10\xca\x01\".\n" +
+	"\x06origin\x18\x02 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06origin*\x05\bd\x10\xca\x01:\x05\x80\xb5\x18\x80 \".\n" +
 	"\x11CUserMsg_HudError\x12\x19\n" +
 	"\border_id\x18\x01 \x01(\x05R\aorderId\"M\n" +
 	"\x18CUserMsg_CustomGameEvent\x12\x1d\n" +
@@ -8413,7 +8523,7 @@ const file_s2_usermessages_proto_rawDesc = "" +
 	"ROLL_STATS\x10\x00\x12\x10\n" +
 	"\fROLL_CREDITS\x10\x01\x12\x17\n" +
 	"\x13ROLL_LATE_JOIN_LOGO\x10\x02\x12\x0f\n" +
-	"\vROLL_OUTTRO\x10\x03*\xbe\x0f\n" +
+	"\vROLL_OUTTRO\x10\x03*\xea\x0f\n" +
 	"\x10PARTICLE_MESSAGE\x12&\n" +
 	"\"GAME_PARTICLE_MANAGER_EVENT_CREATE\x10\x00\x12&\n" +
 	"\"GAME_PARTICLE_MANAGER_EVENT_UPDATE\x10\x01\x12.\n" +
@@ -8454,7 +8564,8 @@ const file_s2_usermessages_proto_rawDesc = "" +
 	"1GAME_PARTICLE_MANAGER_EVENT_SET_MATERIAL_OVERRIDE\x10#\x12'\n" +
 	"#GAME_PARTICLE_MANAGER_EVENT_ADD_FAN\x10$\x12*\n" +
 	"&GAME_PARTICLE_MANAGER_EVENT_UPDATE_FAN\x10%\x122\n" +
-	".GAME_PARTICLE_MANAGER_EVENT_SET_CLUSTER_GROWTH\x10&*t\n" +
+	".GAME_PARTICLE_MANAGER_EVENT_SET_CLUSTER_GROWTH\x10&\x12*\n" +
+	"&GAME_PARTICLE_MANAGER_EVENT_REMOVE_FAN\x10'*t\n" +
 	"\x10EHapticPulseType\x12\x1e\n" +
 	"\x1aVR_HAND_HAPTIC_PULSE_LIGHT\x10\x00\x12\x1f\n" +
 	"\x1bVR_HAND_HAPTIC_PULSE_MEDIUM\x10\x01\x12\x1f\n" +
@@ -8473,7 +8584,7 @@ func file_s2_usermessages_proto_rawDescGZIP() []byte {
 }
 
 var file_s2_usermessages_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_s2_usermessages_proto_msgTypes = make([]protoimpl.MessageInfo, 106)
+var file_s2_usermessages_proto_msgTypes = make([]protoimpl.MessageInfo, 107)
 var file_s2_usermessages_proto_goTypes = []any{
 	(EBaseUserMessages)(0),                                                              // 0: com.github.markus_wa.demoinfocs_golang.s2.EBaseUserMessages
 	(EBaseEntityMessages)(0),                                                            // 1: com.github.markus_wa.demoinfocs_golang.s2.EBaseEntityMessages
@@ -8574,37 +8685,38 @@ var file_s2_usermessages_proto_goTypes = []any{
 	(*CUserMsg_ParticleManager_SetMaterialOverride)(nil),                                // 96: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetMaterialOverride
 	(*CUserMsg_ParticleManager_AddFan)(nil),                                             // 97: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan
 	(*CUserMsg_ParticleManager_UpdateFan)(nil),                                          // 98: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan
-	(*CUserMsg_ParticleManager_SetParticleClusterGrowth)(nil),                           // 99: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleClusterGrowth
-	(*CUserMsg_ParticleManager_SetParticleNamedValueContext_FloatContextValue)(nil),     // 100: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.FloatContextValue
-	(*CUserMsg_ParticleManager_SetParticleNamedValueContext_VectorContextValue)(nil),    // 101: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.VectorContextValue
-	(*CUserMsg_ParticleManager_SetParticleNamedValueContext_TransformContextValue)(nil), // 102: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.TransformContextValue
-	(*CUserMsg_ParticleManager_SetParticleNamedValueContext_EHandleContext)(nil),        // 103: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.EHandleContext
-	(*CUserMessage_UtilMsg_Response_ItemDetail)(nil),                                    // 104: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_UtilMsg_Response.ItemDetail
-	(*CUserMessage_DllStatus_CVDiagnostic)(nil),                                         // 105: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.CVDiagnostic
-	(*CUserMessage_DllStatus_CModule)(nil),                                              // 106: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.CModule
-	(*CUserMessage_Inventory_Response_InventoryDetail)(nil),                             // 107: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.InventoryDetail
-	(*CUserMessageRequestDiagnostic_Diagnostic)(nil),                                    // 108: com.github.markus_wa.demoinfocs_golang.s2.CUserMessageRequestDiagnostic.Diagnostic
-	(*CUserMessage_Diagnostic_Response_Diagnostic)(nil),                                 // 109: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Diagnostic_Response.Diagnostic
-	(*CUserMessage_NotifyResponseFound_Criteria)(nil),                                   // 110: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_NotifyResponseFound.Criteria
-	(*CMsgVector)(nil),                                                                  // 111: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	(*CEntityMsg)(nil),                                                                  // 112: com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
-	(*CMsgQAngle)(nil),                                                                  // 113: com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	(*CMsgQuaternion)(nil),                                                              // 114: com.github.markus_wa.demoinfocs_golang.s2.CMsgQuaternion
+	(*CUserMsg_ParticleManager_RemoveFan)(nil),                                          // 99: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.RemoveFan
+	(*CUserMsg_ParticleManager_SetParticleClusterGrowth)(nil),                           // 100: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleClusterGrowth
+	(*CUserMsg_ParticleManager_SetParticleNamedValueContext_FloatContextValue)(nil),     // 101: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.FloatContextValue
+	(*CUserMsg_ParticleManager_SetParticleNamedValueContext_VectorContextValue)(nil),    // 102: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.VectorContextValue
+	(*CUserMsg_ParticleManager_SetParticleNamedValueContext_TransformContextValue)(nil), // 103: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.TransformContextValue
+	(*CUserMsg_ParticleManager_SetParticleNamedValueContext_EHandleContext)(nil),        // 104: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.EHandleContext
+	(*CUserMessage_UtilMsg_Response_ItemDetail)(nil),                                    // 105: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_UtilMsg_Response.ItemDetail
+	(*CUserMessage_DllStatus_CVDiagnostic)(nil),                                         // 106: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.CVDiagnostic
+	(*CUserMessage_DllStatus_CModule)(nil),                                              // 107: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.CModule
+	(*CUserMessage_Inventory_Response_InventoryDetail)(nil),                             // 108: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.InventoryDetail
+	(*CUserMessageRequestDiagnostic_Diagnostic)(nil),                                    // 109: com.github.markus_wa.demoinfocs_golang.s2.CUserMessageRequestDiagnostic.Diagnostic
+	(*CUserMessage_Diagnostic_Response_Diagnostic)(nil),                                 // 110: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Diagnostic_Response.Diagnostic
+	(*CUserMessage_NotifyResponseFound_Criteria)(nil),                                   // 111: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_NotifyResponseFound.Criteria
+	(*CMsgVector)(nil),                                                                  // 112: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	(*CEntityMsg)(nil),                                                                  // 113: com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
+	(*CMsgQAngle)(nil),                                                                  // 114: com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	(*CMsgQuaternion)(nil),                                                              // 115: com.github.markus_wa.demoinfocs_golang.s2.CMsgQuaternion
 }
 var file_s2_usermessages_proto_depIdxs = []int32{
 	12,  // 0: com.github.markus_wa.demoinfocs_golang.s2.CUserMessageShakeDir.shake:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessageShake
-	111, // 1: com.github.markus_wa.demoinfocs_golang.s2.CUserMessageShakeDir.direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 2: com.github.markus_wa.demoinfocs_golang.s2.CUserMessageScreenTilt.angle:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 1: com.github.markus_wa.demoinfocs_golang.s2.CUserMessageShakeDir.direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 2: com.github.markus_wa.demoinfocs_golang.s2.CUserMessageScreenTilt.angle:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
 	2,   // 3: com.github.markus_wa.demoinfocs_golang.s2.CUserMessageCreditsMsg.rolltype:type_name -> com.github.markus_wa.demoinfocs_golang.s2.eRollType
-	112, // 4: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessagePlayJingle.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
-	112, // 5: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageScreenOverlay.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
-	112, // 6: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageRemoveAllDecals.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
-	111, // 7: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessagePropagateForce.impulse:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	112, // 8: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessagePropagateForce.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
-	111, // 9: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageDoSpark.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	112, // 10: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageDoSpark.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
-	113, // 11: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageFixAngle.angle:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	112, // 12: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageFixAngle.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
+	113, // 4: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessagePlayJingle.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
+	113, // 5: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageScreenOverlay.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
+	113, // 6: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageRemoveAllDecals.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
+	112, // 7: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessagePropagateForce.impulse:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	113, // 8: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessagePropagateForce.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
+	112, // 9: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageDoSpark.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	113, // 10: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageDoSpark.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
+	114, // 11: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageFixAngle.angle:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	113, // 12: com.github.markus_wa.demoinfocs_golang.s2.CEntityMessageFixAngle.entity_msg:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEntityMsg
 	61,  // 13: com.github.markus_wa.demoinfocs_golang.s2.CUserMessageCameraTransition.params_data_driven:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessageCameraTransition.Transition_DataDriven
 	3,   // 14: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.type:type_name -> com.github.markus_wa.demoinfocs_golang.s2.PARTICLE_MESSAGE
 	62,  // 15: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.release_particle_index:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.ReleaseParticleIndex
@@ -8644,56 +8756,57 @@ var file_s2_usermessages_proto_depIdxs = []int32{
 	96,  // 49: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.set_material_override:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetMaterialOverride
 	97,  // 50: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.add_fan:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan
 	98,  // 51: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.update_fan:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan
-	99,  // 52: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.set_particle_cluster_growth:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleClusterGrowth
-	104, // 53: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_UtilMsg_Response.itemdetails:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_UtilMsg_Response.ItemDetail
-	105, // 54: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.diagnostics:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.CVDiagnostic
-	106, // 55: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.modules:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.CModule
-	107, // 56: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.inventories:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.InventoryDetail
-	107, // 57: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.inventories2:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.InventoryDetail
-	107, // 58: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.inventories3:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.InventoryDetail
-	108, // 59: com.github.markus_wa.demoinfocs_golang.s2.CUserMessageRequestDiagnostic.diagnostics:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessageRequestDiagnostic.Diagnostic
-	109, // 60: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Diagnostic_Response.diagnostics:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Diagnostic_Response.Diagnostic
-	110, // 61: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_NotifyResponseFound.criteria:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_NotifyResponseFound.Criteria
-	111, // 62: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_PlayResponseConditional.ent_origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 63: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.CreateParticle.aggregation_position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 64: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticle_OBSOLETE.position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 65: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleFwd_OBSOLETE.forward:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 66: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOrient_OBSOLETE.forward:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 67: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOrient_OBSOLETE.deprecated_right:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 68: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOrient_OBSOLETE.up:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 69: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOrient_OBSOLETE.left:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 70: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleTransform.position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	114, // 71: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleTransform.orientation:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQuaternion
-	111, // 72: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleFallback.position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 73: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOffset.origin_offset:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	113, // 74: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOffset.angle_offset:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	111, // 75: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleEnt.fallback_position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 76: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleEnt.offset_position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	113, // 77: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleEnt.offset_angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	111, // 78: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateEntityPosition.position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	100, // 79: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.float_values:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.FloatContextValue
-	101, // 80: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.vector_values:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.VectorContextValue
-	102, // 81: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.transform_values:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.TransformContextValue
-	103, // 82: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.ehandle_values:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.EHandleContext
-	111, // 83: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan.bounds_mins:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 84: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan.bounds_maxs:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 85: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan.fan_origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 86: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan.fan_origin_offset:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 87: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan.fan_direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 88: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan.fan_origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 89: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan.fan_origin_offset:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 90: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan.fan_direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 91: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan.bounds_mins:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 92: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan.bounds_maxs:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 93: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleClusterGrowth.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	111, // 94: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.VectorContextValue.value:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	113, // 95: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.TransformContextValue.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	111, // 96: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.TransformContextValue.translation:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	97,  // [97:97] is the sub-list for method output_type
-	97,  // [97:97] is the sub-list for method input_type
-	97,  // [97:97] is the sub-list for extension type_name
-	97,  // [97:97] is the sub-list for extension extendee
-	0,   // [0:97] is the sub-list for field type_name
+	100, // 52: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.set_particle_cluster_growth:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleClusterGrowth
+	99,  // 53: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.remove_fan:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.RemoveFan
+	105, // 54: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_UtilMsg_Response.itemdetails:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_UtilMsg_Response.ItemDetail
+	106, // 55: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.diagnostics:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.CVDiagnostic
+	107, // 56: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.modules:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_DllStatus.CModule
+	108, // 57: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.inventories:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.InventoryDetail
+	108, // 58: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.inventories2:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.InventoryDetail
+	108, // 59: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.inventories3:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Inventory_Response.InventoryDetail
+	109, // 60: com.github.markus_wa.demoinfocs_golang.s2.CUserMessageRequestDiagnostic.diagnostics:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessageRequestDiagnostic.Diagnostic
+	110, // 61: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Diagnostic_Response.diagnostics:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_Diagnostic_Response.Diagnostic
+	111, // 62: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_NotifyResponseFound.criteria:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_NotifyResponseFound.Criteria
+	112, // 63: com.github.markus_wa.demoinfocs_golang.s2.CUserMessage_PlayResponseConditional.ent_origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 64: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.CreateParticle.aggregation_position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 65: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticle_OBSOLETE.position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 66: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleFwd_OBSOLETE.forward:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 67: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOrient_OBSOLETE.forward:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 68: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOrient_OBSOLETE.deprecated_right:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 69: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOrient_OBSOLETE.up:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 70: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOrient_OBSOLETE.left:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 71: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleTransform.position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	115, // 72: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleTransform.orientation:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQuaternion
+	112, // 73: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleFallback.position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 74: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOffset.origin_offset:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	114, // 75: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleOffset.angle_offset:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	112, // 76: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleEnt.fallback_position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 77: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleEnt.offset_position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	114, // 78: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateParticleEnt.offset_angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	112, // 79: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateEntityPosition.position:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	101, // 80: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.float_values:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.FloatContextValue
+	102, // 81: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.vector_values:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.VectorContextValue
+	103, // 82: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.transform_values:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.TransformContextValue
+	104, // 83: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.ehandle_values:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.EHandleContext
+	112, // 84: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan.bounds_mins:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 85: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan.bounds_maxs:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 86: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan.fan_origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 87: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan.fan_origin_offset:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 88: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.AddFan.fan_direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 89: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan.fan_origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 90: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan.fan_origin_offset:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 91: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan.fan_direction:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 92: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan.bounds_mins:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 93: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.UpdateFan.bounds_maxs:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 94: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleClusterGrowth.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	112, // 95: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.VectorContextValue.value:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	114, // 96: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.TransformContextValue.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	112, // 97: com.github.markus_wa.demoinfocs_golang.s2.CUserMsg_ParticleManager.SetParticleNamedValueContext.TransformContextValue.translation:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	98,  // [98:98] is the sub-list for method output_type
+	98,  // [98:98] is the sub-list for method input_type
+	98,  // [98:98] is the sub-list for extension type_name
+	98,  // [98:98] is the sub-list for extension extendee
+	0,   // [0:98] is the sub-list for field type_name
 }
 
 func init() { file_s2_usermessages_proto_init() }
@@ -8708,7 +8821,7 @@ func file_s2_usermessages_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_s2_usermessages_proto_rawDesc), len(file_s2_usermessages_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   106,
+			NumMessages:   107,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
