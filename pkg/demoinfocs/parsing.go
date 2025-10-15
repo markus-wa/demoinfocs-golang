@@ -288,7 +288,7 @@ func (p *parser) parseFrame() bool {
 	if msgCreator == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: fmt.Sprintf("skipping unknown demo commands message type with value %d", msgType),
-			Type:    events.WarnUnknownDemoCommandMessageType,
+			Type:    events.WarnTypeUnknownDemoCommandMessageType,
 		})
 		p.bitReader.Skip(int(size) << 3)
 

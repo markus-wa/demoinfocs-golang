@@ -1,0 +1,19 @@
+import "networkbasetypes.proto";
+import "prediction_events.proto";
+
+enum ECSPredictionEvents {
+	CSPE_DamageTag = 1;
+	CSPE_AddAimPunch = 3;
+}
+
+message CCSPredictionEvent_DamageTag {
+	optional float flinch_mod_small = 1;
+	optional float flinch_mod_large = 2;
+	optional float friendly_fire_damage_reduction_ratio = 3;
+}
+
+message CCSPredictionEvent_AddAimPunch {
+	optional .CMsgQAngle punch_angle = 1;
+	optional uint32 when_tick = 2;
+	optional float when_tick_frac = 3;
+}

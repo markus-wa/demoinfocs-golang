@@ -46,6 +46,7 @@ func main() {
 		if e.PenetratedObjects > 0 {
 			wallBang = " (WB)"
 		}
+
 		fmt.Printf("%s <%v%s%s> %s\n", formatPlayer(e.Killer), e.Weapon, hs, wallBang, formatPlayer(e.Victim))
 	})
 
