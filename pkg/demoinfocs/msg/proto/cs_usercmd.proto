@@ -1,0 +1,41 @@
+import "networkbasetypes.proto";
+import "usercmd.proto";
+
+message CSGOInterpolationInfoPB {
+	optional int32 src_tick = 1 [default = -1];
+	optional int32 dst_tick = 2 [default = -1];
+	optional float frac = 3 [default = 0];
+}
+
+message CSGOInterpolationInfoPB_CL {
+	optional float frac = 3 [default = 0];
+}
+
+message CSGOInputHistoryEntryPB {
+	optional .CMsgQAngle view_angles = 2;
+	optional int32 render_tick_count = 4;
+	optional float render_tick_fraction = 5;
+	optional int32 player_tick_count = 6;
+	optional float player_tick_fraction = 7;
+	optional .CSGOInterpolationInfoPB_CL cl_interp = 12;
+	optional .CSGOInterpolationInfoPB sv_interp0 = 13;
+	optional .CSGOInterpolationInfoPB sv_interp1 = 14;
+	optional .CSGOInterpolationInfoPB player_interp = 15;
+	optional int32 frame_number = 64;
+	optional int32 target_ent_index = 65 [default = -1];
+	optional .CMsgVector shoot_position = 66;
+	optional .CMsgVector target_head_pos_check = 67;
+	optional .CMsgVector target_abs_pos_check = 68;
+	optional .CMsgQAngle target_abs_ang_check = 69;
+}
+
+message CSGOUserCmdPB {
+	optional .CBaseUserCmdPB base = 1;
+	repeated .CSGOInputHistoryEntryPB input_history = 2;
+	optional int32 attack1_start_history_index = 6 [default = -1];
+	optional int32 attack2_start_history_index = 7 [default = -1];
+	optional bool left_hand_desired = 9 [default = false];
+	optional bool is_predicting_body_shot_fx = 11 [default = false];
+	optional bool is_predicting_head_shot_fx = 12 [default = false];
+	optional bool is_predicting_kill_ragdolls = 13 [default = false];
+}

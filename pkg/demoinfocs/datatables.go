@@ -549,7 +549,7 @@ func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, pl *common.Player) {
 		inventory := make(map[int]*common.Equipment, inventorySize)
 
 		for i := 0; i < inventorySize; i++ {
-			val := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i)).Value()
+			val := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf(".%04d", i)).Value()
 			if val.Any == nil {
 				continue
 			}
@@ -561,7 +561,7 @@ func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, pl *common.Player) {
 		pl.Inventory = inventory
 	}
 
-	pawnEntity.Property("m_pWeaponServices.m_hMyWeapons").OnUpdate(func(pv st.PropertyValue) {
+	pawnEntity.Property(playerWeaponPrefixS2).OnUpdate(func(pv st.PropertyValue) {
 		inventorySize = len(pv.Array())
 		setPlayerInventory()
 	})
@@ -598,7 +598,7 @@ func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, pl *common.Player) {
 			}
 		}
 
-		property := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf("%04d", i))
+		property := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf(".%04d", i))
 		updateWeapon(property.Value())
 		property.OnUpdate(updateWeapon)
 	}
