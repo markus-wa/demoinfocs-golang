@@ -33,7 +33,7 @@ type Player struct {
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
-	if p.Entity == nil {
+	if p == nil || p.Entity == nil {
 		return nil
 	}
 
