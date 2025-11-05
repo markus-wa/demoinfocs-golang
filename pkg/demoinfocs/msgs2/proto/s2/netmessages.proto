@@ -50,6 +50,7 @@ enum SVC_Messages {
 	svc_Broadcast_Command = 74;
 	svc_HltvFixupOperatorStatus = 75;
 	svc_UserCmds = 76;
+	svc_NextMsgPredicted = 77;
 }
 
 enum VoiceDataFormat_t {
@@ -771,4 +772,9 @@ message CMsgServerUserCmd {
 
 message CSVCMsg_UserCommands {
 	repeated CMsgServerUserCmd commands = 1;
+}
+
+message CSVCMsg_NextMsgPredicted {
+	optional int32 predicted_by_player_slot = 1 [default = -1];
+	optional uint32 message_type_id = 2;
 }

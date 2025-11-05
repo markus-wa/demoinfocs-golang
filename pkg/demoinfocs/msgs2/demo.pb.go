@@ -140,7 +140,7 @@ func (EDemoCommands) EnumDescriptor() ([]byte, []int) {
 type CDemoFileHeader struct {
 	state                    protoimpl.MessageState `protogen:"open.v1"`
 	DemoFileStamp            *string                `protobuf:"bytes,1,req,name=demo_file_stamp,json=demoFileStamp" json:"demo_file_stamp,omitempty"`
-	NetworkProtocol          *int32                 `protobuf:"varint,2,opt,name=network_protocol,json=networkProtocol" json:"network_protocol,omitempty"`
+	PatchVersion             *int32                 `protobuf:"varint,2,opt,name=patch_version,json=patchVersion" json:"patch_version,omitempty"`
 	ServerName               *string                `protobuf:"bytes,3,opt,name=server_name,json=serverName" json:"server_name,omitempty"`
 	ClientName               *string                `protobuf:"bytes,4,opt,name=client_name,json=clientName" json:"client_name,omitempty"`
 	MapName                  *string                `protobuf:"bytes,5,opt,name=map_name,json=mapName" json:"map_name,omitempty"`
@@ -195,9 +195,9 @@ func (x *CDemoFileHeader) GetDemoFileStamp() string {
 	return ""
 }
 
-func (x *CDemoFileHeader) GetNetworkProtocol() int32 {
-	if x != nil && x.NetworkProtocol != nil {
-		return *x.NetworkProtocol
+func (x *CDemoFileHeader) GetPatchVersion() int32 {
+	if x != nil && x.PatchVersion != nil {
+		return *x.PatchVersion
 	}
 	return 0
 }
@@ -1745,10 +1745,10 @@ var File_s2_demo_proto protoreflect.FileDescriptor
 
 const file_s2_demo_proto_rawDesc = "" +
 	"\n" +
-	"\rs2/demo.proto\x12)com.github.markus_wa.demoinfocs_golang.s2\"\xe0\x04\n" +
+	"\rs2/demo.proto\x12)com.github.markus_wa.demoinfocs_golang.s2\"\xda\x04\n" +
 	"\x0fCDemoFileHeader\x12&\n" +
-	"\x0fdemo_file_stamp\x18\x01 \x02(\tR\rdemoFileStamp\x12)\n" +
-	"\x10network_protocol\x18\x02 \x01(\x05R\x0fnetworkProtocol\x12\x1f\n" +
+	"\x0fdemo_file_stamp\x18\x01 \x02(\tR\rdemoFileStamp\x12#\n" +
+	"\rpatch_version\x18\x02 \x01(\x05R\fpatchVersion\x12\x1f\n" +
 	"\vserver_name\x18\x03 \x01(\tR\n" +
 	"serverName\x12\x1f\n" +
 	"\vclient_name\x18\x04 \x01(\tR\n" +

@@ -195,22 +195,23 @@ func (x *CMsgTERadioIcon) GetPlayer() uint32 {
 }
 
 type CMsgTEFireBullets struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Origin              *CMsgVector            `protobuf:"bytes,1,opt,name=origin" json:"origin,omitempty"`
-	Angles              *CMsgQAngle            `protobuf:"bytes,2,opt,name=angles" json:"angles,omitempty"`
-	WeaponId            *uint32                `protobuf:"varint,3,opt,name=weapon_id,json=weaponId,def=16777215" json:"weapon_id,omitempty"`
-	Mode                *uint32                `protobuf:"varint,4,opt,name=mode" json:"mode,omitempty"`
-	Seed                *uint32                `protobuf:"varint,5,opt,name=seed" json:"seed,omitempty"`
-	Player              *uint32                `protobuf:"fixed32,6,opt,name=player,def=16777215" json:"player,omitempty"`
-	Inaccuracy          *float32               `protobuf:"fixed32,7,opt,name=inaccuracy" json:"inaccuracy,omitempty"`
-	RecoilIndex         *float32               `protobuf:"fixed32,8,opt,name=recoil_index,json=recoilIndex" json:"recoil_index,omitempty"`
-	Spread              *float32               `protobuf:"fixed32,9,opt,name=spread" json:"spread,omitempty"`
-	SoundType           *int32                 `protobuf:"varint,10,opt,name=sound_type,json=soundType" json:"sound_type,omitempty"`
-	ItemDefIndex        *uint32                `protobuf:"varint,11,opt,name=item_def_index,json=itemDefIndex" json:"item_def_index,omitempty"`
-	SoundDspEffect      *uint32                `protobuf:"fixed32,12,opt,name=sound_dsp_effect,json=soundDspEffect" json:"sound_dsp_effect,omitempty"`
-	EntOrigin           *CMsgVector            `protobuf:"bytes,13,opt,name=ent_origin,json=entOrigin" json:"ent_origin,omitempty"`
-	NumBulletsRemaining *uint32                `protobuf:"varint,14,opt,name=num_bullets_remaining,json=numBulletsRemaining" json:"num_bullets_remaining,omitempty"`
-	AttackType          *uint32                `protobuf:"varint,15,opt,name=attack_type,json=attackType" json:"attack_type,omitempty"`
+	state               protoimpl.MessageState   `protogen:"open.v1"`
+	Origin              *CMsgVector              `protobuf:"bytes,1,opt,name=origin" json:"origin,omitempty"`
+	Angles              *CMsgQAngle              `protobuf:"bytes,2,opt,name=angles" json:"angles,omitempty"`
+	WeaponId            *uint32                  `protobuf:"varint,3,opt,name=weapon_id,json=weaponId,def=16777215" json:"weapon_id,omitempty"`
+	Mode                *uint32                  `protobuf:"varint,4,opt,name=mode" json:"mode,omitempty"`
+	Seed                *uint32                  `protobuf:"varint,5,opt,name=seed" json:"seed,omitempty"`
+	Player              *uint32                  `protobuf:"fixed32,6,opt,name=player,def=16777215" json:"player,omitempty"`
+	Inaccuracy          *float32                 `protobuf:"fixed32,7,opt,name=inaccuracy" json:"inaccuracy,omitempty"`
+	RecoilIndex         *float32                 `protobuf:"fixed32,8,opt,name=recoil_index,json=recoilIndex" json:"recoil_index,omitempty"`
+	Spread              *float32                 `protobuf:"fixed32,9,opt,name=spread" json:"spread,omitempty"`
+	SoundType           *int32                   `protobuf:"varint,10,opt,name=sound_type,json=soundType" json:"sound_type,omitempty"`
+	ItemDefIndex        *uint32                  `protobuf:"varint,11,opt,name=item_def_index,json=itemDefIndex" json:"item_def_index,omitempty"`
+	SoundDspEffect      *uint32                  `protobuf:"fixed32,12,opt,name=sound_dsp_effect,json=soundDspEffect" json:"sound_dsp_effect,omitempty"`
+	EntOrigin           *CMsgVector              `protobuf:"bytes,13,opt,name=ent_origin,json=entOrigin" json:"ent_origin,omitempty"`
+	NumBulletsRemaining *uint32                  `protobuf:"varint,14,opt,name=num_bullets_remaining,json=numBulletsRemaining" json:"num_bullets_remaining,omitempty"`
+	AttackType          *uint32                  `protobuf:"varint,15,opt,name=attack_type,json=attackType" json:"attack_type,omitempty"`
+	Extra               *CMsgTEFireBullets_Extra `protobuf:"bytes,16,opt,name=extra" json:"extra,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -356,6 +357,113 @@ func (x *CMsgTEFireBullets) GetAttackType() uint32 {
 	return 0
 }
 
+func (x *CMsgTEFireBullets) GetExtra() *CMsgTEFireBullets_Extra {
+	if x != nil {
+		return x.Extra
+	}
+	return nil
+}
+
+type CMsgTEFireBullets_Extra struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	AimPunch        *CMsgQAngle            `protobuf:"bytes,1,opt,name=aim_punch,json=aimPunch" json:"aim_punch,omitempty"`
+	AttackTickCount *int32                 `protobuf:"varint,2,opt,name=attack_tick_count,json=attackTickCount" json:"attack_tick_count,omitempty"`
+	AttackTickFrac  *float32               `protobuf:"fixed32,3,opt,name=attack_tick_frac,json=attackTickFrac" json:"attack_tick_frac,omitempty"`
+	RenderTickCount *int32                 `protobuf:"varint,4,opt,name=render_tick_count,json=renderTickCount" json:"render_tick_count,omitempty"`
+	RenderTickFrac  *float32               `protobuf:"fixed32,5,opt,name=render_tick_frac,json=renderTickFrac" json:"render_tick_frac,omitempty"`
+	InaccuracyMove  *float32               `protobuf:"fixed32,6,opt,name=inaccuracy_move,json=inaccuracyMove" json:"inaccuracy_move,omitempty"`
+	InaccuracyAir   *float32               `protobuf:"fixed32,7,opt,name=inaccuracy_air,json=inaccuracyAir" json:"inaccuracy_air,omitempty"`
+	Type            *int32                 `protobuf:"varint,8,opt,name=type" json:"type,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *CMsgTEFireBullets_Extra) Reset() {
+	*x = CMsgTEFireBullets_Extra{}
+	mi := &file_s2_cs_gameevents_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CMsgTEFireBullets_Extra) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CMsgTEFireBullets_Extra) ProtoMessage() {}
+
+func (x *CMsgTEFireBullets_Extra) ProtoReflect() protoreflect.Message {
+	mi := &file_s2_cs_gameevents_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CMsgTEFireBullets_Extra.ProtoReflect.Descriptor instead.
+func (*CMsgTEFireBullets_Extra) Descriptor() ([]byte, []int) {
+	return file_s2_cs_gameevents_proto_rawDescGZIP(), []int{2, 0}
+}
+
+func (x *CMsgTEFireBullets_Extra) GetAimPunch() *CMsgQAngle {
+	if x != nil {
+		return x.AimPunch
+	}
+	return nil
+}
+
+func (x *CMsgTEFireBullets_Extra) GetAttackTickCount() int32 {
+	if x != nil && x.AttackTickCount != nil {
+		return *x.AttackTickCount
+	}
+	return 0
+}
+
+func (x *CMsgTEFireBullets_Extra) GetAttackTickFrac() float32 {
+	if x != nil && x.AttackTickFrac != nil {
+		return *x.AttackTickFrac
+	}
+	return 0
+}
+
+func (x *CMsgTEFireBullets_Extra) GetRenderTickCount() int32 {
+	if x != nil && x.RenderTickCount != nil {
+		return *x.RenderTickCount
+	}
+	return 0
+}
+
+func (x *CMsgTEFireBullets_Extra) GetRenderTickFrac() float32 {
+	if x != nil && x.RenderTickFrac != nil {
+		return *x.RenderTickFrac
+	}
+	return 0
+}
+
+func (x *CMsgTEFireBullets_Extra) GetInaccuracyMove() float32 {
+	if x != nil && x.InaccuracyMove != nil {
+		return *x.InaccuracyMove
+	}
+	return 0
+}
+
+func (x *CMsgTEFireBullets_Extra) GetInaccuracyAir() float32 {
+	if x != nil && x.InaccuracyAir != nil {
+		return *x.InaccuracyAir
+	}
+	return 0
+}
+
+func (x *CMsgTEFireBullets_Extra) GetType() int32 {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return 0
+}
+
 var File_s2_cs_gameevents_proto protoreflect.FileDescriptor
 
 const file_s2_cs_gameevents_proto_rawDesc = "" +
@@ -366,7 +474,7 @@ const file_s2_cs_gameevents_proto_rawDesc = "" +
 	"\x05event\x18\x02 \x01(\rR\x05event\x12\x12\n" +
 	"\x04data\x18\x03 \x01(\x05R\x04data\"3\n" +
 	"\x0fCMsgTERadioIcon\x12 \n" +
-	"\x06player\x18\x01 \x01(\a:\b16777215R\x06player\"\x97\x05\n" +
+	"\x06player\x18\x01 \x01(\a:\b16777215R\x06player\"\xdf\b\n" +
 	"\x11CMsgTEFireBullets\x12M\n" +
 	"\x06origin\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x06origin\x12M\n" +
 	"\x06angles\x18\x02 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngleR\x06angles\x12%\n" +
@@ -388,7 +496,17 @@ const file_s2_cs_gameevents_proto_rawDesc = "" +
 	"ent_origin\x18\r \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\tentOrigin\x122\n" +
 	"\x15num_bullets_remaining\x18\x0e \x01(\rR\x13numBulletsRemaining\x12\x1f\n" +
 	"\vattack_type\x18\x0f \x01(\rR\n" +
-	"attackType*]\n" +
+	"attackType\x12X\n" +
+	"\x05extra\x18\x10 \x01(\v2B.com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets.ExtraR\x05extra\x1a\xeb\x02\n" +
+	"\x05Extra\x12R\n" +
+	"\taim_punch\x18\x01 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngleR\baimPunch\x12*\n" +
+	"\x11attack_tick_count\x18\x02 \x01(\x05R\x0fattackTickCount\x12(\n" +
+	"\x10attack_tick_frac\x18\x03 \x01(\x02R\x0eattackTickFrac\x12*\n" +
+	"\x11render_tick_count\x18\x04 \x01(\x05R\x0frenderTickCount\x12(\n" +
+	"\x10render_tick_frac\x18\x05 \x01(\x02R\x0erenderTickFrac\x12'\n" +
+	"\x0finaccuracy_move\x18\x06 \x01(\x02R\x0einaccuracyMove\x12%\n" +
+	"\x0einaccuracy_air\x18\a \x01(\x02R\rinaccuracyAir\x12\x12\n" +
+	"\x04type\x18\b \x01(\x05R\x04type*]\n" +
 	"\x0fECsgoGameEvents\x12\x19\n" +
 	"\x14GE_PlayerAnimEventId\x10\xc2\x03\x12\x18\n" +
 	"\x13GE_RadioIconEventId\x10\xc3\x03\x12\x15\n" +
@@ -407,24 +525,27 @@ func file_s2_cs_gameevents_proto_rawDescGZIP() []byte {
 }
 
 var file_s2_cs_gameevents_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_s2_cs_gameevents_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_s2_cs_gameevents_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_s2_cs_gameevents_proto_goTypes = []any{
-	(ECsgoGameEvents)(0),          // 0: com.github.markus_wa.demoinfocs_golang.s2.ECsgoGameEvents
-	(*CMsgTEPlayerAnimEvent)(nil), // 1: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPlayerAnimEvent
-	(*CMsgTERadioIcon)(nil),       // 2: com.github.markus_wa.demoinfocs_golang.s2.CMsgTERadioIcon
-	(*CMsgTEFireBullets)(nil),     // 3: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets
-	(*CMsgVector)(nil),            // 4: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	(*CMsgQAngle)(nil),            // 5: com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	(ECsgoGameEvents)(0),            // 0: com.github.markus_wa.demoinfocs_golang.s2.ECsgoGameEvents
+	(*CMsgTEPlayerAnimEvent)(nil),   // 1: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEPlayerAnimEvent
+	(*CMsgTERadioIcon)(nil),         // 2: com.github.markus_wa.demoinfocs_golang.s2.CMsgTERadioIcon
+	(*CMsgTEFireBullets)(nil),       // 3: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets
+	(*CMsgTEFireBullets_Extra)(nil), // 4: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets.Extra
+	(*CMsgVector)(nil),              // 5: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	(*CMsgQAngle)(nil),              // 6: com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
 }
 var file_s2_cs_gameevents_proto_depIdxs = []int32{
-	4, // 0: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	5, // 1: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	4, // 2: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets.ent_origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	5, // 0: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	6, // 1: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets.angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	5, // 2: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets.ent_origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	4, // 3: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets.extra:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets.Extra
+	6, // 4: com.github.markus_wa.demoinfocs_golang.s2.CMsgTEFireBullets.Extra.aim_punch:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_s2_cs_gameevents_proto_init() }
@@ -439,7 +560,7 @@ func file_s2_cs_gameevents_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_s2_cs_gameevents_proto_rawDesc), len(file_s2_cs_gameevents_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

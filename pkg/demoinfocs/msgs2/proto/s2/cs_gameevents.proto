@@ -19,6 +19,17 @@ message CMsgTERadioIcon {
 }
 
 message CMsgTEFireBullets {
+	message Extra {
+		optional CMsgQAngle aim_punch = 1;
+		optional int32 attack_tick_count = 2;
+		optional float attack_tick_frac = 3;
+		optional int32 render_tick_count = 4;
+		optional float render_tick_frac = 5;
+		optional float inaccuracy_move = 6;
+		optional float inaccuracy_air = 7;
+		optional int32 type = 8;
+	}
+
 	optional CMsgVector origin = 1;
 	optional CMsgQAngle angles = 2;
 	optional uint32 weapon_id = 3 [default = 16777215];
@@ -34,4 +45,5 @@ message CMsgTEFireBullets {
 	optional CMsgVector ent_origin = 13;
 	optional uint32 num_bullets_remaining = 14;
 	optional uint32 attack_type = 15;
+	optional CMsgTEFireBullets.Extra extra = 16;
 }

@@ -415,7 +415,7 @@ func (p *parser) handleDemoFileHeader(msg *msgs2.CDemoFileHeader) {
 	p.header.ServerName = msg.GetServerName()
 	p.header.GameDirectory = msg.GetGameDirectory()
 	p.header.MapName = msg.GetMapName()
-	networkProtocol := int(msg.GetNetworkProtocol())
+	networkProtocol := int(msg.GetPatchVersion())
 	p.header.NetworkProtocol = networkProtocol
 
 	if p.source2FallbackGameEventListBin == nil {

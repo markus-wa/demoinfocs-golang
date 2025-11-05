@@ -146,6 +146,7 @@ const (
 	SVC_Messages_svc_Broadcast_Command       SVC_Messages = 74
 	SVC_Messages_svc_HltvFixupOperatorStatus SVC_Messages = 75
 	SVC_Messages_svc_UserCmds                SVC_Messages = 76
+	SVC_Messages_svc_NextMsgPredicted        SVC_Messages = 77
 )
 
 // Enum value maps for SVC_Messages.
@@ -181,6 +182,7 @@ var (
 		74: "svc_Broadcast_Command",
 		75: "svc_HltvFixupOperatorStatus",
 		76: "svc_UserCmds",
+		77: "svc_NextMsgPredicted",
 	}
 	SVC_Messages_value = map[string]int32{
 		"svc_ServerInfo":              40,
@@ -213,6 +215,7 @@ var (
 		"svc_Broadcast_Command":       74,
 		"svc_HltvFixupOperatorStatus": 75,
 		"svc_UserCmds":                76,
+		"svc_NextMsgPredicted":        77,
 	}
 )
 
@@ -6110,6 +6113,63 @@ func (x *CSVCMsg_UserCommands) GetCommands() []*CMsgServerUserCmd {
 	return nil
 }
 
+type CSVCMsg_NextMsgPredicted struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	PredictedByPlayerSlot *int32                 `protobuf:"varint,1,opt,name=predicted_by_player_slot,json=predictedByPlayerSlot,def=-1" json:"predicted_by_player_slot,omitempty"`
+	MessageTypeId         *uint32                `protobuf:"varint,2,opt,name=message_type_id,json=messageTypeId" json:"message_type_id,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+// Default values for CSVCMsg_NextMsgPredicted fields.
+const (
+	Default_CSVCMsg_NextMsgPredicted_PredictedByPlayerSlot = int32(-1)
+)
+
+func (x *CSVCMsg_NextMsgPredicted) Reset() {
+	*x = CSVCMsg_NextMsgPredicted{}
+	mi := &file_s2_netmessages_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CSVCMsg_NextMsgPredicted) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CSVCMsg_NextMsgPredicted) ProtoMessage() {}
+
+func (x *CSVCMsg_NextMsgPredicted) ProtoReflect() protoreflect.Message {
+	mi := &file_s2_netmessages_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CSVCMsg_NextMsgPredicted.ProtoReflect.Descriptor instead.
+func (*CSVCMsg_NextMsgPredicted) Descriptor() ([]byte, []int) {
+	return file_s2_netmessages_proto_rawDescGZIP(), []int{68}
+}
+
+func (x *CSVCMsg_NextMsgPredicted) GetPredictedByPlayerSlot() int32 {
+	if x != nil && x.PredictedByPlayerSlot != nil {
+		return *x.PredictedByPlayerSlot
+	}
+	return Default_CSVCMsg_NextMsgPredicted_PredictedByPlayerSlot
+}
+
+func (x *CSVCMsg_NextMsgPredicted) GetMessageTypeId() uint32 {
+	if x != nil && x.MessageTypeId != nil {
+		return *x.MessageTypeId
+	}
+	return 0
+}
+
 type CMsgSource2PerfIntervalSample_Tag struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Tag           *string                `protobuf:"bytes,1,opt,name=tag" json:"tag,omitempty"`
@@ -6120,7 +6180,7 @@ type CMsgSource2PerfIntervalSample_Tag struct {
 
 func (x *CMsgSource2PerfIntervalSample_Tag) Reset() {
 	*x = CMsgSource2PerfIntervalSample_Tag{}
-	mi := &file_s2_netmessages_proto_msgTypes[68]
+	mi := &file_s2_netmessages_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6132,7 +6192,7 @@ func (x *CMsgSource2PerfIntervalSample_Tag) String() string {
 func (*CMsgSource2PerfIntervalSample_Tag) ProtoMessage() {}
 
 func (x *CMsgSource2PerfIntervalSample_Tag) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[68]
+	mi := &file_s2_netmessages_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6177,7 +6237,7 @@ type CSource2Metrics_MatchPerfSummary_Notification_Client struct {
 
 func (x *CSource2Metrics_MatchPerfSummary_Notification_Client) Reset() {
 	*x = CSource2Metrics_MatchPerfSummary_Notification_Client{}
-	mi := &file_s2_netmessages_proto_msgTypes[69]
+	mi := &file_s2_netmessages_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6189,7 +6249,7 @@ func (x *CSource2Metrics_MatchPerfSummary_Notification_Client) String() string {
 func (*CSource2Metrics_MatchPerfSummary_Notification_Client) ProtoMessage() {}
 
 func (x *CSource2Metrics_MatchPerfSummary_Notification_Client) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[69]
+	mi := &file_s2_netmessages_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6264,7 +6324,7 @@ type CSVCMsg_ClassInfoClassT struct {
 
 func (x *CSVCMsg_ClassInfoClassT) Reset() {
 	*x = CSVCMsg_ClassInfoClassT{}
-	mi := &file_s2_netmessages_proto_msgTypes[70]
+	mi := &file_s2_netmessages_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6276,7 +6336,7 @@ func (x *CSVCMsg_ClassInfoClassT) String() string {
 func (*CSVCMsg_ClassInfoClassT) ProtoMessage() {}
 
 func (x *CSVCMsg_ClassInfoClassT) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[70]
+	mi := &file_s2_netmessages_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6338,7 +6398,7 @@ const (
 
 func (x *CSVCMsg_SoundsSounddataT) Reset() {
 	*x = CSVCMsg_SoundsSounddataT{}
-	mi := &file_s2_netmessages_proto_msgTypes[71]
+	mi := &file_s2_netmessages_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6350,7 +6410,7 @@ func (x *CSVCMsg_SoundsSounddataT) String() string {
 func (*CSVCMsg_SoundsSounddataT) ProtoMessage() {}
 
 func (x *CSVCMsg_SoundsSounddataT) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[71]
+	mi := &file_s2_netmessages_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6516,7 +6576,7 @@ type CSVCMsg_SendTableSendpropT struct {
 
 func (x *CSVCMsg_SendTableSendpropT) Reset() {
 	*x = CSVCMsg_SendTableSendpropT{}
-	mi := &file_s2_netmessages_proto_msgTypes[72]
+	mi := &file_s2_netmessages_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6528,7 +6588,7 @@ func (x *CSVCMsg_SendTableSendpropT) String() string {
 func (*CSVCMsg_SendTableSendpropT) ProtoMessage() {}
 
 func (x *CSVCMsg_SendTableSendpropT) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[72]
+	mi := &file_s2_netmessages_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6617,7 +6677,7 @@ type CSVCMsg_GameEventListKeyT struct {
 
 func (x *CSVCMsg_GameEventListKeyT) Reset() {
 	*x = CSVCMsg_GameEventListKeyT{}
-	mi := &file_s2_netmessages_proto_msgTypes[73]
+	mi := &file_s2_netmessages_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6629,7 +6689,7 @@ func (x *CSVCMsg_GameEventListKeyT) String() string {
 func (*CSVCMsg_GameEventListKeyT) ProtoMessage() {}
 
 func (x *CSVCMsg_GameEventListKeyT) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[73]
+	mi := &file_s2_netmessages_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6670,7 +6730,7 @@ type CSVCMsg_GameEventListDescriptorT struct {
 
 func (x *CSVCMsg_GameEventListDescriptorT) Reset() {
 	*x = CSVCMsg_GameEventListDescriptorT{}
-	mi := &file_s2_netmessages_proto_msgTypes[74]
+	mi := &file_s2_netmessages_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6682,7 +6742,7 @@ func (x *CSVCMsg_GameEventListDescriptorT) String() string {
 func (*CSVCMsg_GameEventListDescriptorT) ProtoMessage() {}
 
 func (x *CSVCMsg_GameEventListDescriptorT) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[74]
+	mi := &file_s2_netmessages_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6729,7 +6789,7 @@ type CSVCMsg_PacketEntitiesAlternateBaselineT struct {
 
 func (x *CSVCMsg_PacketEntitiesAlternateBaselineT) Reset() {
 	*x = CSVCMsg_PacketEntitiesAlternateBaselineT{}
-	mi := &file_s2_netmessages_proto_msgTypes[75]
+	mi := &file_s2_netmessages_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6741,7 +6801,7 @@ func (x *CSVCMsg_PacketEntitiesAlternateBaselineT) String() string {
 func (*CSVCMsg_PacketEntitiesAlternateBaselineT) ProtoMessage() {}
 
 func (x *CSVCMsg_PacketEntitiesAlternateBaselineT) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[75]
+	mi := &file_s2_netmessages_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6781,7 +6841,7 @@ type CSVCMsg_PacketEntitiesNonTransmittedEntitiesT struct {
 
 func (x *CSVCMsg_PacketEntitiesNonTransmittedEntitiesT) Reset() {
 	*x = CSVCMsg_PacketEntitiesNonTransmittedEntitiesT{}
-	mi := &file_s2_netmessages_proto_msgTypes[76]
+	mi := &file_s2_netmessages_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6793,7 +6853,7 @@ func (x *CSVCMsg_PacketEntitiesNonTransmittedEntitiesT) String() string {
 func (*CSVCMsg_PacketEntitiesNonTransmittedEntitiesT) ProtoMessage() {}
 
 func (x *CSVCMsg_PacketEntitiesNonTransmittedEntitiesT) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[76]
+	mi := &file_s2_netmessages_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6833,7 +6893,7 @@ type CSVCMsg_PacketEntitiesOutofpvsEntityUpdatesT struct {
 
 func (x *CSVCMsg_PacketEntitiesOutofpvsEntityUpdatesT) Reset() {
 	*x = CSVCMsg_PacketEntitiesOutofpvsEntityUpdatesT{}
-	mi := &file_s2_netmessages_proto_msgTypes[77]
+	mi := &file_s2_netmessages_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6845,7 +6905,7 @@ func (x *CSVCMsg_PacketEntitiesOutofpvsEntityUpdatesT) String() string {
 func (*CSVCMsg_PacketEntitiesOutofpvsEntityUpdatesT) ProtoMessage() {}
 
 func (x *CSVCMsg_PacketEntitiesOutofpvsEntityUpdatesT) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[77]
+	mi := &file_s2_netmessages_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6885,7 +6945,7 @@ type ProtoFlattenedSerializerFieldTPolymorphicFieldT struct {
 
 func (x *ProtoFlattenedSerializerFieldTPolymorphicFieldT) Reset() {
 	*x = ProtoFlattenedSerializerFieldTPolymorphicFieldT{}
-	mi := &file_s2_netmessages_proto_msgTypes[78]
+	mi := &file_s2_netmessages_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6897,7 +6957,7 @@ func (x *ProtoFlattenedSerializerFieldTPolymorphicFieldT) String() string {
 func (*ProtoFlattenedSerializerFieldTPolymorphicFieldT) ProtoMessage() {}
 
 func (x *ProtoFlattenedSerializerFieldTPolymorphicFieldT) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[78]
+	mi := &file_s2_netmessages_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6937,7 +6997,7 @@ type CMsgServerNetworkStats_Port struct {
 
 func (x *CMsgServerNetworkStats_Port) Reset() {
 	*x = CMsgServerNetworkStats_Port{}
-	mi := &file_s2_netmessages_proto_msgTypes[79]
+	mi := &file_s2_netmessages_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6949,7 +7009,7 @@ func (x *CMsgServerNetworkStats_Port) String() string {
 func (*CMsgServerNetworkStats_Port) ProtoMessage() {}
 
 func (x *CMsgServerNetworkStats_Port) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[79]
+	mi := &file_s2_netmessages_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6995,7 +7055,7 @@ type CMsgServerNetworkStats_Player struct {
 
 func (x *CMsgServerNetworkStats_Player) Reset() {
 	*x = CMsgServerNetworkStats_Player{}
-	mi := &file_s2_netmessages_proto_msgTypes[80]
+	mi := &file_s2_netmessages_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7007,7 +7067,7 @@ func (x *CMsgServerNetworkStats_Player) String() string {
 func (*CMsgServerNetworkStats_Player) ProtoMessage() {}
 
 func (x *CMsgServerNetworkStats_Player) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_netmessages_proto_msgTypes[80]
+	mi := &file_s2_netmessages_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7642,7 +7702,10 @@ const file_s2_netmessages_proto_rawDesc = "" +
 	"\vclient_tick\x18\x05 \x01(\x05R\n" +
 	"clientTick\"p\n" +
 	"\x14CSVCMsg_UserCommands\x12X\n" +
-	"\bcommands\x18\x01 \x03(\v2<.com.github.markus_wa.demoinfocs_golang.s2.CMsgServerUserCmdR\bcommands*\xcb\x02\n" +
+	"\bcommands\x18\x01 \x03(\v2<.com.github.markus_wa.demoinfocs_golang.s2.CMsgServerUserCmdR\bcommands\"\x7f\n" +
+	"\x18CSVCMsg_NextMsgPredicted\x12;\n" +
+	"\x18predicted_by_player_slot\x18\x01 \x01(\x05:\x02-1R\x15predictedByPlayerSlot\x12&\n" +
+	"\x0fmessage_type_id\x18\x02 \x01(\rR\rmessageTypeId*\xcb\x02\n" +
 	"\fCLC_Messages\x12\x12\n" +
 	"\x0eclc_ClientInfo\x10\x14\x12\f\n" +
 	"\bclc_Move\x10\x15\x12\x11\n" +
@@ -7657,7 +7720,7 @@ const file_s2_netmessages_proto_rawDesc = "" +
 	"\x10clc_CmdKeyValues\x10\"\x12\x19\n" +
 	"\x15clc_RconServerDetails\x10#\x12\x12\n" +
 	"\x0eclc_HltvReplay\x10$\x12\x12\n" +
-	"\x0eclc_Diagnostic\x10%*\x97\x05\n" +
+	"\x0eclc_Diagnostic\x10%*\xb1\x05\n" +
 	"\fSVC_Messages\x12\x12\n" +
 	"\x0esvc_ServerInfo\x10(\x12\x1b\n" +
 	"\x17svc_FlattenedSerializer\x10)\x12\x11\n" +
@@ -7689,7 +7752,8 @@ const file_s2_netmessages_proto_rawDesc = "" +
 	"\x0fsvc_UserMessage\x10H\x12\x19\n" +
 	"\x15svc_Broadcast_Command\x10J\x12\x1f\n" +
 	"\x1bsvc_HltvFixupOperatorStatus\x10K\x12\x10\n" +
-	"\fsvc_UserCmds\x10L*g\n" +
+	"\fsvc_UserCmds\x10L\x12\x18\n" +
+	"\x14svc_NextMsgPredicted\x10M*g\n" +
 	"\x11VoiceDataFormat_t\x12\x1a\n" +
 	"\x16VOICEDATA_FORMAT_STEAM\x10\x00\x12\x1b\n" +
 	"\x17VOICEDATA_FORMAT_ENGINE\x10\x01\x12\x19\n" +
@@ -7746,7 +7810,7 @@ func file_s2_netmessages_proto_rawDescGZIP() []byte {
 }
 
 var file_s2_netmessages_proto_enumTypes = make([]protoimpl.EnumInfo, 13)
-var file_s2_netmessages_proto_msgTypes = make([]protoimpl.MessageInfo, 81)
+var file_s2_netmessages_proto_msgTypes = make([]protoimpl.MessageInfo, 82)
 var file_s2_netmessages_proto_goTypes = []any{
 	(CLC_Messages)(0),                                            // 0: com.github.markus_wa.demoinfocs_golang.s2.CLC_Messages
 	(SVC_Messages)(0),                                            // 1: com.github.markus_wa.demoinfocs_golang.s2.SVC_Messages
@@ -7829,22 +7893,23 @@ var file_s2_netmessages_proto_goTypes = []any{
 	(*CSVCMsg_HltvFixupOperatorStatus)(nil),                      // 78: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_HltvFixupOperatorStatus
 	(*CMsgServerUserCmd)(nil),                                    // 79: com.github.markus_wa.demoinfocs_golang.s2.CMsgServerUserCmd
 	(*CSVCMsg_UserCommands)(nil),                                 // 80: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_UserCommands
-	(*CMsgSource2PerfIntervalSample_Tag)(nil),                    // 81: com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2PerfIntervalSample.Tag
-	(*CSource2Metrics_MatchPerfSummary_Notification_Client)(nil), // 82: com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.Client
-	(*CSVCMsg_ClassInfoClassT)(nil),                              // 83: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_ClassInfo.class_t
-	(*CSVCMsg_SoundsSounddataT)(nil),                             // 84: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_Sounds.sounddata_t
-	(*CSVCMsg_SendTableSendpropT)(nil),                           // 85: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_SendTable.sendprop_t
-	(*CSVCMsg_GameEventListKeyT)(nil),                            // 86: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.key_t
-	(*CSVCMsg_GameEventListDescriptorT)(nil),                     // 87: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.descriptor_t
-	(*CSVCMsg_PacketEntitiesAlternateBaselineT)(nil),             // 88: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.alternate_baseline_t
-	(*CSVCMsg_PacketEntitiesNonTransmittedEntitiesT)(nil),        // 89: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.non_transmitted_entities_t
-	(*CSVCMsg_PacketEntitiesOutofpvsEntityUpdatesT)(nil),         // 90: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.outofpvs_entity_updates_t
-	(*ProtoFlattenedSerializerFieldTPolymorphicFieldT)(nil),      // 91: com.github.markus_wa.demoinfocs_golang.s2.ProtoFlattenedSerializerField_t.polymorphic_field_t
-	(*CMsgServerNetworkStats_Port)(nil),                          // 92: com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.Port
-	(*CMsgServerNetworkStats_Player)(nil),                        // 93: com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.Player
-	(*CSVCMsg_GameSessionConfiguration)(nil),                     // 94: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameSessionConfiguration
-	(*CMsgQAngle)(nil),                                           // 95: com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	(*CMsgVector)(nil),                                           // 96: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	(*CSVCMsg_NextMsgPredicted)(nil),                             // 81: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_NextMsgPredicted
+	(*CMsgSource2PerfIntervalSample_Tag)(nil),                    // 82: com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2PerfIntervalSample.Tag
+	(*CSource2Metrics_MatchPerfSummary_Notification_Client)(nil), // 83: com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.Client
+	(*CSVCMsg_ClassInfoClassT)(nil),                              // 84: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_ClassInfo.class_t
+	(*CSVCMsg_SoundsSounddataT)(nil),                             // 85: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_Sounds.sounddata_t
+	(*CSVCMsg_SendTableSendpropT)(nil),                           // 86: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_SendTable.sendprop_t
+	(*CSVCMsg_GameEventListKeyT)(nil),                            // 87: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.key_t
+	(*CSVCMsg_GameEventListDescriptorT)(nil),                     // 88: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.descriptor_t
+	(*CSVCMsg_PacketEntitiesAlternateBaselineT)(nil),             // 89: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.alternate_baseline_t
+	(*CSVCMsg_PacketEntitiesNonTransmittedEntitiesT)(nil),        // 90: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.non_transmitted_entities_t
+	(*CSVCMsg_PacketEntitiesOutofpvsEntityUpdatesT)(nil),         // 91: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.outofpvs_entity_updates_t
+	(*ProtoFlattenedSerializerFieldTPolymorphicFieldT)(nil),      // 92: com.github.markus_wa.demoinfocs_golang.s2.ProtoFlattenedSerializerField_t.polymorphic_field_t
+	(*CMsgServerNetworkStats_Port)(nil),                          // 93: com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.Port
+	(*CMsgServerNetworkStats_Player)(nil),                        // 94: com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.Player
+	(*CSVCMsg_GameSessionConfiguration)(nil),                     // 95: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameSessionConfiguration
+	(*CMsgQAngle)(nil),                                           // 96: com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	(*CMsgVector)(nil),                                           // 97: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
 }
 var file_s2_netmessages_proto_depIdxs = []int32{
 	2,  // 0: com.github.markus_wa.demoinfocs_golang.s2.CMsgVoiceAudio.format:type_name -> com.github.markus_wa.demoinfocs_golang.s2.VoiceDataFormat_t
@@ -7852,45 +7917,45 @@ var file_s2_netmessages_proto_depIdxs = []int32{
 	3,  // 2: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_RequestPause.pause_type:type_name -> com.github.markus_wa.demoinfocs_golang.s2.RequestPause_t
 	28, // 3: com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2VProfLiteReport.total:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2VProfLiteReportItem
 	28, // 4: com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2VProfLiteReport.items:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2VProfLiteReportItem
-	81, // 5: com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2PerfIntervalSample.tags:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2PerfIntervalSample.Tag
+	82, // 5: com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2PerfIntervalSample.tags:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2PerfIntervalSample.Tag
 	27, // 6: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_Diagnostic.system_specs:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2SystemSpecs
 	29, // 7: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_Diagnostic.vprof_report:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2VProfLiteReport
 	30, // 8: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_Diagnostic.downstream_flow:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2NetworkFlowQuality
 	30, // 9: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_Diagnostic.upstream_flow:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2NetworkFlowQuality
 	31, // 10: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_Diagnostic.perf_samples:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2PerfIntervalSample
 	29, // 11: com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.server_profile:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2VProfLiteReport
-	82, // 12: com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.clients:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.Client
-	94, // 13: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_ServerInfo.game_session_config:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameSessionConfiguration
-	83, // 14: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_ClassInfo.classes:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_ClassInfo.class_t
-	84, // 15: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_Sounds.sounds:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_Sounds.sounddata_t
+	83, // 12: com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.clients:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.Client
+	95, // 13: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_ServerInfo.game_session_config:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameSessionConfiguration
+	84, // 14: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_ClassInfo.classes:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_ClassInfo.class_t
+	85, // 15: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_Sounds.sounds:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_Sounds.sounddata_t
 	4,  // 16: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_Prefetch.resource_type:type_name -> com.github.markus_wa.demoinfocs_golang.s2.PrefetchType
-	95, // 17: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_FixAngle.angle:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	95, // 18: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_CrosshairAngle.angle:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	96, // 19: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_BSPDecal.pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	96, // 17: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_FixAngle.angle:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	96, // 18: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_CrosshairAngle.angle:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	97, // 19: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_BSPDecal.pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
 	5,  // 20: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_SplitScreen.type:type_name -> com.github.markus_wa.demoinfocs_golang.s2.ESplitScreenMessageType
-	85, // 21: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_SendTable.props:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_SendTable.sendprop_t
-	87, // 22: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.descriptors:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.descriptor_t
-	88, // 23: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.alternate_baselines:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.alternate_baseline_t
-	89, // 24: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.non_transmitted_entities:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.non_transmitted_entities_t
-	90, // 25: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.outofpvs_entity_updates:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.outofpvs_entity_updates_t
+	86, // 21: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_SendTable.props:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_SendTable.sendprop_t
+	88, // 22: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.descriptors:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.descriptor_t
+	89, // 23: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.alternate_baselines:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.alternate_baseline_t
+	90, // 24: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.non_transmitted_entities:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.non_transmitted_entities_t
+	91, // 25: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.outofpvs_entity_updates:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PacketEntities.outofpvs_entity_updates_t
 	15, // 26: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_VoiceData.audio:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVoiceAudio
 	62, // 27: com.github.markus_wa.demoinfocs_golang.s2.CMsgServerPeer.ipc:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgIPCAddress
 	63, // 28: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_PeerList.peer:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgServerPeer
-	91, // 29: com.github.markus_wa.demoinfocs_golang.s2.ProtoFlattenedSerializerField_t.polymorphic_types:type_name -> com.github.markus_wa.demoinfocs_golang.s2.ProtoFlattenedSerializerField_t.polymorphic_field_t
+	92, // 29: com.github.markus_wa.demoinfocs_golang.s2.ProtoFlattenedSerializerField_t.polymorphic_types:type_name -> com.github.markus_wa.demoinfocs_golang.s2.ProtoFlattenedSerializerField_t.polymorphic_field_t
 	67, // 30: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_FlattenedSerializer.serializers:type_name -> com.github.markus_wa.demoinfocs_golang.s2.ProtoFlattenedSerializer_t
 	66, // 31: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_FlattenedSerializer.fields:type_name -> com.github.markus_wa.demoinfocs_golang.s2.ProtoFlattenedSerializerField_t
-	92, // 32: com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.ports:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.Port
-	93, // 33: com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.players:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.Player
-	96, // 34: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_HltvFixupOperatorTick.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	95, // 35: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_HltvFixupOperatorTick.eye_angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	96, // 36: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_HltvFixupOperatorTick.view_offset:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	93, // 32: com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.ports:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.Port
+	94, // 33: com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.players:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgServerNetworkStats.Player
+	97, // 34: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_HltvFixupOperatorTick.origin:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	96, // 35: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_HltvFixupOperatorTick.eye_angles:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	97, // 36: com.github.markus_wa.demoinfocs_golang.s2.CCLCMsg_HltvFixupOperatorTick.view_offset:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
 	79, // 37: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_UserCommands.commands:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgServerUserCmd
 	27, // 38: com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.Client.system_specs:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2SystemSpecs
 	29, // 39: com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.Client.profile:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2VProfLiteReport
 	30, // 40: com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.Client.downstream_flow:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2NetworkFlowQuality
 	30, // 41: com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.Client.upstream_flow:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2NetworkFlowQuality
 	31, // 42: com.github.markus_wa.demoinfocs_golang.s2.CSource2Metrics_MatchPerfSummary_Notification.Client.perf_samples:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgSource2PerfIntervalSample
-	86, // 43: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.descriptor_t.keys:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.key_t
+	87, // 43: com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.descriptor_t.keys:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CSVCMsg_GameEventList.key_t
 	44, // [44:44] is the sub-list for method output_type
 	44, // [44:44] is the sub-list for method input_type
 	44, // [44:44] is the sub-list for extension type_name
@@ -7910,7 +7975,7 @@ func file_s2_netmessages_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_s2_netmessages_proto_rawDesc), len(file_s2_netmessages_proto_rawDesc)),
 			NumEnums:      13,
-			NumMessages:   81,
+			NumMessages:   82,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
