@@ -201,6 +201,7 @@ There is one caveat however: Beta features - which are marked as such via commen
 - [PureSkill.gg](https://pureskill.gg/) - An automated coach to help you get better at CS2
 - [cs2lens.com](https://www.cs2lens.com/) - Professional CS2 demo replayer and analysis tool
 - [awpy](https://github.com/pnxenopoulos/awpy) - A wrapper for the Golang parser in Python
+- [CS2VoiceData](https://github.com/DandrewsDev/CS2VoiceData) - Extract voice communications from demos
 
 ### CS:GO projects (may no longer work with CS2)
 
