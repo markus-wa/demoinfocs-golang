@@ -679,10 +679,12 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 		p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
 
-		p.gameState.flyingFlashbangs = append(p.gameState.flyingFlashbangs, &FlyingFlashbang{
-			projectile:       proj,
-			flashedEntityIDs: []int{},
-		})
+		if proj.WeaponInstance.Type == common.EqFlash {
+			p.gameState.flyingFlashbangs = append(p.gameState.flyingFlashbangs, &FlyingFlashbang{
+				projectile:       proj,
+				flashedEntityIDs: []int{},
+			})
+		}
 
 		proj.Trajectory = append(proj.Trajectory, common.TrajectoryEntry{
 			Tick:     p.gameState.ingameTick,
