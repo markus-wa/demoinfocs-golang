@@ -51,7 +51,7 @@ func (c *Reader) Read(p []byte) (n int, err error) {
 
 		defer deltaResp.Body.Close()
 
-		if deltaResp.StatusCode != http.StatusOK {
+		if deltaResp.StatusCode != http.StatusOK || deltaResp.Header.Get("Content-Type") != "application/octet-stream" {
 			time.Sleep(backoff)
 
 			backoff = time.Duration(float64(backoff) * 1.5)
