@@ -469,7 +469,17 @@ func (p *Player) Money() int {
 // EquipmentValueCurrent returns the current value of equipment in the player's inventory.
 func (p *Player) EquipmentValueCurrent() int {
 	if p.demoInfoProvider.IsSource2() {
-		return int(getUInt64(p.PlayerPawnEntity(), "m_unCurrentEquipmentValue"))
+		pawnEntity := p.PlayerPawnEntity()
+		if pawnEntity == nil {
+			return 0
+		}
+
+		equipmentValue, exists := pawnEntity.PropertyValue("m_unCurrentEquipmentValue")
+		if !exists {
+			return 0
+		}
+
+		return int(equipmentValue.S2UInt64())
 	}
 
 	return getInt(p.Entity, "m_unCurrentEquipmentValue")
