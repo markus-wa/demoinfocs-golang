@@ -203,6 +203,7 @@ There is one caveat however: Beta features - which are marked as such via commen
 - [cs2lens.com](https://www.cs2lens.com/) - Professional CS2 demo replayer and analysis tool
 - [awpy](https://github.com/pnxenopoulos/awpy) - A wrapper for the Golang parser in Python
 - [CS2VoiceData](https://github.com/DandrewsDev/CS2VoiceData) - Extract voice communications from demos
+- [CSC](https://csconfederation.com/) - A free league in NA providing a casual yet competitive environment
 
 ### CS:GO projects (may no longer work with CS2)
 
