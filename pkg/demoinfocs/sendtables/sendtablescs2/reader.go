@@ -284,13 +284,13 @@ func (r *reader) read3BitNormal() []float32 {
 	ret := []float32{0.0, 0.0, 0.0}
 
 	hasX := r.readBoolean()
-	haxY := r.readBoolean()
+	hasY := r.readBoolean()
 
 	if hasX {
 		ret[0] = r.readNormal()
 	}
 
-	if haxY {
+	if hasY {
 		ret[1] = r.readNormal()
 	}
 
