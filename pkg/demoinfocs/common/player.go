@@ -359,7 +359,17 @@ func (p *Player) Money() int {
 
 // EquipmentValueCurrent returns the current value of equipment in the player's inventory.
 func (p *Player) EquipmentValueCurrent() int {
-	return int(getUInt64(p.PlayerPawnEntity(), "m_unCurrentEquipmentValue"))
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity == nil {
+		return 0
+	}
+
+	equipmentValue, exists := pawnEntity.PropertyValue("m_unCurrentEquipmentValue")
+	if !exists {
+		return 0
+	}
+
+	return int(equipmentValue.UInt64()) //#nosec G115
 }
 
 // EquipmentValueRoundStart returns the value of equipment in the player's inventory at the time of the round start.
