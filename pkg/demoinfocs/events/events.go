@@ -675,6 +675,12 @@ type PlayerSpottersChanged struct {
 	Spotted *common.Player
 }
 
+// PlayerButtonsStateUpdate signals that a player's buttons state (pressed buttons) has been updated.
+type PlayerButtonsStateUpdate struct {
+	Player       *common.Player
+	ButtonsState uint64
+}
+
 // ConVarsUpdated signals that ConVars/CVars have been updated.
 // See GameState.ConVars().
 type ConVarsUpdated struct {
