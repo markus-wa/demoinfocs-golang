@@ -10,7 +10,7 @@ require (
 	github.com/markus-wa/gobitread v0.2.5-0.20241202000432-3c3e0bc797c6
 	github.com/markus-wa/godispatch v1.4.1
 	github.com/markus-wa/quickhull-go/v2 v2.2.0
-	github.com/oklog/ulid/v2 v2.1.0
+	github.com/oklog/ulid/v2 v2.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.10.0
