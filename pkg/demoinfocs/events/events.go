@@ -685,6 +685,18 @@ type PlayerSpottersChanged struct {
 	Spotted *common.Player
 }
 
+// PlayerButtonsStateUpdate signals that a player's buttons state (pressed buttons) has been updated.
+type PlayerButtonsStateUpdate struct {
+	Player       *common.Player
+	ButtonsState uint64
+}
+
+// PlayerInspectingWeapon signals that a player started to inspect his weapon.
+// ! CSGO only! For CS2 demos use PlayerButtonsStateUpdate and check for the ButtonLookAtWeapon bit.
+type PlayerInspectingWeapon struct {
+	Player *common.Player
+}
+
 // ConVarsUpdated signals that ConVars/CVars have been updated.
 // See GameState.ConVars().
 type ConVarsUpdated struct {

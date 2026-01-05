@@ -536,6 +536,15 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 		playerEntity.Property("m_bSpottedByMask.001").OnUpdate(spottersChanged)
 	}
 
+	inspectingWeaponProp := playerEntity.Property("m_bIsLookingAtWeapon")
+	if inspectingWeaponProp != nil {
+		inspectingWeaponProp.OnUpdate(func(val st.PropertyValue) {
+			if val.BoolVal() {
+				p.eventDispatcher.Dispatch(events.PlayerInspectingWeapon{Player: pl})
+			}
+		})
+	}
+
 	if isNew {
 		if pl.SteamID64 != 0 {
 			p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
@@ -701,6 +710,24 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 
 		spottedByMaskProp.OnUpdate(spottersChanged)
 		pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
+	}
+
+	buttonDownMaskProp := pawnEntity.Property("m_pMovementServices.m_nButtonDownMaskPrev")
+	if buttonDownMaskProp != nil {
+		buttonDownMaskProp.OnUpdate(func(val st.PropertyValue) {
+			pl := getPlayerFromPawnEntity(pawnEntity)
+			if pl == nil {
+				return
+			}
+
+			state := val.S2UInt64()
+			pl.ButtonsPressedState = state
+
+			p.eventDispatcher.Dispatch(events.PlayerButtonsStateUpdate{
+				Player:       pl,
+				ButtonsState: state,
+			})
+		})
 	}
 }
 

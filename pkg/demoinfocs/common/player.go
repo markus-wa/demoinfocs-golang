@@ -34,6 +34,7 @@ type Player struct {
 	IsReloading           bool
 	IsUnknown             bool      // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 	PreviousFramePosition r3.Vector // Deprecated: may be removed in v5 due to performance concerns, track this yourself.
+	ButtonsPressedState   uint64    // Pressed buttons state represented as an uint64. You can use IsPressingButton(buttonMask) to check for specific buttons.
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
@@ -840,6 +841,13 @@ func (p *Player) UtilityDamage() int {
 	}
 
 	return getInt(p.resourceEntity(), "m_iMatchStats_UtilityDamage_Total."+p.entityIDStr())
+}
+
+// IsPressingButton returns true if the player is currently pressing the given button.
+// ! "Button" doesn't refer to the key on the keyboard/mouse but rather to an in-game action such as "move forward", "attack", "jump", etc.
+// ! CS2 only!
+func (p *Player) IsPressingButton(buttonBitMask ButtonBitMask) bool {
+	return (p.ButtonsPressedState & uint64(buttonBitMask)) != 0
 }
 
 // MoneySpentTotal returns the total amount of money the player has spent in the current match.
