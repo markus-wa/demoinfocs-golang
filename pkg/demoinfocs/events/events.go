@@ -401,6 +401,7 @@ type HostageStateChanged struct {
 
 // BulletDamage signals that a bullet did some damage.
 // Available only with CS2 demos after the 22/07/2024 update.
+// Note: may not be available in all demos - https://github.com/markus-wa/demoinfocs-golang/issues/618
 type BulletDamage struct {
 	Attacker        *common.Player
 	Victim          *common.Player
