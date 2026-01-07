@@ -518,6 +518,27 @@ func (p *parser) bindNewPlayerPawn(pawnEntity st.Entity) {
 		spottedByMaskProp.OnUpdate(spottersChanged)
 		pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
 	}
+
+	buttonDownMaskProp := pawnEntity.Property("m_pMovementServices.m_nButtonDownMaskPrev")
+	if buttonDownMaskProp != nil {
+		buttonDownMaskProp.OnUpdate(func(val st.PropertyValue) {
+			pl := getPlayerFromPawnEntity(pawnEntity)
+			if pl == nil {
+				return
+			}
+
+			state := val.UInt64()
+			pl.ButtonsPressedState = state
+			if state&uint64(common.ButtonLookAtWeapon) != 0 {
+				pl.InspectWeaponCount++
+			}
+
+			p.eventDispatcher.Dispatch(events.PlayerButtonsStateUpdate{
+				Player:       pl,
+				ButtonsState: state,
+			})
+		})
+	}
 }
 
 func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, pl *common.Player) {
