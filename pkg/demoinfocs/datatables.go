@@ -529,9 +529,6 @@ func (p *parser) bindNewPlayerPawn(pawnEntity st.Entity) {
 
 			state := val.UInt64()
 			pl.ButtonsPressedState = state
-			if state&uint64(common.ButtonLookAtWeapon) != 0 {
-				pl.InspectWeaponCount++
-			}
 
 			p.eventDispatcher.Dispatch(events.PlayerButtonsStateUpdate{
 				Player:       pl,
