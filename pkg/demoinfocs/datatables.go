@@ -541,6 +541,8 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 		inspectingWeaponProp.OnUpdate(func(val st.PropertyValue) {
 			if val.BoolVal() {
 				p.eventDispatcher.Dispatch(events.PlayerInspectingWeapon{Player: pl})
+			} else {
+				p.eventDispatcher.Dispatch(events.PlayerStopInspectingWeapon{Player: pl})
 			}
 		})
 	}

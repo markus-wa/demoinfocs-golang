@@ -698,6 +698,12 @@ type PlayerInspectingWeapon struct {
 	Player *common.Player
 }
 
+// PlayerStopInspectingWeapon signals that a player stopped inspecting his weapon.
+// ! CSGO only! For CS2 demos use PlayerButtonsStateUpdate and check for the ButtonLookAtWeapon bit.
+type PlayerStopInspectingWeapon struct {
+	Player *common.Player
+}
+
 // ConVarsUpdated signals that ConVars/CVars have been updated.
 // See GameState.ConVars().
 type ConVarsUpdated struct {
