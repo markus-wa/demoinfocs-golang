@@ -254,3 +254,29 @@ func (c Color) String() string {
 
 	return strColors[c]
 }
+
+// ButtonBitMask represents the bitmask for player button states.
+type ButtonBitMask uint64
+
+// https://github.com/SteamDatabase/GameTracking-CS2/blob/master/DumpSource2/schemas/client/InputBitMask_t.h
+const (
+	ButtonNone          ButtonBitMask = 0x0
+	ButtonAttack        ButtonBitMask = 0x1
+	ButtonJump          ButtonBitMask = 0x2
+	ButtonDuck          ButtonBitMask = 0x4
+	ButtonForward       ButtonBitMask = 0x8
+	ButtonBack          ButtonBitMask = 0x10
+	ButtonUse           ButtonBitMask = 0x20
+	ButtonTurnLeft      ButtonBitMask = 0x80
+	ButtonTurnRight     ButtonBitMask = 0x100
+	ButtonMoveLeft      ButtonBitMask = 0x200
+	ButtonMoveRight     ButtonBitMask = 0x400
+	ButtonAttack2       ButtonBitMask = 0x800
+	ButtonReload        ButtonBitMask = 0x2000
+	ButtonSpeed         ButtonBitMask = 0x10000
+	ButtonJoyAutoSprint ButtonBitMask = 0x20000
+	ButtonUseOrReload   ButtonBitMask = 0x100000000
+	ButtonScore         ButtonBitMask = 0x200000000
+	ButtonZoom          ButtonBitMask = 0x400000000
+	ButtonLookAtWeapon  ButtonBitMask = 0x800000000
+)
