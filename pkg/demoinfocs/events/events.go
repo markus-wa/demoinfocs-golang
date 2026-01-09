@@ -401,6 +401,7 @@ type HostageStateChanged struct {
 
 // BulletDamage signals that a bullet did some damage.
 // Available only with CS2 demos after the 22/07/2024 update.
+// Note: may not be available in all demos - https://github.com/markus-wa/demoinfocs-golang/issues/618
 type BulletDamage struct {
 	Attacker        *common.Player
 	Victim          *common.Player
@@ -673,6 +674,12 @@ type IsWarmupPeriodChanged struct {
 // PlayerSpottersChanged signals that a player's spotters (other players that can se him) changed.
 type PlayerSpottersChanged struct {
 	Spotted *common.Player
+}
+
+// PlayerButtonsStateUpdate signals that a player's buttons state (pressed buttons) has been updated.
+type PlayerButtonsStateUpdate struct {
+	Player       *common.Player
+	ButtonsState uint64
 }
 
 // ConVarsUpdated signals that ConVars/CVars have been updated.
