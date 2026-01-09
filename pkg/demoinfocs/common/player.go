@@ -31,7 +31,6 @@ type Player struct {
 	IsReloading         bool
 	IsUnknown           bool   // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 	ButtonsPressedState uint64 // Pressed buttons state represented as an uint64. You can use IsPressingButton(buttonMask) to check for specific buttons.
-	InspectWeaponCount  uint   // Number of times the player has inspected his weapon so far in the demo.
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
