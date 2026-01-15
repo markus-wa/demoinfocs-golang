@@ -24,9 +24,10 @@ const (
 var (
 	debugGameEvents    = yes
 	debugServerClasses = no
+	debugIngameTicks = no
 )
 
-func debugGameEvent(descriptor *msg.CMsgSource1LegacyGameEventListDescriptorT, ge *msg.CMsgSource1LegacyGameEvent) {
+func debugGameEvent(d *msg.CMsgSource1LegacyGameEventListDescriptorT, ge *msg.CMsgSource1LegacyGameEvent) {
 	const (
 		typeStr    = 1
 		typeFloat  = 2
