@@ -202,6 +202,10 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 	if p.Entity == nil {
 		return false
 	}
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity == nil {
+		return false
+	}
 
 	clientSlot := other.EntityID - 1
 	bit := uint(clientSlot)
@@ -209,10 +213,10 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 	var mask st.Property
 
 	if bit < 32 {
-		mask = p.PlayerPawnEntity().Property("m_bSpottedByMask.0000")
+		mask = pawnEntity.Property("m_bSpottedByMask.0000")
 	} else {
 		bit -= 32
-		mask = p.PlayerPawnEntity().Property("m_bSpottedByMask.0001")
+		mask = pawnEntity.Property("m_bSpottedByMask.0001")
 	}
 
 	return (mask.Value().UInt64() & (1 << bit)) != 0
