@@ -228,6 +228,8 @@ var fieldTypeDecoders = map[string]fieldDecoder{
 	"CPhysicsComponent": componentDecoder,
 	"CLightComponent":   componentDecoder,
 	"CRenderComponent":  componentDecoder,
+
+	"ResourceId_t": unsigned64Decoder,
 }
 
 func unsigned64Factory(f *field) fieldDecoder {
