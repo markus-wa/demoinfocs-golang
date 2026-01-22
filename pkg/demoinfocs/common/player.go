@@ -224,7 +224,16 @@ func (p *Player) FlashbangCount() uint64 {
 // This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
 // May not behave as expected with multiple spotters.
 func (p *Player) IsSpottedBy(other *Player) bool {
-	if p.Entity == nil {
+	isSource2 := p.demoInfoProvider.IsSource2()
+
+	var targetEntity st.Entity
+	if isSource2 {
+		targetEntity = p.PlayerPawnEntity()
+	} else {
+		targetEntity = p.Entity
+	}
+
+	if targetEntity == nil {
 		return false
 	}
 
@@ -233,21 +242,21 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 
 	var mask st.Property
 	if bit < 32 {
-		if p.demoInfoProvider.IsSource2() {
-			mask = p.PlayerPawnEntity().Property("m_bSpottedByMask.0000")
+		if isSource2 {
+			mask = targetEntity.Property("m_bSpottedByMask.0000")
 		} else {
-			mask = p.Entity.Property("m_bSpottedByMask.000")
+			mask = targetEntity.Property("m_bSpottedByMask.000")
 		}
 	} else {
 		bit -= 32
-		if p.demoInfoProvider.IsSource2() {
-			mask = p.PlayerPawnEntity().Property("m_bSpottedByMask.0001")
+		if isSource2 {
+			mask = targetEntity.Property("m_bSpottedByMask.0001")
 		} else {
-			mask = p.Entity.Property("m_bSpottedByMask.001")
+			mask = targetEntity.Property("m_bSpottedByMask.001")
 		}
 	}
 
-	if p.demoInfoProvider.IsSource2() {
+	if isSource2 {
 		return (mask.Value().S2UInt64() & (1 << bit)) != 0
 	} else {
 		return (mask.Value().IntVal & (1 << bit)) != 0
