@@ -6,6 +6,7 @@ enum ECsgoGameEvents {
 	GE_PlayerAnimEventId = 450;
 	GE_RadioIconEventId = 451;
 	GE_FireBulletsId = 452;
+	GE_PlayerBulletHitId = 453;
 }
 
 message CMsgTEPlayerAnimEvent {
@@ -45,5 +46,18 @@ message CMsgTEFireBullets {
 	optional CMsgVector ent_origin = 13;
 	optional uint32 num_bullets_remaining = 14;
 	optional uint32 attack_type = 15;
+	optional bool player_inair = 17;
+	optional bool player_scoped = 18;
+	optional int32 tick = 19;
 	optional CMsgTEFireBullets.Extra extra = 16;
+}
+
+message CMsgPlayerBulletHit {
+	optional int32 attacker_slot = 1 [default = -1];
+	optional int32 victim_slot = 2 [default = -1];
+	optional CMsgVector victim_pos = 3;
+	optional int32 hit_group = 4;
+	optional int32 damage = 5;
+	optional int32 penetration_count = 6;
+	optional bool is_kill = 7;
 }

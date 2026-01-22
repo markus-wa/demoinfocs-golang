@@ -175,6 +175,10 @@ message CDemoSpawnGroups {
 	repeated bytes msgs = 3;
 }
 
+message CDemoSpawnGroupsHLTVBroadcast {
+	optional bytes data = 1;
+}
+
 message CDemoRecovery {
 	message DemoInitialSpawnGroupEntry {
 		optional uint32 spawngrouphandle = 1;
