@@ -594,8 +594,8 @@ message CUserMsg_ParticleManager {
 		optional .CMsgVector origin = 2;
 	}
 
-	required .PARTICLE_MESSAGE type = 1 [default = GAME_PARTICLE_MANAGER_EVENT_CREATE];
-	required uint32 index = 2;
+	optional .PARTICLE_MESSAGE type = 1 [default = GAME_PARTICLE_MANAGER_EVENT_CREATE];
+	optional uint32 index = 2;
 	optional .CUserMsg_ParticleManager.ReleaseParticleIndex release_particle_index = 3;
 	optional .CUserMsg_ParticleManager.CreateParticle create_particle = 4;
 	optional .CUserMsg_ParticleManager.DestroyParticle destroy_particle = 5;

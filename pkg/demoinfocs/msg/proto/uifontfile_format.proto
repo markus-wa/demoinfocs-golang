@@ -8,6 +8,6 @@ message CUIFontFilePackagePB {
 		optional bytes encrypted_contents = 1;
 	}
 
-	required uint32 package_version = 1;
+	optional uint32 package_version = 1;
 	repeated .CUIFontFilePackagePB.CUIEncryptedFontFilePB encrypted_font_files = 2;
 }

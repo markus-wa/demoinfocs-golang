@@ -16,6 +16,10 @@ message CSubtickMoveStep {
 	optional float yaw_delta = 9;
 }
 
+message CBaseUserCmdExecutionNotes {
+	optional string ignored_reason = 1;
+}
+
 message CBaseUserCmdPB {
 	optional int32 legacy_command_number = 1;
 	optional int32 client_tick = 2;
@@ -35,6 +39,7 @@ message CBaseUserCmdPB {
 	optional bytes move_crc = 19;
 	optional uint32 consumed_server_angle_changes = 20;
 	optional int32 cmd_flags = 21;
+	optional .CBaseUserCmdExecutionNotes execution_notes = 22;
 }
 
 message CUserCmdBasePB {
