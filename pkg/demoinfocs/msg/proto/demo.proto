@@ -25,7 +25,7 @@ enum EDemoCommands {
 
 message CDemoFileHeader {
 	required string demo_file_stamp = 1;
-	optional int32 network_protocol = 2;
+	optional int32 patch_version = 2;
 	optional string server_name = 3;
 	optional string client_name = 4;
 	optional string map_name = 5;
@@ -171,6 +171,10 @@ message CDemoUserCmd {
 
 message CDemoSpawnGroups {
 	repeated bytes msgs = 3;
+}
+
+message CDemoSpawnGroupsHLTVBroadcast {
+	optional bytes data = 1;
 }
 
 message CDemoRecovery {

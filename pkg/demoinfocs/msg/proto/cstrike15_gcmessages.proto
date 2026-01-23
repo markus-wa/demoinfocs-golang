@@ -924,6 +924,7 @@ message CEconItemPreviewDataBlock {
 		optional float offset_z = 9;
 		optional uint32 pattern = 10;
 		optional uint32 highlight_reel = 11;
+		optional uint32 wrapped_sticker = 12;
 	}
 
 	optional uint32 accountid = 1;

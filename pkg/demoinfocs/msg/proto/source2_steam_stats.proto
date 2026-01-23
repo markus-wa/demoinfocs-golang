@@ -1,0 +1,124 @@
+message CMsgSource2SystemSpecs {
+	optional string cpu_id = 1;
+	optional string cpu_brand = 2;
+	optional uint32 cpu_model = 3;
+	optional uint32 cpu_num_physical = 4;
+	optional uint32 ram_physical_total_mb = 21;
+	optional string gpu_rendersystem_dll_name = 41;
+	optional uint32 gpu_vendor_id = 42;
+	optional string gpu_driver_name = 43;
+	optional uint32 gpu_driver_version_high = 44;
+	optional uint32 gpu_driver_version_low = 45;
+	optional uint32 gpu_dx_support_level = 46;
+	optional uint32 gpu_texture_memory_size_mb = 47;
+	optional uint32 backbuffer_width = 51;
+	optional uint32 backbuffer_height = 52;
+}
+
+message CMsgSource2VProfLiteReportItem {
+	optional string name = 1;
+	optional uint32 active_samples = 2;
+	optional uint32 active_samples_1secmax = 4;
+	optional uint32 usec_max = 3;
+	optional uint32 usec_avg_active = 11;
+	optional uint32 usec_p50_active = 12;
+	optional uint32 usec_p99_active = 13;
+	optional uint32 usec_avg_all = 21;
+	optional uint32 usec_p50_all = 22;
+	optional uint32 usec_p99_all = 23;
+	optional uint32 usec_1secmax_avg_active = 31;
+	optional uint32 usec_1secmax_p50_active = 32;
+	optional uint32 usec_1secmax_p95_active = 33;
+	optional uint32 usec_1secmax_p99_active = 34;
+	optional uint32 usec_1secmax_avg_all = 41;
+	optional uint32 usec_1secmax_p50_all = 42;
+	optional uint32 usec_1secmax_p95_all = 43;
+	optional uint32 usec_1secmax_p99_all = 44;
+}
+
+message CMsgSource2VProfLiteReport {
+	optional .CMsgSource2VProfLiteReportItem total = 1;
+	repeated .CMsgSource2VProfLiteReportItem items = 2;
+	optional uint32 discarded_frames = 3;
+}
+
+message CMsgSource2NetworkFlowQuality {
+	optional uint32 duration = 1;
+	optional uint64 bytes_total = 5;
+	optional uint64 bytes_total_reliable = 6;
+	optional uint64 bytes_total_voice = 7;
+	optional uint32 bytes_sec_p95 = 10;
+	optional uint32 bytes_sec_p99 = 11;
+	optional uint32 enginemsgs_total = 20;
+	optional uint32 enginemsgs_sec_p95 = 21;
+	optional uint32 enginemsgs_sec_p99 = 22;
+	optional uint32 netframes_total = 30;
+	optional uint32 netframes_dropped = 31;
+	optional uint32 netframes_outoforder = 32;
+	optional uint32 netframes_size_exceeds_mtu = 34;
+	optional uint32 netframes_size_p95 = 35;
+	optional uint32 netframes_size_p99 = 36;
+	optional uint32 ticks_total = 40;
+	optional uint32 ticks_good = 41;
+	optional uint32 ticks_good_almost_late = 42;
+	optional uint32 ticks_fixed_dropped = 43;
+	optional uint32 ticks_fixed_late = 44;
+	optional uint32 ticks_bad_dropped = 45;
+	optional uint32 ticks_bad_late = 46;
+	optional uint32 ticks_bad_other = 47;
+	optional uint32 tick_missrate_samples_total = 50;
+	optional uint32 tick_missrate_samples_perfect = 51;
+	optional uint32 tick_missrate_samples_perfectnet = 52;
+	optional uint32 tick_missratenet_p75_x10 = 53;
+	optional uint32 tick_missratenet_p95_x10 = 54;
+	optional uint32 tick_missratenet_p99_x10 = 55;
+	optional sint32 recvmargin_p1 = 61;
+	optional sint32 recvmargin_p5 = 62;
+	optional sint32 recvmargin_p25 = 63;
+	optional sint32 recvmargin_p50 = 64;
+	optional sint32 recvmargin_p75 = 65;
+	optional sint32 recvmargin_p95 = 66;
+	optional uint32 netframe_jitter_p50 = 70;
+	optional uint32 netframe_jitter_p99 = 71;
+	optional uint32 interval_peakjitter_p50 = 72;
+	optional uint32 interval_peakjitter_p95 = 73;
+	optional uint32 packet_misdelivery_rate_p50_x4 = 74;
+	optional uint32 packet_misdelivery_rate_p95_x4 = 75;
+	optional uint32 net_ping_p5 = 80;
+	optional uint32 net_ping_p50 = 81;
+	optional uint32 net_ping_p95 = 82;
+}
+
+message CMsgSource2PerfIntervalSample {
+	message Tag {
+		optional string tag = 1;
+		optional uint32 max_value = 2;
+	}
+
+	optional float frame_time_max_ms = 1;
+	optional float frame_time_avg_ms = 2;
+	optional float frame_time_min_ms = 3;
+	optional int32 frame_count = 4;
+	optional float frame_time_total_ms = 5;
+	repeated .CMsgSource2PerfIntervalSample.Tag tags = 6;
+}
+
+message CSource2Metrics_MatchPerfSummary_Notification {
+	message Client {
+		optional .CMsgSource2SystemSpecs system_specs = 1;
+		optional .CMsgSource2VProfLiteReport profile = 2;
+		optional uint32 build_id = 3;
+		optional .CMsgSource2NetworkFlowQuality downstream_flow = 4;
+		optional .CMsgSource2NetworkFlowQuality upstream_flow = 5;
+		optional fixed64 steamid = 10;
+		repeated .CMsgSource2PerfIntervalSample perf_samples = 11;
+	}
+
+	optional uint32 appid = 1;
+	optional string game_mode = 2;
+	optional uint32 server_build_id = 3;
+	optional fixed32 server_popid = 4;
+	optional .CMsgSource2VProfLiteReport server_profile = 10;
+	repeated .CSource2Metrics_MatchPerfSummary_Notification.Client clients = 11;
+	optional string map = 20;
+}
