@@ -70,7 +70,9 @@ func (c *Reader) Read(p []byte) (n int, err error) {
 		}
 
 		c.frag++
-		backoff = time.Second // reset backoff on success
+		// reset backoff and nFails on success
+		backoff = time.Second
+		nFails = 0
 
 		n2, err := c.buf.Read(p[n:])
 		n += n2
