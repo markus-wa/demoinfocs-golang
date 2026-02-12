@@ -74,7 +74,8 @@ func (c *Reader) Read(p []byte) (n int, err error) {
 		backoff = time.Second
 		nFails = 0
 
-		n2, err := c.buf.Read(p[n:])
+		var n2 int
+		n2, err = c.buf.Read(p[n:])
 		n += n2
 	}
 
