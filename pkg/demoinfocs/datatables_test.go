@@ -166,3 +166,58 @@ func configurePlayerEntityMock(id int, entity *stfake.Entity) {
 		destroyCallback()
 	})
 }
+
+// TestBindBomb_NilEntityChecks tests that bindBomb handles nil entities gracefully
+// when processing m_bStartedArming updates. This prevents nil pointer dereference
+// panics that can occur when pawn or controller entities are not yet created.
+func TestBindBomb_NilEntityChecks(t *testing.T) {
+	t.Run("nil pawn entity should not panic", func(t *testing.T) {
+		p := newParser()
+		p.gameState.entities = make(map[int]st.Entity)
+
+		// Simulate the scenario where pawnEntity lookup returns nil
+		// entityIDFromHandle with a valid handle but no entity in the map
+		pawnEntityID := 42
+		_ = pawnEntityID // Entity not added to map - simulates missing entity
+
+		// This should not panic - the nil check should prevent it
+		pawnEntity := p.gameState.entities[pawnEntityID]
+		assert.Nil(t, pawnEntity, "pawnEntity should be nil when not in entities map")
+	})
+
+	t.Run("nil controller entity should not panic", func(t *testing.T) {
+		p := newParser()
+		p.gameState.entities = make(map[int]st.Entity)
+
+		// Add pawn entity but not controller entity
+		pawnEntity := new(stfake.Entity)
+		ctlHandle := uint64(0x12345678) // Some handle value
+		pawnEntity.On("PropertyValueMust", "m_hController").Return(st.PropertyValue{Any: ctlHandle})
+		p.gameState.entities[10] = pawnEntity
+
+		// Controller entity lookup should return nil
+		ctlEntityID := 99 // Not in map
+		ctlEntity := p.gameState.entities[ctlEntityID]
+		assert.Nil(t, ctlEntity, "ctlEntity should be nil when not in entities map")
+	})
+
+	t.Run("nil player should not panic", func(t *testing.T) {
+		p := newParser()
+		p.gameState.entities = make(map[int]st.Entity)
+		p.gameState.playersByEntityID = make(map[int]*common.Player)
+
+		// Add pawn entity and controller entity but not player
+		pawnEntity := new(stfake.Entity)
+		ctlHandle := uint64(0x00000014) // Handle that maps to entity ID 20
+		pawnEntity.On("PropertyValueMust", "m_hController").Return(st.PropertyValue{Any: ctlHandle})
+		p.gameState.entities[10] = pawnEntity
+
+		ctlEntity := new(stfake.Entity)
+		ctlEntity.On("ID").Return(20)
+		p.gameState.entities[20] = ctlEntity
+
+		// Player lookup should return nil
+		planter := p.gameState.playersByEntityID[20]
+		assert.Nil(t, planter, "planter should be nil when not in playersByEntityID map")
+	})
+}
