@@ -1,3 +1,4 @@
+// Package main provides a parser and printer of the time left on the bomb when it is defused
 package main
 
 import (
@@ -34,14 +35,14 @@ func main() {
 	round := 0
 	bombTimer := 40 * time.Second
 
-	p.RegisterEventHandler(func(e events.MatchStart) {
+	p.RegisterEventHandler(func(events.MatchStart) {
 		customBombTimer, err := p.GameState().Rules().BombTime()
 		if err == nil {
 			bombTimer = customBombTimer
 		}
 	})
 
-	p.RegisterEventHandler(func(e events.RoundStart) {
+	p.RegisterEventHandler(func(events.RoundStart) {
 		round++
 	})
 
@@ -55,7 +56,6 @@ func main() {
 	})
 
 	p.RegisterEventHandler(func(e events.BombDefused) {
-
 		if lastPlant == nil {
 			fmt.Fprintf(os.Stderr, "Internal error, defuse event before any plant event at round %d\n", round)
 			return
@@ -75,16 +75,15 @@ func main() {
 
 		currentTime := p.CurrentTime()
 
-		bomb_remaining_time := bombTimer - (currentTime - lastPlant.time)
+		bombRemainingTime := bombTimer - (currentTime - lastPlant.time)
 
 		fmt.Println("> Round", round, "/ Site", string(lastPlant.site))
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 		fmt.Fprintf(w, "Bomb planted by %s\t [%v]\n", lastPlant.player, lastPlant.time)
 		fmt.Fprintf(w, "Bomb defused by %s\t [%v]\n", e.Player, currentTime)
-		w.Flush()
-		fmt.Printf("Time remaining on the bomb: %.2f seconds\n", bomb_remaining_time.Seconds())
+		_ = w.Flush()
+		fmt.Printf("Time remaining on the bomb: %.2f seconds\n", bombRemainingTime.Seconds())
 		fmt.Println("")
-
 	})
 
 	// Parse to end

@@ -2,10 +2,11 @@ package main
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestScores(t *testing.T) {
@@ -22,12 +23,12 @@ func TestScores(t *testing.T) {
 
 	main()
 
-	outWriter.Close()
-	errWriter.Close()
+	_ = outWriter.Close()
+	_ = errWriter.Close()
 
 	var stdoutBuf, stderrBuf bytes.Buffer
-	io.Copy(&stdoutBuf, outReader)
-	io.Copy(&stderrBuf, errReader)
+	_, _ = io.Copy(&stdoutBuf, outReader)
+	_, _ = io.Copy(&stderrBuf, errReader)
 
 	expected := `> Round 4 / Site B
 Bomb planted by Twister    [6m29.593759744s]
