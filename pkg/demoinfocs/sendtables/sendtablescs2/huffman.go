@@ -4,6 +4,47 @@ import (
 	"container/heap"
 )
 
+// fpHuffNode is a node in a flat, array-backed huffman tree.
+// When left == -1, the node is a leaf and value holds the op index.
+// When left >= 0, the node is internal and left/right hold child indices.
+type fpHuffNode struct {
+	left  int16
+	right int16
+	value int16
+}
+
+// fpHuffNodes is the pre-built flat huffman tree used by readFieldPaths.
+// The root is always at index 0.
+var fpHuffNodes []fpHuffNode
+
+func init() {
+	fpHuffNodes = buildFlatHuffmanTree(newHuffmanTree())
+}
+
+// buildFlatHuffmanTree converts an interface-based huffman tree into a flat
+// slice representation, eliminating interface dispatch during traversal.
+// The root node is always placed at index 0 (pre-order layout).
+func buildFlatHuffmanTree(t huffmanTree) []fpHuffNode {
+	nodes := make([]fpHuffNode, 0, 128)
+	var build func(t huffmanTree) int16
+	build = func(t huffmanTree) int16 {
+		idx := int16(len(nodes))
+		nodes = append(nodes, fpHuffNode{})
+		if t.IsLeaf() {
+			nodes[idx].left = -1
+			nodes[idx].value = int16(t.Value())
+		} else {
+			leftIdx := build(t.Left())
+			rightIdx := build(t.Right())
+			nodes[idx].left = leftIdx
+			nodes[idx].right = rightIdx
+		}
+		return idx
+	}
+	build(t)
+	return nodes
+}
+
 // Interface for the tree, only implements Weight
 type huffmanTree interface {
 	Weight() int

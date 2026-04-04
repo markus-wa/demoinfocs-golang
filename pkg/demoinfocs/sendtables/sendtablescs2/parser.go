@@ -158,6 +158,7 @@ func (p *Parser) SetInstanceBaseline(scID int, data []byte) {
 func (p *Parser) ParsePacket(b []byte) error {
 	r := newReader(b)
 	buf := r.readBytes(r.readVarUint32())
+	r.release()
 
 	msg := &msg.CSVCMsg_FlattenedSerializer{}
 	if err := proto.Unmarshal(buf, msg); err != nil {

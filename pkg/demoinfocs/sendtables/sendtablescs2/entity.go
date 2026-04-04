@@ -469,6 +469,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 	}()
 
 	r := newReader(m.GetEntityData())
+	defer r.release()
 
 	var (
 		index   = int32(-1)
@@ -517,7 +518,9 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 
 				if baseline != nil {
 					// POV demos are missing some baselines?
-					e.readFields(newReader(baseline), &p.pathCache)
+					br := newReader(baseline)
+					e.readFields(br, &p.pathCache)
+					br.release()
 				}
 
 				e.readFields(r, &p.pathCache)

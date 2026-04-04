@@ -308,22 +308,20 @@ func (fp *fieldPath) release() {
 // readFieldPaths reads a new slice of fieldPath values from the given reader
 func readFieldPaths(r *reader, paths *[]*fieldPath) int {
 	fp := newFieldPath()
-	node := huffTree
 	i := 0
+	node := int16(0) // root is always index 0 in fpHuffNodes
 
 	for !fp.done {
-		var next huffmanTree
-
+		var next int16
 		if r.readBoolean() {
-			next = node.Right()
+			next = fpHuffNodes[node].right
 		} else {
-			next = node.Left()
+			next = fpHuffNodes[node].left
 		}
 
-		if next.IsLeaf() {
-			node = huffTree
-
-			fieldPathTable[next.Value()].fn(r, fp)
+		if fpHuffNodes[next].left < 0 { // leaf node
+			node = 0 // reset to root
+			fieldPathTable[fpHuffNodes[next].value].fn(r, fp)
 
 			if !fp.done {
 				if len(*paths) <= i {
@@ -332,10 +330,9 @@ func readFieldPaths(r *reader, paths *[]*fieldPath) int {
 					x := (*paths)[i]
 					x.last = fp.last
 					x.done = fp.done
-
-					copy(x.path, fp.path)
+					// Only copy the active portion of the path
+					copy(x.path[:fp.last+1], fp.path[:fp.last+1])
 				}
-
 				i++
 			}
 		} else {

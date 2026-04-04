@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math"
+	"sync"
 )
 
 // reader performs read operations against a buffer
@@ -16,9 +17,26 @@ type reader struct {
 	strBuf   []byte // reusable buffer for readString
 }
 
-// newReader creates a new reader object for the given buffer
+var readerPool = sync.Pool{
+	New: func() any { return &reader{} },
+}
+
+// newReader returns a reader for buf, reusing pooled instances where possible.
 func newReader(buf []byte) *reader {
-	return &reader{buf: buf, size: uint32(len(buf))}
+	r := readerPool.Get().(*reader)
+	r.buf = buf
+	r.size = uint32(len(buf))
+	r.pos = 0
+	r.bitVal = 0
+	r.bitCount = 0
+	// strBuf is intentionally kept to reuse its backing array
+	return r
+}
+
+// release returns the reader to the pool for reuse.
+func (r *reader) release() {
+	r.buf = nil
+	readerPool.Put(r)
 }
 
 func (r *reader) position() string {
@@ -33,17 +51,20 @@ func (r *reader) remBytes() uint32 {
 	return r.size - r.pos
 }
 
-// nextByte reads the next byte from the buffer
+// nextByte reads the next byte from the buffer.
+// The panic is in a separate noinline function so this hot path can be inlined.
 func (r *reader) nextByte() byte {
 	if r.pos >= r.size {
-		_panicf("nextByte: insufficient buffer (%d of %d)", r.pos, r.size)
+		r.nextBytePanic()
 	}
-
 	x := r.buf[r.pos]
-
 	r.pos++
-
 	return x
+}
+
+//go:noinline
+func (r *reader) nextBytePanic() {
+	_panicf("nextByte: insufficient buffer (%d of %d)", r.pos, r.size)
 }
 
 // readBits returns the uint32 value for the given number of sequential bits
