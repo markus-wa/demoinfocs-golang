@@ -27,7 +27,12 @@ type Entity struct {
 	onCreateFinished []func()
 	onDestroy        []func()
 	updateHandlers   map[string][]st.PropertyUpdateHandler
-	propCache        map[string]st.Property
+	// handlersByFP stores the same handlers indexed by field-path uint64 key
+	// (see fpFlatKey) for O(1) non-string dispatch in the hot readFields path.
+	// Only populated for paths that fit in the flat key range.
+	handlersByFP  map[uint64][]st.PropertyUpdateHandler
+	hasHandlers   bool // cached: len(updateHandlers) > 0
+	propCache     map[string]st.Property
 }
 
 func (e *Entity) ServerClass() st.ServerClass {
@@ -74,6 +79,26 @@ func (p property) Value() st.PropertyValue {
 
 func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
 	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], handler)
+	p.entity.addHandlerByFP(p.name, handler)
+	p.entity.hasHandlers = true
+}
+
+// addHandlerByFP registers handler in the fast field-path-keyed lookup table.
+// Called alongside every updateHandlers insertion so the two maps stay in sync.
+func (e *Entity) addHandlerByFP(name string, handler st.PropertyUpdateHandler) {
+	fp := newFieldPath()
+	defer fp.release()
+	if !e.class.getFieldPathForName(fp, name) {
+		return
+	}
+	key, ok := fpFlatKey(fp)
+	if !ok {
+		return
+	}
+	if e.handlersByFP == nil {
+		e.handlersByFP = make(map[uint64][]st.PropertyUpdateHandler)
+	}
+	e.handlersByFP[key] = append(e.handlersByFP[key], handler)
 }
 
 type bindFactory func(variable any) st.PropertyUpdateHandler
@@ -117,7 +142,10 @@ var bindFactoryByType = map[st.PropertyValueType]bindFactory{
 }
 
 func (p property) Bind(variable any, t st.PropertyValueType) {
-	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], bindFactoryByType[t](variable))
+	h := bindFactoryByType[t](variable)
+	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], h)
+	p.entity.addHandlerByFP(p.name, h)
+	p.entity.hasHandlers = true
 }
 
 func (e *Entity) Property(name string) st.Property {
@@ -405,15 +433,12 @@ func (p *Parser) FilterEntity(fb func(*Entity) bool) []*Entity {
 func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 	n := readFieldPaths(r, paths)
 
-	hasHandlers := len(e.updateHandlers) > 0
-
 	for _, fp := range (*paths)[:n] {
-		f := e.class.serializer.getFieldForFieldPath(fp, 0)
-		decoder, base := e.class.serializer.getDecoderForFieldPath2(fp, 0)
+		decoder, updateCollection := e.class.serializer.getDecoderAndCollection(fp, 0)
 
 		val := decoder(r)
 
-		if base && (f.model == fieldModelVariableArray || f.model == fieldModelVariableTable) {
+		if updateCollection {
 			fs := fieldState{}
 
 			oldFS, _ := e.state.get(fp).(*fieldState)
@@ -444,14 +469,27 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 			e.state.set(fp, val)
 		}
 
-		if hasHandlers {
-			name := e.class.getNameForFieldPath(fp)
-			for _, h := range e.updateHandlers[name] {
-				h(st.PropertyValue{
-					Any: val,
-				})
-			}
+		if e.hasHandlers {
+			e.dispatchUpdate(fp, val)
 		}
+	}
+}
+
+// dispatchUpdate fires any registered update handlers for the given field path.
+// Uses handlersByFP (uint64 key) when available, falling back to the string map.
+func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
+	if e.handlersByFP != nil {
+		if key, ok := fpFlatKey(fp); ok {
+			for _, h := range e.handlersByFP[key] {
+				h(st.PropertyValue{Any: val})
+			}
+			return
+		}
+	}
+	// Fallback: deep/large path — look up by name
+	name := e.class.getNameForFieldPath(fp)
+	for _, h := range e.updateHandlers[name] {
+		h(st.PropertyValue{Any: val})
 	}
 }
 

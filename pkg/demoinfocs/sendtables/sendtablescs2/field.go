@@ -238,6 +238,40 @@ func (f *field) getDecoderForFieldPath(fp *fieldPath, pos int) (fieldDecoder, bo
 	return f.decoder, false
 }
 
+// getDecoderAndCollection returns the decoder and whether this field path is a
+// variable-length collection update that requires fieldState handling.
+// This encodes the (base && variableArray|variableTable) check directly,
+// avoiding a separate getFieldForFieldPath traversal.
+func (f *field) getDecoderAndCollection(fp *fieldPath, pos int) (fieldDecoder, bool) {
+	switch f.model {
+	case fieldModelFixedArray:
+		return f.decoder, false
+
+	case fieldModelFixedTable:
+		if fp.last == pos-1 {
+			return f.baseDecoder, false // base decoder but fixed, no fieldState update
+		}
+
+		return f.serializer.getDecoderAndCollection(fp, pos)
+
+	case fieldModelVariableArray:
+		if fp.last == pos {
+			return f.childDecoder, false
+		}
+
+		return f.baseDecoder, true // variable collection update
+
+	case fieldModelVariableTable:
+		if fp.last >= pos+1 {
+			return f.serializer.getDecoderAndCollection(fp, pos+1)
+		}
+
+		return f.baseDecoder, true // variable collection update
+	}
+
+	return f.decoder, false
+}
+
 func (f *field) getFieldPathForName(fp *fieldPath, name string) bool {
 	switch f.model {
 	case fieldModelFixedArray:

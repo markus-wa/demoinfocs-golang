@@ -60,6 +60,13 @@ func (s *serializer) getDecoderForFieldPath2(fp *fieldPath, pos int) (fieldDecod
 	return s.fields[index].getDecoderForFieldPath(fp, pos+1)
 }
 
+// getDecoderAndCollection is a single-pass alternative to calling
+// getFieldForFieldPath + getDecoderForFieldPath2 separately.
+// Returns the decoder and whether this update requires fieldState handling.
+func (s *serializer) getDecoderAndCollection(fp *fieldPath, pos int) (fieldDecoder, bool) {
+	return s.fields[fp.path[pos]].getDecoderAndCollection(fp, pos+1)
+}
+
 func (s *serializer) getFieldForFieldPath(fp *fieldPath, pos int) *field {
 	return s.fields[fp.path[pos]].getFieldForFieldPath(fp, pos+1)
 }
