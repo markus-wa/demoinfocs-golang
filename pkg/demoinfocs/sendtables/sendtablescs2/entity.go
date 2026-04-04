@@ -275,7 +275,7 @@ func newEntity(index, serial int32, class *class) *Entity {
 		serial:           serial,
 		class:            class,
 		active:           true,
-		state:            newFieldState(),
+		state:            &fieldState{state: make([]any, 0, 16)},
 		fpCache:          make(map[string]*fieldPath),
 		fpNoop:           make(map[string]bool),
 		onCreateFinished: nil,
@@ -439,30 +439,43 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 		val := decoder(r)
 
 		if updateCollection {
-			fs := fieldState{}
+			newLen := val.(uint64)
 
-			oldFS, _ := e.state.get(fp).(*fieldState)
+			// Retrieve the *fieldState pointer stored on the first update.
+			// We store a pointer so we can resize in place on subsequent updates
+			// without allocating a new fieldState each time.
+			fs, _ := e.state.get(fp).(*fieldState)
 
-			if oldFS == nil {
-				fs.state = make([]any, val.(uint64))
-			}
-
-			if oldFS != nil {
-				if uint64(len(oldFS.state)) >= val.(uint64) {
-					fs.state = oldFS.state[:val.(uint64)]
-				} else {
-					if uint64(cap(oldFS.state)) >= val.(uint64) {
-						prevSize := uint64(len(oldFS.state))
-						fs.state = oldFS.state[:val.(uint64)]
-						clear(fs.state[prevSize:])
+			if fs == nil {
+				// First update: allocate once and store the pointer.
+				// Use 2× initial capacity so small incremental growths don't reallocate.
+				initCap := newLen * 2
+				if initCap < 8 {
+					initCap = 8
+				}
+				fs = &fieldState{state: make([]any, newLen, initCap)}
+				e.state.set(fp, fs)
+			} else {
+				// Subsequent updates: resize the existing slice in place.
+				curLen := uint64(len(fs.state))
+				if newLen < curLen {
+					clear(fs.state[newLen:curLen])
+					fs.state = fs.state[:newLen]
+				} else if newLen > curLen {
+					if newLen <= uint64(cap(fs.state)) {
+						fs.state = fs.state[:newLen]
 					} else {
-						fs.state = make([]any, val.(uint64))
-						copy(fs.state, oldFS.state)
+						// Exponential growth to avoid repeated reallocations.
+						newCap := uint64(cap(fs.state)) * 2
+						if newCap < newLen {
+							newCap = newLen
+						}
+						newState := make([]any, newLen, newCap)
+						copy(newState, fs.state)
+						fs.state = newState
 					}
 				}
 			}
-
-			e.state.set(fp, fs)
 
 			val = fs.state
 		} else {
