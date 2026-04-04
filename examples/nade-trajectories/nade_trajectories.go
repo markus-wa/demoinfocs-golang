@@ -9,7 +9,8 @@ import (
 	"os"
 
 	"github.com/golang/geo/r2"
-	"github.com/llgcode/draw2d/draw2dimg"
+	"github.com/tdewolff/canvas"
+	"github.com/tdewolff/canvas/renderers/rasterizer"
 
 	ex "github.com/markus-wa/demoinfocs-golang/v5/examples"
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
@@ -119,14 +120,20 @@ func main() {
 	// Draw image
 	draw.Draw(dest, dest.Bounds(), mapRadarImg, image.Point{}, draw.Src)
 
-	// Initialize the graphic context
-	gc := draw2dimg.NewGraphicContext(dest)
+	// canvas uses mm with y-up; we use DPMM(1) so 1mm = 1px.
+	// y coordinates must be flipped: canvas_y = height - image_y
+	h := float64(dest.Bounds().Dy())
+
+	ras := rasterizer.FromImage(dest, canvas.DPMM(1), canvas.SRGBColorSpace{})
+	ctx := canvas.NewContext(ras)
 
 	// Draw infernos first so they're in the background
-	drawInfernos(gc, infernosFirst5Rounds)
+	drawInfernos(ctx, infernosFirst5Rounds, h)
 
 	// Then trajectories on top of everything
-	drawTrajectories(gc, nadeTrajectoriesFirst5Rounds)
+	drawTrajectories(ctx, nadeTrajectoriesFirst5Rounds, h)
+
+	ras.Close()
 
 	// Write to standard output
 	err = jpeg.Encode(os.Stdout, dest, &jpeg.Options{
@@ -135,9 +142,9 @@ func main() {
 	checkError(err)
 }
 
-func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
+func drawInfernos(ctx *canvas.Context, infernos []*common.Inferno, h float64) {
 	// Draw areas first
-	gc.SetFillColor(colorInferno)
+	ctx.SetFillColor(colorInferno)
 
 	// Calculate hulls
 	hulls := make([][]r2.Point, len(infernos))
@@ -146,35 +153,35 @@ func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
 	}
 
 	for _, hull := range hulls {
-		buildInfernoPath(gc, hull)
-		gc.Fill()
+		buildInfernoPath(ctx, hull, h)
+		ctx.Fill()
 	}
 
 	// Then the outline
-	gc.SetStrokeColor(colorInfernoHull)
-	gc.SetLineWidth(1) // 1 px wide
+	ctx.SetFillColor(colorInferno)
+	ctx.SetStrokeColor(colorInfernoHull)
+	ctx.SetStrokeWidth(1) // 1 px wide (1mm at DPMM(1))
 
 	for _, hull := range hulls {
-		buildInfernoPath(gc, hull)
-		gc.FillStroke()
+		buildInfernoPath(ctx, hull, h)
+		ctx.FillStroke()
 	}
 }
 
-func buildInfernoPath(gc *draw2dimg.GraphicContext, vertices []r2.Point) {
+func buildInfernoPath(ctx *canvas.Context, vertices []r2.Point, h float64) {
 	xOrigin, yOrigin := curMap.TranslateScale(vertices[0].X, vertices[0].Y)
-	gc.MoveTo(xOrigin, yOrigin)
+	ctx.MoveTo(xOrigin, h-yOrigin)
 
 	for _, fire := range vertices[1:] {
 		x, y := curMap.TranslateScale(fire.X, fire.Y)
-		gc.LineTo(x, y)
+		ctx.LineTo(x, h-y)
 	}
 
-	gc.LineTo(xOrigin, yOrigin)
+	ctx.Close()
 }
 
-func drawTrajectories(gc *draw2dimg.GraphicContext, trajectories []*nadePath) {
-	gc.SetLineWidth(1)                      // 1 px lines
-	gc.SetFillColor(color.RGBA{0, 0, 0, 0}) // No fill, alpha 0
+func drawTrajectories(ctx *canvas.Context, trajectories []*nadePath, h float64) {
+	ctx.SetStrokeWidth(1) // 1 px lines (1mm at DPMM(1))
 
 	for _, np := range trajectories {
 		// Set colors
@@ -182,36 +189,36 @@ func drawTrajectories(gc *draw2dimg.GraphicContext, trajectories []*nadePath) {
 		case common.EqMolotov:
 			fallthrough
 		case common.EqIncendiary:
-			gc.SetStrokeColor(colorFireNade)
+			ctx.SetStrokeColor(colorFireNade)
 
 		case common.EqHE:
-			gc.SetStrokeColor(colorHE)
+			ctx.SetStrokeColor(colorHE)
 
 		case common.EqFlash:
-			gc.SetStrokeColor(colorFlash)
+			ctx.SetStrokeColor(colorFlash)
 
 		case common.EqSmoke:
-			gc.SetStrokeColor(colorSmoke)
+			ctx.SetStrokeColor(colorSmoke)
 
 		case common.EqDecoy:
-			gc.SetStrokeColor(colorDecoy)
+			ctx.SetStrokeColor(colorDecoy)
 
 		default:
 			// Set alpha to 0 so we don't draw unknown stuff
-			gc.SetStrokeColor(color.RGBA{0x00, 0x00, 0x00, 0x00})
+			ctx.SetStrokeColor(color.RGBA{0x00, 0x00, 0x00, 0x00})
 			fmt.Println("Unknown grenade type", np.wep)
 		}
 
 		// Draw path
 		x, y := curMap.TranslateScale(np.path[0].Position.X, np.path[0].Position.Y)
-		gc.MoveTo(x, y) // Move to a position to start the new path
+		ctx.MoveTo(x, h-y) // Move to a position to start the new path
 
 		for _, pos := range np.path[1:] {
 			x, y := curMap.TranslateScale(pos.Position.X, pos.Position.Y)
-			gc.LineTo(x, y)
+			ctx.LineTo(x, h-y)
 		}
 
-		gc.FillStroke()
+		ctx.Stroke()
 	}
 }
 
