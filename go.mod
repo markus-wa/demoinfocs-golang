@@ -13,7 +13,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.11.1
-	github.com/tdewolff/canvas v0.0.0-20260320214313-adbce01b5307
+	github.com/tdewolff/canvas v0.0.0-20251012115302-87c9279171b6
 	golang.org/x/exp v0.0.0-20251017212417-90e834f514db
 	google.golang.org/protobuf v1.36.4
 )
@@ -32,15 +32,13 @@ require (
 	github.com/go-fonts/latin-modern v0.3.3 // indirect
 	github.com/go-text/typesetting v0.3.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
 	github.com/srwiley/scanx v0.0.0-20190309010443-e94503791388 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/tdewolff/font v0.0.0-20260129132752-ab952538a56d // indirect
+	github.com/tdewolff/font v0.0.0-20250430140153-b654fd8acba3 // indirect
 	github.com/tdewolff/minify/v2 v2.24.4 // indirect
 	github.com/tdewolff/parse/v2 v2.8.5 // indirect
-	github.com/yuin/goldmark v1.7.13 // indirect
 	golang.org/x/image v0.35.0 // indirect
 	golang.org/x/net v0.46.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
@@ -50,4 +48,4 @@ require (
 	star-tex.org/x/tex v0.7.1 // indirect
 )
 
-go 1.25
+go 1.24.0
