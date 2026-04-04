@@ -30,12 +30,12 @@ type PropertyValue struct {
 }
 
 func (v PropertyValue) R3Vec() r3.Vector {
-	fs := v.Any.([]float32)
-
-	return r3.Vector{
-		X: float64(fs[0]),
-		Y: float64(fs[1]),
-		Z: float64(fs[2]),
+	switch fs := v.Any.(type) {
+	case [3]float32:
+		return r3.Vector{X: float64(fs[0]), Y: float64(fs[1]), Z: float64(fs[2])}
+	default:
+		sl := v.Any.([]float32)
+		return r3.Vector{X: float64(sl[0]), Y: float64(sl[1]), Z: float64(sl[2])}
 	}
 }
 
@@ -43,13 +43,12 @@ func (v PropertyValue) R3VecOrNil() *r3.Vector {
 	if v.Any == nil {
 		return nil
 	}
-
-	fs := v.Any.([]float32)
-
-	return &r3.Vector{
-		X: float64(fs[0]),
-		Y: float64(fs[1]),
-		Z: float64(fs[2]),
+	switch fs := v.Any.(type) {
+	case [3]float32:
+		return &r3.Vector{X: float64(fs[0]), Y: float64(fs[1]), Z: float64(fs[2])}
+	default:
+		sl := v.Any.([]float32)
+		return &r3.Vector{X: float64(sl[0]), Y: float64(sl[1]), Z: float64(sl[2])}
 	}
 }
 

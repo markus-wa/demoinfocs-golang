@@ -7,6 +7,12 @@ import (
 	"sync"
 )
 
+// f32CacheEntry caches a pre-boxed interface{} for a given float32 bit pattern.
+type f32CacheEntry struct {
+	bits  uint32
+	boxed interface{}
+}
+
 // reader performs read operations against a buffer
 type reader struct {
 	buf      []byte
@@ -15,6 +21,26 @@ type reader struct {
 	bitVal   uint64 // value of the remaining bits in the current byte
 	bitCount uint32 // number of remaining bits in the current byte
 	strBuf   []byte // reusable buffer for readString
+	// f32Cache is a direct-mapped cache of pre-boxed float32 interface{} values.
+	// Indexed by (bits & f32CacheMask); same bits == same float32 value so reuse is safe.
+	// Retained across pool reuse to maximise hit rate; no reset needed on newReader.
+	f32Cache [512]f32CacheEntry
+}
+
+const f32CacheMask = uint32(512 - 1) // must match f32Cache array size
+
+// cachedFloat32 returns a pre-boxed interface{} for the given float32 bit pattern,
+// allocating and caching on miss. Zero is handled by the caller where possible.
+func (r *reader) cachedFloat32(bits uint32) interface{} {
+	idx := bits & f32CacheMask
+	e := &r.f32Cache[idx]
+	if e.bits == bits && e.boxed != nil {
+		return e.boxed
+	}
+	v := interface{}(math.Float32frombits(bits))
+	e.bits = bits
+	e.boxed = v
+	return v
 }
 
 var readerPool = sync.Pool{
@@ -316,8 +342,8 @@ func (r *reader) readNormal() float32 {
 }
 
 // read3BitNormal reads a normalized float vector
-func (r *reader) read3BitNormal() []float32 {
-	ret := []float32{0.0, 0.0, 0.0}
+func (r *reader) read3BitNormal() [3]float32 {
+	var ret [3]float32
 
 	hasX := r.readBoolean()
 	hasY := r.readBoolean()
