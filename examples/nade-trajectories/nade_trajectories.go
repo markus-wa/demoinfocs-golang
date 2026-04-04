@@ -9,8 +9,7 @@ import (
 	"os"
 
 	"github.com/golang/geo/r2"
-	"github.com/tdewolff/canvas"
-	"github.com/tdewolff/canvas/renderers/rasterizer"
+	"github.com/llgcode/draw2d/draw2dimg"
 
 	ex "github.com/markus-wa/demoinfocs-golang/v5/examples"
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
@@ -26,13 +25,13 @@ type nadePath struct {
 }
 
 var (
-	colorFireNade    color.Color = color.RGBA{0xff, 0x44, 0x44, 0xff} // Red
-	colorInferno     color.Color = color.RGBA{0xff, 0x88, 0x00, 0xb4} // Orange, semi-transparent
-	colorInfernoHull color.Color = color.RGBA{0xff, 0xdd, 0x00, 0xe0} // Yellow
-	colorHE          color.Color = color.RGBA{0x44, 0xff, 0x44, 0xff} // Green
-	colorFlash       color.Color = color.RGBA{0x44, 0x88, 0xff, 0xff} // Blue
-	colorSmoke       color.Color = color.RGBA{0xcc, 0xcc, 0xcc, 0xff} // Light gray
-	colorDecoy       color.Color = color.RGBA{0xaa, 0x66, 0x22, 0xff} // Brown
+	colorFireNade    color.Color = color.RGBA{0xff, 0x00, 0x00, 0xff} // Red
+	colorInferno     color.Color = color.RGBA{0xff, 0xa5, 0x00, 0xff} // Orange
+	colorInfernoHull color.Color = color.RGBA{0xff, 0xff, 0x00, 0xff} // Yellow
+	colorHE          color.Color = color.RGBA{0x00, 0xff, 0x00, 0xff} // Green
+	colorFlash       color.Color = color.RGBA{0x00, 0x00, 0xff, 0xff} // Blue, because of the color on the nade
+	colorSmoke       color.Color = color.RGBA{0xbe, 0xbe, 0xbe, 0xff} // Light gray
+	colorDecoy       color.Color = color.RGBA{0x96, 0x4b, 0x00, 0xff} // Brown, because it's shit :)
 )
 
 // Store the curret map so we don't have to pass it to functions
@@ -120,23 +119,14 @@ func main() {
 	// Draw image
 	draw.Draw(dest, dest.Bounds(), mapRadarImg, image.Point{}, draw.Src)
 
-	// canvas uses mm with y-up; we use DPMM(1) so 1mm = 1px.
-	// y coordinates must be flipped: canvas_y = height - image_y
-	h := float64(dest.Bounds().Dy())
-
-	ras := rasterizer.FromImage(dest, canvas.DPMM(1), canvas.SRGBColorSpace{})
-	ctx := canvas.NewContext(ras)
-
-	ctx.SetStrokeCapper(canvas.RoundCap)
-	ctx.SetStrokeJoiner(canvas.RoundJoin)
+	// Initialize the graphic context
+	gc := draw2dimg.NewGraphicContext(dest)
 
 	// Draw infernos first so they're in the background
-	drawInfernos(ctx, infernosFirst5Rounds, h)
+	drawInfernos(gc, infernosFirst5Rounds)
 
 	// Then trajectories on top of everything
-	drawTrajectories(ctx, nadeTrajectoriesFirst5Rounds, h)
-
-	ras.Close()
+	drawTrajectories(gc, nadeTrajectoriesFirst5Rounds)
 
 	// Write to standard output
 	err = jpeg.Encode(os.Stdout, dest, &jpeg.Options{
@@ -145,109 +135,83 @@ func main() {
 	checkError(err)
 }
 
-// withAlpha returns the color with the alpha channel replaced.
-func withAlpha(c color.Color, a uint8) color.RGBA {
-	r, g, b, _ := c.RGBA()
-	return color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), a}
-}
+func drawInfernos(gc *draw2dimg.GraphicContext, infernos []*common.Inferno) {
+	// Draw areas first
+	gc.SetFillColor(colorInferno)
 
-func drawInfernos(ctx *canvas.Context, infernos []*common.Inferno, h float64) {
 	// Calculate hulls
 	hulls := make([][]r2.Point, len(infernos))
 	for i := range infernos {
 		hulls[i] = infernos[i].Fires().ConvexHull2D()
 	}
 
-	// Soft glow halo around each inferno
-	ctx.SetFillColor(withAlpha(colorInferno, 40))
-	ctx.SetStrokeColor(withAlpha(colorInfernoHull, 0))
-	ctx.SetStrokeWidth(6)
 	for _, hull := range hulls {
-		buildInfernoPath(ctx, hull, h)
-		ctx.Fill()
+		buildInfernoPath(gc, hull)
+		gc.Fill()
 	}
 
-	// Semi-transparent fill
-	ctx.SetFillColor(colorInferno) // already has alpha 0xb4
-	ctx.SetStrokeColor(colorInfernoHull)
-	ctx.SetStrokeWidth(1.5)
+	// Then the outline
+	gc.SetStrokeColor(colorInfernoHull)
+	gc.SetLineWidth(1) // 1 px wide
+
 	for _, hull := range hulls {
-		buildInfernoPath(ctx, hull, h)
-		ctx.FillStroke()
+		buildInfernoPath(gc, hull)
+		gc.FillStroke()
 	}
 }
 
-func buildInfernoPath(ctx *canvas.Context, vertices []r2.Point, h float64) {
+func buildInfernoPath(gc *draw2dimg.GraphicContext, vertices []r2.Point) {
 	xOrigin, yOrigin := curMap.TranslateScale(vertices[0].X, vertices[0].Y)
-	ctx.MoveTo(xOrigin, h-yOrigin)
+	gc.MoveTo(xOrigin, yOrigin)
 
 	for _, fire := range vertices[1:] {
 		x, y := curMap.TranslateScale(fire.X, fire.Y)
-		ctx.LineTo(x, h-y)
+		gc.LineTo(x, y)
 	}
 
-	ctx.Close()
+	gc.LineTo(xOrigin, yOrigin)
 }
 
-func drawTrajectories(ctx *canvas.Context, trajectories []*nadePath, h float64) {
+func drawTrajectories(gc *draw2dimg.GraphicContext, trajectories []*nadePath) {
+	gc.SetLineWidth(1)                      // 1 px lines
+	gc.SetFillColor(color.RGBA{0, 0, 0, 0}) // No fill, alpha 0
+
 	for _, np := range trajectories {
-		var col color.Color
-
+		// Set colors
 		switch np.wep {
-		case common.EqMolotov, common.EqIncendiary:
-			col = colorFireNade
+		case common.EqMolotov:
+			fallthrough
+		case common.EqIncendiary:
+			gc.SetStrokeColor(colorFireNade)
+
 		case common.EqHE:
-			col = colorHE
+			gc.SetStrokeColor(colorHE)
+
 		case common.EqFlash:
-			col = colorFlash
+			gc.SetStrokeColor(colorFlash)
+
 		case common.EqSmoke:
-			col = colorSmoke
+			gc.SetStrokeColor(colorSmoke)
+
 		case common.EqDecoy:
-			col = colorDecoy
+			gc.SetStrokeColor(colorDecoy)
+
 		default:
+			// Set alpha to 0 so we don't draw unknown stuff
+			gc.SetStrokeColor(color.RGBA{0x00, 0x00, 0x00, 0x00})
 			fmt.Println("Unknown grenade type", np.wep)
-			continue
 		}
 
-		buildTrajPath := func() {
-			x, y := curMap.TranslateScale(np.path[0].Position.X, np.path[0].Position.Y)
-			ctx.MoveTo(x, h-y)
-			for _, pos := range np.path[1:] {
-				x, y := curMap.TranslateScale(pos.Position.X, pos.Position.Y)
-				ctx.LineTo(x, h-y)
-			}
+		// Draw path
+		x, y := curMap.TranslateScale(np.path[0].Position.X, np.path[0].Position.Y)
+		gc.MoveTo(x, y) // Move to a position to start the new path
+
+		for _, pos := range np.path[1:] {
+			x, y := curMap.TranslateScale(pos.Position.X, pos.Position.Y)
+			gc.LineTo(x, y)
 		}
 
-		// Outer glow pass
-		ctx.SetStrokeColor(withAlpha(col, 55))
-		ctx.SetStrokeWidth(5)
-		buildTrajPath()
-		ctx.Stroke()
-
-		// Inner glow pass
-		ctx.SetStrokeColor(withAlpha(col, 130))
-		ctx.SetStrokeWidth(2)
-		buildTrajPath()
-		ctx.Stroke()
-
-		// Crisp core line
-		ctx.SetStrokeColor(withAlpha(col, 230))
-		ctx.SetStrokeWidth(1)
-		buildTrajPath()
-		ctx.Stroke()
-
-		// Dot at throw origin
-		first := np.path[0]
-		x0, y0 := curMap.TranslateScale(first.Position.X, first.Position.Y)
-		ctx.SetFillColor(withAlpha(col, 200))
-		ctx.SetStrokeColor(color.RGBA{0, 0, 0, 0})
-		ctx.DrawPath(x0, h-y0, canvas.Circle(3))
-
-		// Dot at landing point
-		last := np.path[len(np.path)-1]
-		x1, y1 := curMap.TranslateScale(last.Position.X, last.Position.Y)
-		ctx.SetFillColor(withAlpha(col, 255))
-		ctx.DrawPath(x1, h-y1, canvas.Circle(4))
+		gc.FillStroke()
 	}
 }
 
