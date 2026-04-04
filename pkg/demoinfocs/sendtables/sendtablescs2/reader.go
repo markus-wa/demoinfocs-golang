@@ -32,7 +32,9 @@ const f32CacheMask = uint32(512 - 1) // must match f32Cache array size
 // cachedFloat32 returns a pre-boxed interface{} for the given float32 bit pattern,
 // allocating and caching on miss. Zero is handled by the caller where possible.
 func (r *reader) cachedFloat32(bits uint32) interface{} {
-	idx := bits & f32CacheMask
+	// Mix high bits (exponent+sign) into the index to reduce collisions for
+	// clusters of similar values (e.g., nearby positions, velocities).
+	idx := (bits ^ (bits >> 16)) & f32CacheMask
 	e := &r.f32Cache[idx]
 	if e.bits == bits && e.boxed != nil {
 		return e.boxed
