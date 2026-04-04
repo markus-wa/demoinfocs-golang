@@ -135,7 +135,8 @@ func (p *Parser) OnDemoClassInfo(m *msg.CDemoClassInfo) error {
 			classId:    classId,
 			name:       networkName,
 			serializer: p.serializers[networkName],
-			fpNameCache: &fpNameTreeCache{},
+			fpNameCache:  &fpNameTreeCache{},
+			fpFlatCache:  make(map[uint64]string),
 		}
 		p.classesById[class.classId] = class
 		p.classesByName[class.name] = class

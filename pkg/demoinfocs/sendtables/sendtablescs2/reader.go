@@ -179,9 +179,28 @@ func (r *reader) readVarInt64() int64 {
 	return x
 }
 
-// readBoolean reads and interprets single bit as true or false
+// readBoolean reads and interprets a single bit as true or false.
+// Implemented as a direct bit extraction rather than calling readBits(1)
+// so that this hot function can be inlined by the compiler.
+// The refill is extracted into a noinline helper to keep the budget low.
 func (r *reader) readBoolean() bool {
-	return r.readBits(1) == 1
+	if r.bitCount == 0 {
+		r.refillByte()
+	}
+	b := r.bitVal&1 == 1
+	r.bitVal >>= 1
+	r.bitCount--
+	return b
+}
+
+//go:noinline
+func (r *reader) refillByte() {
+	if r.pos >= r.size {
+		r.nextBytePanic()
+	}
+	r.bitVal = uint64(r.buf[r.pos])
+	r.pos++
+	r.bitCount = 8
 }
 
 // readFloat reads an IEEE 754 float
