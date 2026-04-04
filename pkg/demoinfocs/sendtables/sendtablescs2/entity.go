@@ -405,9 +405,10 @@ func (p *Parser) FilterEntity(fb func(*Entity) bool) []*Entity {
 func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 	n := readFieldPaths(r, paths)
 
+	hasHandlers := len(e.updateHandlers) > 0
+
 	for _, fp := range (*paths)[:n] {
 		f := e.class.serializer.getFieldForFieldPath(fp, 0)
-		name := e.class.getNameForFieldPath(fp)
 		decoder, base := e.class.serializer.getDecoderForFieldPath2(fp, 0)
 
 		val := decoder(r)
@@ -443,10 +444,13 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 			e.state.set(fp, val)
 		}
 
-		for _, h := range e.updateHandlers[name] {
-			h(st.PropertyValue{
-				Any: val,
-			})
+		if hasHandlers {
+			name := e.class.getNameForFieldPath(fp)
+			for _, h := range e.updateHandlers[name] {
+				h(st.PropertyValue{
+					Any: val,
+				})
+			}
 		}
 	}
 }

@@ -6,7 +6,7 @@ type fieldState struct {
 
 func newFieldState() *fieldState {
 	return &fieldState{
-		state: make([]any, 8),
+		state: make([]any, 8, 64),
 	}
 }
 

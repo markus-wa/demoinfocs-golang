@@ -8,7 +8,7 @@ import (
 )
 
 type fpNameTreeCache struct {
-	next map[int]*fpNameTreeCache
+	next []*fpNameTreeCache
 	name string
 }
 
@@ -65,17 +65,27 @@ func (c *class) getNameForFieldPath(fp *fieldPath) string {
 	currentCacheNode := c.fpNameCache
 
 	for i := 0; i <= fp.last; i++ {
-		if currentCacheNode.next == nil {
-			currentCacheNode.next = make(map[int]*fpNameTreeCache)
+		pos := fp.path[i]
+
+		if pos >= len(currentCacheNode.next) {
+			needed := pos + 1
+			if cap(currentCacheNode.next) >= needed {
+				currentCacheNode.next = currentCacheNode.next[:needed]
+			} else {
+				newCap := needed * 2
+				if newCap < 8 {
+					newCap = 8
+				}
+				newNext := make([]*fpNameTreeCache, needed, newCap)
+				copy(newNext, currentCacheNode.next)
+				currentCacheNode.next = newNext
+			}
 		}
 
-		pos := fp.path[i]
-		next, exists := currentCacheNode.next[pos]
-		if !exists {
-			next = &fpNameTreeCache{}
-			currentCacheNode.next[pos] = next
+		if currentCacheNode.next[pos] == nil {
+			currentCacheNode.next[pos] = &fpNameTreeCache{}
 		}
-		currentCacheNode = next
+		currentCacheNode = currentCacheNode.next[pos]
 	}
 
 	if currentCacheNode.name == "" {

@@ -13,11 +13,12 @@ type reader struct {
 	pos      uint32
 	bitVal   uint64 // value of the remaining bits in the current byte
 	bitCount uint32 // number of remaining bits in the current byte
+	strBuf   []byte // reusable buffer for readString
 }
 
 // newReader creates a new reader object for the given buffer
 func newReader(buf []byte) *reader {
-	return &reader{buf, uint32(len(buf)), 0, 0, 0}
+	return &reader{buf: buf, size: uint32(len(buf))}
 }
 
 func (r *reader) position() string {
@@ -214,16 +215,16 @@ func (r *reader) readStringN(n uint32) string {
 
 // readString reads a null terminated string
 func (r *reader) readString() string {
-	buf := make([]byte, 0)
+	r.strBuf = r.strBuf[:0]
 	for {
 		b := r.readByte()
 		if b == 0 {
 			break
 		}
-		buf = append(buf, b)
+		r.strBuf = append(r.strBuf, b)
 	}
 
-	return string(buf)
+	return string(r.strBuf)
 }
 
 // readCoord reads a coord as a float32
