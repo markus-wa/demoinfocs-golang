@@ -148,7 +148,7 @@ func NewReader(baseUrl string, timeout time.Duration) (*Reader, error) {
 		baseUrl: baseUrl,
 		sync:    s,
 		buf:     buf,
-		frag:    s.Fragment + 1,
+		frag:    s.Fragment,
 		timeout: timeout,
 	}, nil
 }
