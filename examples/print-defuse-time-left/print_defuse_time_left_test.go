@@ -9,10 +9,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestScores(t *testing.T) {
+func TestDefuseTimeLeft(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test")
 	}
+
+	// original values to be restored at the end
+	oldArgs := os.Args
+	oldStdout := os.Stdout
+	oldStderr := os.Stderr
+
+	defer func() {
+		os.Args = oldArgs
+		os.Stdout = oldStdout
+		os.Stderr = oldStderr
+	}()
 
 	os.Args = []string{"cmd", "-demo", "../../test/cs-demos/s2/s2.dem"}
 
