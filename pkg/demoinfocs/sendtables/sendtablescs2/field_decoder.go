@@ -100,6 +100,8 @@ var fieldTypeDecoders = map[string]fieldDecoder{
 	"CGameSceneNodeHandle": unsignedDecoder,
 	"CStrongHandle":        unsignedDecoder,
 
+	"CUtlBinaryBlock": binaryBlockDecoder,
+
 	/*
 		/// some commmon stufff
 		DemoSimpleEncoders_t { m_Name = "HSequence"								m_VarType = "NET_DATA_TYPE_INT64" },
@@ -306,6 +308,11 @@ func booleanDecoder(r *reader) interface{} {
 
 func stringDecoder(r *reader) interface{} {
 	return r.readString()
+}
+
+func binaryBlockDecoder(r *reader) interface{} {
+	n := r.readVarUint32()
+	return r.readBytes(n)
 }
 
 func defaultDecoder(r *reader) interface{} {
