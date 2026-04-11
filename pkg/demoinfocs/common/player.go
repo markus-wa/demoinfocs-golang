@@ -419,6 +419,21 @@ func (p *Player) Position() r3.Vector {
 	return r3.Vector{}
 }
 
+// PositionEyes returns the in-game coordinates at the player's eye position.
+func (p *Player) PositionEyes() r3.Vector {
+	pos := p.Position()
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity == nil {
+		return pos
+	}
+
+	return pos.Add(r3.Vector{
+		X: float64(getFloat(pawnEntity, "m_vecX")),
+		Y: float64(getFloat(pawnEntity, "m_vecY")),
+		Z: float64(getFloat(pawnEntity, "m_vecZ")),
+	})
+}
+
 // see https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/public/const.h#L146-L188
 const (
 	flOnGround = 1 << iota
