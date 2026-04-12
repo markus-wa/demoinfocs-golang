@@ -419,20 +419,38 @@ func (p *Player) Position() r3.Vector {
 	return r3.Vector{}
 }
 
-// PositionEyes returns the in-game coordinates at the player's eye position.
+// PositionEyes returns the best available in-game coordinates for the player's eye position.
+//
+// When a player pawn exists and CS2 eye-offset fields are available, it returns the pawn base
+// position plus the eye offset. When the pawn exists but the eye-offset fields are unavailable,
+// it falls back to the pawn base position. When there is no pawn, it returns the zero vector.
+//
+// See also PositionEyesOK().
 func (p *Player) PositionEyes() r3.Vector {
+	pos, _ := p.PositionEyesOK()
+
+	return pos
+}
+
+// PositionEyesOK returns the best available in-game coordinates for the player's eye position
+// and whether the CS2 eye-offset fields were available.
+//
+// The bool result is true only when the returned vector includes the pawn eye offset. If the pawn
+// exists but the eye-offset fields are unavailable, the returned vector is the pawn base position
+// and the bool result is false. If there is no pawn, it returns the zero vector and false.
+func (p *Player) PositionEyesOK() (r3.Vector, bool) {
 	pawnEntity := p.PlayerPawnEntity()
 	if pawnEntity == nil {
-		return r3.Vector{}
+		return r3.Vector{}, false
 	}
 
 	pos := pawnEntity.Position()
 	offset, ok := eyePositionOffset(pawnEntity)
 	if !ok {
-		return pos
+		return pos, false
 	}
 
-	return pos.Add(offset)
+	return pos.Add(offset), true
 }
 
 func eyePositionOffset(entity st.Entity) (r3.Vector, bool) {
