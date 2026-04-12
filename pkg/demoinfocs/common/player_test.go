@@ -265,6 +265,30 @@ func TestPlayer_IsDucking(t *testing.T) {
 	assert.False(t, pl.IsUnDuckingInProgress())
 }
 
+func TestPlayer_PositionEyes(t *testing.T) {
+	basePosition := r3.Vector{X: 120.5, Y: -33.25, Z: 14}
+	pl := playerWithPawnPositionAndProperties(basePosition, []fakeProp{
+		{propName: "m_vecX", value: st.PropertyValue{Any: float32(1.5)}},
+		{propName: "m_vecY", value: st.PropertyValue{Any: float32(-2.25)}},
+		{propName: "m_vecZ", value: st.PropertyValue{Any: float32(64)}},
+	})
+
+	assert.Equal(t, r3.Vector{X: 122, Y: -35.5, Z: 78}, pl.PositionEyes())
+}
+
+func TestPlayer_PositionEyes_FallsBackToPositionWhenOffsetUnavailable(t *testing.T) {
+	basePosition := r3.Vector{X: -10, Y: 5, Z: 42}
+	pl := playerWithPawnPositionAndProperties(basePosition, []fakeProp{
+		{propName: "m_vecX", value: st.PropertyValue{Any: float32(0)}},
+		{propName: "m_vecY", value: st.PropertyValue{Any: float32(0)}},
+		{propName: "m_vecZ", value: st.PropertyValue{Any: nil}},
+	})
+
+	assert.NotPanics(t, func() {
+		assert.Equal(t, basePosition, pl.PositionEyes())
+	})
+}
+
 func TestPlayerFlags_OnGround(t *testing.T) {
 	pl := playerWithPawnProperty("m_fFlags", st.PropertyValue{Any: uint64(0)})
 
@@ -518,4 +542,22 @@ func playerWithPawnProperty(propName string, value st.PropertyValue) *Player {
 		propName: propName,
 		value:    value,
 	}})
+}
+
+func playerWithPawnPositionAndProperties(pos r3.Vector, props []fakeProp) *Player {
+	h := uint64(1)
+	pawnEntity := entityWithProperties(props)
+	pawnEntity.On("Position").Return(pos)
+
+	return &Player{
+		Entity: entityWithProperties([]fakeProp{
+			{propName: "m_hPawn", value: st.PropertyValue{Any: h}},
+			{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: h}},
+		}),
+		demoInfoProvider: demoInfoProviderMock{
+			entitiesByHandle: map[uint64]st.Entity{
+				h: pawnEntity,
+			},
+		},
+	}
 }
