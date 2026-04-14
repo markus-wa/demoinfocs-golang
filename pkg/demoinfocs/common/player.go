@@ -432,7 +432,7 @@ func (p *Player) PositionEyes() (r3.Vector, bool) {
 	}
 
 	pos := pawnEntity.Position()
-	offset, ok := p.eyePositionOffset()
+	offset, ok := p.eyePositionOffset(pawnEntity)
 	if !ok {
 		return pos, false
 	}
@@ -440,8 +440,7 @@ func (p *Player) PositionEyes() (r3.Vector, bool) {
 	return pos.Add(offset), true
 }
 
-func (p *Player) eyePositionOffset() (r3.Vector, bool) {
-	pawnEntity := p.PlayerPawnEntity()
+func (p *Player) eyePositionOffset(pawnEntity st.Entity) (r3.Vector, bool) {
 	x, ok := getFloatIfExists(pawnEntity, "m_vecX")
 	if !ok {
 		return r3.Vector{}, false
