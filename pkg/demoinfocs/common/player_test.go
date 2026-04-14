@@ -273,10 +273,9 @@ func TestPlayer_PositionEyes(t *testing.T) {
 		{propName: "m_vecZ", value: st.PropertyValue{Any: float32(64)}},
 	})
 
-	pos, ok := pl.PositionEyesOK()
+	pos, ok := pl.PositionEyes()
 	assert.True(t, ok)
 	assert.Equal(t, r3.Vector{X: 122, Y: -35.5, Z: 78}, pos)
-	assert.Equal(t, r3.Vector{X: 122, Y: -35.5, Z: 78}, pl.PositionEyes())
 }
 
 func TestPlayer_PositionEyes_FallsBackToPositionWhenOffsetUnavailable(t *testing.T) {
@@ -288,10 +287,9 @@ func TestPlayer_PositionEyes_FallsBackToPositionWhenOffsetUnavailable(t *testing
 	})
 
 	assert.NotPanics(t, func() {
-		pos, ok := pl.PositionEyesOK()
+		pos, ok := pl.PositionEyes()
 		assert.False(t, ok)
 		assert.Equal(t, basePosition, pos)
-		assert.Equal(t, basePosition, pl.PositionEyes())
 	})
 }
 
@@ -299,10 +297,9 @@ func TestPlayer_PositionEyes_WithNilPawn_ReturnsZeroVector(t *testing.T) {
 	pl := &Player{}
 
 	assert.NotPanics(t, func() {
-		pos, ok := pl.PositionEyesOK()
+		pos, ok := pl.PositionEyes()
 		assert.False(t, ok)
 		assert.Equal(t, r3.Vector{}, pos)
-		assert.Equal(t, r3.Vector{}, pl.PositionEyes())
 	})
 }
 
