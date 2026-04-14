@@ -432,7 +432,7 @@ func (p *Player) PositionEyes() (r3.Vector, bool) {
 	}
 
 	pos := pawnEntity.Position()
-	offset, ok := eyePositionOffset(pawnEntity)
+	offset, ok := p.eyePositionOffset()
 	if !ok {
 		return pos, false
 	}
@@ -440,18 +440,19 @@ func (p *Player) PositionEyes() (r3.Vector, bool) {
 	return pos.Add(offset), true
 }
 
-func eyePositionOffset(entity st.Entity) (r3.Vector, bool) {
-	x, ok := floatProperty(entity, "m_vecX")
+func (p *Player) eyePositionOffset() (r3.Vector, bool) {
+	pawnEntity := p.PlayerPawnEntity()
+	x, ok := getFloatIfExists(pawnEntity, "m_vecX")
 	if !ok {
 		return r3.Vector{}, false
 	}
 
-	y, ok := floatProperty(entity, "m_vecY")
+	y, ok := getFloatIfExists(pawnEntity, "m_vecY")
 	if !ok {
 		return r3.Vector{}, false
 	}
 
-	z, ok := floatProperty(entity, "m_vecZ")
+	z, ok := getFloatIfExists(pawnEntity, "m_vecZ")
 	if !ok {
 		return r3.Vector{}, false
 	}
@@ -461,24 +462,6 @@ func eyePositionOffset(entity st.Entity) (r3.Vector, bool) {
 		Y: float64(y),
 		Z: float64(z),
 	}, true
-}
-
-func floatProperty(entity st.Entity, propName string) (float32, bool) {
-	if entity == nil {
-		return 0, false
-	}
-
-	value, ok := entity.PropertyValue(propName)
-	if !ok || value.Any == nil {
-		return 0, false
-	}
-
-	floatVal, ok := value.Any.(float32)
-	if !ok {
-		return 0, false
-	}
-
-	return floatVal, true
 }
 
 // see https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/public/const.h#L146-L188
