@@ -419,6 +419,50 @@ func (p *Player) Position() r3.Vector {
 	return r3.Vector{}
 }
 
+// PositionEyes returns the best available in-game coordinates for the player's eye position
+// and whether the CS2 eye-offset fields were available.
+//
+// The bool result is true only when the returned vector includes the pawn eye offset. If the pawn
+// exists but the eye-offset fields are unavailable, the returned vector is the pawn base position
+// and the bool result is false. If there is no pawn, it returns the zero vector and false.
+func (p *Player) PositionEyes() (r3.Vector, bool) {
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity == nil {
+		return r3.Vector{}, false
+	}
+
+	pos := pawnEntity.Position()
+	offset, ok := p.eyePositionOffset(pawnEntity)
+	if !ok {
+		return pos, false
+	}
+
+	return pos.Add(offset), true
+}
+
+func (p *Player) eyePositionOffset(pawnEntity st.Entity) (r3.Vector, bool) {
+	x, ok := getFloatIfExists(pawnEntity, "m_vecX")
+	if !ok {
+		return r3.Vector{}, false
+	}
+
+	y, ok := getFloatIfExists(pawnEntity, "m_vecY")
+	if !ok {
+		return r3.Vector{}, false
+	}
+
+	z, ok := getFloatIfExists(pawnEntity, "m_vecZ")
+	if !ok {
+		return r3.Vector{}, false
+	}
+
+	return r3.Vector{
+		X: float64(x),
+		Y: float64(y),
+		Z: float64(z),
+	}, true
+}
+
 // see https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/public/const.h#L146-L188
 const (
 	flOnGround = 1 << iota
