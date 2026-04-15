@@ -173,8 +173,6 @@ func (p *parser) bindBomb() {
 				return
 			}
 
-			// Mirror game_events.go:bombExploded() so empty-weapon PlayerHurt can correlate same-frame C4 damage
-			// even when BombExplode is detected from S2 props instead of mimic-source1 game events.
 			p.gameEventHandler.frameToBombExploded[p.currentFrame] = true
 			p.eventDispatcher.Dispatch(events.BombExplode{
 				BombEvent: events.BombEvent{

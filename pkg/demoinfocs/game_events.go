@@ -486,47 +486,29 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 		})
 	}
 
-	// CS2 may emit player_hurt with an empty weapon string for both world/fall damage and C4 damage.
-	// Delay only these ambiguous cases until the end of the frame so same-frame fall-damage, BombExplode,
-	// and round-end evidence is available without changing dispatch timing for known weapons.
 	if rawWeapon == "" && wepType == common.EqUnknown {
 		geh.parser.delayedEventHandlers = append(geh.parser.delayedEventHandlers, func() {
-			dispatchPlayerHurt(geh.playerHurtWeaponType(wepType, userID))
+			resolvedType := geh.attackerWeaponType(wepType, userID)
+			if resolvedType == common.EqUnknown {
+				if geh.frameToBombExploded[geh.parser.currentFrame] {
+					resolvedType = common.EqBomb
+				} else {
+					resolvedType = common.EqWorld
+				}
+			}
+
+			dispatchPlayerHurt(resolvedType)
 		})
 
 		return
 	}
 
-	dispatchPlayerHurt(geh.attackerWeaponType(wepType, userID))
+	wepType = geh.attackerWeaponType(wepType, userID)
+	dispatchPlayerHurt(wepType)
 }
 
 func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
 	geh.userIDToFallDamageFrame[data["userid"].GetValShort()] = geh.parser.currentFrame
-}
-
-func (geh gameEventHandler) playerHurtWeaponType(wepType common.EquipmentType, victimUserID int32) common.EquipmentType {
-	if wepType != common.EqUnknown {
-		return geh.attackerWeaponType(wepType, victimUserID)
-	}
-
-	if geh.userIDToFallDamageFrame[victimUserID] == geh.parser.currentFrame {
-		return common.EqWorld
-	}
-
-	if geh.frameToBombExploded[geh.parser.currentFrame] {
-		return common.EqBomb
-	}
-
-	if reason, ok := geh.frameToRoundEndReason[geh.parser.currentFrame]; ok {
-		switch reason {
-		case 0:
-			fallthrough
-		case events.RoundEndReasonTargetBombed:
-			return common.EqBomb
-		}
-	}
-
-	return common.EqWorld
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
@@ -804,8 +786,6 @@ func (geh gameEventHandler) bombExploded(data map[string]*msg.CMsgSource1LegacyG
 		return
 	}
 
-	// Mirror the datatable-based bomb-explode path in datatables.go so empty-weapon PlayerHurt can correlate
-	// same-frame C4 damage regardless of whether the event came from mimic-source1 game events or S2 props.
 	geh.frameToBombExploded[geh.parser.currentFrame] = true
 	geh.gameState().currentDefuser = nil
 	geh.dispatch(events.BombExplode{BombEvent: bombEvent})

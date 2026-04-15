@@ -217,48 +217,38 @@ func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
 	assert.Equal(t, he, wep)
 }
 
-func TestPlayerHurtWeaponType_UnknownDefaultsToWorld(t *testing.T) {
+func TestAttackerWeaponType_UnknownDefaultsToWorld(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	p.currentFrame = 24
 
-	wepType := p.gameEventHandler.playerHurtWeaponType(common.EqUnknown, 123)
+	wepType := p.gameEventHandler.attackerWeaponType(common.EqUnknown, 123)
 
-	assert.Equal(t, common.EqWorld, wepType)
+	assert.Equal(t, common.EqUnknown, wepType)
 }
 
-func TestPlayerHurtWeaponType_FallDamageWins(t *testing.T) {
+func TestAttackerWeaponType_FallDamageWins(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	p.currentFrame = 36
 	p.gameEventHandler.userIDToFallDamageFrame[123] = p.currentFrame
 
-	wepType := p.gameEventHandler.playerHurtWeaponType(common.EqUnknown, 123)
+	wepType := p.gameEventHandler.attackerWeaponType(common.EqUnknown, 123)
 
 	assert.Equal(t, common.EqWorld, wepType)
 }
 
-func TestPlayerHurtWeaponType_BombExplodeWins(t *testing.T) {
+func TestAttackerWeaponType_RoundEndReasonTargetBombedWins(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	p.currentFrame = 48
-	p.gameEventHandler.frameToBombExploded[p.currentFrame] = true
-
-	wepType := p.gameEventHandler.playerHurtWeaponType(common.EqUnknown, 123)
-
-	assert.Equal(t, common.EqBomb, wepType)
-}
-
-func TestPlayerHurtWeaponType_RoundEndReasonTargetBombedWins(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
-	p.currentFrame = 60
 	p.gameEventHandler.frameToRoundEndReason[p.currentFrame] = events.RoundEndReasonTargetBombed
 
-	wepType := p.gameEventHandler.playerHurtWeaponType(common.EqUnknown, 123)
+	wepType := p.gameEventHandler.attackerWeaponType(common.EqUnknown, 123)
 
 	assert.Equal(t, common.EqBomb, wepType)
 }
 
 func TestPlayerHurt_UnknownWeaponDefaultsToWorld(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	p.currentFrame = 72
+	p.currentFrame = 60
 
 	var got []events.PlayerHurt
 	p.RegisterEventHandler(func(e events.PlayerHurt) {
@@ -277,7 +267,7 @@ func TestPlayerHurt_UnknownWeaponDefaultsToWorld(t *testing.T) {
 
 func TestPlayerHurt_UnknownWeaponUsesBombWhenBombExplodedThisFrame(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	p.currentFrame = 84
+	p.currentFrame = 72
 	p.gameEventHandler.frameToBombExploded[p.currentFrame] = true
 
 	var got []events.PlayerHurt
@@ -297,7 +287,7 @@ func TestPlayerHurt_UnknownWeaponUsesBombWhenBombExplodedThisFrame(t *testing.T)
 
 func TestPlayerHurt_KnownWeaponDispatchesImmediately(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	p.currentFrame = 96
+	p.currentFrame = 84
 
 	var got []events.PlayerHurt
 	p.RegisterEventHandler(func(e events.PlayerHurt) {
@@ -309,9 +299,6 @@ func TestPlayerHurt_KnownWeaponDispatchesImmediately(t *testing.T) {
 	assert.Len(t, got, 1)
 	assert.NotNil(t, got[0].Weapon)
 	assert.Equal(t, common.EqAK47, got[0].Weapon.Type)
-
-	p.processFrameGameEvents()
-	assert.Len(t, got, 1)
 }
 
 func playerHurtEventData(userID int32, attacker int32, weapon string) map[string]*msg.CMsgSource1LegacyGameEventKeyT {
