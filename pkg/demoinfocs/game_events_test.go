@@ -217,7 +217,7 @@ func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
 	assert.Equal(t, he, wep)
 }
 
-func TestAttackerWeaponType_UnknownDefaultsToWorld(t *testing.T) {
+func TestAttackerWeaponType_UnknownStaysUnknownWithoutContext(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	p.currentFrame = 24
 

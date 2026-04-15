@@ -483,6 +483,7 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 			ArmorDamageTaken:  armorDamageTaken,
 			HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
 			Weapon:            geh.getEquipmentInstance(attacker, wepType),
+			WeaponString:      rawWeapon,
 		})
 	}
 
