@@ -1065,8 +1065,6 @@ func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, vic
 		}
 	}
 
-	unassert.NotSame(wepType, common.EqUnknown)
-
 	return wepType
 }
 
