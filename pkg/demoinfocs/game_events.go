@@ -67,6 +67,7 @@ func (p *parser) handleGameEvent(ge *msg.CMsgSource1LegacyGameEvent) {
 type gameEventHandler struct {
 	parser                      *parser
 	gameEventNameToHandler      map[string]gameEventHandlerFunc
+	frameToBombExploded         map[int]bool
 	userIDToFallDamageFrame     map[int32]int
 	frameToRoundEndReason       map[int]events.RoundEndReason
 	ignoreBombsiteIndexNotFound bool // see https://github.com/markus-wa/demoinfocs-golang/issues/314
@@ -108,6 +109,7 @@ type gameEventHandlerFunc func(map[string]*msg.CMsgSource1LegacyGameEventKeyT)
 func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameEventHandler {
 	geh := gameEventHandler{
 		parser:                      parser,
+		frameToBombExploded:         make(map[int]bool),
 		userIDToFallDamageFrame:     make(map[int32]int),
 		frameToRoundEndReason:       make(map[int]events.RoundEndReason),
 		ignoreBombsiteIndexNotFound: ignoreBombsiteIndexNotFound,
@@ -440,8 +442,8 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 	player := geh.playerByUserID32(userID)
 	attacker := geh.playerByUserID32(data["attacker"].GetValShort())
 
-	wepType := common.MapEquipment(data["weapon"].GetValString())
-	wepType = geh.attackerWeaponType(wepType, userID)
+	rawWeapon := data["weapon"].GetValString()
+	wepType := common.MapEquipment(rawWeapon)
 
 	health := int(data["health"].GetValByte())
 	armor := int(data["armor"].GetValByte())
@@ -469,22 +471,62 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 		}
 	}
 
-	geh.dispatch(events.PlayerHurt{
-		Player:            player,
-		Attacker:          attacker,
-		Health:            health,
-		Armor:             armor,
-		HealthDamage:      healthDamage,
-		ArmorDamage:       armorDamage,
-		HealthDamageTaken: healthDamageTaken,
-		ArmorDamageTaken:  armorDamageTaken,
-		HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
-		Weapon:            geh.getEquipmentInstance(attacker, wepType),
-	})
+	dispatchPlayerHurt := func(wepType common.EquipmentType) {
+		geh.dispatch(events.PlayerHurt{
+			Player:            player,
+			Attacker:          attacker,
+			Health:            health,
+			Armor:             armor,
+			HealthDamage:      healthDamage,
+			ArmorDamage:       armorDamage,
+			HealthDamageTaken: healthDamageTaken,
+			ArmorDamageTaken:  armorDamageTaken,
+			HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
+			Weapon:            geh.getEquipmentInstance(attacker, wepType),
+		})
+	}
+
+	// CS2 may emit player_hurt with an empty weapon string for both world/fall damage and C4 damage.
+	// Delay only these ambiguous cases until the end of the frame so same-frame fall-damage, BombExplode,
+	// and round-end evidence is available without changing dispatch timing for known weapons.
+	if rawWeapon == "" && wepType == common.EqUnknown {
+		geh.parser.delayedEventHandlers = append(geh.parser.delayedEventHandlers, func() {
+			dispatchPlayerHurt(geh.playerHurtWeaponType(wepType, userID))
+		})
+
+		return
+	}
+
+	dispatchPlayerHurt(geh.attackerWeaponType(wepType, userID))
 }
 
 func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
 	geh.userIDToFallDamageFrame[data["userid"].GetValShort()] = geh.parser.currentFrame
+}
+
+func (geh gameEventHandler) playerHurtWeaponType(wepType common.EquipmentType, victimUserID int32) common.EquipmentType {
+	if wepType != common.EqUnknown {
+		return geh.attackerWeaponType(wepType, victimUserID)
+	}
+
+	if geh.userIDToFallDamageFrame[victimUserID] == geh.parser.currentFrame {
+		return common.EqWorld
+	}
+
+	if geh.frameToBombExploded[geh.parser.currentFrame] {
+		return common.EqBomb
+	}
+
+	if reason, ok := geh.frameToRoundEndReason[geh.parser.currentFrame]; ok {
+		switch reason {
+		case 0:
+			fallthrough
+		case events.RoundEndReasonTargetBombed:
+			return common.EqBomb
+		}
+	}
+
+	return common.EqWorld
 }
 
 func (geh gameEventHandler) playerBlind(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
@@ -762,6 +804,9 @@ func (geh gameEventHandler) bombExploded(data map[string]*msg.CMsgSource1LegacyG
 		return
 	}
 
+	// Mirror the datatable-based bomb-explode path in datatables.go so empty-weapon PlayerHurt can correlate
+	// same-frame C4 damage regardless of whether the event came from mimic-source1 game events or S2 props.
+	geh.frameToBombExploded[geh.parser.currentFrame] = true
 	geh.gameState().currentDefuser = nil
 	geh.dispatch(events.BombExplode{BombEvent: bombEvent})
 }
@@ -1029,11 +1074,13 @@ func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, vic
 	// if the round ended in the current frame with reason 1 or 0 we assume it was bomb damage
 	// unfortunately RoundEndReasonTargetBombed isn't enough and sometimes we need to check for 0 as well
 	if wepType == common.EqUnknown {
-		switch geh.frameToRoundEndReason[geh.parser.currentFrame] {
-		case 0:
-			fallthrough
-		case events.RoundEndReasonTargetBombed:
-			wepType = common.EqBomb
+		if reason, ok := geh.frameToRoundEndReason[geh.parser.currentFrame]; ok {
+			switch reason {
+			case 0:
+				fallthrough
+			case events.RoundEndReasonTargetBombed:
+				wepType = common.EqBomb
+			}
 		}
 	}
 
