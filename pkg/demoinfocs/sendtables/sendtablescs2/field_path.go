@@ -6,8 +6,6 @@ import (
 	"sync"
 )
 
-var huffTree = newHuffmanTree() //nolint:unused
-
 type fieldPath struct {
 	path []int
 	last int

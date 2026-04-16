@@ -90,11 +90,3 @@ func max(a, b int) int { //nolint:revive
 
 	return b
 }
-
-func min(a, b int) int { //nolint:revive,unused
-	if a < b {
-		return a
-	}
-
-	return b
-}

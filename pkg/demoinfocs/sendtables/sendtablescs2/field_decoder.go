@@ -322,10 +322,6 @@ func fixed64Decoder(r *reader) interface{} {
 	return r.readLeUint64()
 }
 
-func handleDecoder(r *reader) interface{} { //nolint:unused
-	return r.readVarUint32()
-}
-
 func booleanDecoder(r *reader) interface{} {
 	return r.readBoolean()
 }

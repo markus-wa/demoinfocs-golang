@@ -2,7 +2,6 @@ package sendtablescs2
 
 import (
 	"encoding/binary"
-	"fmt"
 	"math"
 	"sync"
 )
@@ -65,13 +64,6 @@ func newReader(buf []byte) *reader {
 func (r *reader) release() {
 	r.buf = nil
 	readerPool.Put(r)
-}
-
-func (r *reader) position() string { //nolint:unused
-	if r.bitCount > 0 {
-		return fmt.Sprintf("%d.%d", r.pos-1, 8-r.bitCount)
-	}
-	return fmt.Sprintf("%d", r.pos)
 }
 
 // remBytes calculates the number of unread bytes in the buffer
@@ -197,16 +189,6 @@ func (r *reader) readVarUint64() uint64 {
 	}
 }
 
-// readVarInt64 reads a signed 64-bit varint
-func (r *reader) readVarInt64() int64 { //nolint:unused
-	ux := r.readVarUint64()
-	x := int64(ux >> 1) //nolint:gosec
-	if ux&1 != 0 {
-		x = ^x
-	}
-	return x
-}
-
 // readBoolean reads and interprets a single bit as true or false.
 // Implemented as a direct bit extraction rather than calling readBits(1)
 // so that this hot function can be inlined by the compiler.
@@ -229,11 +211,6 @@ func (r *reader) refillByte() {
 	r.bitVal = uint64(r.buf[r.pos])
 	r.pos++
 	r.bitCount = 8
-}
-
-// readFloat reads an IEEE 754 float
-func (r *reader) readFloat() float32 { //nolint:unused
-	return math.Float32frombits(r.readLeUint32())
 }
 
 // readUBitVar reads a variable length uint32 with encoding in last to bits of 6 bit group
@@ -273,11 +250,6 @@ func (r *reader) readUBitVarFP() uint32 {
 
 func (r *reader) readUBitVarFieldPath() int {
 	return int(r.readUBitVarFP())
-}
-
-// readStringN reads a string of a given length
-func (r *reader) readStringN(n uint32) string { //nolint:unused
-	return string(r.readBytes(n))
 }
 
 // readString reads a null terminated string
@@ -371,17 +343,4 @@ func (r *reader) read3BitNormal() [3]float32 {
 	}
 
 	return ret
-}
-
-// readBitsAsBytes reads the given number of bits in groups of bytes
-func (r *reader) readBitsAsBytes(n uint32) []byte { //nolint:unused
-	tmp := make([]byte, 0)
-	for n >= 8 {
-		tmp = append(tmp, r.readByte())
-		n -= 8
-	}
-	if n > 0 {
-		tmp = append(tmp, byte(r.readBits(n)))
-	}
-	return tmp
 }

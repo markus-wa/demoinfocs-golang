@@ -125,14 +125,6 @@ func (c *class) getNameForFieldPath(fp *fieldPath) string {
 	return currentCacheNode.name
 }
 
-func (c *class) getTypeForFieldPath(fp *fieldPath) *fieldType { //nolint:unused
-	return c.serializer.getTypeForFieldPath(fp, 0)
-}
-
-func (c *class) getDecoderForFieldPath(fp *fieldPath) fieldDecoder { //nolint:unused
-	return c.serializer.getDecoderForFieldPath(fp, 0)
-}
-
 func (c *class) getFieldPathForName(fp *fieldPath, name string) bool {
 	return c.serializer.getFieldPathForName(fp, name)
 }

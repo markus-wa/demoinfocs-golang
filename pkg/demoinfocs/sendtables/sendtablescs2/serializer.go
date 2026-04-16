@@ -1,7 +1,6 @@
 package sendtablescs2
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -28,36 +27,8 @@ func newSerializer(name string, version int32) *serializer {
 	}
 }
 
-func (s *serializer) id() string { //nolint:unused
-	return serializerId(s.name, s.version)
-}
-
 func (s *serializer) getNameForFieldPath(fp *fieldPath, pos int) []string {
 	return s.fields[fp.path[pos]].getNameForFieldPath(fp, pos+1)
-}
-
-func (s *serializer) getTypeForFieldPath(fp *fieldPath, pos int) *fieldType { //nolint:unused
-	return s.fields[fp.path[pos]].getTypeForFieldPath(fp, pos+1)
-}
-
-func (s *serializer) getDecoderForFieldPath(fp *fieldPath, pos int) fieldDecoder { //nolint:unused
-	index := fp.path[pos]
-	if len(s.fields) <= index {
-		_panicf("serializer %s: field path %s has no field (%d)", s.name, fp, index)
-	}
-
-	dec, _ := s.fields[index].getDecoderForFieldPath(fp, pos+1)
-
-	return dec
-}
-
-func (s *serializer) getDecoderForFieldPath2(fp *fieldPath, pos int) (fieldDecoder, bool) { //nolint:unused
-	index := fp.path[pos]
-	if len(s.fields) <= index {
-		_panicf("serializer %s: field path %s has no field (%d)", s.name, fp, index)
-	}
-
-	return s.fields[index].getDecoderForFieldPath(fp, pos+1)
 }
 
 // getDecoderAndCollection is a single-pass alternative to calling
@@ -65,10 +36,6 @@ func (s *serializer) getDecoderForFieldPath2(fp *fieldPath, pos int) (fieldDecod
 // Returns the decoder and whether this update requires fieldState handling.
 func (s *serializer) getDecoderAndCollection(fp *fieldPath, pos int) (fieldDecoder, bool) {
 	return s.fields[fp.path[pos]].getDecoderAndCollection(fp, pos+1)
-}
-
-func (s *serializer) getFieldForFieldPath(fp *fieldPath, pos int) *field { //nolint:unused
-	return s.fields[fp.path[pos]].getFieldForFieldPath(fp, pos+1)
 }
 
 func (s *serializer) getFieldPathForName(fp *fieldPath, name string) bool {
@@ -100,10 +67,6 @@ func (s *serializer) getFieldPaths(fp *fieldPath, state *fieldState) []*fieldPat
 	}
 
 	return results
-}
-
-func serializerId(name string, version int32) string { //nolint:revive,unused
-	return fmt.Sprintf("%s(%d)", name, version)
 }
 
 func (s *serializer) addField(f *field) {
