@@ -28,7 +28,7 @@ func newSerializer(name string, version int32) *serializer {
 	}
 }
 
-func (s *serializer) id() string {
+func (s *serializer) id() string { //nolint:unused
 	return serializerId(s.name, s.version)
 }
 
@@ -36,11 +36,11 @@ func (s *serializer) getNameForFieldPath(fp *fieldPath, pos int) []string {
 	return s.fields[fp.path[pos]].getNameForFieldPath(fp, pos+1)
 }
 
-func (s *serializer) getTypeForFieldPath(fp *fieldPath, pos int) *fieldType {
+func (s *serializer) getTypeForFieldPath(fp *fieldPath, pos int) *fieldType { //nolint:unused
 	return s.fields[fp.path[pos]].getTypeForFieldPath(fp, pos+1)
 }
 
-func (s *serializer) getDecoderForFieldPath(fp *fieldPath, pos int) fieldDecoder {
+func (s *serializer) getDecoderForFieldPath(fp *fieldPath, pos int) fieldDecoder { //nolint:unused
 	index := fp.path[pos]
 	if len(s.fields) <= index {
 		_panicf("serializer %s: field path %s has no field (%d)", s.name, fp, index)
@@ -51,7 +51,7 @@ func (s *serializer) getDecoderForFieldPath(fp *fieldPath, pos int) fieldDecoder
 	return dec
 }
 
-func (s *serializer) getDecoderForFieldPath2(fp *fieldPath, pos int) (fieldDecoder, bool) {
+func (s *serializer) getDecoderForFieldPath2(fp *fieldPath, pos int) (fieldDecoder, bool) { //nolint:unused
 	index := fp.path[pos]
 	if len(s.fields) <= index {
 		_panicf("serializer %s: field path %s has no field (%d)", s.name, fp, index)
@@ -67,7 +67,7 @@ func (s *serializer) getDecoderAndCollection(fp *fieldPath, pos int) (fieldDecod
 	return s.fields[fp.path[pos]].getDecoderAndCollection(fp, pos+1)
 }
 
-func (s *serializer) getFieldForFieldPath(fp *fieldPath, pos int) *field {
+func (s *serializer) getFieldForFieldPath(fp *fieldPath, pos int) *field { //nolint:unused
 	return s.fields[fp.path[pos]].getFieldForFieldPath(fp, pos+1)
 }
 
@@ -102,7 +102,7 @@ func (s *serializer) getFieldPaths(fp *fieldPath, state *fieldState) []*fieldPat
 	return results
 }
 
-func serializerId(name string, version int32) string {
+func serializerId(name string, version int32) string { //nolint:revive,unused
 	return fmt.Sprintf("%s(%d)", name, version)
 }
 

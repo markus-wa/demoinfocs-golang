@@ -53,7 +53,7 @@ var readerPool = sync.Pool{
 func newReader(buf []byte) *reader {
 	r := readerPool.Get().(*reader)
 	r.buf = buf
-	r.size = uint32(len(buf))
+	r.size = uint32(len(buf)) //nolint:gosec
 	r.pos = 0
 	r.bitVal = 0
 	r.bitCount = 0
@@ -67,7 +67,7 @@ func (r *reader) release() {
 	readerPool.Put(r)
 }
 
-func (r *reader) position() string {
+func (r *reader) position() string { //nolint:unused
 	if r.bitCount > 0 {
 		return fmt.Sprintf("%d.%d", r.pos-1, 8-r.bitCount)
 	}
@@ -106,7 +106,7 @@ func (r *reader) readBits(n uint32) uint32 {
 	r.bitVal >>= n
 	r.bitCount -= n
 
-	return uint32(x)
+	return uint32(x) //nolint:gosec
 }
 
 // readByte reads a single byte
@@ -174,7 +174,7 @@ func (r *reader) readVarUint32() uint32 {
 // readVarInt64 reads a signed 32-bit varint
 func (r *reader) readVarInt32() int32 {
 	ux := r.readVarUint32()
-	x := int32(ux >> 1)
+	x := int32(ux >> 1) //nolint:gosec
 	if ux&1 != 0 {
 		x = ^x
 	}
@@ -198,9 +198,9 @@ func (r *reader) readVarUint64() uint64 {
 }
 
 // readVarInt64 reads a signed 64-bit varint
-func (r *reader) readVarInt64() int64 {
+func (r *reader) readVarInt64() int64 { //nolint:unused
 	ux := r.readVarUint64()
-	x := int64(ux >> 1)
+	x := int64(ux >> 1) //nolint:gosec
 	if ux&1 != 0 {
 		x = ^x
 	}
@@ -232,7 +232,7 @@ func (r *reader) refillByte() {
 }
 
 // readFloat reads an IEEE 754 float
-func (r *reader) readFloat() float32 {
+func (r *reader) readFloat() float32 { //nolint:unused
 	return math.Float32frombits(r.readLeUint32())
 }
 
@@ -249,7 +249,6 @@ func (r *reader) readUBitVar() uint32 {
 
 	case 48:
 		ret = (ret & 15) | (r.readBits(28) << 4)
-
 	}
 
 	return ret
@@ -277,7 +276,7 @@ func (r *reader) readUBitVarFieldPath() int {
 }
 
 // readStringN reads a string of a given length
-func (r *reader) readStringN(n uint32) string {
+func (r *reader) readStringN(n uint32) string { //nolint:unused
 	return string(r.readBytes(n))
 }
 
@@ -333,12 +332,12 @@ func (r *reader) readAngle(n uint32) float32 {
 // readNormal reads a normalized float vector
 func (r *reader) readNormal() float32 {
 	isNeg := r.readBoolean()
-	len := r.readBits(11)
+	len := r.readBits(11) //nolint:revive
 	ret := float32(len) * float32(1.0/(float32(1<<11)-1.0))
 
 	if isNeg {
 		return -ret
-	} else {
+	} else { //nolint:revive
 		return ret
 	}
 }
@@ -375,7 +374,7 @@ func (r *reader) read3BitNormal() [3]float32 {
 }
 
 // readBitsAsBytes reads the given number of bits in groups of bytes
-func (r *reader) readBitsAsBytes(n uint32) []byte {
+func (r *reader) readBitsAsBytes(n uint32) []byte { //nolint:unused
 	tmp := make([]byte, 0)
 	for n >= 8 {
 		tmp = append(tmp, r.readByte())

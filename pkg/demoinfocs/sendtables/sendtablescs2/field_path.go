@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-var huffTree = newHuffmanTree()
+var huffTree = newHuffmanTree() //nolint:unused
 
 type fieldPath struct {
 	path []int
@@ -21,22 +21,22 @@ type fieldPathOp struct {
 }
 
 var fieldPathTable = []fieldPathOp{
-	{"PlusOne", 36271, func(r *reader, fp *fieldPath) {
+	{"PlusOne", 36271, func(r *reader, fp *fieldPath) { //nolint:revive
 		fp.path[fp.last]++
 	}},
-	{"PlusTwo", 10334, func(r *reader, fp *fieldPath) {
+	{"PlusTwo", 10334, func(r *reader, fp *fieldPath) { //nolint:revive
 		fp.path[fp.last] += 2
 	}},
-	{"PlusThree", 1375, func(r *reader, fp *fieldPath) {
+	{"PlusThree", 1375, func(r *reader, fp *fieldPath) { //nolint:revive
 		fp.path[fp.last] += 3
 	}},
-	{"PlusFour", 646, func(r *reader, fp *fieldPath) {
+	{"PlusFour", 646, func(r *reader, fp *fieldPath) { //nolint:revive
 		fp.path[fp.last] += 4
 	}},
 	{"PlusN", 4128, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last] += r.readUBitVarFieldPath() + 5
 	}},
-	{"PushOneLeftDeltaZeroRightZero", 35, func(r *reader, fp *fieldPath) {
+	{"PushOneLeftDeltaZeroRightZero", 35, func(r *reader, fp *fieldPath) { //nolint:revive
 		fp.last++
 		fp.path[fp.last] = 0
 	}},
@@ -44,7 +44,7 @@ var fieldPathTable = []fieldPathOp{
 		fp.last++
 		fp.path[fp.last] = r.readUBitVarFieldPath()
 	}},
-	{"PushOneLeftDeltaOneRightZero", 521, func(r *reader, fp *fieldPath) {
+	{"PushOneLeftDeltaOneRightZero", 521, func(r *reader, fp *fieldPath) { //nolint:revive
 		fp.path[fp.last]++
 		fp.last++
 		fp.path[fp.last] = 0
@@ -186,7 +186,7 @@ var fieldPathTable = []fieldPathOp{
 			fp.path[fp.last] = r.readUBitVarFieldPath()
 		}
 	}},
-	{"PopOnePlusOne", 2, func(r *reader, fp *fieldPath) {
+	{"PopOnePlusOne", 2, func(r *reader, fp *fieldPath) { //nolint:revive
 		fp.pop(1)
 		fp.path[fp.last]++
 	}},
@@ -194,7 +194,7 @@ var fieldPathTable = []fieldPathOp{
 		fp.pop(1)
 		fp.path[fp.last] += r.readUBitVarFieldPath() + 1
 	}},
-	{"PopAllButOnePlusOne", 1837, func(r *reader, fp *fieldPath) {
+	{"PopAllButOnePlusOne", 1837, func(r *reader, fp *fieldPath) { //nolint:revive
 		fp.pop(fp.last)
 		fp.path[0]++
 	}},
@@ -233,7 +233,7 @@ var fieldPathTable = []fieldPathOp{
 			}
 		}
 	}},
-	{"NonTopoPenultimatePlusOne", 271, func(r *reader, fp *fieldPath) {
+	{"NonTopoPenultimatePlusOne", 271, func(r *reader, fp *fieldPath) { //nolint:revive
 		fp.path[fp.last-1]++
 	}},
 	{"NonTopoComplexPack4Bits", 99, func(r *reader, fp *fieldPath) {
@@ -243,7 +243,7 @@ var fieldPathTable = []fieldPathOp{
 			}
 		}
 	}},
-	{"FieldPathEncodeFinish", 25474, func(r *reader, fp *fieldPath) {
+	{"FieldPathEncodeFinish", 25474, func(r *reader, fp *fieldPath) { //nolint:revive
 		fp.done = true
 	}},
 }
@@ -319,7 +319,7 @@ func readFieldPaths(r *reader, paths *[]*fieldPath) int {
 			next = fpHuffNodes[node].left
 		}
 
-		if fpHuffNodes[next].left < 0 { // leaf node
+		if fpHuffNodes[next].left < 0 { //nolint:nestif // leaf node
 			node = 0 // reset to root
 			fieldPathTable[fpHuffNodes[next].value].fn(r, fp)
 

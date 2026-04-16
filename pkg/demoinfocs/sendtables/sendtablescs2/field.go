@@ -16,7 +16,7 @@ const (
 )
 
 type field struct {
-	parentName        string
+	parentName        string //nolint:unused
 	varName           string
 	varType           string
 	sendNode          string
@@ -29,7 +29,7 @@ type field struct {
 	highValue         *float32
 	fieldType         *fieldType
 	serializer        *serializer
-	value             interface{}
+	value             interface{} //nolint:unused
 	model             int
 	polyTypes         map[uint32]*serializer
 
@@ -38,7 +38,7 @@ type field struct {
 	childDecoder fieldDecoder
 }
 
-func (f *field) modelString() string {
+func (f *field) modelString() string { //nolint:unused
 	switch f.model {
 	case fieldModelFixedArray:
 		return "fixed-array"
@@ -81,7 +81,7 @@ func newField(serializers map[string]*serializer, ser *msg.CSVCMsg_FlattenedSeri
 		x.polyTypes = make(map[uint32]*serializer, len(f.PolymorphicTypes))
 
 		for i, t := range f.PolymorphicTypes {
-			x.polyTypes[uint32(i+1)] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)]
+			x.polyTypes[uint32(i+1)] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)] //nolint:gosec
 		}
 	}
 
@@ -127,11 +127,11 @@ func (f *field) setModel(model int) {
 	}
 }
 
-func (f *field) getName() string {
+func (f *field) getName() string { //nolint:unused
 	return f.varName
 }
 
-func (f *field) getFieldForFieldPath(fp *fieldPath, pos int) *field {
+func (f *field) getFieldForFieldPath(fp *fieldPath, pos int) *field { //nolint:unused
 	switch f.model {
 	case fieldModelFixedArray:
 		return f
@@ -184,7 +184,7 @@ func (f *field) getNameForFieldPath(fp *fieldPath, pos int) []string {
 	return x
 }
 
-func (f *field) getTypeForFieldPath(fp *fieldPath, pos int) *fieldType {
+func (f *field) getTypeForFieldPath(fp *fieldPath, pos int) *fieldType { //nolint:unused
 	switch f.model {
 	case fieldModelFixedArray:
 		return f.fieldType
@@ -208,7 +208,7 @@ func (f *field) getTypeForFieldPath(fp *fieldPath, pos int) *fieldType {
 	return f.fieldType
 }
 
-func (f *field) getDecoderForFieldPath(fp *fieldPath, pos int) (fieldDecoder, bool) {
+func (f *field) getDecoderForFieldPath(fp *fieldPath, pos int) (fieldDecoder, bool) { //nolint:unused
 	switch f.model {
 	case fieldModelFixedArray:
 		return f.decoder, false

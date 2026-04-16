@@ -33,7 +33,7 @@ func (s *fieldState) get(fp *fieldPath) any {
 
 func (s *fieldState) set(fp *fieldPath, v any) {
 	// Fast path for the common single-level case (fp.last == 0)
-	if fp.last == 0 {
+	if fp.last == 0 { //nolint:nestif
 		z := fp.path[0]
 		if y := len(s.state); y <= z {
 			if z+2 > cap(s.state) {
@@ -83,7 +83,7 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 	}
 }
 
-func max(a, b int) int {
+func max(a, b int) int { //nolint:revive
 	if a > b {
 		return a
 	}
@@ -91,7 +91,7 @@ func max(a, b int) int {
 	return b
 }
 
-func min(a, b int) int {
+func min(a, b int) int { //nolint:revive,unused
 	if a < b {
 		return a
 	}

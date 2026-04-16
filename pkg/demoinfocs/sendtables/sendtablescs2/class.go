@@ -14,7 +14,7 @@ type fpNameTreeCache struct {
 }
 
 type class struct {
-	classId         int32
+	classId         int32 //nolint:revive
 	name            string
 	serializer      *serializer
 	createdHandlers []st.EntityCreatedHandler
@@ -77,12 +77,12 @@ func fpFlatKey(fp *fieldPath) (uint64, bool) {
 	var key uint64
 	for i := 0; i <= fp.last; i++ {
 		v := fp.path[i]
-		if uint(v) > 0x3FFF { // 14-bit range: 0–16383
+		if uint(v) > 0x3FFF { //nolint:gosec // 14-bit range: 0–16383
 			return 0, false
 		}
-		key |= uint64(v) << uint(i*14)
+		key |= uint64(v) << uint(i*14) //nolint:gosec
 	}
-	key |= uint64(fp.last) << 56
+	key |= uint64(fp.last) << 56 //nolint:gosec
 	return key, true
 }
 
@@ -125,11 +125,11 @@ func (c *class) getNameForFieldPath(fp *fieldPath) string {
 	return currentCacheNode.name
 }
 
-func (c *class) getTypeForFieldPath(fp *fieldPath) *fieldType {
+func (c *class) getTypeForFieldPath(fp *fieldPath) *fieldType { //nolint:unused
 	return c.serializer.getTypeForFieldPath(fp, 0)
 }
 
-func (c *class) getDecoderForFieldPath(fp *fieldPath) fieldDecoder {
+func (c *class) getDecoderForFieldPath(fp *fieldPath) fieldDecoder { //nolint:unused
 	return c.serializer.getDecoderForFieldPath(fp, 0)
 }
 

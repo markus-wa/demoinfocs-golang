@@ -344,7 +344,7 @@ func (e *Entity) GetUint32(name string) (uint32, bool) {
 		case uint32:
 			return x, true
 		case uint64:
-			return uint32(x), true
+			return uint32(x), true //nolint:gosec
 		}
 	}
 	return 0, false
@@ -380,7 +380,7 @@ func (e *Entity) GetSerial() int32 {
 }
 
 // GetClassId returns the id of the class associated with this Entity
-func (e *Entity) GetClassId() int32 {
+func (e *Entity) GetClassId() int32 { //nolint:revive
 	return e.class.classId
 }
 
@@ -400,11 +400,11 @@ func (p *Parser) FindEntity(index int32) *Entity {
 }
 
 func handle2idx(handle uint64) int32 {
-	return int32(handle & constants.EntityHandleIndexMaskSource2)
+	return int32(handle & constants.EntityHandleIndexMaskSource2) //nolint:gosec
 }
 
 func serialForHandle(handle uint64) int32 {
-	return int32(handle >> constants.MaxEdictBitsSource2)
+	return int32(handle >> constants.MaxEdictBitsSource2) //nolint:gosec
 }
 
 // FindEntityByHandle finds a given Entity by handle
@@ -438,7 +438,7 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 
 		val := decoder(r)
 
-		if updateCollection {
+		if updateCollection { //nolint:nestif
 			newLen := val.(uint64)
 
 			// Retrieve the *fieldState pointer stored on the first update.
@@ -507,6 +507,8 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 }
 
 // Internal Callback for OnCSVCMsg_PacketEntities.
+//
+//nolint:gocognit
 func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 	defer func() {
 		if p.packetEntitiesPanicWarnFunc == nil {
@@ -546,15 +548,15 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 			op st.EntityOp
 		)
 
-		next := index + int32(r.readUBitVar()) + 1
+		next := index + int32(r.readUBitVar()) + 1 //nolint:gosec
 		index = next
 
 		cmd = r.readBits(2)
 
-		if cmd&0x01 == 0 {
+		if cmd&0x01 == 0 { //nolint:nestif
 			if cmd&0x02 != 0 {
-				classID = int32(r.readBits(p.classIdSize))
-				serial = int32(r.readBits(17))
+				classID = int32(r.readBits(p.classIdSize)) //nolint:gosec
+				serial = int32(r.readBits(17))              //nolint:gosec
 				r.readVarUint32()
 
 				class := p.classesById[classID]
@@ -649,7 +651,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 		}
 	}
 
-	if r.remBytes() > 1 || r.bitCount > 7 {
+	if r.remBytes() > 1 || r.bitCount > 7 { //nolint:revive,staticcheck
 		// FIXME: maybe we should panic("didn't consume all data")
 	}
 

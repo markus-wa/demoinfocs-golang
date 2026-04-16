@@ -28,11 +28,11 @@ func buildFlatHuffmanTree(t huffmanTree) []fpHuffNode {
 	nodes := make([]fpHuffNode, 0, 128)
 	var build func(t huffmanTree) int16
 	build = func(t huffmanTree) int16 {
-		idx := int16(len(nodes))
+		idx := int16(len(nodes)) //nolint:gosec
 		nodes = append(nodes, fpHuffNode{})
 		if t.IsLeaf() {
 			nodes[idx].left = -1
-			nodes[idx].value = int16(t.Value())
+			nodes[idx].value = int16(t.Value()) //nolint:gosec
 		} else {
 			leftIdx := build(t.Left())
 			rightIdx := build(t.Right())
@@ -69,51 +69,51 @@ type huffmanNode struct {
 }
 
 // Return weight for leaf
-func (self huffmanLeaf) Weight() int {
+func (self huffmanLeaf) Weight() int { //nolint:revive
 	return self.weight
 }
 
 // Return leaf state
-func (self huffmanLeaf) IsLeaf() bool {
+func (self huffmanLeaf) IsLeaf() bool { //nolint:revive
 	return true
 }
 
 // Return value for leaf
-func (self huffmanLeaf) Value() int {
+func (self huffmanLeaf) Value() int { //nolint:revive
 	return self.value
 }
 
-func (self huffmanLeaf) Right() huffmanTree {
+func (self huffmanLeaf) Right() huffmanTree { //nolint:revive
 	_panicf("huffmanLeaf doesn't have right node")
 	return nil
 }
 
-func (self huffmanLeaf) Left() huffmanTree {
+func (self huffmanLeaf) Left() huffmanTree { //nolint:revive
 	_panicf("huffmanLeaf doesn't have left node")
 	return nil
 }
 
 // Return weight for node
-func (self huffmanNode) Weight() int {
+func (self huffmanNode) Weight() int { //nolint:revive
 	return self.weight
 }
 
 // Return leaf state
-func (self huffmanNode) IsLeaf() bool {
+func (self huffmanNode) IsLeaf() bool { //nolint:revive
 	return false
 }
 
 // Return value for node
-func (self huffmanNode) Value() int {
+func (self huffmanNode) Value() int { //nolint:revive
 	return self.value
 }
 
-func (self huffmanNode) Left() huffmanTree {
-	return huffmanTree(self.left)
+func (self huffmanNode) Left() huffmanTree { //nolint:revive
+	return huffmanTree(self.left) //nolint:unconvert
 }
 
-func (self huffmanNode) Right() huffmanTree {
-	return huffmanTree(self.right)
+func (self huffmanNode) Right() huffmanTree { //nolint:revive
+	return huffmanTree(self.right) //nolint:unconvert
 }
 
 type treeHeap []huffmanTree
@@ -127,7 +127,7 @@ func (th treeHeap) Len() int {
 func (th treeHeap) Less(i int, j int) bool {
 	if th[i].Weight() == th[j].Weight() {
 		return th[i].Value() >= th[j].Value()
-	} else {
+	} else { //nolint:revive
 		return th[i].Weight() < th[j].Weight()
 	}
 }
@@ -151,7 +151,7 @@ func (th treeHeap) Swap(i, j int) {
 
 // Construct a tree from a map of weight -> item
 func buildHuffmanTree(symFreqs []int) huffmanTree {
-	var trees treeHeap
+	var trees treeHeap //nolint:prealloc
 
 	for v, w := range symFreqs {
 		if w == 0 {

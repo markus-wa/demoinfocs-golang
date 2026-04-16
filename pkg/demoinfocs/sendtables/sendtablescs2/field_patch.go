@@ -22,7 +22,7 @@ var fieldPatches = []fieldPatch{
 	}},
 }
 
-func (p *fieldPatch) shouldApply(build uint32) bool {
+func (p *fieldPatch) shouldApply(build uint32) bool { //nolint:unused
 	if p.minBuild == 0 && p.maxBuild == 0 {
 		return true
 	}

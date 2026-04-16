@@ -20,7 +20,7 @@ func init() {
 		simTimeCache[i] = float32(i) * (1.0 / 64)
 	}
 	for i := range runeTimeCache {
-		runeTimeCache[i] = math.Float32frombits(uint32(i))
+		runeTimeCache[i] = math.Float32frombits(uint32(i)) //nolint:gosec
 	}
 }
 
@@ -256,7 +256,7 @@ var fieldTypeDecoders = map[string]fieldDecoder{
 }
 
 func unsigned64Factory(f *field) fieldDecoder {
-	switch f.encoder {
+	switch f.encoder { //nolint:gocritic
 	case "fixed64":
 		return fixed64Decoder
 	}
@@ -322,7 +322,7 @@ func fixed64Decoder(r *reader) interface{} {
 	return r.readLeUint64()
 }
 
-func handleDecoder(r *reader) interface{} {
+func handleDecoder(r *reader) interface{} { //nolint:unused
 	return r.readVarUint32()
 }
 
@@ -406,7 +406,7 @@ func qangleFactory(f *field) fieldDecoder {
 	}
 
 	if f.bitCount != nil && *f.bitCount != 0 {
-		n := uint32(*f.bitCount)
+		n := uint32(*f.bitCount) //nolint:gosec
 		return func(r *reader) interface{} {
 			return [3]float32{
 				r.readAngle(n),
