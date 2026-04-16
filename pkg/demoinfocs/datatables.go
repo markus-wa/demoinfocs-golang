@@ -173,6 +173,7 @@ func (p *parser) bindBomb() {
 				return
 			}
 
+			p.gameEventHandler.frameToBombExploded[p.currentFrame] = true
 			p.eventDispatcher.Dispatch(events.BombExplode{
 				BombEvent: events.BombEvent{
 					Player: planter,

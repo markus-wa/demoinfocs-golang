@@ -217,6 +217,119 @@ func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
 	assert.Equal(t, he, wep)
 }
 
+func TestAttackerWeaponType_UnknownStaysUnknownWithoutContext(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	p.currentFrame = 24
+
+	wepType := p.gameEventHandler.attackerWeaponType(common.EqUnknown, 123)
+
+	assert.Equal(t, common.EqUnknown, wepType)
+}
+
+func TestAttackerWeaponType_FallDamageWins(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	p.currentFrame = 36
+	p.gameEventHandler.userIDToFallDamageFrame[123] = p.currentFrame
+
+	wepType := p.gameEventHandler.attackerWeaponType(common.EqUnknown, 123)
+
+	assert.Equal(t, common.EqWorld, wepType)
+}
+
+func TestAttackerWeaponType_RoundEndReasonTargetBombedWins(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	p.currentFrame = 48
+	p.gameEventHandler.frameToRoundEndReason[p.currentFrame] = events.RoundEndReasonTargetBombed
+
+	wepType := p.gameEventHandler.attackerWeaponType(common.EqUnknown, 123)
+
+	assert.Equal(t, common.EqBomb, wepType)
+}
+
+func TestPlayerHurt_UnknownWeaponDefaultsToWorld(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	p.currentFrame = 60
+
+	var got []events.PlayerHurt
+	p.RegisterEventHandler(func(e events.PlayerHurt) {
+		got = append(got, e)
+	})
+
+	p.gameEventHandler.playerHurt(playerHurtEventData(11, 65535, ""))
+	assert.Len(t, got, 0)
+
+	p.processFrameGameEvents()
+
+	assert.Len(t, got, 1)
+	assert.NotNil(t, got[0].Weapon)
+	assert.Equal(t, common.EqWorld, got[0].Weapon.Type)
+}
+
+func TestPlayerHurt_UnknownWeaponUsesBombWhenBombExplodedThisFrame(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	p.currentFrame = 72
+	p.gameEventHandler.frameToBombExploded[p.currentFrame] = true
+
+	var got []events.PlayerHurt
+	p.RegisterEventHandler(func(e events.PlayerHurt) {
+		got = append(got, e)
+	})
+
+	p.gameEventHandler.playerHurt(playerHurtEventData(12, 65535, ""))
+	assert.Len(t, got, 0)
+
+	p.processFrameGameEvents()
+
+	assert.Len(t, got, 1)
+	assert.NotNil(t, got[0].Weapon)
+	assert.Equal(t, common.EqBomb, got[0].Weapon.Type)
+}
+
+func TestPlayerHurt_KnownWeaponDispatchesImmediately(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	p.currentFrame = 84
+
+	var got []events.PlayerHurt
+	p.RegisterEventHandler(func(e events.PlayerHurt) {
+		got = append(got, e)
+	})
+
+	p.gameEventHandler.playerHurt(playerHurtEventData(13, 7, "ak47"))
+
+	assert.Len(t, got, 1)
+	assert.NotNil(t, got[0].Weapon)
+	assert.Equal(t, common.EqAK47, got[0].Weapon.Type)
+}
+
+func playerHurtEventData(userID int32, attacker int32, weapon string) map[string]*msg.CMsgSource1LegacyGameEventKeyT {
+	return map[string]*msg.CMsgSource1LegacyGameEventKeyT{
+		"userid": {
+			ValShort: proto.Int32(userID),
+		},
+		"attacker": {
+			ValShort: proto.Int32(attacker),
+		},
+		"weapon": {
+			ValString: proto.String(weapon),
+		},
+		"health": {
+			ValByte: proto.Int32(92),
+		},
+		"armor": {
+			ValByte: proto.Int32(0),
+		},
+		"dmg_health": {
+			ValShort: proto.Int32(8),
+		},
+		"dmg_armor": {
+			ValByte: proto.Int32(0),
+		},
+		"hitgroup": {
+			ValByte: proto.Int32(int32(events.HitGroupGeneric)),
+		},
+	}
+}
+
 func TestGetCommunityId(t *testing.T) {
 	xuid, err := guidToSteamID64("STEAM_0:1:26343269")
 	assert.Nil(t, err)
