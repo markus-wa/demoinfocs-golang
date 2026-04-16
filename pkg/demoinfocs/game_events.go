@@ -1056,6 +1056,7 @@ func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, vic
 	// unfortunately RoundEndReasonTargetBombed isn't enough and sometimes we need to check for 0 as well
 	if wepType == common.EqUnknown {
 		if reason, ok := geh.frameToRoundEndReason[geh.parser.currentFrame]; ok {
+			//nolint:exhaustive
 			switch reason {
 			case 0:
 				fallthrough
