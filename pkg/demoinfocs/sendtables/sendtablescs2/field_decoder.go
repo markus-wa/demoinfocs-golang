@@ -79,6 +79,7 @@ var fieldTypeDecoders = map[string]fieldDecoder{
 	"char":            stringDecoder,
 	"CUtlString":      stringDecoder,
 	"CUtlSymbolLarge": stringDecoder,
+	"CGlobalSymbol":   stringDecoder,
 
 	// some dotabuff/manta stuff
 	"GameTime_t": noscaleDecoder,
