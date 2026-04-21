@@ -69,51 +69,51 @@ type huffmanNode struct {
 }
 
 // Return weight for leaf
-func (self huffmanLeaf) Weight() int { //nolint:revive
-	return self.weight
+func (l huffmanLeaf) Weight() int {
+	return l.weight
 }
 
 // Return leaf state
-func (self huffmanLeaf) IsLeaf() bool { //nolint:revive
+func (l huffmanLeaf) IsLeaf() bool {
 	return true
 }
 
 // Return value for leaf
-func (self huffmanLeaf) Value() int { //nolint:revive
-	return self.value
+func (l huffmanLeaf) Value() int {
+	return l.value
 }
 
-func (self huffmanLeaf) Right() huffmanTree { //nolint:revive
+func (huffmanLeaf) Right() huffmanTree {
 	_panicf("huffmanLeaf doesn't have right node")
 	return nil
 }
 
-func (self huffmanLeaf) Left() huffmanTree { //nolint:revive
+func (huffmanLeaf) Left() huffmanTree {
 	_panicf("huffmanLeaf doesn't have left node")
 	return nil
 }
 
 // Return weight for node
-func (self huffmanNode) Weight() int { //nolint:revive
-	return self.weight
+func (n huffmanNode) Weight() int {
+	return n.weight
 }
 
 // Return leaf state
-func (self huffmanNode) IsLeaf() bool { //nolint:revive
+func (huffmanNode) IsLeaf() bool {
 	return false
 }
 
 // Return value for node
-func (self huffmanNode) Value() int { //nolint:revive
-	return self.value
+func (n huffmanNode) Value() int {
+	return n.value
 }
 
-func (self huffmanNode) Left() huffmanTree { //nolint:revive
-	return huffmanTree(self.left) //nolint:unconvert
+func (n huffmanNode) Left() huffmanTree {
+	return huffmanTree(n.left) //nolint:unconvert
 }
 
-func (self huffmanNode) Right() huffmanTree { //nolint:revive
-	return huffmanTree(self.right) //nolint:unconvert
+func (n huffmanNode) Right() huffmanTree {
+	return huffmanTree(n.right) //nolint:unconvert
 }
 
 type treeHeap []huffmanTree

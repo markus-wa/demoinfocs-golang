@@ -8,10 +8,12 @@ import (
 )
 
 // Quantized float flags
-const qff_rounddown uint32 = (1 << 0)    //nolint:revive
-const qff_roundup uint32 = (1 << 1)      //nolint:revive
-const qff_encode_zero uint32 = (1 << 2)  //nolint:revive
-const qff_encode_integers uint32 = (1 << 3) //nolint:revive
+const (
+	qff_rounddown       uint32 = (1 << 0) //nolint:revive
+	qff_roundup         uint32 = (1 << 1) //nolint:revive
+	qff_encode_zero     uint32 = (1 << 2) //nolint:revive
+	qff_encode_integers uint32 = (1 << 3) //nolint:revive
+)
 
 // Quantized-decoder struct containing the computed properties
 type quantizedFloatDecoder struct {

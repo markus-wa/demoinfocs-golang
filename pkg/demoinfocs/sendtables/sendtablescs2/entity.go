@@ -7,11 +7,10 @@ import (
 	"strings"
 
 	"github.com/golang/geo/r3"
-	"golang.org/x/exp/maps"
-
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/constants"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
+	"golang.org/x/exp/maps"
 )
 
 // Entity represents a single game entity in the replay
@@ -30,9 +29,9 @@ type Entity struct {
 	// handlersByFP stores the same handlers indexed by field-path uint64 key
 	// (see fpFlatKey) for O(1) non-string dispatch in the hot readFields path.
 	// Only populated for paths that fit in the flat key range.
-	handlersByFP  map[uint64][]st.PropertyUpdateHandler
-	hasHandlers   bool // cached: len(updateHandlers) > 0
-	propCache     map[string]st.Property
+	handlersByFP map[uint64][]st.PropertyUpdateHandler
+	hasHandlers  bool // cached: len(updateHandlers) > 0
+	propCache    map[string]st.Property
 }
 
 func (e *Entity) ServerClass() st.ServerClass {
@@ -556,7 +555,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 		if cmd&0x01 == 0 { //nolint:nestif
 			if cmd&0x02 != 0 {
 				classID = int32(r.readBits(p.classIdSize)) //nolint:gosec
-				serial = int32(r.readBits(17))              //nolint:gosec
+				serial = int32(r.readBits(17))             //nolint:gosec
 				r.readVarUint32()
 
 				class := p.classesById[classID]
