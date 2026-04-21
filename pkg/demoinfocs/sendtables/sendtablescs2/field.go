@@ -29,7 +29,7 @@ type field struct {
 	fieldType         *fieldType
 	serializer        *serializer
 	model             int
-	polyTypes         map[uint32]*serializer
+	polyTypes         []*serializer
 
 	decoder      fieldDecoder
 	baseDecoder  fieldDecoder
@@ -59,10 +59,14 @@ func newField(serializers map[string]*serializer, ser *msg.CSVCMsg_FlattenedSeri
 	}
 
 	if len(f.PolymorphicTypes) > 0 {
-		x.polyTypes = make(map[uint32]*serializer, len(f.PolymorphicTypes))
+		// Build combined slice: [0] = base serializer, [1..N] = polymorphic types.
+		// This mirrors Clarity's polymorphicTypes array, so the ubitvar read from
+		// the bitstream directly indexes this slice (0 = base, 1 = first poly type, etc.).
+		x.polyTypes = make([]*serializer, len(f.PolymorphicTypes)+1)
+		x.polyTypes[0] = serializers[resolve(f.FieldSerializerNameSym)]
 
 		for i, t := range f.PolymorphicTypes {
-			x.polyTypes[uint32(i+1)] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)] //nolint:gosec
+			x.polyTypes[i+1] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)] //nolint:gosec
 		}
 	}
 
@@ -81,16 +85,21 @@ func (f *field) setModel(model int) {
 		f.decoder = findDecoder(f)
 
 	case fieldModelFixedTable:
-		if len(f.polyTypes) > 0 {
+		if len(f.polyTypes) == 0 {
+			// No polymorphic types: plain pointer, boolean only.
+			f.baseDecoder = booleanDecoder
+		} else {
+			// Polymorphic pointer: polyTypes[0] = base serializer, polyTypes[1..N] = poly types.
+			// When the boolean is true, read a ubitvar whose value is a direct index into polyTypes.
+			// This mirrors Clarity's PointerDecoder which uses types.length > 1 (equivalent to
+			// len(polyTypes) > 0 here since polyTypes always contains at least the base).
 			f.baseDecoder = func(r *reader) interface{} {
 				b := r.readBoolean()
-				polyTypeIndex := r.readUBitVar()
-				f.serializer = f.polyTypes[polyTypeIndex]
-
+				if b {
+					f.serializer = f.polyTypes[r.readUBitVar()]
+				}
 				return b
 			}
-		} else {
-			f.baseDecoder = booleanDecoder
 		}
 
 	case fieldModelVariableArray:

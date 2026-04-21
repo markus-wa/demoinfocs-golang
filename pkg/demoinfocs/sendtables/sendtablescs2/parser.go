@@ -203,8 +203,8 @@ func (p *Parser) ParsePacket(b []byte) error {
 				}
 
 				// determine field model
-				if field.serializer != nil { //nolint:gocritic
-					if field.fieldType.pointer || pointerTypes[field.fieldType.baseType] {
+				if field.serializer != nil || len(field.polyTypes) > 0 { //nolint:gocritic
+					if field.fieldType.pointer || pointerTypes[field.fieldType.baseType] || len(field.polyTypes) > 0 {
 						field.setModel(fieldModelFixedTable)
 					} else {
 						field.setModel(fieldModelVariableTable)
