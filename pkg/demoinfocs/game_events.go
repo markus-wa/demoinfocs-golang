@@ -995,32 +995,41 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 		return nil
 	}
 
-	playerGrenades := geh.gameState().thrownGrenades[p]
-	grenades := playerGrenades[wepType]
+	// Use an iterative approach with a visited set to prevent infinite loops
+	// caused by circular bot-controller relationships in demo data (see #620).
+	visited := make(map[*common.Player]bool)
+	current := p
 
-	if len(grenades) == 0 {
-		// Molotovs/incendiaries may be reported as the opposite type in game-events. (i.e. incendiary reported as molotov and vice versa)
-		switch wepType { //nolint:exhaustive
-		case common.EqIncendiary:
-			grenades = playerGrenades[common.EqMolotov]
-		case common.EqMolotov:
-			grenades = playerGrenades[common.EqIncendiary]
+	for current != nil && !visited[current] {
+		visited[current] = true
+
+		playerGrenades := geh.gameState().thrownGrenades[current]
+		grenades := playerGrenades[wepType]
+
+		if len(grenades) == 0 {
+			// Molotovs/incendiaries may be reported as the opposite type in game-events. (i.e. incendiary reported as molotov and vice versa)
+			switch wepType { //nolint:exhaustive
+			case common.EqIncendiary:
+				grenades = playerGrenades[common.EqMolotov]
+			case common.EqMolotov:
+				grenades = playerGrenades[common.EqIncendiary]
+			}
 		}
-	}
 
-	if len(grenades) == 0 {
+		if len(grenades) > 0 {
+			return grenades[len(grenades)-1]
+		}
+
 		// The player might be controlling a bot, in such case the thrown grenade is stored in the bot's state.
-		bot := p.ControlledBot()
-		if bot != nil && bot.SteamID64 != p.SteamID64 {
-			return geh.getThrownGrenade(bot, wepType)
+		bot := current.ControlledBot()
+		if bot == nil || bot.SteamID64 == current.SteamID64 {
+			break
 		}
+
+		current = bot
 	}
 
-	if len(grenades) == 0 {
-		return nil
-	}
-
-	return grenades[len(grenades)-1]
+	return nil
 }
 
 func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common.EquipmentType) {
