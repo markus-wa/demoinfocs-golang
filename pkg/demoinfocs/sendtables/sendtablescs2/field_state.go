@@ -6,7 +6,7 @@ type fieldState struct {
 
 func newFieldState() *fieldState {
 	return &fieldState{
-		state: make([]any, 8),
+		state: make([]any, 8, 16),
 	}
 }
 
@@ -32,6 +32,24 @@ func (s *fieldState) get(fp *fieldPath) any {
 }
 
 func (s *fieldState) set(fp *fieldPath, v any) {
+	// Fast path for the common single-level case (fp.last == 0)
+	if fp.last == 0 { //nolint:nestif
+		z := fp.path[0]
+		if y := len(s.state); y <= z {
+			if z+2 > cap(s.state) {
+				newSlice := make([]any, z+1, max(z+2, y*2))
+				copy(newSlice, s.state)
+				s.state = newSlice
+			} else {
+				s.state = s.state[:z+1]
+			}
+		}
+		if _, ok := s.state[z].(*fieldState); !ok {
+			s.state[z] = v
+		}
+		return
+	}
+
 	x := s
 	z := 0
 
@@ -65,16 +83,8 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 	}
 }
 
-func max(a, b int) int {
+func max(a, b int) int { //nolint:revive
 	if a > b {
-		return a
-	}
-
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
 		return a
 	}
 

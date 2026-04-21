@@ -58,9 +58,9 @@ type tuple struct {
 
 type Parser struct {
 	serializers                 map[string]*serializer
-	classIdSize                 uint32
+	classIdSize                 uint32 //nolint:revive
 	classBaselines              map[int32][]byte
-	classesById                 map[int32]*class
+	classesById                 map[int32]*class //nolint:revive
 	classesByName               map[string]*class
 	entityFullPackets           int
 	entities                    map[int32]*Entity
@@ -70,7 +70,7 @@ type Parser struct {
 	packetEntitiesPanicWarnFunc func(error)
 }
 
-func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity {
+func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity { //nolint:revive
 	panic("implement me")
 }
 
@@ -128,16 +128,15 @@ func (p *Parser) OnServerInfo(m *msg.CSVCMsg_ServerInfo) error {
 
 func (p *Parser) OnDemoClassInfo(m *msg.CDemoClassInfo) error {
 	for _, c := range m.GetClasses() {
-		classId := c.GetClassId()
+		classId := c.GetClassId() //nolint:revive
 		networkName := c.GetNetworkName()
 
 		class := &class{
 			classId:    classId,
 			name:       networkName,
 			serializer: p.serializers[networkName],
-			fpNameCache: &fpNameTreeCache{
-				next: make(map[int]*fpNameTreeCache),
-			},
+			fpNameCache:  &fpNameTreeCache{},
+			fpFlatCache:  make(map[uint64]string),
 		}
 		p.classesById[class.classId] = class
 		p.classesByName[class.name] = class
@@ -157,9 +156,11 @@ func (p *Parser) SetInstanceBaseline(scID int, data []byte) {
 	p.classBaselines[int32(scID)] = data
 }
 
+//nolint:gocognit
 func (p *Parser) ParsePacket(b []byte) error {
 	r := newReader(b)
 	buf := r.readBytes(r.readVarUint32())
+	r.release()
 
 	msg := &msg.CSVCMsg_FlattenedSerializer{}
 	if err := proto.Unmarshal(buf, msg); err != nil {
@@ -176,7 +177,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 		)
 
 		for _, i := range s.GetFieldsIndex() {
-			if _, ok := fields[i]; !ok {
+			if _, ok := fields[i]; !ok { //nolint:nestif
 				// create a new field
 				field := newField(p.serializers, msg, msg.GetFields()[i])
 
@@ -202,7 +203,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 				}
 
 				// determine field model
-				if field.serializer != nil {
+				if field.serializer != nil { //nolint:gocritic
 					if field.fieldType.pointer || pointerTypes[field.fieldType.baseType] {
 						field.setModel(fieldModelFixedTable)
 					} else {

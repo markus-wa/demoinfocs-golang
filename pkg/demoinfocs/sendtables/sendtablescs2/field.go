@@ -16,7 +16,6 @@ const (
 )
 
 type field struct {
-	parentName        string
 	varName           string
 	varType           string
 	sendNode          string
@@ -29,30 +28,12 @@ type field struct {
 	highValue         *float32
 	fieldType         *fieldType
 	serializer        *serializer
-	value             interface{}
 	model             int
 	polyTypes         map[uint32]*serializer
 
 	decoder      fieldDecoder
 	baseDecoder  fieldDecoder
 	childDecoder fieldDecoder
-}
-
-func (f *field) modelString() string {
-	switch f.model {
-	case fieldModelFixedArray:
-		return "fixed-array"
-	case fieldModelFixedTable:
-		return "fixed-table"
-	case fieldModelVariableArray:
-		return "variable-array"
-	case fieldModelVariableTable:
-		return "variable-table"
-	case fieldModelSimple:
-		return "simple"
-	default:
-		return "other"
-	}
 }
 
 func newField(serializers map[string]*serializer, ser *msg.CSVCMsg_FlattenedSerializer, f *msg.ProtoFlattenedSerializerFieldT) *field {
@@ -81,7 +62,7 @@ func newField(serializers map[string]*serializer, ser *msg.CSVCMsg_FlattenedSeri
 		x.polyTypes = make(map[uint32]*serializer, len(f.PolymorphicTypes))
 
 		for i, t := range f.PolymorphicTypes {
-			x.polyTypes[uint32(i+1)] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)]
+			x.polyTypes[uint32(i+1)] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)] //nolint:gosec
 		}
 	}
 
@@ -127,32 +108,6 @@ func (f *field) setModel(model int) {
 	}
 }
 
-func (f *field) getName() string {
-	return f.varName
-}
-
-func (f *field) getFieldForFieldPath(fp *fieldPath, pos int) *field {
-	switch f.model {
-	case fieldModelFixedArray:
-		return f
-
-	case fieldModelFixedTable:
-		if fp.last != pos-1 {
-			return f.serializer.getFieldForFieldPath(fp, pos)
-		}
-
-	case fieldModelVariableArray:
-		return f
-
-	case fieldModelVariableTable:
-		if fp.last >= pos+1 {
-			return f.serializer.getFieldForFieldPath(fp, pos+1)
-		}
-	}
-
-	return f
-}
-
 func (f *field) getNameForFieldPath(fp *fieldPath, pos int) []string {
 	x := []string{f.varName}
 
@@ -184,55 +139,35 @@ func (f *field) getNameForFieldPath(fp *fieldPath, pos int) []string {
 	return x
 }
 
-func (f *field) getTypeForFieldPath(fp *fieldPath, pos int) *fieldType {
-	switch f.model {
-	case fieldModelFixedArray:
-		return f.fieldType
-
-	case fieldModelFixedTable:
-		if fp.last != pos-1 {
-			return f.serializer.getTypeForFieldPath(fp, pos)
-		}
-
-	case fieldModelVariableArray:
-		if fp.last == pos {
-			return f.fieldType.genericType
-		}
-
-	case fieldModelVariableTable:
-		if fp.last >= pos+1 {
-			return f.serializer.getTypeForFieldPath(fp, pos+1)
-		}
-	}
-
-	return f.fieldType
-}
-
-func (f *field) getDecoderForFieldPath(fp *fieldPath, pos int) (fieldDecoder, bool) {
+// getDecoderAndCollection returns the decoder and whether this field path is a
+// variable-length collection update that requires fieldState handling.
+// This encodes the (base && variableArray|variableTable) check directly,
+// avoiding a separate getFieldForFieldPath traversal.
+func (f *field) getDecoderAndCollection(fp *fieldPath, pos int) (fieldDecoder, bool) {
 	switch f.model {
 	case fieldModelFixedArray:
 		return f.decoder, false
 
 	case fieldModelFixedTable:
 		if fp.last == pos-1 {
-			return f.baseDecoder, true
+			return f.baseDecoder, false // base decoder but fixed, no fieldState update
 		}
 
-		return f.serializer.getDecoderForFieldPath2(fp, pos)
+		return f.serializer.getDecoderAndCollection(fp, pos)
 
 	case fieldModelVariableArray:
 		if fp.last == pos {
 			return f.childDecoder, false
 		}
 
-		return f.baseDecoder, true
+		return f.baseDecoder, true // variable collection update
 
 	case fieldModelVariableTable:
 		if fp.last >= pos+1 {
-			return f.serializer.getDecoderForFieldPath2(fp, pos+1)
+			return f.serializer.getDecoderAndCollection(fp, pos+1)
 		}
 
-		return f.baseDecoder, true
+		return f.baseDecoder, true // variable collection update
 	}
 
 	return f.decoder, false

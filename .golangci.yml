@@ -8,6 +8,12 @@ exclusions:
     - '*\\.pb\\.go$'
     - parser_interface.go
 
+issues:
+  exclude-rules:
+    - path: "pkg/demoinfocs/sendtables/sendtablescs2"
+      linters:
+        - godox
+
 formatters:
   enable:
     - gci
