@@ -62,7 +62,7 @@ func newField(serializers map[string]*serializer, ser *msg.CSVCMsg_FlattenedSeri
 		x.polyTypes = make(map[uint32]*serializer, len(f.PolymorphicTypes))
 
 		for i, t := range f.PolymorphicTypes {
-			x.polyTypes[uint32(i+1)] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)] //nolint:gosec
+			x.polyTypes[uint32(i)] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)] //nolint:gosec
 		}
 	}
 
@@ -81,16 +81,23 @@ func (f *field) setModel(model int) {
 		f.decoder = findDecoder(f)
 
 	case fieldModelFixedTable:
-		if len(f.polyTypes) > 0 {
+		switch len(f.polyTypes) {
+		case 0:
+			f.baseDecoder = booleanDecoder
+		case 1:
+			// Single polymorphic type: pre-set the serializer, no index in the bitstream.
+			f.serializer = f.polyTypes[0]
+			f.baseDecoder = booleanDecoder
+		default:
+			// Multiple polymorphic types: read the type index only when the pointer is active.
 			f.baseDecoder = func(r *reader) interface{} {
 				b := r.readBoolean()
-				polyTypeIndex := r.readUBitVar()
-				f.serializer = f.polyTypes[polyTypeIndex]
-
+				if b {
+					polyTypeIndex := r.readUBitVar()
+					f.serializer = f.polyTypes[polyTypeIndex]
+				}
 				return b
 			}
-		} else {
-			f.baseDecoder = booleanDecoder
 		}
 
 	case fieldModelVariableArray:
