@@ -560,11 +560,28 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 	controllerEntityID := controllerEntity.ID()
 	p.gameState.playerControllerEntities[controllerEntityID] = controllerEntity
 
-	rp := p.rawPlayers[controllerEntityID-1]
+	isBot := controllerEntity.PropertyValueMust("m_steamID").S2UInt64() == 0
+
+	var rp *common.PlayerInfo
+
+	for _, r := range p.rawPlayers {
+		if !isBot && !r.IsFakePlayer && r.XUID != 0 && r.XUID == controllerEntity.Property("m_steamID").Value().S2UInt64() {
+			rp = r
+		}
+
+		if isBot && r.IsFakePlayer && r.XUID == 0 && r.Name == controllerEntity.PropertyValueMust("m_iszPlayerName").String() {
+			rp = r
+		}
+	}
+
+	if rp == nil {
+		rp = p.rawPlayers[controllerEntityID-1]
+	}
+
 	_, player := p.getOrCreatePlayer(controllerEntityID, rp)
 	player.Entity = controllerEntity
 	player.EntityID = controllerEntityID
-	player.IsBot = controllerEntity.PropertyValueMust("m_steamID").String() == "0"
+	player.IsBot = isBot
 
 	if player.IsBot {
 		player.Name = controllerEntity.PropertyValueMust("m_iszPlayerName").String()
