@@ -326,6 +326,8 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, buf})
 	}
 
+	p.poolBitReader(r)
+
 	sort.SliceStable(p.pendingMessagesCache, func(i, j int) bool {
 		return p.pendingMessagesCache[i].priority() < p.pendingMessagesCache[j].priority()
 	})
