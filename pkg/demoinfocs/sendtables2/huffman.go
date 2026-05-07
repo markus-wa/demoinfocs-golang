@@ -133,12 +133,12 @@ func (th treeHeap) Less(i int, j int) bool {
 }
 
 // Append item, required for heap
-func (th *treeHeap) Push(ele interface{}) {
+func (th *treeHeap) Push(ele any) {
 	*th = append(*th, ele.(huffmanTree))
 }
 
 // Remove item, required for heap
-func (th *treeHeap) Pop() (popped interface{}) {
+func (th *treeHeap) Pop() (popped any) {
 	popped = (*th)[len(*th)-1]
 	*th = (*th)[:len(*th)-1]
 	return

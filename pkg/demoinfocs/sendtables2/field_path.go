@@ -280,7 +280,7 @@ func newFieldPath() *fieldPath {
 }
 
 var fpPool = &sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return &fieldPath{
 			path: make([]int, 7),
 			last: 0,

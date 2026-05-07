@@ -92,7 +92,7 @@ func (f *field) setModel(model int) {
 
 	case fieldModelFixedTable:
 		if len(f.polyTypes) > 0 {
-			f.baseDecoder = func(r *reader) interface{} {
+			f.baseDecoder = func(r *reader) any {
 				b := r.readBoolean()
 				polyTypeIndex := r.readUBitVar()
 				f.serializer = f.polyTypes[polyTypeIndex]
