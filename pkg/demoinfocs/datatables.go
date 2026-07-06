@@ -451,7 +451,6 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew b
 				player.Name = rp.Name
 				player.SteamID64 = rp.XUID
 				player.IsBot = rp.IsFakePlayer || rp.GUID == "BOT"
-				player.UserID = userID
 
 				p.gameState.indexPlayerBySteamID(player)
 			}
@@ -465,6 +464,8 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew b
 			player.IsUnknown = true
 		}
 	}
+
+	player.UserID = userID
 
 	p.gameState.playersByEntityID[entityID] = player
 
