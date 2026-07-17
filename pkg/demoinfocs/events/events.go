@@ -598,6 +598,9 @@ const (
 	WarnTypeStringTableParsingFailure // Should happen only with CS2 POV demos
 	WarnTypePacketEntitiesPanic
 	WarnTypeUnknownProtobufMessage
+
+	// WarnTypeUserCommandDeltaDecodeFailed occurs when a delta-encoded user command (CMsgServerUserCmd.delta_data) can't be decoded.
+	WarnTypeUserCommandDeltaDecodeFailed
 )
 
 // WarnTypeUnknownDemoCommandMessageType occurs when a demo-command message type is unknown - contact a maintainer.

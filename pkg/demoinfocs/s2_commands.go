@@ -423,6 +423,70 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 	}
 }
 
+func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
+	// Once we see user command messages they become the source of truth for
+	// button state, superseding the legacy m_nButtonDownMaskPrev prop (removed
+	// in the 2026-07-09 CS2 update, but still present in older demos).
+	p.hasUserCmdMessages = true
+
+	for _, cmd := range m.Commands {
+		slot := cmd.GetPlayerSlot()
+		// User commands are delta-encoded. The first command for a player is a
+		// full protobuf snapshot in Data; subsequent commands only carry the
+		// fields that changed since the previous command, packed into DeltaData
+		// using Valve's custom codegen_delta_encoder format (not protobuf, see
+		// applyUserCmdDelta). We keep the accumulated snapshot per player and
+		// apply each delta onto it to always have the full, up-to-date state.
+		m := p.userCmdStates[slot]
+
+		switch {
+		case len(cmd.GetData()) > 0:
+			// Full update, replace the accumulated snapshot.
+			m = &msg.CSGOUserCmdPB{}
+			if err := proto.Unmarshal(cmd.GetData(), m); err != nil {
+				continue
+			}
+			p.userCmdStates[slot] = m
+
+		case len(cmd.GetDeltaData()) > 0:
+			if m == nil {
+				// We never received a full snapshot for this player, can't
+				// reconstruct a reliable state from a delta alone.
+				continue
+			}
+
+			if err := applyUserCmdDelta(m, cmd.GetDeltaData()); err != nil {
+				// Drop the snapshot, subsequent deltas for this slot are
+				// skipped until the next full snapshot re-establishes a baseline,
+				// rather than building on corrupt state.
+				delete(p.userCmdStates, slot)
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: err.Error(),
+					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
+				})
+
+				continue
+			}
+
+		default:
+			continue
+		}
+
+		player := p.gameState.playersByUserID[int(slot)]
+		if player == nil {
+			continue
+		}
+		newState := m.GetBase().GetButtonsPb().GetButtonstate1()
+		if player.ButtonsPressedState != newState {
+			player.ButtonsPressedState = newState
+			p.eventDispatcher.Dispatch(events.PlayerButtonsStateUpdate{
+				Player:       player,
+				ButtonsState: newState,
+			})
+		}
+	}
+}
+
 func (p *parser) handleDemoFileHeader(msg *msg.CDemoFileHeader) {
 	if p.aborted() {
 		return
