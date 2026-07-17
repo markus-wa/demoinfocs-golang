@@ -423,11 +423,6 @@ func (p *parser) handleUserCommands(msg *msgs2.CSVCMsg_UserCommands) {
 
 	for _, cmd := range msg.Commands {
 		slot := cmd.GetPlayerSlot()
-		player := p.gameState.playersByUserID[int(slot)]
-		if player == nil {
-			continue
-		}
-
 		// User commands are delta-encoded. The first command for a player is a
 		// full protobuf snapshot in Data; subsequent commands only carry the
 		// fields that changed since the previous command, packed into DeltaData
@@ -469,6 +464,10 @@ func (p *parser) handleUserCommands(msg *msgs2.CSVCMsg_UserCommands) {
 			continue
 		}
 
+		player := p.gameState.playersByUserID[int(slot)]
+		if player == nil {
+			continue
+		}
 		newState := m.GetBase().GetButtonsPb().GetButtonstate1()
 		if player.ButtonsPressedState != newState {
 			player.ButtonsPressedState = newState
