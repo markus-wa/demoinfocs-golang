@@ -5,6 +5,8 @@
 
 protoc -Iproto \
        --go_out=. \
+       --go_opt=Ms2/cs_usercmd.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2 \
+       --go_opt=Ms2/usercmd.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2 \
        --go_opt=Ms2/cstrike15_usermessages.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2 \
        --go_opt=Ms2/cstrike15_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2 \
        --go_opt=Ms2/engine_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2 \
@@ -21,6 +23,7 @@ protoc -Iproto \
        --go_opt=Ms2/source2_steam_stats.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2 \
        --go_opt=Ms2/valveextensions.proto=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2 \
        --go_opt=module=github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2 \
+       s2/cs_usercmd.proto \
        s2/cstrike15_gcmessages.proto \
        s2/cstrike15_usermessages.proto \
        s2/engine_gcmessages.proto \
@@ -35,4 +38,5 @@ protoc -Iproto \
        s2/cs_gameevents.proto \
        s2/te.proto \
        s2/source2_steam_stats.proto \
+       s2/usercmd.proto \
        s2/valveextensions.proto

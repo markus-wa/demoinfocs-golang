@@ -106,6 +106,8 @@ type parser struct {
 	stringTables          []createStringTable                             // Contains all created sendtables, needed when updating them
 	delayedEventHandlers  []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 	pendingMessagesCache  []pendingMessage                                // Cache for pending messages that need to be dispatched after the current tick
+	userCmdStates         map[int32]*msgs2.CSGOUserCmdPB                  // Per-player (keyed by player slot) accumulated user command snapshot, rebuilt from full + delta updates
+	hasUserCmdMessages    bool                                            // True once a CSVCMsg_UserCommands message has been seen; replace the legacy m_nButtonDownMaskPrev prop
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
@@ -388,6 +390,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.gameState = newGameState(p.demoInfoProvider)
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.equipmentTypePerModel = make(map[uint64]common.EquipmentType)
+	p.userCmdStates = make(map[int32]*msgs2.CSGOUserCmdPB)
 	p.gameEventHandler = newGameEventHandler(&p, config.IgnoreErrBombsiteIndexNotFound)
 	p.userMessageHandler = newUserMessageHandler(&p)
 	p.bombsiteA.index = -1
@@ -434,6 +437,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.handleClassInfo)
 	p.msgDispatcher.RegisterHandler(p.handleStringTables)
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
+	p.msgDispatcher.RegisterHandler(p.handleUserCommands)
 
 	if config.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(config.MsgQueueBufferSize)
