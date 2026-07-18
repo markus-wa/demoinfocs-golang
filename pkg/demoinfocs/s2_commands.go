@@ -427,31 +427,38 @@ func (p *parser) handleUserCommands(msg *msgs2.CSVCMsg_UserCommands) {
 		// full protobuf snapshot in Data; subsequent commands only carry the
 		// fields that changed since the previous command, packed into DeltaData
 		// using Valve's custom codegen_delta_encoder format (not protobuf, see
-		// applyUserCmdDelta). We keep the accumulated snapshot per player and
+		// applyUserCmdDelta). We keep the accumulated button state per player and
 		// apply each delta onto it to always have the full, up-to-date state.
-		m := p.userCmdStates[slot]
+		//
+		// Due to perf reasons and because we only need the button state to dispatch
+		// PlayerButtonsStateUpdate events, only buttonstate1 is decoded, everything
+		// else in the command is skipped.
+		buttons, hasBaseline := p.userCmdButtons[slot]
 
 		switch {
 		case len(cmd.GetData()) > 0:
-			// Full update, replace the accumulated snapshot.
-			m = &msgs2.CSGOUserCmdPB{}
-			if err := proto.Unmarshal(cmd.GetData(), m); err != nil {
+			// Full update, replace the accumulated state.
+			buttons = 0
+			if err := mergeUserCmdButtons(cmd.GetData(), 0, &buttons); err != nil {
+				delete(p.userCmdButtons, slot)
+
 				continue
 			}
-			p.userCmdStates[slot] = m
+
+			p.userCmdButtons[slot] = buttons
 
 		case len(cmd.GetDeltaData()) > 0:
-			if m == nil {
+			if !hasBaseline {
 				// We never received a full snapshot for this player, can't
 				// reconstruct a reliable state from a delta alone.
 				continue
 			}
 
-			if err := applyUserCmdDelta(m, cmd.GetDeltaData()); err != nil {
-				// Drop the snapshot, subsequent deltas for this slot are
+			if err := mergeUserCmdButtons(cmd.GetDeltaData(), 0, &buttons); err != nil {
+				// Drop the state, subsequent deltas for this slot are
 				// skipped until the next full snapshot re-establishes a baseline,
 				// rather than building on corrupt state.
-				delete(p.userCmdStates, slot)
+				delete(p.userCmdButtons, slot)
 				p.msgDispatcher.Dispatch(events.ParserWarn{
 					Message: err.Error(),
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
@@ -459,6 +466,8 @@ func (p *parser) handleUserCommands(msg *msgs2.CSVCMsg_UserCommands) {
 
 				continue
 			}
+
+			p.userCmdButtons[slot] = buttons
 
 		default:
 			continue
@@ -468,7 +477,7 @@ func (p *parser) handleUserCommands(msg *msgs2.CSVCMsg_UserCommands) {
 		if player == nil {
 			continue
 		}
-		newState := m.GetBase().GetButtonsPb().GetButtonstate1()
+		newState := buttons
 		if player.ButtonsPressedState != newState {
 			player.ButtonsPressedState = newState
 			p.eventDispatcher.Dispatch(events.PlayerButtonsStateUpdate{
