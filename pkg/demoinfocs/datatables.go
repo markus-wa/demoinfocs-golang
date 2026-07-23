@@ -704,13 +704,12 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 
 		pl.FlashDuration = val.Float()
 
-		if pl.FlashDuration > 0 {
-			if len(p.gameState.flyingFlashbangs) == 0 {
-				return
-			}
-
-			flashbang := p.gameState.flyingFlashbangs[0]
-			flashbang.flashedEntityIDs = append(flashbang.flashedEntityIDs, pl.EntityID)
+		if pl.FlashDuration > 0 && len(p.gameState.flyingFlashbangs) > 0 {
+			// The detonation (projectile OnDestroy) and these m_flFlashDuration updates arrive in the
+			// same frame but in an unspecified order, so we can't yet know which projectile caused
+			// this. Buffer the flashed pawn and pair it with the flashbang that detonated this frame
+			// at the end of the frame (see processFlyingFlashbangs).
+			p.gameState.flashedEntitiesThisFrame = append(p.gameState.flashedEntitiesThisFrame, pl.EntityID)
 		}
 	})
 
@@ -1020,8 +1019,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash {
 			p.gameState.flyingFlashbangs = append(p.gameState.flyingFlashbangs, &FlyingFlashbang{
-				projectile:       proj,
-				flashedEntityIDs: []int{},
+				projectile: proj,
 			})
 		}
 
@@ -1069,12 +1067,17 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 				},
 			})
 
-			if len(p.gameState.flyingFlashbangs) == 0 {
-				return
-			}
+			// Mark the entry for the projectile that actually detonated (entity-keyed), not the
+			// head of the queue - otherwise a zero-victim detonation while another flashbang is
+			// airborne shifts victim attribution by one for the rest of the round.
+			for _, flashbang := range p.gameState.flyingFlashbangs {
+				if flashbang.projectile == proj {
+					flashbang.explodedFrame = p.currentFrame
+					flashbang.position = proj.Position()
 
-			flashbang := p.gameState.flyingFlashbangs[0]
-			flashbang.explodedFrame = p.currentFrame
+					break
+				}
+			}
 		}
 
 		p.nadeProjectileDestroyed(proj)
