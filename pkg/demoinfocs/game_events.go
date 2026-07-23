@@ -249,7 +249,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"weapon_reload":                  geh.weaponReload,                 // Weapon reloaded
 		"weapon_zoom":                    nil,                              // Zooming in
 		"weapon_zoom_rifle":              nil,                              // Dunno, only in locally recorded (POV) demo
-		"entity_killed":                  nil,
+		"entity_killed":                  geh.entityKilled,                      // Non-player entity killed (chickens, props, ...) in CS2
 
 		// S2
 		"hltv_versioninfo": nil, // HLTV version info
@@ -931,6 +931,47 @@ func (geh gameEventHandler) otherDeath(data map[string]*msg.CMsgSource1LegacyGam
 		OtherID:       otherID,
 		OtherPosition: otherPosition,
 	})
+}
+
+// entityKilled handles the CS2 "entity_killed" game-event. Its payload carries only entity
+// indices (entindex_killed / entindex_attacker / entindex_inflictor / damagebits) rather than the
+// source1 "other_death" keys. Player-pawn deaths are already surfaced via player_death
+// (events.Kill), so they are skipped here; the remaining ones are non-player entity deaths
+// (chickens, breakable props, doors, ...) surfaced as events.OtherDeath.
+func (geh gameEventHandler) entityKilled(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+	killedID := int(data["entindex_killed"].GetValLong())
+
+	killed := geh.gameState().entities[killedID]
+	if killed == nil {
+		return
+	}
+
+	className := killed.ServerClass().Name()
+	if className == "CCSPlayerPawn" || className == "CCSPlayerPawnBase" {
+		return
+	}
+
+	geh.dispatch(events.OtherDeath{
+		Killer:        geh.playerByPawnEntityID(int(data["entindex_attacker"].GetValLong())),
+		OtherType:     className,
+		OtherID:       int32(killedID),
+		OtherPosition: killed.Position(),
+	})
+}
+
+// playerByPawnEntityID resolves a player from his pawn entity-ID (CS2). Returns nil if not found.
+func (geh gameEventHandler) playerByPawnEntityID(entityID int) *common.Player {
+	if entityID <= 0 {
+		return nil
+	}
+
+	for _, player := range geh.gameState().Participants().All() {
+		if pawn := player.PlayerPawnEntity(); pawn != nil && pawn.ID() == entityID {
+			return player
+		}
+	}
+
+	return nil
 }
 
 func (geh gameEventHandler) itemEvent(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) (*common.Player, *common.Equipment) {
