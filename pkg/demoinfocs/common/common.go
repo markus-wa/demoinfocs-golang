@@ -86,6 +86,10 @@ func (g *GrenadeProjectile) Position() r3.Vector {
 
 // Velocity returns the projectile's velocity.
 // Returns a zero vector if the velocity is not networked.
+//
+// Note: on CS2 broadcast/GOTV demos the m_vecVelocity property is not present on grenade
+// projectile entities and this returns a zero vector. The throw kinematics are instead captured
+// at entity creation via m_vInitialVelocity / m_vInitialPosition; use those for release velocity.
 func (g *GrenadeProjectile) Velocity() r3.Vector {
 	if v, ok := g.Entity.PropertyValue("m_vecVelocity"); ok {
 		return v.VectorVal
