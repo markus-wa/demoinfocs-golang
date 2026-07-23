@@ -294,7 +294,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"smokegrenade_expired":           geh.smokeGrenadeExpired,          // Smoke expired
 		"switch_team":                    nil,                              // Dunno, only present in POV demos
 		"tournament_reward":              nil,                              // Dunno
-		"vote_cast":                      nil,                              // Dunno, only present in POV demos
+		"vote_cast":                      geh.voteCast,                     // A player cast a vote in a call-vote
 		"weapon_fire":                    delayIfNoPlayers(geh.weaponFire), // Weapon was fired
 		"weapon_fire_on_empty":           nil,                              // Sounds boring
 		"weapon_reload":                  geh.weaponReload,                 // Weapon reloaded
@@ -952,6 +952,14 @@ func (geh gameEventHandler) itemEquip(data map[string]*msg.CSVCMsg_GameEventKeyT
 	geh.dispatch(events.ItemEquip{
 		Player: player,
 		Weapon: weapon,
+	})
+}
+
+func (geh gameEventHandler) voteCast(data map[string]*msg.CSVCMsg_GameEventKeyT) {
+	geh.dispatch(events.VoteCast{
+		Player:     geh.playerByUserID32(data["userid"].GetValShort()),
+		VoteOption: int(data["vote_option"].GetValByte()),
+		Team:       common.Team(data["team"].GetValByte()),
 	})
 }
 

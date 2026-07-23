@@ -570,6 +570,14 @@ type ItemPickup struct {
 	Weapon *common.Equipment
 }
 
+// VoteCast signals that a player cast a vote in a call-vote (e.g. surrender, kick, pause).
+// This event is not available in all demos.
+type VoteCast struct {
+	Player     *common.Player // May be nil if the voter can't be resolved.
+	VoteOption int            // 0-based index of the chosen option (0 = the first option, typically "Yes").
+	Team       common.Team    // Team the vote applies to.
+}
+
 // ItemDrop signals an item was dropped.
 // This event is not available in all demos.
 type ItemDrop struct {
