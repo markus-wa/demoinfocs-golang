@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/golang/geo/r3"
 	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/constants"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
@@ -61,14 +62,19 @@ type gameState struct {
 	// As a solution, we keep track of flashbang projectiles created and all m_flFlashDuration prop updates related
 	// to this projectile. As all m_flFlashDuration prop updates occur during the same frame, we batch dispatch
 	// player-flashed events at the end of the frame if there are any.
-	// This slice acts like a FIFO queue, the first projectile inserted is the first one to be removed when it exploded.
+	// Flashbangs currently in flight (thrown but not yet detonated). Entries are keyed by the
+	// projectile identity, not by position - a flashbang is removed when its own projectile entity
+	// is destroyed, so a zero-victim detonation no longer desyncs attribution for the round.
 	flyingFlashbangs []*FlyingFlashbang
+	// Pawn entity-IDs whose m_flFlashDuration was set during the current frame. They are paired with
+	// the flashbang(s) that detonated in the same frame at the end of the frame.
+	flashedEntitiesThisFrame []int
 }
 
 type FlyingFlashbang struct {
-	projectile       *common.GrenadeProjectile
-	flashedEntityIDs []int
-	explodedFrame    int
+	projectile    *common.GrenadeProjectile
+	position      r3.Vector // Detonation position, set when the projectile is destroyed. Used to pair victims when multiple flashbangs detonate on the same frame.
+	explodedFrame int
 }
 
 type lastFlash struct {
