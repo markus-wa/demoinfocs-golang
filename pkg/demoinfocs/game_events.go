@@ -123,12 +123,21 @@ func (p *parser) handleGameEventS2(ge *msgs2.CMsgSource1LegacyGameEvent) {
 	})
 }
 
+// victimTickHealthDamage accumulates the health damage dealt to a victim within a single game tick.
+// It lets the fatal-hit HealthDamageTaken be capped at the victim's actual remaining HP instead of
+// the stale start-of-tick value, which otherwise over-reports same-tick multi-attacker kills.
+type victimTickHealthDamage struct {
+	tick   int
+	damage int
+}
+
 type gameEventHandler struct {
 	parser                      *parser
 	gameEventNameToHandler      map[string]gameEventHandlerFunc
 	frameToBombExploded         map[int]bool
 	userIDToFallDamageFrame     map[int32]int
 	frameToRoundEndReason       map[int]events.RoundEndReason
+	healthDamagePerVictim       map[int32]*victimTickHealthDamage
 	ignoreBombsiteIndexNotFound bool // see https://github.com/markus-wa/demoinfocs-golang/issues/314
 }
 
@@ -170,6 +179,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		frameToBombExploded:         make(map[int]bool),
 		userIDToFallDamageFrame:     make(map[int32]int),
 		frameToRoundEndReason:       make(map[int]events.RoundEndReason),
+		healthDamagePerVictim:       make(map[int32]*victimTickHealthDamage),
 		ignoreBombsiteIndexNotFound: ignoreBombsiteIndexNotFound,
 	}
 
@@ -497,6 +507,7 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKe
 	})
 }
 
+//nolint:funlen
 func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	userID := data["userid"].GetValShort()
 	player := geh.playerByUserID32(userID)
@@ -526,15 +537,32 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 		armorDamageTaken = 100
 	}
 
+	tick := geh.gameState().IngameTick()
+	victimDamage := geh.healthDamagePerVictim[userID]
+	if victimDamage == nil || victimDamage.tick != tick {
+		victimDamage = &victimTickHealthDamage{tick: tick}
+		geh.healthDamagePerVictim[userID] = victimDamage
+	}
+
 	if player != nil {
 		if health == 0 {
-			healthDamageTaken = player.Health()
+			// Fatal hit: the damage actually taken is the victim's remaining HP right before this
+			// hit. player.Health() reads the start-of-tick HP (entity state is applied only after
+			// the tick's events are dispatched), so subtract any damage already dealt to this victim
+			// earlier in the same tick - otherwise same-tick multi-attacker kills over-report the
+			// finishing blow's HealthDamageTaken.
+			healthDamageTaken = player.Health() - victimDamage.damage
+			if healthDamageTaken < 0 {
+				healthDamageTaken = 0
+			}
 		}
 
 		if armor == 0 {
 			armorDamageTaken = player.Armor()
 		}
 	}
+
+	victimDamage.damage += healthDamage
 
 	wepType = geh.attackerWeaponType(wepType, userID)
 
