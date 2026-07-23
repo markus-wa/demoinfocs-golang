@@ -146,6 +146,9 @@ type PlayerTeamChange struct {
 // PlayerJump signals that a player has jumped.
 type PlayerJump struct {
 	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+
+	// Position of the player at the moment of the jump. Zero vector if Player is nil.
+	Position r3.Vector
 }
 
 // PlayerSound signals that a player emitted a sound.

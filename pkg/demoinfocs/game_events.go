@@ -378,9 +378,14 @@ func (geh gameEventHandler) playerFootstep(data map[string]*msg.CMsgSource1Legac
 }
 
 func (geh gameEventHandler) playerJump(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	geh.dispatch(events.PlayerJump{
-		Player: geh.playerByUserID32(data["userid"].GetValShort()),
-	})
+	player := geh.playerByUserID32(data["userid"].GetValShort())
+
+	e := events.PlayerJump{Player: player}
+	if player != nil {
+		e.Position = player.Position()
+	}
+
+	geh.dispatch(e)
 }
 
 func (geh gameEventHandler) playerSound(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
