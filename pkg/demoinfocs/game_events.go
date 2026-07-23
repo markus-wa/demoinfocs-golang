@@ -454,6 +454,11 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 	userID := data["userid"].GetValShort()
 	player := geh.playerByUserID32(userID)
 	attacker := geh.playerByUserID32(data["attacker"].GetValShort())
+	if attacker == nil && data["attacker_pawn"] != nil {
+		// CS2 only, fallback to the pawn handle if the attacker was not found by its user ID.
+		// Mirrors player_death, so hurts and kills resolve the same attacker (see #156, #172).
+		attacker = geh.parser.gameState.Participants().FindByPawnHandle(uint64(data["attacker_pawn"].GetValLong()))
+	}
 
 	rawWeapon := data["weapon"].GetValString()
 	wepType := common.MapEquipment(rawWeapon)
