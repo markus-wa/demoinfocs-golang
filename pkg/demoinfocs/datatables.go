@@ -208,6 +208,7 @@ func (p *parser) bindBomb() {
 					p.eventDispatcher.Dispatch(events.BombDefuseStart{
 						Player: defuser,
 						HasKit: hasKit,
+						Site:   site,
 					})
 				}
 
