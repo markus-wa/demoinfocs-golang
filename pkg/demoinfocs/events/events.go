@@ -642,7 +642,18 @@ type InfernoStart struct {
 	Inferno *common.Inferno
 }
 
-// InfernoExpired signals that all fire from a incendiary or Molotov has extinguished.
+// InfernoFireOut signals that all fires of an inferno (incendiary/Molotov) have gone out, i.e.
+// Inferno.Fires().Active() first reached zero. Unlike InfernoExpired - which fires when the inferno
+// entity is destroyed, seconds later - this marks the actual flame-out / smoke-extinguish moment.
+type InfernoFireOut struct {
+	Inferno *common.Inferno
+}
+
+// InfernoExpired signals that the inferno (incendiary/Molotov) entity has been removed.
+//
+// Note: this fires when the CInferno entity is destroyed - roughly the entity's lifetime (~20s) or
+// round end - NOT when the fire actually goes out. For the true flame-out / smoke-extinguish moment
+// use InfernoFireOut instead.
 // This is different from the FireGrenadeExpire event because it's sent out when the inferno entity is destroyed instead of on the game-event.
 //
 // Mainly useful for getting the final area of an inferno.
