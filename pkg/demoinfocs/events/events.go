@@ -621,13 +621,14 @@ const (
 	WarnTypeStringTableParsingFailure // Should happen only with CS2 POV demos
 	WarnTypePacketEntitiesPanic
 	WarnTypeUnknownProtobufMessage
-
 	// WarnTypeUserCommandDeltaDecodeFailed occurs when a delta-encoded user command (CMsgServerUserCmd.delta_data) can't be decoded.
 	WarnTypeUserCommandDeltaDecodeFailed
 	// WarnTypeUserCommandBaselineMissing occurs when a delta arrives without a prior full command.
 	WarnTypeUserCommandBaselineMissing
 	// WarnTypeUserCommandBaselineMismatch occurs when the requested command-number ring slot is not exact.
 	WarnTypeUserCommandBaselineMismatch
+
+	WarnTypeUnknownGrenadeModel // a grenade projectile's model hash isn't in the item->model map (e.g. a post-patch model variant)
 )
 
 // WarnTypeUnknownDemoCommandMessageType occurs when a demo-command message type is unknown - contact a maintainer.
