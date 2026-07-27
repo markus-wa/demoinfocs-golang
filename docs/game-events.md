@@ -27,6 +27,16 @@ parser.RegisterEventHandler(func(event events.GenericGameEvent) {
 > entity-property layer — weapon `m_hOwnerEntity` and pawn `m_bPawnHasDefuser` transitions fire
 > abundantly. Conversely `player_ping` / `player_ping_stop` do appear in broadcast-GOTV.
 
+> **Note (per-action event cohort in broadcast-GOTV)**
+> Broadcast-GOTV carries aggregate/director events (`player_sound`, `entity_killed`, `player_ping`,
+> `hltv_*`) but drops the raw per-action cohort (`player_footstep`, `player_jump`, `weapon_reload`,
+> `item_equip`, `weapon_zoom`, `player_blind`, `bomb_beginplant`). This is not governed by a `tv_*`
+> ConVar — `tv_transmitall` controls entity transmission, not the game-event stream, and is already
+> `1` in demos where the cohort is still absent; the cohort's absence is a property of the
+> game-event networking layer, so it cannot be re-enabled server-side for broadcast-GOTV. Most of
+> the signal is still recoverable from the entity/net-prop layer. Server ConVars themselves are
+> readable via the `events.ConVarsUpdated` event and `GameState.ConVars()`.
+
 | Event name                      | GOTV | POV |
 | ------------------------------- | ---- | --- |
 | ammo_pickup                     | ❌   | ✅  |
