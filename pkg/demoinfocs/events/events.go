@@ -414,6 +414,13 @@ type HostageStateChanged struct {
 // BulletDamage signals that a bullet did some damage.
 // Available only with CS2 demos after the 22/07/2024 update.
 // Note: may not be available in all demos - https://github.com/markus-wa/demoinfocs-golang/issues/618
+//
+// This (and the sibling sub-tick ballistics data such as bullet_impact and TE FireBullets'
+// aim-punch/inaccuracy Extra) is gated by the recording configuration: it is emitted in
+// match-making / POV / full-tick recordings but not in broadcast-GOTV (e.g. HLTV) streams, where
+// the records simply aren't on the wire. The event descriptors appearing in a demo's game-event
+// list do not imply the events are emitted. The handler is always wired, so it fires whenever the
+// data is present.
 type BulletDamage struct {
 	Attacker        *common.Player
 	Victim          *common.Player
