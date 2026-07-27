@@ -392,9 +392,15 @@ func (e *Equipment) ZoomLevel() ZoomLevel {
 	return ZoomLevel(value.Int())
 }
 
-// AmmoReserve returns the ammo left available for reloading.
+// AmmoReserve returns the reserve ammo available for reloading.
 // Returns CWeaponCSBase.m_iPrimaryReserveAmmoCount for most weapons and 'Owner.AmmoLeft[AmmoType] - 1' for grenades.
 // Use AmmoInMagazine() + AmmoReserve() to quickly get the amount of grenades a player owns.
+//
+// Note: the unit is era-dependent. The March 2026 CS2 reload patch
+// (https://steamcommunity.com/games/CSGO/announcements/detail/532126482488623354) changed reserve
+// ammo to reserve magazines, so on post-patch demos this is a magazine count (e.g. AK-47 = 3,
+// MP9 = 2) rather than a round count; pre-patch demos still report rounds. The value itself is
+// correct for both - only the interpretation differs by demo era.
 func (e *Equipment) AmmoReserve() int {
 	if e.Entity == nil {
 		return 0
