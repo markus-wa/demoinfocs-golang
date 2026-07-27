@@ -254,7 +254,7 @@ func (p *parser) FrameCount() int {
 		return -1
 	}
 
-	return int(p.header.PlaybackFrames)
+	return p.header.PlaybackFrames
 }
 
 /*
