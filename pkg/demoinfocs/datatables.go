@@ -706,7 +706,27 @@ func (p *parser) bindWeapons() {
 
 // bindGrenadeProjectiles keeps track of the location of live grenades (parser.gameState.grenadeProjectiles), actively thrown by players.
 // It does NOT track the location of grenades lying on the ground, i.e. that were dropped by dead players.
-//
+// equipmentTypeFromProjectileClass resolves a grenade type from the projectile entity's server
+// class. Used as a fallback when the model hash isn't yet in equipmentTypePerModel.
+func equipmentTypeFromProjectileClass(className string) common.EquipmentType {
+	switch className {
+	case "CFlashbangProjectile":
+		return common.EqFlash
+	case "CHEGrenadeProjectile":
+		return common.EqHE
+	case "CSmokeGrenadeProjectile":
+		return common.EqSmoke
+	case "CDecoyProjectile":
+		return common.EqDecoy
+	case "CMolotovProjectile":
+		// Molotov and incendiary share this projectile class and are only distinguishable by model,
+		// so this fallback can't tell them apart - default to molotov.
+		return common.EqMolotov
+	}
+
+	return common.EqUnknown
+}
+
 //nolint:funlen
 func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	entityID := entity.ID()
@@ -731,10 +751,20 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			model := modelVal.UInt64()
 
 			weaponType, exists := p.equipmentTypePerModel[model]
-			if exists {
+
+			switch {
+			case exists:
 				wep = weaponType
-			} else {
-				fmt.Fprintf(os.Stderr, "unknown grenade model %d\n", model)
+			case equipmentTypeFromProjectileClass(entity.ServerClass().Name()) != common.EqUnknown:
+				// The model hash isn't in equipmentTypePerModel yet (it's built lazily from weapon
+				// entities), e.g. on a mid-round GOTV start or a post-patch model variant. Fall back
+				// to the projectile's server class, which unambiguously identifies the grenade type.
+				wep = equipmentTypeFromProjectileClass(entity.ServerClass().Name())
+			default:
+				p.eventDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("unknown grenade model %d", model),
+					Type:    events.WarnTypeUnknownGrenadeModel,
+				})
 			}
 		}
 
