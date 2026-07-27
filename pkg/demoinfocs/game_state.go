@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"errors"
+	"sort"
 	"strconv"
 	"time"
 
@@ -374,7 +375,23 @@ func (ptcp participants) All() []*common.Player {
 		res = append(res, p)
 	}
 
+	sortPlayers(res)
+
 	return res
+}
+
+// sortPlayers sorts players by a stable key so that slice accessors are deterministic across runs
+// (they are built by ranging maps, whose iteration order Go randomises). SteamID64 is stable across
+// demos; UserID breaks ties (e.g. between bots, whose SteamID64 is 0).
+func sortPlayers(players []*common.Player) {
+	sort.Slice(players, func(i, j int) bool {
+		a, b := players[i], players[j]
+		if a.SteamID64 != b.SteamID64 {
+			return a.SteamID64 < b.SteamID64
+		}
+
+		return a.UserID < b.UserID
+	})
 }
 
 // Connected returns all currently connected players & spectators.
@@ -384,6 +401,8 @@ func (ptcp participants) Connected() []*common.Player {
 	for _, p := range original {
 		res = append(res, p)
 	}
+
+	sortPlayers(res)
 
 	return res
 }
@@ -398,6 +417,8 @@ func (ptcp participants) Playing() []*common.Player {
 		}
 	}
 
+	sortPlayers(res)
+
 	return res
 }
 
@@ -410,6 +431,8 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 			res = append(res, p)
 		}
 	}
+
+	sortPlayers(res)
 
 	return res
 }
