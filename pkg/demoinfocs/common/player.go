@@ -20,7 +20,7 @@ type Player struct {
 	Inventory           map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
 	EntityID            int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
 	Entity              st.Entity          // May be nil between player-death and re-spawn
-	FlashDuration       float32            // Blindness duration from the flashbang currently affecting the player (seconds)
+	FlashDuration       float32            // Effective blindness duration from the flashbang currently affecting the player (seconds). The engine's flash-affected window (e.g. for assist attribution) runs ~1.4x longer; there is no continuous remaining-intensity netprop.
 	FlashTick           int                // In-game tick at which the player was last flashed
 	TeamState           *TeamState         // When keeping the reference make sure you notice when the player changes teams
 	Team                Team               // Team identifier for the player (e.g. TeamTerrorists or TeamCounterTerrorists).
