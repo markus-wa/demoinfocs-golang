@@ -3,7 +3,6 @@ package demoinfocs
 import (
 	"fmt"
 	"math"
-	"os"
 
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
@@ -929,9 +928,9 @@ func (p *parser) bindWeapon(entity st.Entity) {
 	wepType := common.EquipmentIndexMapping[itemIndex]
 
 	if wepType == common.EqUnknown {
-		fmt.Fprintln(os.Stderr, "unknown equipment with index", itemIndex)
-
-		p.msgDispatcher.Dispatch(events.ParserWarn{
+		// Dispatch on the event dispatcher (the one RegisterEventHandler binds to) so consumers can
+		// actually receive and filter this warning, rather than the msg dispatcher.
+		p.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: fmt.Sprintf("unknown equipment with index %d", itemIndex),
 			Type:    events.WarnTypeUnknownEquipmentIndex,
 		})
