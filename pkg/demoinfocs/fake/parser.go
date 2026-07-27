@@ -126,6 +126,11 @@ func (p *Parser) Progress() float32 {
 	return p.Called().Get(0).(float32)
 }
 
+// FrameCount is a mock-implementation of Parser.FrameCount().
+func (p *Parser) FrameCount() int {
+	return p.Called().Int(0)
+}
+
 // RegisterEventHandler is a mock-implementation of Parser.RegisterEventHandler().
 // Return HandlerIdentifier cannot be mocked (for now).
 func (p *Parser) RegisterEventHandler(handler any) dp.HandlerIdentifier {
