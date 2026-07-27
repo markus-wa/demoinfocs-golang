@@ -1406,9 +1406,35 @@ func (p *parser) processFrameGameEvents() {
 		p.processRoundProgressEvents()
 	}
 
+	p.processInfernoFireOut()
+
 	for _, eventHandler := range p.delayedEventHandlers {
 		eventHandler()
 	}
 
 	p.delayedEventHandlers = p.delayedEventHandlers[:0]
+}
+
+// processInfernoFireOut dispatches events.InfernoFireOut the first time an inferno's active fires
+// transition from burning to none. InfernoExpired only fires when the entity is destroyed (~20s),
+// which is much later than the actual flame-out.
+func (p *parser) processInfernoFireOut() {
+	for id, inf := range p.gameState.infernos {
+		state := p.gameState.infernoFireStates[id]
+		if state == nil {
+			state = &infernoFireState{}
+			p.gameState.infernoFireStates[id] = state
+		}
+
+		if state.firedOut {
+			continue
+		}
+
+		if len(inf.Fires().Active().List()) > 0 {
+			state.wasBurning = true
+		} else if state.wasBurning {
+			state.firedOut = true
+			p.eventDispatcher.Dispatch(events.InfernoFireOut{Inferno: inf})
+		}
+	}
 }
