@@ -243,6 +243,20 @@ func (p *parser) Progress() float32 {
 	return float32(p.currentFrame) / float32(p.header.PlaybackFrames)
 }
 
+// FrameCount returns the total number of frames in the demo, or -1 if it is not yet known.
+//
+// For Source 2 (CS2) demos the total only becomes available once the trailing CDemoFileInfo has
+// been parsed - typically at the very end of ParseToEnd - and is absent from the pre-parse header,
+// so this returns -1 throughout parsing for those demos. Use it to branch cleanly rather than
+// relying on Progress() (which returns 0 while the total is unknown).
+func (p *parser) FrameCount() int {
+	if p.header == nil || p.header.PlaybackFrames <= 0 {
+		return -1
+	}
+
+	return int(p.header.PlaybackFrames)
+}
+
 /*
 RegisterEventHandler registers a handler for game events.
 
