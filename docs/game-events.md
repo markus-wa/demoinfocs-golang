@@ -18,6 +18,15 @@ parser.RegisterEventHandler(func(event events.GenericGameEvent) {
 
 ✅ = Available, ❌ = Not available, ? = Not sure, need to be tested
 
+> **Note (CS2 broadcast-GOTV vs match-server SourceTV)**
+> The GOTV column can differ between the two GOTV flavors. In CS2 **broadcast-GOTV** (e.g. HLTV)
+> demos a family of item-lifecycle / per-action events does not fire even when otherwise available:
+> `item_remove`, `defuser_dropped`, `defuser_pickup` and `player_falldamage` never fire, and
+> `bomb_beginplant` / `bomb_begindefuse` fire only in match-server SourceTV recordings (marked ✅
+> above), not in broadcast-GOTV. Drop / pickup / ownership are still recoverable from the
+> entity-property layer — weapon `m_hOwnerEntity` and pawn `m_bPawnHasDefuser` transitions fire
+> abundantly. Conversely `player_ping` / `player_ping_stop` do appear in broadcast-GOTV.
+
 | Event name                      | GOTV | POV |
 | ------------------------------- | ---- | --- |
 | ammo_pickup                     | ❌   | ✅  |
@@ -68,7 +77,7 @@ parser.RegisterEventHandler(func(event events.GenericGameEvent) {
 | item_equip                      | ✅   | ❌  |
 | item_pickup                     | ✅   | ❌  |
 | item_pickup_slerp               | ❌   | ✅  |
-| item_remove                     | ✅   | ❌  |
+| item_remove                     | ❌   | ❌  |
 | jointeam_failed                 | ❌   | ✅  |
 | other_death                     | ✅   | ✅  |
 | player_blind                    | ✅   | ❌  |
@@ -76,14 +85,14 @@ parser.RegisterEventHandler(func(event events.GenericGameEvent) {
 | player_connect_full             | ✅   | ✅  |
 | player_death                    | ✅   | ✅  |
 | player_disconnect               | ✅   | ✅  |
-| player_falldamage               | ✅   | ❌  |
+| player_falldamage               | ❌   | ❌  |
 | player_footstep                 | ✅   | ❌  |
 | player_given_c4                 | ❌   | ✅  |
 | player_hurt                     | ✅   | ✅  |
 | player_jump                     | ✅   | ❌  |
 | player_changename               | ✅   | ✅  |
-| player_ping                     | ❌   | ✅  |
-| player_ping_stop                | ❌   | ✅  |
+| player_ping                     | ✅   | ✅  |
+| player_ping_stop                | ✅   | ✅  |
 | player_spawn                    | ✅   | ✅  |
 | player_spawned                  | ❌   | ✅  |
 | player_team                     | ✅   | ✅  |
