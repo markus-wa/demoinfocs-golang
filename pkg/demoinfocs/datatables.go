@@ -3,7 +3,6 @@ package demoinfocs
 import (
 	"fmt"
 	"math"
-	"os"
 	"strings"
 
 	"github.com/golang/geo/r3"
@@ -271,7 +270,7 @@ func (p *parser) bindBomb() {
 						p.eventDispatcher.Dispatch(events.BombDefuseStart{
 							Player: defuser,
 							HasKit: hasKit,
-							Site: site,
+							Site:   site,
 						})
 					}
 
@@ -1220,9 +1219,9 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 	wepType := common.EquipmentIndexMapping[itemIndex]
 
 	if wepType == common.EqUnknown {
-		fmt.Fprintln(os.Stderr, "unknown equipment with index", itemIndex)
-
-		p.msgDispatcher.Dispatch(events.ParserWarn{
+		// Dispatch on the event dispatcher (the one RegisterEventHandler binds to) so consumers can
+		// actually receive and filter this warning, rather than the msg dispatcher.
+		p.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: fmt.Sprintf("unknown equipment with index %d", itemIndex),
 			Type:    events.WarnTypeUnknownEquipmentIndex,
 		})
