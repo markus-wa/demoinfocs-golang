@@ -291,6 +291,13 @@ type PlayerFlashed struct {
 
 // FlashDuration returns the duration of the blinding effect.
 // This is just a shortcut for Player.FlashDurationTime().
+//
+// Note: this is the effective-blindness duration (the m_flFlashDuration netprop), not necessarily
+// the full window during which the engine considers the player flash-affected. Empirically the
+// netprop is cleared to 0 at roughly ~1.4x this value (a fade-out tail), and the engine's
+// player_death.assistedflash logic appears to use that wider window. There is no continuous
+// remaining-intensity netprop to expose (m_flFlashMaxAlpha is a constant render-opacity cap), so
+// time-in-window is the only available signal.
 func (e PlayerFlashed) FlashDuration() time.Duration {
 	return e.Player.FlashDurationTime()
 }
