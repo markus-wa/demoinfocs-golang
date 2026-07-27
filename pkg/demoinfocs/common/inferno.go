@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"math/rand"
 	"sort"
 
 	"github.com/golang/geo/r2"
@@ -215,7 +214,7 @@ func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity, thrower *Player) *Inferno {
 	return &Inferno{
 		Entity:           entity,
-		uniqueID:         rand.Int63(), //nolint:gosec
+		uniqueID:         nextUniqueID(),
 		demoInfoProvider: demoInfoProvider,
 		thrower:          thrower,
 	}
