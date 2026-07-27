@@ -358,13 +358,17 @@ func ammoDecoder(r *reader) any {
 	return r.readVarUint32() - 1
 }
 
-func noscaleDecoder(r *reader) any {
+func noscaleFloat32(r *reader) float32 {
 	bits := r.readLeUint32()
 	if bits == 0 {
-		return float32(0)
+		return 0
 	}
 
-	return r.cachedFloat32(bits)
+	return r.cachedFloat32(bits).(float32)
+}
+
+func noscaleDecoder(r *reader) any {
+	return noscaleFloat32(r)
 }
 
 func runeTimeDecoder(r *reader) any {
@@ -412,8 +416,20 @@ func qangleFactory(f *field) fieldDecoder {
 	}
 
 	if f.bitCount != nil && *f.bitCount != 0 {
-		n := uint32(*f.bitCount)
+		// A 32-bit (or wider) QAngle component is a full-precision noscale float32, not a scaled
+		// angle. readAngle(32) would map the raw IEEE bits into [0,360) and garble the value (e.g.
+		// m_aimPunchAngle reading a near-constant ~265-273 deg). Mirror floatFactory's noscale guard.
+		if *f.bitCount >= 32 {
+			return func(r *reader) any {
+				return [3]float32{
+					noscaleFloat32(r),
+					noscaleFloat32(r),
+					noscaleFloat32(r),
+				}
+			}
+		}
 
+		n := uint32(*f.bitCount)
 		return func(r *reader) any {
 			return [3]float32{
 				r.readAngle(n),
