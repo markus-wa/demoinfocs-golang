@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"fmt"
 	"math"
+	"sort"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -1419,7 +1420,18 @@ func (p *parser) processFrameGameEvents() {
 // transition from burning to none. InfernoExpired only fires when the entity is destroyed (~20s),
 // which is much later than the actual flame-out.
 func (p *parser) processInfernoFireOut() {
-	for id, inf := range p.gameState.infernos {
+	// Iterate in a stable entity-ID order rather than Go's randomised map order, so that when two
+	// infernos flame out on the same frame their InfernoFireOut events dispatch deterministically.
+	ids := make([]int, 0, len(p.gameState.infernos))
+	for id := range p.gameState.infernos {
+		ids = append(ids, id)
+	}
+
+	sort.Ints(ids)
+
+	for _, id := range ids {
+		inf := p.gameState.infernos[id]
+
 		state := p.gameState.infernoFireStates[id]
 		if state == nil {
 			state = &infernoFireState{}
