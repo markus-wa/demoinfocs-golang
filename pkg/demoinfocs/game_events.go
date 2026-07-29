@@ -1070,11 +1070,17 @@ func (geh gameEventHandler) entityKilled(data map[string]*msg.CSVCMsg_GameEventK
 		return
 	}
 
+	var inflictorType string
+	if inflictor := geh.gameState().entities[int(data["entindex_inflictor"].GetValLong())]; inflictor != nil {
+		inflictorType = inflictor.ServerClass().Name()
+	}
+
 	geh.dispatch(events.OtherDeath{
 		Killer:        geh.playerByPawnEntityID(int(data["entindex_attacker"].GetValLong())),
 		OtherType:     className,
 		OtherID:       int32(killedID),
 		OtherPosition: killed.Position(),
+		InflictorType: inflictorType,
 	})
 }
 

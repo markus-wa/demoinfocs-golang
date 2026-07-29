@@ -553,6 +553,14 @@ func (ru RankUpdate) SteamID64() uint64 {
 
 // OtherDeath signals that there has occurred a death of something that is not a player.
 // For example chickens.
+//
+// This event has two producers with different field coverage and a different OtherType vocabulary:
+//   - CS:GO / CS2 match-server SourceTV "other_death": all fields populated; OtherType is the game's
+//     type string (e.g. "chicken").
+//   - CS2 broadcast-GOTV "entity_killed": only Killer, OtherType, OtherID, OtherPosition and
+//     InflictorType are populated; OtherType is the entity's server-class name (e.g. "CChicken"), and
+//     Weapon / PenetratedObjects / NoScope / KillerBlind / ThroughSmoke are zero (indistinguishable
+//     from genuine zeros, so IsWallBang() is always false here).
 type OtherDeath struct {
 	Killer            *common.Player // May be nil
 	Weapon            *common.Equipment
@@ -564,6 +572,11 @@ type OtherDeath struct {
 	OtherType     string
 	OtherID       int32
 	OtherPosition r3.Vector
+
+	// InflictorType is the server-class name of the entity that caused the death - e.g.
+	// "CCSPlayerPawn" (bullet), "CInferno" (fire), "CHEGrenadeProjectile" (HE), "CPlantedC4" (bomb).
+	// Populated only on the CS2 entity_killed path; empty on source1 other_death.
+	InflictorType string
 }
 
 func (od OtherDeath) IsWallBang() bool {
