@@ -61,6 +61,9 @@ func (inf *Inferno) Thrower() *Player {
 func (inf *Inferno) Fires() Fires {
 	entity := inf.Entity
 	origin := entity.Position()
+	// m_fireCount is the total number of fire positions ever spawned for this inferno, not the number
+	// currently burning - it only ever increases and never returns to 0. Use Fires().Active() (gated
+	// on m_bFireIsBurning) for the fires burning right now.
 	nFires := entity.PropertyValueMust("m_fireCount").Int()
 	fires := make([]Fire, 0, nFires)
 	iFormat := "%04d"
