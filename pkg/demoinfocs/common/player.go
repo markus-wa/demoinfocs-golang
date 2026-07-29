@@ -408,8 +408,11 @@ func (p *Player) ViewDirectionY() float32 {
 	return 0
 }
 
-// Velocity returns the player's velocity in game units per second.
-// Note: available only with demos after the AnimGraph 2 update! Otherwise this returns a zero vector.
+// Velocity returns the player's velocity in units per second.
+//
+// Note: on CS2 GOTV demos - both broadcast-GOTV and match-server SourceTV - the m_vecVelocity
+// property is not networked on player pawns and this returns a zero vector; it is populated only on
+// POV / match-making demos. For GOTV, derive velocity from the position delta between ticks instead.
 func (p *Player) Velocity() r3.Vector {
 	pawnEntity := p.PlayerPawnEntity()
 	if pawnEntity == nil {
