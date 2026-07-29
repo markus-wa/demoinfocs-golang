@@ -1016,21 +1016,29 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			if modelVal.Any != nil {
 				model := modelVal.S2UInt64()
 
-				weaponType, exists := p.equipmentTypePerModel[model]
-
-				switch {
-				case exists:
+				if weaponType, exists := p.equipmentTypePerModel[model]; exists {
 					wep = weaponType
-				case equipmentTypeFromProjectileClass(entity.ServerClass().Name()) != common.EqUnknown:
+				} else {
 					// The model hash isn't in equipmentTypePerModel yet (it's built lazily from weapon
 					// entities), e.g. on a mid-round GOTV start or a post-patch model variant. Fall back
-					// to the projectile's server class, which unambiguously identifies the grenade type.
+					// to the projectile's server class.
 					wep = equipmentTypeFromProjectileClass(entity.ServerClass().Name())
-				default:
-					p.eventDispatcher.Dispatch(events.ParserWarn{
-						Message: fmt.Sprintf("unknown grenade model %d", model),
-						Type:    events.WarnTypeUnknownGrenadeModel,
-					})
+
+					switch wep {
+					case common.EqUnknown:
+						p.eventDispatcher.Dispatch(events.ParserWarn{
+							Message: fmt.Sprintf("unknown grenade model %d", model),
+							Type:    events.WarnTypeUnknownGrenadeModel,
+						})
+					case common.EqMolotov:
+						// CMolotovProjectile is shared by molotov and incendiary; the class alone can't
+						// tell them apart, so EqMolotov here is a best-effort guess - warn so consumers
+						// know WeaponInstance.Type may be wrong for this projectile.
+						p.eventDispatcher.Dispatch(events.ParserWarn{
+							Message: fmt.Sprintf("grenade model %d unknown; guessed molotov from class (may be incendiary)", model),
+							Type:    events.WarnTypeUnknownGrenadeModel,
+						})
+					}
 				}
 			}
 		}
