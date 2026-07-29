@@ -18,6 +18,13 @@ parser.RegisterEventHandler(func(event events.GenericGameEvent) {
 
 ✅ = Available, ❌ = Not available, ? = Not sure, need to be tested
 
+> **Provenance**
+> This table was originally authored against **CS:GO** demos (Jan 2023) and is not generated. Most
+> rows have never been re-measured for CS2. The rows verified against CS2 broadcast-GOTV so far are
+> the item-lifecycle / per-action corrections noted below (`item_remove`, `player_falldamage`,
+> `player_ping`/`player_ping_stop`, `defuser_*`, and the per-action cohort); treat the remaining rows
+> as CS:GO-era carry-over pending re-measurement, and the POV column as untested for CS2.
+
 > **Note (CS2 broadcast-GOTV vs match-server SourceTV)**
 > The GOTV column can differ between the two GOTV flavors. In CS2 **broadcast-GOTV** (e.g. HLTV)
 > demos a family of item-lifecycle / per-action events does not fire even when otherwise available:
@@ -25,7 +32,10 @@ parser.RegisterEventHandler(func(event events.GenericGameEvent) {
 > `bomb_beginplant` / `bomb_begindefuse` fire only in match-server SourceTV recordings (marked ✅
 > above), not in broadcast-GOTV. Drop / pickup / ownership are still recoverable from the
 > entity-property layer — weapon `m_hOwnerEntity` and pawn `m_bPawnHasDefuser` transitions fire
-> abundantly. Conversely `player_ping` / `player_ping_stop` do appear in broadcast-GOTV.
+> abundantly. Conversely `player_ping` / `player_ping_stop` appear in broadcast-GOTV but are
+> **absent on match-server SourceTV** (advertised in the event list, never emitted) - the reverse of
+> the rest of the family, so a consumer validating on a match-server demo would wrongly conclude
+> pings don't exist in CS2.
 
 > **Note (per-action event cohort in broadcast-GOTV)**
 > Broadcast-GOTV carries aggregate/director events (`player_sound`, `entity_killed`, `player_ping`,
