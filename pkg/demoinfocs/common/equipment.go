@@ -1,7 +1,7 @@
 package common
 
 import (
-	"math/rand"
+	"encoding/binary"
 	"strings"
 
 	"github.com/oklog/ulid/v2"
@@ -476,7 +476,13 @@ func (e *Equipment) Silenced() bool {
 //
 // Intended for internal use only.
 func NewEquipment(wep EquipmentType) *Equipment {
-	return &Equipment{Type: wep, uniqueID: rand.Int63(), uniqueID2: ulid.Make()} //nolint:gosec
+	// Encode a monotonic counter into the ULID instead of ulid.Make(), which embeds wall-clock time
+	// plus entropy and so changes every parse. This keeps UniqueID2 unique and lexicographically
+	// sortable (now in creation order) while making it reproducible across parses of the same demo.
+	var id ulid.ULID
+	binary.BigEndian.PutUint64(id[:8], uint64(nextUniqueID()))
+
+	return &Equipment{Type: wep, uniqueID: nextUniqueID(), uniqueID2: id}
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{
