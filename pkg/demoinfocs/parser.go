@@ -314,6 +314,12 @@ func (p *parser) error() error {
 	return err
 }
 
+// aborted reports whether a fatal error has been recorded. Message handlers
+// no-op once it is set, so the queued backlog drains without further decoding.
+func (p *parser) aborted() bool {
+	return p.error() != nil
+}
+
 func (p *parser) setError(err error) {
 	if err == nil {
 		return

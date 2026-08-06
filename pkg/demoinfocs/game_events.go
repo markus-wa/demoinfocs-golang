@@ -16,6 +16,10 @@ import (
 )
 
 func (p *parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
+	if p.aborted() {
+		return
+	}
+
 	p.gameEventDescs = make(map[int32]*msg.CMsgSource1LegacyGameEventListDescriptorT)
 	for _, d := range gel.GetDescriptors() {
 		p.gameEventDescs[d.GetEventid()] = d
@@ -23,6 +27,10 @@ func (p *parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
 }
 
 func (p *parser) handleGameEvent(ge *msg.CMsgSource1LegacyGameEvent) {
+	if p.aborted() {
+		return
+	}
+
 	if p.gameEventDescs == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: "received GameEvent but event descriptors are missing",
