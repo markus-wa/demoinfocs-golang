@@ -134,6 +134,7 @@ type parser struct {
 	delayedEventHandlers  []func()                                                 // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 	pendingMessagesCache  []pendingMessage                                         // Cache for pending messages that need to be dispatched after the current tick
 	userCmdStates         map[int32]*userCmdPlayerState                            // Per-player command-number ring reconstructed from full + delta updates
+	userCmdButtonStates   map[int32]*userCmdButtonPlayerState                      // Per-player command-number ring containing buttonstate1 only
 	hasUserCmdMessages    bool                                                     // True once a CSVCMsg_UserCommands message has been seen; replace the legacy m_nButtonDownMaskPrev prop
 }
 
@@ -490,6 +491,18 @@ func ParseCSTVBroadcast(baseURL string, configure ParserCallback) error {
 	return ParseCSTVBroadcastWithConfig(baseURL, DefaultParserConfig, configure)
 }
 
+// UserCmdParsingMode controls how CSVCMsg_UserCommands messages are handled.
+type UserCmdParsingMode uint8
+
+const (
+	// UserCmdParsingFull reconstructs and dispatches complete UserCmd events.
+	UserCmdParsingFull UserCmdParsingMode = iota
+	// UserCmdParsingButtonsOnly tracks buttonstate1 for PlayerButtonsStateUpdate events.
+	UserCmdParsingButtonsOnly
+	// UserCmdParsingDisabled skips user-command parsing and preserves legacy properties.
+	UserCmdParsingDisabled
+)
+
 // ParserConfig contains the configuration for creating a new Parser.
 type ParserConfig struct {
 	// MsgQueueBufferSize defines the size of the internal net-message queue.
@@ -533,12 +546,17 @@ type ParserConfig struct {
 	// It's the maximum time to retry for a response from the CSTV server, using an exponential backoff mechanism, starting at 1s.
 	// Only used when Format is DemoFormatCSTVBroadcast.
 	CSTVTimeout time.Duration
+
+	// UserCmdParsing controls CSVCMsg_UserCommands parsing. It defaults to
+	// UserCmdParsingFull, including when ParserConfig is created as a zero value.
+	UserCmdParsing UserCmdParsingMode
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
 var DefaultParserConfig = ParserConfig{
 	MsgQueueBufferSize: -1,
 	CSTVTimeout:        10 * time.Second,
+	UserCmdParsing:     UserCmdParsingFull,
 }
 
 // NewParserWithConfig returns a new Parser with a custom configuration.
@@ -565,6 +583,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.equipmentTypePerModel = make(map[uint64]common.EquipmentType)
 	p.userCmdStates = make(map[int32]*userCmdPlayerState)
+	p.userCmdButtonStates = make(map[int32]*userCmdButtonPlayerState)
 	p.gameEventHandler = newGameEventHandler(&p, config.IgnoreErrBombsiteIndexNotFound)
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1

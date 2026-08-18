@@ -431,6 +431,14 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 }
 
 func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
+	if p.config.UserCmdParsing == UserCmdParsingDisabled {
+		return
+	}
+	if p.config.UserCmdParsing == UserCmdParsingButtonsOnly {
+		p.handleUserCommandButtons(m)
+		return
+	}
+
 	// Once we see user command messages they become the source of truth for
 	// button state, superseding the legacy m_nButtonDownMaskPrev prop (removed
 	// in the 2026-07-09 CS2 update, but still present in older demos).
