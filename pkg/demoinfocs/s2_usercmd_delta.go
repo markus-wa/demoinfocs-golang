@@ -13,97 +13,190 @@ import (
 // standard protobuf, which is why proto.Unmarshal fails on delta_data.
 const wireTypeReset = protowire.Type(7)
 
-// applyUserCmdDelta reconstructs the full user-command state for a player by
-// applying a delta blob (CMsgServerUserCmd.delta_data) onto the previously
-// accumulated full snapshot (baseline), which is mutated in place.
-//
-// Since the 2026-07-09 CS2 update, the prop m_nButtonDownMaskPrev has been removed
-// and user commands are delta-encoded: only some commands carry a full protobuf
-// snapshot in CMsgServerUserCmd.data (the first command for a player slot, server-generated
-// substitute commands, and 60s DEM_FullPacket checkpoints).
-// Every other command only carries the fields that changed since the previous command
-// for that slot, in delta_data.
-//
-// delta_data is almost standard protobuf wire format, with one extension: a
-// field encoded with wire type 7 is a "reset to default" marker rather than a
-// value. Present fields replace the baseline field, nested messages are merged
-// recursively, reset markers clear the field (recursively for messages), and
-// omitted fields keep their baseline value.
+const (
+	userCmdRingSize      = 150
+	userCmdRepeatedLimit = 0x100
+)
+
+// userCmdRing stores the last command snapshots by the command-number slot used
+// by client.dll. The command number is stored alongside the payload because a
+// modulo slot collision is a baseline mismatch, not a valid baseline.
+type userCmdRing struct {
+	entries [userCmdRingSize]userCmdRingEntry
+}
+
+type userCmdRingEntry struct {
+	commandNumber int32
+	command       *msg.CSGOUserCmdPB
+	valid         bool
+}
+
+func userCmdRingIndex(commandNumber int32) int {
+	index := commandNumber % userCmdRingSize
+	if index < 0 {
+		index += userCmdRingSize
+	}
+	return int(index)
+}
+
+func (r *userCmdRing) insert(commandNumber int32, command *msg.CSGOUserCmdPB) {
+	r.entries[userCmdRingIndex(commandNumber)] = userCmdRingEntry{
+		commandNumber: commandNumber,
+		command:       proto.Clone(command).(*msg.CSGOUserCmdPB),
+		valid:         true,
+	}
+}
+
+func (r *userCmdRing) get(commandNumber int32) (*msg.CSGOUserCmdPB, bool) {
+	entry := r.entries[userCmdRingIndex(commandNumber)]
+	if !entry.valid || entry.commandNumber != commandNumber {
+		return nil, false
+	}
+	return entry.command, true
+}
+
+func (r *userCmdRing) slotCommandNumber(commandNumber int32) (int32, bool) {
+	entry := r.entries[userCmdRingIndex(commandNumber)]
+	if !entry.valid {
+		return 0, false
+	}
+	return entry.commandNumber, true
+}
+
+type userCmdPlayerState struct {
+	ring                 userCmdRing
+	currentCommandNumber int32
+	hasCurrentCommand    bool
+}
+
+// applyUserCmdDelta reconstructs a full user-command state by applying a delta
+// blob onto baseline. It mutates baseline only after each operation is validated;
+// callers that need rollback should pass a clone.
 func applyUserCmdDelta(baseline *msg.CSGOUserCmdPB, deltaData []byte) error {
 	return mergeUserCmdDelta(baseline.ProtoReflect(), deltaData)
 }
 
-// mergeUserCmdDelta walks the delta blob handling only the two non-standard
-// constructs — wire-type-7 reset markers and the repeated-field grammar — and
-// recursing into nested messages (which may themselves contain resets). Every
-// ordinary scalar field is standard protobuf wire format, so it is collected
-// verbatim and handed to the protobuf decoder in one merge pass, rather than
-// re-implementing per-type value decoding here.
-func mergeUserCmdDelta(msg protoreflect.Message, data []byte) error {
-	fields := msg.Descriptor().Fields()
-
-	var scalars []byte // standard-protobuf scalar fields, decoded by proto.Unmarshal below
+// mergeUserCmdDelta handles the two non-standard constructs in
+// codegen_delta_encoder output: wire-type-7 reset markers and indexed repeated
+// operations. Ordinary protobuf fields are passed through to the protobuf
+// decoder in one merge pass, while nested messages are merged recursively.
+func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
+	fields := target.Descriptor().Fields()
+	var scalars []byte
 
 	for len(data) > 0 {
 		num, typ, tagLen := protowire.ConsumeTag(data)
 		if tagLen < 0 {
 			return errors.Wrap(protowire.ParseError(tagLen), "failed to read delta field tag")
 		}
-
+		if num == 0 {
+			return errors.New("delta field number must be non-zero")
+		}
 		fd := fields.ByNumber(num)
 
-		// Reset marker: restore the field to its protobuf default (recursively
-		// zeroing a sub-message). It carries no value payload.
 		if typ == wireTypeReset {
-			if fd != nil {
-				msg.Clear(fd)
+			if fd == nil {
+				return errors.Errorf("wire type 7 references unknown field %d", num)
 			}
+			target.Clear(fd)
 			data = data[tagLen:]
-
 			continue
 		}
 
-		// Length-delimited fields need dispatching: lists use their own grammar,
-		// sub-messages are merged recursively, string/bytes fall through to the
-		// scalar passthrough.
 		if typ == protowire.BytesType {
-			b, valLen := protowire.ConsumeBytes(data[tagLen:])
-			if valLen < 0 {
-				return errors.Wrap(protowire.ParseError(valLen), "failed to read length-delimited delta field")
+			value, valueLen := protowire.ConsumeBytes(data[tagLen:])
+			if valueLen < 0 {
+				return errors.Wrap(protowire.ParseError(valueLen), "failed to read length-delimited delta field")
 			}
 
 			switch {
-			case fd == nil: // unknown field, skip
-			case fd.IsList(): // Repeated fields such as subtick_moves/input_history, it slows down parsing and are not needed by the lib, skip it.
-			case fd.Kind() == protoreflect.MessageKind || fd.Kind() == protoreflect.GroupKind:
-				if err := mergeUserCmdDelta(msg.Mutable(fd).Message(), b); err != nil {
+			case fd == nil:
+				// Unknown fields are intentionally ignored, matching the game decoder.
+			case fd.IsList() && (fd.Kind() == protoreflect.MessageKind || fd.Kind() == protoreflect.GroupKind):
+				if err := mergeUserCmdRepeated(target, fd, value); err != nil {
 					return err
 				}
-			default: // string / bytes
-				scalars = append(scalars, data[:tagLen+valLen]...)
+			case fd.Kind() == protoreflect.MessageKind || fd.Kind() == protoreflect.GroupKind:
+				if err := mergeUserCmdDelta(target.Mutable(fd).Message(), value); err != nil {
+					return err
+				}
+			default:
+				// String/bytes and any scalar encoded as length-delimited are
+				// standard protobuf fields.
+				scalars = append(scalars, data[:tagLen+valueLen]...)
 			}
 
-			data = data[tagLen+valLen:]
-
+			data = data[tagLen+valueLen:]
 			continue
 		}
 
-		// Fixed/varint scalar: pass the raw field bytes to the protobuf decoder.
-		valLen := protowire.ConsumeFieldValue(num, typ, data[tagLen:])
-		if valLen < 0 {
-			return errors.Wrap(protowire.ParseError(valLen), "failed to read delta field value")
+		valueLen := protowire.ConsumeFieldValue(num, typ, data[tagLen:])
+		if valueLen < 0 {
+			return errors.Wrap(protowire.ParseError(valueLen), "failed to read delta field value")
 		}
 		if fd != nil && !fd.IsList() {
-			scalars = append(scalars, data[:tagLen+valLen]...)
+			scalars = append(scalars, data[:tagLen+valueLen]...)
 		}
 
-		data = data[tagLen+valLen:]
+		data = data[tagLen+valueLen:]
 	}
 
 	if len(scalars) > 0 {
-		// Merge (don't reset) so untouched baseline fields survive.
-		return proto.UnmarshalOptions{Merge: true}.Unmarshal(scalars, msg.Interface())
+		if err := (proto.UnmarshalOptions{Merge: true}).Unmarshal(scalars, target.Interface()); err != nil {
+			return errors.Wrap(err, "failed to merge scalar delta fields")
+		}
+	}
+	return nil
+}
+
+func mergeUserCmdRepeated(parent protoreflect.Message, fd protoreflect.FieldDescriptor, data []byte) error {
+	if fd.Kind() != protoreflect.MessageKind && fd.Kind() != protoreflect.GroupKind {
+		return errors.Errorf("repeated field %s is not a message list", fd.FullName())
 	}
 
+	list := parent.Mutable(fd).List()
+	for len(data) > 0 {
+		// Repeated operations are not protobuf tags: the high bits are a
+		// zero-based index, so index zero legitimately has protobuf field
+		// number zero. Read the raw varint instead of ConsumeTag.
+		key, tagLen := protowire.ConsumeVarint(data)
+		if tagLen < 0 {
+			return errors.Wrap(protowire.ParseError(tagLen), "failed to read repeated delta index")
+		}
+		if key>>3 > uint64(^uint(0)>>1) {
+			return errors.New("repeated delta index does not fit in int")
+		}
+		index := int(key >> 3)
+		typ := protowire.Type(key & 0x07)
+
+		switch typ {
+		case wireTypeReset:
+			if index > userCmdRepeatedLimit {
+				return errors.Errorf("repeated delta index %d exceeds limit %d", index, userCmdRepeatedLimit)
+			}
+			if index > list.Len() {
+				for list.Len() < index {
+					list.Append(list.NewElement())
+				}
+			} else {
+				list.Truncate(index)
+			}
+			data = data[tagLen:]
+		case protowire.BytesType:
+			value, valueLen := protowire.ConsumeBytes(data[tagLen:])
+			if valueLen < 0 {
+				return errors.Wrap(protowire.ParseError(valueLen), "failed to read repeated delta message")
+			}
+			if index >= list.Len() {
+				return errors.Errorf("repeated delta index %d is out of bounds for length %d", index, list.Len())
+			}
+			if err := mergeUserCmdDelta(list.Get(index).Message(), value); err != nil {
+				return errors.Wrapf(err, "failed to merge repeated field %s[%d]", fd.FullName(), index)
+			}
+			data = data[tagLen+valueLen:]
+		default:
+			return errors.Errorf("unsupported repeated delta wire type %d", typ)
+		}
+	}
 	return nil
 }
