@@ -125,7 +125,12 @@ func (qfd *quantizedFloatDecoder) quantize(val float32) float32 {
 		return qfd.High
 	}
 
-	i := uint32((val - qfd.Low) * qfd.HighLowMul)
+	// Round to nearest like the engine's encoder does. Truncating here can
+	// wrongly keep a round-up/round-down/encode-zero special flag that the
+	// encoder discarded (e.g. bits=10 low=0 high=102.3 gives raw 1022.99994,
+	// which must quantize to 1023 so the round-up flag is removed), making the
+	// decoder read a phantom flag bit and desync the entity stream.
+	i := uint32((val-qfd.Low)*qfd.HighLowMul + 0.5)
 	return qfd.Low + float32((qfd.High-qfd.Low)*float32(float32(i)*qfd.DecMul))
 }
 
