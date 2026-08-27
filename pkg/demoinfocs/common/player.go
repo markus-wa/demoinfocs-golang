@@ -407,6 +407,25 @@ func (p *Player) ViewDirectionY() float32 {
 	return 0
 }
 
+// Velocity returns the player's velocity in game units per second.
+// Note: available only with demos after the AnimGraph 2 update! Otherwise this returns a zero vector.
+func (p *Player) Velocity() r3.Vector {
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity == nil {
+		return r3.Vector{}
+	}
+
+	x, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
+	y, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecY")
+	z, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecZ")
+
+	return r3.Vector{
+		X: float64(x),
+		Y: float64(y),
+		Z: float64(z),
+	}
+}
+
 // Position returns the in-game coordinates.
 // Note: the Z value is not on the player's eye height but instead at his feet.
 // See also PositionEyes().
