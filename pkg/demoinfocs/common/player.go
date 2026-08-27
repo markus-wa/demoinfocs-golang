@@ -440,18 +440,26 @@ func (p *Player) PositionEyes() (r3.Vector, bool) {
 	return pos.Add(offset), true
 }
 
+func getViewOffsetComponent(pawnEntity st.Entity, component string) (float32, bool) {
+	if v, ok := getFloatIfExists(pawnEntity, "m_vecViewOffset."+component); ok {
+		return v, true
+	}
+
+	return getFloatIfExists(pawnEntity, component)
+}
+
 func (p *Player) eyePositionOffset(pawnEntity st.Entity) (r3.Vector, bool) {
-	x, ok := getFloatIfExists(pawnEntity, "m_vecX")
+	x, ok := getViewOffsetComponent(pawnEntity, "m_vecX")
 	if !ok {
 		return r3.Vector{}, false
 	}
 
-	y, ok := getFloatIfExists(pawnEntity, "m_vecY")
+	y, ok := getViewOffsetComponent(pawnEntity, "m_vecY")
 	if !ok {
 		return r3.Vector{}, false
 	}
 
-	z, ok := getFloatIfExists(pawnEntity, "m_vecZ")
+	z, ok := getViewOffsetComponent(pawnEntity, "m_vecZ")
 	if !ok {
 		return r3.Vector{}, false
 	}
