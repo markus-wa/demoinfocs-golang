@@ -18,6 +18,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables2"
 
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 )
@@ -543,7 +544,9 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.FrameDone{})
 
-	if p.isSource2() {
+	// The "AnimGraph 2" CS2 update started networking pawn velocity (the m_vecVelocity.m_vec* properties).
+	// We don't need to track velocity based on frames in such case.
+	if p.isSource2() && p.header.NetworkProtocol < constants.NetworkProtocolAnimGraph2 {
 		p.updatePlayersPreviousFramePosition()
 	}
 }

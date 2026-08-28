@@ -381,20 +381,8 @@ func (p *parser) bindBombSites() {
 		t := new(boundingBoxInformation)
 		p.triggers[target.ID()] = t
 
-		var (
-			minPropName string
-			maxPropName string
-		)
-		if p.isSource2() {
-			minPropName = "m_vecMins"
-			maxPropName = "m_vecMaxs"
-		} else {
-			minPropName = "m_Collision.m_vecMins"
-			maxPropName = "m_Collision.m_vecMaxs"
-		}
-
-		target.BindProperty(minPropName, &t.min, st.ValTypeVector)
-		target.BindProperty(maxPropName, &t.max, st.ValTypeVector)
+		target.BindProperty("m_Collision.m_vecMins", &t.min, st.ValTypeVector)
+		target.BindProperty("m_Collision.m_vecMaxs", &t.max, st.ValTypeVector)
 	}
 
 	if p.isSource2() {
@@ -710,7 +698,7 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		pl.IsDefusing = val.BoolVal()
 	})
 
-	spottedByMaskProp := pawnEntity.Property("m_bSpottedByMask.0000")
+	spottedByMaskProp := pawnEntity.Property("m_entitySpottedState.m_bSpottedByMask.0000")
 	if spottedByMaskProp != nil {
 		spottersChanged := func(val st.PropertyValue) {
 			pl := getPlayerFromPawnEntity(pawnEntity)
@@ -722,7 +710,7 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		}
 
 		spottedByMaskProp.OnUpdate(spottersChanged)
-		pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
+		pawnEntity.Property("m_entitySpottedState.m_bSpottedByMask.0001").OnUpdate(spottersChanged)
 	}
 
 	// Legacy fallback for demos that don't contain CSVCMsg_UserCommands messages.
@@ -894,7 +882,7 @@ func (p *parser) bindWeapons() {
 			hasThrower := false
 
 			for _, prop := range sc.PropertyEntries() {
-				if prop == "m_iItemDefinitionIndex" {
+				if prop == "m_AttributeManager.m_Item.m_iItemDefinitionIndex" {
 					hasIndexProp = true
 				}
 
@@ -962,7 +950,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	var wep common.EquipmentType
 	entity.OnCreateFinished(func() { //nolint:wsl
 		if p.demoInfoProvider.IsSource2() {
-			modelVal := entity.PropertyValueMust("CBodyComponent.m_hModel")
+			modelVal := entity.PropertyValueMust("CBodyComponent.m_skeletonInstance.m_modelState.m_hModel")
 
 			if modelVal.Any != nil {
 				model := modelVal.S2UInt64()
@@ -1138,7 +1126,7 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 func (p *parser) bindWeaponS2(entity st.Entity) {
 	entityID := entity.ID()
-	itemIndexVal := entity.PropertyValueMust("m_iItemDefinitionIndex")
+	itemIndexVal := entity.PropertyValueMust("m_AttributeManager.m_Item.m_iItemDefinitionIndex")
 
 	if itemIndexVal.Any == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{
@@ -1160,7 +1148,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 			Type:    events.WarnTypeUnknownEquipmentIndex,
 		})
 	} else {
-		model := entity.PropertyValueMust("CBodyComponent.m_hModel").S2UInt64()
+		model := entity.PropertyValueMust("CBodyComponent.m_skeletonInstance.m_modelState.m_hModel").S2UInt64()
 		p.equipmentTypePerModel[model] = wepType
 	}
 

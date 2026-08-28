@@ -15,3 +15,8 @@ const (
 	EntityHandleBitsSource2      = MaxEdictBitsSource2 + EntityHandleSerialNumberBits
 	InvalidEntityHandleSource2   = (1 << EntityHandleBitsSource2) - 1
 )
+
+// NetworkProtocolAnimGraph2 is the network protocol version of the CS2
+// "AnimGraph 2" update (28/07/2025), the first version that networks the
+// pawn velocity (the m_vecVelocity.m_vec* properties).
+const NetworkProtocolAnimGraph2 = 14089

@@ -259,7 +259,7 @@ func TestEncryptedNetMessages(t *testing.T) {
 		t.Skip("skipping test due to -short flag")
 	}
 
-	infoF, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem.info")
+	infoF, err := os.Open(csDemosPath + "/valve_matchmaking/match730_003528806449641685104_1453182610_271.dem.info")
 	assert.NoError(t, err)
 
 	b, err := ioutil.ReadAll(infoF)
@@ -268,7 +268,7 @@ func TestEncryptedNetMessages(t *testing.T) {
 	k, err := demoinfocs.MatchInfoDecryptionKey(b)
 	assert.NoError(t, err)
 
-	f, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem")
+	f, err := os.Open(csDemosPath + "/valve_matchmaking/match730_003528806449641685104_1453182610_271.dem")
 	assert.NoError(t, err)
 	defer mustClose(t, f)
 
@@ -349,8 +349,8 @@ func TestBadNetMessageDecryptionKey(t *testing.T) {
 	}
 
 	const (
-		demPath  = csDemosPath + "/match730_003528806449641685104_1453182610_271.dem"
-		infoPath = csDemosPath + "/match730_003449478367177343081_1946274414_112.dem.info"
+		demPath  = csDemosPath + "/valve_matchmaking/match730_003528806449641685104_1453182610_271.dem"
+		infoPath = csDemosPath + "/valve_matchmaking/match730_003449478367177343081_1946274414_112.dem.info"
 	)
 
 	infoF, err := os.Open(infoPath)
@@ -599,15 +599,22 @@ func BenchmarkDemoInfoCs(b *testing.B) {
 }
 
 func BenchmarkInMemory(b *testing.B) {
-	f := openFile(b, s2DemPath)
+	// Use the following env var to override the benchmarked demo:
+	// DEMOINFOCS_BENCH_DEMO=/path/to/demo.dem go test -run '^$' -bench BenchmarkInMemory -count 10 ./pkg/demoinfocs
+	demPath := s2DemPath
+	if path := os.Getenv("DEMOINFOCS_BENCH_DEMO"); path != "" {
+		demPath = path
+	}
+
+	f := openFile(b, demPath)
 	defer mustClose(b, f)
 
 	inf, err := f.Stat()
-	assert.NoError(b, err, "failed to stat file %q", s2DemPath)
+	assert.NoError(b, err, "failed to stat file %q", demPath)
 
 	d := make([]byte, inf.Size())
 	n, err := f.Read(d)
-	assert.NoError(b, err, "failed to read file %q", s2DemPath)
+	assert.NoError(b, err, "failed to read file %q", demPath)
 	assert.Equal(b, int64(n), inf.Size(), "byte count not as expected")
 
 	b.ResetTimer()

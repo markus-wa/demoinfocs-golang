@@ -70,15 +70,28 @@ func (s *serializer) getFieldPathForName(fp *fieldPath, name string) bool {
 		return true
 	}
 
-	dotIndex := strings.Index(name, ".")
-	if dotIndex != -1 {
+	// Fields disambiguated with their sendNode contain dots in their own name
+	// (e.g. m_AttributeList.m_Attributes), so the prefix before any dot may be
+	// the field name. Try each dot position and backtrack on failure.
+	for dotIndex := strings.Index(name, "."); dotIndex != -1; {
 		nameBeforeDot := name[:dotIndex]
-		if s.fieldIndexes[nameBeforeDot] != nil {
-			fp.path[fp.last] = s.fieldIndexes[nameBeforeDot].index
+		if fi := s.fieldIndexes[nameBeforeDot]; fi != nil {
+			last := fp.last
+			fp.path[fp.last] = fi.index
 			fp.last++
-			f := s.fieldIndexes[nameBeforeDot].field
-			return f.getFieldPathForName(fp, name[len(f.varName)+1:])
+
+			if fi.field.getFieldPathForName(fp, name[dotIndex+1:]) {
+				return true
+			}
+
+			fp.last = last
 		}
+
+		next := strings.Index(name[dotIndex+1:], ".")
+		if next == -1 {
+			break
+		}
+		dotIndex += 1 + next
 	}
 
 	return false
@@ -101,7 +114,7 @@ func (s *serializer) addField(f *field) {
 	newFieldIndex := len(s.fields)
 	s.fields = append(s.fields, f)
 
-	s.fieldIndexes[f.varName] = &fieldIndex{
+	s.fieldIndexes[f.name] = &fieldIndex{
 		index: newFieldIndex,
 		field: f,
 	}

@@ -217,10 +217,15 @@ type demoInfoProviderMock struct {
 	playerResourceEntity st.Entity
 	equipment            *Equipment
 	isSource2            bool
+	networkProtocol      int
 }
 
 func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
 	return p.entitiesByHandle[handle]
+}
+
+func (p demoInfoProviderMock) NetworkProtocol() int {
+	return p.networkProtocol
 }
 
 func (p demoInfoProviderMock) IsSource2() bool {
@@ -297,6 +302,10 @@ func entityWithProperties(properties []fakeProp) *stfake.Entity {
 		entity.On("PropertyValue", prop.propName).Return(prop.value, true)
 		entity.On("PropertyValueMust", prop.propName).Return(prop.value)
 	}
+
+	// testify matches expectations in registration order, so the catch-all for
+	// unknown properties must come after the specific ones
+	entity.On("PropertyValue", mock.Anything).Return(st.PropertyValue{}, false)
 
 	return entity
 }

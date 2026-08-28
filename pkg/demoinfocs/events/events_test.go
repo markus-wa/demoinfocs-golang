@@ -71,6 +71,10 @@ func (p demoInfoProviderMock) IsSource2() bool {
 	return p.isSource2
 }
 
+func (p demoInfoProviderMock) NetworkProtocol() int {
+	return 0
+}
+
 func (p demoInfoProviderMock) TickRate() float64 {
 	return 128
 }

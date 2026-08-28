@@ -465,6 +465,14 @@ func (p demoInfoProvider) IsSource2() bool {
 	return p.parser.isSource2()
 }
 
+func (p demoInfoProvider) NetworkProtocol() int {
+	if p.parser.header == nil {
+		return 0
+	}
+
+	return p.parser.header.NetworkProtocol
+}
+
 func (p demoInfoProvider) IngameTick() int {
 	return p.parser.gameState.IngameTick()
 }

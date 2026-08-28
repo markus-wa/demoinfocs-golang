@@ -6,7 +6,9 @@ import (
 
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 	stfake "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables/fake"
 )
@@ -176,8 +178,11 @@ func TestPlayer_IsSpottedBy_HasSpotted_BitOver32(t *testing.T) {
 func TestPlayer_IsSpottedBy_EntityNull(t *testing.T) {
 	pl := new(Player)
 	pl.EntityID = 1
+	pl.demoInfoProvider = s1DemoInfoProvider
+
 	other := new(Player)
 	other.EntityID = 2
+	other.demoInfoProvider = s1DemoInfoProvider
 
 	assert.False(t, pl.IsSpottedBy(other))
 	assert.False(t, other.HasSpotted(pl))
@@ -460,6 +465,8 @@ func createPlayerForVelocityTest() *Player {
 	position := r3.Vector{X: 20, Y: 300, Z: 100}
 
 	pawnEntity.On("Position").Return(position)
+	// velocity is not networked in this scenario -> position-delta fallback
+	pawnEntity.On("PropertyValue", mock.Anything).Return(st.PropertyValue{}, false)
 
 	pl := &Player{
 		Entity: controllerEntity,
@@ -490,6 +497,76 @@ func TestPlayer_VelocityDidNotChangeS2(t *testing.T) {
 
 	expected := r3.Vector{X: 0, Y: 0, Z: 0}
 	assert.Equal(t, expected, pl.Velocity())
+}
+
+func playerWithS2PawnPositionAndProperties(pos r3.Vector, props []fakeProp) *Player {
+	controllerEntity := entityWithProperties([]fakeProp{
+		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
+		{propName: "m_hPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
+	})
+
+	pawnEntity := entityWithProperties(props)
+	pawnEntity.On("Position").Return(pos)
+
+	pl := &Player{
+		Entity: controllerEntity,
+	}
+	pl.demoInfoProvider = demoInfoProviderMock{
+		isSource2:       true,
+		networkProtocol: constants.NetworkProtocolAnimGraph2,
+		entitiesByHandle: map[uint64]st.Entity{
+			1: pawnEntity,
+		},
+	}
+
+	return pl
+}
+
+func TestPlayer_VelocityS2_Networked(t *testing.T) {
+	pl := playerWithS2PawnPositionAndProperties(r3.Vector{X: 20, Y: 300, Z: 100}, []fakeProp{
+		{propName: "m_vecVelocity.m_vecX", value: st.PropertyValue{Any: float32(250), S2: true}},
+		{propName: "m_vecVelocity.m_vecY", value: st.PropertyValue{Any: float32(-130.5), S2: true}},
+		{propName: "m_vecVelocity.m_vecZ", value: st.PropertyValue{Any: float32(0), S2: true}},
+	})
+	pl.PreviousFramePosition = r3.Vector{X: 999, Y: 999, Z: 999} // must be ignored
+
+	assert.Equal(t, r3.Vector{X: 250, Y: -130.5, Z: 0}, pl.Velocity())
+}
+
+// On demos recorded before the AnimGraph 2 update the m_vecVelocity.m_vec*
+// properties resolve and read as 0 (baseline value) without ever being
+// updated; the position delta must be used regardless.
+func TestPlayer_VelocityS2_OldDemoUsesPositionDelta(t *testing.T) {
+	pl := playerWithS2PawnPositionAndProperties(r3.Vector{X: 20, Y: 300, Z: 100}, []fakeProp{
+		{propName: "m_vecVelocity.m_vecX", value: st.PropertyValue{Any: float32(0), S2: true}},
+		{propName: "m_vecVelocity.m_vecY", value: st.PropertyValue{Any: float32(0), S2: true}},
+		{propName: "m_vecVelocity.m_vecZ", value: st.PropertyValue{Any: float32(0), S2: true}},
+	})
+
+	dip := pl.demoInfoProvider.(demoInfoProviderMock)
+	dip.networkProtocol = constants.NetworkProtocolAnimGraph2 - 1
+	pl.demoInfoProvider = dip
+
+	pl.PreviousFramePosition = r3.Vector{X: 10, Y: 200, Z: 50}
+
+	assert.Equal(t, r3.Vector{X: 640, Y: 6400, Z: 3200}, pl.Velocity())
+}
+
+func TestPlayer_PositionEyesS2(t *testing.T) {
+	pl := playerWithS2PawnPositionAndProperties(r3.Vector{X: 120.5, Y: -33.25, Z: 14}, []fakeProp{
+		{propName: "m_vecViewOffset.m_vecX", value: st.PropertyValue{Any: float32(1.5), S2: true}},
+		{propName: "m_vecViewOffset.m_vecY", value: st.PropertyValue{Any: float32(-2.25), S2: true}},
+		{propName: "m_vecViewOffset.m_vecZ", value: st.PropertyValue{Any: float32(64), S2: true}},
+	})
+
+	assert.Equal(t, r3.Vector{X: 122, Y: -35.5, Z: 78}, pl.PositionEyes())
+}
+
+func TestPlayer_PositionEyesS2_OffsetUnavailable(t *testing.T) {
+	pos := r3.Vector{X: -10, Y: 5, Z: 42}
+	pl := playerWithS2PawnPositionAndProperties(pos, nil)
+
+	assert.Equal(t, pos, pl.PositionEyes())
 }
 
 func TestPlayer_Velocity_EntityNil(t *testing.T) {

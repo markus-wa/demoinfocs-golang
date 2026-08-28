@@ -43,7 +43,12 @@ func (e *Entity) SerialNum() int {
 
 func (e *Entity) Properties() (out []st.Property) {
 	for _, fp := range e.class.getFieldPaths(newFieldPath(), e.state) {
-		out = append(out, e.Property(e.class.getNameForFieldPath(fp)))
+		prop := e.Property(e.class.getNameForFieldPath(fp))
+		if prop == nil {
+			continue // a generated name must always resolve; don't hand out nil properties if it doesn't
+		}
+
+		out = append(out, prop)
 	}
 
 	return
@@ -178,14 +183,45 @@ func (e *Entity) ApplyUpdate(reader *bit.BitReader) {
 	panic("not implemented")
 }
 
+// CS2 networks an entity's position through its body component. The cell and
+// offset fields sit under a send-node group whose name depends on the
+// body-component type: m_skeletonInstance.m_vecOrigin for animated entities
+// (CBodyComponentBaseAnimGraph, CBodyComponentBaseModelEntity) and
+// m_sceneNode.m_vecOrigin for point entities (CBodyComponentPoint).
 const (
-	propCellX = "CBodyComponent.m_cellX"
-	propCellY = "CBodyComponent.m_cellY"
-	propCellZ = "CBodyComponent.m_cellZ"
-	propVecX  = "CBodyComponent.m_vecX"
-	propVecY  = "CBodyComponent.m_vecY"
-	propVecZ  = "CBodyComponent.m_vecZ"
+	propCellX = "CBodyComponent.m_skeletonInstance.m_vecOrigin.m_cellX"
+	propCellY = "CBodyComponent.m_skeletonInstance.m_vecOrigin.m_cellY"
+	propCellZ = "CBodyComponent.m_skeletonInstance.m_vecOrigin.m_cellZ"
+	propVecX  = "CBodyComponent.m_skeletonInstance.m_vecOrigin.m_vecX"
+	propVecY  = "CBodyComponent.m_skeletonInstance.m_vecOrigin.m_vecY"
+	propVecZ  = "CBodyComponent.m_skeletonInstance.m_vecOrigin.m_vecZ"
+
+	propCellXPoint = "CBodyComponent.m_sceneNode.m_vecOrigin.m_cellX"
+	propCellYPoint = "CBodyComponent.m_sceneNode.m_vecOrigin.m_cellY"
+	propCellZPoint = "CBodyComponent.m_sceneNode.m_vecOrigin.m_cellZ"
+	propVecXPoint  = "CBodyComponent.m_sceneNode.m_vecOrigin.m_vecX"
+	propVecYPoint  = "CBodyComponent.m_sceneNode.m_vecOrigin.m_vecY"
+	propVecZPoint  = "CBodyComponent.m_sceneNode.m_vecOrigin.m_vecZ"
 )
+
+var positionPropPairs = [...][2]string{
+	{propCellX, propCellXPoint},
+	{propCellY, propCellYPoint},
+	{propCellZ, propCellZPoint},
+	{propVecX, propVecXPoint},
+	{propVecY, propVecYPoint},
+	{propVecZ, propVecZPoint},
+}
+
+// positionProp returns the position-related property for this entity's
+// body-component type, or nil if the entity has neither variant.
+func (e *Entity) positionProp(skeleton string, point string) st.Property {
+	if prop := e.Property(skeleton); prop != nil {
+		return prop
+	}
+
+	return e.Property(point)
+}
 
 // Returns a coordinate from a cell + offset
 func coordFromCell(cell uint64, offset float32) float64 {
@@ -199,12 +235,23 @@ func coordFromCell(cell uint64, offset float32) float64 {
 }
 
 func (e *Entity) Position() r3.Vector {
-	cellXVal := e.Property(propCellX).Value()
-	cellYVal := e.Property(propCellY).Value()
-	cellZVal := e.Property(propCellZ).Value()
-	offsetXVal := e.Property(propVecX).Value()
-	offsetYVal := e.Property(propVecY).Value()
-	offsetZVal := e.Property(propVecZ).Value()
+	cellXProp := e.positionProp(propCellX, propCellXPoint)
+	cellYProp := e.positionProp(propCellY, propCellYPoint)
+	cellZProp := e.positionProp(propCellZ, propCellZPoint)
+	offsetXProp := e.positionProp(propVecX, propVecXPoint)
+	offsetYProp := e.positionProp(propVecY, propVecYPoint)
+	offsetZProp := e.positionProp(propVecZ, propVecZPoint)
+
+	if cellXProp == nil || cellYProp == nil || cellZProp == nil || offsetXProp == nil || offsetYProp == nil || offsetZProp == nil {
+		return r3.Vector{} // entity without a body component
+	}
+
+	cellXVal := cellXProp.Value()
+	cellYVal := cellYProp.Value()
+	cellZVal := cellZProp.Value()
+	offsetXVal := offsetXProp.Value()
+	offsetYVal := offsetYProp.Value()
+	offsetZVal := offsetZProp.Value()
 
 	if cellXVal.Any == nil || cellYVal.Any == nil || cellZVal.Any == nil || offsetXVal.Any == nil || offsetYVal.Any == nil || offsetZVal.Any == nil {
 		return r3.Vector{} // CS2 POV demos
@@ -234,12 +281,11 @@ func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 		}
 	}
 
-	e.Property(propCellX).OnUpdate(firePosUpdate)
-	e.Property(propCellY).OnUpdate(firePosUpdate)
-	e.Property(propCellZ).OnUpdate(firePosUpdate)
-	e.Property(propVecX).OnUpdate(firePosUpdate)
-	e.Property(propVecY).OnUpdate(firePosUpdate)
-	e.Property(propVecZ).OnUpdate(firePosUpdate)
+	for _, names := range positionPropPairs {
+		if prop := e.positionProp(names[0], names[1]); prop != nil {
+			prop.OnUpdate(firePosUpdate)
+		}
+	}
 }
 
 func (e *Entity) OnDestroy(delegate func()) {

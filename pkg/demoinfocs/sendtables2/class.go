@@ -56,7 +56,7 @@ func (c *class) String() string {
 	props := make([]string, 0, len(c.serializer.fields))
 
 	for _, f := range c.serializer.fields {
-		props = append(props, fmt.Sprintf("%s: %s", f.varName, f.varType))
+		props = append(props, fmt.Sprintf("%s: %s", f.name, f.varType))
 	}
 
 	return fmt.Sprintf("%d %s\n %s", c.classId, c.name, strings.Join(props, "\n "))
@@ -70,7 +70,7 @@ func (c *class) collectFieldsEntries(fields []*field, prefix string) []string {
 			subPaths := c.collectFieldsEntries(field.serializer.fields, prefix+field.serializer.name+".")
 			paths = append(paths, subPaths...)
 		} else {
-			paths = append(paths, prefix+field.varName)
+			paths = append(paths, prefix+field.name)
 		}
 	}
 

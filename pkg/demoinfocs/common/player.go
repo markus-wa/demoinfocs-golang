@@ -33,7 +33,7 @@ type Player struct {
 	IsPlanting            bool
 	IsReloading           bool
 	IsUnknown             bool      // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
-	PreviousFramePosition r3.Vector // Deprecated: may be removed in v5 due to performance concerns, track this yourself.
+	PreviousFramePosition r3.Vector // Deprecated: only maintained for demos recorded before the AnimGraph 2 update to retrieve the velocity based on previous/current frames
 	ButtonsPressedState   uint64    // Pressed buttons state represented as an uint64. You can use IsPressingButton(buttonMask) to check for specific buttons.
 }
 
@@ -243,14 +243,14 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 	var mask st.Property
 	if bit < 32 {
 		if isSource2 {
-			mask = targetEntity.Property("m_bSpottedByMask.0000")
+			mask = targetEntity.Property("m_entitySpottedState.m_bSpottedByMask.0000")
 		} else {
 			mask = targetEntity.Property("m_bSpottedByMask.000")
 		}
 	} else {
 		bit -= 32
 		if isSource2 {
-			mask = targetEntity.Property("m_bSpottedByMask.0001")
+			mask = targetEntity.Property("m_entitySpottedState.m_bSpottedByMask.0001")
 		} else {
 			mask = targetEntity.Property("m_bSpottedByMask.001")
 		}
@@ -565,7 +565,18 @@ func (p *Player) Position() r3.Vector {
 // See also Position().
 func (p *Player) PositionEyes() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
-		panic("PositionEyes() is not supported for Source 2 demos")
+		pos := p.Position()
+
+		pawnEntity := p.PlayerPawnEntity()
+		x, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecX")
+		y, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecY")
+		z, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecZ")
+
+		pos.X += float64(x)
+		pos.Y += float64(y)
+		pos.Z += float64(z)
+
+		return pos
 	}
 
 	if p.Entity == nil {
@@ -579,10 +590,29 @@ func (p *Player) PositionEyes() r3.Vector {
 	return pos
 }
 
-// Velocity returns the player's velocity.
-// Deprecated: will be removed due to performance concerns, you will need to track this yourself.
+// Velocity returns the player's velocity in game units per second.
+//
+// For CS2 demos, the velocity is networked only in demos after the
+// AnimGraph 2 update (28/07/2025). For older demos, it falls back
+// to the position delta between the current and previous frame.
 func (p *Player) Velocity() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
+		// The m_vecVelocity.m_vec* properties may be present on demos recorded
+		// before the AnimGraph 2 update, but they are never updated and always read
+		// as 0, so the network protocol decides which source to use.
+		if p.demoInfoProvider.NetworkProtocol() >= constants.NetworkProtocolAnimGraph2 {
+			pawnEntity := p.PlayerPawnEntity()
+			x, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
+			y, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecY")
+			z, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecZ")
+
+			return r3.Vector{
+				X: float64(x),
+				Y: float64(y),
+				Z: float64(z),
+			}
+		}
+
 		t := 64.0
 		diff := p.Position().Sub(p.PreviousFramePosition)
 
@@ -793,7 +823,7 @@ func (p *Player) ColorOrErr() (Color, error) {
 // Kills returns the amount of kills the player has as shown on the scoreboard.
 func (p *Player) Kills() int {
 	if p.demoInfoProvider.IsSource2() {
-		return getInt(p.Entity, "m_pActionTrackingServices.m_iKills")
+		return getInt(p.Entity, "m_pActionTrackingServices.m_matchStats.m_iKills")
 	}
 
 	return getInt(p.resourceEntity(), "m_iKills."+p.entityIDStr())
@@ -802,7 +832,7 @@ func (p *Player) Kills() int {
 // Deaths returns the amount of deaths the player has as shown on the scoreboard.
 func (p *Player) Deaths() int {
 	if p.demoInfoProvider.IsSource2() {
-		return getInt(p.Entity, "m_pActionTrackingServices.m_iDeaths")
+		return getInt(p.Entity, "m_pActionTrackingServices.m_matchStats.m_iDeaths")
 	}
 
 	return getInt(p.resourceEntity(), "m_iDeaths."+p.entityIDStr())
@@ -811,7 +841,7 @@ func (p *Player) Deaths() int {
 // Assists returns the amount of assists the player has as shown on the scoreboard.
 func (p *Player) Assists() int {
 	if p.demoInfoProvider.IsSource2() {
-		return getInt(p.Entity, "m_pActionTrackingServices.m_iAssists")
+		return getInt(p.Entity, "m_pActionTrackingServices.m_matchStats.m_iAssists")
 	}
 
 	return getInt(p.resourceEntity(), "m_iAssists."+p.entityIDStr())
@@ -829,7 +859,7 @@ func (p *Player) MVPs() int {
 // TotalDamage returns the total health damage done by the player.
 func (p *Player) TotalDamage() int {
 	if p.demoInfoProvider.IsSource2() {
-		value := p.Entity.PropertyValueMust("m_pActionTrackingServices.m_iDamage")
+		value := p.Entity.PropertyValueMust("m_pActionTrackingServices.m_matchStats.m_iDamage")
 		if value.Any == nil {
 			return 0
 		}
@@ -842,7 +872,7 @@ func (p *Player) TotalDamage() int {
 // UtilityDamage returns the total damage done by the player with grenades.
 func (p *Player) UtilityDamage() int {
 	if p.demoInfoProvider.IsSource2() {
-		value := p.Entity.PropertyValueMust("m_pActionTrackingServices.m_iUtilityDamage")
+		value := p.Entity.PropertyValueMust("m_pActionTrackingServices.m_matchStats.m_iUtilityDamage")
 		if value.Any == nil {
 			return 0
 		}
@@ -904,6 +934,7 @@ type demoInfoProvider interface {
 	FindWeaponByEntityID(id int) *Equipment
 	FindEntityByHandle(handle uint64) st.Entity
 	IsSource2() bool
+	NetworkProtocol() int // network protocol version of the demo, 0 when unknown or with CS:GO demos
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.
