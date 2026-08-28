@@ -560,23 +560,17 @@ func (p *Player) Position() r3.Vector {
 	return p.Entity.Position()
 }
 
-// PositionEyes returns the player's position with the Z value at eye height.
-// This is what you get from cl_showpos 1.
-// See also Position().
+// PositionEyes returns the in-game coordinates at the player's eye position.
 func (p *Player) PositionEyes() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
 		pos := p.Position()
-
 		pawnEntity := p.PlayerPawnEntity()
-		x, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecX")
-		y, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecY")
-		z, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecZ")
 
-		pos.X += float64(x)
-		pos.Y += float64(y)
-		pos.Z += float64(z)
-
-		return pos
+		return pos.Add(r3.Vector{
+			X: float64(getFloat(pawnEntity, "m_vecViewOffset.m_vecX")),
+			Y: float64(getFloat(pawnEntity, "m_vecViewOffset.m_vecY")),
+			Z: float64(getFloat(pawnEntity, "m_vecViewOffset.m_vecZ")),
+		})
 	}
 
 	if p.Entity == nil {
