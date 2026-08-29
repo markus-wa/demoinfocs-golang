@@ -13,6 +13,7 @@ linters:
     - copyloopvar
     - dogsled
     - dupl
+    - errcheck
     - exhaustive
     - funlen
     - gocognit

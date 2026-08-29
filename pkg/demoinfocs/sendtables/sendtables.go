@@ -142,7 +142,7 @@ func (sc *serverClass) newEntity(entityDataReader *bit.BitReader, entityID int, 
 	} else if sc.instanceBaseline != nil {
 		r := bit.NewSmallBitReader(bytes.NewReader(sc.instanceBaseline))
 		sc.preprocessedBaseline = entity.initializeBaseline(r)
-		r.Pool()
+		_ = r.Pool() // no way to report the error here, and pooling failures are non-fatal
 	} else {
 		sc.preprocessedBaseline = make(map[int]PropertyValue)
 	}

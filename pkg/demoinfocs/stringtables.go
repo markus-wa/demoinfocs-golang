@@ -85,7 +85,7 @@ func (p *parser) parseSingleStringTable(name string) {
 
 			switch name {
 			case stNameUserInfo:
-				player := parsePlayerInfo(bytes.NewReader(data))
+				player := p.parsePlayerInfo(bytes.NewReader(data))
 
 				playerIndex, err := strconv.Atoi(stringName)
 				if err != nil {
@@ -259,7 +259,7 @@ func (p *parser) processStringTableS1(tab createStringTable, br *bit.BitReader) 
 
 		switch tab.GetName() {
 		case stNameUserInfo:
-			player := parsePlayerInfo(bytes.NewReader(userdata))
+			player := p.parsePlayerInfo(bytes.NewReader(userdata))
 
 			if p.header.ClientName == player.Name {
 				p.recordingPlayerSlot = idx
@@ -488,7 +488,7 @@ func (p *parser) processStringTable(tab createStringTable) {
 	}
 }
 
-func parsePlayerInfo(reader io.Reader) common.PlayerInfo {
+func (p *parser) parsePlayerInfo(reader io.Reader) common.PlayerInfo {
 	br := bit.NewSmallBitReader(reader)
 
 	const (
@@ -516,7 +516,7 @@ func parsePlayerInfo(reader io.Reader) common.PlayerInfo {
 		FilesDownloaded: br.ReadSingleByte(),
 	}
 
-	br.Pool()
+	p.poolBitReader(br)
 
 	return res
 }
