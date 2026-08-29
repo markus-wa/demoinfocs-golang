@@ -154,6 +154,7 @@ func TestGetThrownGrenade_Found(t *testing.T) {
 // infinitely recurse when ControlledBot() creates a circular reference between two players (see #620).
 func TestGetThrownGrenade_CircularControlledBot(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
+	p.header = &common.DemoHeader{Filestamp: "PBDEMS2"}
 	provider := demoInfoProvider{parser: p}
 
 	playerA := common.NewPlayer(provider)

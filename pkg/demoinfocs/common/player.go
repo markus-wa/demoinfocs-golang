@@ -565,11 +565,14 @@ func (p *Player) PositionEyes() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
 		pos := p.Position()
 		pawnEntity := p.PlayerPawnEntity()
+		x, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecX")
+		y, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecY")
+		z, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecZ")
 
 		return pos.Add(r3.Vector{
-			X: float64(getFloat(pawnEntity, "m_vecViewOffset.m_vecX")),
-			Y: float64(getFloat(pawnEntity, "m_vecViewOffset.m_vecY")),
-			Z: float64(getFloat(pawnEntity, "m_vecViewOffset.m_vecZ")),
+			X: float64(x),
+			Y: float64(y),
+			Z: float64(z),
 		})
 	}
 
