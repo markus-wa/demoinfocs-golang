@@ -285,7 +285,7 @@ func (r *reader) readCoord() float32 {
 			fractval = r.readBits(5)
 		}
 
-		value = float32(intval) + float32(fractval)*(1.0/(1<<5))
+		value = float32(intval) + float32(float32(fractval)*(1.0/(1<<5)))
 
 		// Fixup the sign if negative.
 		if signbit {
@@ -330,7 +330,7 @@ func (r *reader) read3BitNormal() [3]float32 {
 	}
 
 	negZ := r.readBoolean()
-	prodsum := ret[0]*ret[0] + ret[1]*ret[1]
+	prodsum := float32(ret[0]*ret[0]) + float32(ret[1]*ret[1])
 
 	if prodsum < 1.0 {
 		ret[2] = float32(math.Sqrt(float64(1.0 - prodsum)))
