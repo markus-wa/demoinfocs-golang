@@ -54,6 +54,9 @@ issues:
       linters:
         - wsl
         - funlen
+    - path: pkg/demoinfocs/sendtables2
+      linters:
+        - godox
 
 linters-settings:
   gocritic:
