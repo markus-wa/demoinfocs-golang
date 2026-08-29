@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
-	"sort"
+	"slices"
 	"time"
 
 	"github.com/pkg/errors"
@@ -328,8 +328,8 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 
 	p.poolBitReader(r)
 
-	sort.SliceStable(p.pendingMessagesCache, func(i, j int) bool {
-		return p.pendingMessagesCache[i].priority() < p.pendingMessagesCache[j].priority()
+	slices.SortStableFunc(p.pendingMessagesCache, func(a, b pendingMessage) int {
+		return a.priority() - b.priority()
 	})
 
 	for _, m := range p.pendingMessagesCache {
