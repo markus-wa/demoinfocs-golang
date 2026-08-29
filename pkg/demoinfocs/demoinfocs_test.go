@@ -259,7 +259,7 @@ func TestEncryptedNetMessages(t *testing.T) {
 		t.Skip("skipping test due to -short flag")
 	}
 
-	infoF, err := os.Open(csDemosPath + "/valve_matchmaking/match730_003528806449641685104_1453182610_271.dem.info")
+	infoF, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem.info")
 	assert.NoError(t, err)
 
 	b, err := ioutil.ReadAll(infoF)
@@ -268,7 +268,7 @@ func TestEncryptedNetMessages(t *testing.T) {
 	k, err := demoinfocs.MatchInfoDecryptionKey(b)
 	assert.NoError(t, err)
 
-	f, err := os.Open(csDemosPath + "/valve_matchmaking/match730_003528806449641685104_1453182610_271.dem")
+	f, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem")
 	assert.NoError(t, err)
 	defer mustClose(t, f)
 
@@ -349,8 +349,8 @@ func TestBadNetMessageDecryptionKey(t *testing.T) {
 	}
 
 	const (
-		demPath  = csDemosPath + "/valve_matchmaking/match730_003528806449641685104_1453182610_271.dem"
-		infoPath = csDemosPath + "/valve_matchmaking/match730_003449478367177343081_1946274414_112.dem.info"
+		demPath  = csDemosPath + "/match730_003528806449641685104_1453182610_271.dem"
+		infoPath = csDemosPath + "/match730_003449478367177343081_1946274414_112.dem.info"
 	)
 
 	infoF, err := os.Open(infoPath)

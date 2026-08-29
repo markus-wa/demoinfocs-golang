@@ -11,7 +11,7 @@ func TestEncryptedNetMessages(t *testing.T) {
 		t.Skip("skipping test")
 	}
 
-	os.Args = []string{"cmd", "-demo", "../../test/cs-demos/valve_matchmaking/match730_003528806449641685104_1453182610_271.dem", "-info", "../../test/cs-demos/valve_matchmaking/match730_003528806449641685104_1453182610_271.dem.info"}
+	os.Args = []string{"cmd", "-demo", "../../test/cs-demos/match730_003528806449641685104_1453182610_271.dem", "-info", "../../test/cs-demos/match730_003528806449641685104_1453182610_271.dem.info"}
 
 	main()
 }
@@ -22,7 +22,7 @@ func TestEncryptedNetMessages_BadKey(t *testing.T) {
 		t.Skip("skipping test")
 	}
 
-	os.Args = []string{"cmd", "-demo", "../../test/cs-demos/valve_matchmaking/match730_003528806449641685104_1453182610_271.dem", "-info", "../../test/cs-demos/valve_matchmaking/match730_003449478367177343081_1946274414_112.dem.info"}
+	os.Args = []string{"cmd", "-demo", "../../test/cs-demos/match730_003528806449641685104_1453182610_271.dem", "-info", "../../test/cs-demos/match730_003449478367177343081_1946274414_112.dem.info"}
 
 	main()
 }
