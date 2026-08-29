@@ -378,14 +378,6 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 	}
 }
 
-func (p *parser) handleFullPacket(msg *msgs2.CDemoFullPacket) {
-	p.handleStringTables(msg.StringTable)
-
-	if msg.Packet.GetData() != nil {
-		p.handleDemoPacket(msg.Packet)
-	}
-}
-
 func (p *parser) handleFileInfo(msg *msgs2.CDemoFileInfo) {
 	p.header.PlaybackTicks = int(*msg.PlaybackTicks)
 	p.header.PlaybackFrames = int(*msg.PlaybackFrames)
