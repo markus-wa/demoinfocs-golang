@@ -11,18 +11,18 @@ jobs:
       REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Install Go
-        uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
+      - name: Checkout code
+        uses: actions/checkout@v7
 
       - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
         with:
           reviewdog_version: v0.11.0
 
-      - name: Checkout code
-        uses: actions/checkout@v7
+      - name: Install Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
 
       - name: Download Go Deps
         run: go mod download
