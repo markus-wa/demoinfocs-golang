@@ -34,13 +34,16 @@ func (r *reader) cachedFloat32(bits uint32) any {
 	// Mix high bits (exponent+sign) into the index to reduce collisions for
 	// clusters of similar values (e.g., nearby positions, velocities).
 	idx := (bits ^ (bits >> 16)) & f32CacheMask
+
 	e := &r.f32Cache[idx]
 	if e.bits == bits && e.boxed != nil {
 		return e.boxed
 	}
+
 	v := any(math.Float32frombits(bits))
 	e.bits = bits
 	e.boxed = v
+
 	return v
 }
 
@@ -77,8 +80,10 @@ func (r *reader) nextByte() byte {
 	if r.pos >= r.size {
 		r.nextBytePanic()
 	}
+
 	x := r.buf[r.pos]
 	r.pos++
+
 	return x
 }
 
@@ -151,9 +156,11 @@ func (r *reader) readLeUint64() uint64 {
 // readVarUint64 reads an unsigned 32-bit varint
 func (r *reader) readVarUint32() uint32 {
 	var x, s uint32
+
 	for {
 		b := uint32(r.readByte())
 		x |= (b & 0x7F) << s
+
 		s += 7
 		if ((b & 0x80) == 0) || (s == 35) {
 			break
@@ -166,24 +173,29 @@ func (r *reader) readVarUint32() uint32 {
 // readVarInt64 reads a signed 32-bit varint
 func (r *reader) readVarInt32() int32 {
 	ux := r.readVarUint32()
+
 	x := int32(ux >> 1) //nolint:gosec
 	if ux&1 != 0 {
 		x = ^x
 	}
+
 	return x
 }
 
 // readVarUint64 reads an unsigned 64-bit varint
 func (r *reader) readVarUint64() uint64 {
 	var x, s uint64
+
 	for i := 0; ; i++ {
 		b := r.readByte()
 		if b < 0x80 {
 			if i > 9 || i == 9 && b > 1 {
 				_panicf("read overflow: varint overflows uint64")
 			}
+
 			return x | uint64(b)<<s
 		}
+
 		x |= uint64(b&0x7f) << s
 		s += 7
 	}
@@ -197,9 +209,11 @@ func (r *reader) readBoolean() bool {
 	if r.bitCount == 0 {
 		r.refillByte()
 	}
+
 	b := r.bitVal&1 == 1
 	r.bitVal >>= 1
 	r.bitCount--
+
 	return b
 }
 
@@ -208,6 +222,7 @@ func (r *reader) refillByte() {
 	if r.pos >= r.size {
 		r.nextBytePanic()
 	}
+
 	r.bitVal = uint64(r.buf[r.pos])
 	r.pos++
 	r.bitCount = 8
@@ -236,15 +251,19 @@ func (r *reader) readUBitVarFP() uint32 {
 	if r.readBoolean() {
 		return r.readBits(2)
 	}
+
 	if r.readBoolean() {
 		return r.readBits(4)
 	}
+
 	if r.readBoolean() {
 		return r.readBits(10)
 	}
+
 	if r.readBoolean() {
 		return r.readBits(17)
 	}
+
 	return r.readBits(31)
 }
 
@@ -260,6 +279,7 @@ func (r *reader) readString() string {
 		if b == 0 {
 			break
 		}
+
 		r.strBuf = append(r.strBuf, b)
 	}
 

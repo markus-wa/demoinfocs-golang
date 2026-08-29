@@ -51,6 +51,7 @@ var (
 // Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match HL2DEMO.
 func (p *parser) ParseHeader() (common.DemoHeader, error) {
 	var h common.DemoHeader
+
 	h.Filestamp = p.bitReader.ReadCString(8)
 
 	switch h.Filestamp {
@@ -253,7 +254,7 @@ func (p *parser) parseFrameS1() bool {
 
 	// Skip 'player slot'
 	const nSlotBits = 8
-	p.bitReader.Skip(nSlotBits) //nolint:wsl
+	p.bitReader.Skip(nSlotBits)
 
 	debugDemoCommand(cmd)
 
@@ -490,7 +491,7 @@ func (p *parser) parsePacket() {
 	// 152 bytes CommandInfo, 4 bytes SeqNrIn, 4 bytes SeqNrOut
 	// See at the bottom of the file what the CommandInfo would contain if you are interested.
 	const nCommandInfoBits = (152 + 4 + 4) << 3
-	p.bitReader.Skip(nCommandInfoBits) //nolint:wsl
+	p.bitReader.Skip(nCommandInfoBits)
 
 	// Here we go
 	p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)

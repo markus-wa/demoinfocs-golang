@@ -479,6 +479,7 @@ func (p *parser) handleUserCommands(msg *msgs2.CSVCMsg_UserCommands) {
 		if player == nil {
 			continue
 		}
+
 		newState := buttons
 		if player.ButtonsPressedState != newState {
 			player.ButtonsPressedState = newState

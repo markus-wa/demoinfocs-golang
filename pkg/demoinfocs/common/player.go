@@ -241,6 +241,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 	bit := uint(clientSlot)
 
 	var mask st.Property
+
 	if bit < 32 {
 		if isSource2 {
 			mask = targetEntity.Property("m_entitySpottedState.m_bSpottedByMask.0000")
@@ -249,6 +250,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 		}
 	} else {
 		bit -= 32
+
 		if isSource2 {
 			mask = targetEntity.Property("m_entitySpottedState.m_bSpottedByMask.0001")
 		} else {
@@ -324,6 +326,7 @@ func (p *Player) IsDuckingInProgress() bool {
 		if pawnEntity == nil {
 			return false
 		}
+
 		duckAmount := pawnEntity.PropertyValueMust("m_pMovementServices.m_flDuckAmount").Float()
 		wantToDuck := pawnEntity.PropertyValueMust("m_pMovementServices.m_bDesiresDuck").BoolVal()
 
@@ -341,6 +344,7 @@ func (p *Player) IsUnDuckingInProgress() bool {
 		if pawnEntity == nil {
 			return false
 		}
+
 		duckAmount := pawnEntity.PropertyValueMust("m_pMovementServices.m_flDuckAmount").Float()
 		wantToDuck := pawnEntity.PropertyValueMust("m_pMovementServices.m_bDesiresDuck").BoolVal()
 
@@ -860,6 +864,7 @@ func (p *Player) TotalDamage() int {
 		if value.Any == nil {
 			return 0
 		}
+
 		return value.Int()
 	}
 
@@ -873,6 +878,7 @@ func (p *Player) UtilityDamage() int {
 		if value.Any == nil {
 			return 0
 		}
+
 		return value.Int()
 	}
 

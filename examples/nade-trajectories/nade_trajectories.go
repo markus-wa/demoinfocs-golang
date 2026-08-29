@@ -101,6 +101,7 @@ func main() {
 			for _, np := range nadeTrajectories {
 				nadeTrajectoriesFirst5Rounds = append(nadeTrajectoriesFirst5Rounds, np)
 			}
+
 			nadeTrajectories = make(map[int64]*nadePath)
 
 			// Copy infernos

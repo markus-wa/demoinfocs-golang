@@ -31,16 +31,19 @@ func main() {
 		if e.IsHeadshot {
 			hs = " (HS)"
 		}
+
 		var wallBang string
 		if e.PenetratedObjects > 0 {
 			wallBang = " (WB)"
 		}
+
 		fmt.Printf("%s <%v%s%s> %s\n", formatPlayer(e.Killer), e.Weapon, hs, wallBang, formatPlayer(e.Victim))
 	})
 
 	// Register handler on round end to figure out who won
 	p.RegisterEventHandler(func(e events.RoundEnd) {
 		gs := p.GameState()
+
 		switch e.Winner {
 		case common.TeamTerrorists:
 			// Winner's score + 1 because it hasn't actually been updated yet

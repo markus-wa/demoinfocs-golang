@@ -12,20 +12,25 @@ func newFieldState() *fieldState {
 
 func (s *fieldState) get(fp *fieldPath) interface{} {
 	x := s
+
 	z := 0
 	for i := 0; i <= fp.last; i++ {
 		z = fp.path[i]
 		if len(x.state) < z+1 {
 			return nil
 		}
+
 		if i == fp.last {
 			return x.state[z]
 		}
+
 		if _, ok := x.state[z].(*fieldState); !ok {
 			return nil
 		}
+
 		x = x.state[z].(*fieldState)
 	}
+
 	return nil
 }
 
@@ -42,9 +47,11 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 				s.state = s.state[:z+1]
 			}
 		}
+
 		if _, ok := s.state[z].(*fieldState); !ok {
 			s.state[z] = v
 		}
+
 		return
 	}
 
@@ -70,6 +77,7 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 			if _, ok := x.state[z].(*fieldState); !ok {
 				x.state[z] = v
 			}
+
 			return
 		}
 

@@ -185,6 +185,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 				if _, ok := fieldTypes[field.varType]; !ok {
 					fieldTypes[field.varType] = newFieldType(field.varType)
 				}
+
 				field.fieldType = fieldTypes[field.varType]
 
 				// find associated serializer

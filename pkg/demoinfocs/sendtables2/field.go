@@ -46,6 +46,7 @@ func newField(serializers map[string]*serializer, ser *msgs2.CSVCMsg_FlattenedSe
 		if p == nil {
 			return ""
 		}
+
 		return ser.GetSymbols()[*p]
 	}
 
@@ -107,6 +108,7 @@ func (f *field) setModel(model int) {
 		if f.fieldType.genericType == nil {
 			_panicf("no generic type for variable array field %#v", f)
 		}
+
 		f.baseDecoder = unsignedDecoder
 		f.childDecoder = findDecoderByBaseType(f)
 
@@ -203,7 +205,9 @@ func (f *field) getFieldPathForName(fp *fieldPath, name string) bool {
 		if !ok {
 			return false
 		}
+
 		fp.path[fp.last] = i
+
 		return true
 
 	case fieldModelFixedTable:
@@ -213,12 +217,15 @@ func (f *field) getFieldPathForName(fp *fieldPath, name string) bool {
 		if len(name) < 6 || name[4] != '.' {
 			return false
 		}
+
 		i, ok := atoi4(name[:4])
 		if !ok {
 			return false
 		}
+
 		fp.path[fp.last] = i
 		fp.last++
+
 		return f.serializer.getFieldPathForName(fp, name[5:])
 	}
 
@@ -232,12 +239,14 @@ func (f *field) getFieldPaths(fp *fieldPath, state *fieldState) []*fieldPath {
 	case fieldModelFixedArray:
 		if sub, ok := state.get(fp).(*fieldState); ok {
 			fp.last++
+
 			for i, v := range sub.state {
 				if v != nil {
 					fp.path[fp.last] = i
 					x = append(x, fp.copy())
 				}
 			}
+
 			fp.last--
 		}
 
@@ -251,24 +260,28 @@ func (f *field) getFieldPaths(fp *fieldPath, state *fieldState) []*fieldPath {
 	case fieldModelVariableArray:
 		if sub, ok := state.get(fp).(*fieldState); ok {
 			fp.last++
+
 			for i, v := range sub.state {
 				if v != nil {
 					fp.path[fp.last] = i
 					x = append(x, fp.copy())
 				}
 			}
+
 			fp.last--
 		}
 
 	case fieldModelVariableTable:
 		if sub, ok := state.get(fp).(*fieldState); ok {
 			fp.last += 2
+
 			for i, v := range sub.state {
 				if vv, ok := v.(*fieldState); ok {
 					fp.path[fp.last-1] = i
 					x = append(x, f.serializer.getFieldPaths(fp, vv)...)
 				}
 			}
+
 			fp.last -= 2
 		}
 

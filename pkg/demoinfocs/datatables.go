@@ -114,18 +114,21 @@ func (p *parser) bindBomb() {
 			if val.BoolVal() {
 				if p.isSource2() {
 					planterHandle := bombEntity.PropertyValueMust("m_hOwnerEntity").Handle()
+
 					pawnEntity := p.gameState.entities[entityIDFromHandle(planterHandle, true)]
 					if pawnEntity == nil {
 						return
 					}
 
 					ctlHandle := pawnEntity.PropertyValueMust("m_hController").Handle()
+
 					ctlEntity := p.gameState.entities[entityIDFromHandle(ctlHandle, true)]
 					if ctlEntity == nil {
 						return
 					}
 
 					ctlID := ctlEntity.ID()
+
 					planter := p.gameState.playersByEntityID[ctlID]
 					if planter == nil {
 						return
@@ -136,6 +139,7 @@ func (p *parser) bindBomb() {
 
 					siteNumber := p.gameState.currentPlanter.PlayerPawnEntity().PropertyValueMust("m_nWhichBombZone").Int()
 					site := events.BomsiteUnknown
+
 					switch siteNumber {
 					case 1:
 						site = events.BombsiteA
@@ -478,6 +482,7 @@ func (p *parser) bindNewPlayerS1(playerEntity st.Entity) {
 
 	playerEntity.OnDestroy(func() {
 		delete(p.gameState.playersByEntityID, entityID)
+
 		pl.Entity = nil
 	})
 
@@ -607,6 +612,7 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 					delete(p.rawPlayers, k)
 				}
 			}
+
 			p.gameEventHandler.dispatch(events.PlayerDisconnected{
 				Player: pl,
 			})
@@ -631,6 +637,7 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 
 	controllerEntity.OnDestroy(func() {
 		pl.IsConnected = false
+
 		delete(p.gameState.playersByEntityID, controllerEntity.ID())
 		delete(p.gameState.playerControllerEntities, controllerEntity.ID())
 		delete(p.gameState.playersByUserID, pl.UserID)
@@ -682,6 +689,7 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		if pl == nil {
 			return
 		}
+
 		if val.Float() == 0 {
 			pl.FlashTick = 0
 		} else {
@@ -705,6 +713,7 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		if pl == nil {
 			return
 		}
+
 		pl.IsReloading = false
 	})
 
@@ -713,6 +722,7 @@ func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 		if pl == nil {
 			return
 		}
+
 		pl.IsDefusing = val.BoolVal()
 	})
 
@@ -776,6 +786,7 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 					// Player already has a weapon in this slot.
 					delete(pl.Inventory, cache[i2])
 				}
+
 				cache[i2] = entityID
 
 				wep := p.gameState.weapons[entityID]
@@ -798,6 +809,7 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 				if cache[i2] != 0 && pl.Inventory[cache[i2]] != nil {
 					pl.Inventory[cache[i2]].Owner = nil
 				}
+
 				delete(pl.Inventory, cache[i2])
 
 				cache[i2] = 0
@@ -849,6 +861,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 
 	pawnEntity.Property(playerWeaponPrefixS2).OnUpdate(func(pv st.PropertyValue) {
 		inventorySize = len(pv.S2Array())
+
 		setPlayerInventory()
 	})
 
@@ -939,7 +952,7 @@ func (p *parser) bindWeapons() {
 				case "CBaseCSGrenade":
 					// @micvbang TODO: handle grenades dropped by dead player.
 					// Grenades that were dropped by a dead player (and can be picked up by other players).
-				} //nolint:wsl
+				}
 			}
 		}
 	}
@@ -966,12 +979,14 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	}
 
 	var wep common.EquipmentType
-	entity.OnCreateFinished(func() { //nolint:wsl
+
+	entity.OnCreateFinished(func() {
 		if p.demoInfoProvider.IsSource2() {
 			modelVal := entity.PropertyValueMust("CBodyComponent.m_skeletonInstance.m_modelState.m_hModel")
 
 			if modelVal.Any != nil {
 				model := modelVal.S2UInt64()
+
 				weaponType, exists := p.equipmentTypePerModel[model]
 				if exists {
 					wep = weaponType
@@ -986,6 +1001,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		proj.WeaponInstance = &wepCopy
 
 		unassert.NotNilf(proj.WeaponInstance, "couldn't find grenade instance for player")
+
 		if proj.WeaponInstance != nil {
 			unassert.NotNilf(proj.WeaponInstance.Owner, "getPlayerWeapon() returned weapon instance with Owner=nil")
 		}
@@ -1222,6 +1238,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 
 		lastMoneyIncreased = false
 		equipment.Owner = nil
+
 		delete(p.gameState.weapons, entityID)
 	})
 
@@ -1510,7 +1527,9 @@ func (p *parser) bindGameRules() {
 				}
 
 				message := "UNKNOWN"
+
 				var winner common.Team = common.TeamUnassigned
+
 				switch reason {
 				case events.RoundEndReasonTargetBombed:
 					winner = common.TeamTerrorists
@@ -1565,8 +1584,11 @@ func (p *parser) bindGameRules() {
 					message = "#SFUI_Notice_Round_Draw"
 				}
 
-				var winnerState *common.TeamState
-				var loserState *common.TeamState
+				var (
+					winnerState *common.TeamState
+					loserState  *common.TeamState
+				)
+
 				if winner != common.TeamUnassigned && winner != common.TeamSpectators {
 					winnerState = p.gameState.Team(winner)
 					loserState = winnerState.Opponent
@@ -1614,8 +1636,10 @@ func (p *parser) bindHostages() {
 		})
 
 		var state common.HostageState
+
 		entity.Property("m_nHostageState").OnUpdate(func(val st.PropertyValue) {
 			oldState := state
+
 			state = common.HostageState(val.Int())
 			if oldState != state {
 				p.eventDispatcher.Dispatch(events.HostageStateChanged{OldState: oldState, NewState: state, Hostage: p.gameState.hostages[entityID]})

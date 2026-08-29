@@ -10,5 +10,6 @@ func collectKills(parser demoinfocs.Parser) (kills []events.Kill, err error) {
 		kills = append(kills, kill)
 	})
 	err = parser.ParseToEnd()
+
 	return
 }

@@ -72,6 +72,7 @@ func (inf *Inferno) Fires() Fires {
 	if inf.demoInfoProvider.IsSource2() {
 		iFormat = "%04d"
 	}
+
 	for i := 0; i < nFires; i++ {
 		iStr := fmt.Sprintf(iFormat, i)
 

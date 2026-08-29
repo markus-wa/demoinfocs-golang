@@ -24,6 +24,7 @@ func main() {
 	// Register handler on round start to collect viewmodel settings
 	p.RegisterEventHandler(func(e events.RoundStart) {
 		fmt.Println("Player viewmodels:")
+
 		gs := p.GameState()
 
 		// Get all connected players
@@ -41,6 +42,7 @@ func main() {
 			fmt.Printf("%s: Viewmodel Offset=(%.1f, %.1f, %.1f), FOV=%.1f\n",
 				player.Name, offset.X, offset.Y, offset.Z, fov)
 		}
+
 		fmt.Println() // Empty line for readability
 	})
 

@@ -15,6 +15,7 @@ import (
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
 	checkError(err)
+
 	defer f.Close()
 
 	p := demoinfocs.NewParser(f)
@@ -26,7 +27,9 @@ func main() {
 				x := p.GameState().Participants().FindByHandle64(val.S2UInt64())
 				if x != nil {
 					var prev string
+
 					prevHandle := ent.Property("m_hPrevOwner").Value().S2UInt64()
+
 					prevPlayer := p.GameState().Participants().FindByHandle64(prevHandle)
 					if prevPlayer != nil {
 						if prevHandle != val.S2UInt64() {
@@ -37,6 +40,7 @@ func main() {
 					} else {
 						prev = "a brand new"
 					}
+
 					fmt.Printf("%s picked up %s AWP (#%d)\n", x.Name, prev, ent.ID())
 				}
 			})

@@ -166,6 +166,7 @@ var fieldPathTable = []fieldPathOp{
 	}},
 	{"PushN", 0, func(r *reader, fp *fieldPath) {
 		n := int(r.readUBitVar())
+
 		fp.path[fp.last] += int(r.readUBitVar())
 		for i := 0; i < n; i++ {
 			fp.last++
@@ -178,6 +179,7 @@ var fieldPathTable = []fieldPathOp{
 				fp.path[i] += int(r.readVarInt32()) + 1
 			}
 		}
+
 		count := int(r.readUBitVar())
 		for i := 0; i < count; i++ {
 			fp.last++
@@ -218,6 +220,7 @@ var fieldPathTable = []fieldPathOp{
 	}},
 	{"PopNAndNonTopographical", 1, func(r *reader, fp *fieldPath) {
 		fp.pop(r.readUBitVarFieldPath())
+
 		for i := 0; i <= fp.last; i++ {
 			if r.readBoolean() {
 				fp.path[i] += int(r.readVarInt32())
@@ -260,6 +263,7 @@ func (fp *fieldPath) copy() *fieldPath {
 	copy(x.path, fp.path)
 	x.last = fp.last
 	x.done = fp.done
+
 	return x
 }
 
@@ -269,6 +273,7 @@ func (fp *fieldPath) String() string {
 	for i := 0; i <= fp.last; i++ {
 		ss[i] = strconv.Itoa(fp.path[i])
 	}
+
 	return strings.Join(ss, "/")
 }
 
@@ -276,6 +281,7 @@ func (fp *fieldPath) String() string {
 func newFieldPath() *fieldPath {
 	fp := fpPool.Get().(*fieldPath)
 	fp.reset()
+
 	return fp
 }
 
@@ -319,6 +325,7 @@ func readFieldPaths(r *reader, paths *[]*fieldPath) int {
 
 		if fpHuffNodes[next].left < 0 { //nolint:nestif // leaf node
 			node = 0 // reset to root
+
 			fieldPathTable[fpHuffNodes[next].value].fn(r, fp)
 
 			if !fp.done {
@@ -331,6 +338,7 @@ func readFieldPaths(r *reader, paths *[]*fieldPath) int {
 					// Only copy the active portion of the path
 					copy(x.path[:fp.last+1], fp.path[:fp.last+1])
 				}
+
 				i++
 			}
 		} else {
@@ -349,5 +357,6 @@ func newHuffmanTree() huffmanTree {
 	for i, op := range fieldPathTable {
 		freqs[i] = op.weight
 	}
+
 	return buildHuffmanTree(freqs)
 }

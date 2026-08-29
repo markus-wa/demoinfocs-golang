@@ -157,6 +157,7 @@ func (ts *TeamState) ID() int {
 	if ts.demoInfoProvider.IsSource2() {
 		return int(getUInt64(ts.Entity, "m_iTeamNum"))
 	}
+
 	return getInt(ts.Entity, "m_iTeamNum")
 }
 
@@ -168,6 +169,7 @@ func (ts *TeamState) Score() int {
 	} else {
 		propName = "m_scoreTotal"
 	}
+
 	return getInt(ts.Entity, propName)
 }
 

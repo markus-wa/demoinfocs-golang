@@ -223,7 +223,7 @@ func (p *parser) processStringTableS1(tab createStringTable, br *bit.BitReader) 
 
 		var entry string
 
-		if br.ReadBit() { //nolint:wsl
+		if br.ReadBit() {
 			if br.ReadBit() {
 				idx := br.ReadInt(5)
 				bytes2cp := int(br.ReadInt(5))
@@ -243,12 +243,14 @@ func (p *parser) processStringTableS1(tab createStringTable, br *bit.BitReader) 
 		hist = append(hist, entry)
 
 		var userdata []byte
-		if br.ReadBit() { //nolint:wsl
+
+		if br.ReadBit() {
 			if tab.GetUserDataFixedSize() {
 				// Should always be < 8 bits => use faster ReadBitsToByte() over ReadBits()
 				userdata = []byte{br.ReadBitsToByte(int(tab.GetUserDataSizeBits()))}
 			} else {
 				const nUserdataBits = 14
+
 				userdata = br.ReadBytes(int(br.ReadInt(nUserdataBits)))
 			}
 		}
@@ -340,6 +342,7 @@ func (p *parser) parseStringTable(
 	// Value may be omitted
 	for i := 0; i < int(numUpdates); i++ {
 		key := ""
+
 		var value []byte
 
 		// Read a boolean to determine whether the operation is an increment or
@@ -605,6 +608,7 @@ func (p *parser) handleCreateStringTableS1(tab *msg.CSVCMsg_CreateStringTable) {
 
 func (p *parser) parseUserInfo(data []byte, playerIndex int) {
 	var userInfo msgs2.CMsgPlayerInfo
+
 	err := proto.Unmarshal(data, &userInfo)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse CMsgPlayerInfo msg"))

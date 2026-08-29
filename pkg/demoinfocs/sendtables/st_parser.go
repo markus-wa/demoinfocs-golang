@@ -203,6 +203,7 @@ func parseSendTable(r *bit.BitReader) sendTable {
 
 	for _, v := range st.GetProps() {
 		var prop sendTableProperty
+
 		prop.dataTableName = v.GetDtName()
 		prop.highValue = v.GetHighValue()
 		prop.lowValue = v.GetLowValue()
@@ -286,7 +287,7 @@ func sortProperyPrios(fProps []flattenedPropEntry) []int {
 	prios := make([]int, len(prioSet))
 
 	i := 0
-	for k := range prioSet { //nolint:wsl
+	for k := range prioSet {
 		prios[i] = k
 		i++
 	}
@@ -317,7 +318,7 @@ func (p *SendTableParser) gatherExcludesAndBaseClasses(st *sendTable, collectBas
 
 func (p *SendTableParser) gatherProps(st *sendTable, serverClassIndex int, prefix string) {
 	var tmpFlattenedProps []flattenedPropEntry
-	p.gatherPropsIterate(st, serverClassIndex, prefix, &tmpFlattenedProps) //nolint:wsl
+	p.gatherPropsIterate(st, serverClassIndex, prefix, &tmpFlattenedProps)
 	p.serverClasses[serverClassIndex].flattenedProps = append(p.serverClasses[serverClassIndex].flattenedProps, tmpFlattenedProps...)
 }
 
@@ -338,6 +339,7 @@ func (p *SendTableParser) gatherPropsIterate(tab *sendTable, serverClassIndex in
 				if len(prop.name) > 0 {
 					nfix += prop.name + "."
 				}
+
 				p.gatherProps(subTab, serverClassIndex, nfix)
 			}
 		} else {

@@ -107,16 +107,20 @@ func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
 func (e *Entity) addHandlerByFP(name string, handler st.PropertyUpdateHandler) {
 	fp := newFieldPath()
 	defer fp.release()
+
 	if !e.class.getFieldPathForName(fp, name) {
 		return
 	}
+
 	key, ok := fpFlatKey(fp)
 	if !ok {
 		return
 	}
+
 	if e.handlersByFP == nil {
 		e.handlersByFP = make(map[uint64][]st.PropertyUpdateHandler)
 	}
+
 	e.handlersByFP[key] = append(e.handlersByFP[key], handler)
 }
 
@@ -257,6 +261,7 @@ func coordFromCell(cell uint64, offset float32) float64 {
 		cellBits    = 9
 		maxCoordInt = 16384
 	)
+
 	cellCoord := float64(cell)*float64(1<<cellBits) - maxCoordInt
 
 	return cellCoord + float64(offset)
@@ -367,6 +372,7 @@ func (e *Entity) Map() map[string]any {
 	for _, fp := range e.class.getFieldPaths(newFieldPath(), e.state) {
 		values[e.class.getNameForFieldPath(fp)] = e.state.get(fp)
 	}
+
 	return values
 }
 
@@ -375,6 +381,7 @@ func (e *Entity) Get(name string) any {
 	if fp, ok := e.fpCache[name]; ok {
 		return e.state.get(fp)
 	}
+
 	if e.fpNoop[name] {
 		return nil
 	}
@@ -382,9 +389,12 @@ func (e *Entity) Get(name string) any {
 	fp := newFieldPath()
 	if !e.class.getFieldPathForName(fp, name) {
 		e.fpNoop[name] = true
+
 		fp.release()
+
 		return nil
 	}
+
 	e.fpCache[name] = fp
 
 	return e.state.get(fp)
@@ -411,6 +421,7 @@ func (e *Entity) GetUint32(name string) (uint32, bool) {
 			return uint32(x), true //nolint:gosec
 		}
 	}
+
 	return 0, false
 }
 
@@ -474,10 +485,12 @@ func serialForHandle(handle uint64) int32 {
 // FindEntityByHandle finds a given Entity by handle
 func (p *Parser) FindEntityByHandle(handle uint64) *Entity {
 	idx := handle2idx(handle)
+
 	e := p.FindEntity(idx)
 	if e != nil && e.GetSerial() != serialForHandle(handle) {
 		return nil
 	}
+
 	return e
 }
 
@@ -517,6 +530,7 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 				if initCap < 8 {
 					initCap = 8
 				}
+
 				fs = &fieldState{state: make([]any, newLen, initCap)}
 				e.state.set(fp, fs)
 			} else {
@@ -534,6 +548,7 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 						if newCap < newLen {
 							newCap = newLen
 						}
+
 						newState := make([]any, newLen, newCap)
 						copy(newState, fs.state)
 						fs.state = newState
@@ -560,6 +575,7 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 			for _, h := range e.handlersByFP[key] {
 				h(st.PropertyValue{Any: val, S2: true})
 			}
+
 			return
 		}
 	}
@@ -664,6 +680,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 				}
 
 				op = st.EntityOpUpdated
+
 				if !e.active {
 					e.active = true
 					op |= st.EntityOpEntered

@@ -90,15 +90,20 @@ func fpFlatKey(fp *fieldPath) (uint64, bool) {
 	if fp.last > 3 {
 		return 0, false
 	}
+
 	var key uint64
+
 	for i := 0; i <= fp.last; i++ {
 		v := fp.path[i]
 		if uint(v) > 0x3FFF { //nolint:gosec // 14-bit range: 0–16383
 			return 0, false
 		}
+
 		key |= uint64(v) << uint(i*14) //nolint:gosec
 	}
+
 	key |= uint64(fp.last) << 56 //nolint:gosec
+
 	return key, true
 }
 
@@ -107,13 +112,16 @@ func (c *class) getNameForFieldPath(fp *fieldPath) string {
 		if name, hit := c.fpFlatCache[key]; hit {
 			return name
 		}
+
 		name := strings.Join(c.serializer.getNameForFieldPath(fp, 0), ".")
 		c.fpFlatCache[key] = name
+
 		return name
 	}
 
 	// Slow path: deep or large-component path — use the pointer tree.
 	currentCacheNode := c.fpNameCache
+
 	for i := 0; i <= fp.last; i++ {
 		pos := fp.path[i]
 		if pos >= len(currentCacheNode.next) {
@@ -125,19 +133,24 @@ func (c *class) getNameForFieldPath(fp *fieldPath) string {
 				if newCap < 8 {
 					newCap = 8
 				}
+
 				newNext := make([]*fpNameTreeCache, needed, newCap)
 				copy(newNext, currentCacheNode.next)
 				currentCacheNode.next = newNext
 			}
 		}
+
 		if currentCacheNode.next[pos] == nil {
 			currentCacheNode.next[pos] = &fpNameTreeCache{}
 		}
+
 		currentCacheNode = currentCacheNode.next[pos]
 	}
+
 	if currentCacheNode.name == "" {
 		currentCacheNode.name = strings.Join(c.serializer.getNameForFieldPath(fp, 0), ".")
 	}
+
 	return currentCacheNode.name
 }
 

@@ -1,4 +1,3 @@
-//nolint:varcheck,deadcode
 package sendtables
 
 import (
@@ -379,6 +378,7 @@ func (propertyDecoder) readBitCoordMp(reader *bit.BitReader, isIntegral bool, is
 		isNegative = reader.ReadBit()
 
 		var intVal int
+
 		if readIntVal {
 			if inBounds {
 				intVal = int(reader.ReadInt(coordIntegerBitsMp)) + 1
@@ -386,6 +386,7 @@ func (propertyDecoder) readBitCoordMp(reader *bit.BitReader, isIntegral bool, is
 				intVal = int(reader.ReadInt(coordIntegerBits)) + 1
 			}
 		}
+
 		if isLowPrecision {
 			res = float32(intVal) + float32(float32(reader.ReadInt(coordFractionalBitsMpLowPrecision))*coordResolutionLowPrecision)
 		} else {

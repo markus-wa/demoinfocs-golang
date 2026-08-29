@@ -589,7 +589,6 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CSVCMsg_GameEventKe
 }
 
 func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CSVCMsg_GameEventKeyT) {
-
 	nadeEvent := geh.nadeEvent(data, common.EqFlash)
 
 	geh.gameState().lastFlash.player = nadeEvent.Thrower
@@ -709,8 +708,8 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEvent
 
 	if pl.GUID != "" && pl.XUID == 0 {
 		var err error
-		pl.XUID, err = guidToSteamID64(pl.GUID)
 
+		pl.XUID, err = guidToSteamID64(pl.GUID)
 		if err != nil {
 			geh.parser.setError(fmt.Errorf("failed to parse player XUID: %v", err.Error()))
 		}
@@ -745,6 +744,7 @@ func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CSVCMsg_GameEv
 
 			pl.IsConnected = false
 		}
+
 		return
 	}
 
@@ -1245,6 +1245,7 @@ func (p *parser) processFlyingFlashbangs() {
 		if flashbang.explodedFrame > 0 && flashbang.explodedFrame < p.currentFrame {
 			p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
 		}
+
 		return
 	}
 
