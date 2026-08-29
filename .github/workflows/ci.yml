@@ -17,7 +17,7 @@ jobs:
       - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
         with:
-          reviewdog_version: v0.11.0
+          reviewdog_version: v0.21.0
 
       - name: Install Go
         uses: actions/setup-go@v7
@@ -40,7 +40,7 @@ jobs:
           git fetch
 
           # Install golangci-lint
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.13.2
 
       - name: Build
         run: scripts/build.sh

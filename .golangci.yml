@@ -1,66 +1,83 @@
+version: "2"
+
 run:
-  deadline: 5m
   build-tags:
     - debugdemoinfocs
-  skip-dirs:
-    - msg
-  skip-files:
-    - parser_interface.go
-    - game_state_interface.go
   allow-parallel-runners: true
 
 linters:
-  disable-all: true
+  default: none
   enable:
+    - asciicheck
     - bodyclose
+    - copyloopvar
     - dogsled
     - dupl
-    - exportloopref
     - exhaustive
     - funlen
+    - gocognit
     - goconst
     - gocritic
     - gocyclo
-    - gofmt
-    - goimports
+    - godox
     - goprintffuncname
     - gosec
-    - gosimple
     - govet
     - ineffassign
     - misspell
     - nakedret
+    - nestif
     - noctx
     - nolintlint
+    - prealloc
+    - revive
     - rowserrcheck
     - staticcheck
-    - stylecheck
     - unconvert
     - unparam
     - unused
     - whitespace
-    - asciicheck
-    - gocognit
-    - godox
-    - nestif
-    - prealloc
-    - revive
-    - wsl
+    - wsl_v5
+  settings:
+    gocritic:
+      disabled-checks:
+        - ifElseChain
+    # Equivalent to the old wsl (v4) behavior, as suggested by golangci-lint.
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      # Exclude some linters from running on tests files.
+      - path: _test\.go
+        linters:
+          - wsl_v5
+          - funlen
+      - path: pkg/demoinfocs/sendtables2
+        linters:
+          - godox
+    paths:
+      - msg
+      - parser_interface.go
+      - game_state_interface.go
 
-issues:
-  exclude-rules:
-    # Exclude some linters from running on tests files.
-    - path: _test\.go
-      linters:
-        - wsl
-        - funlen
-    - path: pkg/demoinfocs/sendtables2
-      linters:
-        - godox
-
-linters-settings:
-  gocritic:
-    disabled-checks:
-      - ifElseChain
-  gci:
-    local-prefixes: github.com/markus-wa/demoinfocs-golang/v3
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/markus-wa/demoinfocs-golang/v4)
+  exclusions:
+    paths:
+      - msg
