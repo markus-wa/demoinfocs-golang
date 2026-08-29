@@ -126,6 +126,7 @@ func (p *parser) handleGameEventS2(ge *msgs2.CMsgSource1LegacyGameEvent) {
 type gameEventHandler struct {
 	parser                      *parser
 	gameEventNameToHandler      map[string]gameEventHandlerFunc
+	frameToBombExploded         map[int]bool
 	userIDToFallDamageFrame     map[int32]int
 	frameToRoundEndReason       map[int]events.RoundEndReason
 	ignoreBombsiteIndexNotFound bool // see https://github.com/markus-wa/demoinfocs-golang/issues/314
@@ -167,6 +168,7 @@ type gameEventHandlerFunc func(map[string]*msg.CSVCMsg_GameEventKeyT)
 func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameEventHandler {
 	geh := gameEventHandler{
 		parser:                      parser,
+		frameToBombExploded:         make(map[int]bool),
 		userIDToFallDamageFrame:     make(map[int32]int),
 		frameToRoundEndReason:       make(map[int]events.RoundEndReason),
 		ignoreBombsiteIndexNotFound: ignoreBombsiteIndexNotFound,
@@ -496,8 +498,8 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 	player := geh.playerByUserID32(userID)
 	attacker := geh.playerByUserID32(data["attacker"].GetValShort())
 
-	wepType := common.MapEquipment(data["weapon"].GetValString())
-	wepType = geh.attackerWeaponType(wepType, userID)
+	rawWeapon := data["weapon"].GetValString()
+	wepType := common.MapEquipment(rawWeapon)
 
 	health := int(data["health"].GetValByte())
 	armor := int(data["armor"].GetValByte())
@@ -525,18 +527,45 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 		}
 	}
 
-	geh.dispatch(events.PlayerHurt{
-		Player:            player,
-		Attacker:          attacker,
-		Health:            health,
-		Armor:             armor,
-		HealthDamage:      healthDamage,
-		ArmorDamage:       armorDamage,
-		HealthDamageTaken: healthDamageTaken,
-		ArmorDamageTaken:  armorDamageTaken,
-		HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
-		Weapon:            geh.getEquipmentInstance(attacker, wepType),
-	})
+	dispatchPlayerHurt := func(wepType common.EquipmentType) {
+		geh.dispatch(events.PlayerHurt{
+			Player:            player,
+			Attacker:          attacker,
+			Health:            health,
+			Armor:             armor,
+			HealthDamage:      healthDamage,
+			ArmorDamage:       armorDamage,
+			HealthDamageTaken: healthDamageTaken,
+			ArmorDamageTaken:  armorDamageTaken,
+			HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
+			Weapon:            geh.getEquipmentInstance(attacker, wepType),
+			WeaponString:      rawWeapon,
+		})
+	}
+
+	// An empty weapon string is ambiguous: it can be world/fall damage or bomb damage.
+	// Delay the dispatch until the end of the frame so it can be correlated with
+	// a same-frame bomb explosion, which may be detected after this event.
+	// see https://github.com/markus-wa/demoinfocs-golang/issues/642
+	if rawWeapon == "" && wepType == common.EqUnknown {
+		geh.parser.delayedEventHandlers = append(geh.parser.delayedEventHandlers, func() {
+			resolvedType := geh.attackerWeaponType(wepType, userID)
+			if resolvedType == common.EqUnknown {
+				if geh.frameToBombExploded[geh.parser.currentFrame] {
+					resolvedType = common.EqBomb
+				} else {
+					resolvedType = common.EqWorld
+				}
+			}
+
+			dispatchPlayerHurt(resolvedType)
+		})
+
+		return
+	}
+
+	wepType = geh.attackerWeaponType(wepType, userID)
+	dispatchPlayerHurt(wepType)
 }
 
 func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -845,6 +874,7 @@ func (geh gameEventHandler) bombExploded(data map[string]*msg.CSVCMsg_GameEventK
 		return
 	}
 
+	geh.frameToBombExploded[geh.parser.currentFrame] = true
 	geh.gameState().currentDefuser = nil
 	geh.dispatch(events.BombExplode{BombEvent: bombEvent})
 }
@@ -1108,18 +1138,12 @@ func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, vic
 		wepType = common.EqWorld
 	}
 
-	// if the round ended in the current frame with reason 1 or 0 we assume it was bomb damage
-	// unfortunately RoundEndReasonTargetBombed isn't enough and sometimes we need to check for 0 as well
 	if wepType == common.EqUnknown {
-		switch geh.frameToRoundEndReason[geh.parser.currentFrame] {
-		case 0:
-			fallthrough
-		case events.RoundEndReasonTargetBombed:
+		reason, ok := geh.frameToRoundEndReason[geh.parser.currentFrame]
+		if ok && reason == events.RoundEndReasonTargetBombed {
 			wepType = common.EqBomb
 		}
 	}
-
-	unassert.NotSame(wepType, common.EqUnknown)
 
 	return wepType
 }
