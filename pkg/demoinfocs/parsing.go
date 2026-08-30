@@ -149,7 +149,7 @@ func (p *parser) ParseToEnd() (err error) {
 	if p.header == nil {
 		_, err = p.ParseHeader()
 		if err != nil {
-			return
+			return err
 		}
 	}
 
@@ -161,7 +161,7 @@ func (p *parser) ParseToEnd() (err error) {
 		}
 
 		if err = p.error(); err != nil {
-			return
+			return err
 		}
 	}
 }
