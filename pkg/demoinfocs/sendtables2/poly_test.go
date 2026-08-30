@@ -238,17 +238,11 @@ func TestPolyNestedFieldPaths(t *testing.T) {
 	assert.Equal(t, []string{"m_iHealth", "m_pMode.m_aField", "m_pMode.m_cfg.m_cfgX"}, names)
 }
 
-// TestPolyHandlerOrderDeterministic asserts that handlers sharing an fp key
+// TestPolyHandlerOrderRegistrationStable asserts that handlers sharing an fp key
 // (here via a deprecated bare-name alias resolving to the same field as
-// m_pMode.m_aField) fire in a stable order across type-change rebuilds.
-// Registration order is preserved until the first rebuild; afterwards names
-// are iterated in sorted order, so the shared key fires name-sorted with
-// registration order preserved within a name.
-//
-// Before the deterministic rebuild this was map-iteration order — random and
-// potentially different after every switch — so this test locks in the
-// contract rather than deterministically failing on the old behavior.
-func TestPolyHandlerOrderDeterministic(t *testing.T) {
+// m_pMode.m_aField) fire in their original registration order and that this
+// order is preserved across poly type-change rebuilds.
+func TestPolyHandlerOrderRegistrationStable(t *testing.T) {
 	t.Parallel()
 
 	cls, modeA, modeB := polyTestClass(t)
@@ -275,20 +269,49 @@ func TestPolyHandlerOrderDeterministic(t *testing.T) {
 	require.True(t, ok)
 	assert.Len(t, e.handlersByFP[key], 2)
 
-	// Before any type change the index preserves registration order
-	// (no rebuild has run yet).
+	// Registration order is preserved before any rebuild has run.
 	e.dispatchUpdate(polySubPath(), int32(1))
 	assert.Equal(t, []string{"alias", "aField"}, fired)
 
-	// After a type change the rebuild sorts names, so the shared fp key fires
-	// in name-sorted order ('F' < 'l' → m_aField before m_alias) regardless
-	// of registration order.
+	// After a type change the fp-keyed index is rebuilt; handlers must still
+	// fire in registration order, not name-sorted or map-iteration order.
 	fired = nil
 	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeB})
 	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeA})
 
 	e.dispatchUpdate(polySubPath(), int32(1))
-	assert.Equal(t, []string{"aField", "alias"}, fired)
+	assert.Equal(t, []string{"alias", "aField"}, fired)
+}
+
+// TestInitialHandlerDispatchOrder asserts that the initial handler dispatch on
+// entity creation fires all registered handlers in registration order.
+func TestInitialHandlerDispatchOrder(t *testing.T) {
+	t.Parallel()
+
+	cls, modeA, _ := polyTestClass(t)
+
+	e := newEntity(1, 1, cls)
+	e.polySerializers[0] = modeA
+
+	// Write some state so the initial values can be read back.
+	e.state.set(polySubPath(), int32(5))
+
+	var fired []string
+
+	// Register on two different names in a known order that is the reverse of
+	// name-sorted order ("m_iHealth" < "m_pMode.m_aField").
+	e.Property("m_pMode.m_aField").OnUpdate(func(st.PropertyValue) {
+		fired = append(fired, "aField")
+	})
+	e.Property("m_iHealth").OnUpdate(func(st.PropertyValue) {
+		fired = append(fired, "health")
+	})
+
+	// fireInitialUpdateHandlers must dispatch in registration order, not the
+	// name-sorted order the created-handler dispatch previously used.
+	e.fireInitialUpdateHandlers()
+
+	assert.Equal(t, []string{"aField", "health"}, fired)
 }
 
 // propertyNames returns the generated names of all field paths in e's state.
