@@ -336,6 +336,21 @@ func (p *parser) setError(err error) {
 	p.err = err
 
 	p.errLock.Unlock()
+
+	// A fatal error stops all further handler work (mirrors Cancel()):
+	// the message queue may already hold a large backlog that would otherwise
+	// still be delivered to handlers, including user-registered ones.
+	p.unregisterAllHandlers()
+}
+
+func (p *parser) unregisterAllHandlers() {
+	if p.msgDispatcher != nil {
+		p.msgDispatcher.UnregisterAllHandlers()
+	}
+
+	if p.eventDispatcher != nil {
+		p.eventDispatcher.UnregisterAllHandlers()
+	}
 }
 
 func (p *parser) poolBitReader(r *bit.BitReader) {

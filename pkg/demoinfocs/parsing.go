@@ -187,8 +187,6 @@ func recoverFromUnexpectedEOF(r any) error {
 // No further events will be sent to event or message handlers after this.
 func (p *parser) Cancel() {
 	p.setError(ErrCancelled)
-	p.eventDispatcher.UnregisterAllHandlers()
-	p.msgDispatcher.UnregisterAllHandlers()
 }
 
 /*
