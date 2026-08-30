@@ -562,8 +562,12 @@ func (p *parser) bindNewPlayerPawn(pawnEntity st.Entity) {
 		pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
 	}
 
+	// Legacy fallback for demos that don't contain CSVCMsg_UserCommands messages.
+	// The m_nButtonDownMaskPrev prop was removed in the 2026-07-09 CS2 update; on
+	// newer demos this prop is absent and button state comes from CSVCMsg_UserCommands messages
+	// instead. When both are present, the user command messages take precedence.
 	buttonDownMaskProp := pawnEntity.Property("m_pMovementServices.m_nButtonDownMaskPrev")
-	if buttonDownMaskProp != nil {
+	if !p.hasUserCmdMessages && buttonDownMaskProp != nil {
 		buttonDownMaskProp.OnUpdate(func(val st.PropertyValue) {
 			pl := getPlayerFromPawnEntity(pawnEntity)
 			if pl == nil {

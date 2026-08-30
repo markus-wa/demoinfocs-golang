@@ -315,7 +315,7 @@ func (m *pendingMessage) priority() int {
 }
 
 //nolint:funlen
-func (p *parser) handleDemoPacket(pack *msg.CDemoPacket) {
+func (p *parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
 	b := pack.GetData()
 
 	if len(b) == 0 {
@@ -341,6 +341,13 @@ func (p *parser) handleDemoPacket(pack *msg.CDemoPacket) {
 	})
 
 	for _, m := range p.pendingMessagesCache {
+		if isFullPacket && m.t == int32(msg.SVC_Messages_svc_UserCmds) {
+			// Full packets are seek/checkpoint snapshots. Their embedded
+			// usercmds are not transports delivered to the command handler;
+			// replaying them would duplicate the following packet stream.
+			continue
+		}
+
 		var msgCreator NetMessageCreator
 
 		switch {
@@ -420,6 +427,133 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 
 	default:
 		return eventListFolder.ReadFile("event-list-dump/14113.bin")
+	}
+}
+
+//nolint:gocognit,nestif,funlen
+func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
+	if p.config.UserCmdParsing == UserCmdParsingDisabled {
+		return
+	}
+
+	if p.config.UserCmdParsing == UserCmdParsingButtonsOnly {
+		p.handleUserCommandButtons(m)
+		return
+	}
+
+	// Once we see user command messages they become the source of truth for
+	// button state, superseding the legacy m_nButtonDownMaskPrev prop (removed
+	// in the 2026-07-09 CS2 update, but still present in older demos).
+	p.hasUserCmdMessages = true
+
+	for _, cmd := range m.Commands {
+		if cmd == nil || cmd.CmdNumber == nil {
+			continue
+		}
+
+		slot := cmd.GetPlayerSlot()
+		if slot < 0 {
+			continue
+		}
+
+		state := p.userCmdStates[slot]
+		if state == nil {
+			state = &userCmdPlayerState{}
+			p.userCmdStates[slot] = state
+		}
+
+		var next *msg.CSGOUserCmdPB
+		if data := cmd.GetData(); len(data) > 0 {
+			// Full payloads replace the current command snapshot.
+			next = &msg.CSGOUserCmdPB{}
+			if err := proto.Unmarshal(data, next); err != nil {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: err.Error(),
+					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
+				})
+
+				continue
+			}
+		} else if len(cmd.GetDeltaData()) > 0 {
+			// client.dll resolves a delta against the cached current command
+			// number, then validates the command-number ring slot. A modulo
+			// collision is not a usable baseline.
+			if !state.hasCurrentCommand {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d has no baseline for player slot %d", cmd.GetCmdNumber(), slot),
+					Type:    events.WarnTypeUserCommandBaselineMissing,
+				})
+
+				continue
+			}
+
+			requestedBaseline := state.currentCommandNumber
+			if cmd.GetCmdNumber() < requestedBaseline {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d precedes its current baseline %d for player slot %d", cmd.GetCmdNumber(), requestedBaseline, slot),
+					Type:    events.WarnTypeUserCommandBaselineMismatch,
+				})
+
+				continue
+			}
+
+			baseline, found := state.ring.get(requestedBaseline)
+			if !found {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d has a baseline ring mismatch for player slot %d (requested %d)", cmd.GetCmdNumber(), slot, requestedBaseline),
+					Type:    events.WarnTypeUserCommandBaselineMismatch,
+				})
+
+				continue
+			}
+
+			next = proto.Clone(baseline).(*msg.CSGOUserCmdPB)
+		} else {
+			continue
+		}
+
+		if deltaData := cmd.GetDeltaData(); len(deltaData) > 0 {
+			if err := applyUserCmdDelta(next, deltaData); err != nil {
+				// next is a clone, so a malformed delta cannot mutate the ring
+				// baseline. The next full payload can re-establish the stream.
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: err.Error(),
+					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
+				})
+
+				continue
+			}
+		}
+
+		commandNumber := cmd.GetCmdNumber()
+		state.ring.insert(commandNumber, next)
+		state.currentCommandNumber = commandNumber
+		state.hasCurrentCommand = true
+
+		// Player slots map to controller entities: slot N is entity N+1
+		// (getOrCreatePlayerFromControllerEntity relies on the same convention).
+		player := p.gameState.playersByEntityID[int(slot)+1]
+		p.eventDispatcher.Dispatch(events.UserCmd{
+			Player:             player,
+			PlayerSlot:         slot,
+			CommandNumber:      commandNumber,
+			ServerTickExecuted: cmd.GetServerTickExecuted(),
+			ClientTick:         cmd.GetClientTick(),
+			Command:            next,
+		})
+
+		if player == nil {
+			continue
+		}
+
+		newState := next.GetBase().GetButtonsPb().GetButtonstate1()
+		if player.ButtonsPressedState != newState {
+			player.ButtonsPressedState = newState
+			p.eventDispatcher.Dispatch(events.PlayerButtonsStateUpdate{
+				Player:       player,
+				ButtonsState: newState,
+			})
+		}
 	}
 }
 
