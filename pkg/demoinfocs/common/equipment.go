@@ -338,7 +338,8 @@ func (e *Equipment) Class() EquipmentClass {
 // UniqueID2 returns a unique id of the equipment element that can be sorted efficiently.
 // UniqueID2 is a value generated internally by this library and can be used to differentiate
 // equipment from each other. This is needed because demo-files reuse entity ids.
-// Unlike UniqueID, UniqueID2 is guaranteed to be unique.
+// The id is unique within the Parser instance that created the equipment; ids from different
+// Parser instances may collide, so don't key data across demos by it.
 func (e *Equipment) UniqueID2() ulid.ULID {
 	return e.uniqueID2
 }
@@ -448,15 +449,17 @@ func (e *Equipment) Silenced() bool {
 
 // NewEquipment creates a new Equipment and sets the UniqueID.
 //
+// The id must come from the creating Parser's unique-id source. It is encoded into the ULID, which
+// keeps UniqueID2 unique within the parse, lexicographically sortable (in creation order) and
+// reproducible across parses of the same demo - unlike ulid.Make(), which embeds wall-clock time
+// plus entropy and changes every parse.
+//
 // Intended for internal use only.
-func NewEquipment(wep EquipmentType) *Equipment {
-	// Encode a monotonic counter into the ULID instead of ulid.Make(), which embeds wall-clock time
-	// plus entropy and so changes every parse. This keeps UniqueID2 unique and lexicographically
-	// sortable (now in creation order) while making it reproducible across parses of the same demo.
-	var id ulid.ULID
-	binary.BigEndian.PutUint64(id[:8], uint64(nextUniqueID()))
+func NewEquipment(wep EquipmentType, id int64) *Equipment {
+	var uid ulid.ULID
+	binary.BigEndian.PutUint64(uid[:8], uint64(id))
 
-	return &Equipment{Type: wep, uniqueID2: id}
+	return &Equipment{Type: wep, uniqueID2: uid}
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{

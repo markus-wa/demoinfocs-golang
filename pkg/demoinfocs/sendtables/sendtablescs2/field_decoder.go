@@ -430,6 +430,7 @@ func qangleFactory(f *field) fieldDecoder {
 		}
 
 		n := uint32(*f.bitCount)
+
 		return func(r *reader) any {
 			return [3]float32{
 				r.readAngle(n),

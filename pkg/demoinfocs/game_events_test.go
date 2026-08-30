@@ -59,7 +59,7 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 }
 
 func TestGetPlayerWeapon_NilPlayer(t *testing.T) {
-	wep := getPlayerWeapon(nil, common.EqAK47)
+	wep := getPlayerWeapon(nil, common.EqAK47, 1)
 
 	assert.NotNil(t, wep)
 	assert.Equal(t, common.EqAK47, wep.Type)
@@ -73,7 +73,7 @@ func TestGetPlayerWeapon_Found(t *testing.T) {
 		},
 	}
 
-	wep := getPlayerWeapon(pl, common.EqAK47)
+	wep := getPlayerWeapon(pl, common.EqAK47, 1)
 
 	assert.True(t, wep == ak)
 }
@@ -86,14 +86,14 @@ func TestGetPlayerWeapon_NotFound(t *testing.T) {
 		},
 	}
 
-	wep := getPlayerWeapon(pl, common.EqM4A1)
+	wep := getPlayerWeapon(pl, common.EqM4A1, 1)
 
 	assert.Equal(t, common.EqM4A1, wep.Type)
 }
 
 func TestAddThrownGrenade_NilPlayer(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
@@ -105,7 +105,7 @@ func TestAddThrownGrenade_NilPlayer(t *testing.T) {
 func TestAddThrownGrenade(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
@@ -118,7 +118,7 @@ func TestAddThrownGrenade(t *testing.T) {
 
 func TestGetThrownGrenade_NilPlayer(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	wep := p.gameEventHandler.getThrownGrenade(nil, he.Type)
 
@@ -129,7 +129,7 @@ func TestGetThrownGrenade_NotFound(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
 
-	he := common.NewEquipment(common.EqSmoke)
+	he := common.NewEquipment(common.EqSmoke, 1)
 
 	wep := p.gameEventHandler.getThrownGrenade(pl, he.Type)
 
@@ -139,7 +139,7 @@ func TestGetThrownGrenade_NotFound(t *testing.T) {
 func TestGetThrownGrenade_Found(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	p.gameEventHandler.addThrownGrenade(pl, he)
 	wep := p.gameEventHandler.getThrownGrenade(pl, he.Type)
@@ -169,8 +169,8 @@ func TestGetThrownGrenade_CircularControlledBot(t *testing.T) {
 	playerA.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(2)})
 	playerB.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(1)})
 
-	smoke := common.NewEquipment(common.EqSmoke)
-	he := common.NewEquipment(common.EqHE)
+	smoke := common.NewEquipment(common.EqSmoke, 1)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	// Should not panic or infinite loop - returns nil since no grenade was added
 	wep := p.gameEventHandler.getThrownGrenade(playerA, smoke.Type)
@@ -189,7 +189,7 @@ func TestGetThrownGrenade_CircularControlledBot(t *testing.T) {
 
 func TestDeleteThrownGrenade_NilPlayer(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	// Do nothing, we just keep sure it doesn't crash
 	p.gameEventHandler.deleteThrownGrenade(nil, he.Type)
@@ -198,7 +198,7 @@ func TestDeleteThrownGrenade_NilPlayer(t *testing.T) {
 func TestDeleteThrownGrenade_NotFound(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
@@ -214,7 +214,7 @@ func TestDeleteThrownGrenade_NotFound(t *testing.T) {
 func TestDeleteThrownGrenade_Found(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
@@ -248,7 +248,7 @@ func TestGetEquipmentInstance_Grenade_NotThrown(t *testing.T) {
 func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	p.gameEventHandler.addThrownGrenade(pl, he)
 	wep := p.gameEventHandler.getEquipmentInstance(pl, he.Type)

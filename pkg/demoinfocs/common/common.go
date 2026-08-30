@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"sync/atomic"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -74,27 +73,24 @@ func (g *GrenadeProjectile) Velocity() r3.Vector {
 }
 
 // UniqueID returns the unique id of the grenade.
-// The unique id is a random int generated internally by this library and can be used to differentiate
-// grenades from each other. This is needed because demo-files reuse entity ids.
+// The id is generated internally by this library and can be used to differentiate grenades from
+// each other. This is needed because demo-files reuse entity ids.
+//
+// The id is unique within the Parser instance that created the grenade; ids from different Parser
+// instances (e.g. concurrently or sequentially parsed demos) may collide, so don't key data
+// across demos by it.
 func (g *GrenadeProjectile) UniqueID() int64 {
 	return g.uniqueID
 }
 
-// lastUniqueID backs nextUniqueID, the source of GrenadeProjectile / Inferno unique ids.
-var lastUniqueID int64
-
-// nextUniqueID returns a monotonically increasing unique id. Unlike the previous random ids, these
-// are reproducible across parses of the same demo (creation order follows the deterministic parse
-// order), while still being distinct from reused entity ids.
-func nextUniqueID() int64 {
-	return atomic.AddInt64(&lastUniqueID, 1)
-}
-
 // NewGrenadeProjectile creates a grenade projectile and sets the Unique-ID.
 //
+// The id must come from the creating Parser's unique-id source so that it is unique within that
+// parse and reproducible across parses of the same demo.
+//
 // Intended for internal use only.
-func NewGrenadeProjectile() *GrenadeProjectile {
-	return &GrenadeProjectile{uniqueID: nextUniqueID()}
+func NewGrenadeProjectile(id int64) *GrenadeProjectile {
+	return &GrenadeProjectile{uniqueID: id}
 }
 
 // Bomb tracks the bomb's position, and the player carrying it, if any.

@@ -13,9 +13,9 @@ import (
 
 func TestPlayerActiveWeapon(t *testing.T) {
 	pl := playerWithPawnProperty("m_pWeaponServices.m_hActiveWeapon", st.PropertyValue{Any: uint64(3)})
-	knife := NewEquipment(EqKnife)
-	glock := NewEquipment(EqGlock)
-	ak47 := NewEquipment(EqAK47)
+	knife := NewEquipment(EqKnife, 1)
+	glock := NewEquipment(EqGlock, 2)
+	ak47 := NewEquipment(EqAK47, 3)
 	pl.demoInfoProvider = demoInfoProviderMock{equipment: ak47}
 	pl.Inventory = make(map[int]*Equipment)
 	pl.Inventory[1] = knife
@@ -25,9 +25,9 @@ func TestPlayerActiveWeapon(t *testing.T) {
 }
 
 func TestPlayerWeapons(t *testing.T) {
-	knife := NewEquipment(EqKnife)
-	glock := NewEquipment(EqGlock)
-	ak47 := NewEquipment(EqAK47)
+	knife := NewEquipment(EqKnife, 1)
+	glock := NewEquipment(EqGlock, 2)
+	ak47 := NewEquipment(EqAK47, 3)
 
 	pl := newPlayer(0)
 	pl.Inventory[1] = knife
