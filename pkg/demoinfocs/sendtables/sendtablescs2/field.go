@@ -120,6 +120,7 @@ func (f *field) setModel(model int) {
 				if r.readBoolean() {
 					return &polyUpdate{id: polyID, ser: polyTypes[r.readUBitVar()]}
 				}
+
 				return &polyUpdate{id: polyID, ser: nil}
 			}
 		}
@@ -155,6 +156,7 @@ func (f *field) getNameForFieldPath(fp *fieldPath, pos int, ps []*serializer) []
 			if f.polySerializerID >= 0 && ps != nil {
 				ser = ps[f.polySerializerID]
 			}
+
 			if ser != nil {
 				x = append(x, ser.getNameForFieldPath(fp, pos, ps)...)
 			}
@@ -190,13 +192,16 @@ func (f *field) getDecoderAndCollection(fp *fieldPath, pos int, ps []*serializer
 		if fp.last == pos-1 {
 			return f.baseDecoder, false // base decoder but fixed, no fieldState update
 		}
+
 		ser := f.serializer
 		if f.polySerializerID >= 0 && ps != nil {
 			ser = ps[f.polySerializerID]
 		}
+
 		if ser == nil {
 			return nil, false // polymorphic pointer not yet activated
 		}
+
 		return ser.getDecoderAndCollection(fp, pos, ps)
 
 	case fieldModelVariableArray:
@@ -247,9 +252,11 @@ func (f *field) getFieldPathForName(fp *fieldPath, name string, ps []*serializer
 		if f.polySerializerID >= 0 && ps != nil {
 			ser = ps[f.polySerializerID]
 		}
+
 		if ser == nil {
 			return false
 		}
+
 		return ser.getFieldPathForName(fp, name, ps)
 
 	case fieldModelVariableTable:
@@ -271,7 +278,7 @@ func (f *field) getFieldPathForName(fp *fieldPath, name string, ps []*serializer
 	return false
 }
 
-//nolint:gocognit
+//nolint:gocognit,funlen
 func (f *field) getFieldPaths(fp *fieldPath, state *fieldState, ps []*serializer) []*fieldPath {
 	x := make([]*fieldPath, 0, 1)
 
@@ -296,6 +303,7 @@ func (f *field) getFieldPaths(fp *fieldPath, state *fieldState, ps []*serializer
 			if f.polySerializerID >= 0 && ps != nil {
 				ser = ps[f.polySerializerID]
 			}
+
 			if ser != nil {
 				fp.last++
 				x = append(x, ser.getFieldPaths(fp, sub, ps)...)

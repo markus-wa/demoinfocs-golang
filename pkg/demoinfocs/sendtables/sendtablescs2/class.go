@@ -18,7 +18,7 @@ type class struct {
 	classId         int32 //nolint:revive
 	name            string
 	serializer      *serializer
-	polyCount       int // number of polymorphic pointer field IDs reachable in this class
+	polyCount       int // size of the per-entity polySerializers slice needed by entities of this class; 0 if no polymorphic pointer fields are reachable
 	createdHandlers []st.EntityCreatedHandler
 	fpNameCache     *fpNameTreeCache
 	// fpFlatCache provides O(1) lookup for the common case: depth ≤ 3 and
@@ -101,8 +101,10 @@ func (c *class) getNameForFieldPath(fp *fieldPath, ps []*serializer) string {
 			if name, hit := c.fpFlatCache[key]; hit {
 				return name
 			}
+
 			name := strings.Join(c.serializer.getNameForFieldPath(fp, 0, nil), ".")
 			c.fpFlatCache[key] = name
+
 			return name
 		}
 

@@ -68,9 +68,12 @@ type Parser struct {
 	pathCache                   []*fieldPath
 	tuplesCache                 []tuple
 	packetEntitiesPanicWarnFunc func(error)
-	// polyCount is a global counter for assigning unique polySerializerIDs to
+	// nextPolyID is a global counter for assigning unique polySerializerIDs to
 	// polymorphic fixed-table fields as they are encountered during ParsePacket.
-	polyCount int
+	nextPolyID int
+	// polyMaxCache memoizes, per serializer, the highest polySerializerID
+	// reachable from it. Used to size per-class polySerializers slices.
+	polyMaxCache map[*serializer]int
 }
 
 func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity {
@@ -119,6 +122,7 @@ func NewParser(packetEntitiesPanicWarnFunc func(error)) *Parser {
 		classesById:                 make(map[int32]*class),
 		classesByName:               make(map[string]*class),
 		entities:                    make(map[int32]*Entity),
+		polyMaxCache:                make(map[*serializer]int),
 		packetEntitiesPanicWarnFunc: packetEntitiesPanicWarnFunc,
 	}
 }
@@ -137,11 +141,22 @@ func (p *Parser) OnDemoClassInfo(m *msg.CDemoClassInfo) error {
 		classId := c.GetClassId() //nolint:revive
 		networkName := c.GetNetworkName()
 
+		// Size the per-entity polySerializers slice to the highest polymorphic
+		// serializer ID reachable from this class's serializer, so entities of
+		// classes without polymorphic fields stay on the shared fast paths.
+		polyCount := 0
+
+		if ser := p.serializers[networkName]; ser != nil {
+			if maxID := ser.maxPolyID(p.polyMaxCache); maxID >= 0 {
+				polyCount = maxID + 1
+			}
+		}
+
 		class := &class{
 			classId:     classId,
 			name:        networkName,
 			serializer:  p.serializers[networkName],
-			polyCount:   p.polyCount,
+			polyCount:   polyCount,
 			fpNameCache: &fpNameTreeCache{},
 			fpFlatCache: make(map[uint64]string),
 		}
@@ -224,8 +239,8 @@ func (p *Parser) ParsePacket(b []byte) error {
 						if len(field.polyTypes) > 0 {
 							// Assign a unique per-entity slot BEFORE calling setModel,
 							// so the closure in setModel captures the correct ID.
-							field.polySerializerID = p.polyCount
-							p.polyCount++
+							field.polySerializerID = p.nextPolyID
+							p.nextPolyID++
 						}
 						field.setModel(fieldModelFixedTable)
 					} else {

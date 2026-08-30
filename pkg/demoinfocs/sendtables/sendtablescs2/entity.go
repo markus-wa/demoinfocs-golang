@@ -101,6 +101,7 @@ func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
 func (e *Entity) addHandlerByFP(name string, handler st.PropertyUpdateHandler) {
 	fp := newFieldPath()
 	defer fp.release()
+
 	if !e.class.getFieldPathForName(fp, name, e.polySerializers) {
 		return
 	}
@@ -305,6 +306,15 @@ func (e *Entity) OnCreateFinished(delegate func()) {
 
 // newEntity returns a new entity for the given index, serial and class
 func newEntity(index, serial int32, class *class) *Entity {
+	// Only allocate the per-entity polySerializers slice for classes that can
+	// reach polymorphic pointer fields. A nil slice keeps entities of all other
+	// classes on the shared fast paths (cached field-name checks and the
+	// class-level field-path-name caches).
+	var polySerializers []*serializer
+	if class.polyCount > 0 {
+		polySerializers = make([]*serializer, class.polyCount)
+	}
+
 	return &Entity{
 		index:            index,
 		serial:           serial,
@@ -313,7 +323,7 @@ func newEntity(index, serial int32, class *class) *Entity {
 		state:            &fieldState{state: make([]any, 0, 16)},
 		fpCache:          make(map[string]*fieldPath),
 		fpNoop:           make(map[string]bool),
-		polySerializers:  make([]*serializer, class.polyCount),
+		polySerializers:  polySerializers,
 		onCreateFinished: nil,
 		onDestroy:        nil,
 		updateHandlers:   make(map[string][]st.PropertyUpdateHandler),
@@ -499,6 +509,7 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 				clear(e.fpNoop)
 				clear(e.propCache)
 			}
+
 			val = pu.ser != nil
 		}
 

@@ -186,3 +186,46 @@ func (s *serializer) checkFieldName(name string) bool {
 
 	return ok
 }
+
+// maxPolyID returns the highest polymorphic serializer ID reachable from s,
+// including through polymorphic type alternatives, or -1 if none.
+//
+// It is used to size the per-entity polySerializers slice of classes so that
+// only classes that can actually reach polymorphic pointer fields pay for the
+// per-entity tracking and lose the shared fast paths.
+//
+// cache memoizes results across calls; back-edges (serializers referencing
+// themselves through fixed tables) contribute nothing, which is safe for a
+// max-aggregation since every node of a cycle is reachable without them.
+func (s *serializer) maxPolyID(cache map[*serializer]int) int {
+	if s == nil {
+		return -1
+	}
+
+	if v, ok := cache[s]; ok {
+		return v
+	}
+
+	cache[s] = -1 // cycle guard
+
+	maxID := -1
+	for _, f := range s.fields {
+		if f.polySerializerID > maxID {
+			maxID = f.polySerializerID
+		}
+
+		if m := f.serializer.maxPolyID(cache); m > maxID {
+			maxID = m
+		}
+
+		for _, pt := range f.polyTypes {
+			if m := pt.maxPolyID(cache); m > maxID {
+				maxID = m
+			}
+		}
+	}
+
+	cache[s] = maxID
+
+	return maxID
+}
