@@ -3,9 +3,11 @@ package sendtables2
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/golang/geo/r3"
+	"golang.org/x/exp/maps"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
@@ -162,6 +164,11 @@ func (e *Entity) applyPolyUpdate(pu *polyUpdate) {
 // sub-fields of a type that is no longer active simply stop firing until the
 // type switches back. The fp-keyed index is rebuilt because those keys are
 // numeric paths, which map to different fields under a different active type.
+//
+// Names are iterated in sorted order so that handlers sharing an fp key (e.g.
+// via deprecated bare-name aliases resolving to the same field) fire in a
+// stable order across rebuilds, mirroring the created-handler dispatch in
+// OnPacketEntities. Within a single name, registration order is preserved.
 func (e *Entity) rebuildHandlersByFP() {
 	if len(e.updateHandlers) == 0 {
 		e.handlersByFP = nil
@@ -171,8 +178,11 @@ func (e *Entity) rebuildHandlersByFP() {
 
 	e.handlersByFP = make(map[uint64][]st.PropertyUpdateHandler, len(e.updateHandlers))
 
-	for name, hs := range e.updateHandlers {
-		for _, h := range hs {
+	names := maps.Keys(e.updateHandlers)
+	slices.Sort(names)
+
+	for _, name := range names {
+		for _, h := range e.updateHandlers[name] {
 			e.addHandlerByFP(name, h)
 		}
 	}

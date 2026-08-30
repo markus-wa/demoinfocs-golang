@@ -193,6 +193,104 @@ func TestPolyTypeSwitchInvalidatesCaches(t *testing.T) {
 	assert.True(t, bFired, "new-type handler must fire after type switch")
 }
 
+// TestPolyNestedFieldPaths is a regression test for a pre-existing bug in
+// getFieldPaths: tables nested under other tables were omitted from
+// Properties()/Map()/String() because after descending, the state lookup used
+// the full root-scoped path against the enclosing table's fieldState. The
+// polymorphic pointer's sub-fields (a fixed table under m_pMode, itself a fixed
+// table) were the first such field to appear in CS2 data.
+//
+// The active type's m_cfg table must be enumerated as m_pMode.m_cfg.m_cfgX.
+func TestPolyNestedFieldPaths(t *testing.T) {
+	t.Parallel()
+
+	cls, modeA, _ := polyTestClass(t)
+
+	// Add a nested fixed table to modeA: CModeA { m_aField, m_cfg: CCfg }
+	cfg := newSerializer("CCfg", 0)
+	cfg.addField(simpleField("m_cfgX", ""))
+	modeA.addField(&field{
+		varName:          "m_cfg",
+		name:             "m_cfg",
+		varType:          "CCfg*",
+		model:            fieldModelFixedTable,
+		serializer:       cfg,
+		polySerializerID: -1,
+	})
+
+	e := newEntity(1, 1, cls)
+	e.polySerializers[0] = modeA
+
+	// No poly sub-state written yet: only the top-level simple field appears.
+	assert.Equal(t, []string{"m_iHealth"}, propertyNames(t, e))
+
+	// Write the nested table's state: m_pMode (index 1) → m_cfg → m_cfgX.
+	fp := newFieldPath()
+	fp.path[0] = 1 // m_pMode
+	fp.path[1] = 1 // m_cfg
+	fp.path[2] = 0 // m_cfgX
+	fp.last = 2
+	e.state.set(fp, int32(9))
+
+	// m_pMode now has a fieldState, so its simple field (m_aField) and the
+	// nested table (m_cfg.m_cfgX) are both enumerated.
+	names := propertyNames(t, e)
+	assert.Equal(t, []string{"m_iHealth", "m_pMode.m_aField", "m_pMode.m_cfg.m_cfgX"}, names)
+}
+
+// TestPolyHandlerOrderDeterministic asserts that handlers sharing an fp key
+// (here via a deprecated bare-name alias resolving to the same field as
+// m_pMode.m_aField) fire in a stable order across type-change rebuilds.
+// Registration order is preserved until the first rebuild; afterwards names
+// are iterated in sorted order, so the shared key fires name-sorted with
+// registration order preserved within a name.
+//
+// Before the deterministic rebuild this was map-iteration order — random and
+// potentially different after every switch — so this test locks in the
+// contract rather than deterministically failing on the old behavior.
+func TestPolyHandlerOrderDeterministic(t *testing.T) {
+	t.Parallel()
+
+	cls, modeA, modeB := polyTestClass(t)
+
+	// Simulate the deprecated bare-name alias rebuildFieldIndexes creates for
+	// disambiguated field names: both names resolve to the same field path.
+	modeA.fieldIndexes["m_alias"] = modeA.fieldIndexes["m_aField"]
+
+	e := newEntity(1, 1, cls)
+	e.polySerializers[0] = modeA
+
+	var fired []string
+
+	// Registration order is alias-then-aField; both resolve to the same path.
+	e.Property("m_pMode.m_alias").OnUpdate(func(st.PropertyValue) {
+		fired = append(fired, "alias")
+	})
+	e.Property("m_pMode.m_aField").OnUpdate(func(st.PropertyValue) {
+		fired = append(fired, "aField")
+	})
+
+	// Both handlers resolve to the same fp key.
+	key, ok := fpFlatKey(polySubPath())
+	require.True(t, ok)
+	assert.Len(t, e.handlersByFP[key], 2)
+
+	// Before any type change the index preserves registration order
+	// (no rebuild has run yet).
+	e.dispatchUpdate(polySubPath(), int32(1))
+	assert.Equal(t, []string{"alias", "aField"}, fired)
+
+	// After a type change the rebuild sorts names, so the shared fp key fires
+	// in name-sorted order ('F' < 'l' → m_aField before m_alias) regardless
+	// of registration order.
+	fired = nil
+	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeB})
+	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeA})
+
+	e.dispatchUpdate(polySubPath(), int32(1))
+	assert.Equal(t, []string{"aField", "alias"}, fired)
+}
+
 // propertyNames returns the generated names of all field paths in e's state.
 func propertyNames(t *testing.T, e *Entity) []string {
 	t.Helper()
@@ -296,6 +394,62 @@ func TestParsePacketBackPatchesPolyCount(t *testing.T) {
 	assert.Equal(t, 1, cls.polyCount)
 }
 
+// TestNewFieldPanicsOnUnknownPolySerializer asserts that a polymorphic field
+// referencing a serializer that is missing or forward-declared fails fast with
+// a clear panic instead of silently decoding as an inactive pointer.
+func TestNewFieldPanicsOnUnknownPolySerializer(t *testing.T) {
+	t.Parallel()
+
+	ser := &msgs2.CSVCMsg_FlattenedSerializer{
+		Symbols: []string{"m_pMode", "CMode*", "CModeA", "Missing"},
+	}
+
+	// Symbols index: m_pMode=0, CMode*=1, CModeA=2, Missing=3.
+	int32p := func(n int) *int32 { return proto.Int32(int32(n)) }
+
+	cases := []struct {
+		name        string
+		serializers map[string]*serializer
+		baseSym     *int32
+		polySyms    []*msgs2.ProtoFlattenedSerializerFieldTPolymorphicFieldT
+		wantPanic   string
+	}{
+		{
+			name:        "missing base serializer",
+			serializers: map[string]*serializer{},
+			baseSym:     int32p(3),
+			polySyms: []*msgs2.ProtoFlattenedSerializerFieldTPolymorphicFieldT{
+				{PolymorphicFieldSerializerNameSym: int32p(2)}, // CModeA
+			},
+			wantPanic: `polymorphic field "m_pMode": unknown serializer "Missing" (missing or forward-declared)`,
+		},
+		{
+			name:        "missing poly alternative serializer",
+			serializers: map[string]*serializer{"CModeA": newSerializer("CModeA", 0)},
+			baseSym:     int32p(2), // CModeA
+			polySyms: []*msgs2.ProtoFlattenedSerializerFieldTPolymorphicFieldT{
+				{PolymorphicFieldSerializerNameSym: int32p(3)}, // Missing
+			},
+			wantPanic: `polymorphic field "m_pMode": unknown serializer "Missing" (missing or forward-declared)`,
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			f := &msgs2.ProtoFlattenedSerializerFieldT{
+				VarNameSym:             int32p(0),
+				VarTypeSym:             int32p(1),
+				FieldSerializerNameSym: c.baseSym,
+				PolymorphicTypes:       c.polySyms,
+			}
+
+			assert.PanicsWithValue(t, c.wantPanic, func() {
+				newField(c.serializers, ser, f)
+			})
+		})
+	}
+}
+
 // polyFSVBytes marshals the polyTestSchema as a FlattenedSerializer message,
 // length-prefixed as ParsePacket expects.
 func polyFSVBytes(t *testing.T) []byte {
@@ -327,10 +481,9 @@ func polyFSVBytes(t *testing.T) []byte {
 	m := &msgs2.CSVCMsg_FlattenedSerializer{
 		Symbols: symbols,
 		Fields: []*msgs2.ProtoFlattenedSerializerFieldT{
-			// To be part of the serializers below, shared / struct fields must
-			// not declare their own varType with "CMode*" as pointer, as that
-			// triggers the fixed-table model for them. We assign models via the
-			// serializer definitions; keep them as simple types.
+			// Sub-fields use a simple varType so they decode as plain values;
+			// only m_pMode's pointer varType plus its serializer references make
+			// it a polymorphic fixed-table field.
 			field("m_iHealth", "int32", ""),                // index 0
 			field("m_pMode", "CMode*", "CModeA", "CModeB"), // index 1 (poly fixed-table)
 			field("m_aField", "int32", ""),                 // index 2
