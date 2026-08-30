@@ -161,7 +161,7 @@ func (s pointsClockwiseSorter) Less(i, j int) bool {
 	}
 
 	// compute the cross product of vectors (s.center -> a) X (s.center -> b)
-	det := (a.X-s.center.X)*(b.Y-s.center.Y) - (b.X-s.center.X)*(a.Y-s.center.Y)
+	det := float64((a.X-s.center.X)*(b.Y-s.center.Y)) - float64((b.X-s.center.X)*(a.Y-s.center.Y))
 	if det < 0 {
 		return true
 	}
@@ -172,8 +172,8 @@ func (s pointsClockwiseSorter) Less(i, j int) bool {
 
 	// points a and b are on the same line from the s.center
 	// check which point is closer to the s.center
-	d1 := (a.X-s.center.X)*(a.X-s.center.X) + (a.Y-s.center.Y)*(a.Y-s.center.Y)
-	d2 := (b.X-s.center.X)*(b.X-s.center.X) + (b.Y-s.center.Y)*(b.Y-s.center.Y)
+	d1 := float64((a.X-s.center.X)*(a.X-s.center.X)) + float64((a.Y-s.center.Y)*(a.Y-s.center.Y))
+	d2 := float64((b.X-s.center.X)*(b.X-s.center.X)) + float64((b.Y-s.center.Y)*(b.Y-s.center.Y))
 
 	return d1 > d2
 }

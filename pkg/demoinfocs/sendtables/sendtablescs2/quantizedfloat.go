@@ -130,7 +130,7 @@ func (qfd *quantizedFloatDecoder) quantize(val float32) float32 {
 	// encoder discarded (e.g. bits=10 low=0 high=102.3 gives raw 1022.99994,
 	// which must quantize to 1023 so the round-up flag is removed), making the
 	// decoder read a phantom flag bit and desync the entity stream.
-	i := uint32((val-qfd.Low)*qfd.HighLowMul + 0.5)
+	i := uint32(float32((val-qfd.Low)*qfd.HighLowMul) + 0.5)
 	return qfd.Low + float32((qfd.High-qfd.Low)*float32(float32(i)*qfd.DecMul))
 }
 
@@ -148,7 +148,7 @@ func (qfd *quantizedFloatDecoder) decode(r *reader) float32 {
 		return 0.0
 	}
 
-	return qfd.Low + (qfd.High-qfd.Low)*float32(r.readBits(qfd.Bitcount))*qfd.DecMul
+	return qfd.Low + float32((qfd.High-qfd.Low)*float32(r.readBits(qfd.Bitcount))*qfd.DecMul)
 }
 
 // Creates a new quantized float decoder based on given field
