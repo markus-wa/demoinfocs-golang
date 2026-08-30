@@ -276,21 +276,21 @@ const weaponPrefix = "weapon_"
 func MapEquipment(eqName string) EquipmentType {
 	eqName = strings.TrimPrefix(eqName, weaponPrefix)
 
+	// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentType
 	var wep EquipmentType
-	if strings.Contains(eqName, "knife") || strings.Contains(eqName, "bayonet") {
+
+	switch {
+	case strings.Contains(eqName, "knife") || strings.Contains(eqName, "bayonet"):
 		wep = EqKnife
-	} else {
-		// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentType
-		if strings.HasPrefix(eqName, "m4a1_silencer") {
-			wep = EqM4A1
-		} else if strings.HasPrefix(eqName, "vesthelm") {
-			wep = EqHelmet
-		} else {
-			for name := range eqNameToWeapon {
-				if strings.HasPrefix(eqName, name) || strings.HasSuffix(eqName, name) {
-					wep = eqNameToWeapon[name]
-					break
-				}
+	case strings.HasPrefix(eqName, "m4a1_silencer"):
+		wep = EqM4A1
+	case strings.HasPrefix(eqName, "vesthelm"):
+		wep = EqHelmet
+	default:
+		for name := range eqNameToWeapon {
+			if strings.HasPrefix(eqName, name) || strings.HasSuffix(eqName, name) {
+				wep = eqNameToWeapon[name]
+				break
 			}
 		}
 	}
@@ -345,7 +345,7 @@ func (e *Equipment) UniqueID2() ulid.ULID {
 // AmmoInMagazine returns the ammo left in the magazine.
 // Returns 1 for grenades and equipments (Knife, C4...).
 func (e *Equipment) AmmoInMagazine() int {
-	switch true {
+	switch {
 	case e.Class() == EqClassGrenade || e.Class() == EqClassEquipment:
 		return 1
 	case e.Entity == nil:
@@ -443,7 +443,7 @@ func (e *Equipment) Silenced() bool {
 //
 // Intended for internal use only.
 func NewEquipment(wep EquipmentType) *Equipment {
-	return &Equipment{Type: wep, uniqueID2: ulid.Make()} //nolint:gosec
+	return &Equipment{Type: wep, uniqueID2: ulid.Make()}
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{

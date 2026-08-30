@@ -202,6 +202,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 	if p.Entity == nil {
 		return false
 	}
+
 	pawnEntity := p.PlayerPawnEntity()
 	if pawnEntity == nil {
 		return false
@@ -407,6 +408,25 @@ func (p *Player) ViewDirectionY() float32 {
 	return 0
 }
 
+// Velocity returns the player's velocity in game units per second.
+// Note: available only with demos after the AnimGraph 2 update! Otherwise this returns a zero vector.
+func (p *Player) Velocity() r3.Vector {
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity == nil {
+		return r3.Vector{}
+	}
+
+	x, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
+	y, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecY")
+	z, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecZ")
+
+	return r3.Vector{
+		X: float64(x),
+		Y: float64(y),
+		Z: float64(z),
+	}
+}
+
 // Position returns the in-game coordinates.
 // Note: the Z value is not on the player's eye height but instead at his feet.
 // See also PositionEyes().
@@ -432,6 +452,7 @@ func (p *Player) PositionEyes() (r3.Vector, bool) {
 	}
 
 	pos := pawnEntity.Position()
+
 	offset, ok := p.eyePositionOffset(pawnEntity)
 	if !ok {
 		return pos, false
@@ -440,18 +461,26 @@ func (p *Player) PositionEyes() (r3.Vector, bool) {
 	return pos.Add(offset), true
 }
 
+func getViewOffsetComponent(pawnEntity st.Entity, component string) (float32, bool) {
+	if v, ok := getFloatIfExists(pawnEntity, "m_vecViewOffset."+component); ok {
+		return v, true
+	}
+
+	return getFloatIfExists(pawnEntity, component)
+}
+
 func (p *Player) eyePositionOffset(pawnEntity st.Entity) (r3.Vector, bool) {
-	x, ok := getFloatIfExists(pawnEntity, "m_vecX")
+	x, ok := getViewOffsetComponent(pawnEntity, "m_vecX")
 	if !ok {
 		return r3.Vector{}, false
 	}
 
-	y, ok := getFloatIfExists(pawnEntity, "m_vecY")
+	y, ok := getViewOffsetComponent(pawnEntity, "m_vecY")
 	if !ok {
 		return r3.Vector{}, false
 	}
 
-	z, ok := getFloatIfExists(pawnEntity, "m_vecZ")
+	z, ok := getViewOffsetComponent(pawnEntity, "m_vecZ")
 	if !ok {
 		return r3.Vector{}, false
 	}

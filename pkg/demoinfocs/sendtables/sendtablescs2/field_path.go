@@ -19,22 +19,22 @@ type fieldPathOp struct {
 }
 
 var fieldPathTable = []fieldPathOp{
-	{"PlusOne", 36271, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PlusOne", 36271, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last]++
 	}},
-	{"PlusTwo", 10334, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PlusTwo", 10334, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last] += 2
 	}},
-	{"PlusThree", 1375, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PlusThree", 1375, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last] += 3
 	}},
-	{"PlusFour", 646, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PlusFour", 646, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last] += 4
 	}},
 	{"PlusN", 4128, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last] += r.readUBitVarFieldPath() + 5
 	}},
-	{"PushOneLeftDeltaZeroRightZero", 35, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PushOneLeftDeltaZeroRightZero", 35, func(r *reader, fp *fieldPath) {
 		fp.last++
 		fp.path[fp.last] = 0
 	}},
@@ -42,7 +42,7 @@ var fieldPathTable = []fieldPathOp{
 		fp.last++
 		fp.path[fp.last] = r.readUBitVarFieldPath()
 	}},
-	{"PushOneLeftDeltaOneRightZero", 521, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PushOneLeftDeltaOneRightZero", 521, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last]++
 		fp.last++
 		fp.path[fp.last] = 0
@@ -166,6 +166,7 @@ var fieldPathTable = []fieldPathOp{
 	}},
 	{"PushN", 0, func(r *reader, fp *fieldPath) {
 		n := int(r.readUBitVar())
+
 		fp.path[fp.last] += int(r.readUBitVar())
 		for i := 0; i < n; i++ {
 			fp.last++
@@ -178,13 +179,14 @@ var fieldPathTable = []fieldPathOp{
 				fp.path[i] += int(r.readVarInt32()) + 1
 			}
 		}
+
 		count := int(r.readUBitVar())
 		for i := 0; i < count; i++ {
 			fp.last++
 			fp.path[fp.last] = r.readUBitVarFieldPath()
 		}
 	}},
-	{"PopOnePlusOne", 2, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PopOnePlusOne", 2, func(r *reader, fp *fieldPath) {
 		fp.pop(1)
 		fp.path[fp.last]++
 	}},
@@ -192,7 +194,7 @@ var fieldPathTable = []fieldPathOp{
 		fp.pop(1)
 		fp.path[fp.last] += r.readUBitVarFieldPath() + 1
 	}},
-	{"PopAllButOnePlusOne", 1837, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PopAllButOnePlusOne", 1837, func(r *reader, fp *fieldPath) {
 		fp.pop(fp.last)
 		fp.path[0]++
 	}},
@@ -218,6 +220,7 @@ var fieldPathTable = []fieldPathOp{
 	}},
 	{"PopNAndNonTopographical", 1, func(r *reader, fp *fieldPath) {
 		fp.pop(r.readUBitVarFieldPath())
+
 		for i := 0; i <= fp.last; i++ {
 			if r.readBoolean() {
 				fp.path[i] += int(r.readVarInt32())
@@ -231,7 +234,7 @@ var fieldPathTable = []fieldPathOp{
 			}
 		}
 	}},
-	{"NonTopoPenultimatePlusOne", 271, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"NonTopoPenultimatePlusOne", 271, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last-1]++
 	}},
 	{"NonTopoComplexPack4Bits", 99, func(r *reader, fp *fieldPath) {
@@ -241,7 +244,7 @@ var fieldPathTable = []fieldPathOp{
 			}
 		}
 	}},
-	{"FieldPathEncodeFinish", 25474, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"FieldPathEncodeFinish", 25474, func(r *reader, fp *fieldPath) {
 		fp.done = true
 	}},
 }
@@ -260,6 +263,7 @@ func (fp *fieldPath) copy() *fieldPath {
 	copy(x.path, fp.path)
 	x.last = fp.last
 	x.done = fp.done
+
 	return x
 }
 
@@ -269,6 +273,7 @@ func (fp *fieldPath) String() string {
 	for i := 0; i <= fp.last; i++ {
 		ss[i] = strconv.Itoa(fp.path[i])
 	}
+
 	return strings.Join(ss, "/")
 }
 
@@ -276,6 +281,7 @@ func (fp *fieldPath) String() string {
 func newFieldPath() *fieldPath {
 	fp := fpPool.Get().(*fieldPath)
 	fp.reset()
+
 	return fp
 }
 
@@ -319,6 +325,7 @@ func readFieldPaths(r *reader, paths *[]*fieldPath) int {
 
 		if fpHuffNodes[next].left < 0 { //nolint:nestif // leaf node
 			node = 0 // reset to root
+
 			fieldPathTable[fpHuffNodes[next].value].fn(r, fp)
 
 			if !fp.done {
@@ -331,6 +338,7 @@ func readFieldPaths(r *reader, paths *[]*fieldPath) int {
 					// Only copy the active portion of the path
 					copy(x.path[:fp.last+1], fp.path[:fp.last+1])
 				}
+
 				i++
 			}
 		} else {
@@ -349,5 +357,6 @@ func newHuffmanTree() huffmanTree {
 	for i, op := range fieldPathTable {
 		freqs[i] = op.weight
 	}
+
 	return buildHuffmanTree(freqs)
 }

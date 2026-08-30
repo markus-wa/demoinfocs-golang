@@ -10,7 +10,7 @@ jobs:
     env:
       GameTracking_dir: /tmp/GameTracking-CSGO
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
       - name: Download latest Protobufs
         run: |
           git clone --depth=1 https://github.com/SteamDatabase/GameTracking-CSGO.git $GameTracking_dir
@@ -25,7 +25,7 @@ jobs:
 
       - name: Install Go
         if: env.PROTOBUFS_CHANGED == 'true'
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: 1.24.x
 
@@ -57,7 +57,7 @@ jobs:
       - name: Create Pull Request
         id: pr
         if: env.PROTOBUFS_CHANGED == 'true'
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
           title: "protobuf: updated to ${{ env.COMMIT_SHA }}"

@@ -43,9 +43,30 @@ func (g *GrenadeProjectile) Position() r3.Vector {
 	return g.Entity.Position()
 }
 
+func getVelocityComponent(entity st.Entity, component string) (float32, bool) {
+	if v, ok := getFloatIfExists(entity, "m_vecVelocity."+component); ok {
+		return v, true
+	}
+
+	return getFloatIfExists(entity, component)
+}
+
 // Velocity returns the projectile's velocity.
+// Returns a zero vector if the velocity is not networked.
 func (g *GrenadeProjectile) Velocity() r3.Vector {
-	return g.Entity.PropertyValueMust("m_vecVelocity").R3Vec()
+	x, okX := getVelocityComponent(g.Entity, "m_vecX")
+	y, okY := getVelocityComponent(g.Entity, "m_vecY")
+	z, okZ := getVelocityComponent(g.Entity, "m_vecZ")
+
+	if !okX || !okY || !okZ {
+		return r3.Vector{}
+	}
+
+	return r3.Vector{
+		X: float64(x),
+		Y: float64(y),
+		Z: float64(z),
+	}
 }
 
 // UniqueID returns the unique id of the grenade.

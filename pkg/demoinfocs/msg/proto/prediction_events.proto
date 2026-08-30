@@ -10,6 +10,7 @@ message CPredictionEvent_Teleport {
 	optional .CMsgVector origin = 1;
 	optional .CMsgQAngle angles = 2;
 	optional float drop_to_ground_range = 3;
+	optional .CMsgVector velocity = 4;
 }
 
 message CPredictionEvent_StringCommand {

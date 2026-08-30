@@ -21,6 +21,10 @@ func (p *parser) onEntity(e sendtables.Entity, op sendtables.EntityOp) error {
 }
 
 func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
+	if p.aborted() {
+		return
+	}
+
 	updated := make(map[string]string)
 	for _, cvar := range setConVar.Convars.Cvars {
 		updated[cvar.GetName()] = cvar.GetValue()
@@ -33,6 +37,10 @@ func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 }
 
 func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
+	if p.aborted() {
+		return
+	}
+
 	// srvInfo.MapCrc might be interesting as well
 	p.tickInterval = srvInfo.GetTickInterval()
 
@@ -43,6 +51,10 @@ func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
 }
 
 func (p *parser) handleMessageSayText(msg *msg.CUserMessageSayText) {
+	if p.aborted() {
+		return
+	}
+
 	p.eventDispatcher.Dispatch(events.SayText{
 		EntIdx:    int(msg.GetPlayerindex()),
 		IsChat:    msg.GetChat(),
@@ -52,6 +64,10 @@ func (p *parser) handleMessageSayText(msg *msg.CUserMessageSayText) {
 }
 
 func (p *parser) handleMessageSayText2(msg *msg.CUserMessageSayText2) {
+	if p.aborted() {
+		return
+	}
+
 	p.eventDispatcher.Dispatch(events.SayText2{
 		EntIdx:    int(msg.GetEntityindex()),
 		IsChat:    msg.GetChat(),
@@ -90,8 +106,13 @@ func (p *parser) handleMessageSayText2(msg *msg.CUserMessageSayText2) {
 }
 
 func (p *parser) handleServerRankUpdate(msg *msg.CCSUsrMsg_ServerRankUpdate) {
+	if p.aborted() {
+		return
+	}
+
 	for _, v := range msg.RankUpdate {
 		steamID32 := uint32(v.GetAccountId())
+
 		player, ok := p.gameState.playersBySteamID32[steamID32]
 		if !ok {
 			errMsg := fmt.Sprintf("rank update for unknown player with SteamID32=%d", steamID32)

@@ -34,13 +34,16 @@ func (r *reader) cachedFloat32(bits uint32) any {
 	// Mix high bits (exponent+sign) into the index to reduce collisions for
 	// clusters of similar values (e.g., nearby positions, velocities).
 	idx := (bits ^ (bits >> 16)) & f32CacheMask
+
 	e := &r.f32Cache[idx]
 	if e.bits == bits && e.boxed != nil {
 		return e.boxed
 	}
+
 	v := any(math.Float32frombits(bits))
 	e.bits = bits
 	e.boxed = v
+
 	return v
 }
 
@@ -52,7 +55,7 @@ var readerPool = sync.Pool{
 func newReader(buf []byte) *reader {
 	r := readerPool.Get().(*reader)
 	r.buf = buf
-	r.size = uint32(len(buf)) //nolint:gosec
+	r.size = uint32(len(buf))
 	r.pos = 0
 	r.bitVal = 0
 	r.bitCount = 0
@@ -77,8 +80,10 @@ func (r *reader) nextByte() byte {
 	if r.pos >= r.size {
 		r.nextBytePanic()
 	}
+
 	x := r.buf[r.pos]
 	r.pos++
+
 	return x
 }
 
@@ -98,7 +103,7 @@ func (r *reader) readBits(n uint32) uint32 {
 	r.bitVal >>= n
 	r.bitCount -= n
 
-	return uint32(x) //nolint:gosec
+	return uint32(x)
 }
 
 // readByte reads a single byte
@@ -111,15 +116,17 @@ func (r *reader) readByte() byte {
 	return byte(r.readBits(8))
 }
 
-// readBytes reads the given number of bytes
+// readBytes reads the given number of bytes.
+// The bounds are checked before any allocation: n is often decoded from the
+// bitstream and an unbounded make() could allocate GBs on a corrupt demo.
 func (r *reader) readBytes(n uint32) []byte {
+	if n > r.remBytes() {
+		_panicf("readBytes: insufficient buffer (%d of %d)", uint64(r.pos)+uint64(n), r.size)
+	}
+
 	// Fast path if we're byte aligned
 	if r.bitCount == 0 {
 		r.pos += n
-
-		if r.pos > r.size {
-			_panicf("readBytes: insufficient buffer (%d of %d)", r.pos, r.size)
-		}
 
 		return r.buf[r.pos-n : r.pos]
 	}
@@ -151,9 +158,11 @@ func (r *reader) readLeUint64() uint64 {
 // readVarUint64 reads an unsigned 32-bit varint
 func (r *reader) readVarUint32() uint32 {
 	var x, s uint32
+
 	for {
 		b := uint32(r.readByte())
 		x |= (b & 0x7F) << s
+
 		s += 7
 		if ((b & 0x80) == 0) || (s == 35) {
 			break
@@ -166,24 +175,29 @@ func (r *reader) readVarUint32() uint32 {
 // readVarInt64 reads a signed 32-bit varint
 func (r *reader) readVarInt32() int32 {
 	ux := r.readVarUint32()
-	x := int32(ux >> 1) //nolint:gosec
+
+	x := int32(ux >> 1)
 	if ux&1 != 0 {
 		x = ^x
 	}
+
 	return x
 }
 
 // readVarUint64 reads an unsigned 64-bit varint
 func (r *reader) readVarUint64() uint64 {
 	var x, s uint64
+
 	for i := 0; ; i++ {
 		b := r.readByte()
 		if b < 0x80 {
 			if i > 9 || i == 9 && b > 1 {
 				_panicf("read overflow: varint overflows uint64")
 			}
+
 			return x | uint64(b)<<s
 		}
+
 		x |= uint64(b&0x7f) << s
 		s += 7
 	}
@@ -197,9 +211,11 @@ func (r *reader) readBoolean() bool {
 	if r.bitCount == 0 {
 		r.refillByte()
 	}
+
 	b := r.bitVal&1 == 1
 	r.bitVal >>= 1
 	r.bitCount--
+
 	return b
 }
 
@@ -208,6 +224,7 @@ func (r *reader) refillByte() {
 	if r.pos >= r.size {
 		r.nextBytePanic()
 	}
+
 	r.bitVal = uint64(r.buf[r.pos])
 	r.pos++
 	r.bitCount = 8
@@ -236,15 +253,19 @@ func (r *reader) readUBitVarFP() uint32 {
 	if r.readBoolean() {
 		return r.readBits(2)
 	}
+
 	if r.readBoolean() {
 		return r.readBits(4)
 	}
+
 	if r.readBoolean() {
 		return r.readBits(10)
 	}
+
 	if r.readBoolean() {
 		return r.readBits(17)
 	}
+
 	return r.readBits(31)
 }
 
@@ -260,6 +281,7 @@ func (r *reader) readString() string {
 		if b == 0 {
 			break
 		}
+
 		r.strBuf = append(r.strBuf, b)
 	}
 
@@ -285,7 +307,7 @@ func (r *reader) readCoord() float32 {
 			fractval = r.readBits(5)
 		}
 
-		value = float32(intval) + float32(fractval)*(1.0/(1<<5))
+		value = float32(intval) + float32(float32(fractval)*(1.0/(1<<5)))
 
 		// Fixup the sign if negative.
 		if signbit {
@@ -330,7 +352,7 @@ func (r *reader) read3BitNormal() [3]float32 {
 	}
 
 	negZ := r.readBoolean()
-	prodsum := ret[0]*ret[0] + ret[1]*ret[1]
+	prodsum := float32(ret[0]*ret[0]) + float32(ret[1]*ret[1])
 
 	if prodsum < 1.0 {
 		ret[2] = float32(math.Sqrt(float64(1.0 - prodsum)))

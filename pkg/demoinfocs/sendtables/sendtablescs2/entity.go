@@ -57,7 +57,12 @@ func (e *Entity) SerialNum() int {
 // Properties returns all properties of the entity.
 func (e *Entity) Properties() (out []st.Property) {
 	for _, fp := range e.class.getFieldPaths(newFieldPath(), e.state, e.polySerializers) {
-		out = append(out, e.Property(e.class.getNameForFieldPath(fp, e.polySerializers)))
+		prop := e.Property(e.class.getNameForFieldPath(fp, e.polySerializers))
+		if prop == nil {
+			continue // a generated name must always resolve; don't hand out nil properties if it doesn't
+		}
+
+		out = append(out, prop)
 	}
 
 	return
@@ -99,13 +104,16 @@ func (e *Entity) addHandlerByFP(name string, handler st.PropertyUpdateHandler) {
 	if !e.class.getFieldPathForName(fp, name, e.polySerializers) {
 		return
 	}
+
 	key, ok := fpFlatKey(fp)
 	if !ok {
 		return
 	}
+
 	if e.handlersByFP == nil {
 		e.handlersByFP = make(map[uint64][]st.PropertyUpdateHandler)
 	}
+
 	e.handlersByFP[key] = append(e.handlersByFP[key], handler)
 }
 
@@ -224,6 +232,7 @@ func coordFromCell(cell uint64, offset float32) float64 {
 		cellBits    = 9
 		maxCoordInt = 16384
 	)
+
 	cellCoord := float64(cell)*float64(1<<cellBits) - maxCoordInt
 
 	return cellCoord + float64(offset)
@@ -315,7 +324,7 @@ func newEntity(index, serial int32, class *class) *Entity {
 // String returns a human identifiable string for the Entity
 func (e *Entity) String() string {
 	paths := e.class.getFieldPaths(newFieldPath(), e.state, e.polySerializers)
-	props := make([]string, len(paths))
+	props := make([]string, 0, len(paths))
 
 	for _, fp := range paths {
 		props = append(props, fmt.Sprintf("%s: %v", e.class.getNameForFieldPath(fp, e.polySerializers), e.state.get(fp)))
@@ -330,6 +339,7 @@ func (e *Entity) Map() map[string]any {
 	for _, fp := range e.class.getFieldPaths(newFieldPath(), e.state, e.polySerializers) {
 		values[e.class.getNameForFieldPath(fp, e.polySerializers)] = e.state.get(fp)
 	}
+
 	return values
 }
 
@@ -338,6 +348,7 @@ func (e *Entity) Get(name string) any {
 	if fp, ok := e.fpCache[name]; ok {
 		return e.state.get(fp)
 	}
+
 	if e.fpNoop[name] {
 		return nil
 	}
@@ -345,9 +356,12 @@ func (e *Entity) Get(name string) any {
 	fp := newFieldPath()
 	if !e.class.getFieldPathForName(fp, name, e.polySerializers) {
 		e.fpNoop[name] = true
+
 		fp.release()
+
 		return nil
 	}
+
 	e.fpCache[name] = fp
 
 	return e.state.get(fp)
@@ -371,9 +385,10 @@ func (e *Entity) GetUint32(name string) (uint32, bool) {
 		case uint32:
 			return x, true
 		case uint64:
-			return uint32(x), true //nolint:gosec
+			return uint32(x), true
 		}
 	}
+
 	return 0, false
 }
 
@@ -427,20 +442,22 @@ func (p *Parser) FindEntity(index int32) *Entity {
 }
 
 func handle2idx(handle uint64) int32 {
-	return int32(handle & constants.EntityHandleIndexMaskSource2) //nolint:gosec
+	return int32(handle & constants.EntityHandleIndexMaskSource2)
 }
 
 func serialForHandle(handle uint64) int32 {
-	return int32(handle >> constants.MaxEdictBitsSource2) //nolint:gosec
+	return int32(handle >> constants.MaxEdictBitsSource2)
 }
 
 // FindEntityByHandle finds a given Entity by handle
 func (p *Parser) FindEntityByHandle(handle uint64) *Entity {
 	idx := handle2idx(handle)
+
 	e := p.FindEntity(idx)
 	if e != nil && e.GetSerial() != serialForHandle(handle) {
 		return nil
 	}
+
 	return e
 }
 
@@ -487,6 +504,9 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 
 		if updateCollection { //nolint:nestif
 			newLen := val.(uint64)
+			if newLen > maxFieldIndex {
+				_panicf("variable collection size %d out of range [0, %d] (path %v): corrupt or desynced demo bitstream", newLen, maxFieldIndex, fp.path[:fp.last+1])
+			}
 
 			// Retrieve the *fieldState pointer stored on the first update.
 			// We store a pointer so we can resize in place on subsequent updates
@@ -500,6 +520,7 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 				if initCap < 8 {
 					initCap = 8
 				}
+
 				fs = &fieldState{state: make([]any, newLen, initCap)}
 				e.state.set(fp, fs)
 			} else {
@@ -517,6 +538,7 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 						if newCap < newLen {
 							newCap = newLen
 						}
+
 						newState := make([]any, newLen, newCap)
 						copy(newState, fs.state)
 						fs.state = newState
@@ -543,6 +565,7 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 			for _, h := range e.handlersByFP[key] {
 				h(st.PropertyValue{Any: val})
 			}
+
 			return
 		}
 	}
@@ -555,7 +578,7 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 
 // OnPacketEntities is an internal callback for OnCSVCMsg_PacketEntities.
 //
-//nolint:gocognit
+//nolint:gocognit,funlen
 func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 	defer func() {
 		if p.packetEntitiesPanicWarnFunc == nil {
@@ -595,15 +618,15 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 			op st.EntityOp
 		)
 
-		next := index + int32(r.readUBitVar()) + 1 //nolint:gosec
+		next := index + int32(r.readUBitVar()) + 1
 		index = next
 
 		cmd = r.readBits(2)
 
 		if cmd&0x01 == 0 { //nolint:nestif
 			if cmd&0x02 != 0 {
-				classID = int32(r.readBits(p.classIdSize)) //nolint:gosec
-				serial = int32(r.readBits(17))             //nolint:gosec
+				classID = int32(r.readBits(p.classIdSize))
+				serial = int32(r.readBits(17))
 				r.readVarUint32()
 
 				class := p.classesById[classID]
@@ -647,6 +670,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 				}
 
 				op = st.EntityOpUpdated
+
 				if !e.active {
 					e.active = true
 					op |= st.EntityOpEntered

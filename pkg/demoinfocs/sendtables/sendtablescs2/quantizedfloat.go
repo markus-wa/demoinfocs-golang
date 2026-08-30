@@ -88,8 +88,7 @@ func (qfd *quantizedFloatDecoder) assignMultipliers(steps uint32) {
 	}
 
 	// Adjust precision
-	if (HighMul*Range > float32(High)) || (float64(HighMul*Range) > float64(High)) { //nolint:whitespace
-
+	if (HighMul*Range > float32(High)) || (float64(HighMul*Range) > float64(High)) {
 		for _, mult := range qFloatMultipliers {
 			HighMul = float32(High) / Range * mult
 
@@ -125,7 +124,13 @@ func (qfd *quantizedFloatDecoder) quantize(val float32) float32 {
 		return qfd.High
 	}
 
-	i := uint32((val - qfd.Low) * qfd.HighLowMul)
+	// Round to nearest like the engine's encoder does. Truncating here can
+	// wrongly keep a round-up/round-down/encode-zero special flag that the
+	// encoder discarded (e.g. bits=10 low=0 high=102.3 gives raw 1022.99994,
+	// which must quantize to 1023 so the round-up flag is removed), making the
+	// decoder read a phantom flag bit and desync the entity stream.
+	i := uint32(float32((val-qfd.Low)*qfd.HighLowMul) + 0.5)
+
 	return qfd.Low + float32((qfd.High-qfd.Low)*float32(float32(i)*qfd.DecMul))
 }
 
@@ -143,12 +148,12 @@ func (qfd *quantizedFloatDecoder) decode(r *reader) float32 {
 		return 0.0
 	}
 
-	return qfd.Low + (qfd.High-qfd.Low)*float32(r.readBits(qfd.Bitcount))*qfd.DecMul
+	return qfd.Low + float32((qfd.High-qfd.Low)*float32(r.readBits(qfd.Bitcount))*qfd.DecMul)
 }
 
 // Creates a new quantized float decoder based on given field
 //
-//nolint:gocognit
+//nolint:gocognit,funlen
 func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float32) *quantizedFloatDecoder {
 	qfd := &quantizedFloatDecoder{}
 
@@ -156,10 +161,11 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 	if *bitCount == 0 || *bitCount >= 32 { //nolint:nestif
 		qfd.NoScale = true
 		qfd.Bitcount = 32
+
 		return qfd
 	} else { //nolint:revive
 		qfd.NoScale = false
-		qfd.Bitcount = uint32(*bitCount) //nolint:gosec
+		qfd.Bitcount = uint32(*bitCount)
 		qfd.Offset = 0.0
 
 		if lowValue != nil {
@@ -174,8 +180,9 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 			qfd.High = 1.0
 		}
 	}
+
 	if flags != nil {
-		qfd.Flags = uint32(*flags) //nolint:gosec
+		qfd.Flags = uint32(*flags)
 	} else {
 		qfd.Flags = 0
 	}
@@ -227,7 +234,7 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 	}
 
 	// Assign multipliers
-	qfd.assignMultipliers(uint32(steps)) //nolint:gosec
+	qfd.assignMultipliers(uint32(steps))
 
 	// Remove unessecary flags
 	if (qfd.Flags & qff_rounddown) != 0 {

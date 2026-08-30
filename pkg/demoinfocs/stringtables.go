@@ -2,9 +2,7 @@ package demoinfocs
 
 import (
 	"bytes"
-	"encoding/binary"
 	"fmt"
-	"io"
 	"math"
 	"regexp"
 	"strconv"
@@ -26,19 +24,6 @@ const (
 	stNameModelPreCache    = "modelprecache"
 )
 
-func (p *parser) parseStringTables() {
-	p.bitReader.BeginChunk(p.bitReader.ReadSignedInt(32) << 3)
-
-	tables := int(p.bitReader.ReadSingleByte())
-	for i := 0; i < tables; i++ {
-		tableName := p.bitReader.ReadString()
-		p.parseSingleStringTable(tableName)
-	}
-
-	p.processModelPreCacheUpdate()
-	p.bitReader.EndChunk()
-}
-
 func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
 	pl := p.gameState.playersByEntityID[index+1]
 	if pl == nil {
@@ -47,7 +32,7 @@ func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
 
 	oldName := pl.Name
 	newName := raw.Name
-	nameChanged := !pl.IsBot && !raw.IsFakePlayer && raw.GUID != "BOT" && oldName != newName
+	nameChanged := !pl.IsBot && !raw.IsFakePlayer && raw.GUID != botGUID && oldName != newName
 
 	pl.Name = raw.Name
 	pl.SteamID64 = raw.XUID
@@ -68,60 +53,6 @@ func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
 	})
 }
 
-func (p *parser) parseSingleStringTable(name string) {
-	nStrings := p.bitReader.ReadSignedInt(16)
-	for i := 0; i < nStrings; i++ {
-		stringName := p.bitReader.ReadString()
-
-		const roysMaxStringLength = 100
-		if len(stringName) >= roysMaxStringLength {
-			panic("Someone said that Roy said I should panic")
-		}
-
-		if p.bitReader.ReadBit() {
-			userDataSize := p.bitReader.ReadSignedInt(16)
-			data := p.bitReader.ReadBytes(userDataSize)
-
-			switch name {
-			case stNameUserInfo:
-				player := parsePlayerInfo(bytes.NewReader(data))
-
-				playerIndex, err := strconv.Atoi(stringName)
-				if err != nil {
-					panic(errors.Wrap(err, "couldn't parse playerIndex from string"))
-				}
-
-				p.setRawPlayer(playerIndex, player)
-
-			case stNameInstanceBaseline:
-				classID, err := strconv.Atoi(stringName)
-				if err != nil {
-					panic(errors.Wrap(err, "couldn't parse serverClassID from string"))
-				}
-
-				p.stParser.SetInstanceBaseline(classID, data)
-
-			case stNameModelPreCache:
-				p.modelPreCache = append(p.modelPreCache, stringName)
-
-			default: // Irrelevant table
-			}
-		}
-	}
-
-	// Client side stuff, dgaf
-	if p.bitReader.ReadBit() {
-		strings2 := p.bitReader.ReadSignedInt(16)
-		for i := 0; i < strings2; i++ {
-			p.bitReader.ReadString()
-
-			if p.bitReader.ReadBit() {
-				p.bitReader.Skip(p.bitReader.ReadSignedInt(16))
-			}
-		}
-	}
-}
-
 func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
 	if player.UserID == math.MaxUint16 && p.rawPlayers[index] != nil {
 		player.UserID = p.rawPlayers[index].UserID
@@ -138,6 +69,10 @@ func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
 }
 
 func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
+	if p.aborted() {
+		return
+	}
+
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -170,6 +105,10 @@ func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 }
 
 func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+	if p.aborted() {
+		return
+	}
+
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -246,6 +185,7 @@ func (p *parser) parseStringTable(
 	// Value may be omitted
 	for i := 0; i < int(numUpdates); i++ {
 		key := ""
+
 		var value []byte
 
 		// Read a boolean to determine whether the operation is an increment or
@@ -260,7 +200,7 @@ func (p *parser) parseStringTable(
 
 		// Some values have keys, some don't.
 		hasKey := r.ReadBit()
-		if hasKey {
+		if hasKey { //nolint:nestif
 			// Some entries use reference a position in the key history for
 			// part of the key. If referencing the history, read the position
 			// and size from the buffer, then use those to build the string
@@ -378,39 +318,6 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	}
 }
 
-func parsePlayerInfo(reader io.Reader) common.PlayerInfo {
-	br := bit.NewSmallBitReader(reader)
-
-	const (
-		playerNameMaxLength = 128
-		guidLength          = 33
-	)
-
-	res := common.PlayerInfo{
-		Version:     int64(binary.BigEndian.Uint64(br.ReadBytes(8))),
-		XUID:        binary.BigEndian.Uint64(br.ReadBytes(8)),
-		Name:        br.ReadCString(playerNameMaxLength),
-		UserID:      int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
-		GUID:        br.ReadCString(guidLength),
-		FriendsID:   int(int32(binary.BigEndian.Uint32(br.ReadBytes(4)))),
-		FriendsName: br.ReadCString(playerNameMaxLength),
-
-		IsFakePlayer: br.ReadSingleByte() != 0,
-		IsHltv:       br.ReadSingleByte() != 0,
-
-		CustomFiles0: int(br.ReadInt(32)),
-		CustomFiles1: int(br.ReadInt(32)),
-		CustomFiles2: int(br.ReadInt(32)),
-		CustomFiles3: int(br.ReadInt(32)),
-
-		FilesDownloaded: br.ReadSingleByte(),
-	}
-
-	br.Pool()
-
-	return res
-}
-
 var modelPreCacheSubstringToEq = map[string]common.EquipmentType{
 	"flashbang":         common.EqFlash,
 	"fraggrenade":       common.EqHE,
@@ -436,6 +343,10 @@ func (p *parser) processModelPreCacheUpdate() {
 // XXX TODO: decide if we want to at all integrate these updates,
 // or trust create/update entirely. Let's ignore them for now.
 func (p *parser) handleStringTables(msg *msg.CDemoStringTables) {
+	if p.aborted() {
+		return
+	}
+
 	for _, tab := range msg.GetTables() {
 		if tab.GetTableName() == stNameInstanceBaseline {
 			for _, item := range tab.GetItems() {
@@ -467,6 +378,7 @@ func (p *parser) handleStringTables(msg *msg.CDemoStringTables) {
 
 func (p *parser) parseUserInfo(data []byte, playerIndex int) {
 	var userInfo msg.CMsgPlayerInfo
+
 	err := proto.Unmarshal(data, &userInfo)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse CMsgPlayerInfo msg"))

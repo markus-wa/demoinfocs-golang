@@ -16,6 +16,10 @@ import (
 )
 
 func (p *parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
+	if p.aborted() {
+		return
+	}
+
 	p.gameEventDescs = make(map[int32]*msg.CMsgSource1LegacyGameEventListDescriptorT)
 	for _, d := range gel.GetDescriptors() {
 		p.gameEventDescs[d.GetEventid()] = d
@@ -23,6 +27,10 @@ func (p *parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
 }
 
 func (p *parser) handleGameEvent(ge *msg.CMsgSource1LegacyGameEvent) {
+	if p.aborted() {
+		return
+	}
+
 	if p.gameEventDescs == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: "received GameEvent but event descriptors are missing",
@@ -105,7 +113,6 @@ func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
 
 type gameEventHandlerFunc func(map[string]*msg.CMsgSource1LegacyGameEventKeyT)
 
-//nolint:funlen
 func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameEventHandler {
 	geh := gameEventHandler{
 		parser:                      parser,
@@ -416,6 +423,7 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CMsgSource1LegacyGa
 	killer := geh.playerByUserID32(data["attacker"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 	victimUserID := data["userid"].GetValShort()
+
 	wepType = geh.attackerWeaponType(wepType, victimUserID)
 	if killer == nil && data["attacker_pawn"] != nil {
 		// CS2 only, fallback to pawn handle if the killer was not found by its user ID
@@ -471,41 +479,36 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 		}
 	}
 
-	dispatchPlayerHurt := func(wepType common.EquipmentType) {
-		geh.dispatch(events.PlayerHurt{
-			Player:            player,
-			Attacker:          attacker,
-			Health:            health,
-			Armor:             armor,
-			HealthDamage:      healthDamage,
-			ArmorDamage:       armorDamage,
-			HealthDamageTaken: healthDamageTaken,
-			ArmorDamageTaken:  armorDamageTaken,
-			HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
-			Weapon:            geh.getEquipmentInstance(attacker, wepType),
-			WeaponString:      rawWeapon,
-		})
-	}
-
-	if rawWeapon == "" && wepType == common.EqUnknown {
-		geh.parser.delayedEventHandlers = append(geh.parser.delayedEventHandlers, func() {
-			resolvedType := geh.attackerWeaponType(wepType, userID)
-			if resolvedType == common.EqUnknown {
-				if geh.frameToBombExploded[geh.parser.currentFrame] {
-					resolvedType = common.EqBomb
-				} else {
-					resolvedType = common.EqWorld
-				}
-			}
-
-			dispatchPlayerHurt(resolvedType)
-		})
-
-		return
-	}
-
 	wepType = geh.attackerWeaponType(wepType, userID)
-	dispatchPlayerHurt(wepType)
+
+	// An empty weapon string is ambiguous: it can be world/fall damage or bomb damage.
+	// The bomb_exploded game event always precedes the player_hurt events caused by the
+	// explosion, so a same-frame explosion has already been recorded at this point.
+	// The event must be dispatched now, not at the end of the frame: entity props
+	// (e.g. the victim's health) are updated after game events, and handlers rely on
+	// observing the pre-damage state.
+	// see https://github.com/markus-wa/demoinfocs-golang/issues/642
+	if rawWeapon == "" && wepType == common.EqUnknown {
+		if geh.frameToBombExploded[geh.parser.currentFrame] {
+			wepType = common.EqBomb
+		} else {
+			wepType = common.EqWorld
+		}
+	}
+
+	geh.dispatch(events.PlayerHurt{
+		Player:            player,
+		Attacker:          attacker,
+		Health:            health,
+		Armor:             armor,
+		HealthDamage:      healthDamage,
+		ArmorDamage:       armorDamage,
+		HealthDamageTaken: healthDamageTaken,
+		ArmorDamageTaken:  armorDamageTaken,
+		HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
+		Weapon:            geh.getEquipmentInstance(attacker, wepType),
+		WeaponString:      rawWeapon,
+	})
 }
 
 func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
@@ -538,7 +541,6 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CMsgSource1LegacyGa
 }
 
 func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-
 	nadeEvent := geh.nadeEvent(data, common.EqFlash)
 
 	geh.gameState().lastFlash.player = nadeEvent.Thrower
@@ -658,8 +660,8 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CMsgSource1Legacy
 
 	if pl.GUID != "" && pl.XUID == 0 {
 		var err error
-		pl.XUID, err = guidToSteamID64(pl.GUID)
 
+		pl.XUID, err = guidToSteamID64(pl.GUID)
 		if err != nil {
 			geh.parser.setError(fmt.Errorf("failed to parse player XUID: %v", err.Error()))
 		}
@@ -777,6 +779,11 @@ func (geh gameEventHandler) bombDefused(data map[string]*msg.CMsgSource1LegacyGa
 }
 
 func (geh gameEventHandler) bombExploded(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+	// Always record the explosion frame, even when the BombExplode event itself is
+	// dispatched from entity-prop updates (mimic mode): player_hurt events
+	// of the same frame need it to distinguish bomb damage from world damage.
+	geh.frameToBombExploded[geh.parser.currentFrame] = true
+
 	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
@@ -787,7 +794,6 @@ func (geh gameEventHandler) bombExploded(data map[string]*msg.CMsgSource1LegacyG
 		return
 	}
 
-	geh.frameToBombExploded[geh.parser.currentFrame] = true
 	geh.gameState().currentDefuser = nil
 	geh.dispatch(events.BombExplode{BombEvent: bombEvent})
 }
@@ -1106,7 +1112,7 @@ func mapGameEventData(d *msg.CMsgSource1LegacyGameEventListDescriptorT, e *msg.C
 }
 
 func guidToSteamID64(guid string) (uint64, error) {
-	if guid == "BOT" {
+	if guid == botGUID {
 		return 0, nil
 	}
 
@@ -1164,6 +1170,7 @@ func (p *parser) processFlyingFlashbangs() {
 		if flashbang.explodedFrame > 0 && flashbang.explodedFrame < p.currentFrame {
 			p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
 		}
+
 		return
 	}
 
