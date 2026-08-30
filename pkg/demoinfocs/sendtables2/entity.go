@@ -357,7 +357,7 @@ func newEntity(index, serial int32, class *class) *Entity {
 // String returns a human identifiable string for the Entity
 func (e *Entity) String() string {
 	paths := e.class.getFieldPaths(newFieldPath(), e.state)
-	props := make([]string, len(paths))
+	props := make([]string, 0, len(paths))
 
 	for _, fp := range paths {
 		props = append(props, fmt.Sprintf("%s: %v", e.class.getNameForFieldPath(fp), e.state.get(fp)))
