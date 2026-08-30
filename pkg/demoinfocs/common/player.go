@@ -569,9 +569,9 @@ func (p *Player) PositionEyes() r3.Vector {
 	if p.demoInfoProvider.IsSource2() {
 		pos := p.Position()
 		pawnEntity := p.PlayerPawnEntity()
-		x, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecX")
-		y, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecY")
-		z, _ := getFloatIfExists(pawnEntity, "m_vecViewOffset.m_vecZ")
+		x := getFloatOrZero(pawnEntity, "m_vecViewOffset.m_vecX")
+		y := getFloatOrZero(pawnEntity, "m_vecViewOffset.m_vecY")
+		z := getFloatOrZero(pawnEntity, "m_vecViewOffset.m_vecZ")
 
 		return pos.Add(r3.Vector{
 			X: float64(x),
@@ -603,9 +603,9 @@ func (p *Player) Velocity() r3.Vector {
 		// as 0, so the network protocol decides which source to use.
 		if p.demoInfoProvider.NetworkProtocol() >= constants.NetworkProtocolAnimGraph2 {
 			pawnEntity := p.PlayerPawnEntity()
-			x, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
-			y, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecY")
-			z, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecZ")
+			x := getFloatOrZero(pawnEntity, "m_vecVelocity.m_vecX")
+			y := getFloatOrZero(pawnEntity, "m_vecVelocity.m_vecY")
+			z := getFloatOrZero(pawnEntity, "m_vecVelocity.m_vecZ")
 
 			return r3.Vector{
 				X: float64(x),

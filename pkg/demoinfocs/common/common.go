@@ -91,9 +91,9 @@ func (g *GrenadeProjectile) Velocity() r3.Vector {
 		return v.VectorVal
 	}
 
-	x, _ := getFloatIfExists(g.Entity, "m_vecVelocity.m_vecX")
-	y, _ := getFloatIfExists(g.Entity, "m_vecVelocity.m_vecY")
-	z, _ := getFloatIfExists(g.Entity, "m_vecVelocity.m_vecZ")
+	x := getFloatOrZero(g.Entity, "m_vecVelocity.m_vecX")
+	y := getFloatOrZero(g.Entity, "m_vecVelocity.m_vecY")
+	z := getFloatOrZero(g.Entity, "m_vecVelocity.m_vecZ")
 
 	return r3.Vector{
 		X: float64(x),

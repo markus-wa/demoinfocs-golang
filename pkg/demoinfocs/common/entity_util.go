@@ -26,17 +26,17 @@ func getFloat(entity st.Entity, propName string) float32 {
 	return entity.PropertyValueMust(propName).Float()
 }
 
-func getFloatIfExists(entity st.Entity, propName string) (float32, bool) {
+func getFloatOrZero(entity st.Entity, propName string) float32 {
 	if entity == nil {
-		return 0, false
+		return 0
 	}
 
 	value, ok := entity.PropertyValue(propName)
 	if !ok || value.Any == nil {
-		return 0, false
+		return 0
 	}
 
-	return value.Float(), true
+	return value.Float()
 }
 
 func getString(entity st.Entity, propName string) string {
