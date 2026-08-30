@@ -44,7 +44,6 @@ var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current de
 
 var update = flag.Bool("update", false, "update .golden files")
 
-//nolint:cyclop
 func TestDemoInfoCs(t *testing.T) {
 	t.Parallel()
 

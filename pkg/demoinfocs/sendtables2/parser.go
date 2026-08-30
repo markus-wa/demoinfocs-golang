@@ -128,17 +128,17 @@ func (p *Parser) OnServerInfo(m *msgs2.CSVCMsg_ServerInfo) error {
 
 func (p *Parser) OnDemoClassInfo(m *msgs2.CDemoClassInfo) error {
 	for _, c := range m.GetClasses() {
-		classId := c.GetClassId() //nolint:revive
+		classID := c.GetClassId()
 		networkName := c.GetNetworkName()
 
 		class := &class{
-			classId:     classId,
+			classID:     classID,
 			name:        networkName,
 			serializer:  p.serializers[networkName],
 			fpNameCache: &fpNameTreeCache{},
 			fpFlatCache: make(map[uint64]string),
 		}
-		p.classesById[class.classId] = class
+		p.classesById[class.classID] = class
 		p.classesByName[class.name] = class
 	}
 

@@ -14,7 +14,7 @@ type fpNameTreeCache struct {
 }
 
 type class struct {
-	classId         int32 //nolint:revive
+	classID         int32
 	name            string
 	serializer      *serializer
 	createdHandlers []st.EntityCreatedHandler
@@ -27,7 +27,7 @@ type class struct {
 }
 
 func (c *class) ID() int {
-	return int(c.classId)
+	return int(c.classID)
 }
 
 func (c *class) Name() string {
@@ -65,7 +65,7 @@ func (c *class) String() string {
 		props = append(props, fmt.Sprintf("%s: %s", f.name, f.varType))
 	}
 
-	return fmt.Sprintf("%d %s\n %s", c.classId, c.name, strings.Join(props, "\n "))
+	return fmt.Sprintf("%d %s\n %s", c.classID, c.name, strings.Join(props, "\n "))
 }
 
 func (c *class) collectFieldsEntries(fields []*field, prefix string) []string {

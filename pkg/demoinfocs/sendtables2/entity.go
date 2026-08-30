@@ -456,7 +456,7 @@ func (e *Entity) GetSerial() int32 {
 
 // GetClassId returns the id of the class associated with this Entity
 func (e *Entity) GetClassId() int32 { //nolint:revive
-	return e.class.classId
+	return e.class.classID
 }
 
 // GetClassName returns the name of the class associated with this Entity
