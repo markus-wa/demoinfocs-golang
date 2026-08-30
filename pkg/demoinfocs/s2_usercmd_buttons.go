@@ -183,7 +183,9 @@ func (p *parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 		state.currentCommandNumber = commandNumber
 		state.hasCurrentCommand = true
 
-		player := p.gameState.playersByUserID[int(slot)]
+		// Player slots map to controller entities: slot N is entity N+1
+		// (getOrCreatePlayerFromControllerEntity relies on the same convention).
+		player := p.gameState.playersByEntityID[int(slot)+1]
 		if player == nil {
 			continue
 		}
