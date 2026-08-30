@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: 1.24.x
 
@@ -22,7 +22,7 @@ jobs:
           reviewdog_version: v0.11.0
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download Go Deps
         run: go mod download
@@ -67,19 +67,19 @@ jobs:
 
     steps:
       - name: Checkout demoinfocs-golang repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: demoinfocs-golang
 
       - name: Checkout CSDA repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: akiver/cs-demo-analyzer
           path: cs-demo-analyzer
           ref: main
 
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version-file: cs-demo-analyzer/go.mod
           cache-dependency-path: cs-demo-analyzer/go.sum
@@ -96,7 +96,7 @@ jobs:
           curl -L -o demos.txt https://gitlab.com/akiver/cs-demos/-/raw/main/demos.txt
 
       - name: Restore demos cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: demos-cache
         with:
           path: cs-demo-analyzer/cs-demos

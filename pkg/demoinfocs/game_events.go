@@ -471,41 +471,36 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 		}
 	}
 
-	dispatchPlayerHurt := func(wepType common.EquipmentType) {
-		geh.dispatch(events.PlayerHurt{
-			Player:            player,
-			Attacker:          attacker,
-			Health:            health,
-			Armor:             armor,
-			HealthDamage:      healthDamage,
-			ArmorDamage:       armorDamage,
-			HealthDamageTaken: healthDamageTaken,
-			ArmorDamageTaken:  armorDamageTaken,
-			HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
-			Weapon:            geh.getEquipmentInstance(attacker, wepType),
-			WeaponString:      rawWeapon,
-		})
-	}
-
-	if rawWeapon == "" && wepType == common.EqUnknown {
-		geh.parser.delayedEventHandlers = append(geh.parser.delayedEventHandlers, func() {
-			resolvedType := geh.attackerWeaponType(wepType, userID)
-			if resolvedType == common.EqUnknown {
-				if geh.frameToBombExploded[geh.parser.currentFrame] {
-					resolvedType = common.EqBomb
-				} else {
-					resolvedType = common.EqWorld
-				}
-			}
-
-			dispatchPlayerHurt(resolvedType)
-		})
-
-		return
-	}
-
 	wepType = geh.attackerWeaponType(wepType, userID)
-	dispatchPlayerHurt(wepType)
+
+	// An empty weapon string is ambiguous: it can be world/fall damage or bomb damage.
+	// The bomb_exploded game event always precedes the player_hurt events caused by the
+	// explosion, so a same-frame explosion has already been recorded at this point.
+	// The event must be dispatched now, not at the end of the frame: entity props
+	// (e.g. the victim's health) are updated after game events, and handlers rely on
+	// observing the pre-damage state.
+	// see https://github.com/markus-wa/demoinfocs-golang/issues/642
+	if rawWeapon == "" && wepType == common.EqUnknown {
+		if geh.frameToBombExploded[geh.parser.currentFrame] {
+			wepType = common.EqBomb
+		} else {
+			wepType = common.EqWorld
+		}
+	}
+
+	geh.dispatch(events.PlayerHurt{
+		Player:            player,
+		Attacker:          attacker,
+		Health:            health,
+		Armor:             armor,
+		HealthDamage:      healthDamage,
+		ArmorDamage:       armorDamage,
+		HealthDamageTaken: healthDamageTaken,
+		ArmorDamageTaken:  armorDamageTaken,
+		HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
+		Weapon:            geh.getEquipmentInstance(attacker, wepType),
+		WeaponString:      rawWeapon,
+	})
 }
 
 func (geh gameEventHandler) playerFallDamage(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
@@ -777,6 +772,11 @@ func (geh gameEventHandler) bombDefused(data map[string]*msg.CMsgSource1LegacyGa
 }
 
 func (geh gameEventHandler) bombExploded(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+	// Always record the explosion frame, even when the BombExplode event itself is
+	// dispatched from entity-prop updates (mimic mode): player_hurt events
+	// of the same frame need it to distinguish bomb damage from world damage.
+	geh.frameToBombExploded[geh.parser.currentFrame] = true
+
 	if !geh.parser.disableMimicSource1GameEvents {
 		return
 	}
@@ -787,7 +787,6 @@ func (geh gameEventHandler) bombExploded(data map[string]*msg.CMsgSource1LegacyG
 		return
 	}
 
-	geh.frameToBombExploded[geh.parser.currentFrame] = true
 	geh.gameState().currentDefuser = nil
 	geh.dispatch(events.BombExplode{BombEvent: bombEvent})
 }
