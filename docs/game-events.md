@@ -1,6 +1,6 @@
 ## Game events
 
-List of game events that may be trigerred during parsing, some events are available only in GOTV and/or POV demos.
+List of game events that may be triggered during parsing, some events are available only in GOTV and/or POV demos.
 
 You can add a listener on the parser's event `GenericGameEvent` to listen to all events, example:
 
@@ -11,7 +11,7 @@ parser.RegisterEventHandler(func(event events.GenericGameEvent) {
 ```
 
 > **Warning**
-> It has been noticed that some demos may not fire events when it should. A noticable one is the `round_end` event.
+> It has been noticed that some demos may not fire events when it should. A noticeable one is the `round_end` event.
 > If you encounter this problem it's probably not a parser bug but simply a demo with missing events.
 > As a workaround you may subscribe to properties update.
 > For example to detect rounds end you could subscribe to updates of the property `m_iRoundWinStatus` of the entity `CCSGameRulesProxy`.
