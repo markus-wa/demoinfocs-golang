@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"runtime"
@@ -262,7 +261,7 @@ func TestEncryptedNetMessages(t *testing.T) {
 	infoF, err := os.Open(csDemosPath + "/match730_003528806449641685104_1453182610_271.dem.info")
 	assert.NoError(t, err)
 
-	b, err := ioutil.ReadAll(infoF)
+	b, err := io.ReadAll(infoF)
 	assert.NoError(t, err)
 
 	k, err := demoinfocs.MatchInfoDecryptionKey(b)
@@ -356,7 +355,7 @@ func TestBadNetMessageDecryptionKey(t *testing.T) {
 	infoF, err := os.Open(infoPath)
 	assert.NoError(t, err)
 
-	b, err := ioutil.ReadAll(infoF)
+	b, err := io.ReadAll(infoF)
 	assert.NoError(t, err)
 
 	k, err := demoinfocs.MatchInfoDecryptionKey(b)
@@ -678,7 +677,7 @@ func assertGolden(tb testing.TB, assertions *assert.Assertions, testCase string,
 		gzipReader, err := gzip.NewReader(f)
 		assertions.NoError(err, "error creating gzip reader for %q", goldenFile)
 
-		expected, err := ioutil.ReadAll(gzipReader)
+		expected, err := io.ReadAll(gzipReader)
 		assertions.NoError(err, "error reading gzipped data from %q", goldenFile)
 
 		mustCloseAssert(assertions, gzipReader, f)
@@ -700,7 +699,7 @@ func removePointers(s []byte) []byte {
 }
 
 func writeFile(assertions *assert.Assertions, file string, data []byte) {
-	err := ioutil.WriteFile(file, data, 0600)
+	err := os.WriteFile(file, data, 0600)
 	assertions.NoError(err, "failed to write to file %q", file)
 }
 
