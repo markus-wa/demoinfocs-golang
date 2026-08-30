@@ -29,12 +29,15 @@ func (s *fieldState) get(fp *fieldPath) any {
 		if len(x.state) < z+1 {
 			return nil
 		}
+
 		if i == fp.last {
 			return x.state[z]
 		}
+
 		if _, ok := x.state[z].(*fieldState); !ok {
 			return nil
 		}
+
 		x = x.state[z].(*fieldState)
 	}
 
@@ -55,9 +58,11 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 				s.state = s.state[:z+1]
 			}
 		}
+
 		if _, ok := s.state[z].(*fieldState); !ok {
 			s.state[z] = v
 		}
+
 		return
 	}
 
@@ -84,6 +89,7 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 			if _, ok := x.state[z].(*fieldState); !ok {
 				x.state[z] = v
 			}
+
 			return
 		}
 

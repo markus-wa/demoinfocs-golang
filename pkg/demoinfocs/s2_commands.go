@@ -314,6 +314,7 @@ func (m *pendingMessage) priority() int {
 	return 0
 }
 
+//nolint:funlen
 func (p *parser) handleDemoPacket(pack *msg.CDemoPacket) {
 	b := pack.GetData()
 
@@ -342,27 +343,28 @@ func (p *parser) handleDemoPacket(pack *msg.CDemoPacket) {
 	for _, m := range p.pendingMessagesCache {
 		var msgCreator NetMessageCreator
 
-		if m.t < int32(msg.SVC_Messages_svc_ServerInfo) {
+		switch {
+		case m.t < int32(msg.SVC_Messages_svc_ServerInfo):
 			msgCreator = netMsgCreators[msg.NET_Messages(m.t)]
 
 			if msgCreator == nil {
 				msgCreator = bidirectionalMessageCreators[msg.Bidirectional_Messages(m.t)]
 			}
-		} else if m.t < int32(msg.EBaseUserMessages_UM_AchievementEvent) {
+		case m.t < int32(msg.EBaseUserMessages_UM_AchievementEvent):
 			msgCreator = svcMsgCreators[msg.SVC_Messages(m.t)]
-		} else if m.t < int32(msg.EBaseGameEvents_GE_VDebugGameSessionIDEvent) {
+		case m.t < int32(msg.EBaseGameEvents_GE_VDebugGameSessionIDEvent):
 			msgCreator = usrMsgCreators[msg.EBaseUserMessages(m.t)]
 
 			if msgCreator == nil {
 				msgCreator = emCreators[msg.EBaseEntityMessages(m.t)]
 			}
-		} else if m.t < int32(msg.ECstrike15UserMessages_CS_UM_VGUIMenu) {
+		case m.t < int32(msg.ECstrike15UserMessages_CS_UM_VGUIMenu):
 			msgCreator = gameEventCreators[msg.EBaseGameEvents(m.t)]
-		} else if m.t < int32(msg.ETEProtobufIds_TE_EffectDispatchId) {
+		case m.t < int32(msg.ETEProtobufIds_TE_EffectDispatchId):
 			msgCreator = csUsrMsgCreators[msg.ECstrike15UserMessages(m.t)]
-		} else if m.t < int32(msg.ECsgoGameEvents_GE_PlayerAnimEventId) {
+		case m.t < int32(msg.ECsgoGameEvents_GE_PlayerAnimEventId):
 			msgCreator = teCreators[msg.ETEProtobufIds(m.t)]
-		} else {
+		default:
 			msgCreator = csgoGameEventCreators[msg.ECsgoGameEvents(m.t)]
 		}
 
@@ -383,14 +385,6 @@ func (p *parser) handleDemoPacket(pack *msg.CDemoPacket) {
 		}
 
 		p.msgQueue <- msg
-	}
-}
-
-func (p *parser) handleFullPacket(msg *msg.CDemoFullPacket) {
-	p.handleStringTables(msg.StringTable)
-
-	if msg.Packet.GetData() != nil {
-		p.handleDemoPacket(msg.Packet)
 	}
 }
 

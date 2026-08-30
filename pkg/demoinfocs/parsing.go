@@ -22,6 +22,15 @@ const (
 	gameRulesPrefixS2    = "m_pGameRules"
 )
 
+const (
+	// Filestamps found in the first 8 bytes of demo files, identifying the demo format.
+	filestampS1 = "HL2DEMO"
+	filestampS2 = "PBDEMS2"
+
+	// GUID assigned to bot players.
+	botGUID = "BOT"
+)
+
 // Parsing errors
 var (
 	// ErrCancelled signals that parsing was cancelled via Parser.Cancel()
@@ -35,26 +44,26 @@ var (
 	ErrInvalidFileType = errors.New("invalid File-Type; expecting HL2DEMO in the first 8 bytes (ErrInvalidFileType)")
 )
 
-// parseHeader attempts to parse the header of the demo and returns it.
+// parseHeader attempts to parse the header of the demo and stores it in p.header.
 // If not done manually this will be called by Parser.ParseNextFrame() or Parser.ParseToEnd().
 //
-// Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match HL2DEMO.
-func (p *parser) parseHeader() (header, error) {
+// Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match PBDEMS2.
+func (p *parser) parseHeader() error {
 	var h header
 
 	isCSTVBroadcast := p.config.Format == DemoFormatCSTVBroadcast
 
 	if isCSTVBroadcast {
-		h.Filestamp = "PBDEMS2"
+		h.Filestamp = filestampS2
 	} else {
 		h.Filestamp = p.bitReader.ReadCString(8)
 	}
 
 	switch h.Filestamp {
-	case "HL2DEMO":
-		return h, fmt.Errorf("%w: CS:GO demos are no longer supported, downgrade to v3", ErrInvalidFileType)
+	case filestampS1:
+		return fmt.Errorf("%w: CS:GO demos are no longer supported, downgrade to v3", ErrInvalidFileType)
 
-	case "PBDEMS2":
+	case filestampS2:
 		if !isCSTVBroadcast {
 			p.bitReader.Skip(8 << 3) // skip 8 bytes
 		}
@@ -92,7 +101,7 @@ func (p *parser) parseHeader() (header, error) {
 		})
 
 	default:
-		return h, ErrInvalidFileType
+		return ErrInvalidFileType
 	}
 
 	// Initialize queue if the buffer size wasn't specified, the amount of ticks
@@ -103,7 +112,7 @@ func (p *parser) parseHeader() (header, error) {
 
 	p.header = &h
 
-	return h, nil
+	return nil
 }
 
 func msgQueueSize(ticks int) int {
@@ -148,9 +157,9 @@ func (p *parser) ParseToEnd() (err error) {
 	}()
 
 	if p.header == nil {
-		_, err = p.parseHeader()
+		err = p.parseHeader()
 		if err != nil {
-			return
+			return err
 		}
 	}
 
@@ -160,7 +169,7 @@ func (p *parser) ParseToEnd() (err error) {
 		}
 
 		if err = p.error(); err != nil {
-			return
+			return err
 		}
 	}
 }
@@ -216,7 +225,7 @@ func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 	}()
 
 	if p.header == nil {
-		_, err = p.parseHeader()
+		err = p.parseHeader()
 		if err != nil {
 			return
 		}
@@ -248,6 +257,7 @@ var demoCommandMsgsCreators = map[msg.EDemoCommands]NetMessageCreator{
 	msg.EDemoCommands_DEM_Recovery:        func() proto.Message { return &msg.CDemoRecovery{} },
 }
 
+//nolint:funlen
 func (p *parser) parseFrame() bool {
 	cmd := msg.EDemoCommands(p.bitReader.ReadVarInt32())
 
@@ -268,6 +278,7 @@ func (p *parser) parseFrame() bool {
 
 		if cmd == msg.EDemoCommands_DEM_Stop {
 			p.msgQueue <- ingameTickNumber(int32(tick))
+
 			p.msgQueue <- frameParsedToken
 
 			return false
@@ -284,7 +295,9 @@ func (p *parser) parseFrame() bool {
 
 		if msgType == msg.EDemoCommands_DEM_Stop {
 			p.msgQueue <- ingameTickNumber(int32(tick))
+
 			p.msgQueue <- frameParsedToken
+
 			return false
 		}
 

@@ -65,6 +65,7 @@ func (s *serializer) getFieldPathForName(fp *fieldPath, name string) bool {
 		if next == -1 {
 			break
 		}
+
 		dotIndex += 1 + next
 	}
 

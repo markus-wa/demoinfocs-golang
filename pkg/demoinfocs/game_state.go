@@ -101,9 +101,10 @@ func (gs gameState) IngameTick() int {
 //
 // Make sure to handle swapping sides properly if you keep the reference.
 func (gs *gameState) Team(team common.Team) *common.TeamState {
-	if team == common.TeamTerrorists {
+	switch team { //nolint:exhaustive
+	case common.TeamTerrorists:
 		return &gs.tState
-	} else if team == common.TeamCounterTerrorists {
+	case common.TeamCounterTerrorists:
 		return &gs.ctState
 	}
 

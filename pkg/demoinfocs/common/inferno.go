@@ -53,6 +53,7 @@ func (inf *Inferno) Thrower() *Player {
 	}
 
 	handleProp := inf.Entity.Property("m_hOwnerEntity").Value()
+
 	return inf.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
 }
 

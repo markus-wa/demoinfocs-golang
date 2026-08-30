@@ -70,7 +70,7 @@ type Parser struct {
 	packetEntitiesPanicWarnFunc func(error)
 }
 
-func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity { //nolint:revive
+func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity {
 	panic("implement me")
 }
 
@@ -156,7 +156,7 @@ func (p *Parser) SetInstanceBaseline(scID int, data []byte) {
 	p.classBaselines[int32(scID)] = data
 }
 
-//nolint:gocognit
+//nolint:gocognit,funlen
 func (p *Parser) ParsePacket(b []byte) error {
 	r := newReader(b)
 	buf := r.readBytes(r.readVarUint32())
@@ -196,6 +196,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 				if _, ok := fieldTypes[field.varType]; !ok {
 					fieldTypes[field.varType] = newFieldType(field.varType)
 				}
+
 				field.fieldType = fieldTypes[field.varType]
 
 				// find associated serializer

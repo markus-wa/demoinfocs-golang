@@ -112,6 +112,7 @@ func (p *parser) handleServerRankUpdate(msg *msg.CCSUsrMsg_ServerRankUpdate) {
 
 	for _, v := range msg.RankUpdate {
 		steamID32 := uint32(v.GetAccountId())
+
 		player, ok := p.gameState.playersBySteamID32[steamID32]
 		if !ok {
 			errMsg := fmt.Sprintf("rank update for unknown player with SteamID32=%d", steamID32)

@@ -19,8 +19,9 @@ func init() {
 	for i := range simTimeCache {
 		simTimeCache[i] = float32(i) * (1.0 / 64)
 	}
+
 	for i := range runeTimeCache {
-		runeTimeCache[i] = math.Float32frombits(uint32(i)) //nolint:gosec
+		runeTimeCache[i] = math.Float32frombits(uint32(i))
 	}
 }
 
@@ -262,6 +263,7 @@ func unsigned64Factory(f *field) fieldDecoder {
 	case "fixed64":
 		return fixed64Decoder
 	}
+
 	return unsigned64Decoder
 }
 
@@ -301,16 +303,19 @@ func vectorFactory(n int) fieldFactory {
 		}
 
 		d := floatFactory(f)
+
 		if n == 3 {
 			return func(r *reader) any {
 				return [3]float32{d(r).(float32), d(r).(float32), d(r).(float32)}
 			}
 		}
+
 		return func(r *reader) any {
 			x := make([]float32, n)
 			for i := 0; i < n; i++ {
 				x[i] = d(r).(float32)
 			}
+
 			return x
 		}
 	}
@@ -358,6 +363,7 @@ func noscaleDecoder(r *reader) any {
 	if bits == 0 {
 		return float32(0)
 	}
+
 	return r.cachedFloat32(bits)
 }
 
@@ -370,6 +376,7 @@ func simulationTimeDecoder(r *reader) any {
 	if t < simTimeCacheLen {
 		return simTimeCache[t]
 	}
+
 	return float32(t) * (1.0 / 64)
 }
 
@@ -379,6 +386,7 @@ func readBitCoordPres(r *reader) float32 {
 
 func qanglePreciseDecoder(r *reader) any {
 	var v [3]float32
+
 	hasX := r.readBoolean()
 	hasY := r.readBoolean()
 	hasZ := r.readBoolean()
@@ -404,7 +412,8 @@ func qangleFactory(f *field) fieldDecoder {
 	}
 
 	if f.bitCount != nil && *f.bitCount != 0 {
-		n := uint32(*f.bitCount) //nolint:gosec
+		n := uint32(*f.bitCount)
+
 		return func(r *reader) any {
 			return [3]float32{
 				r.readAngle(n),
@@ -416,18 +425,23 @@ func qangleFactory(f *field) fieldDecoder {
 
 	return func(r *reader) any {
 		var ret [3]float32
+
 		rX := r.readBoolean()
 		rY := r.readBoolean()
+
 		rZ := r.readBoolean()
 		if rX {
 			ret[0] = r.readCoord()
 		}
+
 		if rY {
 			ret[1] = r.readCoord()
 		}
+
 		if rZ {
 			ret[2] = r.readCoord()
 		}
+
 		return ret
 	}
 }

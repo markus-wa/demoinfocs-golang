@@ -1,7 +1,6 @@
 package demoinfocs
 
 import (
-	_ "embed"
 	"fmt"
 	"io"
 	"os"
@@ -378,19 +377,19 @@ const (
 )
 
 // NewCSTVBroadcastParser creates a new Parser for a live CSTV broadcast.
-// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
 //
 // See also: NewParserWithConfig() & DefaultParserConfig
-func NewCSTVBroadcastParser(baseUrl string) (Parser, error) {
-	return NewCSTVBroadcastParserWithConfig(baseUrl, DefaultParserConfig)
+func NewCSTVBroadcastParser(baseURL string) (Parser, error) {
+	return NewCSTVBroadcastParserWithConfig(baseURL, DefaultParserConfig)
 }
 
 // NewCSTVBroadcastParserWithConfig creates a new Parser for a live CSTV broadcast with a custom configuration.
-// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
 //
 // See also: NewParserWithConfig() & DefaultParserConfig
-func NewCSTVBroadcastParserWithConfig(baseUrl string, config ParserConfig) (Parser, error) {
-	r, err := cstv.NewReader(baseUrl, config.CSTVTimeout)
+func NewCSTVBroadcastParserWithConfig(baseURL string, config ParserConfig) (Parser, error) {
+	r, err := cstv.NewReader(baseURL, config.CSTVTimeout)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create CSTV reader: %w", err)
 	}
@@ -456,11 +455,11 @@ func ParseFile(path string, configure ParserCallback) error {
 
 // ParseCSTVBroadcastWithConfig parses a live CSTV broadcast from the given base URL with a custom configuration.
 // The handler is called with the Parser instance.
-// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
 // Returns an error if the CSTV reader can't be created or if the parser encounters an error.
 // Note that the CSTV broadcast is a live stream and will not end until the broadcast ends.
-func ParseCSTVBroadcastWithConfig(baseUrl string, config ParserConfig, configure ParserCallback) error {
-	p, err := NewCSTVBroadcastParserWithConfig(baseUrl, config)
+func ParseCSTVBroadcastWithConfig(baseURL string, config ParserConfig, configure ParserCallback) error {
+	p, err := NewCSTVBroadcastParserWithConfig(baseURL, config)
 	if err != nil {
 		return fmt.Errorf("failed to create CSTV broadcast parser: %w", err)
 	}
@@ -482,11 +481,11 @@ func ParseCSTVBroadcastWithConfig(baseUrl string, config ParserConfig, configure
 
 // ParseCSTVBroadcast parses a live CSTV broadcast from the given base URL.
 // The handler is called with the Parser instance.
-// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
 // Returns an error if the CSTV reader can't be created or if the parser encounters an error.
 // Note that the CSTV broadcast is a live stream and will not end until the broadcast ends.
-func ParseCSTVBroadcast(baseUrl string, configure ParserCallback) error {
-	return ParseCSTVBroadcastWithConfig(baseUrl, DefaultParserConfig, configure)
+func ParseCSTVBroadcast(baseURL string, configure ParserCallback) error {
+	return ParseCSTVBroadcastWithConfig(baseURL, DefaultParserConfig, configure)
 }
 
 // ParserConfig contains the configuration for creating a new Parser.
@@ -543,6 +542,8 @@ var DefaultParserConfig = ParserConfig{
 // NewParserWithConfig returns a new Parser with a custom configuration.
 //
 // See also: NewParser() & ParserConfig
+//
+//nolint:funlen
 func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	var p parser
 
@@ -553,6 +554,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	} else {
 		p.bitReader = bit.NewSmallBitReader(demostream)
 	}
+
 	p.equipmentMapping = make(map[st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)

@@ -15,6 +15,7 @@ import (
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
 	checkError(err)
+
 	defer f.Close()
 
 	p := demoinfocs.NewParser(f)
@@ -24,9 +25,11 @@ func main() {
 		p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent st.Entity) {
 			ent.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 				x := p.GameState().Participants().FindByHandle64(val.UInt64())
-				if x != nil {
+				if x != nil { //nolint:nestif
 					var prev string
+
 					prevHandle := ent.Property("m_hPrevOwner").Value().UInt64()
+
 					prevPlayer := p.GameState().Participants().FindByHandle64(prevHandle)
 					if prevPlayer != nil {
 						if prevHandle != val.UInt64() {
@@ -37,6 +40,7 @@ func main() {
 					} else {
 						prev = "a brand new"
 					}
+
 					fmt.Printf("%s picked up %s AWP (#%d)\n", x.Name, prev, ent.ID())
 				}
 			})

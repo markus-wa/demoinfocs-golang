@@ -3,7 +3,6 @@
 package demoinfocs
 
 import (
-	_ "embed"
 	"time"
 
 	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"

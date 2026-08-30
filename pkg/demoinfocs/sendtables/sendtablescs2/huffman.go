@@ -26,22 +26,27 @@ func init() {
 // The root node is always placed at index 0 (pre-order layout).
 func buildFlatHuffmanTree(t huffmanTree) []fpHuffNode {
 	nodes := make([]fpHuffNode, 0, 128)
+
 	var build func(t huffmanTree) int16
+
 	build = func(t huffmanTree) int16 {
-		idx := int16(len(nodes)) //nolint:gosec
+		idx := int16(len(nodes))
+
 		nodes = append(nodes, fpHuffNode{})
 		if t.IsLeaf() {
 			nodes[idx].left = -1
-			nodes[idx].value = int16(t.Value()) //nolint:gosec
+			nodes[idx].value = int16(t.Value())
 		} else {
 			leftIdx := build(t.Left())
 			rightIdx := build(t.Right())
 			nodes[idx].left = leftIdx
 			nodes[idx].right = rightIdx
 		}
+
 		return idx
 	}
 	build(t)
+
 	return nodes
 }
 
@@ -141,6 +146,7 @@ func (th *treeHeap) Push(ele any) {
 func (th *treeHeap) Pop() (popped any) {
 	popped = (*th)[len(*th)-1]
 	*th = (*th)[:len(*th)-1]
+
 	return
 }
 
