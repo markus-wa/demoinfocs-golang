@@ -199,7 +199,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 				}
 
 				// determine field model
-				if field.serializer != nil { //nolint:gocritic
+				if field.serializer != nil {
 					if field.fieldType.pointer || pointerTypes[field.fieldType.baseType] {
 						field.setModel(fieldModelFixedTable)
 					} else {

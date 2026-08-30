@@ -780,6 +780,7 @@ func (p *Player) Score() int {
 
 // Color returns the players color as shown on the minimap.
 // It will return Grey (-1) if the resource entity does not exist when the function is called or when the demo does not support player colors.
+//
 // Deprecated: Use ColorOrErr() instead.
 func (p *Player) Color() Color {
 	resourceEnt := p.resourceEntity()

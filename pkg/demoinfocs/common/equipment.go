@@ -339,6 +339,7 @@ func (e *Equipment) Class() EquipmentClass {
 // UniqueID returns a randomly generated unique id of the equipment element.
 // The unique id is a random int generated internally by this library and can be used to differentiate
 // equipment from each other. This is needed because demo-files reuse entity ids.
+//
 // Deprecated: Use UniqueID2 instead. Since UniqueID is randomly generated, duplicate IDs are possible.
 // See the birthday problem for why repeatedly generating random 64 bit integers is likely to produce a collision.
 func (e *Equipment) UniqueID() int64 {
@@ -356,7 +357,7 @@ func (e *Equipment) UniqueID2() ulid.ULID {
 // AmmoInMagazine returns the ammo left in the magazine.
 // Returns 1 for grenades and equipments (Knife, C4...).
 func (e *Equipment) AmmoInMagazine() int {
-	switch true {
+	switch {
 	case e.Class() == EqClassGrenade || e.Class() == EqClassEquipment:
 		return 1
 	case e.Entity == nil:
