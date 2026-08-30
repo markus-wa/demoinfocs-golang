@@ -48,7 +48,7 @@ func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
 
 	oldName := pl.Name
 	newName := raw.Name
-	nameChanged := !pl.IsBot && !raw.IsFakePlayer && raw.GUID != "BOT" && oldName != newName
+	nameChanged := !pl.IsBot && !raw.IsFakePlayer && raw.GUID != botGUID && oldName != newName
 
 	pl.Name = raw.Name
 	pl.SteamID64 = raw.XUID

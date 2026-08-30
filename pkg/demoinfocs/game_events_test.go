@@ -18,7 +18,7 @@ import (
 func TestRoundEnd_LoserState_Score(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	p.header = &common.DemoHeader{
-		Filestamp: "HL2DEMO",
+		Filestamp: filestampS1,
 	}
 
 	p.gameState.tState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{IntVal: 1})
@@ -154,7 +154,7 @@ func TestGetThrownGrenade_Found(t *testing.T) {
 // infinitely recurse when ControlledBot() creates a circular reference between two players (see #620).
 func TestGetThrownGrenade_CircularControlledBot(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	p.header = &common.DemoHeader{Filestamp: "PBDEMS2"}
+	p.header = &common.DemoHeader{Filestamp: filestampS2}
 	provider := demoInfoProvider{parser: p}
 
 	playerA := common.NewPlayer(provider)
@@ -290,7 +290,7 @@ func TestAttackerWeaponType_RoundEndReasonTargetBombedWins(t *testing.T) {
 
 func TestPlayerHurt_UnknownWeaponDefaultsToWorld(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	p.header = &common.DemoHeader{Filestamp: "HL2DEMO"}
+	p.header = &common.DemoHeader{Filestamp: filestampS1}
 	p.currentFrame = 60
 
 	var got []events.PlayerHurt
@@ -307,7 +307,7 @@ func TestPlayerHurt_UnknownWeaponDefaultsToWorld(t *testing.T) {
 
 func TestPlayerHurt_UnknownWeaponUsesBombWhenBombExplodedThisFrame(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	p.header = &common.DemoHeader{Filestamp: "HL2DEMO"}
+	p.header = &common.DemoHeader{Filestamp: filestampS1}
 	p.currentFrame = 72
 	p.gameEventHandler.frameToBombExploded[p.currentFrame] = true
 
@@ -325,7 +325,7 @@ func TestPlayerHurt_UnknownWeaponUsesBombWhenBombExplodedThisFrame(t *testing.T)
 
 func TestPlayerHurt_KnownWeaponDispatchesImmediately(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	p.header = &common.DemoHeader{Filestamp: "HL2DEMO"}
+	p.header = &common.DemoHeader{Filestamp: filestampS1}
 	p.currentFrame = 84
 
 	var got []events.PlayerHurt

@@ -1186,7 +1186,7 @@ func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_Ga
 }
 
 func guidToSteamID64(guid string) (uint64, error) {
-	if guid == "BOT" {
+	if guid == botGUID {
 		return 0, nil
 	}
 

@@ -447,7 +447,7 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew b
 				player = common.NewPlayer(p.demoInfoProvider)
 				player.Name = rp.Name
 				player.SteamID64 = rp.XUID
-				player.IsBot = rp.IsFakePlayer || rp.GUID == "BOT"
+				player.IsBot = rp.IsFakePlayer || rp.GUID == botGUID
 
 				p.gameState.indexPlayerBySteamID(player)
 			}

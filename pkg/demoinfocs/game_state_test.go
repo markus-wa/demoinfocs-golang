@@ -366,7 +366,7 @@ func newPlayerS1() *common.Player {
 
 func newPlayerWithEntityIDS1(id int) *common.Player {
 	pl := common.NewPlayer(demoInfoProvider{
-		parser: &parser{header: &common.DemoHeader{Filestamp: "HL2DEMO"}},
+		parser: &parser{header: &common.DemoHeader{Filestamp: filestampS1}},
 	})
 	pl.Entity = fakePlayerEntity(id)
 	pl.IsConnected = true

@@ -455,7 +455,7 @@ func (p *parser) initMsgQueue(buf int) {
 }
 
 func (p *parser) isSource2() bool {
-	return p.header != nil && p.header.Filestamp == "PBDEMS2"
+	return p.header != nil && p.header.Filestamp == filestampS2
 }
 
 type demoInfoProvider struct {

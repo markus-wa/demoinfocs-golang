@@ -30,6 +30,13 @@ const (
 	playerWeaponPrefixS2 = "m_pWeaponServices.m_hMyWeapons"
 	gameRulesPrefix      = "cs_gamerules_data"
 	gameRulesPrefixS2    = "m_pGameRules"
+
+	// Filestamps found in the first 8 bytes of demo files, identifying the demo format.
+	filestampS1 = "HL2DEMO"
+	filestampS2 = "PBDEMS2"
+
+	// GUID assigned to bot players.
+	botGUID = "BOT"
 )
 
 // Parsing errors
@@ -55,7 +62,7 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 	h.Filestamp = p.bitReader.ReadCString(8)
 
 	switch h.Filestamp {
-	case "HL2DEMO":
+	case filestampS1:
 		h.Protocol = p.bitReader.ReadSignedInt(32)
 		h.NetworkProtocol = p.bitReader.ReadSignedInt(32)
 		h.ServerName = p.bitReader.ReadCString(maxOsPath)
@@ -69,7 +76,7 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 
 		p.stParser = st.NewSendTableParser()
 
-	case "PBDEMS2":
+	case filestampS2:
 		p.bitReader.Skip(8 << 3) // skip 8 bytes
 
 		var warnFunc func(error)
@@ -420,10 +427,10 @@ func (p *parser) parseFrameS2() bool {
 // FIXME: refactor to interface instead of switch
 func (p *parser) parseFrameFn() func() bool {
 	switch p.header.Filestamp {
-	case "HL2DEMO":
+	case filestampS1:
 		return p.parseFrameS1
 
-	case "PBDEMS2":
+	case filestampS2:
 		return p.parseFrameS2
 
 	default:
