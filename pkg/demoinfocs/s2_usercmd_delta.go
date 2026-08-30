@@ -36,6 +36,7 @@ func userCmdRingIndex(commandNumber int32) int {
 	if index < 0 {
 		index += userCmdRingSize
 	}
+
 	return int(index)
 }
 
@@ -52,6 +53,7 @@ func (r *userCmdRing) get(commandNumber int32) (*msg.CSGOUserCmdPB, bool) {
 	if !entry.valid || entry.commandNumber != commandNumber {
 		return nil, false
 	}
+
 	return entry.command, true
 }
 
@@ -60,6 +62,7 @@ func (r *userCmdRing) slotCommandNumber(commandNumber int32) (int32, bool) {
 	if !entry.valid {
 		return 0, false
 	}
+
 	return entry.commandNumber, true
 }
 
@@ -80,8 +83,11 @@ func applyUserCmdDelta(baseline *msg.CSGOUserCmdPB, deltaData []byte) error {
 // codegen_delta_encoder output: wire-type-7 reset markers and indexed repeated
 // operations. Ordinary protobuf fields are passed through to the protobuf
 // decoder in one merge pass, while nested messages are merged recursively.
+//
+//nolint:gocognit,funlen
 func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
 	fields := target.Descriptor().Fields()
+
 	var scalars []byte
 
 	for len(data) > 0 {
@@ -89,17 +95,22 @@ func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
 		if tagLen < 0 {
 			return errors.Wrap(protowire.ParseError(tagLen), "failed to read delta field tag")
 		}
+
 		if num == 0 {
 			return errors.New("delta field number must be non-zero")
 		}
+
 		fd := fields.ByNumber(num)
 
 		if typ == wireTypeReset {
 			if fd == nil {
 				return errors.Errorf("wire type 7 references unknown field %d", num)
 			}
+
 			target.Clear(fd)
+
 			data = data[tagLen:]
+
 			continue
 		}
 
@@ -127,6 +138,7 @@ func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
 			}
 
 			data = data[tagLen+valueLen:]
+
 			continue
 		}
 
@@ -134,6 +146,7 @@ func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
 		if valueLen < 0 {
 			return errors.Wrap(protowire.ParseError(valueLen), "failed to read delta field value")
 		}
+
 		if fd != nil && !fd.IsList() {
 			scalars = append(scalars, data[:tagLen+valueLen]...)
 		}
@@ -146,6 +159,7 @@ func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
 			return errors.Wrap(err, "failed to merge scalar delta fields")
 		}
 	}
+
 	return nil
 }
 
@@ -155,6 +169,7 @@ func mergeUserCmdRepeated(parent protoreflect.Message, fd protoreflect.FieldDesc
 	}
 
 	list := parent.Mutable(fd).List()
+
 	for len(data) > 0 {
 		// Repeated operations are not protobuf tags: the high bits are a
 		// zero-based index, so index zero legitimately has protobuf field
@@ -163,17 +178,22 @@ func mergeUserCmdRepeated(parent protoreflect.Message, fd protoreflect.FieldDesc
 		if tagLen < 0 {
 			return errors.Wrap(protowire.ParseError(tagLen), "failed to read repeated delta index")
 		}
+
 		if key>>3 > uint64(^uint(0)>>1) {
 			return errors.New("repeated delta index does not fit in int")
 		}
+
 		index := int(key >> 3)
 		typ := protowire.Type(key & 0x07)
 
+		//nolint:exhaustive // The repeated-delta grammar only uses a subset of
+		// protowire types (reset marker and length-delimited); all others are invalid.
 		switch typ {
 		case wireTypeReset:
 			if index > userCmdRepeatedLimit {
 				return errors.Errorf("repeated delta index %d exceeds limit %d", index, userCmdRepeatedLimit)
 			}
+
 			if index > list.Len() {
 				for list.Len() < index {
 					list.Append(list.NewElement())
@@ -181,22 +201,27 @@ func mergeUserCmdRepeated(parent protoreflect.Message, fd protoreflect.FieldDesc
 			} else {
 				list.Truncate(index)
 			}
+
 			data = data[tagLen:]
 		case protowire.BytesType:
 			value, valueLen := protowire.ConsumeBytes(data[tagLen:])
 			if valueLen < 0 {
 				return errors.Wrap(protowire.ParseError(valueLen), "failed to read repeated delta message")
 			}
+
 			if index >= list.Len() {
 				return errors.Errorf("repeated delta index %d is out of bounds for length %d", index, list.Len())
 			}
+
 			if err := mergeUserCmdDelta(list.Get(index).Message(), value); err != nil {
 				return errors.Wrapf(err, "failed to merge repeated field %s[%d]", fd.FullName(), index)
 			}
+
 			data = data[tagLen+valueLen:]
 		default:
 			return errors.Errorf("unsupported repeated delta wire type %d", typ)
 		}
 	}
+
 	return nil
 }

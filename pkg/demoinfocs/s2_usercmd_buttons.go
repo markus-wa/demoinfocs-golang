@@ -35,6 +35,7 @@ func (r *userCmdButtonRing) get(commandNumber int32) (uint64, bool) {
 	if !entry.valid || entry.commandNumber != commandNumber {
 		return 0, false
 	}
+
 	return entry.buttons, true
 }
 
@@ -51,10 +52,13 @@ var userCmdButtonsPath = [...]protowire.Number{1, 3, 1}
 // It skips all other fields without proto.Unmarshal or allocation. Wire type 7
 // resets a target field to its protobuf default, including when the marker is on
 // base or buttons_pb.
+//
+//nolint:gocognit,funlen
 func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
 	if level >= len(userCmdButtonsPath) {
 		return errors.New("invalid user command button path")
 	}
+
 	target := userCmdButtonsPath[level]
 
 	for len(data) > 0 {
@@ -62,6 +66,7 @@ func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
 		if tagLen < 0 {
 			return errors.Wrap(protowire.ParseError(tagLen), "failed to read user command button tag")
 		}
+
 		if num == 0 {
 			return errors.New("user command button field number must be non-zero")
 		}
@@ -70,7 +75,9 @@ func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
 			if num == target {
 				*buttons = 0
 			}
+
 			data = data[tagLen:]
+
 			continue
 		}
 
@@ -79,7 +86,9 @@ func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
 			if valueLen < 0 {
 				return errors.Wrap(protowire.ParseError(valueLen), "failed to skip user command field")
 			}
+
 			data = data[tagLen+valueLen:]
+
 			continue
 		}
 
@@ -87,31 +96,38 @@ func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
 			if typ != protowire.VarintType {
 				return fmt.Errorf("buttonstate1 uses unexpected wire type %d", typ)
 			}
+
 			value, valueLen := protowire.ConsumeVarint(data[tagLen:])
 			if valueLen < 0 {
 				return errors.Wrap(protowire.ParseError(valueLen), "failed to read buttonstate1")
 			}
+
 			*buttons = value
 			data = data[tagLen+valueLen:]
+
 			continue
 		}
 
 		if typ != protowire.BytesType {
 			return fmt.Errorf("user command button message uses unexpected wire type %d", typ)
 		}
+
 		value, valueLen := protowire.ConsumeBytes(data[tagLen:])
 		if valueLen < 0 {
 			return errors.Wrap(protowire.ParseError(valueLen), "failed to read user command button message")
 		}
+
 		if err := mergeUserCmdButtons(value, level+1, buttons); err != nil {
 			return err
 		}
+
 		data = data[tagLen+valueLen:]
 	}
 
 	return nil
 }
 
+//nolint:gocognit,nestif,funlen
 func (p *parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 	p.hasUserCmdMessages = true
 
@@ -124,6 +140,7 @@ func (p *parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 		if slot < 0 {
 			continue
 		}
+
 		state := p.userCmdButtonStates[slot]
 		if state == nil {
 			state = &userCmdButtonPlayerState{}
@@ -137,6 +154,7 @@ func (p *parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 					Message: err.Error(),
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})
+
 				continue
 			}
 		} else if len(cmd.GetDeltaData()) > 0 {
@@ -145,23 +163,29 @@ func (p *parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 					Message: fmt.Sprintf("user command %d has no baseline for player slot %d", cmd.GetCmdNumber(), slot),
 					Type:    events.WarnTypeUserCommandBaselineMissing,
 				})
+
 				continue
 			}
+
 			requestedBaseline := state.currentCommandNumber
 			if cmd.GetCmdNumber() < requestedBaseline {
 				p.msgDispatcher.Dispatch(events.ParserWarn{
 					Message: fmt.Sprintf("user command %d precedes its current baseline %d for player slot %d", cmd.GetCmdNumber(), requestedBaseline, slot),
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
+
 				continue
 			}
+
 			var found bool
+
 			buttons, found = state.ring.get(requestedBaseline)
 			if !found {
 				p.msgDispatcher.Dispatch(events.ParserWarn{
 					Message: fmt.Sprintf("user command %d has a baseline ring mismatch for player slot %d (requested %d)", cmd.GetCmdNumber(), slot, requestedBaseline),
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
+
 				continue
 			}
 		} else {
@@ -174,6 +198,7 @@ func (p *parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 					Message: err.Error(),
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})
+
 				continue
 			}
 		}
@@ -189,6 +214,7 @@ func (p *parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 		if player == nil {
 			continue
 		}
+
 		if player.ButtonsPressedState != buttons {
 			player.ButtonsPressedState = buttons
 			p.eventDispatcher.Dispatch(events.PlayerButtonsStateUpdate{

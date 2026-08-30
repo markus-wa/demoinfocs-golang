@@ -430,10 +430,12 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 	}
 }
 
+//nolint:gocognit,nestif,funlen
 func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 	if p.config.UserCmdParsing == UserCmdParsingDisabled {
 		return
 	}
+
 	if p.config.UserCmdParsing == UserCmdParsingButtonsOnly {
 		p.handleUserCommandButtons(m)
 		return
@@ -453,6 +455,7 @@ func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 		if slot < 0 {
 			continue
 		}
+
 		state := p.userCmdStates[slot]
 		if state == nil {
 			state = &userCmdPlayerState{}
@@ -468,6 +471,7 @@ func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 					Message: err.Error(),
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})
+
 				continue
 			}
 		} else if len(cmd.GetDeltaData()) > 0 {
@@ -479,24 +483,30 @@ func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 					Message: fmt.Sprintf("user command %d has no baseline for player slot %d", cmd.GetCmdNumber(), slot),
 					Type:    events.WarnTypeUserCommandBaselineMissing,
 				})
+
 				continue
 			}
+
 			requestedBaseline := state.currentCommandNumber
 			if cmd.GetCmdNumber() < requestedBaseline {
 				p.msgDispatcher.Dispatch(events.ParserWarn{
 					Message: fmt.Sprintf("user command %d precedes its current baseline %d for player slot %d", cmd.GetCmdNumber(), requestedBaseline, slot),
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
+
 				continue
 			}
+
 			baseline, found := state.ring.get(requestedBaseline)
 			if !found {
 				p.msgDispatcher.Dispatch(events.ParserWarn{
 					Message: fmt.Sprintf("user command %d has a baseline ring mismatch for player slot %d (requested %d)", cmd.GetCmdNumber(), slot, requestedBaseline),
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
+
 				continue
 			}
+
 			next = proto.Clone(baseline).(*msg.CSGOUserCmdPB)
 		} else {
 			continue
@@ -510,6 +520,7 @@ func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 					Message: err.Error(),
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})
+
 				continue
 			}
 		}
@@ -534,6 +545,7 @@ func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 		if player == nil {
 			continue
 		}
+
 		newState := next.GetBase().GetButtonsPb().GetButtonstate1()
 		if player.ButtonsPressedState != newState {
 			player.ButtonsPressedState = newState

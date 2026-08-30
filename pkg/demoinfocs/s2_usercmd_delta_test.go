@@ -124,22 +124,20 @@ func TestApplyUserCmdDelta_ChainedDeltas(t *testing.T) {
 	assert.EqualValues(t, 3, m.GetBase().GetButtonsPb().GetButtonstate2(), "buttonstate2 survived both deltas")
 }
 
-func subtick(button uint64, pressed bool) *msg.CSubtickMoveStep {
-	return &msg.CSubtickMoveStep{Button: proto64(button), Pressed: &pressed}
+func subtick(button uint64) *msg.CSubtickMoveStep {
+	return &msg.CSubtickMoveStep{Button: proto64(button), Pressed: protoBool(true)}
 }
-
 func repeatedPatch(index protowire.Number, delta []byte) []byte {
 	return bytesField(index, delta)
 }
 
 func TestApplyUserCmdDelta_RepeatedIndexPatch(t *testing.T) {
 	m := &msg.CSGOUserCmdPB{Base: &msg.CBaseUserCmdPB{
-		SubtickMoves: []*msg.CSubtickMoveStep{subtick(1, true), subtick(2, true)},
+		SubtickMoves: []*msg.CSubtickMoveStep{subtick(1), subtick(2)},
 	}}
 
 	// subtick_moves { index 1 { pressed = false } }
-	var elementDelta []byte
-	elementDelta = varintField(fieldSubtickPressed, 0)
+	elementDelta := varintField(fieldSubtickPressed, 0)
 	operation := repeatedPatch(1, elementDelta)
 	delta := bytesField(fieldCSGOUserCmdBase, bytesField(fieldBaseUserCmdSubtick, operation))
 
@@ -153,7 +151,7 @@ func TestApplyUserCmdDelta_RepeatedIndexPatch(t *testing.T) {
 
 func TestApplyUserCmdDelta_RepeatedIndexZeroAndTruncate(t *testing.T) {
 	m := &msg.CSGOUserCmdPB{Base: &msg.CBaseUserCmdPB{
-		SubtickMoves: []*msg.CSubtickMoveStep{subtick(1, true), subtick(2, true), subtick(3, true)},
+		SubtickMoves: []*msg.CSubtickMoveStep{subtick(1), subtick(2), subtick(3)},
 	}}
 
 	// Index zero is encoded as field number zero in the repeated operation.
@@ -212,6 +210,7 @@ func TestServerUserCmdDeltaDataRoundTrip(t *testing.T) {
 func proto32(v int32) *int32        { return &v }
 func proto64(v uint64) *uint64      { return &v }
 func protoFloat(v float32) *float32 { return &v }
+func protoBool(v bool) *bool        { return &v }
 
 func varintField(field protowire.Number, v uint64) []byte {
 	b := protowire.AppendTag(nil, field, protowire.VarintType)
