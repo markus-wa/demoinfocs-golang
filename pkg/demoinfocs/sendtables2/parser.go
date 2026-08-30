@@ -68,6 +68,12 @@ type Parser struct {
 	pathCache                   []*fieldPath
 	tuplesCache                 []tuple
 	packetEntitiesPanicWarnFunc func(error)
+	// nextPolyID is a global counter for assigning unique polySerializerIDs to
+	// polymorphic fixed-table fields as they are encountered during ParsePacket.
+	nextPolyID int
+	// polyMaxCache memoizes, per serializer, the highest polySerializerID
+	// reachable from it. Used to size per-class polySerializers slices.
+	polyMaxCache map[*serializer]int
 }
 
 func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity {
@@ -114,6 +120,7 @@ func NewParser(packetEntitiesPanicWarnFunc func(error)) *Parser {
 		classesById:                 make(map[int32]*class),
 		classesByName:               make(map[string]*class),
 		entities:                    make(map[int32]*Entity),
+		polyMaxCache:                make(map[*serializer]int),
 		packetEntitiesPanicWarnFunc: packetEntitiesPanicWarnFunc,
 	}
 }
@@ -131,10 +138,22 @@ func (p *Parser) OnDemoClassInfo(m *msgs2.CDemoClassInfo) error {
 		classID := c.GetClassId()
 		networkName := c.GetNetworkName()
 
+		// Size the per-entity polySerializers slice to the highest polymorphic
+		// serializer ID reachable from this class's serializer, so entities of
+		// classes without polymorphic fields stay on the shared fast paths.
+		polyCount := 0
+
+		if ser := p.serializers[networkName]; ser != nil {
+			if maxID := ser.maxPolyID(p.polyMaxCache); maxID >= 0 {
+				polyCount = maxID + 1
+			}
+		}
+
 		class := &class{
 			classID:     classID,
 			name:        networkName,
 			serializer:  p.serializers[networkName],
+			polyCount:   polyCount,
 			fpNameCache: &fpNameTreeCache{},
 			fpFlatCache: make(map[uint64]string),
 		}
@@ -200,8 +219,15 @@ func (p *Parser) ParsePacket(b []byte) error {
 
 				// determine field model
 				switch {
-				case field.serializer != nil:
-					if field.fieldType.pointer || pointerTypes[field.fieldType.baseType] {
+				case field.serializer != nil || len(field.polyTypes) > 0:
+					if field.fieldType.pointer || pointerTypes[field.fieldType.baseType] || len(field.polyTypes) > 0 {
+						if len(field.polyTypes) > 0 {
+							// Assign a unique per-entity slot BEFORE calling setModel,
+							// so the closure in setModel captures the correct ID.
+							field.polySerializerID = p.nextPolyID
+							p.nextPolyID++
+						}
+
 						field.setModel(fieldModelFixedTable)
 					} else {
 						field.setModel(fieldModelVariableTable)

@@ -71,26 +71,26 @@ func TestGetFieldPathForName_SendNodeQualifiedNames(t *testing.T) {
 	s.addField(simpleField("m_iHealth", ""))
 
 	fp := newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_vecVelocity.m_vecX"))
+	assert.True(t, s.getFieldPathForName(fp, "m_vecVelocity.m_vecX", nil))
 	assert.Equal(t, 0, fp.path[0])
 
 	fp = newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_vecViewOffset.m_vecX"))
+	assert.True(t, s.getFieldPathForName(fp, "m_vecViewOffset.m_vecX", nil))
 	assert.Equal(t, 1, fp.path[0])
 
 	fp = newFieldPath()
-	assert.False(t, s.getFieldPathForName(fp, "m_vecX"), "the bare name of a send-node field must not resolve")
+	assert.False(t, s.getFieldPathForName(fp, "m_vecX", nil), "the bare name of a send-node field must not resolve")
 
 	fp = newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_iHealth"))
+	assert.True(t, s.getFieldPathForName(fp, "m_iHealth", nil))
 	assert.Equal(t, 2, fp.path[0])
 
 	// name generation must produce the qualified names
 	fp = newFieldPath()
 	fp.path[0] = 0
-	assert.Equal(t, []string{"m_vecVelocity.m_vecX"}, s.getNameForFieldPath(fp, 0))
+	assert.Equal(t, []string{"m_vecVelocity.m_vecX"}, s.getNameForFieldPath(fp, 0, nil))
 	fp.path[0] = 1
-	assert.Equal(t, []string{"m_vecViewOffset.m_vecX"}, s.getNameForFieldPath(fp, 0))
+	assert.Equal(t, []string{"m_vecViewOffset.m_vecX"}, s.getNameForFieldPath(fp, 0, nil))
 }
 
 // Qualified non-leaf fields have dots inside their own name; their generated
@@ -112,25 +112,25 @@ func TestGetFieldPathForName_NonLeafRoundTrip(t *testing.T) {
 	fp.last = 2
 	assert.Equal(t,
 		[]string{"m_weaponPurchasesThisMatch.m_weaponPurchases", "0007", "m_nCount"},
-		s.getNameForFieldPath(fp, 0),
+		s.getNameForFieldPath(fp, 0, nil),
 	)
 
 	fp = newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisMatch.m_weaponPurchases.0007.m_nCount"))
+	assert.True(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisMatch.m_weaponPurchases.0007.m_nCount", nil))
 	assert.Equal(t, []int{0, 7, 0}, fp.path[:3])
 	assert.Equal(t, 2, fp.last)
 
 	fp = newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisRound.m_weaponPurchases.0003.m_nCount"))
+	assert.True(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisRound.m_weaponPurchases.0003.m_nCount", nil))
 	assert.Equal(t, []int{1, 3, 0}, fp.path[:3])
 
 	// non-existent member below a valid table must fail, not panic
 	fp = newFieldPath()
-	assert.False(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisMatch.m_weaponPurchases.0007.m_nope"))
+	assert.False(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisMatch.m_weaponPurchases.0007.m_nope", nil))
 
 	// malformed index segments must fail, not panic
 	fp = newFieldPath()
-	assert.False(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisMatch.m_weaponPurchases.xx.m_nCount"))
+	assert.False(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisMatch.m_weaponPurchases.xx.m_nCount", nil))
 }
 
 // A shorter dotted prefix can hit a real field whose subtree does not contain
@@ -151,15 +151,15 @@ func TestGetFieldPathForName_Backtracking(t *testing.T) {
 	// "m_x" hits first and its recursion fails ("m_sub…" is no index segment);
 	// the walk must restore fp.last and succeed via the "m_x.m_sub" prefix.
 	fp := newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_x.m_sub.0001.m_y2"))
+	assert.True(t, s.getFieldPathForName(fp, "m_x.m_sub.0001.m_y2", nil))
 	assert.Equal(t, []int{1, 1, 0}, fp.path[:3])
 	assert.Equal(t, 2, fp.last)
 
 	// plain table lookups keep working
 	fp = newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_x.0002.m_y"))
+	assert.True(t, s.getFieldPathForName(fp, "m_x.0002.m_y", nil))
 	assert.Equal(t, []int{0, 2, 0}, fp.path[:3])
 
 	fp = newFieldPath()
-	assert.False(t, s.getFieldPathForName(fp, "m_x.m_sub.0001.m_nope"))
+	assert.False(t, s.getFieldPathForName(fp, "m_x.m_sub.0001.m_nope", nil))
 }

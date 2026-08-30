@@ -590,6 +590,46 @@ func TestDemoSetS2(t *testing.T) {
 	testDemoSet(t, demSetPathS2)
 }
 
+// TestPolymorphicGameModeRules asserts that the polymorphic m_pGameModeRules
+// pointer on the game-rules entity is tracked per entity and that its
+// activation state is readable through the poly-aware name resolution.
+// See https://github.com/markus-wa/demoinfocs-golang/pull/654
+//
+// Note: all demos in the test set run game mode CCSGameModeRules_Noop, which
+// has no fields of its own, so the active type's sub-fields can't be asserted
+// here — the activation bool is what's observable with this data.
+func TestPolymorphicGameModeRules(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	f, err := os.Open(s2DemPath)
+	assert.NoError(t, err, "error opening demo %q", s2DemPath)
+
+	defer mustClose(t, f)
+
+	p := demoinfocs.NewParser(f)
+
+	var activated bool
+
+	p.RegisterEventHandler(func(e events.RoundStart) {
+		entity := p.GameState().Rules().Entity()
+		if entity == nil {
+			return
+		}
+
+		val, ok := entity.PropertyValue("m_pGameRules.m_pGameModeRules")
+		if ok {
+			activated = activated || val.BoolVal()
+		}
+	})
+
+	assert.NoError(t, p.ParseToEnd())
+	assert.True(t, activated, "expected the m_pGameModeRules polymorphic pointer to be activated and readable on the game-rules entity")
+}
+
 func BenchmarkDemoInfoCs(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		parseDefaultDemo(b)
