@@ -44,15 +44,28 @@ func (s *serializer) getFieldPathForName(fp *fieldPath, name string) bool {
 		return true
 	}
 
-	dotIndex := strings.Index(name, ".")
-	if dotIndex != -1 {
+	// Fields disambiguated with their sendNode contain dots in their own name
+	// (e.g. m_AttributeList.m_Attributes), so the prefix before any dot may be
+	// the field name. Try each dot position and backtrack on failure.
+	for dotIndex := strings.Index(name, "."); dotIndex != -1; {
 		nameBeforeDot := name[:dotIndex]
-		if s.fieldIndexes[nameBeforeDot] != nil {
-			fp.path[fp.last] = s.fieldIndexes[nameBeforeDot].index
+		if fi := s.fieldIndexes[nameBeforeDot]; fi != nil {
+			last := fp.last
+			fp.path[fp.last] = fi.index
 			fp.last++
-			f := s.fieldIndexes[nameBeforeDot].field
-			return f.getFieldPathForName(fp, name[len(f.varName)+1:])
+
+			if fi.field.getFieldPathForName(fp, name[dotIndex+1:]) {
+				return true
+			}
+
+			fp.last = last
 		}
+
+		next := strings.Index(name[dotIndex+1:], ".")
+		if next == -1 {
+			break
+		}
+		dotIndex += 1 + next
 	}
 
 	return false
@@ -73,9 +86,94 @@ func (s *serializer) addField(f *field) {
 	newFieldIndex := len(s.fields)
 	s.fields = append(s.fields, f)
 
-	s.fieldIndexes[f.varName] = &fieldIndex{
+	s.fieldIndexes[f.name] = &fieldIndex{
 		index: newFieldIndex,
 		field: f,
+	}
+}
+
+func (s *serializer) rebuildFieldIndexes() {
+	s.fieldIndexes = make(map[string]*fieldIndex, len(s.fields))
+
+	for i, f := range s.fields {
+		s.fieldIndexes[f.name] = &fieldIndex{
+			index: i,
+			field: f,
+		}
+	}
+
+	// Deprecated aliases: the bare varName of a disambiguated field keeps
+	// resolving to the same declaration it resolved to before the rename
+	// (the last one registered), so existing name-based lookups keep working.
+	// Use the sendNode-prefixed names instead; these aliases may be removed
+	// in a future major version.
+	for i, f := range s.fields {
+		if f.name == f.varName {
+			continue
+		}
+
+		if owner := s.fieldIndexes[f.varName]; owner != nil && owner.field.name == f.varName {
+			continue // a field legitimately owns the bare name
+		}
+
+		s.fieldIndexes[f.varName] = &fieldIndex{
+			index: i,
+			field: f,
+		}
+	}
+}
+
+// resolveFieldNameCollisions disambiguates fields that share a varName within
+// the same serializer and are distinguished on the wire only by their
+// send_node — e.g. CCSPlayerPawn declares m_vecX/m_vecY/m_vecZ twice, once
+// under m_vecVelocity and once under m_vecViewOffset, so name-based lookups
+// would otherwise resolve to whichever was registered last and shadow the
+// other. Affected fields are renamed to sendNode+"."+varName; that is the
+// canonical name used for generated names, while the bare varName remains
+// available as a deprecated lookup alias resolving to the same declaration
+// it resolved to before the rename.
+//
+// Field objects are shared between serializers (a class serializer re-lists
+// its parents' fields), so renames are applied globally after a full detection
+// pass and every serializer containing a renamed field re-keys its index.
+// serializers must contain every instance created for the message, including
+// ones shadowed by a later version of the same serializer name.
+func resolveFieldNameCollisions(serializers []*serializer) {
+	renamed := make(map[*field]bool)
+
+	for _, s := range serializers {
+		byName := make(map[string]*field, len(s.fields))
+
+		for _, f := range s.fields {
+			if prev, ok := byName[f.name]; ok && prev != f && prev.sendNode != f.sendNode {
+				if prev.sendNode != "" {
+					renamed[prev] = true
+				}
+
+				if f.sendNode != "" {
+					renamed[f] = true
+				}
+			}
+
+			byName[f.name] = f
+		}
+	}
+
+	if len(renamed) == 0 {
+		return
+	}
+
+	for f := range renamed {
+		f.name = f.sendNode + "." + f.varName
+	}
+
+	for _, s := range serializers {
+		for _, f := range s.fields {
+			if renamed[f] {
+				s.rebuildFieldIndexes()
+				break
+			}
+		}
 	}
 }
 

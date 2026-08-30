@@ -268,6 +268,21 @@ func TestPlayer_IsDucking(t *testing.T) {
 func TestPlayer_PositionEyes(t *testing.T) {
 	basePosition := r3.Vector{X: 120.5, Y: -33.25, Z: 14}
 	pl := playerWithPawnPositionAndProperties(basePosition, []fakeProp{
+		{propName: "m_vecViewOffset.m_vecX", value: st.PropertyValue{Any: float32(1.5)}},
+		{propName: "m_vecViewOffset.m_vecY", value: st.PropertyValue{Any: float32(-2.25)}},
+		{propName: "m_vecViewOffset.m_vecZ", value: st.PropertyValue{Any: float32(64)}},
+	})
+
+	pos, ok := pl.PositionEyes()
+	assert.True(t, ok)
+	assert.Equal(t, r3.Vector{X: 122, Y: -35.5, Z: 78}, pos)
+}
+
+// Demos where the pawn does not also declare velocity components keep the
+// un-prefixed view-offset names.
+func TestPlayer_PositionEyes_BareComponentNames(t *testing.T) {
+	basePosition := r3.Vector{X: 120.5, Y: -33.25, Z: 14}
+	pl := playerWithPawnPositionAndProperties(basePosition, []fakeProp{
 		{propName: "m_vecX", value: st.PropertyValue{Any: float32(1.5)}},
 		{propName: "m_vecY", value: st.PropertyValue{Any: float32(-2.25)}},
 		{propName: "m_vecZ", value: st.PropertyValue{Any: float32(64)}},
@@ -300,6 +315,36 @@ func TestPlayer_PositionEyes_WithNilPawn_ReturnsZeroVector(t *testing.T) {
 		pos, ok := pl.PositionEyes()
 		assert.False(t, ok)
 		assert.Equal(t, r3.Vector{}, pos)
+	})
+}
+
+func TestPlayer_Velocity(t *testing.T) {
+	pl := playerWithPawnPositionAndProperties(r3.Vector{}, []fakeProp{
+		{propName: "m_vecVelocity.m_vecX", value: st.PropertyValue{Any: float32(250)}},
+		{propName: "m_vecVelocity.m_vecY", value: st.PropertyValue{Any: float32(-130.5)}},
+		{propName: "m_vecVelocity.m_vecZ", value: st.PropertyValue{Any: float32(0)}},
+	})
+
+	assert.Equal(t, r3.Vector{X: 250, Y: -130.5, Z: 0}, pl.Velocity())
+}
+
+// Demos that don't network pawn velocity (e.g. before AnimGraph 2 update) must
+// yield a zero vector, not the view-offset values held by the bare names.
+func TestPlayer_Velocity_NotNetworked(t *testing.T) {
+	pl := playerWithPawnPositionAndProperties(r3.Vector{}, []fakeProp{
+		{propName: "m_vecX", value: st.PropertyValue{Any: float32(1.5)}},
+		{propName: "m_vecY", value: st.PropertyValue{Any: float32(-2.25)}},
+		{propName: "m_vecZ", value: st.PropertyValue{Any: float32(64)}},
+	})
+
+	assert.Equal(t, r3.Vector{}, pl.Velocity())
+}
+
+func TestPlayer_Velocity_WithNilPawn_ReturnsZeroVector(t *testing.T) {
+	pl := &Player{}
+
+	assert.NotPanics(t, func() {
+		assert.Equal(t, r3.Vector{}, pl.Velocity())
 	})
 }
 
