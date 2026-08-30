@@ -59,7 +59,7 @@ func TestEquipment_AmmoInMagazine(t *testing.T) {
 }
 
 func TestEquipment_AmmoInMagazine_NotFound(t *testing.T) {
-	entity := entityWithID(1)
+	entity := entityWithID(2)
 	entity.On("PropertyValue", "m_iClip1").Return(st.PropertyValue{}, false)
 
 	wep := &Equipment{
