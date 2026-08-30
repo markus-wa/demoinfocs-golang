@@ -866,7 +866,6 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	})
 
 	for i := 0; i < inventoryCapacity; i++ {
-		i := i
 		updateWeapon := func(val st.PropertyValue) {
 			if val.Any == nil {
 				return
