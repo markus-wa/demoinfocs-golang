@@ -475,11 +475,11 @@ func (p *Parser) FindEntity(index int32) *Entity {
 }
 
 func handle2idx(handle uint64) int32 {
-	return int32(handle & constants.EntityHandleIndexMaskSource2) //nolint:gosec
+	return int32(handle & constants.EntityHandleIndexMaskSource2)
 }
 
 func serialForHandle(handle uint64) int32 {
-	return int32(handle >> constants.MaxEdictBitsSource2) //nolint:gosec
+	return int32(handle >> constants.MaxEdictBitsSource2)
 }
 
 // FindEntityByHandle finds a given Entity by handle
@@ -588,7 +588,7 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 
 // Internal Callback for OnCSVCMsg_PacketEntities.
 //
-//nolint:gocognit
+//nolint:gocognit,funlen
 func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 	defer func() {
 		if p.packetEntitiesPanicWarnFunc == nil {

@@ -67,7 +67,7 @@ func TestDemoInfoCs(t *testing.T) {
 
 	var actual bytes.Buffer
 	p.RegisterEventHandler(func(e any) {
-		actual.WriteString(fmt.Sprintf("%#v\n", e))
+		fmt.Fprintf(&actual, "%#v\n", e)
 	})
 
 	t.Log("Parsing header")

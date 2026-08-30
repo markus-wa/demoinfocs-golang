@@ -245,7 +245,6 @@ const (
 	dcStringTables   demoCommand = 9
 )
 
-//nolint:funlen,cyclop
 func (p *parser) parseFrameS1() bool {
 	cmd := demoCommand(p.bitReader.ReadSingleByte())
 
@@ -336,6 +335,7 @@ var demoCommandMsgsCreators = map[msgs2.EDemoCommands]NetMessageCreator{
 	msgs2.EDemoCommands_DEM_Recovery:        func() proto.Message { return &msgs2.CDemoRecovery{} },
 }
 
+//nolint:funlen
 func (p *parser) parseFrameS2() bool {
 	cmd := msgs2.EDemoCommands(p.bitReader.ReadVarInt32())
 

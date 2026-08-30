@@ -88,7 +88,7 @@ func (qfd *quantizedFloatDecoder) assignMultipliers(steps uint32) {
 	}
 
 	// Adjust precision
-	if (HighMul*Range > float32(High)) || (float64(HighMul*Range) > float64(High)) { //nolint:whitespace
+	if (HighMul*Range > float32(High)) || (float64(HighMul*Range) > float64(High)) {
 		for _, mult := range qFloatMultipliers {
 			HighMul = float32(High) / Range * mult
 
@@ -129,7 +129,6 @@ func (qfd *quantizedFloatDecoder) quantize(val float32) float32 {
 	// encoder discarded (e.g. bits=10 low=0 high=102.3 gives raw 1022.99994,
 	// which must quantize to 1023 so the round-up flag is removed), making the
 	// decoder read a phantom flag bit and desync the entity stream.
-	//nolint:unconvert
 	i := uint32(float32((val-qfd.Low)*qfd.HighLowMul) + 0.5)
 
 	return qfd.Low + float32((qfd.High-qfd.Low)*float32(float32(i)*qfd.DecMul))
@@ -154,7 +153,7 @@ func (qfd *quantizedFloatDecoder) decode(r *reader) float32 {
 
 // Creates a new quantized float decoder based on given field
 //
-//nolint:gocognit
+//nolint:gocognit,funlen
 func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float32) *quantizedFloatDecoder {
 	qfd := &quantizedFloatDecoder{}
 

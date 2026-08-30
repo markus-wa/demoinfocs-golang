@@ -301,7 +301,7 @@ func (propertyDecoder) decodeFloat(prop *sendTableProperty, reader *bit.BitReade
 func (propertyDecoder) decodeSpecialFloat(prop *sendTableProperty, reader *bit.BitReader) float32 {
 	// Because multiple flags can be set this order is fixed for now (priorities).
 	// TODO: Would be more efficient to first check the most common ones tho.
-	if prop.flags.hasFlagSet(propFlagCoord) {
+	if prop.flags.hasFlagSet(propFlagCoord) { //nolint:nestif
 		return propDecoder.readBitCoord(reader)
 	} else if prop.flags.hasFlagSet(propFlagCoordMp) {
 		return propDecoder.readBitCoordMp(reader, false, false)
@@ -363,7 +363,7 @@ func (propertyDecoder) readBitCoordMp(reader *bit.BitReader, isIntegral bool, is
 
 	inBounds := reader.ReadBit()
 
-	if isIntegral {
+	if isIntegral { //nolint:nestif
 		if reader.ReadBit() {
 			isNegative = reader.ReadBit()
 

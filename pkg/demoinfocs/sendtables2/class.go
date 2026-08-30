@@ -95,7 +95,7 @@ func fpFlatKey(fp *fieldPath) (uint64, bool) {
 
 	for i := 0; i <= fp.last; i++ {
 		v := fp.path[i]
-		if uint(v) > 0x3FFF { //nolint:gosec // 14-bit range: 0–16383
+		if uint(v) > 0x3FFF { // 14-bit range: 0–16383
 			return 0, false
 		}
 

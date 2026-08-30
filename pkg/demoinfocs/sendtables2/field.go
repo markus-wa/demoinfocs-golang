@@ -68,7 +68,7 @@ func newField(serializers map[string]*serializer, ser *msgs2.CSVCMsg_FlattenedSe
 		x.polyTypes = make(map[uint32]*serializer, len(f.PolymorphicTypes))
 
 		for i, t := range f.PolymorphicTypes {
-			x.polyTypes[uint32(i+1)] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)] //nolint:gosec
+			x.polyTypes[uint32(i+1)] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)]
 		}
 	}
 

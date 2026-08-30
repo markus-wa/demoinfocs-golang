@@ -329,6 +329,7 @@ func (p *SendTableParser) gatherPropsIterate(tab *sendTable, serverClassIndex in
 			continue
 		}
 
+		//nolint:nestif
 		if prop.rawType == propTypeDataTable {
 			subTab := p.getTableByName(prop.dataTableName)
 

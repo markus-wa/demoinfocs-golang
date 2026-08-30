@@ -75,6 +75,7 @@ func (p *parser) bindEntities() {
 	p.bindHostages()
 }
 
+//nolint:gocognit,gocyclo,funlen
 func (p *parser) bindBomb() {
 	bomb := &p.gameState.bomb
 
@@ -85,6 +86,7 @@ func (p *parser) bindBomb() {
 			bomb.LastOnGroundPosition = pos
 		})
 
+		//nolint:nestif
 		if p.isSource2() {
 			bombEntity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 				carrier := p.gameState.Participants().FindByPawnHandle(val.Handle())
@@ -111,6 +113,7 @@ func (p *parser) bindBomb() {
 
 		// Updated when a player starts/stops planting the bomb
 		bombEntity.Property("m_bStartedArming").OnUpdate(func(val st.PropertyValue) {
+			//nolint:nestif
 			if val.BoolVal() {
 				if p.isSource2() {
 					planterHandle := bombEntity.PropertyValueMust("m_hOwnerEntity").Handle()
@@ -180,6 +183,7 @@ func (p *parser) bindBomb() {
 
 		bomb.LastOnGroundPosition = bombEntity.Position()
 
+		//nolint:nestif
 		if p.isSource2() {
 			ownerProp := bombEntity.PropertyValueMust("m_hOwnerEntity")
 
@@ -200,10 +204,10 @@ func (p *parser) bindBomb() {
 			site := events.BomsiteUnknown
 
 			if siteNumberVal.Any != nil {
-				siteNumber := siteNumberVal.Int()
-				if siteNumber == 0 {
+				switch siteNumberVal.Int() {
+				case 0:
 					site = events.BombsiteA
-				} else if siteNumber == 1 {
+				case 1:
 					site = events.BombsiteB
 				}
 			}
@@ -644,6 +648,7 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	})
 }
 
+//nolint:gocognit,funlen
 func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 	var prevControllerHandle uint64
 
@@ -781,6 +786,7 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 		i2 := i // Copy for passing to handler
 		playerEntity.Property(wepPrefix + fmt.Sprintf(".%03d", i)).OnUpdate(func(val st.PropertyValue) {
 			entityID := val.IntVal & constants.EntityHandleIndexMask
+			//nolint:nestif
 			if entityID != constants.EntityHandleIndexMask {
 				if cache[i2] != 0 {
 					// Player already has a weapon in this slot.
@@ -818,6 +824,7 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 	}
 }
 
+//nolint:funlen
 func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	const inventoryCapacity = 64
 
@@ -902,11 +909,12 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 	}
 }
 
+//nolint:gocognit
 func (p *parser) bindWeapons() {
 	s2 := p.isSource2()
 
 	for _, sc := range p.stParser.ServerClasses().All() {
-		if s2 {
+		if s2 { //nolint:nestif
 			hasIndexProp := false
 			hasClipProp := false
 			hasThrower := false
@@ -961,6 +969,8 @@ func (p *parser) bindWeapons() {
 
 // bindGrenadeProjectiles keeps track of the location of live grenades (parser.gameState.grenadeProjectiles), actively thrown by players.
 // It does NOT track the location of grenades lying on the ground, i.e. that were dropped by dead players.
+//
+//nolint:gocognit,funlen
 func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	entityID := entity.ID()
 
@@ -1016,7 +1026,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 		newPos := proj.Position()
 
-		proj.Trajectory = append(proj.Trajectory, newPos)
+		proj.Trajectory = append(proj.Trajectory, newPos) //nolint:staticcheck
 
 		proj.Trajectory2 = append(proj.Trajectory2, common.TrajectoryEntry{
 			Position: newPos,
@@ -1039,7 +1049,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	entity.OnDestroy(func() {
 		newPos := proj.Position()
 
-		proj.Trajectory = append(proj.Trajectory, newPos)
+		proj.Trajectory = append(proj.Trajectory, newPos) //nolint:staticcheck
 
 		proj.Trajectory2 = append(proj.Trajectory2, common.TrajectoryEntry{
 			Position: newPos,
@@ -1118,7 +1128,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 			newPos := proj.Position()
 
-			proj.Trajectory = append(proj.Trajectory, newPos)
+			proj.Trajectory = append(proj.Trajectory, newPos) //nolint:staticcheck
 
 			proj.Trajectory2 = append(proj.Trajectory2, common.TrajectoryEntry{
 				Position: newPos,
@@ -1157,6 +1167,7 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	}
 }
 
+//nolint:funlen
 func (p *parser) bindWeaponS2(entity st.Entity) {
 	entityID := entity.ID()
 	itemIndexVal := entity.PropertyValueMust("m_AttributeManager.m_Item.m_iItemDefinitionIndex")
@@ -1315,7 +1326,7 @@ func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 		}
 	}
 
-	switch eq.Type {
+	switch eq.Type { //nolint:exhaustive
 	case common.EqP2000:
 		wepFix("_pist_223", common.EqUSP)
 	case common.EqM4A4:
@@ -1377,7 +1388,7 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 	p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
 }
 
-//nolint:funlen
+//nolint:funlen,gocognit,gocyclo
 func (p *parser) bindGameRules() {
 	gameRules := p.ServerClasses().FindByName("CCSGameRulesProxy")
 	gameRules.OnEntityCreated(func(entity st.Entity) {
@@ -1455,7 +1466,7 @@ func (p *parser) bindGameRules() {
 				NewGamePhase: p.gameState.gamePhase,
 			})
 
-			switch p.gameState.gamePhase {
+			switch p.gameState.gamePhase { //nolint:exhaustive
 			case common.GamePhaseTeamSideSwitch:
 				p.eventDispatcher.Dispatch(events.TeamSideSwitch{})
 			case common.GamePhaseGameHalfEnded:
@@ -1527,9 +1538,11 @@ func (p *parser) bindGameRules() {
 
 				message := "UNKNOWN"
 
-				var winner common.Team = common.TeamUnassigned
+				winner := common.TeamUnassigned
 
-				switch reason {
+				// StillInProgress is handled above and VIP reasons don't exist in CS:GO/CS2,
+				// they intentionally fall through to the UNKNOWN/TeamUnassigned defaults.
+				switch reason { //nolint:exhaustive
 				case events.RoundEndReasonTargetBombed:
 					winner = common.TeamTerrorists
 					message = "#SFUI_Notice_Target_Bombed"
@@ -1606,22 +1619,6 @@ func (p *parser) bindGameRules() {
 				p.gameState.currentPlanter = nil
 			})
 		}
-
-		// TODO: future fields to use
-		// "m_bGameRestart"
-		// "m_MatchDevice"
-		// "m_bHasMatchStarted"
-		// "m_numBestOfMaps"
-		// "m_fWarmupPeriodEnd"
-		// "m_timeUntilNextPhaseStarts"
-
-		// TODO: timeout data
-		// "m_bTerroristTimeOutActive"
-		// "m_bCTTimeOutActive"
-		// "m_flTerroristTimeOutRemaining"
-		// "m_flCTTimeOutRemaining"
-		// "m_nTerroristTimeOuts"
-		// "m_nCTTimeOuts"
 	})
 }
 
@@ -1648,7 +1645,7 @@ func (p *parser) bindHostages() {
 }
 
 func getDistanceBetweenVectors(vectorA r3.Vector, vectorB r3.Vector) float64 {
-	return math.Sqrt(math.Pow(vectorA.X-vectorB.X, 2) + math.Pow(vectorA.Y-vectorB.Y, 2) + math.Pow(vectorA.Z-vectorB.Z, 2))
+	return vectorA.Sub(vectorB).Norm()
 }
 
 func (p *parser) getClosestBombsiteFromPosition(position r3.Vector) events.Bombsite {

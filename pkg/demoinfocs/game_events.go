@@ -164,7 +164,6 @@ func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
 
 type gameEventHandlerFunc func(map[string]*msg.CSVCMsg_GameEventKeyT)
 
-//nolint:funlen
 func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameEventHandler {
 	geh := gameEventHandler{
 		parser:                      parser,

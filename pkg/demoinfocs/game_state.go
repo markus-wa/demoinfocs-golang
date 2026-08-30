@@ -102,13 +102,16 @@ func (gs gameState) IngameTick() int {
 //
 // Make sure to handle swapping sides properly if you keep the reference.
 func (gs *gameState) Team(team common.Team) *common.TeamState {
-	if team == common.TeamTerrorists {
+	switch team {
+	case common.TeamTerrorists:
 		return &gs.tState
-	} else if team == common.TeamCounterTerrorists {
+	case common.TeamCounterTerrorists:
 		return &gs.ctState
+	case common.TeamUnassigned, common.TeamSpectators:
+		return nil
+	default:
+		return nil
 	}
-
-	return nil
 }
 
 // TeamCounterTerrorists returns the TeamState of the CT team.

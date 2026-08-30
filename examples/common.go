@@ -3,7 +3,6 @@ package examples
 import (
 	"flag"
 	"io"
-	"io/ioutil"
 	"os"
 )
 
@@ -45,7 +44,7 @@ func RedirectStdout(f func()) {
 	go func() {
 		var err error
 		for err == nil {
-			_, err = io.Copy(ioutil.Discard, r)
+			_, err = io.Copy(io.Discard, r)
 		}
 	}()
 

@@ -377,6 +377,8 @@ var DefaultParserConfig = ParserConfig{
 // NewParserWithConfig returns a new Parser with a custom configuration.
 //
 // See also: NewParser() & ParserConfig
+//
+//nolint:funlen
 func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	var p parser
 

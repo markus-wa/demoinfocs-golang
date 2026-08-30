@@ -204,6 +204,7 @@ func (p *parser) handleCreateStringTableS2(tab *msgs2.CSVCMsg_CreateStringTable)
 	})
 }
 
+//nolint:gocognit,funlen
 func (p *parser) processStringTableS1(tab createStringTable, br *bit.BitReader) {
 	hist := make([]string, 0)
 	idx := -1
@@ -357,7 +358,7 @@ func (p *parser) parseStringTable(
 
 		// Some values have keys, some don't.
 		hasKey := r.ReadBit()
-		if hasKey {
+		if hasKey { //nolint:nestif
 			// Some entries use reference a position in the key history for
 			// part of the key. If referencing the history, read the position
 			// and size from the buffer, then use those to build the string

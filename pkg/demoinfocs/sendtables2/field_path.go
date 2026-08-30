@@ -19,22 +19,22 @@ type fieldPathOp struct {
 }
 
 var fieldPathTable = []fieldPathOp{
-	{"PlusOne", 36271, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PlusOne", 36271, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last]++
 	}},
-	{"PlusTwo", 10334, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PlusTwo", 10334, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last] += 2
 	}},
-	{"PlusThree", 1375, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PlusThree", 1375, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last] += 3
 	}},
-	{"PlusFour", 646, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PlusFour", 646, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last] += 4
 	}},
 	{"PlusN", 4128, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last] += r.readUBitVarFieldPath() + 5
 	}},
-	{"PushOneLeftDeltaZeroRightZero", 35, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PushOneLeftDeltaZeroRightZero", 35, func(r *reader, fp *fieldPath) {
 		fp.last++
 		fp.path[fp.last] = 0
 	}},
@@ -42,7 +42,7 @@ var fieldPathTable = []fieldPathOp{
 		fp.last++
 		fp.path[fp.last] = r.readUBitVarFieldPath()
 	}},
-	{"PushOneLeftDeltaOneRightZero", 521, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PushOneLeftDeltaOneRightZero", 521, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last]++
 		fp.last++
 		fp.path[fp.last] = 0
@@ -186,7 +186,7 @@ var fieldPathTable = []fieldPathOp{
 			fp.path[fp.last] = r.readUBitVarFieldPath()
 		}
 	}},
-	{"PopOnePlusOne", 2, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PopOnePlusOne", 2, func(r *reader, fp *fieldPath) {
 		fp.pop(1)
 		fp.path[fp.last]++
 	}},
@@ -194,7 +194,7 @@ var fieldPathTable = []fieldPathOp{
 		fp.pop(1)
 		fp.path[fp.last] += r.readUBitVarFieldPath() + 1
 	}},
-	{"PopAllButOnePlusOne", 1837, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"PopAllButOnePlusOne", 1837, func(r *reader, fp *fieldPath) {
 		fp.pop(fp.last)
 		fp.path[0]++
 	}},
@@ -234,7 +234,7 @@ var fieldPathTable = []fieldPathOp{
 			}
 		}
 	}},
-	{"NonTopoPenultimatePlusOne", 271, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"NonTopoPenultimatePlusOne", 271, func(r *reader, fp *fieldPath) {
 		fp.path[fp.last-1]++
 	}},
 	{"NonTopoComplexPack4Bits", 99, func(r *reader, fp *fieldPath) {
@@ -244,7 +244,7 @@ var fieldPathTable = []fieldPathOp{
 			}
 		}
 	}},
-	{"FieldPathEncodeFinish", 25474, func(r *reader, fp *fieldPath) { //nolint:revive
+	{"FieldPathEncodeFinish", 25474, func(r *reader, fp *fieldPath) {
 		fp.done = true
 	}},
 }

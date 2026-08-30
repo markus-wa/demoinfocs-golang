@@ -179,6 +179,7 @@ func (p *parser) handleServerRankUpdate(msg *msgs2.CCSUsrMsg_ServerRankUpdate) {
 	}
 }
 
+//nolint:funlen
 func (p *parser) handleEncryptedData(msg *msg.CSVCMsg_EncryptedData) {
 	if msg.GetKeyType() != 2 {
 		return

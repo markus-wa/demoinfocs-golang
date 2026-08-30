@@ -174,7 +174,7 @@ func (r *reader) readVarUint32() uint32 {
 func (r *reader) readVarInt32() int32 {
 	ux := r.readVarUint32()
 
-	x := int32(ux >> 1) //nolint:gosec
+	x := int32(ux >> 1)
 	if ux&1 != 0 {
 		x = ^x
 	}

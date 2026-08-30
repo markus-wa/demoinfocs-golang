@@ -307,6 +307,7 @@ func (m *pendingMessage) priority() int {
 	return 0
 }
 
+//nolint:funlen
 func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 	b := pack.GetData()
 
@@ -335,6 +336,7 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 	for _, m := range p.pendingMessagesCache {
 		var msgCreator NetMessageCreator
 
+		//nolint:nestif
 		if m.t < int32(msgs2.SVC_Messages_svc_ServerInfo) {
 			msgCreator = netMsgCreators[msgs2.NET_Messages(m.t)]
 			if msgCreator == nil {

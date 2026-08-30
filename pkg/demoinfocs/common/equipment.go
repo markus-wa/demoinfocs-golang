@@ -278,6 +278,7 @@ func MapEquipment(eqName string) EquipmentType {
 	eqName = strings.TrimPrefix(eqName, weaponPrefix)
 
 	var wep EquipmentType
+	//nolint:nestif
 	if strings.Contains(eqName, "knife") || strings.Contains(eqName, "bayonet") {
 		wep = EqKnife
 	} else {

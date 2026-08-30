@@ -21,7 +21,7 @@ func init() {
 	}
 
 	for i := range runeTimeCache {
-		runeTimeCache[i] = math.Float32frombits(uint32(i)) //nolint:gosec
+		runeTimeCache[i] = math.Float32frombits(uint32(i))
 	}
 }
 

@@ -242,7 +242,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 
 	var mask st.Property
 
-	if bit < 32 {
+	if bit < 32 { //nolint:nestif
 		if isSource2 {
 			mask = targetEntity.Property("m_entitySpottedState.m_bSpottedByMask.0000")
 		} else {
