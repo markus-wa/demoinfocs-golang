@@ -48,7 +48,12 @@ func (e *Entity) SerialNum() int {
 
 func (e *Entity) Properties() (out []st.Property) {
 	for _, fp := range e.class.getFieldPaths(newFieldPath(), e.state) {
-		out = append(out, e.Property(e.class.getNameForFieldPath(fp)))
+		prop := e.Property(e.class.getNameForFieldPath(fp))
+		if prop == nil {
+			continue // a generated name must always resolve; don't hand out nil properties if it doesn't
+		}
+
+		out = append(out, prop)
 	}
 
 	return
