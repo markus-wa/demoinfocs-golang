@@ -27,6 +27,12 @@ jobs:
       - name: Download Go Deps
         run: go mod download
 
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.13.2
+          install-only: true
+
       - name: Install Tools
         run: |
           # install 7zip for decompressing test demos
@@ -38,9 +44,6 @@ jobs:
           # Fetch refs for linter
           git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
           git fetch
-
-          # Install golangci-lint
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.13.2
 
       - name: Build
         run: scripts/build.sh
