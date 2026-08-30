@@ -65,6 +65,7 @@ linters:
           - wsl_v5
           - funlen
           - gosec
+          - goconst
       - path: pkg/demoinfocs/sendtables2
         linters:
           - godox
