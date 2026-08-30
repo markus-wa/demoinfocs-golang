@@ -14,9 +14,9 @@ import (
 )
 
 func TestPlayerActiveWeapon(t *testing.T) {
-	knife := NewEquipment(EqKnife)
-	glock := NewEquipment(EqGlock)
-	ak47 := NewEquipment(EqAK47)
+	knife := NewEquipment(EqKnife, 1)
+	glock := NewEquipment(EqGlock, 2)
+	ak47 := NewEquipment(EqAK47, 3)
 
 	pl := newPlayer(0)
 	pl.demoInfoProvider = demoInfoProviderMock{equipment: ak47}
@@ -28,9 +28,9 @@ func TestPlayerActiveWeapon(t *testing.T) {
 }
 
 func TestPlayerWeapons(t *testing.T) {
-	knife := NewEquipment(EqKnife)
-	glock := NewEquipment(EqGlock)
-	ak47 := NewEquipment(EqAK47)
+	knife := NewEquipment(EqKnife, 1)
+	glock := NewEquipment(EqGlock, 2)
+	ak47 := NewEquipment(EqAK47, 3)
 
 	pl := newPlayer(0)
 	pl.Inventory[1] = knife

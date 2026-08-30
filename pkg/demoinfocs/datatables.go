@@ -798,7 +798,7 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 
 				if wep == nil {
 					// sometimes a weapon is assigned to a player before the weapon entity is created
-					wep = common.NewEquipment(common.EqUnknown)
+					wep = common.NewEquipment(common.EqUnknown, p.nextUniqueID())
 					p.gameState.weapons[entityID] = wep
 				}
 
@@ -842,7 +842,7 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 
 		if wep == nil {
 			// sometimes a weapon is assigned to a player before the weapon entity is created
-			wep = common.NewEquipment(common.EqUnknown)
+			wep = common.NewEquipment(common.EqUnknown, p.nextUniqueID())
 			p.gameState.weapons[int(entityID)] = wep
 		}
 
@@ -994,7 +994,7 @@ func equipmentTypeFromProjectileClass(className string) common.EquipmentType {
 func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	entityID := entity.ID()
 
-	proj := common.NewGrenadeProjectile()
+	proj := common.NewGrenadeProjectile(p.nextUniqueID())
 	proj.Entity = entity
 	p.gameState.grenadeProjectiles[entityID] = proj
 
@@ -1024,7 +1024,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 					// to the projectile's server class.
 					wep = equipmentTypeFromProjectileClass(entity.ServerClass().Name())
 
-					switch wep {
+					switch wep { //nolint:exhaustive // only the two warning cases are of interest
 					case common.EqUnknown:
 						p.eventDispatcher.Dispatch(events.ParserWarn{
 							Message: fmt.Sprintf("unknown grenade model %d", model),
@@ -1044,7 +1044,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		}
 
 		// copy the weapon so it doesn't get overwritten by a new entity in parser.weapons
-		wepCopy := *(getPlayerWeapon(proj.Thrower, wep, ""))
+		wepCopy := *(getPlayerWeapon(proj.Thrower, wep, "", p.nextUniqueID()))
 		proj.WeaponInstance = &wepCopy
 
 		unassert.NotNilf(proj.WeaponInstance, "couldn't find grenade instance for player")
@@ -1240,7 +1240,7 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 
 	equipment, exists := p.gameState.weapons[entityID]
 	if !exists {
-		equipment = common.NewEquipment(wepType)
+		equipment = common.NewEquipment(wepType, p.nextUniqueID())
 		p.gameState.weapons[entityID] = equipment
 	} else {
 		equipment.Type = wepType
@@ -1335,7 +1335,7 @@ func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 
 	eq, eqExists := p.gameState.weapons[entityID]
 	if !eqExists {
-		eq = common.NewEquipment(wepType)
+		eq = common.NewEquipment(wepType, p.nextUniqueID())
 		p.gameState.weapons[entityID] = eq
 	} else {
 		// If we are here, we already have a player that holds this weapon
@@ -1399,7 +1399,7 @@ func (p *parser) bindNewInferno(entity st.Entity) {
 		thrower = p.gameState.Participants().FindByHandle64(throwerHandle)
 	}
 
-	inf := common.NewInferno(p.demoInfoProvider, entity, thrower)
+	inf := common.NewInferno(p.demoInfoProvider, entity, thrower, p.nextUniqueID())
 	p.gameState.infernos[entity.ID()] = inf
 
 	entity.OnCreateFinished(func() {

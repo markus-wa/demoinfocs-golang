@@ -38,14 +38,15 @@ func TestWeirdCS2Values(t *testing.T) {
 }
 
 func TestEquipment_Class(t *testing.T) {
-	assert.Equal(t, EqClassUnknown, NewEquipment(EqUnknown).Class(), "EqUnknown should have the class EqClassUnknown")
-	assert.Equal(t, EqClassPistols, NewEquipment(EqP2000).Class(), "EqP2000 should have the class EqClassPistols")
-	assert.Equal(t, EqClassPistols, NewEquipment(EqRevolver).Class(), "EqRevolver should have the class EqClassPistols")
-	assert.Equal(t, EqClassRifle, NewEquipment(EqG3SG1).Class(), "EqG3SG1 should have the class EqClassRifle")
+	assert.Equal(t, EqClassUnknown, NewEquipment(EqUnknown, 1).Class(), "EqUnknown should have the class EqClassUnknown")
+	assert.Equal(t, EqClassPistols, NewEquipment(EqP2000, 1).Class(), "EqP2000 should have the class EqClassPistols")
+	assert.Equal(t, EqClassPistols, NewEquipment(EqRevolver, 1).Class(), "EqRevolver should have the class EqClassPistols")
+	assert.Equal(t, EqClassRifle, NewEquipment(EqG3SG1, 1).Class(), "EqG3SG1 should have the class EqClassRifle")
 }
 
 func TestEquipment_UniqueID(t *testing.T) {
-	assert.NotEqual(t, NewEquipment(EqAK47).UniqueID(), NewEquipment(EqAK47).UniqueID(), "UniqueIDs of different equipment instances should be different")
+	assert.NotEqual(t, NewEquipment(EqAK47, 1).UniqueID(), NewEquipment(EqAK47, 2).UniqueID(), "UniqueIDs of different equipment instances should be different")
+	assert.NotEqual(t, NewEquipment(EqAK47, 1).UniqueID2(), NewEquipment(EqAK47, 2).UniqueID2(), "UniqueID2s of different equipment instances should be different")
 }
 
 func TestEquipment_AmmoInMagazine(t *testing.T) {

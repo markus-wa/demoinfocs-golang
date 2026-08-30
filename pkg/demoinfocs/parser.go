@@ -5,6 +5,7 @@ import (
 	"io"
 	"runtime/debug"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -109,6 +110,18 @@ type parser struct {
 	userCmdButtonStates   map[int32]*userCmdButtonPlayerState             // Per-player command-number ring containing buttonstate1 only
 	userCmdParsingMode    UserCmdParsingMode                              // Controls how CSVCMsg_UserCommands messages are handled, see ParserConfig.UserCmdParsing
 	hasUserCmdMessages    bool                                            // True once a CSVCMsg_UserCommands message has been seen; replace the legacy m_nButtonDownMaskPrev prop
+	lastUniqueID          int64                                           // Backs nextUniqueID; ids for grenades/infernos/equipment created during this parse
+}
+
+// nextUniqueID returns the next monotonically increasing id for entities created during this parse
+// (grenade projectiles, infernos, equipment instances). Ids are unique within the Parser and
+// reproducible across parses of the same demo (creation follows the deterministic parse order).
+// Ids from different Parser instances may collide, so don't key data across demos by them.
+//
+// All construction happens on the message-handling goroutine, but the atomic keeps it
+// race-detector-clean if that ever changes.
+func (p *parser) nextUniqueID() int64 {
+	return atomic.AddInt64(&p.lastUniqueID, 1)
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.

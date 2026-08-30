@@ -39,7 +39,7 @@ func TestBombPosition(t *testing.T) {
 }
 
 func TestGrenadeProjectileUniqueID(t *testing.T) {
-	assert.NotEqual(t, NewGrenadeProjectile().UniqueID(), NewGrenadeProjectile().UniqueID(), "UniqueIDs of different grenade projectiles should be different")
+	assert.NotEqual(t, NewGrenadeProjectile(1).UniqueID(), NewGrenadeProjectile(2).UniqueID(), "UniqueIDs of different grenade projectiles should be different")
 }
 
 func TestGrenadeProjectile_Velocity(t *testing.T) {
