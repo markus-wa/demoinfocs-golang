@@ -10,6 +10,7 @@ import (
 	"os"
 	"regexp"
 	"runtime"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -33,6 +34,12 @@ const (
 	demSetPathS2 = csDemosPath + "/s2"
 	s2DemPath    = demSetPathS2 + "/s2.dem"
 	s2POVDemPath = demSetPathS2 + "/pov.dem"
+
+	// s2DMDemPath is a CS2 deathmatch demo. Unlike the rest of the s2 set,
+	// its game rules use the CCSGameModeRules_Deathmatch polymorphic pointer
+	// type, which has fields of its own — the only way to exercise the
+	// polymorphic type's sub-fields end to end.
+	s2DMDemPath = demSetPathS2 + "/deathmatch_sv.dem"
 )
 
 var concurrentDemos = flag.Int("concurrentdemos", 2, "The `number` of current demos")
@@ -459,6 +466,93 @@ func TestPolymorphicGameModeRules(t *testing.T) {
 
 	assert.NoError(t, p.ParseToEnd())
 	assert.True(t, activated, "expected the m_pGameModeRules polymorphic pointer to be activated and readable on the game-rules entity")
+}
+
+// TestPolymorphicGameModeRulesDeathmatch asserts that a polymorphic pointer
+// whose active type has its own sub-fields works end to end: the
+// CCSGameModeRules_Deathmatch sub-fields of m_pGameRules.m_pGameModeRules must
+// resolve by name and be enumerated by Properties() (regression for the
+// getFieldPaths nested-table traversal fix), while fields of other game modes
+// must not resolve.
+//
+// See https://github.com/markus-wa/demoinfocs-golang/pull/654
+func TestPolymorphicGameModeRulesDeathmatch(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	f, err := os.Open(s2DMDemPath)
+	assert.NoError(t, err, "error opening demo %q", s2DMDemPath)
+
+	defer mustClose(t, f)
+
+	p := demoinfocs.NewParser(f)
+
+	const prefix = "m_pGameRules.m_pGameModeRules."
+
+	wantProps := map[string]any{
+		prefix + "m_flDMBonusStartTime":  float32(44.67882),
+		prefix + "m_flDMBonusTimeLength": float32(0),
+		prefix + "m_sDMBonusWeapon":      "",
+	}
+
+	var checked bool
+
+	p.RegisterEventHandler(func(e events.RoundStart) {
+		if checked {
+			return
+		}
+		checked = true
+
+		entity := p.GameState().Rules().Entity()
+		if !assert.NotNil(t, entity, "rules entity not found") {
+			return
+		}
+
+		// The active type's sub-fields must resolve by name.
+		for name, want := range wantProps {
+			prop := entity.Property(name)
+			if !assert.NotNil(t, prop, "property %q should exist under the active deathmatch type", name) {
+				continue
+			}
+
+			got := prop.Value().Any
+			switch want.(type) {
+			case float32:
+				assert.InDelta(t, want, got, 0.001, "property %q", name)
+			default:
+				assert.Equal(t, want, got, "property %q", name)
+			}
+		}
+
+		// The active type's sub-fields must be enumerated by Properties(),
+		// not just resolvable by name.
+		var gotProps []string
+		for _, prop := range entity.Properties() {
+			if strings.HasPrefix(prop.Name(), prefix) {
+				gotProps = append(gotProps, prop.Name())
+			}
+		}
+		assert.ElementsMatch(t, sortedKeys(wantProps), gotProps, "Properties() should enumerate the active deathmatch type's sub-fields")
+
+		// Fields of other game modes must not resolve under the deathmatch type.
+		assert.Nil(t, entity.Property(prefix+"m_nHalvesPlayed"), "competitive-only field must not resolve under the deathmatch type")
+	})
+
+	assert.NoError(t, p.ParseToEnd())
+	assert.True(t, checked, "expected a RoundStart event to be parsed")
+}
+
+func sortedKeys[V any](m map[string]V) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	slices.Sort(keys)
+
+	return keys
 }
 
 func BenchmarkDemoInfoCs(b *testing.B) {

@@ -3,7 +3,7 @@
 set -e
 
 scripts_dir=$(dirname "$0")
-$scripts_dir/download-test-data.sh s2.7z
+$scripts_dir/download-test-data.sh s2.7z deathmatch.7z
 
 # don't cover mocks and generated protobuf code
 coverpkg_ignore='/(fake|msg)'
