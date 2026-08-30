@@ -30,12 +30,12 @@ func buildFlatHuffmanTree(t huffmanTree) []fpHuffNode {
 	var build func(t huffmanTree) int16
 
 	build = func(t huffmanTree) int16 {
-		idx := int16(len(nodes)) //nolint:gosec
+		idx := int16(len(nodes))
 
 		nodes = append(nodes, fpHuffNode{})
 		if t.IsLeaf() {
 			nodes[idx].left = -1
-			nodes[idx].value = int16(t.Value()) //nolint:gosec
+			nodes[idx].value = int16(t.Value())
 		} else {
 			leftIdx := build(t.Left())
 			rightIdx := build(t.Right())

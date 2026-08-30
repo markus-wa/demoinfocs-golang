@@ -43,6 +43,10 @@ linters:
     gocritic:
       disabled-checks:
         - ifElseChain
+    gosec:
+      excludes:
+        # Integer conversion overflows are intentional bit reinterpretations all over the lib code.
+        - G115
   exclusions:
     generated: lax
     presets:
@@ -60,6 +64,7 @@ linters:
         linters:
           - wsl_v5
           - funlen
+          - gosec
       - path: pkg/demoinfocs/sendtables2
         linters:
           - godox

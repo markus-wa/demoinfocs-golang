@@ -412,7 +412,7 @@ func qangleFactory(f *field) fieldDecoder {
 	}
 
 	if f.bitCount != nil && *f.bitCount != 0 {
-		n := uint32(*f.bitCount) //nolint:gosec
+		n := uint32(*f.bitCount)
 
 		return func(r *reader) any {
 			return [3]float32{

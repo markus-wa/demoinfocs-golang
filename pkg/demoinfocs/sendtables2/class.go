@@ -99,10 +99,10 @@ func fpFlatKey(fp *fieldPath) (uint64, bool) {
 			return 0, false
 		}
 
-		key |= uint64(v) << uint(i*14) //nolint:gosec
+		key |= uint64(v) << uint(i*14)
 	}
 
-	key |= uint64(fp.last) << 56 //nolint:gosec
+	key |= uint64(fp.last) << 56
 
 	return key, true
 }

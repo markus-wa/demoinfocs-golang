@@ -418,7 +418,7 @@ func (e *Entity) GetUint32(name string) (uint32, bool) {
 		case uint32:
 			return x, true
 		case uint64:
-			return uint32(x), true //nolint:gosec
+			return uint32(x), true
 		}
 	}
 
@@ -628,15 +628,15 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 			op st.EntityOp
 		)
 
-		next := index + int32(r.readUBitVar()) + 1 //nolint:gosec
+		next := index + int32(r.readUBitVar()) + 1
 		index = next
 
 		cmd = r.readBits(2)
 
 		if cmd&0x01 == 0 { //nolint:nestif
 			if cmd&0x02 != 0 {
-				classID = int32(r.readBits(p.classIdSize)) //nolint:gosec
-				serial = int32(r.readBits(17))             //nolint:gosec
+				classID = int32(r.readBits(p.classIdSize))
+				serial = int32(r.readBits(17))
 				r.readVarUint32()
 
 				class := p.classesById[classID]

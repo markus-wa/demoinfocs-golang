@@ -165,7 +165,7 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 		return qfd
 	} else { //nolint:revive
 		qfd.NoScale = false
-		qfd.Bitcount = uint32(*bitCount) //nolint:gosec
+		qfd.Bitcount = uint32(*bitCount)
 		qfd.Offset = 0.0
 
 		if lowValue != nil {
@@ -182,7 +182,7 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 	}
 
 	if flags != nil {
-		qfd.Flags = uint32(*flags) //nolint:gosec
+		qfd.Flags = uint32(*flags)
 	} else {
 		qfd.Flags = 0
 	}
@@ -234,7 +234,7 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 	}
 
 	// Assign multipliers
-	qfd.assignMultipliers(uint32(steps)) //nolint:gosec
+	qfd.assignMultipliers(uint32(steps))
 
 	// Remove unessecary flags
 	if (qfd.Flags & qff_rounddown) != 0 {

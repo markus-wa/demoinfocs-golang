@@ -55,7 +55,7 @@ var readerPool = sync.Pool{
 func newReader(buf []byte) *reader {
 	r := readerPool.Get().(*reader)
 	r.buf = buf
-	r.size = uint32(len(buf)) //nolint:gosec
+	r.size = uint32(len(buf))
 	r.pos = 0
 	r.bitVal = 0
 	r.bitCount = 0
@@ -103,7 +103,7 @@ func (r *reader) readBits(n uint32) uint32 {
 	r.bitVal >>= n
 	r.bitCount -= n
 
-	return uint32(x) //nolint:gosec
+	return uint32(x)
 }
 
 // readByte reads a single byte
