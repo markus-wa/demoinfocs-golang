@@ -15,6 +15,7 @@ import (
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
 	checkError(err)
+
 	defer f.Close()
 
 	// Configure parsing of BSPDecal net-message

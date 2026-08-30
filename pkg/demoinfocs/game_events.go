@@ -113,7 +113,6 @@ func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
 
 type gameEventHandlerFunc func(map[string]*msg.CMsgSource1LegacyGameEventKeyT)
 
-//nolint:funlen
 func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameEventHandler {
 	geh := gameEventHandler{
 		parser:                      parser,
@@ -424,6 +423,7 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CMsgSource1LegacyGa
 	killer := geh.playerByUserID32(data["attacker"].GetValShort())
 	wepType := common.MapEquipment(data["weapon"].GetValString())
 	victimUserID := data["userid"].GetValShort()
+
 	wepType = geh.attackerWeaponType(wepType, victimUserID)
 	if killer == nil && data["attacker_pawn"] != nil {
 		// CS2 only, fallback to pawn handle if the killer was not found by its user ID
@@ -541,7 +541,6 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CMsgSource1LegacyGa
 }
 
 func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-
 	nadeEvent := geh.nadeEvent(data, common.EqFlash)
 
 	geh.gameState().lastFlash.player = nadeEvent.Thrower
@@ -661,8 +660,8 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CMsgSource1Legacy
 
 	if pl.GUID != "" && pl.XUID == 0 {
 		var err error
-		pl.XUID, err = guidToSteamID64(pl.GUID)
 
+		pl.XUID, err = guidToSteamID64(pl.GUID)
 		if err != nil {
 			geh.parser.setError(fmt.Errorf("failed to parse player XUID: %v", err.Error()))
 		}
@@ -1113,7 +1112,7 @@ func mapGameEventData(d *msg.CMsgSource1LegacyGameEventListDescriptorT, e *msg.C
 }
 
 func guidToSteamID64(guid string) (uint64, error) {
-	if guid == "BOT" {
+	if guid == botGUID {
 		return 0, nil
 	}
 
@@ -1171,6 +1170,7 @@ func (p *parser) processFlyingFlashbangs() {
 		if flashbang.explodedFrame > 0 && flashbang.explodedFrame < p.currentFrame {
 			p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
 		}
+
 		return
 	}
 

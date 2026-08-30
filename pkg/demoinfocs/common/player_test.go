@@ -12,7 +12,6 @@ import (
 )
 
 func TestPlayerActiveWeapon(t *testing.T) {
-
 	pl := playerWithPawnProperty("m_pWeaponServices.m_hActiveWeapon", st.PropertyValue{Any: uint64(3)})
 	knife := NewEquipment(EqKnife)
 	glock := NewEquipment(EqGlock)
@@ -464,7 +463,7 @@ func TestPlayer_Color(t *testing.T) {
 		demoInfoProvider: demoInfoProviderMock{},
 	}
 
-	color, err = pl.ColorOrErr()
+	_, err = pl.ColorOrErr()
 	assert.ErrorIs(t, ErrDataNotAvailable, err)
 }
 

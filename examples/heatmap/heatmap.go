@@ -27,7 +27,6 @@ func main() {
 	//
 	// Parsing
 	//
-
 	f, err := os.Open(ex.DemoPathFromArgs())
 	checkError(err)
 

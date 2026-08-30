@@ -216,6 +216,7 @@ func mockDemoInfoProvider(tickRate float64, tick int) demoInfoProvider {
 	}
 }
 
+//nolint:unparam
 func entityWithID(id int) *stfake.Entity {
 	entity := new(stfake.Entity)
 	entity.On("ID").Return(id)

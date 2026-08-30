@@ -28,7 +28,7 @@ type sync struct {
 }
 
 type Reader struct {
-	baseUrl string
+	baseURL string
 	sync    sync
 	frag    int
 	buf     bytes.Buffer
@@ -42,11 +42,11 @@ func (c *Reader) Read(p []byte) (n int, err error) {
 	backoff := time.Second
 
 	for n < len(p) && errors.Is(err, io.EOF) {
-		deltaUrl := c.baseUrl + fmt.Sprintf("/%d/delta", c.frag)
+		deltaURL := c.baseURL + fmt.Sprintf("/%d/delta", c.frag)
 
-		deltaResp, err := http.Get(deltaUrl)
+		deltaResp, err := http.Get(deltaURL) //nolint:gosec,noctx // the URL is derived from the user-supplied CSTV endpoint by design; live stream reader has no context
 		if err != nil {
-			return n, fmt.Errorf("failed to get %q: %w", deltaUrl, err)
+			return n, fmt.Errorf("failed to get %q: %w", deltaURL, err)
 		}
 
 		defer deltaResp.Body.Close()
@@ -66,13 +66,14 @@ func (c *Reader) Read(p []byte) (n int, err error) {
 
 		_, err = io.Copy(&c.buf, deltaResp.Body)
 		if err != nil {
-			return n, fmt.Errorf("failed to read response from %q: %w", deltaUrl, err)
+			return n, fmt.Errorf("failed to read response from %q: %w", deltaURL, err)
 		}
 
 		c.frag++
 		backoff = time.Second // reset backoff on success
 
-		n2, err := c.buf.Read(p[n:])
+		// bytes.Buffer.Read can only fail with io.EOF, which err already is at this point.
+		n2, _ := c.buf.Read(p[n:])
 		n += n2
 	}
 
@@ -87,38 +88,38 @@ func (c *Reader) Read(p []byte) (n int, err error) {
 // The timeout is the maximum time to retry for a response from the CSTV server,
 // using an exponential backoff mechanism, starting at 1s.
 // If the timeout is exceeded, the reader will return an io.EOF error.
-func NewReader(baseUrl string, timeout time.Duration) (*Reader, error) {
-	syncUrl := baseUrl + "/sync"
+func NewReader(baseURL string, timeout time.Duration) (*Reader, error) {
+	syncURL := baseURL + "/sync"
 
-	syncResp, err := http.Get(syncUrl)
+	syncResp, err := http.Get(syncURL) //nolint:gosec,noctx // the URL is user-supplied by design (CSTV endpoint); live stream reader has no context
 	if err != nil {
-		return nil, fmt.Errorf("failed to get sync from %q: %w", syncUrl, err)
+		return nil, fmt.Errorf("failed to get sync from %q: %w", syncURL, err)
 	}
 
 	defer syncResp.Body.Close()
 
 	b, err := io.ReadAll(syncResp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read response from %q: %w", syncUrl, err)
+		return nil, fmt.Errorf("failed to read response from %q: %w", syncURL, err)
 	}
 
 	var s sync
 
 	err = json.Unmarshal(b, &s)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode response from %q: %w", syncUrl, err)
+		return nil, fmt.Errorf("failed to decode response from %q: %w", syncURL, err)
 	}
 
-	baseUrl, err = url.JoinPath(baseUrl, s.TokenRedirect)
+	baseURL, err = url.JoinPath(baseURL, s.TokenRedirect)
 	if err != nil {
 		return nil, fmt.Errorf("failed to join base url and token redirect: %w", err)
 	}
 
-	startUrl := fmt.Sprintf(baseUrl+"/%d/start", s.SignupFragment)
+	startURL := fmt.Sprintf(baseURL+"/%d/start", s.SignupFragment)
 
-	startResp, err := http.Get(startUrl)
+	startResp, err := http.Get(startURL) //nolint:gosec,noctx // the URL is user-supplied by design (CSTV endpoint); live stream reader has no context
 	if err != nil {
-		return nil, fmt.Errorf("failed to get %q: %w", startUrl, err)
+		return nil, fmt.Errorf("failed to get %q: %w", startURL, err)
 	}
 
 	defer startResp.Body.Close()
@@ -127,25 +128,25 @@ func NewReader(baseUrl string, timeout time.Duration) (*Reader, error) {
 
 	_, err = io.Copy(&buf, startResp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read response from %q: %w", startUrl, err)
+		return nil, fmt.Errorf("failed to read response from %q: %w", startURL, err)
 	}
 
-	fullUrl := fmt.Sprintf(baseUrl+"/%d/full", s.Fragment)
+	fullURL := fmt.Sprintf(baseURL+"/%d/full", s.Fragment)
 
-	fullResp, err := http.Get(fullUrl)
+	fullResp, err := http.Get(fullURL) //nolint:gosec,noctx // the URL is user-supplied by design (CSTV endpoint); live stream reader has no context
 	if err != nil {
-		return nil, fmt.Errorf("failed to get %q: %w", fullUrl, err)
+		return nil, fmt.Errorf("failed to get %q: %w", fullURL, err)
 	}
 
 	defer fullResp.Body.Close()
 
 	_, err = io.Copy(&buf, fullResp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read response from %q: %w", fullUrl, err)
+		return nil, fmt.Errorf("failed to read response from %q: %w", fullURL, err)
 	}
 
 	return &Reader{
-		baseUrl: baseUrl,
+		baseURL: baseURL,
 		sync:    s,
 		buf:     buf,
 		frag:    s.Fragment,

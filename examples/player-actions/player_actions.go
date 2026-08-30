@@ -15,6 +15,7 @@ import (
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
 	checkError(err)
+
 	defer f.Close()
 
 	p := demoinfocs.NewParser(f)
@@ -49,6 +50,7 @@ func main() {
 
 	p.RegisterEventHandler(func(e events.PlayerButtonsStateUpdate) {
 		actions := []string{}
+
 		for _, button := range buttons {
 			if e.Player.IsPressingButton(button.mask) {
 				actions = append(actions, button.name)

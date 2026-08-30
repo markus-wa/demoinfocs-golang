@@ -202,6 +202,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 	if p.Entity == nil {
 		return false
 	}
+
 	pawnEntity := p.PlayerPawnEntity()
 	if pawnEntity == nil {
 		return false
@@ -451,6 +452,7 @@ func (p *Player) PositionEyes() (r3.Vector, bool) {
 	}
 
 	pos := pawnEntity.Position()
+
 	offset, ok := p.eyePositionOffset(pawnEntity)
 	if !ok {
 		return pos, false
