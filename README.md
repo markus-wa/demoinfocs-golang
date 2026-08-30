@@ -51,7 +51,7 @@ See [broadcast example for live CSTV+ parsing](https://github.com/markus-wa/demo
 
 ## Requirements
 
-This library requires at least `go 1.24` to run.
+This library requires at least `go 1.27` to run.
 You can download the latest version of Go [here](https://golang.org/).
 
 ## Quickstart Guide
