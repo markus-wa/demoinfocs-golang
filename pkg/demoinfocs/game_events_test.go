@@ -61,7 +61,7 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 }
 
 func TestGetPlayerWeapon_NilPlayer(t *testing.T) {
-	wep := getPlayerWeapon(nil, common.EqAK47)
+	wep := getPlayerWeapon(nil, common.EqAK47, "")
 
 	assert.NotNil(t, wep)
 	assert.Equal(t, common.EqAK47, wep.Type)
@@ -75,9 +75,10 @@ func TestGetPlayerWeapon_Found(t *testing.T) {
 		},
 	}
 
-	wep := getPlayerWeapon(pl, common.EqAK47)
+	wep := getPlayerWeapon(pl, common.EqAK47, "ak47")
 
 	assert.True(t, wep == ak)
+	assert.Equal(t, "ak47", wep.OriginalString)
 }
 
 func TestGetPlayerWeapon_NotFound(t *testing.T) {
@@ -88,9 +89,22 @@ func TestGetPlayerWeapon_NotFound(t *testing.T) {
 		},
 	}
 
-	wep := getPlayerWeapon(pl, common.EqM4A1)
+	wep := getPlayerWeapon(pl, common.EqM4A1, "")
 
 	assert.Equal(t, common.EqM4A1, wep.Type)
+}
+
+func TestGetPlayerWeapon_OriginalString(t *testing.T) {
+	wep := getPlayerWeapon(nil, common.EqKnife, "knife_karambit")
+
+	assert.Equal(t, common.EqKnife, wep.Type)
+	assert.Equal(t, "knife_karambit", wep.OriginalString)
+}
+
+func TestGetPlayerWeapon_OriginalString_NonKnife(t *testing.T) {
+	wep := getPlayerWeapon(nil, common.EqAK47, "ak47")
+
+	assert.Equal(t, "ak47", wep.OriginalString)
 }
 
 func TestAddThrownGrenade_NilPlayer(t *testing.T) {
@@ -234,7 +248,7 @@ func TestGetEquipmentInstance_NotGrenade(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
 
-	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqAK47)
+	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqAK47, "")
 
 	assert.Equal(t, common.EqAK47, wep.Type)
 }
@@ -243,7 +257,7 @@ func TestGetEquipmentInstance_Grenade_NotThrown(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
 
-	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqSmoke)
+	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqSmoke, "")
 
 	assert.Nil(t, wep)
 }
@@ -254,7 +268,7 @@ func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
 	he := common.NewEquipment(common.EqHE)
 
 	p.gameEventHandler.addThrownGrenade(pl, he)
-	wep := p.gameEventHandler.getEquipmentInstance(pl, he.Type)
+	wep := p.gameEventHandler.getEquipmentInstance(pl, he.Type, "")
 
 	assert.Equal(t, he, wep)
 }

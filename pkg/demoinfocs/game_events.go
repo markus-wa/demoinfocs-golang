@@ -464,11 +464,12 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CSVCMsg_GameEventKey
 	}
 
 	shooter := geh.playerByUserID32(data["userid"].GetValShort())
-	wepType := common.MapEquipment(data["weapon"].GetValString())
+	rawWeapon := data["weapon"].GetValString()
+	wepType := common.MapEquipment(rawWeapon)
 
 	geh.dispatch(events.WeaponFire{
 		Shooter: shooter,
-		Weapon:  getPlayerWeapon(shooter, wepType),
+		Weapon:  getPlayerWeapon(shooter, wepType, rawWeapon),
 	})
 }
 
@@ -488,7 +489,8 @@ func (geh gameEventHandler) weaponReload(data map[string]*msg.CSVCMsg_GameEventK
 
 func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKeyT) {
 	killer := geh.playerByUserID32(data["attacker"].GetValShort())
-	wepType := common.MapEquipment(data["weapon"].GetValString())
+	rawWeapon := data["weapon"].GetValString()
+	wepType := common.MapEquipment(rawWeapon)
 	victimUserID := data["userid"].GetValShort()
 	wepType = geh.attackerWeaponType(wepType, victimUserID)
 
@@ -503,7 +505,7 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CSVCMsg_GameEventKe
 		Assister:          geh.playerByUserID32(data["assister"].GetValShort()),
 		IsHeadshot:        data["headshot"].GetValBool(),
 		PenetratedObjects: int(data["penetrated"].GetValShort()),
-		Weapon:            geh.getEquipmentInstance(killer, wepType),
+		Weapon:            geh.getEquipmentInstance(killer, wepType, rawWeapon),
 		AssistedFlash:     data["assistedflash"].GetValBool(),
 		AttackerBlind:     data["attackerblind"].GetValBool(),
 		NoScope:           data["noscope"].GetValBool(),
@@ -602,7 +604,7 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 		HealthDamageTaken: healthDamageTaken,
 		ArmorDamageTaken:  armorDamageTaken,
 		HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
-		Weapon:            geh.getEquipmentInstance(attacker, wepType),
+		Weapon:            geh.getEquipmentInstance(attacker, wepType, rawWeapon),
 		WeaponString:      rawWeapon,
 	})
 }
@@ -1035,8 +1037,9 @@ func (geh gameEventHandler) otherDeath(data map[string]*msg.CSVCMsg_GameEventKey
 		otherPosition = other.Position()
 	}
 
-	wepType := common.MapEquipment(data["weapon"].GetValString())
-	weapon := getPlayerWeapon(killer, wepType)
+	rawWeapon := data["weapon"].GetValString()
+	wepType := common.MapEquipment(rawWeapon)
+	weapon := getPlayerWeapon(killer, wepType, rawWeapon)
 
 	geh.dispatch(events.OtherDeath{
 		Killer:            killer,
@@ -1103,7 +1106,7 @@ func (geh gameEventHandler) itemEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 
 	wepType := common.MapEquipment(data["item"].GetValString())
-	weapon := getPlayerWeapon(player, wepType)
+	weapon := getPlayerWeapon(player, wepType, data["item"].GetValString())
 
 	return player, weapon
 }
@@ -1258,27 +1261,33 @@ func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, vic
 	return wepType
 }
 
-func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType common.EquipmentType) *common.Equipment {
+func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType common.EquipmentType, rawName string) *common.Equipment {
 	isGrenade := wepType.Class() == common.EqClassGrenade
 	if isGrenade {
 		return geh.getThrownGrenade(player, wepType)
 	}
 
-	return getPlayerWeapon(player, wepType)
+	return getPlayerWeapon(player, wepType, rawName)
 }
 
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
-func getPlayerWeapon(player *common.Player, wepType common.EquipmentType) *common.Equipment {
+//
+// The weapon's OriginalString is set to the raw event weapon name (rawName),
+// which may be empty (e.g. for grenade projectiles).
+func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawName string) *common.Equipment {
 	if player != nil {
 		alternateWepType := common.EquipmentAlternative(wepType)
 		for _, wep := range player.Weapons() {
 			if wep.Type == wepType || (alternateWepType != common.EqUnknown && wep.Type == alternateWepType) {
+				wep.OriginalString = rawName
+
 				return wep
 			}
 		}
 	}
 
 	wep := common.NewEquipment(wepType)
+	wep.OriginalString = rawName
 
 	return wep
 }

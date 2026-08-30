@@ -1044,7 +1044,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		}
 
 		// copy the weapon so it doesn't get overwritten by a new entity in parser.weapons
-		wepCopy := *(getPlayerWeapon(proj.Thrower, wep))
+		wepCopy := *(getPlayerWeapon(proj.Thrower, wep, ""))
 		proj.WeaponInstance = &wepCopy
 
 		unassert.NotNilf(proj.WeaponInstance, "couldn't find grenade instance for player")
