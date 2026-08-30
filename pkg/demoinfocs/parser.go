@@ -495,10 +495,12 @@ func ParseCSTVBroadcast(baseURL string, configure ParserCallback) error {
 type UserCmdParsingMode uint8
 
 const (
-	// UserCmdParsingFull reconstructs and dispatches complete UserCmd events.
-	UserCmdParsingFull UserCmdParsingMode = iota
 	// UserCmdParsingButtonsOnly tracks buttonstate1 for PlayerButtonsStateUpdate events.
-	UserCmdParsingButtonsOnly
+	// It is the default and the zero value so that a zero-value ParserConfig
+	// matches DefaultParserConfig.
+	UserCmdParsingButtonsOnly UserCmdParsingMode = iota
+	// UserCmdParsingFull reconstructs and dispatches complete UserCmd events.
+	UserCmdParsingFull
 	// UserCmdParsingDisabled skips user-command parsing and preserves legacy properties.
 	UserCmdParsingDisabled
 )
@@ -548,7 +550,7 @@ type ParserConfig struct {
 	CSTVTimeout time.Duration
 
 	// UserCmdParsing controls CSVCMsg_UserCommands parsing. It defaults to
-	// UserCmdParsingFull, including when ParserConfig is created as a zero value.
+	// UserCmdParsingButtonsOnly, including when ParserConfig is created as a zero value.
 	UserCmdParsing UserCmdParsingMode
 }
 
@@ -556,7 +558,7 @@ type ParserConfig struct {
 var DefaultParserConfig = ParserConfig{
 	MsgQueueBufferSize: -1,
 	CSTVTimeout:        10 * time.Second,
-	UserCmdParsing:     UserCmdParsingFull,
+	UserCmdParsing:     UserCmdParsingButtonsOnly,
 }
 
 // NewParserWithConfig returns a new Parser with a custom configuration.

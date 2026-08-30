@@ -46,8 +46,9 @@ func TestUserCmdButtonRingRequiresExactCommandNumber(t *testing.T) {
 	require.False(t, ok)
 }
 
-func TestUserCmdParsingModeDefaultsToFull(t *testing.T) {
+func TestUserCmdParsingModeDefaultsToButtonsOnly(t *testing.T) {
 	var config ParserConfig
-	require.Equal(t, UserCmdParsingFull, config.UserCmdParsing)
+	require.Equal(t, UserCmdParsingButtonsOnly, config.UserCmdParsing)
+	require.Equal(t, UserCmdParsingButtonsOnly, DefaultParserConfig.UserCmdParsing)
 	require.Equal(t, protowire.Type(7), wireTypeReset)
 }
