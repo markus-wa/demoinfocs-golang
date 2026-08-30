@@ -11,21 +11,27 @@ jobs:
       REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Install Go
-        uses: actions/setup-go@v7
-        with:
-          go-version: 1.24.x
+      - name: Checkout code
+        uses: actions/checkout@v7
 
       - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
         with:
-          reviewdog_version: v0.11.0
+          reviewdog_version: v0.21.0
 
-      - name: Checkout code
-        uses: actions/checkout@v7
+      - name: Install Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
 
       - name: Download Go Deps
         run: go mod download
+
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.13.2
+          install-only: true
 
       - name: Install Tools
         run: |
@@ -39,9 +45,6 @@ jobs:
           git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
           git fetch
 
-          # Install golangci-lint
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.1.2
-
       - name: Build
         run: scripts/build.sh
 
@@ -50,7 +53,6 @@ jobs:
 
       - name: Lint Changed Code
         run: scripts/lint-changes.sh
-        continue-on-error: true
 
       - name: Race Tests
         run: scripts/race-tests.sh
