@@ -3,14 +3,12 @@ package sendtablescs2
 import (
 	"fmt"
 	"os"
-	"slices"
 	"strings"
 
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/constants"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
-	"golang.org/x/exp/maps"
 )
 
 // Entity represents a single game entity in the replay
@@ -31,12 +29,22 @@ type Entity struct {
 	onCreateFinished []func()
 	onDestroy        []func()
 	updateHandlers   map[string][]st.PropertyUpdateHandler
-	// handlersByFP stores the same handlers indexed by field-path uint64 key
-	// (see fpFlatKey) for O(1) non-string dispatch in the hot readFields path.
-	// Only populated for paths that fit in the flat key range.
+	// handlerLog preserves the global registration order of update handlers.
+	// updateHandlers remains the name-keyed index for lookup; this log is the
+	// single source of truth for dispatch ordering (handlersByFP rebuilds and
+	// the initial entity-creation dispatch). Handlers are never unregistered,
+	// so the log is append-only and never stale.
+	handlerLog   []handlerRegistration
 	handlersByFP map[uint64][]st.PropertyUpdateHandler
 	hasHandlers  bool // cached: len(updateHandlers) > 0
 	propCache    map[string]st.Property
+}
+
+// handlerRegistration records a single update-handler registration so that
+// dispatch order can follow registration order instead of map-iteration order.
+type handlerRegistration struct {
+	name    string
+	handler st.PropertyUpdateHandler
 }
 
 // ServerClass returns the server class of the entity.
@@ -92,6 +100,7 @@ func (p property) Value() st.PropertyValue {
 
 func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
 	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], handler)
+	p.entity.handlerLog = append(p.entity.handlerLog, handlerRegistration{name: p.name, handler: handler})
 	p.entity.addHandlerByFP(p.name, handler)
 	p.entity.hasHandlers = true
 }
@@ -152,12 +161,11 @@ func (e *Entity) applyPolyUpdate(pu *polyUpdate) {
 // type switches back. The fp-keyed index is rebuilt because those keys are
 // numeric paths, which map to different fields under a different active type.
 //
-// Names are iterated in sorted order so that handlers sharing an fp key (e.g.
-// via deprecated bare-name aliases resolving to the same field) fire in a
-// stable order across rebuilds, mirroring the created-handler dispatch in
-// OnPacketEntities. Within a single name, registration order is preserved.
+// The rebuild walks handlerLog in registration order, so handlers sharing an fp
+// key (e.g. via deprecated bare-name aliases resolving to the same field) keep
+// firing in their original registration order across rebuilds.
 func (e *Entity) rebuildHandlersByFP() {
-	if len(e.updateHandlers) == 0 {
+	if len(e.handlerLog) == 0 {
 		e.handlersByFP = nil
 
 		return
@@ -165,13 +173,19 @@ func (e *Entity) rebuildHandlersByFP() {
 
 	e.handlersByFP = make(map[uint64][]st.PropertyUpdateHandler, len(e.updateHandlers))
 
-	names := maps.Keys(e.updateHandlers)
-	slices.Sort(names)
+	for _, r := range e.handlerLog {
+		e.addHandlerByFP(r.name, r.handler)
+	}
+}
 
-	for _, name := range names {
-		for _, h := range e.updateHandlers[name] {
-			e.addHandlerByFP(name, h)
-		}
+// fireInitialUpdateHandlers fires every registered update handler once with the
+// entity's current value for its property, in registration order. It is called
+// right after a newly created entity has been fully read (baseline + initial
+// update), so update handlers registered in created-handlers observe the
+// initial state immediately.
+func (e *Entity) fireInitialUpdateHandlers() {
+	for _, r := range e.handlerLog {
+		r.handler(e.PropertyValueMust(r.name))
 	}
 }
 
@@ -218,6 +232,7 @@ var bindFactoryByType = map[st.PropertyValueType]bindFactory{
 func (p property) Bind(variable any, t st.PropertyValueType) {
 	h := bindFactoryByType[t](variable)
 	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], h)
+	p.entity.handlerLog = append(p.entity.handlerLog, handlerRegistration{name: p.name, handler: h})
 	p.entity.addHandlerByFP(p.name, h)
 	p.entity.hasHandlers = true
 }
@@ -787,17 +802,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 		}
 
 		if t.op&st.EntityOpCreated != 0 {
-			props := maps.Keys(e.updateHandlers)
-			//nolint:godox
-			slices.Sort(props) // TODO: should either be ordered by prop-order or handler registration order
-
-			for _, prop := range props {
-				v := e.PropertyValueMust(prop)
-
-				for _, h := range e.updateHandlers[prop] {
-					h(v)
-				}
-			}
+			e.fireInitialUpdateHandlers()
 		}
 	}
 
