@@ -16,6 +16,10 @@ import (
 )
 
 func (p *parser) handleSendTables(msg *msg.CDemoSendTables) {
+	if p.aborted() {
+		return
+	}
+
 	err := p.stParser.ParsePacket(msg.Data)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to unmarshal flattened serializer"))
@@ -23,6 +27,10 @@ func (p *parser) handleSendTables(msg *msg.CDemoSendTables) {
 }
 
 func (p *parser) handleClassInfo(msg *msg.CDemoClassInfo) {
+	if p.aborted() {
+		return
+	}
+
 	err := p.stParser.OnDemoClassInfo(msg)
 	if err != nil {
 		panic(err)
@@ -387,6 +395,10 @@ func (p *parser) handleFullPacket(msg *msg.CDemoFullPacket) {
 }
 
 func (p *parser) handleFileInfo(msg *msg.CDemoFileInfo) {
+	if p.aborted() {
+		return
+	}
+
 	p.header.PlaybackTicks = int(*msg.PlaybackTicks)
 	p.header.PlaybackFrames = int(*msg.PlaybackFrames)
 	p.header.PlaybackTime = time.Duration(*msg.PlaybackTime) * time.Second
@@ -418,6 +430,10 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 }
 
 func (p *parser) handleDemoFileHeader(msg *msg.CDemoFileHeader) {
+	if p.aborted() {
+		return
+	}
+
 	p.header.ClientName = msg.GetClientName()
 	p.header.ServerName = msg.GetServerName()
 	p.header.GameDirectory = msg.GetGameDirectory()

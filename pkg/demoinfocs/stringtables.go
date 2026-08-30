@@ -138,6 +138,10 @@ func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
 }
 
 func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
+	if p.aborted() {
+		return
+	}
+
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -170,6 +174,10 @@ func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 }
 
 func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+	if p.aborted() {
+		return
+	}
+
 	defer func() {
 		p.setError(recoverFromUnexpectedEOF(recover()))
 	}()
@@ -436,6 +444,10 @@ func (p *parser) processModelPreCacheUpdate() {
 // XXX TODO: decide if we want to at all integrate these updates,
 // or trust create/update entirely. Let's ignore them for now.
 func (p *parser) handleStringTables(msg *msg.CDemoStringTables) {
+	if p.aborted() {
+		return
+	}
+
 	for _, tab := range msg.GetTables() {
 		if tab.GetTableName() == stNameInstanceBaseline {
 			for _, item := range tab.GetItems() {

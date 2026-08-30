@@ -74,8 +74,22 @@ func (p *parser) parseHeader() (header, error) {
 
 		p.stParser.OnEntity(p.onEntity)
 
-		p.RegisterNetMessageHandler(p.stParser.OnServerInfo)
-		p.RegisterNetMessageHandler(p.stParser.OnPacketEntities)
+		// Error returns were already discarded by the dispatcher before these
+		// wrappers existed; the wrappers only add the aborted() short-circuit.
+		p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_ServerInfo) {
+			if p.aborted() {
+				return
+			}
+
+			_ = p.stParser.OnServerInfo(m)
+		})
+		p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_PacketEntities) {
+			if p.aborted() {
+				return
+			}
+
+			_ = p.stParser.OnPacketEntities(m)
+		})
 
 	default:
 		return h, ErrInvalidFileType
@@ -359,6 +373,10 @@ type frameParsedTokenType struct{}
 var frameParsedToken = new(frameParsedTokenType)
 
 func (p *parser) handleFrameParsed(*frameParsedTokenType) {
+	if p.aborted() {
+		return
+	}
+
 	p.processFrameGameEvents()
 
 	p.currentFrame++
