@@ -1,33 +1,22 @@
-version: 2
+version: "2"
+
 run:
+  build-tags:
+    - debugdemoinfocs
   allow-parallel-runners: true
-
-exclusions:
-  paths:
-    - parser_interface.go
-    - '*\\.pb\\.go$'
-    - parser_interface.go
-
-issues:
-  exclude-rules:
-    - path: "pkg/demoinfocs/sendtables/sendtablescs2"
-      linters:
-        - godox
-
-formatters:
-  enable:
-    - gci
-    - gofmt
-    - gofumpt
-    - goimports
 
 linters:
   default: none
   enable:
+    - asciicheck
     - bodyclose
+    - copyloopvar
     - dogsled
     - dupl
+    - errcheck
     - exhaustive
+    - funlen
+    - gocognit
     - goconst
     - gocritic
     - gocyclo
@@ -37,17 +26,57 @@ linters:
     - ineffassign
     - misspell
     - nakedret
+    - nestif
     - noctx
     - nolintlint
+    - prealloc
+    - revive
     - rowserrcheck
     - staticcheck
     - unconvert
     - unparam
     - unused
     - whitespace
-    - asciicheck
-    - gocognit
-    - godox
-    - nestif
-    - prealloc
-    - revive
+    - wsl_v5
+  settings:
+    gosec:
+      excludes:
+        # Integer conversion overflows are intentional bit reinterpretations all over the lib code.
+        - G115
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      # Unused parameters keep their real names for documentation purposes.
+      - linters:
+          - revive
+        text: "^unused-parameter:"
+      # Exclude some linters from running on tests files.
+      - path: _test\.go
+        linters:
+          - wsl_v5
+          - funlen
+          - gosec
+          - goconst
+    paths:
+      - msg
+      - parser_interface.go
+      - game_state_interface.go
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/markus-wa/demoinfocs-golang/v5)
+  exclusions:
+    paths:
+      - msg
