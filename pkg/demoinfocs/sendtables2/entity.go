@@ -129,6 +129,55 @@ func (e *Entity) addHandlerByFP(name string, handler st.PropertyUpdateHandler) {
 	e.handlersByFP[key] = append(e.handlersByFP[key], handler)
 }
 
+// applyPolyUpdate stores the newly selected serializer of a polymorphic pointer
+// and invalidates the per-entity caches whenever the active type changes.
+//
+// Note on entity state: the activation bool stored at the pointer field's slot
+// is replaced by a *fieldState once sub-field updates arrive (fieldState.set
+// semantics, same as for regular fixed pointers), so the value is only readable
+// as a bool while the pointer has no sub-fields. The source of truth for the
+// active type is e.polySerializers, not the stored value.
+func (e *Entity) applyPolyUpdate(pu *polyUpdate) {
+	if e.polySerializers[pu.id] == pu.ser {
+		// Same active type, nothing to invalidate.
+		return
+	}
+
+	e.polySerializers[pu.id] = pu.ser
+
+	// Invalidate per-entity caches: the active type changed, so cached field
+	// paths, name-to-path resolutions and property lookups may no longer be valid.
+	clear(e.fpCache)
+	clear(e.fpNoop)
+	clear(e.propCache)
+
+	e.rebuildHandlersByFP()
+}
+
+// rebuildHandlersByFP re-resolves the field paths of all registered update
+// handlers after the active polymorphic type changed, so fp-keyed dispatch
+// keeps matching the fields of the now-active serializer.
+//
+// Name-keyed handlers (e.updateHandlers) are preserved as-is: handlers bound to
+// sub-fields of a type that is no longer active simply stop firing until the
+// type switches back. The fp-keyed index is rebuilt because those keys are
+// numeric paths, which map to different fields under a different active type.
+func (e *Entity) rebuildHandlersByFP() {
+	if len(e.updateHandlers) == 0 {
+		e.handlersByFP = nil
+
+		return
+	}
+
+	e.handlersByFP = make(map[uint64][]st.PropertyUpdateHandler, len(e.updateHandlers))
+
+	for name, hs := range e.updateHandlers {
+		for _, h := range hs {
+			e.addHandlerByFP(name, h)
+		}
+	}
+}
+
 type bindFactory func(variable any) st.PropertyUpdateHandler
 
 var bindFactoryByType = map[st.PropertyValueType]bindFactory{
@@ -177,26 +226,42 @@ func (p property) Bind(variable any, t st.PropertyValueType) {
 }
 
 func (e *Entity) Property(name string) st.Property {
-	if e.propCache[name] == nil {
-		var ok bool
-		if len(e.polySerializers) == 0 {
-			// Fast path for entities without polymorphic pointer fields.
-			ok = e.class.serializer.checkFieldName(name)
-		} else {
-			// Poly-aware path: use the active serializers to check existence.
-			fp := newFieldPath()
-			ok = e.class.getFieldPathForName(fp, name, e.polySerializers)
-			fp.release()
-		}
+	if prop := e.propCache[name]; prop != nil {
+		return prop
+	}
 
-		if !ok {
+	var ok bool
+	if len(e.polySerializers) == 0 {
+		// Fast path for entities without polymorphic pointer fields.
+		ok = e.class.serializer.checkFieldName(name)
+	} else {
+		// Poly-aware path: use the active serializers to check existence.
+		// The predicate is identical to Get's (the same resolver call with the
+		// same active serializers), so fpNoop doubles as the negative property
+		// cache; it is cleared together with propCache whenever the active type
+		// changes.
+		if e.fpNoop[name] {
 			return nil
 		}
 
-		e.propCache[name] = property{
-			entity: e,
-			name:   name,
+		fp := newFieldPath()
+		ok = e.class.getFieldPathForName(fp, name, e.polySerializers)
+		fp.release()
+
+		if !ok {
+			e.fpNoop[name] = true
+
+			return nil
 		}
+	}
+
+	if !ok {
+		return nil
+	}
+
+	e.propCache[name] = property{
+		entity: e,
+		name:   name,
 	}
 
 	return e.propCache[name]
@@ -543,14 +608,7 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 		// Intercept polymorphic pointer base updates: store the newly selected
 		// serializer per entity and convert to a bool for entity state storage.
 		if pu, ok := val.(*polyUpdate); ok {
-			if e.polySerializers[pu.id] != pu.ser {
-				e.polySerializers[pu.id] = pu.ser
-				// Invalidate per-entity caches: the active type changed, so cached
-				// field paths and property lookups may no longer be valid.
-				clear(e.fpCache)
-				clear(e.fpNoop)
-				clear(e.propCache)
-			}
+			e.applyPolyUpdate(pu)
 
 			val = pu.ser != nil
 		}

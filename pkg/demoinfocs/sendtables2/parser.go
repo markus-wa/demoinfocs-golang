@@ -196,7 +196,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 		)
 
 		for _, i := range s.GetFieldsIndex() {
-			if _, ok := fields[i]; !ok {
+			if _, ok := fields[i]; !ok { //nolint:nestif
 				// create a new field
 				field := newField(p.serializers, msg, msg.GetFields()[i])
 
@@ -251,8 +251,16 @@ func (p *Parser) ParsePacket(b []byte) error {
 		// store the serializer for field reference
 		p.serializers[serializer.name] = serializer
 
-		if _, ok := p.classesByName[serializer.name]; ok {
-			p.classesByName[serializer.name].serializer = serializer
+		if c, ok := p.classesByName[serializer.name]; ok {
+			// The full reachable graph of this serializer is resolved by now
+			// (fields can only reference previously parsed serializers), so it's
+			// safe to back-patch both the serializer and the poly slot count for
+			// classes whose CDemoClassInfo arrived before this FSV packet.
+			c.serializer = serializer
+
+			if maxID := serializer.maxPolyID(p.polyMaxCache); maxID >= 0 {
+				c.polyCount = maxID + 1
+			}
 		}
 	}
 
