@@ -111,15 +111,17 @@ func (r *reader) readByte() byte {
 	return byte(r.readBits(8))
 }
 
-// readBytes reads the given number of bytes
+// readBytes reads the given number of bytes.
+// The bounds are checked before any allocation: n is often decoded from the
+// bitstream and an unbounded make() could allocate GBs on a corrupt demo.
 func (r *reader) readBytes(n uint32) []byte {
+	if n > r.remBytes() {
+		_panicf("readBytes: insufficient buffer (%d of %d)", uint64(r.pos)+uint64(n), r.size)
+	}
+
 	// Fast path if we're byte aligned
 	if r.bitCount == 0 {
 		r.pos += n
-
-		if r.pos > r.size {
-			_panicf("readBytes: insufficient buffer (%d of %d)", r.pos, r.size)
-		}
 
 		return r.buf[r.pos-n : r.pos]
 	}
