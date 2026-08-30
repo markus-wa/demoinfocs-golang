@@ -35,7 +35,7 @@ const (
 	demSetPath              = csDemosPath + "/set"
 	demSetPathS2            = csDemosPath + "/s2"
 	defaultDemPath          = csDemosPath + "/default.dem"
-	retakeDemPath           = csDemosPath + "/retake_unknwon_bombsite_index.dem"
+	retakeDemPath           = csDemosPath + "/retake_unknwon_bombsite_index.dem" //nolint:misspell
 	unexpectedEndOfDemoPath = csDemosPath + "/unexpected_end_of_demo.dem"
 	s2DemPath               = demSetPathS2 + "/s2.dem"
 	s2POVDemPath            = demSetPathS2 + "/pov.dem"
