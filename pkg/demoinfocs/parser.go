@@ -1,7 +1,6 @@
 package demoinfocs
 
 import (
-	_ "embed"
 	"fmt"
 	"io"
 	"runtime/debug"

@@ -51,6 +51,10 @@ linters:
       - legacy
       - std-error-handling
     rules:
+      # Unused parameters keep their real names for documentation purposes.
+      - linters:
+          - revive
+        text: "^unused-parameter:"
       # Exclude some linters from running on tests files.
       - path: _test\.go
         linters:

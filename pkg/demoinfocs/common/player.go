@@ -260,9 +260,9 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 
 	if isSource2 {
 		return (mask.Value().S2UInt64() & (1 << bit)) != 0
-	} else {
-		return (mask.Value().IntVal & (1 << bit)) != 0
 	}
+
+	return (mask.Value().IntVal & (1 << bit)) != 0
 }
 
 // HasSpotted returns true if the player has spotted the other player.
