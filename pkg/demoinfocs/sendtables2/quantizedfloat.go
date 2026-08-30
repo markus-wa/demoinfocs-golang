@@ -9,10 +9,10 @@ import (
 
 // Quantized float flags
 const (
-	qff_rounddown       uint32 = (1 << 0) //nolint:revive
-	qff_roundup         uint32 = (1 << 1) //nolint:revive
-	qff_encode_zero     uint32 = (1 << 2) //nolint:revive
-	qff_encode_integers uint32 = (1 << 3) //nolint:revive
+	qffRounddown      uint32 = (1 << 0)
+	qffRoundup        uint32 = (1 << 1)
+	qffEncodeZero     uint32 = (1 << 2)
+	qffEncodeIntegers uint32 = (1 << 3)
 )
 
 // Quantized-decoder struct containing the computed properties
@@ -35,33 +35,33 @@ func (qfd *quantizedFloatDecoder) validateFlags() {
 	}
 
 	// Discard zero flag when encoding min / max set to 0
-	if (qfd.Low == 0.0 && (qfd.Flags&qff_rounddown) != 0) || (qfd.High == 0.0 && (qfd.Flags&qff_roundup) != 0) {
-		qfd.Flags &= ^qff_encode_zero
+	if (qfd.Low == 0.0 && (qfd.Flags&qffRounddown) != 0) || (qfd.High == 0.0 && (qfd.Flags&qffRoundup) != 0) {
+		qfd.Flags &= ^qffEncodeZero
 	}
 
 	// If min / max is zero when encoding zero, switch to round up / round down instead
-	if qfd.Low == 0.0 && (qfd.Flags&qff_encode_zero) != 0 {
-		qfd.Flags |= qff_rounddown
-		qfd.Flags &= ^qff_encode_zero
+	if qfd.Low == 0.0 && (qfd.Flags&qffEncodeZero) != 0 {
+		qfd.Flags |= qffRounddown
+		qfd.Flags &= ^qffEncodeZero
 	}
 
-	if qfd.High == 0.0 && (qfd.Flags&qff_encode_zero) != 0 {
-		qfd.Flags |= qff_roundup
-		qfd.Flags &= ^qff_encode_zero
+	if qfd.High == 0.0 && (qfd.Flags&qffEncodeZero) != 0 {
+		qfd.Flags |= qffRoundup
+		qfd.Flags &= ^qffEncodeZero
 	}
 
 	// Check if the range spans zero
 	if qfd.Low > 0.0 || qfd.High < 0.0 {
-		qfd.Flags &= ^qff_encode_zero
+		qfd.Flags &= ^qffEncodeZero
 	}
 
 	// If we are left with encode zero, only leave integer flag
-	if (qfd.Flags & qff_encode_integers) != 0 {
-		qfd.Flags &= ^(qff_roundup | qff_rounddown | qff_encode_zero)
+	if (qfd.Flags & qffEncodeIntegers) != 0 {
+		qfd.Flags &= ^(qffRoundup | qffRounddown | qffEncodeZero)
 	}
 
 	// Verify that we don;t have roundup / rounddown set
-	if qfd.Flags&(qff_rounddown|qff_roundup) == (qff_rounddown | qff_roundup) {
+	if qfd.Flags&(qffRounddown|qffRoundup) == (qffRounddown | qffRoundup) {
 		_panicf("Roundup / Rounddown are mutually exclusive")
 	}
 }
@@ -111,13 +111,13 @@ func (qfd *quantizedFloatDecoder) assignMultipliers(steps uint32) {
 // Quantize a float
 func (qfd *quantizedFloatDecoder) quantize(val float32) float32 {
 	if val < qfd.Low {
-		if (qfd.Flags & qff_roundup) == 0 {
+		if (qfd.Flags & qffRoundup) == 0 {
 			_panicf("Field tried to quantize an out of range value")
 		}
 
 		return qfd.Low
 	} else if val > qfd.High {
-		if (qfd.Flags & qff_rounddown) == 0 {
+		if (qfd.Flags & qffRounddown) == 0 {
 			_panicf("Field tried to quantize an out of range value")
 		}
 
@@ -136,15 +136,15 @@ func (qfd *quantizedFloatDecoder) quantize(val float32) float32 {
 
 // Actual float decoding
 func (qfd *quantizedFloatDecoder) decode(r *reader) float32 {
-	if (qfd.Flags&qff_rounddown) != 0 && r.readBoolean() {
+	if (qfd.Flags&qffRounddown) != 0 && r.readBoolean() {
 		return qfd.Low
 	}
 
-	if (qfd.Flags&qff_roundup) != 0 && r.readBoolean() {
+	if (qfd.Flags&qffRoundup) != 0 && r.readBoolean() {
 		return qfd.High
 	}
 
-	if (qfd.Flags&qff_encode_zero) != 0 && r.readBoolean() {
+	if (qfd.Flags&qffEncodeZero) != 0 && r.readBoolean() {
 		return 0.0
 	}
 
@@ -194,18 +194,18 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 	steps := (1 << uint(qfd.Bitcount))
 
 	Range := float32(0)
-	if (qfd.Flags & qff_rounddown) != 0 {
+	if (qfd.Flags & qffRounddown) != 0 {
 		Range = qfd.High - qfd.Low
 		qfd.Offset = (Range / float32(steps))
 		qfd.High -= qfd.Offset
-	} else if (qfd.Flags & qff_roundup) != 0 {
+	} else if (qfd.Flags & qffRoundup) != 0 {
 		Range = qfd.High - qfd.Low
 		qfd.Offset = (Range / float32(steps))
 		qfd.Low += qfd.Offset
 	}
 
 	// Handle integer encoding flag
-	if (qfd.Flags & qff_encode_integers) != 0 {
+	if (qfd.Flags & qffEncodeIntegers) != 0 {
 		delta := qfd.High - qfd.Low
 
 		if delta < 1 {
@@ -237,21 +237,21 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 	qfd.assignMultipliers(uint32(steps))
 
 	// Remove unessecary flags
-	if (qfd.Flags & qff_rounddown) != 0 {
+	if (qfd.Flags & qffRounddown) != 0 {
 		if qfd.quantize(qfd.Low) == qfd.Low {
-			qfd.Flags &= ^qff_rounddown
+			qfd.Flags &= ^qffRounddown
 		}
 	}
 
-	if (qfd.Flags & qff_roundup) != 0 {
+	if (qfd.Flags & qffRoundup) != 0 {
 		if qfd.quantize(qfd.High) == qfd.High {
-			qfd.Flags &= ^qff_roundup
+			qfd.Flags &= ^qffRoundup
 		}
 	}
 
-	if (qfd.Flags & qff_encode_zero) != 0 {
+	if (qfd.Flags & qffEncodeZero) != 0 {
 		if qfd.quantize(0.0) == 0.0 {
-			qfd.Flags &= ^qff_encode_zero
+			qfd.Flags &= ^qffEncodeZero
 		}
 	}
 
