@@ -259,8 +259,7 @@ var fieldTypeDecoders = map[string]fieldDecoder{
 }
 
 func unsigned64Factory(f *field) fieldDecoder {
-	switch f.encoder { //nolint:gocritic
-	case "fixed64":
+	if f.encoder == "fixed64" {
 		return fixed64Decoder
 	}
 

@@ -324,14 +324,14 @@ func (r *reader) readAngle(n uint32) float32 {
 // readNormal reads a normalized float vector
 func (r *reader) readNormal() float32 {
 	isNeg := r.readBoolean()
-	len := r.readBits(11) //nolint:revive
-	ret := float32(len) * float32(1.0/(float32(1<<11)-1.0))
+	length := r.readBits(11)
+	ret := float32(length) * float32(1.0/(float32(1<<11)-1.0))
 
 	if isNeg {
 		return -ret
-	} else { //nolint:revive
-		return ret
 	}
+
+	return ret
 }
 
 // read3BitNormal reads a normalized float vector

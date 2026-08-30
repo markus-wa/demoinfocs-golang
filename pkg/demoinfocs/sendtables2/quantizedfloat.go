@@ -153,32 +153,32 @@ func (qfd *quantizedFloatDecoder) decode(r *reader) float32 {
 
 // Creates a new quantized float decoder based on given field
 //
-//nolint:gocognit,funlen
+//nolint:funlen
 func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float32) *quantizedFloatDecoder {
 	qfd := &quantizedFloatDecoder{}
 
 	// Set common properties
-	if *bitCount == 0 || *bitCount >= 32 { //nolint:nestif
+	if *bitCount == 0 || *bitCount >= 32 {
 		qfd.NoScale = true
 		qfd.Bitcount = 32
 
 		return qfd
-	} else { //nolint:revive
-		qfd.NoScale = false
-		qfd.Bitcount = uint32(*bitCount)
-		qfd.Offset = 0.0
+	}
 
-		if lowValue != nil {
-			qfd.Low = *lowValue
-		} else {
-			qfd.Low = 0.0
-		}
+	qfd.NoScale = false
+	qfd.Bitcount = uint32(*bitCount)
+	qfd.Offset = 0.0
 
-		if highValue != nil {
-			qfd.High = *highValue
-		} else {
-			qfd.High = 1.0
-		}
+	if lowValue != nil {
+		qfd.Low = *lowValue
+	} else {
+		qfd.Low = 0.0
+	}
+
+	if highValue != nil {
+		qfd.High = *highValue
+	} else {
+		qfd.High = 1.0
 	}
 
 	if flags != nil {
@@ -216,12 +216,8 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 		Range2 := (1 << uint(deltaLog2))
 		bc := qfd.Bitcount
 
-		for {
-			if (1 << uint(bc)) > Range2 {
-				break
-			} else { //nolint:revive
-				bc++
-			}
+		for (1 << uint(bc)) <= Range2 {
+			bc++
 		}
 
 		if bc > qfd.Bitcount {
