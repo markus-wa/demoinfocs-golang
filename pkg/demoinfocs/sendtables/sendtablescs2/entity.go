@@ -444,6 +444,9 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 
 		if updateCollection { //nolint:nestif
 			newLen := val.(uint64)
+			if newLen > maxFieldIndex {
+				_panicf("variable collection size %d out of range [0, %d] (path %v): corrupt or desynced demo bitstream", newLen, maxFieldIndex, fp.path[:fp.last+1])
+			}
 
 			// Retrieve the *fieldState pointer stored on the first update.
 			// We store a pointer so we can resize in place on subsequent updates
