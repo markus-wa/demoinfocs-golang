@@ -336,27 +336,27 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 	for _, m := range p.pendingMessagesCache {
 		var msgCreator NetMessageCreator
 
-		//nolint:nestif
-		if m.t < int32(msgs2.SVC_Messages_svc_ServerInfo) {
+		switch {
+		case m.t < int32(msgs2.SVC_Messages_svc_ServerInfo):
 			msgCreator = netMsgCreators[msgs2.NET_Messages(m.t)]
 			if msgCreator == nil {
 				msgCreator = bidirectionalMessageCreators[msgs2.Bidirectional_Messages(m.t)]
 			}
-		} else if m.t < int32(msgs2.EBaseUserMessages_UM_AchievementEvent) {
+		case m.t < int32(msgs2.EBaseUserMessages_UM_AchievementEvent):
 			msgCreator = svcMsgCreators[msgs2.SVC_Messages(m.t)]
-		} else if m.t < int32(msgs2.EBaseGameEvents_GE_VDebugGameSessionIDEvent) {
+		case m.t < int32(msgs2.EBaseGameEvents_GE_VDebugGameSessionIDEvent):
 			msgCreator = usrMsgCreators[msgs2.EBaseUserMessages(m.t)]
 
 			if msgCreator == nil {
 				msgCreator = emCreators[msgs2.EBaseEntityMessages(m.t)]
 			}
-		} else if m.t < int32(msgs2.ECstrike15UserMessages_CS_UM_VGUIMenu) {
+		case m.t < int32(msgs2.ECstrike15UserMessages_CS_UM_VGUIMenu):
 			msgCreator = gameEventCreators[msgs2.EBaseGameEvents(m.t)]
-		} else if m.t < int32(msgs2.ETEProtobufIds_TE_EffectDispatchId) {
+		case m.t < int32(msgs2.ETEProtobufIds_TE_EffectDispatchId):
 			msgCreator = csUsrMsgCreators[msgs2.ECstrike15UserMessages(m.t)]
-		} else if m.t < int32(msgs2.ECsgoGameEvents_GE_PlayerAnimEventId) {
+		case m.t < int32(msgs2.ECsgoGameEvents_GE_PlayerAnimEventId):
 			msgCreator = teCreators[msgs2.ETEProtobufIds(m.t)]
-		} else {
+		default:
 			msgCreator = csgoGameEventCreators[msgs2.ECsgoGameEvents(m.t)]
 		}
 

@@ -301,23 +301,24 @@ func (propertyDecoder) decodeFloat(prop *sendTableProperty, reader *bit.BitReade
 func (propertyDecoder) decodeSpecialFloat(prop *sendTableProperty, reader *bit.BitReader) float32 {
 	// Because multiple flags can be set this order is fixed for now (priorities).
 	// TODO: Would be more efficient to first check the most common ones tho.
-	if prop.flags.hasFlagSet(propFlagCoord) { //nolint:nestif
+	switch {
+	case prop.flags.hasFlagSet(propFlagCoord):
 		return propDecoder.readBitCoord(reader)
-	} else if prop.flags.hasFlagSet(propFlagCoordMp) {
+	case prop.flags.hasFlagSet(propFlagCoordMp):
 		return propDecoder.readBitCoordMp(reader, false, false)
-	} else if prop.flags.hasFlagSet(propFlagCoordMpLowPrecision) {
+	case prop.flags.hasFlagSet(propFlagCoordMpLowPrecision):
 		return propDecoder.readBitCoordMp(reader, false, true)
-	} else if prop.flags.hasFlagSet(propFlagCoordMpIntegral) {
+	case prop.flags.hasFlagSet(propFlagCoordMpIntegral):
 		return propDecoder.readBitCoordMp(reader, true, false)
-	} else if prop.flags.hasFlagSet(propFlagNoScale) {
+	case prop.flags.hasFlagSet(propFlagNoScale):
 		return reader.ReadFloat()
-	} else if prop.flags.hasFlagSet(propFlagNormal) {
+	case prop.flags.hasFlagSet(propFlagNormal):
 		return propDecoder.readBitNormal(reader)
-	} else if prop.flags.hasFlagSet(propFlagCellCoord) {
+	case prop.flags.hasFlagSet(propFlagCellCoord):
 		return propDecoder.readBitCellCoord(reader, prop.numberOfBits, false, false)
-	} else if prop.flags.hasFlagSet(propFlagCellCoordLowPrecision) {
+	case prop.flags.hasFlagSet(propFlagCellCoordLowPrecision):
 		return propDecoder.readBitCellCoord(reader, prop.numberOfBits, true, false)
-	} else if prop.flags.hasFlagSet(propFlagCellCoordIntegral) {
+	case prop.flags.hasFlagSet(propFlagCellCoordIntegral):
 		return propDecoder.readBitCellCoord(reader, prop.numberOfBits, false, true)
 	}
 

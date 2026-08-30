@@ -177,7 +177,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 		)
 
 		for _, i := range s.GetFieldsIndex() {
-			if _, ok := fields[i]; !ok { //nolint:nestif
+			if _, ok := fields[i]; !ok {
 				// create a new field
 				field := newField(p.serializers, msg, msg.GetFields()[i])
 
@@ -199,17 +199,18 @@ func (p *Parser) ParsePacket(b []byte) error {
 				}
 
 				// determine field model
-				if field.serializer != nil {
+				switch {
+				case field.serializer != nil:
 					if field.fieldType.pointer || pointerTypes[field.fieldType.baseType] {
 						field.setModel(fieldModelFixedTable)
 					} else {
 						field.setModel(fieldModelVariableTable)
 					}
-				} else if field.fieldType.count > 0 && field.fieldType.baseType != "char" {
+				case field.fieldType.count > 0 && field.fieldType.baseType != "char":
 					field.setModel(fieldModelFixedArray)
-				} else if field.fieldType.baseType == "CUtlVector" || field.fieldType.baseType == "CNetworkUtlVectorBase" {
+				case field.fieldType.baseType == "CUtlVector" || field.fieldType.baseType == "CNetworkUtlVectorBase":
 					field.setModel(fieldModelVariableArray)
-				} else {
+				default:
 					field.setModel(fieldModelSimple)
 				}
 

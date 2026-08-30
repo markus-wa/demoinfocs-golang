@@ -1418,11 +1418,13 @@ func (p *parser) bindGameRules() {
 			}
 
 			var objective string
-			if hasBombTarget {
+
+			switch {
+			case hasBombTarget:
 				objective = "BOMB TARGET"
-			} else if hasRescueZone {
+			case hasRescueZone:
 				objective = "HOSTAGE RESCUE"
-			} else {
+			default:
 				objective = "DEATHMATCH"
 			}
 

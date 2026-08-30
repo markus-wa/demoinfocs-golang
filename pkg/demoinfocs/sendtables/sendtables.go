@@ -137,13 +137,14 @@ func (sc *serverClass) newEntity(entityDataReader *bit.BitReader, entityID int, 
 
 	entity.initialize(recordingPlayerSlot)
 
-	if sc.preprocessedBaseline != nil {
+	switch {
+	case sc.preprocessedBaseline != nil:
 		entity.applyBaseline(sc.preprocessedBaseline)
-	} else if sc.instanceBaseline != nil {
+	case sc.instanceBaseline != nil:
 		r := bit.NewSmallBitReader(bytes.NewReader(sc.instanceBaseline))
 		sc.preprocessedBaseline = entity.initializeBaseline(r)
 		_ = r.Pool() // no way to report the error here, and pooling failures are non-fatal
-	} else {
+	default:
 		sc.preprocessedBaseline = make(map[int]PropertyValue)
 	}
 

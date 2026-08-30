@@ -28,7 +28,6 @@ func (p *parser) handlePacketEntitiesS1(pe *msg.CSVCMsg_PacketEntities) {
 	for i := 0; i < int(pe.GetUpdatedEntries()); i++ {
 		entityIndex += 1 + int(r.ReadUBitInt())
 
-		//nolint:nestif
 		if r.ReadBit() {
 			// FHDR_LEAVEPVS => LeavePVS
 			if r.ReadBit() {
@@ -38,16 +37,22 @@ func (p *parser) handlePacketEntitiesS1(pe *msg.CSVCMsg_PacketEntities) {
 					delete(p.gameState.entities, entityIndex)
 				}
 			}
-		} else if r.ReadBit() {
+
+			continue
+		}
+
+		if r.ReadBit() {
 			// FHDR_ENTERPVS => EnterPVS
 			p.gameState.entities[entityIndex] = p.stParser.ReadEnterPVS(r, entityIndex, p.gameState.entities, p.recordingPlayerSlot)
+
+			continue
+		}
+
+		// Delta update
+		if p.gameState.entities[entityIndex] != nil {
+			p.gameState.entities[entityIndex].ApplyUpdate(r)
 		} else {
-			// Delta update
-			if p.gameState.entities[entityIndex] != nil {
-				p.gameState.entities[entityIndex].ApplyUpdate(r)
-			} else {
-				panic(fmt.Sprintf("Entity with index %d doesn't exist but got an update", entityIndex))
-			}
+			panic(fmt.Sprintf("Entity with index %d doesn't exist but got an update", entityIndex))
 		}
 	}
 
