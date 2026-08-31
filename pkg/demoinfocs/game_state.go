@@ -150,6 +150,13 @@ func (gs gameState) Participants() Participants {
 	}
 }
 
+// participantsRaw returns the internal user-ID-keyed player map for direct
+// iteration by parser internals that neither need snapshot semantics nor a
+// deterministic order. Not part of the public API.
+func (gs gameState) participantsRaw() map[int]*common.Player {
+	return gs.playersByUserID
+}
+
 // Rules returns the GameRules for the current match.
 // Contains information like freeze time duration etc.
 func (gs gameState) Rules() GameRules {

@@ -142,6 +142,33 @@ func (r *reader) readBits(n uint32) uint32 {
 	return uint32(x)
 }
 
+// peekBits returns the next n bits (n <= 32) without consuming them.
+// Bits beyond the end of the stream read as zero; callers must treat the
+// peeked value as speculative until skipBits has consumed a valid prefix.
+// Unlike readBits this never advances pos, so peek + skip is idempotent-safe
+// for LUT-driven decoding.
+func (r *reader) peekBits(n uint32) uint32 {
+	// gather enough bytes into bitVal without consuming them
+	for r.bitCount < n && r.pos < r.size {
+		r.bitVal |= uint64(r.buf[r.pos]) << r.bitCount
+		r.pos++
+		r.bitCount += 8
+	}
+
+	return uint32(r.bitVal & ((1 << n) - 1))
+}
+
+// skipBits consumes n bits previously returned by peekBits.
+// Precondition: n bits are available in the stream.
+func (r *reader) skipBits(n uint32) {
+	if n > r.bitCount {
+		_panicf("skipBits: insufficient bits (%d > %d)", n, r.bitCount)
+	}
+
+	r.bitVal >>= n
+	r.bitCount -= n
+}
+
 // readByte reads a single byte
 func (r *reader) readByte() byte {
 	// Fast path if we're byte aligned
