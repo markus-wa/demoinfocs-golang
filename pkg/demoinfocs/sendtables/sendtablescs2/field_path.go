@@ -327,7 +327,7 @@ func readFieldPaths(r *reader, paths *[]*fieldPath) int {
 		r.skipBits(lut.consumed)
 
 		op := int16(-1)
-		for op < 0 { //nolint:nestif // internal node: continue the per-bit walk
+		for op < 0 {
 			if node < 0 {
 				// leaf resolved by the LUT (encoded as marker|~op)
 				op = ^node
@@ -351,8 +351,6 @@ func readFieldPaths(r *reader, paths *[]*fieldPath) int {
 
 			node = next
 		}
-
-		node = 0 // reset to root
 
 		fieldPathTable[op].fn(r, fp)
 

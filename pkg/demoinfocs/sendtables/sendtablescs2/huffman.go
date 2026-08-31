@@ -51,8 +51,9 @@ func buildFpHuffLUT() {
 		n := fpHuffNodes[node]
 
 		if n.left < 0 {
+			entry := fpHuffLUTEntry{consumed: uint32(depth), node: fpHuffLeafMarker | ^n.value}
+
 			// leaf: replicate across the remaining (high) padding
-			entry := fpHuffLUTEntry{consumed: uint32(depth), node: fpHuffLeafMarker | ^int16(n.value)}
 			shift := uint32(fpHuffBits - depth)
 			for tail := uint32(0); tail < 1<<shift; tail++ {
 				fpHuffLUT[code|(tail<<depth)] = entry
@@ -78,6 +79,7 @@ func buildFpHuffLUT() {
 
 func init() {
 	fpHuffNodes = buildFlatHuffmanTree(newHuffmanTree())
+
 	buildFpHuffLUT()
 }
 
