@@ -25,6 +25,34 @@ import (
 
 const maxOsPath = 260
 
+// msgBufPool recycles the byte slices that hold frame and embedded-message
+// payloads. proto.Unmarshal always copies bytes fields into the message, so
+// the input buffers are dead once the message is unmarshaled and can be
+// returned to this pool. See parseFrame() and handleDemoPacket().
+var msgBufPool = sync.Pool{
+	New: func() any {
+		b := make([]byte, 0, 1024)
+		return &b
+	},
+}
+
+func getMsgBuf(n int) *[]byte {
+	bp := msgBufPool.Get().(*[]byte)
+	if cap(*bp) < n {
+		*bp = make([]byte, 0, n)
+	}
+
+	*bp = (*bp)[:0]
+
+	return bp
+}
+
+func putMsgBuf(bp *[]byte) {
+	if bp != nil {
+		msgBufPool.Put(bp)
+	}
+}
+
 const (
 	playerWeaponPrefix   = "m_hMyWeapons"
 	playerWeaponPrefixS2 = "m_pWeaponServices.m_hMyWeapons"
@@ -342,6 +370,57 @@ var demoCommandMsgsCreators = map[msgs2.EDemoCommands]NetMessageCreator{
 	msgs2.EDemoCommands_DEM_Recovery:        func() proto.Message { return &msgs2.CDemoRecovery{} },
 }
 
+// readFramePayload reads (and, if needed, decompresses) the current frame's payload.
+//
+// The payload is read into a pooled buffer and the per-parser snappy scratch
+// is reused as the decompression destination; the pool entry is returned so
+// the caller can put it back after proto.Unmarshal (which copies everything
+// it needs). bp is nil whenever buf is not pool-backed.
+func (p *parser) readFramePayload(size int, msgCompressed bool) (buf []byte, bp *[]byte) {
+	bp = getMsgBuf(size)
+	p.bitReader.ReadBytesInto(bp, size)
+	buf = *bp
+
+	if !msgCompressed {
+		return buf, bp
+	}
+
+	// Reuse the per-parser scratch as the snappy destination: the decoded
+	// payload is dead after the caller's proto.Unmarshal, and frame parsing
+	// is single-threaded.
+	var err error
+
+	buf, err = snappy.Decode(p.snappyScratch, buf)
+
+	// The pooled input is consumed either way; only the decoded scratch
+	// carries data from here on.
+	putMsgBuf(bp)
+
+	if err != nil {
+		buf = nil
+
+		p.handleSnappyError(err)
+
+		return buf, nil
+	}
+
+	p.snappyScratch = buf[:0]
+
+	return buf, nil
+}
+
+func (p *parser) handleSnappyError(err error) {
+	if errors.Is(err, snappy.ErrCorrupt) {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "compressed message is corrupt",
+		})
+
+		return
+	}
+
+	panic(err)
+}
+
 //nolint:funlen
 func (p *parser) parseFrameS2() bool {
 	cmd := msgs2.EDemoCommands(p.bitReader.ReadVarInt32())
@@ -376,22 +455,7 @@ func (p *parser) parseFrameS2() bool {
 		return true
 	}
 
-	buf := p.bitReader.ReadBytes(int(size))
-
-	if msgCompressed {
-		var err error
-
-		buf, err = snappy.Decode(nil, buf)
-		if err != nil {
-			if errors.Is(err, snappy.ErrCorrupt) {
-				p.eventDispatcher.Dispatch(events.ParserWarn{
-					Message: "compressed message is corrupt",
-				})
-			} else {
-				panic(err)
-			}
-		}
-	}
+	buf, bp := p.readFramePayload(int(size), msgCompressed)
 
 	msg := msgCreator()
 
@@ -403,6 +467,8 @@ func (p *parser) parseFrameS2() bool {
 	if err != nil {
 		panic(err) // FIXME: avoid panic
 	}
+
+	putMsgBuf(bp)
 
 	p.msgQueue <- msg
 

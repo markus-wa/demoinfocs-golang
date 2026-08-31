@@ -318,14 +318,25 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket, isFullPacket bool) {
 	r := bitread.NewSmallBitReader(bytes.NewReader(b))
 
 	p.pendingMessagesCache = p.pendingMessagesCache[:0]
+	p.pendingMsgBufs = p.pendingMsgBufs[:0]
 
 	for len(b)*8-r.ActualPosition() > 7 {
 		t := int32(r.ReadUBitInt())
 		size := r.ReadVarInt32()
-		buf := r.ReadBytes(int(size))
+		bp := getMsgBuf(int(size))
+		r.ReadBytesInto(bp, int(size))
 
-		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, buf})
+		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, *bp})
+		p.pendingMsgBufs = append(p.pendingMsgBufs, bp)
 	}
+
+	// All buffers are consumed by the unmarshal loop below; make sure they go
+	// back to the pool no matter how the loop ends.
+	defer func() {
+		for _, bp := range p.pendingMsgBufs {
+			putMsgBuf(bp)
+		}
+	}()
 
 	p.poolBitReader(r)
 
