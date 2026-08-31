@@ -918,11 +918,13 @@ func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CMsgSource1Lega
 		HasKit: data["haskit"].GetValBool(),
 	}
 
-	// The bomb_begindefuse game-event carries no site key, so derive it from the planted
-	// bomb's position - same source the plant path uses when the site index is unavailable.
-	// The bomb entity is only nil on corrupt demos or when parsing starts mid-round after the
-	// plant; leave the site unset then.
-	if bomb := geh.gameState().Bomb(); bomb != nil {
+	// The bomb_begindefuse game-event carries no site key, so derive it from the planted bomb's
+	// position - same source the plant path uses when the site index is unavailable.
+	// Bomb() is never nil (it's a value receiver returning &gameState.bomb), so guard on the
+	// planted bomb's position instead: it's only unknown on corrupt demos or when parsing starts
+	// mid-round after the plant, in which case the site is left unset (getClosestBombsiteFromPosition
+	// would otherwise map the zero origin to a real bombsite).
+	if bomb := geh.gameState().Bomb(); bomb.LastOnGroundPosition != (r3.Vector{}) {
 		e.Site = geh.parser.getClosestBombsiteFromPosition(bomb.Position())
 	}
 
