@@ -863,6 +863,11 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, pl *common.Player) {
 		}
 
 		pl.Inventory = inventory
+
+		// Track grenades for the fallback in bindGrenadeProjectiles (#580).
+		// Not deleted when a grenade disappears from the inventory - see
+		// updateLastKnownGrenadeWeapons.
+		p.gameState.updateLastKnownGrenadeWeapons(pl)
 	}
 
 	pawnEntity.Property(playerWeaponPrefixS2).OnUpdate(func(pv st.PropertyValue) {
@@ -1043,8 +1048,27 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			}
 		}
 
+		// CS2 removes the grenade from the thrower's inventory before the projectile entity is
+		// fully created - usually when the last grenade of the type is thrown (#580). In that
+		// case getPlayerWeapon() can't find the weapon in the inventory and returns a new one
+		// without an entity, so fall back to the last-known weapon of that type.
+		wepInstance := getPlayerWeapon(proj.Thrower, wep, "", p.nextUniqueID())
+		if wepInstance.Entity == nil && proj.Thrower != nil {
+			if lastKnownWep := p.gameState.lastKnownGrenadeWeapon(proj.Thrower, wepInstance.Type); lastKnownWep != nil {
+				wepInstance = lastKnownWep
+			}
+		}
+
 		// copy the weapon so it doesn't get overwritten by a new entity in parser.weapons
-		wepCopy := *(getPlayerWeapon(proj.Thrower, wep, "", p.nextUniqueID()))
+		wepCopy := *wepInstance
+		wepCopy.OriginalString = ""
+
+		// the inventory weapon's owner may be unknown if it was never updated since the
+		// parser started (e.g. mid-round GOTV start) - the thrower is always known here though
+		if proj.Thrower != nil {
+			wepCopy.Owner = proj.Thrower
+		}
+
 		proj.WeaponInstance = &wepCopy
 
 		unassert.NotNilf(proj.WeaponInstance, "couldn't find grenade instance for player")

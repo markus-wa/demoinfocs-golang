@@ -597,6 +597,47 @@ func TestDemoSetS2(t *testing.T) {
 	testDemoSet(t, demSetPathS2)
 }
 
+// TestGrenadeProjectileWeaponInstance asserts that the WeaponInstance of thrown grenades
+// resolves to a weapon with an entity and the thrower as owner.
+//
+// CS2 removes the grenade from the thrower's inventory before the projectile entity is
+// fully created - usually when the last grenade of the type is thrown - so a plain
+// inventory lookup returns a weapon without an entity and owner.
+// See https://github.com/markus-wa/demoinfocs-golang/issues/580
+//
+// pov.dem is used because the issue triggers regularly on it
+// (~13% of grenade throws resolved to a weapon without an entity before the fix).
+func TestGrenadeProjectileWeaponInstance(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	t.Parallel()
+
+	f, err := os.Open(s2POVDemPath)
+	assert.NoError(t, err, "error opening demo %q", s2POVDemPath)
+
+	defer mustClose(t, f)
+
+	p := demoinfocs.NewParser(f)
+
+	throwsChecked := 0
+
+	p.RegisterEventHandler(func(e events.GrenadeProjectileThrow) {
+		throwsChecked++
+
+		wep := e.Projectile.WeaponInstance
+		if assert.NotNil(t, wep, "WeaponInstance is nil for a thrown grenade") {
+			assert.NotNil(t, wep.Entity, "WeaponInstance.Entity is nil for a thrown grenade")
+			assert.NotNil(t, wep.Owner, "WeaponInstance.Owner is nil for a thrown grenade")
+			assert.Same(t, e.Projectile.Thrower, wep.Owner, "WeaponInstance.Owner is not the thrower")
+		}
+	})
+
+	assert.NoError(t, p.ParseToEnd())
+	assert.Positive(t, throwsChecked, "no grenade throws found in %q, the test needs a demo with grenade throws", s2POVDemPath)
+}
+
 // TestPolymorphicGameModeRules asserts that the polymorphic m_pGameModeRules
 // pointer on the game-rules entity is tracked per entity and that its
 // activation state is readable through the poly-aware name resolution.

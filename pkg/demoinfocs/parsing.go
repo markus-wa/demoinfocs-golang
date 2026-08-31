@@ -615,6 +615,12 @@ var frameParsedToken = new(frameParsedTokenType)
 func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 	p.processFrameGameEvents()
 
+	// Cache grenade weapons for the case where CS2 removes a grenade from the thrower's
+	// inventory before the projectile entity is fully created (#580).
+	for _, pl := range p.gameState.Participants().All() {
+		p.gameState.updateLastKnownGrenadeWeapons(pl)
+	}
+
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.FrameDone{})
 

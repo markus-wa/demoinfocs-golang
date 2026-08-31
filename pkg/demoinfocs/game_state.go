@@ -44,6 +44,7 @@ type gameState struct {
 	currentDefuser               *common.Player                                                  // Player currently defusing the bomb, if any
 	currentPlanter               *common.Player                                                  // Player currently planting the bomb, if any
 	thrownGrenades               map[*common.Player]map[common.EquipmentType][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
+	lastKnownGrenadeWeapons      map[*common.Player]map[common.EquipmentType]*common.Equipment   // Last-known grenade weapon per player & type, see updateLastKnownGrenadeWeapons
 	rules                        gameRules
 	demoInfo                     demoInfoProvider
 	lastRoundStartEvent          *events.RoundStart             // Used to dispatch this event after a possible MatchStartedChanged event
@@ -262,6 +263,36 @@ func (gs gameState) EntityByHandle(handle uint64) st.Entity {
 	return gs.entities[entityIDFromHandle(handle, gs.demoInfo.parser.isSource2())]
 }
 
+// updateLastKnownGrenadeWeapons caches the grenade-type weapons currently in the player's inventory.
+//
+// CS2 removes a grenade from the thrower's inventory before the projectile entity is fully
+// created - usually when the last grenade of the type is thrown. The cache allows resolving
+// the weapon instance for a thrown grenade even after that removal (#580).
+//
+// Entries are only ever overwritten, never deleted: a weapon disappearing from the inventory
+// is exactly the case this cache exists for.
+func (gs *gameState) updateLastKnownGrenadeWeapons(pl *common.Player) {
+	for _, wep := range pl.Inventory {
+		if wep.Class() != common.EqClassGrenade {
+			continue
+		}
+
+		perType, ok := gs.lastKnownGrenadeWeapons[pl]
+		if !ok {
+			perType = make(map[common.EquipmentType]*common.Equipment)
+			gs.lastKnownGrenadeWeapons[pl] = perType
+		}
+
+		perType[wep.Type] = wep
+	}
+}
+
+// lastKnownGrenadeWeapon returns the last weapon of the given grenade type that was seen
+// in the player's inventory, or nil if none was seen.
+func (gs *gameState) lastKnownGrenadeWeapon(pl *common.Player, wepType common.EquipmentType) *common.Equipment {
+	return gs.lastKnownGrenadeWeapons[pl][wepType]
+}
+
 func newGameState(demoInfo demoInfoProvider) *gameState {
 	gs := &gameState{
 		playerControllerEntities: make(map[int]st.Entity),
@@ -275,6 +306,7 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		hostages:                 make(map[int]*common.Hostage),
 		entities:                 make(map[int]st.Entity),
 		thrownGrenades:           make(map[*common.Player]map[common.EquipmentType][]*common.Equipment),
+		lastKnownGrenadeWeapons:  make(map[*common.Player]map[common.EquipmentType]*common.Equipment),
 		flyingFlashbangs:         make([]*FlyingFlashbang, 0),
 		lastFlash: lastFlash{
 			projectileByPlayer: make(map[*common.Player]*common.GrenadeProjectile),
