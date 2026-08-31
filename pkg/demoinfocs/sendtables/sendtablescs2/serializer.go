@@ -194,13 +194,13 @@ func (s *serializer) checkFieldName(name string) bool {
 // only classes that can actually reach polymorphic pointer fields pay for the
 // per-entity tracking and lose the shared fast paths.
 //
-// cache memoizes results across calls. Only fully computed results are cached:
-// a traversal that crosses a back-edge into a node already being computed (a
-// cycle through fixed-table references, which flattened-serializer data cannot
-// produce) never writes an understated value to the cache; its value is still
-// exact — every reachable node's own poly IDs are aggregated on the way up — it
-// is simply not memoized, so a later top-level call on such a node recomputes
-// it.
+// cache memoizes results across calls, but only fully computed ones: a
+// traversal that crosses a back-edge into a node still being computed (a
+// serializer cycle, which flattened-serializer data cannot produce) never
+// writes an understated value to the cache. Intermediate results on such a
+// path may be lower bounds, but the value returned by a top-level call is
+// exact — every reachable node's own poly IDs are aggregated on the way up —
+// so a later top-level call on a node crossed mid-cycle simply recomputes it.
 func (s *serializer) maxPolyID(cache map[*serializer]int) int {
 	m, _ := s.maxPolyIDRec(cache, make(map[*serializer]bool, 8))
 
