@@ -5,7 +5,6 @@ A blazing fast, feature complete and production ready Go library for parsing and
 [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs?tab=doc)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/markus-wa/demoinfocs-golang/ci.yml?branch=master&style=flat-square)](https://github.com/markus-wa/demoinfocs-golang/actions)
 [![codecov](https://img.shields.io/codecov/c/github/markus-wa/demoinfocs-golang?style=flat-square)](https://codecov.io/gh/markus-wa/demoinfocs-golang)
-[![Go Report](https://goreportcard.com/badge/github.com/markus-wa/demoinfocs-golang?style=flat-square)](https://goreportcard.com/report/github.com/markus-wa/demoinfocs-golang)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE.md)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmarkus-wa%2Fdemoinfocs-golang.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmarkus-wa%2Fdemoinfocs-golang?ref=badge_shield)
 [![Snyk Scan](https://img.shields.io/badge/security%20scan-snyk-blueviolet?style=flat-square)](https://app.snyk.io/org/markus-wa/project/cbd87cca-a903-4553-b677-42f3bb086655)
