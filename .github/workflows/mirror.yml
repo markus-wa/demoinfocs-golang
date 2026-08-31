@@ -4,6 +4,10 @@ on:
     branches:
       - master
 
+permissions:
+  # Mirroring uses SSH_PRIVATE_KEY, not GITHUB_TOKEN
+  contents: read
+
 jobs:
   build:
     name: Mirror to GitLab
