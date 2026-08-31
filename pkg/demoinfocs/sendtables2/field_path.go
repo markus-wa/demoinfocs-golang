@@ -309,40 +309,63 @@ func (fp *fieldPath) release() {
 	fpPool.Put(fp)
 }
 
-// readFieldPaths reads a new slice of fieldPath values from the given reader
+// readFieldPaths reads a new slice of fieldPath values from the given reader.
+//
+// Decoding uses a peek table over the huffman tree: the next fpHuffBits bits
+// are peeked and looked up in fpHuffLUT. Entries covering codes shorter than
+// fpHuffBits are replicated across the unused high bits, so one lookup fully
+// resolves short codes; longer codes resolve through the table to a tree node
+// and continue the per-bit walk from there.
 func readFieldPaths(r *reader, paths *[]*fieldPath) int {
 	fp := newFieldPath()
 	i := 0
 	node := int16(0) // root is always index 0 in fpHuffNodes
 
 	for !fp.done {
-		var next int16
-		if r.readBoolean() {
-			next = fpHuffNodes[node].right
-		} else {
-			next = fpHuffNodes[node].left
+		lut := &fpHuffLUT[r.peekBits(fpHuffBits)]
+		node = lut.node
+		r.skipBits(lut.consumed)
+
+		op := int16(-1)
+		for op < 0 {
+			if node < 0 {
+				// leaf resolved by the LUT (encoded as marker|~op)
+				op = ^node
+
+				break
+			}
+
+			var next int16
+			if r.readBoolean() {
+				next = fpHuffNodes[node].right
+			} else {
+				next = fpHuffNodes[node].left
+			}
+
+			if fpHuffNodes[next].left < 0 {
+				// leaf reached by the per-bit walk
+				op = fpHuffNodes[next].value
+
+				break
+			}
+
+			node = next
 		}
 
-		if fpHuffNodes[next].left < 0 { //nolint:nestif // leaf node
-			node = 0 // reset to root
+		fieldPathTable[op].fn(r, fp)
 
-			fieldPathTable[fpHuffNodes[next].value].fn(r, fp)
-
-			if !fp.done {
-				if len(*paths) <= i {
-					*paths = append(*paths, fp.copy())
-				} else {
-					x := (*paths)[i]
-					x.last = fp.last
-					x.done = fp.done
-					// Only copy the active portion of the path
-					copy(x.path[:fp.last+1], fp.path[:fp.last+1])
-				}
-
-				i++
+		if !fp.done {
+			if len(*paths) <= i {
+				*paths = append(*paths, fp.copy())
+			} else {
+				x := (*paths)[i]
+				x.last = fp.last
+				x.done = fp.done
+				// Only copy the active portion of the path
+				copy(x.path[:fp.last+1], fp.path[:fp.last+1])
 			}
-		} else {
-			node = next
+
+			i++
 		}
 	}
 

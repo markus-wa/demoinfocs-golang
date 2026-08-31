@@ -17,8 +17,70 @@ type fpHuffNode struct {
 // The root is always at index 0.
 var fpHuffNodes []fpHuffNode
 
+const (
+	// fpHuffBits is the number of bits peeked per fpHuffLUT lookup.
+	// Must cover the majority of code lengths in one lookup; the observed
+	// max code length for the field-path table is 17.
+	fpHuffBits = 10
+	// fpHuffLeafMarker marks fpHuffLUT entries that resolve to a leaf.
+	// node then stores ^op so the marker cannot collide with a tree index.
+	fpHuffLeafMarker = int16(-0x8000)
+)
+
+// fpHuffLUTEntry is one fpHuffLUT slot: the tree node to continue from
+// (fpHuffLeafMarker|~op for leaves) and the number of bits consumed.
+type fpHuffLUTEntry struct {
+	consumed uint32
+	node     int16
+}
+
+// fpHuffLUT is a peek table built from fpHuffNodes; indexed by the next
+// fpHuffBits bits of the stream. The reader's bit order is LSB-first
+// (next bit = LSB of bitVal), so stream bit i lives at index bit i.
+var fpHuffLUT [1 << fpHuffBits]fpHuffLUTEntry
+
+// buildFpHuffLUT fills fpHuffLUT from fpHuffNodes.
+// For every tree leaf at depth <= fpHuffBits, all table indices whose low
+// `depth` bits are the leaf's code (first-read bit = LSB) are filled with
+// that leaf. Deeper codes resolve to the tree node reached after fpHuffBits
+// bits (node >= 0), which readFieldPaths continues from with the per-bit walk.
+func buildFpHuffLUT() {
+	var fill func(node int16, depth int, code uint32)
+
+	fill = func(node int16, depth int, code uint32) {
+		n := fpHuffNodes[node]
+
+		if n.left < 0 {
+			entry := fpHuffLUTEntry{consumed: uint32(depth), node: fpHuffLeafMarker | ^n.value}
+
+			// leaf: replicate across the remaining (high) padding
+			shift := uint32(fpHuffBits - depth)
+			for tail := uint32(0); tail < 1<<shift; tail++ {
+				fpHuffLUT[code|(tail<<depth)] = entry
+			}
+
+			return
+		}
+
+		if depth == fpHuffBits {
+			entry := fpHuffLUTEntry{consumed: fpHuffBits, node: node}
+			fpHuffLUT[code] = entry
+
+			return
+		}
+
+		// first-read bit = LSB: left (0) keeps the bit unset, right (1) sets it
+		fill(n.left, depth+1, code)
+		fill(n.right, depth+1, code|1<<depth)
+	}
+
+	fill(0, 0, 0)
+}
+
 func init() {
 	fpHuffNodes = buildFlatHuffmanTree(newHuffmanTree())
+
+	buildFpHuffLUT()
 }
 
 // buildFlatHuffmanTree converts an interface-based huffman tree into a flat
