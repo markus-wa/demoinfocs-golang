@@ -126,10 +126,12 @@ func (f *field) setModel(model int) {
 			polyID := f.polySerializerID
 			f.baseDecoder = func(r *reader) any {
 				if r.readBoolean() {
-					return &polyUpdate{id: polyID, ser: polyTypes[r.readUBitVar()]}
+					r.polyScratch = polyUpdate{id: polyID, ser: polyTypes[r.readUBitVar()]}
+				} else {
+					r.polyScratch = polyUpdate{id: polyID}
 				}
 
-				return &polyUpdate{id: polyID, ser: nil}
+				return &r.polyScratch
 			}
 		} else {
 			// Fixed pointer: single serializer, never changes type.
