@@ -84,6 +84,55 @@ func TestParticipants_All(t *testing.T) {
 	assert.ElementsMatch(t, []*common.Player{pl}, allPlayers)
 }
 
+func TestParticipants_SortedDeterministically(t *testing.T) {
+	steamA := uint64(76561198198570973)
+	steamB := uint64(76561198199343350)
+
+	bot := newPlayerS1()
+	bot.SteamID64 = 0
+	bot.UserID = 7
+	bot.IsConnected = true
+	bot.Team = common.TeamTerrorists
+
+	playerWithHighSteamID := newPlayerS1()
+	playerWithHighSteamID.SteamID64 = steamB
+	playerWithHighSteamID.UserID = 1
+	playerWithHighSteamID.IsConnected = true
+	playerWithHighSteamID.Team = common.TeamTerrorists
+
+	playerA := newPlayerS1()
+	playerA.SteamID64 = steamA
+	playerA.UserID = 5
+	playerA.IsConnected = true
+	playerA.Team = common.TeamTerrorists
+
+	// Two bots (SteamID64 == 0) must be ordered by UserID.
+	bot2 := newPlayerS1()
+	bot2.SteamID64 = 0
+	bot2.UserID = 3
+	bot2.IsConnected = true
+	bot2.Team = common.TeamTerrorists
+
+	ptcps := participants{
+		playersByUserID: map[int]*common.Player{
+			9:  bot,
+			3:  playerWithHighSteamID,
+			6:  playerA,
+			11: bot2,
+		},
+	}
+
+	// Python-style: sort criteria are SteamID64 ascending, then UserID ascending for ties.
+	// Two bots share SteamID64=0 so they're ordered by UserID (3 before 7). SteamID64 76561198198570973
+	// < 76561198199343350, so playerA comes before playerWithHighSteamID.
+	expectedAll := []*common.Player{bot2, bot, playerA, playerWithHighSteamID}
+
+	assert.Equal(t, expectedAll, ptcps.All())
+	assert.Equal(t, expectedAll, ptcps.Connected())
+	assert.Equal(t, expectedAll, ptcps.Playing())
+	assert.Equal(t, expectedAll, ptcps.TeamMembers(common.TeamTerrorists))
+}
+
 func TestParticipants_Playing(t *testing.T) {
 	terrorist := newPlayerS1()
 	terrorist.Team = common.TeamTerrorists

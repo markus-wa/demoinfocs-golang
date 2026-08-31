@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"testing"
 
+	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 
@@ -354,6 +355,44 @@ func TestPlayerHurt_KnownWeaponDispatchesImmediately(t *testing.T) {
 	assert.Equal(t, common.EqAK47, got[0].Weapon.Type)
 }
 
+func TestPlayerHurt_FatalHitCappedAtPriorHitHealthSameTick(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	p.header = &common.DemoHeader{Filestamp: filestampS1}
+	p.currentFrame = 100
+	p.gameState.ingameTick = 5000
+
+	victim := newPlayerWithEntityIDS1(3)
+	victim.UserID = 42
+
+	p.gameState.playersByUserID[victim.UserID] = victim
+
+	var got []events.PlayerHurt
+	p.RegisterEventHandler(func(e events.PlayerHurt) {
+		got = append(got, e)
+	})
+
+	// First hit: non-fatal, victim reported at 35 HP after the hit.
+	data := playerHurtEventData(int32(victim.UserID), 1, "ak47")
+	data["health"].ValByte = proto.Int32(35)
+	data["armor"].ValByte = proto.Int32(50)
+	data["dmg_health"].ValShort = proto.Int32(15)
+
+	p.gameEventHandler.playerHurt(data)
+
+	// Second hit, same tick: fatal (health 0). Must be capped at the victim's remaining
+	// HP right before it (35), not the start-of-tick value (100) which would over-report.
+	data2 := playerHurtEventData(int32(victim.UserID), 1, "ak47")
+	data2["health"].ValByte = proto.Int32(0)
+	data2["armor"].ValByte = proto.Int32(50)
+	data2["dmg_health"].ValShort = proto.Int32(35)
+
+	p.gameEventHandler.playerHurt(data2)
+
+	assert.Len(t, got, 2)
+	assert.Equal(t, 15, got[0].HealthDamageTaken)
+	assert.Equal(t, 35, got[1].HealthDamageTaken)
+}
+
 func playerHurtEventData(userID int32, attacker int32, weapon string) map[string]*msg.CSVCMsg_GameEventKeyT {
 	return map[string]*msg.CSVCMsg_GameEventKeyT{
 		"userid": {
@@ -387,6 +426,89 @@ func TestGetCommunityId(t *testing.T) {
 	xuid, err := guidToSteamID64("STEAM_0:1:26343269")
 	assert.Nil(t, err)
 	assert.Equal(t, uint64(76561198012952267), xuid)
+}
+
+func TestEntityKilled_DispatchesOtherDeathForNonPlayerEntity(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+
+	killed := new(stfake.Entity)
+	killed.On("ID").Return(5)
+	killed.On("ServerClass").Return(serverClassStub{name: "CDynamicProp"})
+	killed.On("Position").Return(r3.Vector{X: 1, Y: 2, Z: 3})
+
+	p.gameState.entities[5] = killed
+
+	inflictor := new(stfake.Entity)
+	inflictor.On("ServerClass").Return(serverClassStub{name: "CInferno"})
+
+	p.gameState.entities[12] = inflictor
+
+	var got []events.OtherDeath
+	p.RegisterEventHandler(func(e events.OtherDeath) {
+		got = append(got, e)
+	})
+
+	p.gameEventHandler.entityKilled(map[string]*msg.CSVCMsg_GameEventKeyT{
+		"entindex_killed":    {ValLong: proto.Int32(5)},
+		"entindex_inflictor": {ValLong: proto.Int32(12)},
+		"entindex_attacker":  {ValLong: proto.Int32(0)},
+	})
+
+	assert.Len(t, got, 1)
+	assert.Equal(t, "CDynamicProp", got[0].OtherType)
+	assert.Equal(t, int32(5), got[0].OtherID)
+	assert.Equal(t, r3.Vector{X: 1, Y: 2, Z: 3}, got[0].OtherPosition)
+	assert.Equal(t, "CInferno", got[0].InflictorType)
+}
+
+func TestEntityKilled_SkipsPlayerPawns(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+
+	for _, className := range []string{"CCSPlayerPawn", "CCSPlayerPawnBase"} {
+		killed := new(stfake.Entity)
+		killed.On("ServerClass").Return(serverClassStub{name: className})
+
+		p.gameState.entities[5] = killed
+
+		var got []events.OtherDeath
+		p.RegisterEventHandler(func(e events.OtherDeath) {
+			got = append(got, e)
+		})
+
+		p.gameEventHandler.entityKilled(map[string]*msg.CSVCMsg_GameEventKeyT{
+			"entindex_killed":    {ValLong: proto.Int32(5)},
+			"entindex_inflictor": {ValLong: proto.Int32(0)},
+			"entindex_attacker":  {ValLong: proto.Int32(0)},
+		})
+
+		assert.Empty(t, got, "player-pawn deaths should be surfaced via player_death, not OtherDeath")
+	}
+}
+
+func TestEntityKilled_UnknownEntityIsSkipped(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+
+	var got []events.OtherDeath
+	p.RegisterEventHandler(func(e events.OtherDeath) {
+		got = append(got, e)
+	})
+
+	p.gameEventHandler.entityKilled(map[string]*msg.CSVCMsg_GameEventKeyT{
+		"entindex_killed":    {ValLong: proto.Int32(999)},
+		"entindex_inflictor": {ValLong: proto.Int32(0)},
+		"entindex_attacker":  {ValLong: proto.Int32(0)},
+	})
+
+	assert.Empty(t, got)
+}
+
+type serverClassStub struct {
+	st.ServerClass
+	name string
+}
+
+func (s serverClassStub) Name() string {
+	return s.name
 }
 
 func TestGetCommunityId_BOT(t *testing.T) {
