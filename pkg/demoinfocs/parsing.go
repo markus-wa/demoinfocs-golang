@@ -322,7 +322,14 @@ func (p *parser) readFramePayload(size int, msgCompressed, isCSTVBroadcast bool)
 	// Reuse the per-parser scratch as the snappy destination: the decoded
 	// payload is dead after the caller's proto.Unmarshal, and frame parsing
 	// is single-threaded.
+	// snappy.Decode only keeps dst when len(dst) >= decoded length, so grow
+	// the scratch's length (capacity permitting) instead of passing a
+	// zero-length slice — otherwise every call allocates a fresh buffer.
 	var err error
+
+	if dLen, _ := snappy.DecodedLen(buf); dLen <= cap(p.snappyScratch) {
+		p.snappyScratch = p.snappyScratch[:dLen]
+	}
 
 	buf, err = snappy.Decode(p.snappyScratch, buf)
 
@@ -479,7 +486,10 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 
 	// Cache grenade weapons for the case where CS2 removes a grenade from the thrower's
 	// inventory before the projectile entity is fully created (#580).
-	for _, pl := range p.gameState.Participants().All() {
+	// Iterates the underlying map directly: no snapshot allocation or sorting
+	// is needed because updateLastKnownGrenadeWeapons only reads the player
+	// and mutates parser-owned cache state, and map order doesn't matter here.
+	for _, pl := range p.gameState.participantsRaw() {
 		p.gameState.updateLastKnownGrenadeWeapons(pl)
 	}
 
