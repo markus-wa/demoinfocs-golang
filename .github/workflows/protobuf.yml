@@ -3,6 +3,11 @@ on:
   workflow_dispatch: {}
   schedule:
     - cron: '0 0 * * *'
+
+permissions:
+  # Pull Requests are created with the CUSTOM_GITHUB_TOKEN (PAT), not GITHUB_TOKEN
+  contents: read
+
 jobs:
   protobuf:
     name: Update Protobufs

@@ -6,6 +6,11 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
+    # reviewdog github-check reporter requires check-run write access
+    permissions:
+      contents: read
+      checks: write
+
     env:
       REVIEWDOG_REPORTER: github-check
       REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -66,6 +71,9 @@ jobs:
 
   test-csda: # Run tests of CS Demo Analyzer
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout demoinfocs-golang repo
