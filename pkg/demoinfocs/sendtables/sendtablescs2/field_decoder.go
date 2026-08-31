@@ -65,6 +65,7 @@ var fieldNameDecoders = map[string]fieldDecoder{
 }
 
 var fieldTypeDecoders = map[string]fieldDecoder{
+	//nolint:godox
 	/*
 		FIXME: dotabuff/manta doesn't have these?
 				DemoSimpleEncoders_t { m_Name = "float32"								m_VarType = "NET_DATA_TYPE_FLOAT32" },

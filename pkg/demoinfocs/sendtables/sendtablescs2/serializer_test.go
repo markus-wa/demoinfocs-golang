@@ -47,37 +47,37 @@ func TestResolveFieldNameCollisions(t *testing.T) {
 
 	for _, s := range []*serializer{base, derived} {
 		fp := newFieldPath()
-		assert.True(t, s.getFieldPathForName(fp, "m_vecVelocity.m_vecX"))
+		assert.True(t, s.getFieldPathForName(fp, "m_vecVelocity.m_vecX", nil))
 		assert.Equal(t, 0, fp.path[0])
 
 		fp = newFieldPath()
-		assert.True(t, s.getFieldPathForName(fp, "m_vecViewOffset.m_vecX"))
+		assert.True(t, s.getFieldPathForName(fp, "m_vecViewOffset.m_vecX", nil))
 		assert.Equal(t, 1, fp.path[0])
 
 		// the bare name stays as a deprecated alias resolving to the
 		// declaration that won before the rename (the last one registered)
 		fp = newFieldPath()
-		assert.True(t, s.getFieldPathForName(fp, "m_vecX"))
+		assert.True(t, s.getFieldPathForName(fp, "m_vecX", nil))
 		assert.Equal(t, 1, fp.path[0])
 
 		fp = newFieldPath()
-		assert.True(t, s.getFieldPathForName(fp, "m_iHealth"))
+		assert.True(t, s.getFieldPathForName(fp, "m_iHealth", nil))
 		assert.Equal(t, 2, fp.path[0])
 	}
 
 	// in the partial serializer the alias resolves to its only declaration
 	fp := newFieldPath()
-	assert.True(t, partial.getFieldPathForName(fp, "m_vecVelocity.m_vecX"))
+	assert.True(t, partial.getFieldPathForName(fp, "m_vecVelocity.m_vecX", nil))
 	fp = newFieldPath()
-	assert.True(t, partial.getFieldPathForName(fp, "m_vecX"))
+	assert.True(t, partial.getFieldPathForName(fp, "m_vecX", nil))
 	assert.Equal(t, 0, fp.path[0])
 
 	// name generation must produce the canonical, disambiguated names
 	fp = newFieldPath()
 	fp.path[0] = 0
-	assert.Equal(t, []string{"m_vecVelocity.m_vecX"}, base.getNameForFieldPath(fp, 0))
+	assert.Equal(t, []string{"m_vecVelocity.m_vecX"}, base.getNameForFieldPath(fp, 0, nil))
 	fp.path[0] = 1
-	assert.Equal(t, []string{"m_vecViewOffset.m_vecX"}, base.getNameForFieldPath(fp, 0))
+	assert.Equal(t, []string{"m_vecViewOffset.m_vecX"}, base.getNameForFieldPath(fp, 0, nil))
 }
 
 func TestResolveFieldNameCollisions_NoCollision(t *testing.T) {
@@ -96,7 +96,7 @@ func TestResolveFieldNameCollisions_NoCollision(t *testing.T) {
 	assert.Equal(t, "m_ArmorValue", armor.name)
 
 	fp := newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_iHealth"))
+	assert.True(t, s.getFieldPathForName(fp, "m_iHealth", nil))
 }
 
 // tableField builds a variable-table field (e.g. a CUtlVector of a serializer
@@ -140,31 +140,31 @@ func TestResolveFieldNameCollisions_NonLeafRoundTrip(t *testing.T) {
 	name := "m_weaponPurchasesThisMatch.m_weaponPurchases.0007.m_nCount"
 	assert.Equal(t,
 		[]string{"m_weaponPurchasesThisMatch.m_weaponPurchases", "0007", "m_nCount"},
-		s.getNameForFieldPath(fp, 0),
+		s.getNameForFieldPath(fp, 0, nil),
 	)
 
 	fp = newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, name))
+	assert.True(t, s.getFieldPathForName(fp, name, nil))
 	assert.Equal(t, []int{0, 7, 0}, fp.path[:3])
 	assert.Equal(t, 2, fp.last)
 
 	// same through the other declaration
 	fp = newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisRound.m_weaponPurchases.0003.m_nCount"))
+	assert.True(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisRound.m_weaponPurchases.0003.m_nCount", nil))
 	assert.Equal(t, []int{1, 3, 0}, fp.path[:3])
 
 	// the bare alias resolves child names to the pre-rename winner (last one)
 	fp = newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_weaponPurchases.0003.m_nCount"))
+	assert.True(t, s.getFieldPathForName(fp, "m_weaponPurchases.0003.m_nCount", nil))
 	assert.Equal(t, []int{1, 3, 0}, fp.path[:3])
 
 	// non-existent member below a valid table must fail, not panic
 	fp = newFieldPath()
-	assert.False(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisMatch.m_weaponPurchases.0007.m_nope"))
+	assert.False(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisMatch.m_weaponPurchases.0007.m_nope", nil))
 
 	// malformed index segments must fail, not panic
 	fp = newFieldPath()
-	assert.False(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisMatch.m_weaponPurchases.xx.m_nCount"))
+	assert.False(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisMatch.m_weaponPurchases.xx.m_nCount", nil))
 }
 
 // A shorter dotted prefix can hit a real field whose subtree does not contain
@@ -193,17 +193,17 @@ func TestGetFieldPathForName_Backtracking(t *testing.T) {
 	// "m_x" hits first and its recursion fails ("m_sub…" is no index segment);
 	// the walk must restore fp.last and succeed via the "m_x.m_sub" prefix.
 	fp := newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_x.m_sub.0001.m_y2"))
+	assert.True(t, s.getFieldPathForName(fp, "m_x.m_sub.0001.m_y2", nil))
 	assert.Equal(t, []int{1, 1, 0}, fp.path[:3])
 	assert.Equal(t, 2, fp.last)
 
 	// plain table lookups keep working
 	fp = newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_x.0002.m_y"))
+	assert.True(t, s.getFieldPathForName(fp, "m_x.0002.m_y", nil))
 	assert.Equal(t, []int{0, 2, 0}, fp.path[:3])
 
 	fp = newFieldPath()
-	assert.False(t, s.getFieldPathForName(fp, "m_x.m_sub.0001.m_nope"))
+	assert.False(t, s.getFieldPathForName(fp, "m_x.m_sub.0001.m_nope", nil))
 }
 
 // Collision groups can contain a member without a send_node (e.g.
@@ -226,10 +226,10 @@ func TestResolveFieldNameCollisions_EmptySendNodeMember(t *testing.T) {
 	assert.Equal(t, "m_ShardDesc.m_LightGroup", sharded.name)
 
 	fp := newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_LightGroup"))
+	assert.True(t, s.getFieldPathForName(fp, "m_LightGroup", nil))
 	assert.Equal(t, 0, fp.path[0])
 
 	fp = newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_ShardDesc.m_LightGroup"))
+	assert.True(t, s.getFieldPathForName(fp, "m_ShardDesc.m_LightGroup", nil))
 	assert.Equal(t, 1, fp.path[0])
 }
