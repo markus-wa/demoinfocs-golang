@@ -293,7 +293,17 @@ func quantizedFactory(f *field) fieldDecoder {
 	qfd := newQuantizedFloatDecoder(f.bitCount, f.encodeFlags, f.lowValue, f.highValue)
 
 	return func(r *reader) any {
-		return qfd.decode(r)
+		v := qfd.decode(r)
+
+		// Route through the reader's boxed-value cache: quantized values repeat
+		// heavily across ticks (positions of stationary players etc.), so a
+		// cache hit avoids the float32 boxing allocation.
+		bits := math.Float32bits(v)
+		if bits == 0 {
+			return float32(0)
+		}
+
+		return r.cachedFloat32(bits)
 	}
 }
 
@@ -368,8 +378,17 @@ func noscaleFloat32(r *reader) float32 {
 	return r.cachedFloat32(bits).(float32)
 }
 
+// noscaleDecoder returns the pre-boxed value from the reader's float32 cache
+// instead of boxing a freshly returned float32, which would allocate on every
+// decode. noscaleFloat32 exists for callers that need a plain float32 (QAngle
+// noscale components); use it there, never re-box its result here.
 func noscaleDecoder(r *reader) any {
-	return noscaleFloat32(r)
+	bits := r.readLeUint32()
+	if bits == 0 {
+		return float32(0)
+	}
+
+	return r.cachedFloat32(bits)
 }
 
 func runeTimeDecoder(r *reader) any {
@@ -408,7 +427,7 @@ func qanglePreciseDecoder(r *reader) any {
 		v[2] = readBitCoordPres(r)
 	}
 
-	return v
+	return r.cachedVec3(v)
 }
 
 func qangleFactory(f *field) fieldDecoder {
@@ -422,22 +441,22 @@ func qangleFactory(f *field) fieldDecoder {
 		// m_aimPunchAngle reading a near-constant ~265-273 deg). Mirror floatFactory's noscale guard.
 		if *f.bitCount >= 32 {
 			return func(r *reader) any {
-				return [3]float32{
+				return r.cachedVec3([3]float32{
 					noscaleFloat32(r),
 					noscaleFloat32(r),
 					noscaleFloat32(r),
-				}
+				})
 			}
 		}
 
 		n := uint32(*f.bitCount)
 
 		return func(r *reader) any {
-			return [3]float32{
+			return r.cachedVec3([3]float32{
 				r.readAngle(n),
 				r.readAngle(n),
 				r.readAngle(n),
-			}
+			})
 		}
 	}
 
@@ -460,7 +479,7 @@ func qangleFactory(f *field) fieldDecoder {
 			ret[2] = r.readCoord()
 		}
 
-		return ret
+		return r.cachedVec3(ret)
 	}
 }
 

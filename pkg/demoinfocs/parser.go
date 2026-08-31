@@ -134,6 +134,8 @@ type parser struct {
 	stringTables          []*msg.CSVCMsg_CreateStringTable                         // Contains all created sendtables, needed when updating them
 	delayedEventHandlers  []func()                                                 // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 	pendingMessagesCache  []pendingMessage                                         // Cache for pending messages that need to be dispatched after the current tick
+	pendingMsgBufs        []*[]byte                                                // Pool entries backing pendingMessagesCache's buffers, returned to msgBufPool when the packet is done
+	snappyScratch         []byte                                                   // Reusable snappy decode destination for compressed frames (single-threaded frame parsing)
 	userCmdStates         map[int32]*userCmdPlayerState                            // Per-player command-number ring reconstructed from full + delta updates
 	userCmdButtonStates   map[int32]*userCmdButtonPlayerState                      // Per-player command-number ring containing buttonstate1 only
 	hasUserCmdMessages    bool                                                     // True once a CSVCMsg_UserCommands message has been seen; replace the legacy m_nButtonDownMaskPrev prop
