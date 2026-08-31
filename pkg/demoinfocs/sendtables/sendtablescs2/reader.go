@@ -23,10 +23,46 @@ type reader struct {
 	// f32Cache is a direct-mapped cache of pre-boxed float32 any values.
 	// Indexed by (bits & f32CacheMask); same bits == same float32 value so reuse is safe.
 	// Retained across pool reuse to maximise hit rate; no reset needed on newReader.
-	f32Cache [512]f32CacheEntry
+	f32Cache [4096]f32CacheEntry
+	// v3Cache is a direct-mapped cache of pre-boxed [3]float32 any values,
+	// keyed by the three IEEE-754 bit patterns. Angles repeat heavily across
+	// ticks (stationary players), so a hit avoids the array boxing allocation.
+	v3Cache [1024]v3CacheEntry
+	// polyScratch is reused by polymorphic pointer base decoders to return
+	// *polyUpdate without allocating. Safe because readFields consumes the
+	// returned value synchronously before the next decode on the same reader.
+	polyScratch polyUpdate
 }
 
-const f32CacheMask = uint32(512 - 1) // must match f32Cache array size
+const f32CacheMask = uint32(4096 - 1) // must match f32Cache array size
+const v3CacheMask = uint32(1024 - 1)  // must match v3Cache array size
+
+// v3CacheEntry caches a pre-boxed [3]float32 for a given bit-pattern triple.
+type v3CacheEntry struct {
+	bits  [3]uint32
+	boxed any
+}
+
+// cachedVec3 returns a pre-boxed any for the given [3]float32, allocating and
+// caching on miss. See f32Cache for the rationale of direct-mapped reuse.
+func (r *reader) cachedVec3(v [3]float32) any {
+	xb := math.Float32bits(v[0])
+	yb := math.Float32bits(v[1])
+	zb := math.Float32bits(v[2])
+
+	idx := (xb ^ (xb >> 16) ^ yb ^ (yb >> 16) ^ zb ^ (zb >> 16)) & v3CacheMask
+
+	e := &r.v3Cache[idx]
+	if e.boxed != nil && e.bits == [3]uint32{xb, yb, zb} {
+		return e.boxed
+	}
+
+	b := any(v)
+	e.bits = [3]uint32{xb, yb, zb}
+	e.boxed = b
+
+	return b
+}
 
 // cachedFloat32 returns a pre-boxed any for the given float32 bit pattern,
 // allocating and caching on miss. Zero is handled by the caller where possible.
