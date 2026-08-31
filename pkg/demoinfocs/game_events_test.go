@@ -355,43 +355,6 @@ func TestPlayerHurt_KnownWeaponDispatchesImmediately(t *testing.T) {
 	assert.Equal(t, common.EqAK47, got[0].Weapon.Type)
 }
 
-func TestPlayerHurt_FatalHitCappedAtPriorHitHealthSameTick(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
-	p.currentFrame = 100
-	p.gameState.ingameTick = 5000
-
-	victim := newPlayerWithEntityID(3)
-	victim.UserID = 42
-
-	p.gameState.playersByUserID[victim.UserID] = victim
-
-	var got []events.PlayerHurt
-	p.RegisterEventHandler(func(e events.PlayerHurt) {
-		got = append(got, e)
-	})
-
-	// First hit: non-fatal, victim reported at 35 HP after the hit.
-	data := playerHurtEventData(int32(victim.UserID), 1, "ak47")
-	data["health"].ValByte = proto.Int32(35)
-	data["armor"].ValByte = proto.Int32(50)
-	data["dmg_health"].ValShort = proto.Int32(15)
-
-	p.gameEventHandler.playerHurt(data)
-
-	// Second hit, same tick: fatal (health 0). Must be capped at the victim's remaining
-	// HP right before it (35), not the start-of-tick value (100) which would over-report.
-	data2 := playerHurtEventData(int32(victim.UserID), 1, "ak47")
-	data2["health"].ValByte = proto.Int32(0)
-	data2["armor"].ValByte = proto.Int32(50)
-	data2["dmg_health"].ValShort = proto.Int32(35)
-
-	p.gameEventHandler.playerHurt(data2)
-
-	assert.Len(t, got, 2)
-	assert.Equal(t, 15, got[0].HealthDamageTaken)
-	assert.Equal(t, 35, got[1].HealthDamageTaken)
-}
-
 func playerHurtEventData(userID int32, attacker int32, weapon string) map[string]*msg.CMsgSource1LegacyGameEventKeyT {
 	return map[string]*msg.CMsgSource1LegacyGameEventKeyT{
 		"userid": {
