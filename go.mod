@@ -1,4 +1,4 @@
-module github.com/markus-wa/demoinfocs-golang/v5
+module github.com/markus-wa/demoinfocs-golang/v6
 
 require (
 	github.com/andygrunwald/vdf v1.1.0

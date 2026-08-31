@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
+	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
 // fpNameTreeCache is kept as fallback for rare deep/large field paths.
