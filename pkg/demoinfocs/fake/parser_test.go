@@ -6,10 +6,10 @@ import (
 	assert "github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 
-	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
-	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
-	fake "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/fake"
-	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
+	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
+	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	fake "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/fake"
+	msg "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
 
 func TestParseNextFrameEvents(t *testing.T) {

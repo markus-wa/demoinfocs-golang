@@ -76,7 +76,7 @@ formatters:
       sections:
         - standard
         - default
-        - prefix(github.com/markus-wa/demoinfocs-golang/v5)
+        - prefix(github.com/markus-wa/demoinfocs-golang/v6)
   exclusions:
     paths:
       - msg

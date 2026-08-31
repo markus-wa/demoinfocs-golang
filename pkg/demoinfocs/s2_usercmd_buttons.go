@@ -6,8 +6,8 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/encoding/protowire"
 
-	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
-	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	msg "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
 
 // userCmdButtonRing keeps the same command-number validation as the full
