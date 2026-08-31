@@ -581,8 +581,14 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 		decoder, updateCollection := e.class.serializer.getDecoderAndCollection(fp, 0, e.polySerializers)
 
 		if decoder == nil {
-			// Polymorphic pointer not yet activated; skip sub-field updates.
-			continue
+			// A sub-field update under a polymorphic pointer that has no active
+			// serializer. Field paths are emitted in ascending order, so the
+			// pointer's own update (which selects the type) always precedes its
+			// sub-fields within an entity's stream — reaching this means the
+			// tracked per-entity type has desynced from the encoder's. Fail
+			// loudly instead of skipping the value bits and misreading the
+			// rest of the packet.
+			_panicf("no serializer for polymorphic pointer at field path %v: corrupt or desynced demo bitstream", fp.path[:fp.last+1])
 		}
 
 		val := decoder(r)
