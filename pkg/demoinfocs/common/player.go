@@ -290,7 +290,16 @@ func (p *Player) IsInBuyZone() bool {
 	return getBool(p.Entity, "m_bInBuyZone")
 }
 
-// IsWalking returns whether the player is currently walking (sneaking) in or not.
+// IsWalking returns whether the player is holding the walk (sneak) key,
+// i.e. is in sneak mode.
+//
+// Note: this does not indicate that the player is actually moving - it is true
+// even while standing still, as long as the walk key is held.
+// For actual movement detection use Velocity() instead, or derive it from the
+// position delta between ticks (see Position()), since Velocity() returns a
+// zero vector on GOTV demos.
+//
+// See https://github.com/markus-wa/demoinfocs-golang/issues/318
 func (p *Player) IsWalking() bool {
 	if p.demoInfoProvider.IsSource2() {
 		return getBool(p.PlayerPawnEntity(), "m_bIsWalking")
