@@ -312,9 +312,13 @@ const (
 // Equipment is a weapon / piece of equipment belonging to a player.
 // This also includes the skin and some additional data.
 type Equipment struct {
-	Type   EquipmentType // The type of weapon which the equipment instantiates.
-	Entity st.Entity     // The game entity instance
-	Owner  *Player       // The player carrying the equipment, not necessarily the buyer.
+	Type EquipmentType // The type of weapon which the equipment instantiates.
+	// The game entity instance.
+	// For the WeaponInstance of a thrown grenade this may be an entity that was just
+	// destroyed: CS2 removes the weapon from the thrower's inventory before the projectile
+	// entity is fully created, in which case the last known entity is used.
+	Entity st.Entity
+	Owner  *Player // The player carrying the equipment, not necessarily the buyer.
 	// Holds the original string of the weapon / equipment.
 	// E.g. the raw weapon name as provided by game events like 'knife_karambit' or 'ak47'.
 	// For entity-bound equipment that hasn't been seen in a game event it's empty.
