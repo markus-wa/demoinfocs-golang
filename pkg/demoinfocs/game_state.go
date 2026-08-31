@@ -28,7 +28,6 @@ type gameState struct {
 	playerControllerEntities     map[int]st.Entity
 	grenadeProjectiles           map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos                     map[int]*common.Inferno           // Maps entity-IDs to active infernos.
-	infernoFireStates            map[int]*infernoFireState         // Maps inferno entity-IDs to their burning state, for InfernoFireOut.
 	weapons                      map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
 	hostages                     map[int]*common.Hostage           // Maps entity-IDs to hostages.
 	entities                     map[int]st.Entity                 // Maps entity IDs to entities
@@ -77,13 +76,6 @@ type FlyingFlashbang struct {
 	projectile    *common.GrenadeProjectile
 	position      r3.Vector // Detonation position, set when the projectile is destroyed. Used to pair victims when multiple flashbangs detonate on the same frame.
 	explodedFrame int
-}
-
-// infernoFireState tracks an inferno's burning state so InfernoFireOut can be dispatched once, when
-// its active fires first transition from >0 to 0 (the true flame-out, distinct from InfernoExpired).
-type infernoFireState struct {
-	wasBurning bool
-	firedOut   bool
 }
 
 type lastFlash struct {
@@ -252,7 +244,6 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		playersBySteamID32:       make(map[uint32]*common.Player),
 		grenadeProjectiles:       make(map[int]*common.GrenadeProjectile),
 		infernos:                 make(map[int]*common.Inferno),
-		infernoFireStates:        make(map[int]*infernoFireState),
 		weapons:                  make(map[int]*common.Equipment),
 		hostages:                 make(map[int]*common.Hostage),
 		entities:                 make(map[int]st.Entity),

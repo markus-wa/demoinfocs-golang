@@ -1361,56 +1361,9 @@ func (p *parser) processFrameGameEvents() {
 		p.processRoundProgressEvents()
 	}
 
-	p.processInfernoFireOut()
-
 	for _, eventHandler := range p.delayedEventHandlers {
 		eventHandler()
 	}
 
 	p.delayedEventHandlers = p.delayedEventHandlers[:0]
-}
-
-// processInfernoFireOut dispatches events.InfernoFireOut the first time an inferno's active fires
-// transition from burning to none. InfernoExpired only fires when the entity is destroyed (~20s),
-// which is much later than the actual flame-out.
-//
-// Not gated on DisableMimicSource1Events: InfernoFireOut is not a source1-mimic event, it's new
-// functionality driven by entity state.
-func (p *parser) processInfernoFireOut() {
-	for id, inf := range p.gameState.infernos {
-		state := p.gameState.infernoFireStates[id]
-		if state == nil {
-			state = &infernoFireState{}
-			p.gameState.infernoFireStates[id] = state
-		}
-
-		if state.firedOut {
-			continue
-		}
-
-		if infernoHasBurningFire(inf.Entity) {
-			state.wasBurning = true
-		} else if state.wasBurning {
-			state.firedOut = true
-
-			p.eventDispatcher.Dispatch(events.InfernoFireOut{Inferno: inf})
-		}
-	}
-}
-
-// infernoHasBurningFire reports whether any of the inferno's fires is still burning.
-//
-// Cheaper than Inferno.Fires().Active() because it reads only the m_bFireIsBurning flags and
-// stops at the first burning one, instead of also reading every fire's position and building
-// the full Fire slice.
-func infernoHasBurningFire(entity st.Entity) bool {
-	nFires := entity.PropertyValueMust("m_fireCount").Int()
-
-	for i := 0; i < nFires; i++ {
-		if entity.PropertyValueMust(fmt.Sprintf("m_bFireIsBurning.%04d", i)).BoolVal() {
-			return true
-		}
-	}
-
-	return false
 }
