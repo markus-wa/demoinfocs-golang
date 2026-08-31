@@ -110,38 +110,71 @@ func (s *serializer) checkFieldName(name string) bool {
 // only classes that can actually reach polymorphic pointer fields pay for the
 // per-entity tracking and lose the shared fast paths.
 //
-// cache memoizes results across calls; back-edges (serializers referencing
-// themselves through fixed tables) contribute nothing, which is safe for a
-// max-aggregation since every node of a cycle is reachable without them.
+// cache memoizes results across calls. Only fully computed results are cached:
+// a traversal that crosses a back-edge into a node already being computed (a
+// cycle through fixed-table references, which flattened-serializer data cannot
+// produce) never writes an understated value to the cache; its value is still
+// exact — every reachable node's own poly IDs are aggregated on the way up — it
+// is simply not memoized, so a later top-level call on such a node recomputes
+// it.
 func (s *serializer) maxPolyID(cache map[*serializer]int) int {
+	m, _ := s.maxPolyIDRec(cache, make(map[*serializer]bool, 8))
+
+	return m
+}
+
+func (s *serializer) maxPolyIDRec(cache map[*serializer]int, visiting map[*serializer]bool) (int, bool) {
 	if s == nil {
-		return -1
+		return -1, true
 	}
 
 	if v, ok := cache[s]; ok {
-		return v
+		return v, true
 	}
 
-	cache[s] = -1 // cycle guard
+	if visiting[s] {
+		// Back-edge into an in-progress traversal: contributes no value (its
+		// poly IDs are already counted by the in-progress ancestor) but marks
+		// the path as non-memoizable.
+		return -1, false
+	}
+
+	visiting[s] = true
 
 	maxID := -1
-	for _, f := range s.fields {
-		if f.polySerializerID > maxID {
-			maxID = f.polySerializerID
-		}
+	complete := true
 
-		if m := f.serializer.maxPolyID(cache); m > maxID {
+	consider := func(m int, ok bool) {
+		// The value is always a valid contribution to the traversed aggregate
+		// — back-edges only skip in-progress ancestors, whose own subtrees are
+		// still counted above them, so the top-level result is exact. Only the
+		// completeness flag decides whether this node may be memoized.
+		if m > maxID {
 			maxID = m
 		}
 
-		for _, pt := range f.polyTypes {
-			if m := pt.maxPolyID(cache); m > maxID {
-				maxID = m
-			}
+		if !ok {
+			complete = false
 		}
 	}
 
-	cache[s] = maxID
+	for _, f := range s.fields {
+		consider(f.polySerializerID, true)
 
-	return maxID
+		m, ok := f.serializer.maxPolyIDRec(cache, visiting)
+		consider(m, ok)
+
+		for _, pt := range f.polyTypes {
+			m, ok := pt.maxPolyIDRec(cache, visiting)
+			consider(m, ok)
+		}
+	}
+
+	delete(visiting, s)
+
+	if complete {
+		cache[s] = maxID
+	}
+
+	return maxID, complete
 }

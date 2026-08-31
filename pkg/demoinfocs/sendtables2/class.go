@@ -73,11 +73,39 @@ func (c *class) collectFieldsEntries(fields []*field, prefix string) []string {
 	paths := make([]string, 0)
 
 	for _, field := range fields {
-		if field.serializer != nil {
+		if len(field.polyTypes) > 0 { //nolint:gocritic
+			// Polymorphic pointer: each candidate serializer contributes its
+			// own sub-fields. The active type varies per entity, so enumerate
+			// every alternative (the field's own serializer is polyTypes[0]).
+			paths = append(paths, c.collectPolyFieldEntries(field, prefix)...)
+		} else if field.serializer != nil {
 			subPaths := c.collectFieldsEntries(field.serializer.fields, prefix+field.serializer.name+".")
 			paths = append(paths, subPaths...)
 		} else {
 			paths = append(paths, prefix+field.name)
+		}
+	}
+
+	return paths
+}
+
+// collectPolyFieldEntries enumerates the property entries of every serializer a
+// polymorphic pointer field could activate, deduplicated. The active type varies
+// per entity, so all alternatives must be listed.
+func (c *class) collectPolyFieldEntries(f *field, prefix string) []string {
+	paths := make([]string, 0)
+	seen := make(map[string]bool)
+
+	for _, ser := range f.polyTypes {
+		if ser == nil {
+			continue
+		}
+
+		for _, sub := range c.collectFieldsEntries(ser.fields, prefix+ser.name+".") {
+			if !seen[sub] {
+				seen[sub] = true
+				paths = append(paths, sub)
+			}
 		}
 	}
 

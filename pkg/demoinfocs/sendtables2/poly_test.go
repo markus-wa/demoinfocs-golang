@@ -389,6 +389,31 @@ func TestMaxPolyID(t *testing.T) {
 	assert.Equal(t, -1, nilSer.maxPolyID(make(map[*serializer]int)))
 }
 
+// TestMaxPolyIDCycleDoesNotCacheUnderstated guards the memoization in
+// maxPolyID: a serializer whose poly reachability flows only through a cycle
+// back-edge must not be cached with an understated value, otherwise a later
+// top-level call returns the stale result and a class backed by it would get
+// an undersized polySerializers slice (index-out-of-range on the first poly
+// update).
+func TestMaxPolyIDCycleDoesNotCacheUnderstated(t *testing.T) {
+	t.Parallel()
+
+	a := newSerializer("CMod", 0)
+	b := newSerializer("CMod.Sub", 0)
+	a.addField(&field{model: fieldModelFixedTable, serializer: b, polySerializerID: -1})
+	b.addField(&field{model: fieldModelFixedTable, serializer: a, polySerializerID: -1})
+	a.addField(&field{model: fieldModelFixedTable, polySerializerID: 5})
+
+	cache := make(map[*serializer]int)
+
+	// Computing a first traverses the a↔b cycle; b's true value (5, via a)
+	// must not be cached as if it had none.
+	assert.Equal(t, 5, a.maxPolyID(cache))
+
+	// b must recompute to the full reachable value, not a stale understated -1.
+	assert.Equal(t, 5, b.maxPolyID(cache))
+}
+
 // TestParsePacketBackPatchesPolyCount covers the class-info-before-FSV ordering:
 // ParsePacket must back-patch both the serializer and the poly slot count onto
 // the class created by OnDemoClassInfo, so entities get a correctly sized
@@ -561,4 +586,15 @@ func TestPolyStateSlotSemantics(t *testing.T) {
 	require.NotNil(t, val)
 	_, isFS := val.(*fieldState)
 	assert.True(t, isFS, "expected *fieldState, got %T", val)
+}
+
+// TestPolyPropertyEntries asserts that PropertyEntries enumerates the
+// sub-fields of every polymorphic alternative, not just the default serializer,
+// so schema inspection sees all types a polymorphic pointer could activate.
+func TestPolyPropertyEntries(t *testing.T) {
+	t.Parallel()
+
+	cls, _, _ := polyTestClass(t)
+
+	assert.Equal(t, []string{"m_iHealth", "CModeA.m_aField", "CModeB.m_bField"}, cls.PropertyEntries())
 }
