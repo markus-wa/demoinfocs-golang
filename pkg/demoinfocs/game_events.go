@@ -74,15 +74,12 @@ func (p *parser) handleGameEvent(ge *msg.CMsgSource1LegacyGameEvent) {
 	})
 }
 
-// victimTickHealthDamage records the victim's last reported health within a single game tick, so a
-// same-tick fatal follow-up hit can be capped at the victim's actual remaining HP instead of the
-// stale start-of-tick value (which over-reports same-tick multi-attacker kills). Tracking the
-// server's reported post-hit health is exact, whereas summing raw dmg_health can under-report the
-// true HP drop by 1 (the benign shotgun-pellet rounding artifact).
+// victimTickHealthDamage accumulates the health damage dealt to a victim within a single game tick.
+// It lets the fatal-hit HealthDamageTaken be capped at the victim's actual remaining HP instead of
+// the stale start-of-tick value, which otherwise over-reports same-tick multi-attacker kills.
 type victimTickHealthDamage struct {
-	tick       int
-	lastHealth int
-	hasPrior   bool
+	tick   int
+	damage int
 }
 
 type gameEventHandler struct {
@@ -511,16 +508,11 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 	if player != nil { //nolint:nestif // fatal-hit capping + armor fallback, kept flat to mirror player_death
 		if health == 0 {
 			// Fatal hit: the damage actually taken is the victim's remaining HP right before this
-			// hit. player.Health() reads the start-of-tick HP (entity state is applied only after the
-			// tick's events are dispatched). When an earlier hit already landed on this victim this
-			// same tick, use that hit's reported post-damage health - the server's own HP after it,
-			// and exact - otherwise same-tick multi-attacker kills over-report the finishing blow.
-			if victimDamage.hasPrior {
-				healthDamageTaken = victimDamage.lastHealth
-			} else {
-				healthDamageTaken = player.Health()
-			}
-
+			// hit. player.Health() reads the start-of-tick HP (entity state is applied only after
+			// the tick's events are dispatched), so subtract any damage already dealt to this victim
+			// earlier in the same tick - otherwise same-tick multi-attacker kills over-report the
+			// finishing blow's HealthDamageTaken.
+			healthDamageTaken = player.Health() - victimDamage.damage
 			if healthDamageTaken < 0 {
 				healthDamageTaken = 0
 			}
@@ -531,8 +523,7 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 		}
 	}
 
-	victimDamage.lastHealth = health
-	victimDamage.hasPrior = true
+	victimDamage.damage += healthDamage
 
 	wepType = geh.attackerWeaponType(wepType, userID)
 
