@@ -38,6 +38,8 @@ var (
 var curMap ex.Map
 
 // Run like this: go run nade_trajectories.go -demo /path/to/demo.dem > nade_trajectories.jpg
+//
+//nolint:funlen
 func main() {
 	f, err := os.Open(ex.DemoPathFromArgs())
 	checkError(err)
@@ -100,6 +102,7 @@ func main() {
 			for _, np := range nadeTrajectories {
 				nadeTrajectoriesFirst5Rounds = append(nadeTrajectoriesFirst5Rounds, np)
 			}
+
 			nadeTrajectories = make(map[int64]*nadePath)
 
 			// Copy infernos
@@ -178,7 +181,7 @@ func drawTrajectories(gc *draw2dimg.GraphicContext, trajectories []*nadePath) {
 
 	for _, np := range trajectories {
 		// Set colors
-		switch np.wep {
+		switch np.wep { //nolint:exhaustive
 		case common.EqMolotov:
 			fallthrough
 		case common.EqIncendiary:

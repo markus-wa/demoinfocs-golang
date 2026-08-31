@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"testing"
 
+	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 
@@ -59,7 +60,7 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 }
 
 func TestGetPlayerWeapon_NilPlayer(t *testing.T) {
-	wep := getPlayerWeapon(nil, common.EqAK47)
+	wep := getPlayerWeapon(nil, common.EqAK47, "", 1)
 
 	assert.NotNil(t, wep)
 	assert.Equal(t, common.EqAK47, wep.Type)
@@ -73,9 +74,10 @@ func TestGetPlayerWeapon_Found(t *testing.T) {
 		},
 	}
 
-	wep := getPlayerWeapon(pl, common.EqAK47)
+	wep := getPlayerWeapon(pl, common.EqAK47, "ak47", 1)
 
 	assert.True(t, wep == ak)
+	assert.Equal(t, "ak47", wep.OriginalString)
 }
 
 func TestGetPlayerWeapon_NotFound(t *testing.T) {
@@ -86,14 +88,27 @@ func TestGetPlayerWeapon_NotFound(t *testing.T) {
 		},
 	}
 
-	wep := getPlayerWeapon(pl, common.EqM4A1)
+	wep := getPlayerWeapon(pl, common.EqM4A1, "", 1)
 
 	assert.Equal(t, common.EqM4A1, wep.Type)
 }
 
+func TestGetPlayerWeapon_OriginalString(t *testing.T) {
+	wep := getPlayerWeapon(nil, common.EqKnife, "knife_karambit", 1)
+
+	assert.Equal(t, common.EqKnife, wep.Type)
+	assert.Equal(t, "knife_karambit", wep.OriginalString)
+}
+
+func TestGetPlayerWeapon_OriginalString_NonKnife(t *testing.T) {
+	wep := getPlayerWeapon(nil, common.EqAK47, "ak47", 1)
+
+	assert.Equal(t, "ak47", wep.OriginalString)
+}
+
 func TestAddThrownGrenade_NilPlayer(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
@@ -105,7 +120,7 @@ func TestAddThrownGrenade_NilPlayer(t *testing.T) {
 func TestAddThrownGrenade(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
@@ -118,7 +133,7 @@ func TestAddThrownGrenade(t *testing.T) {
 
 func TestGetThrownGrenade_NilPlayer(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	wep := p.gameEventHandler.getThrownGrenade(nil, he.Type)
 
@@ -129,7 +144,7 @@ func TestGetThrownGrenade_NotFound(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
 
-	he := common.NewEquipment(common.EqSmoke)
+	he := common.NewEquipment(common.EqSmoke, 1)
 
 	wep := p.gameEventHandler.getThrownGrenade(pl, he.Type)
 
@@ -139,7 +154,7 @@ func TestGetThrownGrenade_NotFound(t *testing.T) {
 func TestGetThrownGrenade_Found(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	p.gameEventHandler.addThrownGrenade(pl, he)
 	wep := p.gameEventHandler.getThrownGrenade(pl, he.Type)
@@ -169,8 +184,8 @@ func TestGetThrownGrenade_CircularControlledBot(t *testing.T) {
 	playerA.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(2)})
 	playerB.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(1)})
 
-	smoke := common.NewEquipment(common.EqSmoke)
-	he := common.NewEquipment(common.EqHE)
+	smoke := common.NewEquipment(common.EqSmoke, 1)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	// Should not panic or infinite loop - returns nil since no grenade was added
 	wep := p.gameEventHandler.getThrownGrenade(playerA, smoke.Type)
@@ -189,7 +204,7 @@ func TestGetThrownGrenade_CircularControlledBot(t *testing.T) {
 
 func TestDeleteThrownGrenade_NilPlayer(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	// Do nothing, we just keep sure it doesn't crash
 	p.gameEventHandler.deleteThrownGrenade(nil, he.Type)
@@ -198,7 +213,7 @@ func TestDeleteThrownGrenade_NilPlayer(t *testing.T) {
 func TestDeleteThrownGrenade_NotFound(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
@@ -214,7 +229,7 @@ func TestDeleteThrownGrenade_NotFound(t *testing.T) {
 func TestDeleteThrownGrenade_Found(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	assert.Empty(t, p.gameState.thrownGrenades)
 
@@ -231,7 +246,7 @@ func TestGetEquipmentInstance_NotGrenade(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
 
-	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqAK47)
+	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqAK47, "")
 
 	assert.Equal(t, common.EqAK47, wep.Type)
 }
@@ -240,7 +255,7 @@ func TestGetEquipmentInstance_Grenade_NotThrown(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
 
-	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqSmoke)
+	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqSmoke, "")
 
 	assert.Nil(t, wep)
 }
@@ -248,10 +263,10 @@ func TestGetEquipmentInstance_Grenade_NotThrown(t *testing.T) {
 func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	he := common.NewEquipment(common.EqHE)
+	he := common.NewEquipment(common.EqHE, 1)
 
 	p.gameEventHandler.addThrownGrenade(pl, he)
-	wep := p.gameEventHandler.getEquipmentInstance(pl, he.Type)
+	wep := p.gameEventHandler.getEquipmentInstance(pl, he.Type, "")
 
 	assert.Equal(t, he, wep)
 }
@@ -373,6 +388,89 @@ func TestGetCommunityId(t *testing.T) {
 	xuid, err := guidToSteamID64("STEAM_0:1:26343269")
 	assert.Nil(t, err)
 	assert.Equal(t, uint64(76561198012952267), xuid)
+}
+
+func TestEntityKilled_DispatchesOtherDeathForNonPlayerEntity(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+
+	killed := new(stfake.Entity)
+	killed.On("ID").Return(5)
+	killed.On("ServerClass").Return(serverClassStub{name: "CDynamicProp"})
+	killed.On("Position").Return(r3.Vector{X: 1, Y: 2, Z: 3})
+
+	p.gameState.entities[5] = killed
+
+	inflictor := new(stfake.Entity)
+	inflictor.On("ServerClass").Return(serverClassStub{name: "CInferno"})
+
+	p.gameState.entities[12] = inflictor
+
+	var got []events.OtherDeath
+	p.RegisterEventHandler(func(e events.OtherDeath) {
+		got = append(got, e)
+	})
+
+	p.gameEventHandler.entityKilled(map[string]*msg.CMsgSource1LegacyGameEventKeyT{
+		"entindex_killed":    {ValLong: proto.Int32(5)},
+		"entindex_inflictor": {ValLong: proto.Int32(12)},
+		"entindex_attacker":  {ValLong: proto.Int32(0)},
+	})
+
+	assert.Len(t, got, 1)
+	assert.Equal(t, "CDynamicProp", got[0].OtherType)
+	assert.Equal(t, int32(5), got[0].OtherID)
+	assert.Equal(t, r3.Vector{X: 1, Y: 2, Z: 3}, got[0].OtherPosition)
+	assert.Equal(t, "CInferno", got[0].InflictorType)
+}
+
+func TestEntityKilled_SkipsPlayerPawns(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+
+	for _, className := range []string{"CCSPlayerPawn", "CCSPlayerPawnBase"} {
+		killed := new(stfake.Entity)
+		killed.On("ServerClass").Return(serverClassStub{name: className})
+
+		p.gameState.entities[5] = killed
+
+		var got []events.OtherDeath
+		p.RegisterEventHandler(func(e events.OtherDeath) {
+			got = append(got, e)
+		})
+
+		p.gameEventHandler.entityKilled(map[string]*msg.CMsgSource1LegacyGameEventKeyT{
+			"entindex_killed":    {ValLong: proto.Int32(5)},
+			"entindex_inflictor": {ValLong: proto.Int32(0)},
+			"entindex_attacker":  {ValLong: proto.Int32(0)},
+		})
+
+		assert.Empty(t, got, "player-pawn deaths should be surfaced via player_death, not OtherDeath")
+	}
+}
+
+func TestEntityKilled_UnknownEntityIsSkipped(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+
+	var got []events.OtherDeath
+	p.RegisterEventHandler(func(e events.OtherDeath) {
+		got = append(got, e)
+	})
+
+	p.gameEventHandler.entityKilled(map[string]*msg.CMsgSource1LegacyGameEventKeyT{
+		"entindex_killed":    {ValLong: proto.Int32(999)},
+		"entindex_inflictor": {ValLong: proto.Int32(0)},
+		"entindex_attacker":  {ValLong: proto.Int32(0)},
+	})
+
+	assert.Empty(t, got)
+}
+
+type serverClassStub struct {
+	st.ServerClass
+	name string
+}
+
+func (s serverClassStub) Name() string {
+	return s.name
 }
 
 func TestGetCommunityId_BOT(t *testing.T) {

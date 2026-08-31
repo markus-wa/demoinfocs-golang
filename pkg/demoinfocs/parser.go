@@ -1,12 +1,12 @@
 package demoinfocs
 
 import (
-	_ "embed"
 	"fmt"
 	"io"
 	"os"
 	"runtime/debug"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -134,6 +134,23 @@ type parser struct {
 	stringTables          []*msg.CSVCMsg_CreateStringTable                         // Contains all created sendtables, needed when updating them
 	delayedEventHandlers  []func()                                                 // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 	pendingMessagesCache  []pendingMessage                                         // Cache for pending messages that need to be dispatched after the current tick
+	pendingMsgBufs        []*[]byte                                                // Pool entries backing pendingMessagesCache's buffers, returned to msgBufPool when the packet is done
+	snappyScratch         []byte                                                   // Reusable snappy decode destination for compressed frames (single-threaded frame parsing)
+	userCmdStates         map[int32]*userCmdPlayerState                            // Per-player command-number ring reconstructed from full + delta updates
+	userCmdButtonStates   map[int32]*userCmdButtonPlayerState                      // Per-player command-number ring containing buttonstate1 only
+	hasUserCmdMessages    bool                                                     // True once a CSVCMsg_UserCommands message has been seen; replace the legacy m_nButtonDownMaskPrev prop
+	lastUniqueID          int64                                                    // Backs nextUniqueID; ids for grenades/infernos/equipment created during this parse
+}
+
+// nextUniqueID returns the next monotonically increasing id for entities created during this parse
+// (grenade projectiles, infernos, equipment instances). Ids are unique within the Parser and
+// reproducible across parses of the same demo (creation follows the deterministic parse order).
+// Ids from different Parser instances may collide, so don't key data across demos by them.
+//
+// All construction happens on the message-handling goroutine, but the atomic keeps it
+// race-detector-clean if that ever changes.
+func (p *parser) nextUniqueID() int64 {
+	return atomic.AddInt64(&p.lastUniqueID, 1)
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
@@ -241,6 +258,20 @@ func (p *parser) Progress() float32 {
 	return float32(p.currentFrame) / float32(p.header.PlaybackFrames)
 }
 
+// FrameCount returns the total number of frames in the demo, or -1 if it is not yet known.
+//
+// For Source 2 (CS2) demos the total only becomes available once the trailing CDemoFileInfo has
+// been parsed - typically at the very end of ParseToEnd - and is absent from the pre-parse header,
+// so this returns -1 throughout parsing for those demos. Use it to branch cleanly rather than
+// relying on Progress() (which returns 0 while the total is unknown).
+func (p *parser) FrameCount() int {
+	if p.header == nil || p.header.PlaybackFrames <= 0 {
+		return -1
+	}
+
+	return p.header.PlaybackFrames
+}
+
 /*
 RegisterEventHandler registers a handler for game events.
 
@@ -314,6 +345,12 @@ func (p *parser) error() error {
 	return err
 }
 
+// aborted reports whether a fatal error has been recorded. Message handlers
+// no-op once it is set, so the queued backlog drains without further decoding.
+func (p *parser) aborted() bool {
+	return p.error() != nil
+}
+
 func (p *parser) setError(err error) {
 	if err == nil {
 		return
@@ -330,6 +367,21 @@ func (p *parser) setError(err error) {
 	p.err = err
 
 	p.errLock.Unlock()
+
+	// A fatal error stops all further handler work (mirrors Cancel()):
+	// the message queue may already hold a large backlog that would otherwise
+	// still be delivered to handlers, including user-registered ones.
+	p.unregisterAllHandlers()
+}
+
+func (p *parser) unregisterAllHandlers() {
+	if p.msgDispatcher != nil {
+		p.msgDispatcher.UnregisterAllHandlers()
+	}
+
+	if p.eventDispatcher != nil {
+		p.eventDispatcher.UnregisterAllHandlers()
+	}
 }
 
 func (p *parser) poolBitReader(r *bit.BitReader) {
@@ -357,19 +409,19 @@ const (
 )
 
 // NewCSTVBroadcastParser creates a new Parser for a live CSTV broadcast.
-// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
 //
 // See also: NewParserWithConfig() & DefaultParserConfig
-func NewCSTVBroadcastParser(baseUrl string) (Parser, error) {
-	return NewCSTVBroadcastParserWithConfig(baseUrl, DefaultParserConfig)
+func NewCSTVBroadcastParser(baseURL string) (Parser, error) {
+	return NewCSTVBroadcastParserWithConfig(baseURL, DefaultParserConfig)
 }
 
 // NewCSTVBroadcastParserWithConfig creates a new Parser for a live CSTV broadcast with a custom configuration.
-// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
 //
 // See also: NewParserWithConfig() & DefaultParserConfig
-func NewCSTVBroadcastParserWithConfig(baseUrl string, config ParserConfig) (Parser, error) {
-	r, err := cstv.NewReader(baseUrl, config.CSTVTimeout)
+func NewCSTVBroadcastParserWithConfig(baseURL string, config ParserConfig) (Parser, error) {
+	r, err := cstv.NewReader(baseURL, config.CSTVTimeout)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create CSTV reader: %w", err)
 	}
@@ -435,11 +487,11 @@ func ParseFile(path string, configure ParserCallback) error {
 
 // ParseCSTVBroadcastWithConfig parses a live CSTV broadcast from the given base URL with a custom configuration.
 // The handler is called with the Parser instance.
-// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
 // Returns an error if the CSTV reader can't be created or if the parser encounters an error.
 // Note that the CSTV broadcast is a live stream and will not end until the broadcast ends.
-func ParseCSTVBroadcastWithConfig(baseUrl string, config ParserConfig, configure ParserCallback) error {
-	p, err := NewCSTVBroadcastParserWithConfig(baseUrl, config)
+func ParseCSTVBroadcastWithConfig(baseURL string, config ParserConfig, configure ParserCallback) error {
+	p, err := NewCSTVBroadcastParserWithConfig(baseURL, config)
 	if err != nil {
 		return fmt.Errorf("failed to create CSTV broadcast parser: %w", err)
 	}
@@ -461,12 +513,26 @@ func ParseCSTVBroadcastWithConfig(baseUrl string, config ParserConfig, configure
 
 // ParseCSTVBroadcast parses a live CSTV broadcast from the given base URL.
 // The handler is called with the Parser instance.
-// The baseUrl is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
 // Returns an error if the CSTV reader can't be created or if the parser encounters an error.
 // Note that the CSTV broadcast is a live stream and will not end until the broadcast ends.
-func ParseCSTVBroadcast(baseUrl string, configure ParserCallback) error {
-	return ParseCSTVBroadcastWithConfig(baseUrl, DefaultParserConfig, configure)
+func ParseCSTVBroadcast(baseURL string, configure ParserCallback) error {
+	return ParseCSTVBroadcastWithConfig(baseURL, DefaultParserConfig, configure)
 }
+
+// UserCmdParsingMode controls how CSVCMsg_UserCommands messages are handled.
+type UserCmdParsingMode uint8
+
+const (
+	// UserCmdParsingButtonsOnly tracks buttonstate1 for PlayerButtonsStateUpdate events.
+	// It is the default and the zero value so that a zero-value ParserConfig
+	// matches DefaultParserConfig.
+	UserCmdParsingButtonsOnly UserCmdParsingMode = iota
+	// UserCmdParsingFull reconstructs and dispatches complete UserCmd events.
+	UserCmdParsingFull
+	// UserCmdParsingDisabled skips user-command parsing and preserves legacy properties.
+	UserCmdParsingDisabled
+)
 
 // ParserConfig contains the configuration for creating a new Parser.
 type ParserConfig struct {
@@ -511,17 +577,24 @@ type ParserConfig struct {
 	// It's the maximum time to retry for a response from the CSTV server, using an exponential backoff mechanism, starting at 1s.
 	// Only used when Format is DemoFormatCSTVBroadcast.
 	CSTVTimeout time.Duration
+
+	// UserCmdParsing controls CSVCMsg_UserCommands parsing. It defaults to
+	// UserCmdParsingButtonsOnly, including when ParserConfig is created as a zero value.
+	UserCmdParsing UserCmdParsingMode
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
 var DefaultParserConfig = ParserConfig{
 	MsgQueueBufferSize: -1,
 	CSTVTimeout:        10 * time.Second,
+	UserCmdParsing:     UserCmdParsingButtonsOnly,
 }
 
 // NewParserWithConfig returns a new Parser with a custom configuration.
 //
 // See also: NewParser() & ParserConfig
+//
+//nolint:funlen
 func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	var p parser
 
@@ -532,6 +605,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	} else {
 		p.bitReader = bit.NewSmallBitReader(demostream)
 	}
+
 	p.equipmentMapping = make(map[st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.triggers = make(map[int]*boundingBoxInformation)
@@ -539,6 +613,8 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.gameState = newGameState(p.demoInfoProvider)
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.equipmentTypePerModel = make(map[uint64]common.EquipmentType)
+	p.userCmdStates = make(map[int32]*userCmdPlayerState)
+	p.userCmdButtonStates = make(map[int32]*userCmdButtonPlayerState)
 	p.gameEventHandler = newGameEventHandler(&p, config.IgnoreErrBombsiteIndexNotFound)
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1
@@ -571,6 +647,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.handleStringTables)
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
 	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
+	p.msgDispatcher.RegisterHandler(p.handleUserCommands)
 
 	if config.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(config.MsgQueueBufferSize)

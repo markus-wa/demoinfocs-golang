@@ -16,6 +16,10 @@ import (
 )
 
 func (p *parser) handleSendTables(msg *msg.CDemoSendTables) {
+	if p.aborted() {
+		return
+	}
+
 	err := p.stParser.ParsePacket(msg.Data)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to unmarshal flattened serializer"))
@@ -23,6 +27,10 @@ func (p *parser) handleSendTables(msg *msg.CDemoSendTables) {
 }
 
 func (p *parser) handleClassInfo(msg *msg.CDemoClassInfo) {
+	if p.aborted() {
+		return
+	}
+
 	err := p.stParser.OnDemoClassInfo(msg)
 	if err != nil {
 		panic(err)
@@ -81,12 +89,11 @@ var svcMsgCreators = map[msg.SVC_Messages]NetMessageCreator{
 	msg.SVC_Messages_svc_Broadcast_Command:       func() proto.Message { return &msg.CSVCMsg_Broadcast_Command{} },
 	msg.SVC_Messages_svc_HltvFixupOperatorStatus: func() proto.Message { return &msg.CSVCMsg_HltvFixupOperatorStatus{} },
 	msg.SVC_Messages_svc_UserCmds:                func() proto.Message { return &msg.CSVCMsg_UserCommands{} },
+	msg.SVC_Messages_svc_NextMsgPredicted:        func() proto.Message { return &msg.CSVCMsg_NextMsgPredicted{} },
 }
 
 var usrMsgCreators = map[msg.EBaseUserMessages]NetMessageCreator{
 	msg.EBaseUserMessages_UM_AchievementEvent:        func() proto.Message { return &msg.CUserMessageAchievementEvent{} },
-	msg.EBaseUserMessages_UM_CloseCaption:            func() proto.Message { return &msg.CUserMessageCloseCaption{} },
-	msg.EBaseUserMessages_UM_CloseCaptionDirect:      func() proto.Message { return &msg.CUserMessageCloseCaptionDirect{} },
 	msg.EBaseUserMessages_UM_CurrentTimescale:        func() proto.Message { return &msg.CUserMessageCurrentTimescale{} },
 	msg.EBaseUserMessages_UM_DesiredTimescale:        func() proto.Message { return &msg.CUserMessageDesiredTimescale{} },
 	msg.EBaseUserMessages_UM_Fade:                    func() proto.Message { return &msg.CUserMessageFade{} },
@@ -133,15 +140,16 @@ var usrMsgCreators = map[msg.EBaseUserMessages]NetMessageCreator{
 	msg.EBaseUserMessages_UM_ExtraUserData:           func() proto.Message { return &msg.CUserMessage_ExtraUserData{} },
 	msg.EBaseUserMessages_UM_NotifyResponseFound:     func() proto.Message { return &msg.CUserMessage_NotifyResponseFound{} },
 	msg.EBaseUserMessages_UM_PlayResponseConditional: func() proto.Message { return &msg.CUserMessage_PlayResponseConditional{} },
+	msg.EBaseUserMessages_UM_UserSentBugBug:          func() proto.Message { return &msg.CUserMessage_UserSentBugBug{} },
+	msg.EBaseUserMessages_UM_UsageReport:             func() proto.Message { return &msg.CUserMessage_UsageReport{} },
 }
 
 var emCreators = map[msg.EBaseEntityMessages]NetMessageCreator{
-	msg.EBaseEntityMessages_EM_PlayJingle:      func() proto.Message { return &msg.CEntityMessagePlayJingle{} },
-	msg.EBaseEntityMessages_EM_ScreenOverlay:   func() proto.Message { return &msg.CEntityMessageScreenOverlay{} },
-	msg.EBaseEntityMessages_EM_RemoveAllDecals: func() proto.Message { return &msg.CEntityMessageRemoveAllDecals{} },
-	msg.EBaseEntityMessages_EM_PropagateForce:  func() proto.Message { return &msg.CEntityMessagePropagateForce{} },
-	msg.EBaseEntityMessages_EM_DoSpark:         func() proto.Message { return &msg.CEntityMessageDoSpark{} },
-	msg.EBaseEntityMessages_EM_FixAngle:        func() proto.Message { return &msg.CEntityMessageFixAngle{} },
+	msg.EBaseEntityMessages_EM_PlayJingle:     func() proto.Message { return &msg.CEntityMessagePlayJingle{} },
+	msg.EBaseEntityMessages_EM_ScreenOverlay:  func() proto.Message { return &msg.CEntityMessageScreenOverlay{} },
+	msg.EBaseEntityMessages_EM_PropagateForce: func() proto.Message { return &msg.CEntityMessagePropagateForce{} },
+	msg.EBaseEntityMessages_EM_DoSpark:        func() proto.Message { return &msg.CEntityMessageDoSpark{} },
+	msg.EBaseEntityMessages_EM_FixAngle:       func() proto.Message { return &msg.CEntityMessageFixAngle{} },
 }
 
 var gameEventCreators = map[msg.EBaseGameEvents]NetMessageCreator{
@@ -158,12 +166,15 @@ var gameEventCreators = map[msg.EBaseGameEvents]NetMessageCreator{
 	msg.EBaseGameEvents_GE_SosSetSoundEventParams:     func() proto.Message { return &msg.CMsgSosSetSoundEventParams{} },
 	msg.EBaseGameEvents_GE_SosSetLibraryStackFields:   func() proto.Message { return &msg.CMsgSosSetLibraryStackFields{} },
 	msg.EBaseGameEvents_GE_SosStopSoundEventHash:      func() proto.Message { return &msg.CMsgSosStopSoundEventHash{} },
+	msg.EBaseGameEvents_GE_ClothStiffenAnimEvent:      func() proto.Message { return &msg.CMsgClothStiffenAnimEvent{} },
+	msg.EBaseGameEvents_GE_ClothEffectAnimEvent:       func() proto.Message { return &msg.CMsgClothEffectAnimEvent{} },
 }
 
 var csgoGameEventCreators = map[msg.ECsgoGameEvents]NetMessageCreator{
 	msg.ECsgoGameEvents_GE_PlayerAnimEventId: func() proto.Message { return &msg.CMsgTEPlayerAnimEvent{} },
 	msg.ECsgoGameEvents_GE_RadioIconEventId:  func() proto.Message { return &msg.CMsgTERadioIcon{} },
 	msg.ECsgoGameEvents_GE_FireBulletsId:     func() proto.Message { return &msg.CMsgTEFireBullets{} },
+	msg.ECsgoGameEvents_GE_PlayerBulletHitId: func() proto.Message { return &msg.CMsgPlayerBulletHit{} },
 }
 
 var csUsrMsgCreators = map[msg.ECstrike15UserMessages]NetMessageCreator{
@@ -236,6 +247,11 @@ var csUsrMsgCreators = map[msg.ECstrike15UserMessages]NetMessageCreator{
 	msg.ECstrike15UserMessages_CS_UM_CurrentRoundOdds:             func() proto.Message { return &msg.CCSUsrMsg_CurrentRoundOdds{} },
 	msg.ECstrike15UserMessages_CS_UM_DeepStats:                    func() proto.Message { return &msg.CCSUsrMsg_DeepStats{} },
 	msg.ECstrike15UserMessages_CS_UM_ShootInfo:                    func() proto.Message { return &msg.CCSUsrMsg_ShootInfo{} },
+	msg.ECstrike15UserMessages_CS_UM_CounterStrafe:                func() proto.Message { return &msg.CCSUsrMsg_CounterStrafe{} },
+	msg.ECstrike15UserMessages_CS_UM_DamagePrediction:             func() proto.Message { return &msg.CCSUsrMsg_DamagePrediction{} },
+	msg.ECstrike15UserMessages_CS_UM_RecurringMissionSchema:       func() proto.Message { return &msg.CCSUsrMsg_RecurringMissionSchema{} },
+	msg.ECstrike15UserMessages_CS_UM_SendPlayerLoadout:            func() proto.Message { return &msg.CCSUsrMsg_SendPlayerLoadout{} },
+	msg.ECstrike15UserMessages_CS_UM_WeaponMagDrop:                func() proto.Message { return &msg.CCSUsrMsg_WeaponMagDrop{} },
 }
 
 var teCreators = map[msg.ETEProtobufIds]NetMessageCreator{
@@ -267,7 +283,7 @@ var teCreators = map[msg.ETEProtobufIds]NetMessageCreator{
 var bidirectionalMessageCreators = map[msg.Bidirectional_Messages]NetMessageCreator{
 	msg.Bidirectional_Messages_bi_RebroadcastGameEvent: func() proto.Message { return &msg.CBidirMsg_RebroadcastGameEvent{} },
 	msg.Bidirectional_Messages_bi_RebroadcastSource:    func() proto.Message { return &msg.CBidirMsg_RebroadcastSource{} },
-	msg.Bidirectional_Messages_bi_GameEvent:            func() proto.Message { return &msg.CBidirMsg_RebroadcastGameEvent{} },
+	msg.Bidirectional_Messages_bi_GameEvent_DEPRECATED: func() proto.Message { return &msg.CBidirMsg_RebroadcastGameEvent{} },
 	msg.Bidirectional_Messages_bi_PredictionEvent:      func() proto.Message { return &msg.CBidirMsg_PredictionEvent{} },
 }
 
@@ -298,7 +314,8 @@ func (m *pendingMessage) priority() int {
 	return 0
 }
 
-func (p *parser) handleDemoPacket(pack *msg.CDemoPacket) {
+//nolint:funlen
+func (p *parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
 	b := pack.GetData()
 
 	if len(b) == 0 {
@@ -308,43 +325,64 @@ func (p *parser) handleDemoPacket(pack *msg.CDemoPacket) {
 	r := bitread.NewSmallBitReader(bytes.NewReader(b))
 
 	p.pendingMessagesCache = p.pendingMessagesCache[:0]
+	p.pendingMsgBufs = p.pendingMsgBufs[:0]
 
 	for len(b)*8-r.ActualPosition() > 7 {
 		t := int32(r.ReadUBitInt())
 		size := r.ReadVarInt32()
-		buf := r.ReadBytes(int(size))
+		bp := getMsgBuf(int(size))
+		r.ReadBytesInto(bp, int(size))
 
-		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, buf})
+		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, *bp})
+		p.pendingMsgBufs = append(p.pendingMsgBufs, bp)
 	}
+
+	// All buffers are consumed by the unmarshal loop below; make sure they go
+	// back to the pool no matter how the loop ends.
+	defer func() {
+		for _, bp := range p.pendingMsgBufs {
+			putMsgBuf(bp)
+		}
+	}()
+
+	p.poolBitReader(r)
 
 	slices.SortStableFunc(p.pendingMessagesCache, func(a, b pendingMessage) int {
 		return a.priority() - b.priority()
 	})
 
 	for _, m := range p.pendingMessagesCache {
+		if isFullPacket && m.t == int32(msg.SVC_Messages_svc_UserCmds) {
+			// Full packets are seek/checkpoint snapshots. Their embedded
+			// usercmds are not transports delivered to the command handler;
+			// replaying them would duplicate the following packet stream.
+			continue
+		}
+
 		var msgCreator NetMessageCreator
 
-		if m.t < int32(msg.SVC_Messages_svc_ServerInfo) {
+		switch {
+		case m.t < int32(msg.SVC_Messages_svc_ServerInfo):
 			msgCreator = netMsgCreators[msg.NET_Messages(m.t)]
 
 			if msgCreator == nil {
 				msgCreator = bidirectionalMessageCreators[msg.Bidirectional_Messages(m.t)]
 			}
-		} else if m.t < int32(msg.EBaseUserMessages_UM_AchievementEvent) {
+		case m.t < int32(msg.EBaseUserMessages_UM_AchievementEvent):
 			msgCreator = svcMsgCreators[msg.SVC_Messages(m.t)]
-		} else if m.t < int32(msg.EBaseGameEvents_GE_VDebugGameSessionIDEvent) {
+		case m.t < int32(msg.EBaseGameEvents_GE_VDebugGameSessionIDEvent):
 			msgCreator = usrMsgCreators[msg.EBaseUserMessages(m.t)]
 
 			if msgCreator == nil {
 				msgCreator = emCreators[msg.EBaseEntityMessages(m.t)]
 			}
-		} else if m.t < int32(msg.ECstrike15UserMessages_CS_UM_VGUIMenu) {
+		case m.t < int32(msg.ECstrike15UserMessages_CS_UM_VGUIMenu):
 			msgCreator = gameEventCreators[msg.EBaseGameEvents(m.t)]
-		} else if m.t < int32(msg.ETEProtobufIds_TE_EffectDispatchId) {
+		case m.t < int32(msg.ETEProtobufIds_TE_EffectDispatchId):
 			msgCreator = csUsrMsgCreators[msg.ECstrike15UserMessages(m.t)]
-		} else if m.t < int32(msg.ECsgoGameEvents_GE_PlayerAnimEventId) {
+		case m.t < int32(msg.ECsgoGameEvents_GE_PlayerAnimEventId):
 			msgCreator = teCreators[msg.ETEProtobufIds(m.t)]
-		} else {
+		default:
 			msgCreator = csgoGameEventCreators[msg.ECsgoGameEvents(m.t)]
 		}
 
@@ -368,15 +406,11 @@ func (p *parser) handleDemoPacket(pack *msg.CDemoPacket) {
 	}
 }
 
-func (p *parser) handleFullPacket(msg *msg.CDemoFullPacket) {
-	p.handleStringTables(msg.StringTable)
-
-	if msg.Packet.GetData() != nil {
-		p.handleDemoPacket(msg.Packet)
-	}
-}
-
 func (p *parser) handleFileInfo(msg *msg.CDemoFileInfo) {
+	if p.aborted() {
+		return
+	}
+
 	p.header.PlaybackTicks = int(*msg.PlaybackTicks)
 	p.header.PlaybackFrames = int(*msg.PlaybackFrames)
 	p.header.PlaybackTime = time.Duration(*msg.PlaybackTime) * time.Second
@@ -407,7 +441,138 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 	}
 }
 
+//nolint:gocognit,nestif,funlen
+func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
+	if p.config.UserCmdParsing == UserCmdParsingDisabled {
+		return
+	}
+
+	if p.config.UserCmdParsing == UserCmdParsingButtonsOnly {
+		p.handleUserCommandButtons(m)
+		return
+	}
+
+	// Once we see user command messages they become the source of truth for
+	// button state, superseding the legacy m_nButtonDownMaskPrev prop (removed
+	// in the 2026-07-09 CS2 update, but still present in older demos).
+	p.hasUserCmdMessages = true
+
+	for _, cmd := range m.Commands {
+		if cmd == nil || cmd.CmdNumber == nil {
+			continue
+		}
+
+		slot := cmd.GetPlayerSlot()
+		if slot < 0 {
+			continue
+		}
+
+		state := p.userCmdStates[slot]
+		if state == nil {
+			state = &userCmdPlayerState{}
+			p.userCmdStates[slot] = state
+		}
+
+		var next *msg.CSGOUserCmdPB
+		if data := cmd.GetData(); len(data) > 0 {
+			// Full payloads replace the current command snapshot.
+			next = &msg.CSGOUserCmdPB{}
+			if err := proto.Unmarshal(data, next); err != nil {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: err.Error(),
+					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
+				})
+
+				continue
+			}
+		} else if len(cmd.GetDeltaData()) > 0 {
+			// client.dll resolves a delta against the cached current command
+			// number, then validates the command-number ring slot. A modulo
+			// collision is not a usable baseline.
+			if !state.hasCurrentCommand {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d has no baseline for player slot %d", cmd.GetCmdNumber(), slot),
+					Type:    events.WarnTypeUserCommandBaselineMissing,
+				})
+
+				continue
+			}
+
+			requestedBaseline := state.currentCommandNumber
+			if cmd.GetCmdNumber() < requestedBaseline {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d precedes its current baseline %d for player slot %d", cmd.GetCmdNumber(), requestedBaseline, slot),
+					Type:    events.WarnTypeUserCommandBaselineMismatch,
+				})
+
+				continue
+			}
+
+			baseline, found := state.ring.get(requestedBaseline)
+			if !found {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d has a baseline ring mismatch for player slot %d (requested %d)", cmd.GetCmdNumber(), slot, requestedBaseline),
+					Type:    events.WarnTypeUserCommandBaselineMismatch,
+				})
+
+				continue
+			}
+
+			next = proto.Clone(baseline).(*msg.CSGOUserCmdPB)
+		} else {
+			continue
+		}
+
+		if deltaData := cmd.GetDeltaData(); len(deltaData) > 0 {
+			if err := applyUserCmdDelta(next, deltaData); err != nil {
+				// next is a clone, so a malformed delta cannot mutate the ring
+				// baseline. The next full payload can re-establish the stream.
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: err.Error(),
+					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
+				})
+
+				continue
+			}
+		}
+
+		commandNumber := cmd.GetCmdNumber()
+		state.ring.insert(commandNumber, next)
+		state.currentCommandNumber = commandNumber
+		state.hasCurrentCommand = true
+
+		// Player slots map to controller entities: slot N is entity N+1
+		// (getOrCreatePlayerFromControllerEntity relies on the same convention).
+		player := p.gameState.playersByEntityID[int(slot)+1]
+		p.eventDispatcher.Dispatch(events.UserCmd{
+			Player:             player,
+			PlayerSlot:         slot,
+			CommandNumber:      commandNumber,
+			ServerTickExecuted: cmd.GetServerTickExecuted(),
+			ClientTick:         cmd.GetClientTick(),
+			Command:            next,
+		})
+
+		if player == nil {
+			continue
+		}
+
+		newState := next.GetBase().GetButtonsPb().GetButtonstate1()
+		if player.ButtonsPressedState != newState {
+			player.ButtonsPressedState = newState
+			p.eventDispatcher.Dispatch(events.PlayerButtonsStateUpdate{
+				Player:       player,
+				ButtonsState: newState,
+			})
+		}
+	}
+}
+
 func (p *parser) handleDemoFileHeader(msg *msg.CDemoFileHeader) {
+	if p.aborted() {
+		return
+	}
+
 	p.header.ClientName = msg.GetClientName()
 	p.header.ServerName = msg.GetServerName()
 	p.header.GameDirectory = msg.GetGameDirectory()

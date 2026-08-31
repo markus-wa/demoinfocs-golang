@@ -12,7 +12,7 @@ import (
 )
 
 func TestGrenadeProjectileUniqueID(t *testing.T) {
-	assert.NotEqual(t, NewGrenadeProjectile().UniqueID(), NewGrenadeProjectile().UniqueID(), "UniqueIDs of different grenade projectiles should be different")
+	assert.NotEqual(t, NewGrenadeProjectile(1).UniqueID(), NewGrenadeProjectile(2).UniqueID(), "UniqueIDs of different grenade projectiles should be different")
 }
 
 func TestGrenadeProjectile_Velocity(t *testing.T) {
@@ -23,12 +23,42 @@ func TestGrenadeProjectile_Velocity(t *testing.T) {
 	}
 
 	p := GrenadeProjectile{
-		Entity: entityWithProperty("m_vecVelocity", st.PropertyValue{
-			Any: []float32{1, 2, 3},
+		Entity: entityWithProperties([]fakeProp{
+			{propName: "m_vecVelocity.m_vecX", value: st.PropertyValue{Any: float32(1)}},
+			{propName: "m_vecVelocity.m_vecY", value: st.PropertyValue{Any: float32(2)}},
+			{propName: "m_vecVelocity.m_vecZ", value: st.PropertyValue{Any: float32(3)}},
 		}),
 	}
 
 	assert.Equal(t, expected, p.Velocity())
+}
+
+// Demos where the projectile's class does not also declare view-offset
+// components keep the un-prefixed component names.
+func TestGrenadeProjectile_Velocity_CS2_BareComponentNames(t *testing.T) {
+	expected := r3.Vector{
+		X: 1,
+		Y: 2,
+		Z: 3,
+	}
+
+	p := GrenadeProjectile{
+		Entity: entityWithProperties([]fakeProp{
+			{propName: "m_vecX", value: st.PropertyValue{Any: float32(1)}},
+			{propName: "m_vecY", value: st.PropertyValue{Any: float32(2)}},
+			{propName: "m_vecZ", value: st.PropertyValue{Any: float32(3)}},
+		}),
+	}
+
+	assert.Equal(t, expected, p.Velocity())
+}
+
+func TestGrenadeProjectile_Velocity_Unavailable(t *testing.T) {
+	p := GrenadeProjectile{
+		Entity: entityWithProperties(nil),
+	}
+
+	assert.Equal(t, r3.Vector{}, p.Velocity())
 }
 
 func TestTeamState_Team(t *testing.T) {
@@ -186,6 +216,7 @@ func mockDemoInfoProvider(tickRate float64, tick int) demoInfoProvider {
 	}
 }
 
+//nolint:unparam
 func entityWithID(id int) *stfake.Entity {
 	entity := new(stfake.Entity)
 	entity.On("ID").Return(id)
@@ -225,6 +256,7 @@ func entityWithProperties(properties []fakeProp) *stfake.Entity {
 	}
 
 	entity.On("Property", mock.Anything).Return(nil)
+	entity.On("PropertyValue", mock.Anything).Return(st.PropertyValue{}, false)
 
 	return entity
 }

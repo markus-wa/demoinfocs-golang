@@ -20,7 +20,7 @@ type Player struct {
 	Inventory           map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
 	EntityID            int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
 	Entity              st.Entity          // May be nil between player-death and re-spawn
-	FlashDuration       float32            // Blindness duration from the flashbang currently affecting the player (seconds)
+	FlashDuration       float32            // Effective blindness duration from the flashbang currently affecting the player (seconds). The engine's flash-affected window (e.g. for assist attribution) runs ~1.4x longer; there is no continuous remaining-intensity netprop.
 	FlashTick           int                // In-game tick at which the player was last flashed
 	TeamState           *TeamState         // When keeping the reference make sure you notice when the player changes teams
 	Team                Team               // Team identifier for the player (e.g. TeamTerrorists or TeamCounterTerrorists).
@@ -202,6 +202,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 	if p.Entity == nil {
 		return false
 	}
+
 	pawnEntity := p.PlayerPawnEntity()
 	if pawnEntity == nil {
 		return false
@@ -239,7 +240,16 @@ func (p *Player) IsInBuyZone() bool {
 	return getBool(p.PlayerPawnEntity(), "m_bInBuyZone")
 }
 
-// IsWalking returns whether the player is currently walking (sneaking) in or not.
+// IsWalking returns whether the player is holding the walk (sneak) key,
+// i.e. is in sneak mode.
+//
+// Note: this does not indicate that the player is actually moving - it is true
+// even while standing still, as long as the walk key is held.
+// For actual movement detection use Velocity() instead, or derive it from the
+// position delta between ticks (see Position()), since Velocity() returns a
+// zero vector on GOTV demos.
+//
+// See https://github.com/markus-wa/demoinfocs-golang/issues/318
 func (p *Player) IsWalking() bool {
 	return getBool(p.PlayerPawnEntity(), "m_bIsWalking")
 }
@@ -407,6 +417,28 @@ func (p *Player) ViewDirectionY() float32 {
 	return 0
 }
 
+// Velocity returns the player's velocity in units per second.
+//
+// Note: on CS2 GOTV demos - both broadcast-GOTV and match-server SourceTV - the m_vecVelocity
+// property is not networked on player pawns and this returns a zero vector; it is populated only on
+// POV / match-making demos. For GOTV, derive velocity from the position delta between ticks instead.
+func (p *Player) Velocity() r3.Vector {
+	pawnEntity := p.PlayerPawnEntity()
+	if pawnEntity == nil {
+		return r3.Vector{}
+	}
+
+	x, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
+	y, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecY")
+	z, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecZ")
+
+	return r3.Vector{
+		X: float64(x),
+		Y: float64(y),
+		Z: float64(z),
+	}
+}
+
 // Position returns the in-game coordinates.
 // Note: the Z value is not on the player's eye height but instead at his feet.
 // See also PositionEyes().
@@ -432,6 +464,7 @@ func (p *Player) PositionEyes() (r3.Vector, bool) {
 	}
 
 	pos := pawnEntity.Position()
+
 	offset, ok := p.eyePositionOffset(pawnEntity)
 	if !ok {
 		return pos, false
@@ -440,18 +473,26 @@ func (p *Player) PositionEyes() (r3.Vector, bool) {
 	return pos.Add(offset), true
 }
 
+func getViewOffsetComponent(pawnEntity st.Entity, component string) (float32, bool) {
+	if v, ok := getFloatIfExists(pawnEntity, "m_vecViewOffset."+component); ok {
+		return v, true
+	}
+
+	return getFloatIfExists(pawnEntity, component)
+}
+
 func (p *Player) eyePositionOffset(pawnEntity st.Entity) (r3.Vector, bool) {
-	x, ok := getFloatIfExists(pawnEntity, "m_vecX")
+	x, ok := getViewOffsetComponent(pawnEntity, "m_vecX")
 	if !ok {
 		return r3.Vector{}, false
 	}
 
-	y, ok := getFloatIfExists(pawnEntity, "m_vecY")
+	y, ok := getViewOffsetComponent(pawnEntity, "m_vecY")
 	if !ok {
 		return r3.Vector{}, false
 	}
 
-	z, ok := getFloatIfExists(pawnEntity, "m_vecZ")
+	z, ok := getViewOffsetComponent(pawnEntity, "m_vecZ")
 	if !ok {
 		return r3.Vector{}, false
 	}

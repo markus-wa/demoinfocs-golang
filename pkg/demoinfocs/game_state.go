@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"errors"
+	"sort"
 	"strconv"
 	"time"
 
@@ -101,9 +102,10 @@ func (gs gameState) IngameTick() int {
 //
 // Make sure to handle swapping sides properly if you keep the reference.
 func (gs *gameState) Team(team common.Team) *common.TeamState {
-	if team == common.TeamTerrorists {
+	switch team { //nolint:exhaustive
+	case common.TeamTerrorists:
 		return &gs.tState
-	} else if team == common.TeamCounterTerrorists {
+	case common.TeamCounterTerrorists:
 		return &gs.ctState
 	}
 
@@ -153,11 +155,17 @@ func (gs gameState) Hostages() []*common.Hostage {
 //
 // Only constains projectiles currently in-flight or still active (smokes etc.),
 // i.e. have been thrown but have yet to detonate.
+//
+// Note: this is a map, so ranging it yields a non-deterministic order. For reproducible output sort
+// the values by entity-ID or GrenadeProjectile.UniqueID() (which is itself deterministic) first.
 func (gs gameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 	return gs.grenadeProjectiles
 }
 
 // Infernos returns a map from entity-IDs to all currently burning infernos (fires from incendiaries and Molotovs).
+//
+// Note: this is a map, so ranging it yields a non-deterministic order. For reproducible output sort
+// the values by entity-ID or Inferno.UniqueID() (which is itself deterministic) first.
 func (gs gameState) Infernos() map[int]*common.Inferno {
 	return gs.infernos
 }
@@ -367,7 +375,23 @@ func (ptcp participants) All() []*common.Player {
 		res = append(res, p)
 	}
 
+	sortPlayers(res)
+
 	return res
+}
+
+// sortPlayers sorts players by a stable key so that slice accessors are deterministic across runs
+// (they are built by ranging maps, whose iteration order Go randomises). SteamID64 is stable across
+// demos; UserID breaks ties (e.g. between bots, whose SteamID64 is 0).
+func sortPlayers(players []*common.Player) {
+	sort.Slice(players, func(i, j int) bool {
+		a, b := players[i], players[j]
+		if a.SteamID64 != b.SteamID64 {
+			return a.SteamID64 < b.SteamID64
+		}
+
+		return a.UserID < b.UserID
+	})
 }
 
 // Connected returns all currently connected players & spectators.
@@ -377,6 +401,8 @@ func (ptcp participants) Connected() []*common.Player {
 	for _, p := range original {
 		res = append(res, p)
 	}
+
+	sortPlayers(res)
 
 	return res
 }
@@ -391,6 +417,8 @@ func (ptcp participants) Playing() []*common.Player {
 		}
 	}
 
+	sortPlayers(res)
+
 	return res
 }
 
@@ -403,6 +431,8 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 			res = append(res, p)
 		}
 	}
+
+	sortPlayers(res)
 
 	return res
 }

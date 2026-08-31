@@ -146,6 +146,9 @@ type PlayerTeamChange struct {
 // PlayerJump signals that a player has jumped.
 type PlayerJump struct {
 	Player *common.Player // May be nil if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+
+	// Position of the player at the moment of the jump. Zero vector if Player is nil.
+	Position r3.Vector
 }
 
 // PlayerSound signals that a player emitted a sound.
@@ -287,6 +290,13 @@ type PlayerFlashed struct {
 
 // FlashDuration returns the duration of the blinding effect.
 // This is just a shortcut for Player.FlashDurationTime().
+//
+// Note: this is the effective-blindness duration (the m_flFlashDuration netprop), not necessarily
+// the full window during which the engine considers the player flash-affected. Empirically the
+// netprop is cleared to 0 at roughly ~1.4x this value (a fade-out tail), and the engine's
+// player_death.assistedflash logic appears to use that wider window. There is no continuous
+// remaining-intensity netprop to expose (m_flFlashMaxAlpha is a constant render-opacity cap), so
+// time-in-window is the only available signal.
 func (e PlayerFlashed) FlashDuration() time.Duration {
 	return e.Player.FlashDurationTime()
 }
@@ -346,6 +356,7 @@ type BombExplode struct {
 type BombDefuseStart struct {
 	Player *common.Player
 	HasKit bool
+	Site   Bombsite // The bomb site being defused. Same value as the preceding BombPlanted / following BombDefused.
 }
 
 func (BombDefuseStart) implementsBombEventIf() {}
@@ -402,6 +413,13 @@ type HostageStateChanged struct {
 // BulletDamage signals that a bullet did some damage.
 // Available only with CS2 demos after the 22/07/2024 update.
 // Note: may not be available in all demos - https://github.com/markus-wa/demoinfocs-golang/issues/618
+//
+// This (and the sibling sub-tick ballistics data such as bullet_impact and TE FireBullets'
+// aim-punch/inaccuracy Extra) is gated by the recording configuration: it is emitted in
+// match-making / POV / full-tick recordings but not in broadcast-GOTV (e.g. HLTV) streams, where
+// the records simply aren't on the wire. The event descriptors appearing in a demo's game-event
+// list do not imply the events are emitted. The handler is always wired, so it fires whenever the
+// data is present.
 type BulletDamage struct {
 	Attacker        *common.Player
 	Victim          *common.Player
@@ -534,6 +552,14 @@ func (ru RankUpdate) SteamID64() uint64 {
 
 // OtherDeath signals that there has occurred a death of something that is not a player.
 // For example chickens.
+//
+// This event has two producers with different field coverage and a different OtherType vocabulary:
+//   - CS:GO / CS2 match-server SourceTV "other_death": all fields populated; OtherType is the game's
+//     type string (e.g. "chicken").
+//   - CS2 broadcast-GOTV "entity_killed": only Killer, OtherType, OtherID, OtherPosition and
+//     InflictorType are populated; OtherType is the entity's server-class name (e.g. "CChicken"), and
+//     Weapon / PenetratedObjects / NoScope / KillerBlind / ThroughSmoke are zero (indistinguishable
+//     from genuine zeros, so IsWallBang() is always false here).
 type OtherDeath struct {
 	Killer            *common.Player // May be nil
 	Weapon            *common.Equipment
@@ -545,6 +571,11 @@ type OtherDeath struct {
 	OtherType     string
 	OtherID       int32
 	OtherPosition r3.Vector
+
+	// InflictorType is the server-class name of the entity that caused the death - e.g.
+	// "CCSPlayerPawn" (bullet), "CInferno" (fire), "CHEGrenadeProjectile" (HE), "CPlantedC4" (bomb).
+	// Populated only on the CS2 entity_killed path; empty on source1 other_death.
+	InflictorType string
 }
 
 func (od OtherDeath) IsWallBang() bool {
@@ -563,6 +594,14 @@ type ItemEquip struct {
 type ItemPickup struct {
 	Player *common.Player
 	Weapon *common.Equipment
+}
+
+// VoteCast signals that a player cast a vote in a call-vote (e.g. surrender, kick, pause).
+// This event is not available in all demos.
+type VoteCast struct {
+	Player     *common.Player // May be nil if the voter can't be resolved.
+	VoteOption int            // 0-based index of the chosen option (0 = the first option, typically "Yes").
+	Team       common.Team    // Team the vote applies to.
 }
 
 // ItemDrop signals an item was dropped.
@@ -598,6 +637,14 @@ const (
 	WarnTypeStringTableParsingFailure // Should happen only with CS2 POV demos
 	WarnTypePacketEntitiesPanic
 	WarnTypeUnknownProtobufMessage
+	// WarnTypeUserCommandDeltaDecodeFailed occurs when a delta-encoded user command (CMsgServerUserCmd.delta_data) can't be decoded.
+	WarnTypeUserCommandDeltaDecodeFailed
+	// WarnTypeUserCommandBaselineMissing occurs when a delta arrives without a prior full command.
+	WarnTypeUserCommandBaselineMissing
+	// WarnTypeUserCommandBaselineMismatch occurs when the requested command-number ring slot is not exact.
+	WarnTypeUserCommandBaselineMismatch
+
+	WarnTypeUnknownGrenadeModel // a grenade projectile's model hash isn't in the item->model map (e.g. a post-patch model variant)
 )
 
 // WarnTypeUnknownDemoCommandMessageType occurs when a demo-command message type is unknown - contact a maintainer.
@@ -680,6 +727,20 @@ type PlayerSpottersChanged struct {
 type PlayerButtonsStateUpdate struct {
 	Player       *common.Player
 	ButtonsState uint64
+}
+
+// UserCmd signals that a complete CS2 user command was reconstructed from a
+// CMsgServerUserCmd full payload or delta_data. Command contains the merged
+// snapshot, including buttons, mouse movement, weapon selection, view angles,
+// movement, subtick moves, and input history. Player may be nil when the demo
+// does not yet have a player object for the command's slot.
+type UserCmd struct {
+	Player             *common.Player
+	PlayerSlot         int32
+	CommandNumber      int32
+	ServerTickExecuted int32
+	ClientTick         int32
+	Command            *msg.CSGOUserCmdPB
 }
 
 // ConVarsUpdated signals that ConVars/CVars have been updated.

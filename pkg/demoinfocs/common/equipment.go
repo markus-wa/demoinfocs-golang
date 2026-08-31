@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/binary"
 	"strings"
 
 	"github.com/oklog/ulid/v2"
@@ -276,21 +277,21 @@ const weaponPrefix = "weapon_"
 func MapEquipment(eqName string) EquipmentType {
 	eqName = strings.TrimPrefix(eqName, weaponPrefix)
 
+	// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentType
 	var wep EquipmentType
-	if strings.Contains(eqName, "knife") || strings.Contains(eqName, "bayonet") {
+
+	switch {
+	case strings.Contains(eqName, "knife") || strings.Contains(eqName, "bayonet"):
 		wep = EqKnife
-	} else {
-		// If the eqName isn't known it will be EqUnknown as that is the default value for EquipmentType
-		if strings.HasPrefix(eqName, "m4a1_silencer") {
-			wep = EqM4A1
-		} else if strings.HasPrefix(eqName, "vesthelm") {
-			wep = EqHelmet
-		} else {
-			for name := range eqNameToWeapon {
-				if strings.HasPrefix(eqName, name) || strings.HasSuffix(eqName, name) {
-					wep = eqNameToWeapon[name]
-					break
-				}
+	case strings.HasPrefix(eqName, "m4a1_silencer"):
+		wep = EqM4A1
+	case strings.HasPrefix(eqName, "vesthelm"):
+		wep = EqHelmet
+	default:
+		for name := range eqNameToWeapon {
+			if strings.HasPrefix(eqName, name) || strings.HasSuffix(eqName, name) {
+				wep = eqNameToWeapon[name]
+				break
 			}
 		}
 	}
@@ -314,9 +315,12 @@ type Equipment struct {
 	Type   EquipmentType // The type of weapon which the equipment instantiates.
 	Entity st.Entity     // The game entity instance
 	Owner  *Player       // The player carrying the equipment, not necessarily the buyer.
-	// E.g. 'models/weapons/w_rif_m4a1_s.mdl'.
-	// Used internally to differentiate alternative weapons (M4A4 / M4A1-S etc.) for Source 1 demos.
-	// It's always an empty string with Source 2 demos, you should use Type to know which weapon it is.
+	// Holds the original string of the weapon / equipment.
+	// E.g. the raw weapon name as provided by game events like 'knife_karambit' or 'ak47'.
+	// For entity-bound equipment that hasn't been seen in a game event it's empty.
+	// Use MapKnifeType() to resolve knife details from the raw name, or, if the
+	// equipment is entity-bound, map the item definition index
+	// (m_iItemDefinitionIndex) via KnifeTypeIndexMapping.
 	OriginalString string
 
 	uniqueID2 ulid.ULID
@@ -337,7 +341,8 @@ func (e *Equipment) Class() EquipmentClass {
 // UniqueID2 returns a unique id of the equipment element that can be sorted efficiently.
 // UniqueID2 is a value generated internally by this library and can be used to differentiate
 // equipment from each other. This is needed because demo-files reuse entity ids.
-// Unlike UniqueID, UniqueID2 is guaranteed to be unique.
+// The id is unique within the Parser instance that created the equipment; ids from different
+// Parser instances may collide, so don't key data across demos by it.
 func (e *Equipment) UniqueID2() ulid.ULID {
 	return e.uniqueID2
 }
@@ -345,7 +350,7 @@ func (e *Equipment) UniqueID2() ulid.ULID {
 // AmmoInMagazine returns the ammo left in the magazine.
 // Returns 1 for grenades and equipments (Knife, C4...).
 func (e *Equipment) AmmoInMagazine() int {
-	switch true {
+	switch {
 	case e.Class() == EqClassGrenade || e.Class() == EqClassEquipment:
 		return 1
 	case e.Entity == nil:
@@ -392,9 +397,15 @@ func (e *Equipment) ZoomLevel() ZoomLevel {
 	return ZoomLevel(value.Int())
 }
 
-// AmmoReserve returns the ammo left available for reloading.
+// AmmoReserve returns the reserve ammo available for reloading.
 // Returns CWeaponCSBase.m_iPrimaryReserveAmmoCount for most weapons and 'Owner.AmmoLeft[AmmoType] - 1' for grenades.
 // Use AmmoInMagazine() + AmmoReserve() to quickly get the amount of grenades a player owns.
+//
+// Note: the unit is era-dependent. The March 2026 CS2 reload patch
+// (https://steamcommunity.com/games/CSGO/announcements/detail/532126482488623354) changed reserve
+// ammo to reserve magazines, so on post-patch demos this is a magazine count (e.g. AK-47 = 3,
+// MP9 = 2) rather than a round count; pre-patch demos still report rounds. The value itself is
+// correct for both - only the interpretation differs by demo era.
 func (e *Equipment) AmmoReserve() int {
 	if e.Entity == nil {
 		return 0
@@ -441,9 +452,17 @@ func (e *Equipment) Silenced() bool {
 
 // NewEquipment creates a new Equipment and sets the UniqueID.
 //
+// The id must come from the creating Parser's unique-id source. It is encoded into the ULID, which
+// keeps UniqueID2 unique within the parse, lexicographically sortable (in creation order) and
+// reproducible across parses of the same demo - unlike ulid.Make(), which embeds wall-clock time
+// plus entropy and changes every parse.
+//
 // Intended for internal use only.
-func NewEquipment(wep EquipmentType) *Equipment {
-	return &Equipment{Type: wep, uniqueID2: ulid.Make()} //nolint:gosec
+func NewEquipment(wep EquipmentType, id int64) *Equipment {
+	var uid ulid.ULID
+	binary.BigEndian.PutUint64(uid[:8], uint64(id))
+
+	return &Equipment{Type: wep, uniqueID2: uid}
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{

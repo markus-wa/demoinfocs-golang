@@ -1,17 +1,24 @@
+import "valveextensions.proto";
 import "networkbasetypes.proto";
 import "usercmd.proto";
 
 message CSGOInterpolationInfoPB {
+	option (codegen_delta_encoder) = true;
+
 	optional int32 src_tick = 1 [default = -1];
 	optional int32 dst_tick = 2 [default = -1];
 	optional float frac = 3 [default = 0];
 }
 
 message CSGOInterpolationInfoPB_CL {
+	option (codegen_delta_encoder) = true;
+
 	optional float frac = 3 [default = 0];
 }
 
 message CSGOInputHistoryEntryPB {
+	option (codegen_delta_encoder) = true;
+
 	optional .CMsgQAngle view_angles = 2;
 	optional int32 render_tick_count = 4;
 	optional float render_tick_fraction = 5;
@@ -30,6 +37,8 @@ message CSGOInputHistoryEntryPB {
 }
 
 message CSGOUserCmdPB {
+	option (codegen_delta_encoder) = true;
+
 	optional .CBaseUserCmdPB base = 1;
 	repeated .CSGOInputHistoryEntryPB input_history = 2;
 	optional int32 attack1_start_history_index = 6 [default = -1];

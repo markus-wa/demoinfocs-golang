@@ -42,7 +42,9 @@ func RedirectStdout(f func()) {
 
 	// Discard the output in a separate goroutine so writing to stdout can't block indefinitely
 	go func() {
-		for err := error(nil); err == nil; _, err = io.Copy(io.Discard, r) {
+		var err error
+		for err == nil {
+			_, err = io.Copy(io.Discard, r)
 		}
 	}()
 

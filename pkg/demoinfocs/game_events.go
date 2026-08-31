@@ -16,6 +16,10 @@ import (
 )
 
 func (p *parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
+	if p.aborted() {
+		return
+	}
+
 	p.gameEventDescs = make(map[int32]*msg.CMsgSource1LegacyGameEventListDescriptorT)
 	for _, d := range gel.GetDescriptors() {
 		p.gameEventDescs[d.GetEventid()] = d
@@ -23,6 +27,10 @@ func (p *parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
 }
 
 func (p *parser) handleGameEvent(ge *msg.CMsgSource1LegacyGameEvent) {
+	if p.aborted() {
+		return
+	}
+
 	if p.gameEventDescs == nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: "received GameEvent but event descriptors are missing",
@@ -105,7 +113,6 @@ func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
 
 type gameEventHandlerFunc func(map[string]*msg.CMsgSource1LegacyGameEventKeyT)
 
-//nolint:funlen
 func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameEventHandler {
 	geh := gameEventHandler{
 		parser:                      parser,
@@ -236,13 +243,13 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"smokegrenade_expired":           geh.smokeGrenadeExpired,          // Smoke expired
 		"switch_team":                    nil,                              // Dunno, only present in POV demos
 		"tournament_reward":              nil,                              // Dunno
-		"vote_cast":                      nil,                              // Dunno, only present in POV demos
+		"vote_cast":                      geh.voteCast,                     // A player cast a vote in a call-vote
 		"weapon_fire":                    delayIfNoPlayers(geh.weaponFire), // Weapon was fired
 		"weapon_fire_on_empty":           nil,                              // Sounds boring
 		"weapon_reload":                  geh.weaponReload,                 // Weapon reloaded
 		"weapon_zoom":                    nil,                              // Zooming in
 		"weapon_zoom_rifle":              nil,                              // Dunno, only in locally recorded (POV) demo
-		"entity_killed":                  nil,
+		"entity_killed":                  geh.entityKilled,                 // Non-player entity killed (chickens, props, ...) in CS2
 
 		// S2
 		"hltv_versioninfo": nil, // HLTV version info
@@ -371,9 +378,14 @@ func (geh gameEventHandler) playerFootstep(data map[string]*msg.CMsgSource1Legac
 }
 
 func (geh gameEventHandler) playerJump(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	geh.dispatch(events.PlayerJump{
-		Player: geh.playerByUserID32(data["userid"].GetValShort()),
-	})
+	player := geh.playerByUserID32(data["userid"].GetValShort())
+
+	e := events.PlayerJump{Player: player}
+	if player != nil {
+		e.Position = player.Position()
+	}
+
+	geh.dispatch(e)
 }
 
 func (geh gameEventHandler) playerSound(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
@@ -390,11 +402,12 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CMsgSource1LegacyGam
 	}
 
 	shooter := geh.playerByUserID32(data["userid"].GetValShort())
-	wepType := common.MapEquipment(data["weapon"].GetValString())
+	rawWeapon := data["weapon"].GetValString()
+	wepType := common.MapEquipment(rawWeapon)
 
 	geh.dispatch(events.WeaponFire{
 		Shooter: shooter,
-		Weapon:  getPlayerWeapon(shooter, wepType),
+		Weapon:  getPlayerWeapon(shooter, wepType, rawWeapon, geh.parser.nextUniqueID()),
 	})
 }
 
@@ -414,8 +427,10 @@ func (geh gameEventHandler) weaponReload(data map[string]*msg.CMsgSource1LegacyG
 
 func (geh gameEventHandler) playerDeath(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
 	killer := geh.playerByUserID32(data["attacker"].GetValShort())
-	wepType := common.MapEquipment(data["weapon"].GetValString())
+	rawWeapon := data["weapon"].GetValString()
+	wepType := common.MapEquipment(rawWeapon)
 	victimUserID := data["userid"].GetValShort()
+
 	wepType = geh.attackerWeaponType(wepType, victimUserID)
 	if killer == nil && data["attacker_pawn"] != nil {
 		// CS2 only, fallback to pawn handle if the killer was not found by its user ID
@@ -428,7 +443,7 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CMsgSource1LegacyGa
 		Assister:          geh.playerByUserID32(data["assister"].GetValShort()),
 		IsHeadshot:        data["headshot"].GetValBool(),
 		PenetratedObjects: int(data["penetrated"].GetValShort()),
-		Weapon:            geh.getEquipmentInstance(killer, wepType),
+		Weapon:            geh.getEquipmentInstance(killer, wepType, rawWeapon),
 		AssistedFlash:     data["assistedflash"].GetValBool(),
 		AttackerBlind:     data["attackerblind"].GetValBool(),
 		NoScope:           data["noscope"].GetValBool(),
@@ -437,10 +452,18 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CMsgSource1LegacyGa
 	})
 }
 
+//nolint:funlen // mirrors player_death's structure; splitting it would duplicate the weapon resolution
 func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
 	userID := data["userid"].GetValShort()
+
 	player := geh.playerByUserID32(userID)
 	attacker := geh.playerByUserID32(data["attacker"].GetValShort())
+
+	if attacker == nil && data["attacker_pawn"] != nil {
+		// CS2 only, fallback to the pawn handle if the attacker was not found by its user ID.
+		// Mirrors player_death, so hurts and kills resolve the same attacker (see #156, #172).
+		attacker = geh.parser.gameState.Participants().FindByPawnHandle(uint64(data["attacker_pawn"].GetValLong()))
+	}
 
 	rawWeapon := data["weapon"].GetValString()
 	wepType := common.MapEquipment(rawWeapon)
@@ -482,7 +505,7 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 			HealthDamageTaken: healthDamageTaken,
 			ArmorDamageTaken:  armorDamageTaken,
 			HitGroup:          events.HitGroup(data["hitgroup"].GetValByte()),
-			Weapon:            geh.getEquipmentInstance(attacker, wepType),
+			Weapon:            geh.getEquipmentInstance(attacker, wepType, rawWeapon),
 			WeaponString:      rawWeapon,
 		})
 	}
@@ -538,7 +561,6 @@ func (geh gameEventHandler) playerBlind(data map[string]*msg.CMsgSource1LegacyGa
 }
 
 func (geh gameEventHandler) flashBangDetonate(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-
 	nadeEvent := geh.nadeEvent(data, common.EqFlash)
 
 	geh.gameState().lastFlash.player = nadeEvent.Thrower
@@ -658,8 +680,8 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CMsgSource1Legacy
 
 	if pl.GUID != "" && pl.XUID == 0 {
 		var err error
-		pl.XUID, err = guidToSteamID64(pl.GUID)
 
+		pl.XUID, err = guidToSteamID64(pl.GUID)
 		if err != nil {
 			geh.parser.setError(fmt.Errorf("failed to parse player XUID: %v", err.Error()))
 		}
@@ -852,10 +874,22 @@ func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CMsgSource1Lega
 
 	geh.gameState().currentDefuser = geh.playerByUserID32(data["userid"].GetValShort())
 
-	geh.dispatch(events.BombDefuseStart{
+	e := events.BombDefuseStart{
 		Player: geh.gameState().currentDefuser,
 		HasKit: data["haskit"].GetValBool(),
-	})
+	}
+
+	// The bomb_begindefuse game-event carries no site key, so derive it from the planted bomb's
+	// position - same source the plant path uses when the site index is unavailable.
+	// Bomb() is never nil (it's a value receiver returning &gameState.bomb), so guard on the
+	// planted bomb's position instead: it's only unknown on corrupt demos or when parsing starts
+	// mid-round after the plant, in which case the site is left unset (getClosestBombsiteFromPosition
+	// would otherwise map the zero origin to a real bombsite).
+	if bomb := geh.gameState().Bomb(); bomb.LastOnGroundPosition != (r3.Vector{}) {
+		e.Site = geh.parser.getClosestBombsiteFromPosition(bomb.Position())
+	}
+
+	geh.dispatch(e)
 }
 
 func (geh gameEventHandler) itemEquip(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
@@ -863,6 +897,14 @@ func (geh gameEventHandler) itemEquip(data map[string]*msg.CMsgSource1LegacyGame
 	geh.dispatch(events.ItemEquip{
 		Player: player,
 		Weapon: weapon,
+	})
+}
+
+func (geh gameEventHandler) voteCast(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+	geh.dispatch(events.VoteCast{
+		Player:     geh.playerByUserID32(data["userid"].GetValShort()),
+		VoteOption: int(data["vote_option"].GetValByte()),
+		Team:       common.Team(data["team"].GetValByte()),
 	})
 }
 
@@ -894,8 +936,9 @@ func (geh gameEventHandler) otherDeath(data map[string]*msg.CMsgSource1LegacyGam
 		otherPosition = other.Position()
 	}
 
-	wepType := common.MapEquipment(data["weapon"].GetValString())
-	weapon := getPlayerWeapon(killer, wepType)
+	rawWeapon := data["weapon"].GetValString()
+	wepType := common.MapEquipment(rawWeapon)
+	weapon := getPlayerWeapon(killer, wepType, rawWeapon, geh.parser.nextUniqueID())
 
 	geh.dispatch(events.OtherDeath{
 		Killer:            killer,
@@ -911,11 +954,58 @@ func (geh gameEventHandler) otherDeath(data map[string]*msg.CMsgSource1LegacyGam
 	})
 }
 
+// entityKilled handles the CS2 "entity_killed" game-event. Its payload carries only entity
+// indices (entindex_killed / entindex_attacker / entindex_inflictor / damagebits) rather than the
+// source1 "other_death" keys. Player-pawn deaths are already surfaced via player_death
+// (events.Kill), so they are skipped here; the remaining ones are non-player entity deaths
+// (chickens, breakable props, doors, ...) surfaced as events.OtherDeath.
+func (geh gameEventHandler) entityKilled(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+	killedID := int(data["entindex_killed"].GetValLong())
+
+	killed := geh.gameState().entities[killedID]
+	if killed == nil {
+		return
+	}
+
+	className := killed.ServerClass().Name()
+	if className == "CCSPlayerPawn" || className == "CCSPlayerPawnBase" {
+		return
+	}
+
+	var inflictorType string
+	if inflictor := geh.gameState().entities[int(data["entindex_inflictor"].GetValLong())]; inflictor != nil {
+		inflictorType = inflictor.ServerClass().Name()
+	}
+
+	geh.dispatch(events.OtherDeath{
+		Killer:        geh.playerByPawnEntityID(int(data["entindex_attacker"].GetValLong())),
+		OtherType:     className,
+		OtherID:       int32(killedID),
+		OtherPosition: killed.Position(),
+		InflictorType: inflictorType,
+	})
+}
+
+// playerByPawnEntityID resolves a player from his pawn entity-ID (CS2). Returns nil if not found.
+func (geh gameEventHandler) playerByPawnEntityID(entityID int) *common.Player {
+	if entityID <= 0 {
+		return nil
+	}
+
+	for _, player := range geh.gameState().Participants().All() {
+		if pawn := player.PlayerPawnEntity(); pawn != nil && pawn.ID() == entityID {
+			return player
+		}
+	}
+
+	return nil
+}
+
 func (geh gameEventHandler) itemEvent(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) (*common.Player, *common.Equipment) {
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 
 	wepType := common.MapEquipment(data["item"].GetValString())
-	weapon := getPlayerWeapon(player, wepType)
+	weapon := getPlayerWeapon(player, wepType, data["item"].GetValString(), geh.parser.nextUniqueID())
 
 	return player, weapon
 }
@@ -1071,27 +1161,34 @@ func (geh gameEventHandler) attackerWeaponType(wepType common.EquipmentType, vic
 	return wepType
 }
 
-func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType common.EquipmentType) *common.Equipment {
+func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType common.EquipmentType, rawName string) *common.Equipment {
 	isGrenade := wepType.Class() == common.EqClassGrenade
 	if isGrenade {
 		return geh.getThrownGrenade(player, wepType)
 	}
 
-	return getPlayerWeapon(player, wepType)
+	return getPlayerWeapon(player, wepType, rawName, geh.parser.nextUniqueID())
 }
 
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
-func getPlayerWeapon(player *common.Player, wepType common.EquipmentType) *common.Equipment {
+//
+// The weapon's OriginalString is set to the raw event weapon name (rawName),
+// which may be empty (e.g. for grenade projectiles).
+// The id is used for the new instance's UniqueID2 (see parser.nextUniqueID).
+func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawName string, id int64) *common.Equipment {
 	if player != nil {
 		alternateWepType := common.EquipmentAlternative(wepType)
 		for _, wep := range player.Weapons() {
 			if wep.Type == wepType || (alternateWepType != common.EqUnknown && wep.Type == alternateWepType) {
+				wep.OriginalString = rawName
+
 				return wep
 			}
 		}
 	}
 
-	wep := common.NewEquipment(wepType)
+	wep := common.NewEquipment(wepType, id)
+	wep.OriginalString = rawName
 
 	return wep
 }
@@ -1106,7 +1203,7 @@ func mapGameEventData(d *msg.CMsgSource1LegacyGameEventListDescriptorT, e *msg.C
 }
 
 func guidToSteamID64(guid string) (uint64, error) {
-	if guid == "BOT" {
+	if guid == botGUID {
 		return 0, nil
 	}
 
@@ -1164,6 +1261,7 @@ func (p *parser) processFlyingFlashbangs() {
 		if flashbang.explodedFrame > 0 && flashbang.explodedFrame < p.currentFrame {
 			p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
 		}
+
 		return
 	}
 

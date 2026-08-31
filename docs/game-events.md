@@ -1,6 +1,6 @@
 ## Game events
 
-List of game events that may be trigerred during parsing, some events are available only in GOTV and/or POV demos.
+List of game events that may be triggered during parsing, some events are available only in GOTV and/or POV demos.
 
 You can add a listener on the parser's event `GenericGameEvent` to listen to all events, example:
 
@@ -11,12 +11,41 @@ parser.RegisterEventHandler(func(event events.GenericGameEvent) {
 ```
 
 > **Warning**
-> It has been noticed that some demos may not fire events when it should. A noticable one is the `round_end` event.
+> It has been noticed that some demos may not fire events when it should. A noticeable one is the `round_end` event.
 > If you encounter this problem it's probably not a parser bug but simply a demo with missing events.
 > As a workaround you may subscribe to properties update.
 > For example to detect rounds end you could subscribe to updates of the property `m_iRoundWinStatus` of the entity `CCSGameRulesProxy`.
 
 ✅ = Available, ❌ = Not available, ? = Not sure, need to be tested
+
+> **Provenance**
+> This table was originally authored against **CS:GO** demos (Jan 2023) and is not generated. Most
+> rows have never been re-measured for CS2. The rows verified against CS2 broadcast-GOTV so far are
+> the item-lifecycle / per-action corrections noted below (`item_remove`, `player_falldamage`,
+> `player_ping`/`player_ping_stop`, `defuser_*`, and the per-action cohort); treat the remaining rows
+> as CS:GO-era carry-over pending re-measurement, and the POV column as untested for CS2.
+
+> **Note (CS2 broadcast-GOTV vs match-server SourceTV)**
+> The GOTV column can differ between the two GOTV flavors. In CS2 **broadcast-GOTV** (e.g. HLTV)
+> demos a family of item-lifecycle / per-action events does not fire even when otherwise available:
+> `item_remove`, `defuser_dropped`, `defuser_pickup` and `player_falldamage` never fire, and
+> `bomb_beginplant` / `bomb_begindefuse` fire only in match-server SourceTV recordings (marked ✅
+> above), not in broadcast-GOTV. Drop / pickup / ownership are still recoverable from the
+> entity-property layer — weapon `m_hOwnerEntity` and pawn `m_bPawnHasDefuser` transitions fire
+> abundantly. Conversely `player_ping` / `player_ping_stop` appear in broadcast-GOTV but are
+> **absent on match-server SourceTV** (advertised in the event list, never emitted) - the reverse of
+> the rest of the family, so a consumer validating on a match-server demo would wrongly conclude
+> pings don't exist in CS2.
+
+> **Note (per-action event cohort in broadcast-GOTV)**
+> Broadcast-GOTV carries aggregate/director events (`player_sound`, `entity_killed`, `player_ping`,
+> `hltv_*`) but drops the raw per-action cohort (`player_footstep`, `player_jump`, `weapon_reload`,
+> `item_equip`, `weapon_zoom`, `player_blind`, `bomb_beginplant`). This is not governed by a `tv_*`
+> ConVar — `tv_transmitall` controls entity transmission, not the game-event stream, and is already
+> `1` in demos where the cohort is still absent; the cohort's absence is a property of the
+> game-event networking layer, so it cannot be re-enabled server-side for broadcast-GOTV. Most of
+> the signal is still recoverable from the entity/net-prop layer. Server ConVars themselves are
+> readable via the `events.ConVarsUpdated` event and `GameState.ConVars()`.
 
 | Event name                      | GOTV | POV |
 | ------------------------------- | ---- | --- |
@@ -43,6 +72,8 @@ parser.RegisterEventHandler(func(event events.GenericGameEvent) {
 | cs_win_panel_round              | ✅   | ✅  |
 | decoy_detonate                  | ✅   | ✅  |
 | decoy_started                   | ✅   | ✅  |
+| defuser_dropped                  | ❌   | ?   |
+| defuser_pickup                   | ❌   | ?   |
 | endmatch_cmm_start_reveal_items | ✅   | ❌  |
 | enter_bombzone                  | ❌   | ✅  |
 | enter_buyzone                   | ❌   | ✅  |
@@ -68,7 +99,7 @@ parser.RegisterEventHandler(func(event events.GenericGameEvent) {
 | item_equip                      | ✅   | ❌  |
 | item_pickup                     | ✅   | ❌  |
 | item_pickup_slerp               | ❌   | ✅  |
-| item_remove                     | ✅   | ❌  |
+| item_remove                     | ❌   | ❌  |
 | jointeam_failed                 | ❌   | ✅  |
 | other_death                     | ✅   | ✅  |
 | player_blind                    | ✅   | ❌  |
@@ -76,14 +107,14 @@ parser.RegisterEventHandler(func(event events.GenericGameEvent) {
 | player_connect_full             | ✅   | ✅  |
 | player_death                    | ✅   | ✅  |
 | player_disconnect               | ✅   | ✅  |
-| player_falldamage               | ✅   | ❌  |
+| player_falldamage               | ❌   | ❌  |
 | player_footstep                 | ✅   | ❌  |
 | player_given_c4                 | ❌   | ✅  |
 | player_hurt                     | ✅   | ✅  |
 | player_jump                     | ✅   | ❌  |
 | player_changename               | ✅   | ✅  |
-| player_ping                     | ❌   | ✅  |
-| player_ping_stop                | ❌   | ✅  |
+| player_ping                     | ✅   | ✅  |
+| player_ping_stop                | ✅   | ✅  |
 | player_spawn                    | ✅   | ✅  |
 | player_spawned                  | ❌   | ✅  |
 | player_team                     | ✅   | ✅  |
