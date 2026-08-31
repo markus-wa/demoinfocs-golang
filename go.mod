@@ -7,7 +7,7 @@ require (
 	github.com/llgcode/draw2d v0.0.0-20230723155556-e595d7c7e75e
 	github.com/markus-wa/go-heatmap/v2 v2.0.0
 	github.com/markus-wa/go-unassert v0.1.3
-	github.com/markus-wa/gobitread v0.2.5-0.20260831182154-f4e39ce3a9b1
+	github.com/markus-wa/gobitread v0.2.5
 	github.com/markus-wa/godispatch v1.4.1
 	github.com/markus-wa/quickhull-go/v2 v2.2.0
 	github.com/oklog/ulid/v2 v2.1.1
