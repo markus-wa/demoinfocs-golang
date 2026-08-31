@@ -368,8 +368,17 @@ func noscaleFloat32(r *reader) float32 {
 	return r.cachedFloat32(bits).(float32)
 }
 
+// noscaleDecoder returns the pre-boxed value from the reader's float32 cache
+// instead of boxing a freshly returned float32, which would allocate on every
+// decode. noscaleFloat32 exists for callers that need a plain float32 (QAngle
+// noscale components); use it there, never re-box its result here.
 func noscaleDecoder(r *reader) any {
-	return noscaleFloat32(r)
+	bits := r.readLeUint32()
+	if bits == 0 {
+		return float32(0)
+	}
+
+	return r.cachedFloat32(bits)
 }
 
 func runeTimeDecoder(r *reader) any {

@@ -24,6 +24,10 @@ type reader struct {
 	// Indexed by (bits & f32CacheMask); same bits == same float32 value so reuse is safe.
 	// Retained across pool reuse to maximise hit rate; no reset needed on newReader.
 	f32Cache [512]f32CacheEntry
+	// polyScratch is reused by polymorphic pointer base decoders to return
+	// *polyUpdate without allocating. Safe because readFields consumes the
+	// returned value synchronously before the next decode on the same reader.
+	polyScratch polyUpdate
 }
 
 const f32CacheMask = uint32(512 - 1) // must match f32Cache array size
