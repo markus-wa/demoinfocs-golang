@@ -7,7 +7,7 @@ A blazing fast, feature complete and production ready Go library for parsing and
 [![codecov](https://img.shields.io/codecov/c/github/markus-wa/demoinfocs-golang?style=flat-square)](https://codecov.io/gh/markus-wa/demoinfocs-golang)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE.md)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmarkus-wa%2Fdemoinfocs-golang.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmarkus-wa%2Fdemoinfocs-golang?ref=badge_shield)
-[![Snyk Scan](https://img.shields.io/badge/security%20scan-snyk-blueviolet?style=flat-square)](https://app.snyk.io/org/markus-wa/project/cbd87cca-a903-4553-b677-42f3bb086655)
+[![OSV-Scanner](https://img.shields.io/github/actions/workflow/status/markus-wa/demoinfocs-golang/osv-scanner.yml?branch=master&label=osv-scanner&style=flat-square)](https://github.com/markus-wa/demoinfocs-golang/actions/workflows/osv-scanner.yml)
 
 ## Discussions / Chat
 
