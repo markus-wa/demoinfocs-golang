@@ -310,6 +310,9 @@ func TestPlayerHurt_UnknownWeaponDefaultsToWorld(t *testing.T) {
 	})
 
 	p.gameEventHandler.playerHurt(playerHurtEventData(11, 65535, ""))
+	assert.Len(t, got, 0)
+
+	p.processFrameGameEvents()
 
 	assert.Len(t, got, 1)
 	assert.NotNil(t, got[0].Weapon)
@@ -327,6 +330,9 @@ func TestPlayerHurt_UnknownWeaponUsesBombWhenBombExplodedThisFrame(t *testing.T)
 	})
 
 	p.gameEventHandler.playerHurt(playerHurtEventData(12, 65535, ""))
+	assert.Len(t, got, 0)
+
+	p.processFrameGameEvents()
 
 	assert.Len(t, got, 1)
 	assert.NotNil(t, got[0].Weapon)
