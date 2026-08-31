@@ -15,6 +15,14 @@ const (
 	fieldModelVariableTable
 )
 
+// polyUpdate is returned by the base decoder of a polymorphic fixed-table field.
+// id is the field's polySerializerID; ser is the newly selected serializer
+// (nil when the pointer is inactive / boolean was false).
+type polyUpdate struct {
+	id  int
+	ser *serializer
+}
+
 type field struct {
 	varName string
 	// name is the canonical field name: the varName, prefixed with the sendNode
@@ -34,7 +42,11 @@ type field struct {
 	fieldType         *fieldType
 	serializer        *serializer
 	model             int
-	polyTypes         map[uint32]*serializer
+	polyTypes         []*serializer
+	// polySerializerID is ≥ 0 for polymorphic fixed-table fields; -1 otherwise.
+	// It indexes into the per-entity polySerializers slice, so the active
+	// serializer is tracked per entity rather than on the shared field object.
+	polySerializerID int
 
 	decoder      fieldDecoder
 	baseDecoder  fieldDecoder
@@ -62,13 +74,27 @@ func newField(serializers map[string]*serializer, ser *msg.CSVCMsg_FlattenedSeri
 		lowValue:          f.LowValue,
 		highValue:         f.HighValue,
 		model:             fieldModelSimple,
+		polySerializerID:  -1,
 	}
 
 	if len(f.PolymorphicTypes) > 0 {
-		x.polyTypes = make(map[uint32]*serializer, len(f.PolymorphicTypes))
+		// Build combined slice: [0] = default/field serializer, [1..N] = polymorphic alternatives.
+		// The ubitvar read from the bitstream is a direct index into this slice, where
+		// 0 selects the field's own serializer and 1..N select the polymorphic variants.
+		x.polyTypes = make([]*serializer, len(f.PolymorphicTypes)+1)
+		x.polyTypes[0] = serializers[x.serializerName]
+
+		if x.polyTypes[0] == nil {
+			_panicf("polymorphic field %q: unknown serializer %q (missing or forward-declared)", x.varName, x.serializerName)
+		}
 
 		for i, t := range f.PolymorphicTypes {
-			x.polyTypes[uint32(i+1)] = serializers[resolve(t.PolymorphicFieldSerializerNameSym)]
+			name := resolve(t.PolymorphicFieldSerializerNameSym)
+			x.polyTypes[i+1] = serializers[name]
+
+			if x.polyTypes[i+1] == nil {
+				_panicf("polymorphic field %q: unknown serializer %q (missing or forward-declared)", x.varName, name)
+			}
 		}
 	}
 
@@ -89,16 +115,23 @@ func (f *field) setModel(model int) {
 		f.decoder = findDecoder(f)
 
 	case fieldModelFixedTable:
-		if len(f.polyTypes) > 0 {
-			f.baseDecoder = func(r *reader) any {
-				b := r.readBoolean()
-				polyTypeIndex := r.readUBitVar()
-				f.serializer = f.polyTypes[polyTypeIndex]
-
-				return b
-			}
-		} else {
+		if len(f.polyTypes) == 0 {
+			// Fixed pointer: single serializer, never changes type.
+			// Only a boolean is read from the stream; serializer is on the field.
 			f.baseDecoder = booleanDecoder
+		} else {
+			// Polymorphic pointer: bool then (if true) a ubitvar type index.
+			// Returns a *polyUpdate so the active serializer can be stored
+			// per entity rather than on this shared field object.
+			polyTypes := f.polyTypes
+			polyID := f.polySerializerID
+			f.baseDecoder = func(r *reader) any {
+				if r.readBoolean() {
+					return &polyUpdate{id: polyID, ser: polyTypes[r.readUBitVar()]}
+				}
+
+				return &polyUpdate{id: polyID, ser: nil}
+			}
 		}
 
 	case fieldModelVariableArray:
@@ -117,7 +150,7 @@ func (f *field) setModel(model int) {
 	}
 }
 
-func (f *field) getNameForFieldPath(fp *fieldPath, pos int) []string {
+func (f *field) getNameForFieldPath(fp *fieldPath, pos int, ps []*serializer) []string {
 	x := []string{f.name}
 
 	switch f.model {
@@ -128,7 +161,14 @@ func (f *field) getNameForFieldPath(fp *fieldPath, pos int) []string {
 
 	case fieldModelFixedTable:
 		if fp.last >= pos {
-			x = append(x, f.serializer.getNameForFieldPath(fp, pos)...)
+			ser := f.serializer
+			if f.polySerializerID >= 0 && ps != nil {
+				ser = ps[f.polySerializerID]
+			}
+
+			if ser != nil {
+				x = append(x, ser.getNameForFieldPath(fp, pos, ps)...)
+			}
 		}
 
 	case fieldModelVariableArray:
@@ -140,7 +180,7 @@ func (f *field) getNameForFieldPath(fp *fieldPath, pos int) []string {
 		if fp.last != pos-1 {
 			x = append(x, fmt.Sprintf("%04d", fp.path[pos]))
 			if fp.last != pos {
-				x = append(x, f.serializer.getNameForFieldPath(fp, pos+1)...)
+				x = append(x, f.serializer.getNameForFieldPath(fp, pos+1, ps)...)
 			}
 		}
 	}
@@ -152,7 +192,7 @@ func (f *field) getNameForFieldPath(fp *fieldPath, pos int) []string {
 // variable-length collection update that requires fieldState handling.
 // This encodes the (base && variableArray|variableTable) check directly,
 // avoiding a separate getFieldForFieldPath traversal.
-func (f *field) getDecoderAndCollection(fp *fieldPath, pos int) (fieldDecoder, bool) {
+func (f *field) getDecoderAndCollection(fp *fieldPath, pos int, ps []*serializer) (fieldDecoder, bool) {
 	switch f.model {
 	case fieldModelFixedArray:
 		return f.decoder, false
@@ -162,7 +202,16 @@ func (f *field) getDecoderAndCollection(fp *fieldPath, pos int) (fieldDecoder, b
 			return f.baseDecoder, false // base decoder but fixed, no fieldState update
 		}
 
-		return f.serializer.getDecoderAndCollection(fp, pos)
+		ser := f.serializer
+		if f.polySerializerID >= 0 && ps != nil {
+			ser = ps[f.polySerializerID]
+		}
+
+		if ser == nil {
+			return nil, false // polymorphic pointer not yet activated
+		}
+
+		return ser.getDecoderAndCollection(fp, pos, ps)
 
 	case fieldModelVariableArray:
 		if fp.last == pos {
@@ -173,7 +222,7 @@ func (f *field) getDecoderAndCollection(fp *fieldPath, pos int) (fieldDecoder, b
 
 	case fieldModelVariableTable:
 		if fp.last >= pos+1 {
-			return f.serializer.getDecoderAndCollection(fp, pos+1)
+			return f.serializer.getDecoderAndCollection(fp, pos+1, ps)
 		}
 
 		return f.baseDecoder, true // variable collection update
@@ -195,7 +244,7 @@ func (f *field) getDecoderAndCollection(fp *fieldPath, pos int) (fieldDecoder, b
 // a possible boundary and backtracks through here on failure — e.g. it may
 // descend into a field "m_x" with the remainder "m_sub.0001.m_y2", which must
 // return false so the walk can retry with the longer prefix "m_x.m_sub".
-func (f *field) getFieldPathForName(fp *fieldPath, name string) bool {
+func (f *field) getFieldPathForName(fp *fieldPath, name string, ps []*serializer) bool {
 	switch f.model {
 	case fieldModelFixedArray, fieldModelVariableArray:
 		i, ok := atoi4(name)
@@ -208,7 +257,16 @@ func (f *field) getFieldPathForName(fp *fieldPath, name string) bool {
 		return true
 
 	case fieldModelFixedTable:
-		return f.serializer.getFieldPathForName(fp, name)
+		ser := f.serializer
+		if f.polySerializerID >= 0 && ps != nil {
+			ser = ps[f.polySerializerID]
+		}
+
+		if ser == nil {
+			return false
+		}
+
+		return ser.getFieldPathForName(fp, name, ps)
 
 	case fieldModelVariableTable:
 		if len(name) < 6 || name[4] != '.' {
@@ -223,18 +281,19 @@ func (f *field) getFieldPathForName(fp *fieldPath, name string) bool {
 		fp.path[fp.last] = i
 		fp.last++
 
-		return f.serializer.getFieldPathForName(fp, name[5:])
+		return f.serializer.getFieldPathForName(fp, name[5:], ps)
 	}
 
 	return false
 }
 
-func (f *field) getFieldPaths(fp *fieldPath, state *fieldState) []*fieldPath {
+//nolint:gocognit,funlen
+func (f *field) getFieldPaths(fp *fieldPath, state *fieldState, ps []*serializer) []*fieldPath {
 	x := make([]*fieldPath, 0, 1)
 
 	switch f.model {
 	case fieldModelFixedArray:
-		if sub, ok := state.get(fp).(*fieldState); ok {
+		if sub, ok := stateAtField(state, fp); ok {
 			fp.last++
 
 			for i, v := range sub.state {
@@ -248,14 +307,21 @@ func (f *field) getFieldPaths(fp *fieldPath, state *fieldState) []*fieldPath {
 		}
 
 	case fieldModelFixedTable:
-		if sub, ok := state.get(fp).(*fieldState); ok {
-			fp.last++
-			x = append(x, f.serializer.getFieldPaths(fp, sub)...)
-			fp.last--
+		if sub, ok := stateAtField(state, fp); ok {
+			ser := f.serializer
+			if f.polySerializerID >= 0 && ps != nil {
+				ser = ps[f.polySerializerID]
+			}
+
+			if ser != nil {
+				fp.last++
+				x = append(x, ser.getFieldPaths(fp, sub, ps)...)
+				fp.last--
+			}
 		}
 
 	case fieldModelVariableArray:
-		if sub, ok := state.get(fp).(*fieldState); ok {
+		if sub, ok := stateAtField(state, fp); ok {
 			fp.last++
 
 			for i, v := range sub.state {
@@ -269,13 +335,13 @@ func (f *field) getFieldPaths(fp *fieldPath, state *fieldState) []*fieldPath {
 		}
 
 	case fieldModelVariableTable:
-		if sub, ok := state.get(fp).(*fieldState); ok {
+		if sub, ok := stateAtField(state, fp); ok {
 			fp.last += 2
 
 			for i, v := range sub.state {
 				if vv, ok := v.(*fieldState); ok {
 					fp.path[fp.last-1] = i
-					x = append(x, f.serializer.getFieldPaths(fp, vv)...)
+					x = append(x, f.serializer.getFieldPaths(fp, vv, ps)...)
 				}
 			}
 
@@ -287,6 +353,28 @@ func (f *field) getFieldPaths(fp *fieldPath, state *fieldState) []*fieldPath {
 	}
 
 	return x
+}
+
+// stateAtField returns the fieldState stored at the state slot of the current
+// field during a getFieldPaths traversal.
+//
+// state is the fieldState of the serializer currently being enumerated, and the
+// current field's component within it is fp.path[fp.last] (set by
+// serializer.getFieldPaths before calling into this field). Once a table has
+// been descended, state is the enclosing table's fieldState while fp keeps the
+// full path from the serializer root, so a full-path state lookup would
+// mis-index (this previously broke enumeration of tables nested under tables,
+// e.g. polymorphic pointer sub-fields).
+func stateAtField(state *fieldState, fp *fieldPath) (*fieldState, bool) {
+	i := fp.path[fp.last]
+
+	if i < 0 || i >= len(state.state) {
+		return nil, false
+	}
+
+	sub, ok := state.state[i].(*fieldState)
+
+	return sub, ok
 }
 
 // atoi4 parses a 4-digit array-index segment (e.g. "0007") as generated by
