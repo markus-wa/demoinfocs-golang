@@ -3,7 +3,6 @@ package demoinfocs
 import (
 	"fmt"
 	"math"
-	"sort"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -1378,18 +1377,7 @@ func (p *parser) processFrameGameEvents() {
 // Not gated on DisableMimicSource1Events: InfernoFireOut is not a source1-mimic event, it's new
 // functionality driven by entity state.
 func (p *parser) processInfernoFireOut() {
-	// Iterate in a stable entity-ID order rather than Go's randomised map order, so that when two
-	// infernos flame out on the same frame their InfernoFireOut events dispatch deterministically.
-	ids := make([]int, 0, len(p.gameState.infernos))
-	for id := range p.gameState.infernos {
-		ids = append(ids, id)
-	}
-
-	sort.Ints(ids)
-
-	for _, id := range ids {
-		inf := p.gameState.infernos[id]
-
+	for id, inf := range p.gameState.infernos {
 		state := p.gameState.infernoFireStates[id]
 		if state == nil {
 			state = &infernoFireState{}
