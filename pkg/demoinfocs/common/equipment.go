@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/binary"
 	"strings"
 
 	"github.com/oklog/ulid/v2"
@@ -340,7 +341,8 @@ func (e *Equipment) Class() EquipmentClass {
 // UniqueID2 returns a unique id of the equipment element that can be sorted efficiently.
 // UniqueID2 is a value generated internally by this library and can be used to differentiate
 // equipment from each other. This is needed because demo-files reuse entity ids.
-// Unlike UniqueID, UniqueID2 is guaranteed to be unique.
+// The id is unique within the Parser instance that created the equipment; ids from different
+// Parser instances may collide, so don't key data across demos by it.
 func (e *Equipment) UniqueID2() ulid.ULID {
 	return e.uniqueID2
 }
@@ -395,9 +397,15 @@ func (e *Equipment) ZoomLevel() ZoomLevel {
 	return ZoomLevel(value.Int())
 }
 
-// AmmoReserve returns the ammo left available for reloading.
+// AmmoReserve returns the reserve ammo available for reloading.
 // Returns CWeaponCSBase.m_iPrimaryReserveAmmoCount for most weapons and 'Owner.AmmoLeft[AmmoType] - 1' for grenades.
 // Use AmmoInMagazine() + AmmoReserve() to quickly get the amount of grenades a player owns.
+//
+// Note: the unit is era-dependent. The March 2026 CS2 reload patch
+// (https://steamcommunity.com/games/CSGO/announcements/detail/532126482488623354) changed reserve
+// ammo to reserve magazines, so on post-patch demos this is a magazine count (e.g. AK-47 = 3,
+// MP9 = 2) rather than a round count; pre-patch demos still report rounds. The value itself is
+// correct for both - only the interpretation differs by demo era.
 func (e *Equipment) AmmoReserve() int {
 	if e.Entity == nil {
 		return 0
@@ -444,9 +452,17 @@ func (e *Equipment) Silenced() bool {
 
 // NewEquipment creates a new Equipment and sets the UniqueID.
 //
+// The id must come from the creating Parser's unique-id source. It is encoded into the ULID, which
+// keeps UniqueID2 unique within the parse, lexicographically sortable (in creation order) and
+// reproducible across parses of the same demo - unlike ulid.Make(), which embeds wall-clock time
+// plus entropy and changes every parse.
+//
 // Intended for internal use only.
-func NewEquipment(wep EquipmentType) *Equipment {
-	return &Equipment{Type: wep, uniqueID2: ulid.Make()}
+func NewEquipment(wep EquipmentType, id int64) *Equipment {
+	var uid ulid.ULID
+	binary.BigEndian.PutUint64(uid[:8], uint64(id))
+
+	return &Equipment{Type: wep, uniqueID2: uid}
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{

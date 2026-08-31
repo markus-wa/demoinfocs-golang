@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"math/rand"
 	"sort"
 
 	"github.com/golang/geo/r2"
@@ -39,8 +38,11 @@ type Fires struct {
 }
 
 // UniqueID returns the unique id of the inferno.
-// The unique id is a random int generated internally by this library and can be used to differentiate
-// infernos from each other. This is needed because demo-files reuse entity ids.
+// The id is generated internally by this library and can be used to differentiate infernos from
+// each other. This is needed because demo-files reuse entity ids.
+//
+// The id is unique within the Parser instance that created the inferno; ids from different Parser
+// instances may collide, so don't key data across demos by it.
 func (inf *Inferno) UniqueID() int64 {
 	return inf.uniqueID
 }
@@ -62,6 +64,9 @@ func (inf *Inferno) Thrower() *Player {
 func (inf *Inferno) Fires() Fires {
 	entity := inf.Entity
 	origin := entity.Position()
+	// m_fireCount is the total number of fire positions ever spawned for this inferno, not the number
+	// currently burning - it only ever increases and never returns to 0. Use Fires().Active() (gated
+	// on m_bFireIsBurning) for the fires burning right now.
 	nFires := entity.PropertyValueMust("m_fireCount").Int()
 	fires := make([]Fire, 0, nFires)
 	iFormat := "%04d"
@@ -204,11 +209,14 @@ func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 
 // NewInferno creates a inferno and sets the Unique-ID.
 //
+// The id must come from the creating Parser's unique-id source so that it is unique within that
+// parse and reproducible across parses of the same demo.
+//
 // Intended for internal use only.
-func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity, thrower *Player) *Inferno {
+func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity, thrower *Player, id int64) *Inferno {
 	return &Inferno{
 		Entity:           entity,
-		uniqueID:         rand.Int63(), //nolint:gosec
+		uniqueID:         id,
 		demoInfoProvider: demoInfoProvider,
 		thrower:          thrower,
 	}

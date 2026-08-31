@@ -6,6 +6,7 @@ import (
 	"os"
 	"runtime/debug"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -136,6 +137,18 @@ type parser struct {
 	userCmdStates         map[int32]*userCmdPlayerState                            // Per-player command-number ring reconstructed from full + delta updates
 	userCmdButtonStates   map[int32]*userCmdButtonPlayerState                      // Per-player command-number ring containing buttonstate1 only
 	hasUserCmdMessages    bool                                                     // True once a CSVCMsg_UserCommands message has been seen; replace the legacy m_nButtonDownMaskPrev prop
+	lastUniqueID          int64                                                    // Backs nextUniqueID; ids for grenades/infernos/equipment created during this parse
+}
+
+// nextUniqueID returns the next monotonically increasing id for entities created during this parse
+// (grenade projectiles, infernos, equipment instances). Ids are unique within the Parser and
+// reproducible across parses of the same demo (creation follows the deterministic parse order).
+// Ids from different Parser instances may collide, so don't key data across demos by them.
+//
+// All construction happens on the message-handling goroutine, but the atomic keeps it
+// race-detector-clean if that ever changes.
+func (p *parser) nextUniqueID() int64 {
+	return atomic.AddInt64(&p.lastUniqueID, 1)
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
@@ -241,6 +254,20 @@ func (p *parser) Progress() float32 {
 	}
 
 	return float32(p.currentFrame) / float32(p.header.PlaybackFrames)
+}
+
+// FrameCount returns the total number of frames in the demo, or -1 if it is not yet known.
+//
+// For Source 2 (CS2) demos the total only becomes available once the trailing CDemoFileInfo has
+// been parsed - typically at the very end of ParseToEnd - and is absent from the pre-parse header,
+// so this returns -1 throughout parsing for those demos. Use it to branch cleanly rather than
+// relying on Progress() (which returns 0 while the total is unknown).
+func (p *parser) FrameCount() int {
+	if p.header == nil || p.header.PlaybackFrames <= 0 {
+		return -1
+	}
+
+	return p.header.PlaybackFrames
 }
 
 /*

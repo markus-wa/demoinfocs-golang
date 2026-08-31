@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"fmt"
 	"math"
+	"sort"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -13,6 +14,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
+	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
 )
 
 func (p *parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
@@ -72,12 +74,24 @@ func (p *parser) handleGameEvent(ge *msg.CMsgSource1LegacyGameEvent) {
 	})
 }
 
+// victimTickHealthDamage records the victim's last reported health within a single game tick, so a
+// same-tick fatal follow-up hit can be capped at the victim's actual remaining HP instead of the
+// stale start-of-tick value (which over-reports same-tick multi-attacker kills). Tracking the
+// server's reported post-hit health is exact, whereas summing raw dmg_health can under-report the
+// true HP drop by 1 (the benign shotgun-pellet rounding artifact).
+type victimTickHealthDamage struct {
+	tick       int
+	lastHealth int
+	hasPrior   bool
+}
+
 type gameEventHandler struct {
 	parser                      *parser
 	gameEventNameToHandler      map[string]gameEventHandlerFunc
 	frameToBombExploded         map[int]bool
 	userIDToFallDamageFrame     map[int32]int
 	frameToRoundEndReason       map[int]events.RoundEndReason
+	healthDamagePerVictim       map[int32]*victimTickHealthDamage
 	ignoreBombsiteIndexNotFound bool // see https://github.com/markus-wa/demoinfocs-golang/issues/314
 }
 
@@ -119,6 +133,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		frameToBombExploded:         make(map[int]bool),
 		userIDToFallDamageFrame:     make(map[int32]int),
 		frameToRoundEndReason:       make(map[int]events.RoundEndReason),
+		healthDamagePerVictim:       make(map[int32]*victimTickHealthDamage),
 		ignoreBombsiteIndexNotFound: ignoreBombsiteIndexNotFound,
 	}
 
@@ -243,13 +258,13 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"smokegrenade_expired":           geh.smokeGrenadeExpired,          // Smoke expired
 		"switch_team":                    nil,                              // Dunno, only present in POV demos
 		"tournament_reward":              nil,                              // Dunno
-		"vote_cast":                      nil,                              // Dunno, only present in POV demos
+		"vote_cast":                      geh.voteCast,                     // A player cast a vote in a call-vote
 		"weapon_fire":                    delayIfNoPlayers(geh.weaponFire), // Weapon was fired
 		"weapon_fire_on_empty":           nil,                              // Sounds boring
 		"weapon_reload":                  geh.weaponReload,                 // Weapon reloaded
 		"weapon_zoom":                    nil,                              // Zooming in
 		"weapon_zoom_rifle":              nil,                              // Dunno, only in locally recorded (POV) demo
-		"entity_killed":                  nil,
+		"entity_killed":                  geh.entityKilled,                 // Non-player entity killed (chickens, props, ...) in CS2
 
 		// S2
 		"hltv_versioninfo": nil, // HLTV version info
@@ -277,6 +292,7 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)
 	geh.gameState().thrownGrenades = make(map[*common.Player]map[common.EquipmentType][]*common.Equipment)
 	geh.gameState().flyingFlashbangs = make([]*FlyingFlashbang, 0)
+	geh.gameState().flashedEntitiesThisFrame = nil
 }
 
 func (geh gameEventHandler) roundStart(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
@@ -378,9 +394,14 @@ func (geh gameEventHandler) playerFootstep(data map[string]*msg.CMsgSource1Legac
 }
 
 func (geh gameEventHandler) playerJump(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
-	geh.dispatch(events.PlayerJump{
-		Player: geh.playerByUserID32(data["userid"].GetValShort()),
-	})
+	player := geh.playerByUserID32(data["userid"].GetValShort())
+
+	e := events.PlayerJump{Player: player}
+	if player != nil {
+		e.Position = player.Position()
+	}
+
+	geh.dispatch(e)
 }
 
 func (geh gameEventHandler) playerSound(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
@@ -402,7 +423,7 @@ func (geh gameEventHandler) weaponFire(data map[string]*msg.CMsgSource1LegacyGam
 
 	geh.dispatch(events.WeaponFire{
 		Shooter: shooter,
-		Weapon:  getPlayerWeapon(shooter, wepType, rawWeapon),
+		Weapon:  getPlayerWeapon(shooter, wepType, rawWeapon, geh.parser.nextUniqueID()),
 	})
 }
 
@@ -447,10 +468,18 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CMsgSource1LegacyGa
 	})
 }
 
+//nolint:funlen // mirrors player_death's structure; splitting it would duplicate the weapon resolution
 func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
 	userID := data["userid"].GetValShort()
+
 	player := geh.playerByUserID32(userID)
 	attacker := geh.playerByUserID32(data["attacker"].GetValShort())
+
+	if attacker == nil && data["attacker_pawn"] != nil {
+		// CS2 only, fallback to the pawn handle if the attacker was not found by its user ID.
+		// Mirrors player_death, so hurts and kills resolve the same attacker (see #156, #172).
+		attacker = geh.parser.gameState.Participants().FindByPawnHandle(uint64(data["attacker_pawn"].GetValLong()))
+	}
 
 	rawWeapon := data["weapon"].GetValString()
 	wepType := common.MapEquipment(rawWeapon)
@@ -471,15 +500,39 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 		armorDamageTaken = 100
 	}
 
-	if player != nil {
+	tick := geh.gameState().IngameTick()
+
+	victimDamage := geh.healthDamagePerVictim[userID]
+	if victimDamage == nil || victimDamage.tick != tick {
+		victimDamage = &victimTickHealthDamage{tick: tick}
+		geh.healthDamagePerVictim[userID] = victimDamage
+	}
+
+	if player != nil { //nolint:nestif // fatal-hit capping + armor fallback, kept flat to mirror player_death
 		if health == 0 {
-			healthDamageTaken = player.Health()
+			// Fatal hit: the damage actually taken is the victim's remaining HP right before this
+			// hit. player.Health() reads the start-of-tick HP (entity state is applied only after the
+			// tick's events are dispatched). When an earlier hit already landed on this victim this
+			// same tick, use that hit's reported post-damage health - the server's own HP after it,
+			// and exact - otherwise same-tick multi-attacker kills over-report the finishing blow.
+			if victimDamage.hasPrior {
+				healthDamageTaken = victimDamage.lastHealth
+			} else {
+				healthDamageTaken = player.Health()
+			}
+
+			if healthDamageTaken < 0 {
+				healthDamageTaken = 0
+			}
 		}
 
 		if armor == 0 {
 			armorDamageTaken = player.Armor()
 		}
 	}
+
+	victimDamage.lastHealth = health
+	victimDamage.hasPrior = true
 
 	wepType = geh.attackerWeaponType(wepType, userID)
 
@@ -860,10 +913,22 @@ func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CMsgSource1Lega
 
 	geh.gameState().currentDefuser = geh.playerByUserID32(data["userid"].GetValShort())
 
-	geh.dispatch(events.BombDefuseStart{
+	e := events.BombDefuseStart{
 		Player: geh.gameState().currentDefuser,
 		HasKit: data["haskit"].GetValBool(),
-	})
+	}
+
+	// The bomb_begindefuse game-event carries no site key, so derive it from the planted bomb's
+	// position - same source the plant path uses when the site index is unavailable.
+	// Bomb() is never nil (it's a value receiver returning &gameState.bomb), so guard on the
+	// planted bomb's position instead: it's only unknown on corrupt demos or when parsing starts
+	// mid-round after the plant, in which case the site is left unset (getClosestBombsiteFromPosition
+	// would otherwise map the zero origin to a real bombsite).
+	if bomb := geh.gameState().Bomb(); bomb.LastOnGroundPosition != (r3.Vector{}) {
+		e.Site = geh.parser.getClosestBombsiteFromPosition(bomb.Position())
+	}
+
+	geh.dispatch(e)
 }
 
 func (geh gameEventHandler) itemEquip(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
@@ -871,6 +936,14 @@ func (geh gameEventHandler) itemEquip(data map[string]*msg.CMsgSource1LegacyGame
 	geh.dispatch(events.ItemEquip{
 		Player: player,
 		Weapon: weapon,
+	})
+}
+
+func (geh gameEventHandler) voteCast(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+	geh.dispatch(events.VoteCast{
+		Player:     geh.playerByUserID32(data["userid"].GetValShort()),
+		VoteOption: int(data["vote_option"].GetValByte()),
+		Team:       common.Team(data["team"].GetValByte()),
 	})
 }
 
@@ -904,7 +977,7 @@ func (geh gameEventHandler) otherDeath(data map[string]*msg.CMsgSource1LegacyGam
 
 	rawWeapon := data["weapon"].GetValString()
 	wepType := common.MapEquipment(rawWeapon)
-	weapon := getPlayerWeapon(killer, wepType, rawWeapon)
+	weapon := getPlayerWeapon(killer, wepType, rawWeapon, geh.parser.nextUniqueID())
 
 	geh.dispatch(events.OtherDeath{
 		Killer:            killer,
@@ -920,11 +993,58 @@ func (geh gameEventHandler) otherDeath(data map[string]*msg.CMsgSource1LegacyGam
 	})
 }
 
+// entityKilled handles the CS2 "entity_killed" game-event. Its payload carries only entity
+// indices (entindex_killed / entindex_attacker / entindex_inflictor / damagebits) rather than the
+// source1 "other_death" keys. Player-pawn deaths are already surfaced via player_death
+// (events.Kill), so they are skipped here; the remaining ones are non-player entity deaths
+// (chickens, breakable props, doors, ...) surfaced as events.OtherDeath.
+func (geh gameEventHandler) entityKilled(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+	killedID := int(data["entindex_killed"].GetValLong())
+
+	killed := geh.gameState().entities[killedID]
+	if killed == nil {
+		return
+	}
+
+	className := killed.ServerClass().Name()
+	if className == "CCSPlayerPawn" || className == "CCSPlayerPawnBase" {
+		return
+	}
+
+	var inflictorType string
+	if inflictor := geh.gameState().entities[int(data["entindex_inflictor"].GetValLong())]; inflictor != nil {
+		inflictorType = inflictor.ServerClass().Name()
+	}
+
+	geh.dispatch(events.OtherDeath{
+		Killer:        geh.playerByPawnEntityID(int(data["entindex_attacker"].GetValLong())),
+		OtherType:     className,
+		OtherID:       int32(killedID),
+		OtherPosition: killed.Position(),
+		InflictorType: inflictorType,
+	})
+}
+
+// playerByPawnEntityID resolves a player from his pawn entity-ID (CS2). Returns nil if not found.
+func (geh gameEventHandler) playerByPawnEntityID(entityID int) *common.Player {
+	if entityID <= 0 {
+		return nil
+	}
+
+	for _, player := range geh.gameState().Participants().All() {
+		if pawn := player.PlayerPawnEntity(); pawn != nil && pawn.ID() == entityID {
+			return player
+		}
+	}
+
+	return nil
+}
+
 func (geh gameEventHandler) itemEvent(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) (*common.Player, *common.Equipment) {
 	player := geh.playerByUserID32(data["userid"].GetValShort())
 
 	wepType := common.MapEquipment(data["item"].GetValString())
-	weapon := getPlayerWeapon(player, wepType, data["item"].GetValString())
+	weapon := getPlayerWeapon(player, wepType, data["item"].GetValString(), geh.parser.nextUniqueID())
 
 	return player, weapon
 }
@@ -1086,14 +1206,15 @@ func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType 
 		return geh.getThrownGrenade(player, wepType)
 	}
 
-	return getPlayerWeapon(player, wepType, rawName)
+	return getPlayerWeapon(player, wepType, rawName, geh.parser.nextUniqueID())
 }
 
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
 //
 // The weapon's OriginalString is set to the raw event weapon name (rawName),
 // which may be empty (e.g. for grenade projectiles).
-func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawName string) *common.Equipment {
+// The id is used for the new instance's UniqueID2 (see parser.nextUniqueID).
+func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawName string, id int64) *common.Equipment {
 	if player != nil {
 		alternateWepType := common.EquipmentAlternative(wepType)
 		for _, wep := range player.Weapons() {
@@ -1105,7 +1226,7 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawNam
 		}
 	}
 
-	wep := common.NewEquipment(wepType)
+	wep := common.NewEquipment(wepType, id)
 	wep.OriginalString = rawName
 
 	return wep
@@ -1169,25 +1290,43 @@ func (p *parser) processRoundProgressEvents() {
 }
 
 func (p *parser) processFlyingFlashbangs() {
+	victims := p.gameState.flashedEntitiesThisFrame
+	p.gameState.flashedEntitiesThisFrame = nil
+
 	if len(p.gameState.flyingFlashbangs) == 0 {
 		return
 	}
 
-	flashbang := p.gameState.flyingFlashbangs[0]
-	if len(flashbang.flashedEntityIDs) == 0 {
-		// Flashbang exploded and didn't flash any players, remove it from the queue
-		if flashbang.explodedFrame > 0 && flashbang.explodedFrame < p.currentFrame {
-			p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
-		}
+	// Split the in-flight flashbangs into those that detonated this frame and those still airborne.
+	// Detonation is keyed by the destroyed projectile's identity (see the OnDestroy handler), so the
+	// queue no longer relies on FIFO order and a zero-victim detonation can't desync attribution.
+	var detonated []*FlyingFlashbang
 
+	kept := p.gameState.flyingFlashbangs[:0]
+
+	for _, flashbang := range p.gameState.flyingFlashbangs {
+		if flashbang.explodedFrame == p.currentFrame {
+			detonated = append(detonated, flashbang)
+		} else {
+			kept = append(kept, flashbang)
+		}
+	}
+
+	p.gameState.flyingFlashbangs = kept
+
+	if len(detonated) == 0 {
 		return
 	}
 
-	for _, entityID := range flashbang.flashedEntityIDs {
+	// Attribute each pawn flashed this frame to the flashbang that detonated this frame. When more
+	// than one detonated simultaneously, pick the closest by detonation position.
+	for _, entityID := range victims {
 		player := p.gameState.Participants().ByEntityID()[entityID]
 		if player == nil {
 			continue
 		}
+
+		flashbang := nearestDetonatedFlashbang(detonated, player)
 
 		p.gameEventHandler.dispatch(events.PlayerFlashed{
 			Player:     player,
@@ -1195,8 +1334,28 @@ func (p *parser) processFlyingFlashbangs() {
 			Projectile: flashbang.projectile,
 		})
 	}
+}
 
-	p.gameState.flyingFlashbangs = p.gameState.flyingFlashbangs[1:]
+// nearestDetonatedFlashbang returns the flashbang whose detonation position is closest to the
+// player - used to attribute a victim when multiple flashbangs detonate on the same frame.
+func nearestDetonatedFlashbang(flashbangs []*FlyingFlashbang, player *common.Player) *FlyingFlashbang {
+	nearest := flashbangs[0]
+
+	if len(flashbangs) == 1 {
+		return nearest
+	}
+
+	pos := player.Position()
+	minDist := pos.Sub(nearest.position).Norm()
+
+	for _, flashbang := range flashbangs[1:] {
+		if dist := pos.Sub(flashbang.position).Norm(); dist < minDist {
+			minDist = dist
+			nearest = flashbang
+		}
+	}
+
+	return nearest
 }
 
 // Do some processing to dispatch game events at the end of the frame in correct order.
@@ -1212,9 +1371,67 @@ func (p *parser) processFrameGameEvents() {
 		p.processRoundProgressEvents()
 	}
 
+	p.processInfernoFireOut()
+
 	for _, eventHandler := range p.delayedEventHandlers {
 		eventHandler()
 	}
 
 	p.delayedEventHandlers = p.delayedEventHandlers[:0]
+}
+
+// processInfernoFireOut dispatches events.InfernoFireOut the first time an inferno's active fires
+// transition from burning to none. InfernoExpired only fires when the entity is destroyed (~20s),
+// which is much later than the actual flame-out.
+//
+// Not gated on DisableMimicSource1Events: InfernoFireOut is not a source1-mimic event, it's new
+// functionality driven by entity state.
+func (p *parser) processInfernoFireOut() {
+	// Iterate in a stable entity-ID order rather than Go's randomised map order, so that when two
+	// infernos flame out on the same frame their InfernoFireOut events dispatch deterministically.
+	ids := make([]int, 0, len(p.gameState.infernos))
+	for id := range p.gameState.infernos {
+		ids = append(ids, id)
+	}
+
+	sort.Ints(ids)
+
+	for _, id := range ids {
+		inf := p.gameState.infernos[id]
+
+		state := p.gameState.infernoFireStates[id]
+		if state == nil {
+			state = &infernoFireState{}
+			p.gameState.infernoFireStates[id] = state
+		}
+
+		if state.firedOut {
+			continue
+		}
+
+		if infernoHasBurningFire(inf.Entity) {
+			state.wasBurning = true
+		} else if state.wasBurning {
+			state.firedOut = true
+
+			p.eventDispatcher.Dispatch(events.InfernoFireOut{Inferno: inf})
+		}
+	}
+}
+
+// infernoHasBurningFire reports whether any of the inferno's fires is still burning.
+//
+// Cheaper than Inferno.Fires().Active() because it reads only the m_bFireIsBurning flags and
+// stops at the first burning one, instead of also reading every fire's position and building
+// the full Fire slice.
+func infernoHasBurningFire(entity st.Entity) bool {
+	nFires := entity.PropertyValueMust("m_fireCount").Int()
+
+	for i := 0; i < nFires; i++ {
+		if entity.PropertyValueMust(fmt.Sprintf("m_bFireIsBurning.%04d", i)).BoolVal() {
+			return true
+		}
+	}
+
+	return false
 }

@@ -2,9 +2,11 @@ package demoinfocs
 
 import (
 	"errors"
+	"sort"
 	"strconv"
 	"time"
 
+	"github.com/golang/geo/r3"
 	common "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/constants"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
@@ -26,6 +28,7 @@ type gameState struct {
 	playerControllerEntities     map[int]st.Entity
 	grenadeProjectiles           map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos                     map[int]*common.Inferno           // Maps entity-IDs to active infernos.
+	infernoFireStates            map[int]*infernoFireState         // Maps inferno entity-IDs to their burning state, for InfernoFireOut.
 	weapons                      map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
 	hostages                     map[int]*common.Hostage           // Maps entity-IDs to hostages.
 	entities                     map[int]st.Entity                 // Maps entity IDs to entities
@@ -61,14 +64,26 @@ type gameState struct {
 	// As a solution, we keep track of flashbang projectiles created and all m_flFlashDuration prop updates related
 	// to this projectile. As all m_flFlashDuration prop updates occur during the same frame, we batch dispatch
 	// player-flashed events at the end of the frame if there are any.
-	// This slice acts like a FIFO queue, the first projectile inserted is the first one to be removed when it exploded.
+	// Flashbangs currently in flight (thrown but not yet detonated). Entries are keyed by the
+	// projectile identity, not by position - a flashbang is removed when its own projectile entity
+	// is destroyed, so a zero-victim detonation no longer desyncs attribution for the round.
 	flyingFlashbangs []*FlyingFlashbang
+	// Pawn entity-IDs whose m_flFlashDuration was set during the current frame. They are paired with
+	// the flashbang(s) that detonated in the same frame at the end of the frame.
+	flashedEntitiesThisFrame []int
 }
 
 type FlyingFlashbang struct {
-	projectile       *common.GrenadeProjectile
-	flashedEntityIDs []int
-	explodedFrame    int
+	projectile    *common.GrenadeProjectile
+	position      r3.Vector // Detonation position, set when the projectile is destroyed. Used to pair victims when multiple flashbangs detonate on the same frame.
+	explodedFrame int
+}
+
+// infernoFireState tracks an inferno's burning state so InfernoFireOut can be dispatched once, when
+// its active fires first transition from >0 to 0 (the true flame-out, distinct from InfernoExpired).
+type infernoFireState struct {
+	wasBurning bool
+	firedOut   bool
 }
 
 type lastFlash struct {
@@ -154,11 +169,17 @@ func (gs gameState) Hostages() []*common.Hostage {
 //
 // Only constains projectiles currently in-flight or still active (smokes etc.),
 // i.e. have been thrown but have yet to detonate.
+//
+// Note: this is a map, so ranging it yields a non-deterministic order. For reproducible output sort
+// the values by entity-ID or GrenadeProjectile.UniqueID() (which is itself deterministic) first.
 func (gs gameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 	return gs.grenadeProjectiles
 }
 
 // Infernos returns a map from entity-IDs to all currently burning infernos (fires from incendiaries and Molotovs).
+//
+// Note: this is a map, so ranging it yields a non-deterministic order. For reproducible output sort
+// the values by entity-ID or Inferno.UniqueID() (which is itself deterministic) first.
 func (gs gameState) Infernos() map[int]*common.Inferno {
 	return gs.infernos
 }
@@ -231,6 +252,7 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		playersBySteamID32:       make(map[uint32]*common.Player),
 		grenadeProjectiles:       make(map[int]*common.GrenadeProjectile),
 		infernos:                 make(map[int]*common.Inferno),
+		infernoFireStates:        make(map[int]*infernoFireState),
 		weapons:                  make(map[int]*common.Equipment),
 		hostages:                 make(map[int]*common.Hostage),
 		entities:                 make(map[int]st.Entity),
@@ -368,7 +390,23 @@ func (ptcp participants) All() []*common.Player {
 		res = append(res, p)
 	}
 
+	sortPlayers(res)
+
 	return res
+}
+
+// sortPlayers sorts players by a stable key so that slice accessors are deterministic across runs
+// (they are built by ranging maps, whose iteration order Go randomises). SteamID64 is stable across
+// demos; UserID breaks ties (e.g. between bots, whose SteamID64 is 0).
+func sortPlayers(players []*common.Player) {
+	sort.Slice(players, func(i, j int) bool {
+		a, b := players[i], players[j]
+		if a.SteamID64 != b.SteamID64 {
+			return a.SteamID64 < b.SteamID64
+		}
+
+		return a.UserID < b.UserID
+	})
 }
 
 // Connected returns all currently connected players & spectators.
@@ -378,6 +416,8 @@ func (ptcp participants) Connected() []*common.Player {
 	for _, p := range original {
 		res = append(res, p)
 	}
+
+	sortPlayers(res)
 
 	return res
 }
@@ -392,6 +432,8 @@ func (ptcp participants) Playing() []*common.Player {
 		}
 	}
 
+	sortPlayers(res)
+
 	return res
 }
 
@@ -404,6 +446,8 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 			res = append(res, p)
 		}
 	}
+
+	sortPlayers(res)
 
 	return res
 }

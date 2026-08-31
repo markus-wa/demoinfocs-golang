@@ -20,7 +20,7 @@ type Player struct {
 	Inventory           map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
 	EntityID            int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
 	Entity              st.Entity          // May be nil between player-death and re-spawn
-	FlashDuration       float32            // Blindness duration from the flashbang currently affecting the player (seconds)
+	FlashDuration       float32            // Effective blindness duration from the flashbang currently affecting the player (seconds). The engine's flash-affected window (e.g. for assist attribution) runs ~1.4x longer; there is no continuous remaining-intensity netprop.
 	FlashTick           int                // In-game tick at which the player was last flashed
 	TeamState           *TeamState         // When keeping the reference make sure you notice when the player changes teams
 	Team                Team               // Team identifier for the player (e.g. TeamTerrorists or TeamCounterTerrorists).
@@ -408,8 +408,11 @@ func (p *Player) ViewDirectionY() float32 {
 	return 0
 }
 
-// Velocity returns the player's velocity in game units per second.
-// Note: available only with demos after the AnimGraph 2 update! Otherwise this returns a zero vector.
+// Velocity returns the player's velocity in units per second.
+//
+// Note: on CS2 GOTV demos - both broadcast-GOTV and match-server SourceTV - the m_vecVelocity
+// property is not networked on player pawns and this returns a zero vector; it is populated only on
+// POV / match-making demos. For GOTV, derive velocity from the position delta between ticks instead.
 func (p *Player) Velocity() r3.Vector {
 	pawnEntity := p.PlayerPawnEntity()
 	if pawnEntity == nil {

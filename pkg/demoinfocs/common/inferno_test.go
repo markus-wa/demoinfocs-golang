@@ -13,7 +13,7 @@ import (
 
 func TestInferno_UniqueID(t *testing.T) {
 	entity := new(stfake.Entity)
-	assert.NotEqual(t, NewInferno(nil, entity, nil).UniqueID(), NewInferno(nil, entity, nil).UniqueID(), "UniqueIDs of different infernos should be different")
+	assert.NotEqual(t, NewInferno(nil, entity, nil, 1).UniqueID(), NewInferno(nil, entity, nil, 2).UniqueID(), "UniqueIDs of different infernos should be different")
 }
 
 func TestFires_Active(t *testing.T) {
@@ -119,7 +119,7 @@ func TestInferno_Thrower(t *testing.T) {
 		playersByHandle: map[uint64]*Player{1: player},
 	}
 
-	assert.Equal(t, player, NewInferno(provider, entity, nil).Thrower())
+	assert.Equal(t, player, NewInferno(provider, entity, nil, 1).Thrower())
 }
 
 func TestInferno_List(t *testing.T) {

@@ -3,7 +3,6 @@ package demoinfocs
 import (
 	"fmt"
 	"math"
-	"os"
 
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
@@ -208,6 +207,7 @@ func (p *parser) bindBomb() {
 					p.eventDispatcher.Dispatch(events.BombDefuseStart{
 						Player: defuser,
 						HasKit: hasKit,
+						Site:   site,
 					})
 				}
 
@@ -519,13 +519,12 @@ func (p *parser) bindNewPlayerPawn(pawnEntity st.Entity) {
 
 		pl.FlashDuration = val.Float()
 
-		if pl.FlashDuration > 0 {
-			if len(p.gameState.flyingFlashbangs) == 0 {
-				return
-			}
-
-			flashbang := p.gameState.flyingFlashbangs[0]
-			flashbang.flashedEntityIDs = append(flashbang.flashedEntityIDs, pl.EntityID)
+		if pl.FlashDuration > 0 && len(p.gameState.flyingFlashbangs) > 0 {
+			// The detonation (projectile OnDestroy) and these m_flFlashDuration updates arrive in the
+			// same frame but in an unspecified order, so we can't yet know which projectile caused
+			// this. Buffer the flashed pawn and pair it with the flashbang that detonated this frame
+			// at the end of the frame (see processFlyingFlashbangs).
+			p.gameState.flashedEntitiesThisFrame = append(p.gameState.flashedEntitiesThisFrame, pl.EntityID)
 		}
 	})
 
@@ -604,7 +603,7 @@ func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, pl *common.Player) {
 
 		if wep == nil {
 			// sometimes a weapon is assigned to a player before the weapon entity is created
-			wep = common.NewEquipment(common.EqUnknown)
+			wep = common.NewEquipment(common.EqUnknown, p.nextUniqueID())
 			p.gameState.weapons[int(entityID)] = wep
 		}
 
@@ -706,12 +705,32 @@ func (p *parser) bindWeapons() {
 
 // bindGrenadeProjectiles keeps track of the location of live grenades (parser.gameState.grenadeProjectiles), actively thrown by players.
 // It does NOT track the location of grenades lying on the ground, i.e. that were dropped by dead players.
-//
-//nolint:funlen
+// equipmentTypeFromProjectileClass resolves a grenade type from the projectile entity's server
+// class. Used as a fallback when the model hash isn't yet in equipmentTypePerModel.
+func equipmentTypeFromProjectileClass(className string) common.EquipmentType {
+	switch className {
+	case "CFlashbangProjectile":
+		return common.EqFlash
+	case "CHEGrenadeProjectile":
+		return common.EqHE
+	case "CSmokeGrenadeProjectile":
+		return common.EqSmoke
+	case "CDecoyProjectile":
+		return common.EqDecoy
+	case "CMolotovProjectile":
+		// Molotov and incendiary share this projectile class and are only distinguishable by model,
+		// so this fallback can't tell them apart - default to molotov.
+		return common.EqMolotov
+	}
+
+	return common.EqUnknown
+}
+
+//nolint:funlen,gocognit
 func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	entityID := entity.ID()
 
-	proj := common.NewGrenadeProjectile()
+	proj := common.NewGrenadeProjectile(p.nextUniqueID())
 	proj.Entity = entity
 	p.gameState.grenadeProjectiles[entityID] = proj
 
@@ -730,16 +749,34 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		if modelVal.Any != nil {
 			model := modelVal.UInt64()
 
-			weaponType, exists := p.equipmentTypePerModel[model]
-			if exists {
+			if weaponType, exists := p.equipmentTypePerModel[model]; exists {
 				wep = weaponType
 			} else {
-				fmt.Fprintf(os.Stderr, "unknown grenade model %d\n", model)
+				// The model hash isn't in equipmentTypePerModel yet (it's built lazily from weapon
+				// entities), e.g. on a mid-round GOTV start or a post-patch model variant. Fall back
+				// to the projectile's server class.
+				wep = equipmentTypeFromProjectileClass(entity.ServerClass().Name())
+
+				switch wep { //nolint:exhaustive // only the two warning cases are of interest
+				case common.EqUnknown:
+					p.eventDispatcher.Dispatch(events.ParserWarn{
+						Message: fmt.Sprintf("unknown grenade model %d", model),
+						Type:    events.WarnTypeUnknownGrenadeModel,
+					})
+				case common.EqMolotov:
+					// CMolotovProjectile is shared by molotov and incendiary; the class alone can't
+					// tell them apart, so EqMolotov here is a best-effort guess - warn so consumers
+					// know WeaponInstance.Type may be wrong for this projectile.
+					p.eventDispatcher.Dispatch(events.ParserWarn{
+						Message: fmt.Sprintf("grenade model %d unknown; guessed molotov from class (may be incendiary)", model),
+						Type:    events.WarnTypeUnknownGrenadeModel,
+					})
+				}
 			}
 		}
 
 		// copy the weapon so it doesn't get overwritten by a new entity in parser.weapons
-		wepCopy := *(getPlayerWeapon(proj.Thrower, wep, ""))
+		wepCopy := *(getPlayerWeapon(proj.Thrower, wep, "", p.nextUniqueID()))
 		proj.WeaponInstance = &wepCopy
 
 		unassert.NotNilf(proj.WeaponInstance, "couldn't find grenade instance for player")
@@ -752,8 +789,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 		if proj.WeaponInstance.Type == common.EqFlash {
 			p.gameState.flyingFlashbangs = append(p.gameState.flyingFlashbangs, &FlyingFlashbang{
-				projectile:       proj,
-				flashedEntityIDs: []int{},
+				projectile: proj,
 			})
 		}
 
@@ -795,12 +831,17 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 				},
 			})
 
-			if len(p.gameState.flyingFlashbangs) == 0 {
-				return
-			}
+			// Mark the entry for the projectile that actually detonated (entity-keyed), not the
+			// head of the queue - otherwise a zero-victim detonation while another flashbang is
+			// airborne shifts victim attribution by one for the rest of the round.
+			for _, flashbang := range p.gameState.flyingFlashbangs {
+				if flashbang.projectile == proj {
+					flashbang.explodedFrame = p.currentFrame
+					flashbang.position = proj.Position()
 
-			flashbang := p.gameState.flyingFlashbangs[0]
-			flashbang.explodedFrame = p.currentFrame
+					break
+				}
+			}
 		}
 
 		p.nadeProjectileDestroyed(proj)
@@ -895,9 +936,9 @@ func (p *parser) bindWeapon(entity st.Entity) {
 	wepType := common.EquipmentIndexMapping[itemIndex]
 
 	if wepType == common.EqUnknown {
-		fmt.Fprintln(os.Stderr, "unknown equipment with index", itemIndex)
-
-		p.msgDispatcher.Dispatch(events.ParserWarn{
+		// Dispatch on the event dispatcher (the one RegisterEventHandler binds to) so consumers can
+		// actually receive and filter this warning, rather than the msg dispatcher.
+		p.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: fmt.Sprintf("unknown equipment with index %d", itemIndex),
 			Type:    events.WarnTypeUnknownEquipmentIndex,
 		})
@@ -908,7 +949,7 @@ func (p *parser) bindWeapon(entity st.Entity) {
 
 	equipment, exists := p.gameState.weapons[entityID]
 	if !exists {
-		equipment = common.NewEquipment(wepType)
+		equipment = common.NewEquipment(wepType, p.nextUniqueID())
 		p.gameState.weapons[entityID] = equipment
 	} else {
 		equipment.Type = wepType
@@ -1009,7 +1050,7 @@ func (p *parser) bindNewInferno(entity st.Entity) {
 
 	thrower := p.gameState.Participants().FindByPawnHandle(throwerHandle)
 
-	inf := common.NewInferno(p.demoInfoProvider, entity, thrower)
+	inf := common.NewInferno(p.demoInfoProvider, entity, thrower, p.nextUniqueID())
 	p.gameState.infernos[entity.ID()] = inf
 
 	entity.OnCreateFinished(func() {
@@ -1036,6 +1077,7 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 	})
 
 	delete(p.gameState.infernos, inf.Entity.ID())
+	delete(p.gameState.infernoFireStates, inf.Entity.ID())
 
 	p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
 }

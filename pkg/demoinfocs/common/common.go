@@ -3,7 +3,6 @@ package common
 
 import (
 	"fmt"
-	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -53,6 +52,10 @@ func getVelocityComponent(entity st.Entity, component string) (float32, bool) {
 
 // Velocity returns the projectile's velocity.
 // Returns a zero vector if the velocity is not networked.
+//
+// Note: on CS2 broadcast/GOTV demos the m_vecVelocity property is not present on grenade
+// projectile entities and this returns a zero vector. The throw kinematics are instead captured
+// at entity creation via m_vInitialVelocity / m_vInitialPosition; use those for release velocity.
 func (g *GrenadeProjectile) Velocity() r3.Vector {
 	x, okX := getVelocityComponent(g.Entity, "m_vecX")
 	y, okY := getVelocityComponent(g.Entity, "m_vecY")
@@ -70,17 +73,24 @@ func (g *GrenadeProjectile) Velocity() r3.Vector {
 }
 
 // UniqueID returns the unique id of the grenade.
-// The unique id is a random int generated internally by this library and can be used to differentiate
-// grenades from each other. This is needed because demo-files reuse entity ids.
+// The id is generated internally by this library and can be used to differentiate grenades from
+// each other. This is needed because demo-files reuse entity ids.
+//
+// The id is unique within the Parser instance that created the grenade; ids from different Parser
+// instances (e.g. concurrently or sequentially parsed demos) may collide, so don't key data
+// across demos by it.
 func (g *GrenadeProjectile) UniqueID() int64 {
 	return g.uniqueID
 }
 
 // NewGrenadeProjectile creates a grenade projectile and sets the Unique-ID.
 //
+// The id must come from the creating Parser's unique-id source so that it is unique within that
+// parse and reproducible across parses of the same demo.
+//
 // Intended for internal use only.
-func NewGrenadeProjectile() *GrenadeProjectile {
-	return &GrenadeProjectile{uniqueID: rand.Int63()} //nolint:gosec
+func NewGrenadeProjectile(id int64) *GrenadeProjectile {
+	return &GrenadeProjectile{uniqueID: id}
 }
 
 // Bomb tracks the bomb's position, and the player carrying it, if any.
