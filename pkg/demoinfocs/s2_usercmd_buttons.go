@@ -1,51 +1,77 @@
 package demoinfocs
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/encoding/protowire"
+
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 )
 
-// wireTypeReset is the "reset field to its protobuf default" marker used by
-// Valve's codegen_delta_encoder. It reuses wire type 7, which is invalid in
-// standard protobuf, which is why proto.Unmarshal fails on delta_data.
-const wireTypeReset = protowire.Type(7)
+// userCmdButtonRing keeps the same command-number validation as the full
+// decoder, but stores only the one value needed by PlayerButtonsStateUpdate.
+type userCmdButtonRing struct {
+	entries [userCmdRingSize]userCmdButtonRingEntry
+}
 
-// userCmdButtonsPath is the field-number path from the root of a CSGOUserCmdPB
-// down to the only value we care about:
-//
-//	CSGOUserCmdPB.base (1) -> CBaseUserCmdPB.buttons_pb (3) -> CInButtonStatePB.buttonstate1 (1)
+type userCmdButtonRingEntry struct {
+	commandNumber int32
+	buttons       uint64
+	valid         bool
+}
+
+func (r *userCmdButtonRing) insert(commandNumber int32, buttons uint64) {
+	r.entries[userCmdRingIndex(commandNumber)] = userCmdButtonRingEntry{
+		commandNumber: commandNumber,
+		buttons:       buttons,
+		valid:         true,
+	}
+}
+
+func (r *userCmdButtonRing) get(commandNumber int32) (uint64, bool) {
+	entry := r.entries[userCmdRingIndex(commandNumber)]
+	if !entry.valid || entry.commandNumber != commandNumber {
+		return 0, false
+	}
+
+	return entry.buttons, true
+}
+
+type userCmdButtonPlayerState struct {
+	ring                 userCmdButtonRing
+	currentCommandNumber int32
+	hasCurrentCommand    bool
+}
+
+// The buttonstate1 path is CSGOUserCmdPB.base.buttons_pb.buttonstate1.
 var userCmdButtonsPath = [...]protowire.Number{1, 3, 1}
 
-// mergeUserCmdButtons walks a full CSGOUserCmdPB snapshot or a delta blob and
-// merges buttonstate1 into buttons, skipping every other field without decoding
-// it. Deltas leave buttons untouched when the path is absent, and zero it on a
-// reset marker anywhere along the path.
+// mergeUserCmdButtons extracts only buttonstate1 from a full snapshot or delta.
+// It skips all other fields without proto.Unmarshal or allocation. Wire type 7
+// resets a target field to its protobuf default, including when the marker is on
+// base or buttons_pb.
 //
-// Since the 2026-07-09 CS2 update, the prop m_nButtonDownMaskPrev has been removed
-// and user commands are delta-encoded: only some commands carry a full protobuf
-// snapshot in CMsgServerUserCmd.data (the first command for a player slot, server-generated
-// substitute commands, and 60s DEM_FullPacket checkpoints). Every other command only
-// carries the fields that changed since the previous command for that slot, in delta_data.
-//
-// delta_data is almost standard protobuf wire format, with one extension: a
-// field encoded with wire type 7 is a "reset to default" marker rather than a
-// value. Present fields replace the previous value, reset markers clear the
-// field (recursively for messages), and omitted fields keep their previous value.
-//
-// This is the hot path: it runs once per user command, i.e. once per player per
-// tick, so it deliberately avoids protoreflect, proto.Unmarshal and any
-// allocation.
+//nolint:gocognit,funlen
 func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
+	if level >= len(userCmdButtonsPath) {
+		return errors.New("invalid user command button path")
+	}
+
 	target := userCmdButtonsPath[level]
 
 	for len(data) > 0 {
 		num, typ, tagLen := protowire.ConsumeTag(data)
 		if tagLen < 0 {
-			return errors.Wrap(protowire.ParseError(tagLen), "failed to read delta field tag")
+			return errors.Wrap(protowire.ParseError(tagLen), "failed to read user command button tag")
+		}
+
+		if num == 0 {
+			return errors.New("user command button field number must be non-zero")
 		}
 
 		if typ == wireTypeReset {
-			// Resetting any message along the path clears the button state.
 			if num == target {
 				*buttons = 0
 			}
@@ -56,39 +82,145 @@ func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
 		}
 
 		if num != target {
-			valLen := protowire.ConsumeFieldValue(num, typ, data[tagLen:])
-			if valLen < 0 {
-				return errors.Wrap(protowire.ParseError(valLen), "failed to read delta field value")
+			valueLen := protowire.ConsumeFieldValue(num, typ, data[tagLen:])
+			if valueLen < 0 {
+				return errors.Wrap(protowire.ParseError(valueLen), "failed to skip user command field")
 			}
 
-			data = data[tagLen+valLen:]
+			data = data[tagLen+valueLen:]
 
 			continue
 		}
 
 		if level == len(userCmdButtonsPath)-1 {
-			v, valLen := protowire.ConsumeVarint(data[tagLen:])
-			if valLen < 0 {
-				return errors.Wrap(protowire.ParseError(valLen), "failed to read buttonstate1")
+			if typ != protowire.VarintType {
+				return fmt.Errorf("buttonstate1 uses unexpected wire type %d", typ)
 			}
 
-			*buttons = v
-			data = data[tagLen+valLen:]
+			value, valueLen := protowire.ConsumeVarint(data[tagLen:])
+			if valueLen < 0 {
+				return errors.Wrap(protowire.ParseError(valueLen), "failed to read buttonstate1")
+			}
+
+			*buttons = value
+			data = data[tagLen+valueLen:]
 
 			continue
 		}
 
-		b, valLen := protowire.ConsumeBytes(data[tagLen:])
-		if valLen < 0 {
-			return errors.Wrap(protowire.ParseError(valLen), "failed to read length-delimited delta field")
+		if typ != protowire.BytesType {
+			return fmt.Errorf("user command button message uses unexpected wire type %d", typ)
 		}
 
-		if err := mergeUserCmdButtons(b, level+1, buttons); err != nil {
+		value, valueLen := protowire.ConsumeBytes(data[tagLen:])
+		if valueLen < 0 {
+			return errors.Wrap(protowire.ParseError(valueLen), "failed to read user command button message")
+		}
+
+		if err := mergeUserCmdButtons(value, level+1, buttons); err != nil {
 			return err
 		}
 
-		data = data[tagLen+valLen:]
+		data = data[tagLen+valueLen:]
 	}
 
 	return nil
+}
+
+//nolint:gocognit,nestif,funlen
+func (p *parser) handleUserCommandButtons(m *msgs2.CSVCMsg_UserCommands) {
+	p.hasUserCmdMessages = true
+
+	for _, cmd := range m.Commands {
+		if cmd == nil || cmd.CmdNumber == nil {
+			continue
+		}
+
+		slot := cmd.GetPlayerSlot()
+		if slot < 0 {
+			continue
+		}
+
+		state := p.userCmdButtonStates[slot]
+		if state == nil {
+			state = &userCmdButtonPlayerState{}
+			p.userCmdButtonStates[slot] = state
+		}
+
+		var buttons uint64
+		if data := cmd.GetData(); len(data) > 0 {
+			if err := mergeUserCmdButtons(data, 0, &buttons); err != nil {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: err.Error(),
+					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
+				})
+
+				continue
+			}
+		} else if len(cmd.GetDeltaData()) > 0 {
+			if !state.hasCurrentCommand {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d has no baseline for player slot %d", cmd.GetCmdNumber(), slot),
+					Type:    events.WarnTypeUserCommandBaselineMissing,
+				})
+
+				continue
+			}
+
+			requestedBaseline := state.currentCommandNumber
+			if cmd.GetCmdNumber() < requestedBaseline {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d precedes its current baseline %d for player slot %d", cmd.GetCmdNumber(), requestedBaseline, slot),
+					Type:    events.WarnTypeUserCommandBaselineMismatch,
+				})
+
+				continue
+			}
+
+			var found bool
+
+			buttons, found = state.ring.get(requestedBaseline)
+			if !found {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d has a baseline ring mismatch for player slot %d (requested %d)", cmd.GetCmdNumber(), slot, requestedBaseline),
+					Type:    events.WarnTypeUserCommandBaselineMismatch,
+				})
+
+				continue
+			}
+		} else {
+			continue
+		}
+
+		if deltaData := cmd.GetDeltaData(); len(deltaData) > 0 {
+			if err := mergeUserCmdButtons(deltaData, 0, &buttons); err != nil {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: err.Error(),
+					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
+				})
+
+				continue
+			}
+		}
+
+		commandNumber := cmd.GetCmdNumber()
+		state.ring.insert(commandNumber, buttons)
+		state.currentCommandNumber = commandNumber
+		state.hasCurrentCommand = true
+
+		// Player slots map to controller entities: slot N is entity N+1
+		// (getOrCreatePlayerFromControllerEntity relies on the same convention).
+		player := p.gameState.playersByEntityID[int(slot)+1]
+		if player == nil {
+			continue
+		}
+
+		if player.ButtonsPressedState != buttons {
+			player.ButtonsPressedState = buttons
+			p.eventDispatcher.Dispatch(events.PlayerButtonsStateUpdate{
+				Player:       player,
+				ButtonsState: buttons,
+			})
+		}
+	}
 }

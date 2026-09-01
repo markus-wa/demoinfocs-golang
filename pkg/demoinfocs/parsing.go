@@ -408,13 +408,13 @@ func (p *parser) parseFrameS2() bool {
 
 	switch m := msg.(type) {
 	case *msgs2.CDemoPacket:
-		p.handleDemoPacket(m)
+		p.handleDemoPacket(m, false)
 
 	case *msgs2.CDemoFullPacket:
 		p.msgQueue <- m.StringTable
 
 		if m.Packet.GetData() != nil {
-			p.handleDemoPacket(m.Packet)
+			p.handleDemoPacket(m.Packet, true)
 		}
 	}
 

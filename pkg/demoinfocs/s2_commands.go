@@ -308,7 +308,7 @@ func (m *pendingMessage) priority() int {
 }
 
 //nolint:funlen
-func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
+func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket, isFullPacket bool) {
 	b := pack.GetData()
 
 	if len(b) == 0 {
@@ -334,6 +334,13 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket) {
 	})
 
 	for _, m := range p.pendingMessagesCache {
+		if isFullPacket && m.t == int32(msgs2.SVC_Messages_svc_UserCmds) {
+			// Full packets are seek/checkpoint snapshots. Their embedded
+			// usercmds are not transports delivered to the command handler;
+			// replaying them would duplicate the following packet stream.
+			continue
+		}
+
 		var msgCreator NetMessageCreator
 
 		switch {
@@ -411,50 +418,43 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 	}
 }
 
-func (p *parser) handleUserCommands(msg *msgs2.CSVCMsg_UserCommands) {
+//nolint:gocognit,nestif,funlen
+func (p *parser) handleUserCommands(m *msgs2.CSVCMsg_UserCommands) {
+	if p.userCmdParsingMode == UserCmdParsingDisabled {
+		return
+	}
+
+	if p.userCmdParsingMode == UserCmdParsingButtonsOnly {
+		p.handleUserCommandButtons(m)
+		return
+	}
+
 	// Once we see user command messages they become the source of truth for
 	// button state, superseding the legacy m_nButtonDownMaskPrev prop (removed
 	// in the 2026-07-09 CS2 update, but still present in older demos).
 	p.hasUserCmdMessages = true
 
-	for _, cmd := range msg.Commands {
+	for _, cmd := range m.Commands {
+		if cmd == nil || cmd.CmdNumber == nil {
+			continue
+		}
+
 		slot := cmd.GetPlayerSlot()
-		// User commands are delta-encoded. The first command for a player is a
-		// full protobuf snapshot in Data; subsequent commands only carry the
-		// fields that changed since the previous command, packed into DeltaData
-		// using Valve's custom codegen_delta_encoder format (not protobuf, see
-		// applyUserCmdDelta). We keep the accumulated button state per player and
-		// apply each delta onto it to always have the full, up-to-date state.
-		//
-		// Due to perf reasons and because we only need the button state to dispatch
-		// PlayerButtonsStateUpdate events, only buttonstate1 is decoded, everything
-		// else in the command is skipped.
-		buttons, hasBaseline := p.userCmdButtons[slot]
+		if slot < 0 {
+			continue
+		}
 
-		switch {
-		case len(cmd.GetData()) > 0:
-			// Full update, replace the accumulated state.
-			buttons = 0
-			if err := mergeUserCmdButtons(cmd.GetData(), 0, &buttons); err != nil {
-				delete(p.userCmdButtons, slot)
+		state := p.userCmdStates[slot]
+		if state == nil {
+			state = &userCmdPlayerState{}
+			p.userCmdStates[slot] = state
+		}
 
-				continue
-			}
-
-			p.userCmdButtons[slot] = buttons
-
-		case len(cmd.GetDeltaData()) > 0:
-			if !hasBaseline {
-				// We never received a full snapshot for this player, can't
-				// reconstruct a reliable state from a delta alone.
-				continue
-			}
-
-			if err := mergeUserCmdButtons(cmd.GetDeltaData(), 0, &buttons); err != nil {
-				// Drop the state, subsequent deltas for this slot are
-				// skipped until the next full snapshot re-establishes a baseline,
-				// rather than building on corrupt state.
-				delete(p.userCmdButtons, slot)
+		var next *msgs2.CSGOUserCmdPB
+		if data := cmd.GetData(); len(data) > 0 {
+			// Full payloads replace the current command snapshot.
+			next = &msgs2.CSGOUserCmdPB{}
+			if err := proto.Unmarshal(data, next); err != nil {
 				p.msgDispatcher.Dispatch(events.ParserWarn{
 					Message: err.Error(),
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
@@ -462,19 +462,79 @@ func (p *parser) handleUserCommands(msg *msgs2.CSVCMsg_UserCommands) {
 
 				continue
 			}
+		} else if len(cmd.GetDeltaData()) > 0 {
+			// client.dll resolves a delta against the cached current command
+			// number, then validates the command-number ring slot. A modulo
+			// collision is not a usable baseline.
+			if !state.hasCurrentCommand {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d has no baseline for player slot %d", cmd.GetCmdNumber(), slot),
+					Type:    events.WarnTypeUserCommandBaselineMissing,
+				})
 
-			p.userCmdButtons[slot] = buttons
+				continue
+			}
 
-		default:
+			requestedBaseline := state.currentCommandNumber
+			if cmd.GetCmdNumber() < requestedBaseline {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d precedes its current baseline %d for player slot %d", cmd.GetCmdNumber(), requestedBaseline, slot),
+					Type:    events.WarnTypeUserCommandBaselineMismatch,
+				})
+
+				continue
+			}
+
+			baseline, found := state.ring.get(requestedBaseline)
+			if !found {
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: fmt.Sprintf("user command %d has a baseline ring mismatch for player slot %d (requested %d)", cmd.GetCmdNumber(), slot, requestedBaseline),
+					Type:    events.WarnTypeUserCommandBaselineMismatch,
+				})
+
+				continue
+			}
+
+			next = proto.Clone(baseline).(*msgs2.CSGOUserCmdPB)
+		} else {
 			continue
 		}
 
-		player := p.gameState.playersByUserID[int(slot)]
+		if deltaData := cmd.GetDeltaData(); len(deltaData) > 0 {
+			if err := applyUserCmdDelta(next, deltaData); err != nil {
+				// next is a clone, so a malformed delta cannot mutate the ring
+				// baseline. The next full payload can re-establish the stream.
+				p.msgDispatcher.Dispatch(events.ParserWarn{
+					Message: err.Error(),
+					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
+				})
+
+				continue
+			}
+		}
+
+		commandNumber := cmd.GetCmdNumber()
+		state.ring.insert(commandNumber, next)
+		state.currentCommandNumber = commandNumber
+		state.hasCurrentCommand = true
+
+		// Player slots map to controller entities: slot N is entity N+1
+		// (getOrCreatePlayerFromControllerEntity relies on the same convention).
+		player := p.gameState.playersByEntityID[int(slot)+1]
+		p.eventDispatcher.Dispatch(events.UserCmd{
+			Player:             player,
+			PlayerSlot:         slot,
+			CommandNumber:      commandNumber,
+			ServerTickExecuted: cmd.GetServerTickExecuted(),
+			ClientTick:         cmd.GetClientTick(),
+			Command:            next,
+		})
+
 		if player == nil {
 			continue
 		}
 
-		newState := buttons
+		newState := next.GetBase().GetButtonsPb().GetButtonstate1()
 		if player.ButtonsPressedState != newState {
 			player.ButtonsPressedState = newState
 			p.eventDispatcher.Dispatch(events.PlayerButtonsStateUpdate{

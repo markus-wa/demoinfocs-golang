@@ -12,6 +12,7 @@ import (
 
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
 	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 )
 
 // FrameDone signals that a demo-frame has been processed.
@@ -611,6 +612,10 @@ const (
 
 	// WarnTypeUserCommandDeltaDecodeFailed occurs when a delta-encoded user command (CMsgServerUserCmd.delta_data) can't be decoded.
 	WarnTypeUserCommandDeltaDecodeFailed
+	// WarnTypeUserCommandBaselineMissing occurs when a delta arrives without a prior full command.
+	WarnTypeUserCommandBaselineMissing
+	// WarnTypeUserCommandBaselineMismatch occurs when the requested command-number ring slot is not exact.
+	WarnTypeUserCommandBaselineMismatch
 )
 
 // WarnTypeUnknownDemoCommandMessageType occurs when a demo-command message type is unknown - contact a maintainer.
@@ -693,6 +698,22 @@ type PlayerSpottersChanged struct {
 type PlayerButtonsStateUpdate struct {
 	Player       *common.Player
 	ButtonsState uint64
+}
+
+// UserCmd signals that a complete CS2 user command was reconstructed from a
+// CMsgServerUserCmd full payload or delta_data. Command contains the merged
+// snapshot, including buttons, mouse movement, weapon selection, view angles,
+// movement, subtick moves, and input history. Player may be nil when the demo
+// does not yet have a player object for the command's slot.
+//
+// Only dispatched when ParserConfig.UserCmdParsing is UserCmdParsingFull.
+type UserCmd struct {
+	Player             *common.Player
+	PlayerSlot         int32
+	CommandNumber      int32
+	ServerTickExecuted int32
+	ClientTick         int32
+	Command            *msgs2.CSGOUserCmdPB
 }
 
 // PlayerInspectingWeapon signals that a player started to inspect his weapon.

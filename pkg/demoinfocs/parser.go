@@ -105,7 +105,9 @@ type parser struct {
 	stringTables          []createStringTable                             // Contains all created sendtables, needed when updating them
 	delayedEventHandlers  []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 	pendingMessagesCache  []pendingMessage                                // Cache for pending messages that need to be dispatched after the current tick
-	userCmdButtons        map[int32]uint64                                // Per-player (keyed by player slot) accumulated user command button state, rebuilt from full + delta updates
+	userCmdStates         map[int32]*userCmdPlayerState                   // Per-player command-number ring reconstructed from full + delta updates
+	userCmdButtonStates   map[int32]*userCmdButtonPlayerState             // Per-player command-number ring containing buttonstate1 only
+	userCmdParsingMode    UserCmdParsingMode                              // Controls how CSVCMsg_UserCommands messages are handled, see ParserConfig.UserCmdParsing
 	hasUserCmdMessages    bool                                            // True once a CSVCMsg_UserCommands message has been seen; replace the legacy m_nButtonDownMaskPrev prop
 }
 
@@ -328,6 +330,20 @@ func NewParser(demostream io.Reader) Parser {
 	return NewParserWithConfig(demostream, DefaultParserConfig)
 }
 
+// UserCmdParsingMode controls how CSVCMsg_UserCommands messages are handled.
+type UserCmdParsingMode uint8
+
+const (
+	// UserCmdParsingButtonsOnly tracks buttonstate1 for PlayerButtonsStateUpdate events.
+	// It is the default and the zero value so that a zero-value ParserConfig
+	// matches DefaultParserConfig.
+	UserCmdParsingButtonsOnly UserCmdParsingMode = iota
+	// UserCmdParsingFull reconstructs and dispatches complete UserCmd events.
+	UserCmdParsingFull
+	// UserCmdParsingDisabled skips user-command parsing and preserves legacy properties.
+	UserCmdParsingDisabled
+)
+
 // ParserConfig contains the configuration for creating a new Parser.
 type ParserConfig struct {
 	// MsgQueueBufferSize defines the size of the internal net-message queue.
@@ -367,11 +383,16 @@ type ParserConfig struct {
 	// IgnorePacketEntitiesPanic tells the parser to ignore PacketEntities parsing panics.
 	// This is required as a workaround for some POV demos that seem to contain rare PacketEntities parsing issues.
 	IgnorePacketEntitiesPanic bool
+
+	// UserCmdParsing controls CSVCMsg_UserCommands parsing. It defaults to
+	// UserCmdParsingButtonsOnly, including when ParserConfig is created as a zero value.
+	UserCmdParsing UserCmdParsingMode
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
 var DefaultParserConfig = ParserConfig{
 	MsgQueueBufferSize: -1,
+	UserCmdParsing:     UserCmdParsingButtonsOnly,
 }
 
 // NewParserWithConfig returns a new Parser with a custom configuration.
@@ -391,7 +412,9 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.gameState = newGameState(p.demoInfoProvider)
 	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.equipmentTypePerModel = make(map[uint64]common.EquipmentType)
-	p.userCmdButtons = make(map[int32]uint64)
+	p.userCmdStates = make(map[int32]*userCmdPlayerState)
+	p.userCmdButtonStates = make(map[int32]*userCmdButtonPlayerState)
+	p.userCmdParsingMode = config.UserCmdParsing
 	p.gameEventHandler = newGameEventHandler(&p, config.IgnoreErrBombsiteIndexNotFound)
 	p.userMessageHandler = newUserMessageHandler(&p)
 	p.bombsiteA.index = -1
