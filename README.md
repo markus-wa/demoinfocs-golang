@@ -55,7 +55,7 @@ See [v5 branch with broadcast example](https://github.com/markus-wa/demoinfocs-g
 
 ## Requirements
 
-This library requires at least `go 1.24` to run.
+This library requires at least `go 1.27.0` to run.
 You can download the latest version of Go [here](https://golang.org/).
 
 ## Quickstart Guide
