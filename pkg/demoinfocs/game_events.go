@@ -933,9 +933,12 @@ func (geh gameEventHandler) bombBeginDefuse(data map[string]*msg.CSVCMsg_GameEve
 
 	geh.gameState().currentDefuser = geh.playerByUserID32(data["userid"].GetValShort())
 
+	// The bomb_begindefuse game-event carries no site key, so derive it from the planted
+	// bomb's position - same source the plant path uses when the site index is unavailable.
 	geh.dispatch(events.BombDefuseStart{
 		Player: geh.gameState().currentDefuser,
 		HasKit: data["haskit"].GetValBool(),
+		Site:   geh.parser.getClosestBombsiteFromPosition(geh.gameState().Bomb().Position()),
 	})
 }
 

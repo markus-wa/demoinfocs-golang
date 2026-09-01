@@ -347,6 +347,7 @@ type BombExplode struct {
 type BombDefuseStart struct {
 	Player *common.Player
 	HasKit bool
+	Site   Bombsite // The bomb site being defused. Same value as the preceding BombPlanted / following BombDefused.
 }
 
 func (BombDefuseStart) implementsBombEventIf() {}
