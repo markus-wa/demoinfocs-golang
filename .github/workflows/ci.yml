@@ -71,6 +71,8 @@ jobs:
 
   test-csda: # Run tests of CS Demo Analyzer
     runs-on: ubuntu-latest
+    # Disabled until CS Demo Analyzer migrates to v6, right now tests are running against the v4 branch
+    if: false
 
     permissions:
       contents: read
