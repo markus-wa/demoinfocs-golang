@@ -648,7 +648,7 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	})
 }
 
-//nolint:gocognit,funlen
+//nolint:funlen
 func (p *parser) bindNewPlayerPawnS2(pawnEntity st.Entity) {
 	var prevControllerHandle uint64
 

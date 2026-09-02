@@ -478,8 +478,8 @@ func (p *parser) netMessageForCmd(cmd int) proto.Message {
 	if msgName == "" {
 		// Send a warning if the command is unknown
 		// This might mean our proto files are out of date
-		p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("unknown message command %q", cmd)})
-		unassert.Error("unknown message command %q", cmd)
+		p.eventDispatcher.Dispatch(events.ParserWarn{Message: fmt.Sprintf("unknown message command %d", cmd)})
+		unassert.Error("unknown message command %d", cmd)
 	}
 
 	// Handle additional net-messages as defined by the user
