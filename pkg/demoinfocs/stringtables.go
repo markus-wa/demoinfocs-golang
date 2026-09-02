@@ -100,7 +100,7 @@ func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 			Flags:                cTab.Flags,
 			StringData:           tab.StringData,
 			UsingVarintBitcounts: cTab.UsingVarintBitcounts,
-		})
+		}, true)
 	}
 }
 
@@ -119,7 +119,7 @@ func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	case stNameModelPreCache:
 		fallthrough
 	case stNameInstanceBaseline:
-		p.processStringTable(tab)
+		p.processStringTable(tab, false)
 	}
 
 	p.stringTables = append(p.stringTables, tab)
@@ -275,7 +275,7 @@ func (p *parser) parseStringTable(
 
 var instanceBaselineKeyRegex = regexp.MustCompile(`^\d+:\d+$`)
 
-func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable, isIncrementalUpdate bool) {
 	if tab.GetName() == stNameModelPreCache {
 		for i := len(p.modelPreCache); i < int(tab.GetNumEntries()); i++ {
 			p.modelPreCache = append(p.modelPreCache, "")
@@ -309,7 +309,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 
 			p.stParser.SetInstanceBaseline(classID, item.Value)
 		case stNameUserInfo:
-			p.parseUserInfo(item.Value, int(item.Index))
+			p.parseUserInfo(item.Value, int(item.Index), isIncrementalUpdate)
 		}
 	}
 
@@ -370,13 +370,28 @@ func (p *parser) handleStringTables(msg *msg.CDemoStringTables) {
 					panic(errors.Wrap(err, "failed to parse playerIndex"))
 				}
 
-				p.parseUserInfo(item.GetData(), playerIndex)
+				p.parseUserInfo(item.GetData(), playerIndex, true)
 			}
 		}
 	}
 }
 
-func (p *parser) parseUserInfo(data []byte, playerIndex int) {
+// parseUserInfo applies a userinfo string-table entry for the given player slot.
+//
+// isIncrementalUpdate marks entries re-applying info for a slot we already have raw info
+// for. The GOTV proxy keeps a stale userinfo state for slots that were re-used after a
+// disconnect/reconnect under a new name (#692): updates carry the pre-reconnect name and
+// are re-sent periodically forever (CSVCMsg_UpdateStringTable entries and CDemoStringTables
+// state dumps alike), reverting the new name a few ticks after it was applied. Updates for
+// slots we already have raw info for are therefore ignored; raw info for the current
+// session is established by the signon table and kept authoritative by player_connect.
+// Only the first apply per slot passes (raw info is dropped on disconnect, so reconnects
+// re-apply their new session info - renames at reconnect work).
+func (p *parser) parseUserInfo(data []byte, playerIndex int, isIncrementalUpdate bool) {
+	if isIncrementalUpdate && p.rawPlayers[playerIndex] != nil {
+		return
+	}
+
 	var userInfo msg.CMsgPlayerInfo
 
 	err := proto.Unmarshal(data, &userInfo)
