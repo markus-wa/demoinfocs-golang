@@ -20,7 +20,7 @@ For business inquiries please use the contact information found on the [GitHub p
 
 ### Counter-Strike 2 + Live Broadcast Parsing - aka. CSTV+
 
-	go get -u github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs
+	go get -u github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs
 
 See [broadcast example for live CSTV+ parsing](https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/broadcasts)
 
