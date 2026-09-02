@@ -10,4 +10,6 @@ go test -v -race -short ./... -timeout 15m
 # so we at least check the main demo and the polymorphic rules path with race tests
 scripts_dir=$(dirname "$0")
 $scripts_dir/download-test-data.sh default.7z deathmatch.7z
-go test -v -race -run 'TestDemoInfoCs|TestPolymorphicGameModeRules' ./pkg/demoinfocs -timeout 15m
+# TestPolymorphicGameModeRulesDeathmatch only needs deathmatch.7z;
+# TestPolymorphicGameModeRules would require the much larger s2.7z
+go test -v -race -run 'TestDemoInfoCs$|TestPolymorphicGameModeRulesDeathmatch' ./pkg/demoinfocs -timeout 15m
