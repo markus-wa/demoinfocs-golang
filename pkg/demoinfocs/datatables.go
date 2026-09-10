@@ -2,7 +2,9 @@ package demoinfocs
 
 import (
 	"fmt"
+	"maps"
 	"math"
+	"slices"
 
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
@@ -399,15 +401,23 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 
 	isBot := controllerEntity.PropertyValueMust("m_steamID").UInt64() == 0
 
-	var rp *common.PlayerInfo
+	// In regular demos player slots map to controller entities 1:1 (slot N is entity N+1),
+	// so the raw info for this controller lives at slot controllerEntityID-1. Match against
+	// the controller's props to make sure the slot really belongs to this entity - after a
+	// bot slot's name is re-used the slot-first lookup would otherwise bind a stale entry.
+	rp := p.matchRawPlayerToController(controllerEntityID-1, isBot, controllerEntity)
 
-	for _, r := range p.rawPlayers {
-		if !isBot && !r.IsFakePlayer && r.XUID != 0 && r.XUID == controllerEntity.Property("m_steamID").Value().UInt64() {
-			rp = r
-		}
+	if rp == nil {
+		// Fallback (e.g. broadcast drift, see #655): scan raw info by XUID (humans) or name
+		// (bots). Iterates slots in ascending order so the result is deterministic; a naive
+		// map range randomly bound a re-used bot name to a stale entry, registering the same
+		// *Player under two user-IDs (see #692).
+		for _, slot := range slices.Sorted(maps.Keys(p.rawPlayers)) {
+			if r := p.matchRawPlayerToController(slot, isBot, controllerEntity); r != nil {
+				rp = r
 
-		if isBot && r.IsFakePlayer && r.XUID == 0 && r.Name == controllerEntity.PropertyValueMust("m_iszPlayerName").String() {
-			rp = r
+				break
+			}
 		}
 	}
 
@@ -428,6 +438,25 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 	return player
 }
 
+// matchRawPlayerToController returns the raw player info at the given slot if it belongs to
+// the given controller entity: humans by XUID, bots by name (both from controller props).
+func (p *parser) matchRawPlayerToController(slot int, isBot bool, controllerEntity st.Entity) *common.PlayerInfo {
+	r := p.rawPlayers[slot]
+	if r == nil {
+		return nil
+	}
+
+	if !isBot && !r.IsFakePlayer && r.XUID != 0 && r.XUID == controllerEntity.Property("m_steamID").Value().UInt64() {
+		return r
+	}
+
+	if isBot && r.IsFakePlayer && r.XUID == 0 && r.Name == controllerEntity.PropertyValueMust("m_iszPlayerName").String() {
+		return r
+	}
+
+	return nil
+}
+
 func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 	pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
@@ -440,7 +469,12 @@ func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 		isDisconnection := state == 8
 		if isDisconnection {
 			for k, v := range p.rawPlayers {
-				if v.XUID == pl.SteamID64 {
+				// Only drop the disconnected session's raw info (slot-keyed, user-ID without
+				// the slot byte set - see the legacy-userid encoding in playerConnect). A
+				// reconnect under a new name may already have written the new session's raw
+				// info in the same frame; deleting it would re-arm the stale userinfo guard
+				// in parseUserInfo and re-apply the proxy's pre-reconnect name (#692).
+				if v.XUID == pl.SteamID64 && v.UserID == v.UserID&0xff {
 					delete(p.rawPlayers, k)
 				}
 			}
