@@ -50,6 +50,7 @@ enum SVC_Messages {
 	svc_HltvFixupOperatorStatus = 75;
 	svc_UserCmds = 76;
 	svc_NextMsgPredicted = 77;
+	svc_EncryptedData = 78;
 }
 
 enum VoiceDataFormat_t {
@@ -319,6 +320,11 @@ message CSVCMsg_UserMessage {
 	optional int32 msg_type = 1;
 	optional bytes msg_data = 2;
 	optional int32 passthrough = 3;
+}
+
+message CSVCMsg_EncryptedData {
+	optional bytes encrypted = 1;
+	optional int32 key_type = 2 [default = 2];
 }
 
 message CSVCMsg_SendTable {
