@@ -81,6 +81,7 @@ var svcMsgCreators = map[msg.SVC_Messages]NetMessageCreator{
 	msg.SVC_Messages_svc_Broadcast_Command:       func() proto.Message { return &msg.CSVCMsg_Broadcast_Command{} },
 	msg.SVC_Messages_svc_HltvFixupOperatorStatus: func() proto.Message { return &msg.CSVCMsg_HltvFixupOperatorStatus{} },
 	msg.SVC_Messages_svc_UserCmds:                func() proto.Message { return &msg.CSVCMsg_UserCommands{} },
+	msg.SVC_Messages_svc_EncryptedData:           func() proto.Message { return &msg.CSVCMsg_EncryptedData{} },
 }
 
 var usrMsgCreators = map[msg.EBaseUserMessages]NetMessageCreator{
