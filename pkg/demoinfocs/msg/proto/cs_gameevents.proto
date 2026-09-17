@@ -58,4 +58,5 @@ message CMsgPlayerBulletHit {
 	optional int32 damage = 5;
 	optional int32 penetration_count = 6;
 	optional bool is_kill = 7;
+	optional bool through_smoke = 8;
 }

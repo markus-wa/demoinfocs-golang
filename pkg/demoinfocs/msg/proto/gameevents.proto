@@ -14,6 +14,8 @@ enum EBaseGameEvents {
 	GE_SosSetSoundEventParams = 210;
 	GE_SosSetLibraryStackFields = 211;
 	GE_SosStopSoundEventHash = 212;
+	GE_ClothStiffenAnimEvent = 213;
+	GE_ClothEffectAnimEvent = 214;
 }
 
 message CMsgVDebugGameSessionIDEvent {
@@ -35,6 +37,8 @@ message CMsgPlaceDecalEvent {
 	optional uint32 entityhandle = 10 [default = 16777215];
 	optional uint64 material_id = 11;
 	optional uint32 sequence_name = 12;
+	optional .CMsgVector position_objectspace = 14;
+	optional .CMsgVector normal_objectspace = 15;
 }
 
 message CMsgClearWorldDecalsEvent {
@@ -51,7 +55,7 @@ message CMsgClearDecalsForEntityEvent {
 }
 
 message CMsgSource1LegacyGameEventList {
-	option (maximum_size_bytes) = 24576;
+	option (maximum_size_bytes) = 32768;
 
 	message key_t {
 		optional int32 type = 1;
@@ -117,4 +121,22 @@ message CMsgSosSetSoundEventParams {
 message CMsgSosSetLibraryStackFields {
 	optional fixed32 stack_hash = 1;
 	optional bytes packed_fields = 5;
+}
+
+message CMsgClothStiffenAnimEvent {
+	optional int32 source_entity_index = 1 [default = -1];
+	optional int32 vertex_set_hash = 2;
+	optional float intensity = 3;
+	optional float length = 4;
+	optional float speed_in = 5;
+	optional float speed_out = 6;
+}
+
+message CMsgClothEffectAnimEvent {
+	optional int32 source_entity_index = 1 [default = -1];
+	optional int32 effect_name_hash = 2;
+	optional int32 operation = 3;
+	optional int32 flags = 4;
+	optional string tags = 5;
+	optional .CMsgVector pte = 6;
 }

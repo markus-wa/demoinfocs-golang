@@ -86,8 +86,6 @@ var svcMsgCreators = map[msg.SVC_Messages]NetMessageCreator{
 
 var usrMsgCreators = map[msg.EBaseUserMessages]NetMessageCreator{
 	msg.EBaseUserMessages_UM_AchievementEvent:        func() proto.Message { return &msg.CUserMessageAchievementEvent{} },
-	msg.EBaseUserMessages_UM_CloseCaption:            func() proto.Message { return &msg.CUserMessageCloseCaption{} },
-	msg.EBaseUserMessages_UM_CloseCaptionDirect:      func() proto.Message { return &msg.CUserMessageCloseCaptionDirect{} },
 	msg.EBaseUserMessages_UM_CurrentTimescale:        func() proto.Message { return &msg.CUserMessageCurrentTimescale{} },
 	msg.EBaseUserMessages_UM_DesiredTimescale:        func() proto.Message { return &msg.CUserMessageDesiredTimescale{} },
 	msg.EBaseUserMessages_UM_Fade:                    func() proto.Message { return &msg.CUserMessageFade{} },
@@ -137,12 +135,11 @@ var usrMsgCreators = map[msg.EBaseUserMessages]NetMessageCreator{
 }
 
 var emCreators = map[msg.EBaseEntityMessages]NetMessageCreator{
-	msg.EBaseEntityMessages_EM_PlayJingle:      func() proto.Message { return &msg.CEntityMessagePlayJingle{} },
-	msg.EBaseEntityMessages_EM_ScreenOverlay:   func() proto.Message { return &msg.CEntityMessageScreenOverlay{} },
-	msg.EBaseEntityMessages_EM_RemoveAllDecals: func() proto.Message { return &msg.CEntityMessageRemoveAllDecals{} },
-	msg.EBaseEntityMessages_EM_PropagateForce:  func() proto.Message { return &msg.CEntityMessagePropagateForce{} },
-	msg.EBaseEntityMessages_EM_DoSpark:         func() proto.Message { return &msg.CEntityMessageDoSpark{} },
-	msg.EBaseEntityMessages_EM_FixAngle:        func() proto.Message { return &msg.CEntityMessageFixAngle{} },
+	msg.EBaseEntityMessages_EM_PlayJingle:     func() proto.Message { return &msg.CEntityMessagePlayJingle{} },
+	msg.EBaseEntityMessages_EM_ScreenOverlay:  func() proto.Message { return &msg.CEntityMessageScreenOverlay{} },
+	msg.EBaseEntityMessages_EM_PropagateForce: func() proto.Message { return &msg.CEntityMessagePropagateForce{} },
+	msg.EBaseEntityMessages_EM_DoSpark:        func() proto.Message { return &msg.CEntityMessageDoSpark{} },
+	msg.EBaseEntityMessages_EM_FixAngle:       func() proto.Message { return &msg.CEntityMessageFixAngle{} },
 }
 
 var gameEventCreators = map[msg.EBaseGameEvents]NetMessageCreator{
@@ -268,7 +265,7 @@ var teCreators = map[msg.ETEProtobufIds]NetMessageCreator{
 var bidirectionalMessageCreators = map[msg.Bidirectional_Messages]NetMessageCreator{
 	msg.Bidirectional_Messages_bi_RebroadcastGameEvent: func() proto.Message { return &msg.CBidirMsg_RebroadcastGameEvent{} },
 	msg.Bidirectional_Messages_bi_RebroadcastSource:    func() proto.Message { return &msg.CBidirMsg_RebroadcastSource{} },
-	msg.Bidirectional_Messages_bi_GameEvent:            func() proto.Message { return &msg.CBidirMsg_RebroadcastGameEvent{} },
+	msg.Bidirectional_Messages_bi_GameEvent_DEPRECATED: func() proto.Message { return &msg.CBidirMsg_RebroadcastGameEvent{} },
 	msg.Bidirectional_Messages_bi_PredictionEvent:      func() proto.Message { return &msg.CBidirMsg_PredictionEvent{} },
 }
 
