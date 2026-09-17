@@ -102,6 +102,7 @@ type parser struct {
 	additionalNetMessageCreators    map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                        chan any                  // Queue of net-messages
 	msgDispatcher                   *dp.Dispatcher            // Net-message dispatcher
+	decryptionKey                   []byte                    // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
 	gameEventHandler                gameEventHandler
 	eventDispatcher                 *dp.Dispatcher
 	currentFrame                    int     // Demo-frame, not ingame-tick
@@ -490,6 +491,10 @@ type ParserConfig struct {
 	// See https://github.com/markus-wa/demoinfocs-golang/issues/314
 	IgnoreErrBombsiteIndexNotFound bool
 
+	// NetMessageDecryptionKey tells the parser how to decrypt certain encrypted net-messages (e.g. chat messages in Valve matchmaking demos).
+	// See MatchInfoDecryptionKey() on how to retrieve the key from `match730_*.dem.info` files.
+	NetMessageDecryptionKey []byte
+
 	// DisableMimicSource1Events tells the parser to not mimic Source 1 game events for Source 2 demos.
 	// Unfortunately Source 2 demos *may* not contain Source 1 game events, that's why the parser will try to mimic them.
 	// It has an impact only with Source 2 demos and is false by default.
@@ -546,6 +551,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.disableMimicSource1GameEvents = config.DisableMimicSource1Events
 	p.source2FallbackGameEventListBin = config.Source2FallbackGameEventListBin
 	p.ignorePacketEntitiesPanic = config.IgnorePacketEntitiesPanic
+	p.decryptionKey = config.NetMessageDecryptionKey
 
 	dispatcherCfg := dp.Config{
 		PanicHandler: func(v any) {
@@ -564,6 +570,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.handleServerRankUpdate)
 	p.msgDispatcher.RegisterHandler(p.handleMessageSayText)
 	p.msgDispatcher.RegisterHandler(p.handleMessageSayText2)
+	p.msgDispatcher.RegisterHandler(p.handleEncryptedData)
 	p.msgDispatcher.RegisterHandler(p.handleSendTables)
 	p.msgDispatcher.RegisterHandler(p.handleFileInfo)
 	p.msgDispatcher.RegisterHandler(p.handleDemoFileHeader)

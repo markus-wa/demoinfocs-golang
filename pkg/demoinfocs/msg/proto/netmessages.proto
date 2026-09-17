@@ -96,13 +96,8 @@ enum SVC_Messages_LowFrequency {
 enum Bidirectional_Messages {
 	bi_RebroadcastGameEvent = 16;
 	bi_RebroadcastSource = 17;
-	bi_GameEvent = 18;
+	bi_GameEvent_DEPRECATED = 18;
 	bi_PredictionEvent = 19;
-}
-
-enum Bidirectional_Messages_LowFrequency {
-	bi_RelayInfo = 700;
-	bi_RelayPacket = 701;
 }
 
 enum ReplayEventType_t {
@@ -202,7 +197,7 @@ message CCLCMsg_Diagnostic {
 }
 
 message CSVCMsg_ServerInfo {
-	option (maximum_size_bytes) = 102400;
+	option (maximum_size_bytes) = 409600;
 
 	optional int32 protocol = 1;
 	optional int32 server_count = 2;
@@ -223,6 +218,8 @@ message CSVCMsg_ServerInfo {
 }
 
 message CSVCMsg_ClassInfo {
+	option (maximum_size_bytes) = 8192;
+
 	message class_t {
 		optional int32 class_id = 1;
 		optional string class_name = 3;
@@ -243,6 +240,8 @@ message CSVCMsg_VoiceInit {
 }
 
 message CSVCMsg_Print {
+	option (maximum_size_bytes) = 8192;
+
 	optional string text = 1;
 }
 
@@ -320,11 +319,6 @@ message CSVCMsg_UserMessage {
 	optional int32 msg_type = 1;
 	optional bytes msg_data = 2;
 	optional int32 passthrough = 3;
-}
-
-message CSVCMsg_EncryptedData {
-	optional bytes encrypted = 1;
-	optional int32 key_type = 2 [default = 2];
 }
 
 message CSVCMsg_SendTable {
@@ -410,7 +404,7 @@ message CSVCMsg_TempEntities {
 }
 
 message CSVCMsg_CreateStringTable {
-	option (maximum_size_bytes) = 49152;
+	option (maximum_size_bytes) = 102400;
 
 	optional string name = 1;
 	optional int32 num_entries = 2;
@@ -434,12 +428,19 @@ message CSVCMsg_UpdateStringTable {
 
 message CSVCMsg_VoiceData {
 	optional .CMsgVoiceAudio audio = 1;
-	optional int32 client = 2 [default = -1];
+	optional int32 client_deprecated = 2 [default = -1];
 	optional bool proximity = 3;
 	optional fixed64 xuid = 4;
 	optional int32 audible_mask = 5;
 	optional uint32 tick = 6;
 	optional int32 passthrough = 7;
+	optional int32 entity = 8 [default = -1];
+	optional bool caster = 9;
+}
+
+message CSVCMsg_EncryptedData {
+	optional bytes encrypted = 1;
+	optional int32 key_type = 2;
 }
 
 message CSVCMsg_PacketReliable {
@@ -648,6 +649,7 @@ message CMsgServerUserCmd {
 	optional int32 player_slot = 3 [default = -1];
 	optional int32 server_tick_executed = 4;
 	optional int32 client_tick = 5;
+	optional bytes delta_data = 6;
 }
 
 message CSVCMsg_UserCommands {
