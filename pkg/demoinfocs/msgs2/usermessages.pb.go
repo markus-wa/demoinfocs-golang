@@ -1155,6 +1155,7 @@ type CUserMessageSayText struct {
 	Playerindex   *int32                 `protobuf:"varint,1,opt,name=playerindex,def=-1" json:"playerindex,omitempty"`
 	Text          *string                `protobuf:"bytes,2,opt,name=text" json:"text,omitempty"`
 	Chat          *bool                  `protobuf:"varint,3,opt,name=chat" json:"chat,omitempty"`
+	Textallchat   *bool                  `protobuf:"varint,4,opt,name=textallchat" json:"textallchat,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1215,6 +1216,13 @@ func (x *CUserMessageSayText) GetChat() bool {
 	return false
 }
 
+func (x *CUserMessageSayText) GetTextallchat() bool {
+	if x != nil && x.Textallchat != nil {
+		return *x.Textallchat
+	}
+	return false
+}
+
 type CUserMessageSayText2 struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Entityindex   *int32                 `protobuf:"varint,1,opt,name=entityindex,def=-1" json:"entityindex,omitempty"`
@@ -1224,6 +1232,7 @@ type CUserMessageSayText2 struct {
 	Param2        *string                `protobuf:"bytes,5,opt,name=param2" json:"param2,omitempty"`
 	Param3        *string                `protobuf:"bytes,6,opt,name=param3" json:"param3,omitempty"`
 	Param4        *string                `protobuf:"bytes,7,opt,name=param4" json:"param4,omitempty"`
+	Textallchat   *bool                  `protobuf:"varint,8,opt,name=textallchat" json:"textallchat,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1310,6 +1319,13 @@ func (x *CUserMessageSayText2) GetParam4() string {
 		return *x.Param4
 	}
 	return ""
+}
+
+func (x *CUserMessageSayText2) GetTextallchat() bool {
+	if x != nil && x.Textallchat != nil {
+		return *x.Textallchat
+	}
+	return false
 }
 
 type CUserMessageHudMsg struct {
@@ -7861,11 +7877,12 @@ const file_s2_usermessages_proto_rawDesc = "" +
 	"\vease_in_out\x18\x02 \x01(\bR\teaseInOut\x12K\n" +
 	"\x05angle\x18\x03 \x01(\v25.com.github.markus_wa.demoinfocs_golang.s2.CMsgVectorR\x05angle\x12\x1a\n" +
 	"\bduration\x18\x04 \x01(\x02R\bduration\x12\x12\n" +
-	"\x04time\x18\x05 \x01(\x02R\x04time\"c\n" +
+	"\x04time\x18\x05 \x01(\x02R\x04time\"\x85\x01\n" +
 	"\x13CUserMessageSayText\x12$\n" +
 	"\vplayerindex\x18\x01 \x01(\x05:\x02-1R\vplayerindex\x12\x12\n" +
 	"\x04text\x18\x02 \x01(\tR\x04text\x12\x12\n" +
-	"\x04chat\x18\x03 \x01(\bR\x04chat\"\xd2\x01\n" +
+	"\x04chat\x18\x03 \x01(\bR\x04chat\x12 \n" +
+	"\vtextallchat\x18\x04 \x01(\bR\vtextallchat\"\xf4\x01\n" +
 	"\x14CUserMessageSayText2\x12$\n" +
 	"\ventityindex\x18\x01 \x01(\x05:\x02-1R\ventityindex\x12\x12\n" +
 	"\x04chat\x18\x02 \x01(\bR\x04chat\x12 \n" +
@@ -7873,7 +7890,8 @@ const file_s2_usermessages_proto_rawDesc = "" +
 	"\x06param1\x18\x04 \x01(\tR\x06param1\x12\x16\n" +
 	"\x06param2\x18\x05 \x01(\tR\x06param2\x12\x16\n" +
 	"\x06param3\x18\x06 \x01(\tR\x06param3\x12\x16\n" +
-	"\x06param4\x18\a \x01(\tR\x06param4\"\xac\x01\n" +
+	"\x06param4\x18\a \x01(\tR\x06param4\x12 \n" +
+	"\vtextallchat\x18\b \x01(\bR\vtextallchat\"\xac\x01\n" +
 	"\x12CUserMessageHudMsg\x12\x18\n" +
 	"\achannel\x18\x01 \x01(\rR\achannel\x12\f\n" +
 	"\x01x\x18\x02 \x01(\x02R\x01x\x12\f\n" +

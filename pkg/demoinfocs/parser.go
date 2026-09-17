@@ -471,11 +471,12 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.handleUserMessage)
 	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfo)
-	p.msgDispatcher.RegisterHandler(p.handleEncryptedData)
+	p.msgDispatcher.RegisterHandler(p.handleEncryptedDataS1)
 	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
 
 	// Source 2
 	p.msgDispatcher.RegisterHandler(p.handleGameEventListS2)
+	p.msgDispatcher.RegisterHandler(p.handleEncryptedDataS2)
 	p.msgDispatcher.RegisterHandler(p.handleGameEventS2)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfoS2)
 	p.msgDispatcher.RegisterHandler(p.handleCreateStringTableS2)

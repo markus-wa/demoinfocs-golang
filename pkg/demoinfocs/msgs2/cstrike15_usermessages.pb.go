@@ -28,9 +28,9 @@ const (
 	ECstrike15UserMessages_CS_UM_Geiger                       ECstrike15UserMessages = 302
 	ECstrike15UserMessages_CS_UM_Train                        ECstrike15UserMessages = 303
 	ECstrike15UserMessages_CS_UM_HudText                      ECstrike15UserMessages = 304
-	ECstrike15UserMessages_CS_UM_SayText                      ECstrike15UserMessages = 305
-	ECstrike15UserMessages_CS_UM_SayText2                     ECstrike15UserMessages = 306
-	ECstrike15UserMessages_CS_UM_TextMsg                      ECstrike15UserMessages = 307
+	ECstrike15UserMessages_CS_UM_SayText_CSGOLegacy           ECstrike15UserMessages = 305
+	ECstrike15UserMessages_CS_UM_SayText2_CSGOLegacy          ECstrike15UserMessages = 306
+	ECstrike15UserMessages_CS_UM_TextMsg_CSGOLegacy           ECstrike15UserMessages = 307
 	ECstrike15UserMessages_CS_UM_HudMsg                       ECstrike15UserMessages = 308
 	ECstrike15UserMessages_CS_UM_ResetHud                     ECstrike15UserMessages = 309
 	ECstrike15UserMessages_CS_UM_GameTitle                    ECstrike15UserMessages = 310
@@ -50,7 +50,7 @@ const (
 	ECstrike15UserMessages_CS_UM_ProcessSpottedEntityUpdate   ECstrike15UserMessages = 325
 	ECstrike15UserMessages_CS_UM_ReloadEffect                 ECstrike15UserMessages = 326
 	ECstrike15UserMessages_CS_UM_AdjustMoney                  ECstrike15UserMessages = 327
-	ECstrike15UserMessages_CS_UM_UpdateTeamMoney              ECstrike15UserMessages = 328
+	ECstrike15UserMessages_CS_UM_UpdateTeamMoney_CSGOLegacy   ECstrike15UserMessages = 328
 	ECstrike15UserMessages_CS_UM_StopSpectatorMode            ECstrike15UserMessages = 329
 	ECstrike15UserMessages_CS_UM_KillCam                      ECstrike15UserMessages = 330
 	ECstrike15UserMessages_CS_UM_DesiredTimescale             ECstrike15UserMessages = 331
@@ -102,6 +102,7 @@ const (
 	ECstrike15UserMessages_CS_UM_RecurringMissionSchema       ECstrike15UserMessages = 387
 	ECstrike15UserMessages_CS_UM_SendPlayerLoadout            ECstrike15UserMessages = 388
 	ECstrike15UserMessages_CS_UM_WeaponMagDrop                ECstrike15UserMessages = 389
+	ECstrike15UserMessages_CS_UM_CustomHudClicked             ECstrike15UserMessages = 390
 )
 
 // Enum value maps for ECstrike15UserMessages.
@@ -111,9 +112,9 @@ var (
 		302: "CS_UM_Geiger",
 		303: "CS_UM_Train",
 		304: "CS_UM_HudText",
-		305: "CS_UM_SayText",
-		306: "CS_UM_SayText2",
-		307: "CS_UM_TextMsg",
+		305: "CS_UM_SayText_CSGOLegacy",
+		306: "CS_UM_SayText2_CSGOLegacy",
+		307: "CS_UM_TextMsg_CSGOLegacy",
 		308: "CS_UM_HudMsg",
 		309: "CS_UM_ResetHud",
 		310: "CS_UM_GameTitle",
@@ -133,7 +134,7 @@ var (
 		325: "CS_UM_ProcessSpottedEntityUpdate",
 		326: "CS_UM_ReloadEffect",
 		327: "CS_UM_AdjustMoney",
-		328: "CS_UM_UpdateTeamMoney",
+		328: "CS_UM_UpdateTeamMoney_CSGOLegacy",
 		329: "CS_UM_StopSpectatorMode",
 		330: "CS_UM_KillCam",
 		331: "CS_UM_DesiredTimescale",
@@ -185,15 +186,16 @@ var (
 		387: "CS_UM_RecurringMissionSchema",
 		388: "CS_UM_SendPlayerLoadout",
 		389: "CS_UM_WeaponMagDrop",
+		390: "CS_UM_CustomHudClicked",
 	}
 	ECstrike15UserMessages_value = map[string]int32{
 		"CS_UM_VGUIMenu":                     301,
 		"CS_UM_Geiger":                       302,
 		"CS_UM_Train":                        303,
 		"CS_UM_HudText":                      304,
-		"CS_UM_SayText":                      305,
-		"CS_UM_SayText2":                     306,
-		"CS_UM_TextMsg":                      307,
+		"CS_UM_SayText_CSGOLegacy":           305,
+		"CS_UM_SayText2_CSGOLegacy":          306,
+		"CS_UM_TextMsg_CSGOLegacy":           307,
 		"CS_UM_HudMsg":                       308,
 		"CS_UM_ResetHud":                     309,
 		"CS_UM_GameTitle":                    310,
@@ -213,7 +215,7 @@ var (
 		"CS_UM_ProcessSpottedEntityUpdate":   325,
 		"CS_UM_ReloadEffect":                 326,
 		"CS_UM_AdjustMoney":                  327,
-		"CS_UM_UpdateTeamMoney":              328,
+		"CS_UM_UpdateTeamMoney_CSGOLegacy":   328,
 		"CS_UM_StopSpectatorMode":            329,
 		"CS_UM_KillCam":                      330,
 		"CS_UM_DesiredTimescale":             331,
@@ -265,6 +267,7 @@ var (
 		"CS_UM_RecurringMissionSchema":       387,
 		"CS_UM_SendPlayerLoadout":            388,
 		"CS_UM_WeaponMagDrop":                389,
+		"CS_UM_CustomHudClicked":             390,
 	}
 )
 
@@ -4695,6 +4698,195 @@ func (x *CCSUsrMsg_SendPlayerLoadout) GetPlayerslot() int32 {
 	return Default_CCSUsrMsg_SendPlayerLoadout_Playerslot
 }
 
+type CCSUsrMsg_CustomHudClicked struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	CustomHudLayout *uint32                `protobuf:"varint,1,opt,name=custom_hud_layout,json=customHudLayout,def=16777215" json:"custom_hud_layout,omitempty"`
+	ButtonId        *string                `protobuf:"bytes,2,opt,name=button_id,json=buttonId" json:"button_id,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+// Default values for CCSUsrMsg_CustomHudClicked fields.
+const (
+	Default_CCSUsrMsg_CustomHudClicked_CustomHudLayout = uint32(16777215)
+)
+
+func (x *CCSUsrMsg_CustomHudClicked) Reset() {
+	*x = CCSUsrMsg_CustomHudClicked{}
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[74]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CCSUsrMsg_CustomHudClicked) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CCSUsrMsg_CustomHudClicked) ProtoMessage() {}
+
+func (x *CCSUsrMsg_CustomHudClicked) ProtoReflect() protoreflect.Message {
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[74]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CCSUsrMsg_CustomHudClicked.ProtoReflect.Descriptor instead.
+func (*CCSUsrMsg_CustomHudClicked) Descriptor() ([]byte, []int) {
+	return file_s2_cstrike15_usermessages_proto_rawDescGZIP(), []int{74}
+}
+
+func (x *CCSUsrMsg_CustomHudClicked) GetCustomHudLayout() uint32 {
+	if x != nil && x.CustomHudLayout != nil {
+		return *x.CustomHudLayout
+	}
+	return Default_CCSUsrMsg_CustomHudClicked_CustomHudLayout
+}
+
+func (x *CCSUsrMsg_CustomHudClicked) GetButtonId() string {
+	if x != nil && x.ButtonId != nil {
+		return *x.ButtonId
+	}
+	return ""
+}
+
+type CVacNet_GetReviewerInfo_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Appid         *uint32                `protobuf:"varint,1,opt,name=appid" json:"appid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CVacNet_GetReviewerInfo_Request) Reset() {
+	*x = CVacNet_GetReviewerInfo_Request{}
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[75]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CVacNet_GetReviewerInfo_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CVacNet_GetReviewerInfo_Request) ProtoMessage() {}
+
+func (x *CVacNet_GetReviewerInfo_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[75]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CVacNet_GetReviewerInfo_Request.ProtoReflect.Descriptor instead.
+func (*CVacNet_GetReviewerInfo_Request) Descriptor() ([]byte, []int) {
+	return file_s2_cstrike15_usermessages_proto_rawDescGZIP(), []int{75}
+}
+
+func (x *CVacNet_GetReviewerInfo_Request) GetAppid() uint32 {
+	if x != nil && x.Appid != nil {
+		return *x.Appid
+	}
+	return 0
+}
+
+type CVacnetReviewerInfo struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Permissions   []string               `protobuf:"bytes,1,rep,name=permissions" json:"permissions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CVacnetReviewerInfo) Reset() {
+	*x = CVacnetReviewerInfo{}
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[76]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CVacnetReviewerInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CVacnetReviewerInfo) ProtoMessage() {}
+
+func (x *CVacnetReviewerInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[76]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CVacnetReviewerInfo.ProtoReflect.Descriptor instead.
+func (*CVacnetReviewerInfo) Descriptor() ([]byte, []int) {
+	return file_s2_cstrike15_usermessages_proto_rawDescGZIP(), []int{76}
+}
+
+func (x *CVacnetReviewerInfo) GetPermissions() []string {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
+}
+
+type CVacNet_GetReviewerInfo_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ReviewerInfo  *CVacnetReviewerInfo   `protobuf:"bytes,1,opt,name=reviewer_info,json=reviewerInfo" json:"reviewer_info,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CVacNet_GetReviewerInfo_Response) Reset() {
+	*x = CVacNet_GetReviewerInfo_Response{}
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[77]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CVacNet_GetReviewerInfo_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CVacNet_GetReviewerInfo_Response) ProtoMessage() {}
+
+func (x *CVacNet_GetReviewerInfo_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[77]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CVacNet_GetReviewerInfo_Response.ProtoReflect.Descriptor instead.
+func (*CVacNet_GetReviewerInfo_Response) Descriptor() ([]byte, []int) {
+	return file_s2_cstrike15_usermessages_proto_rawDescGZIP(), []int{77}
+}
+
+func (x *CVacNet_GetReviewerInfo_Response) GetReviewerInfo() *CVacnetReviewerInfo {
+	if x != nil {
+		return x.ReviewerInfo
+	}
+	return nil
+}
+
 type CCSUsrMsg_VGUIMenu_Keys struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          *string                `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
@@ -4705,7 +4897,7 @@ type CCSUsrMsg_VGUIMenu_Keys struct {
 
 func (x *CCSUsrMsg_VGUIMenu_Keys) Reset() {
 	*x = CCSUsrMsg_VGUIMenu_Keys{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[74]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4717,7 +4909,7 @@ func (x *CCSUsrMsg_VGUIMenu_Keys) String() string {
 func (*CCSUsrMsg_VGUIMenu_Keys) ProtoMessage() {}
 
 func (x *CCSUsrMsg_VGUIMenu_Keys) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[74]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4757,7 +4949,7 @@ type CCSUsrMsg_VoiceMask_PlayerMask struct {
 
 func (x *CCSUsrMsg_VoiceMask_PlayerMask) Reset() {
 	*x = CCSUsrMsg_VoiceMask_PlayerMask{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[75]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4769,7 +4961,7 @@ func (x *CCSUsrMsg_VoiceMask_PlayerMask) String() string {
 func (*CCSUsrMsg_VoiceMask_PlayerMask) ProtoMessage() {}
 
 func (x *CCSUsrMsg_VoiceMask_PlayerMask) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[75]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4821,7 +5013,7 @@ const (
 
 func (x *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) Reset() {
 	*x = CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[76]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4833,7 +5025,7 @@ func (x *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) String() stri
 func (*CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) ProtoMessage() {}
 
 func (x *CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[76]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4922,7 +5114,7 @@ type CCSUsrMsg_PlayerStatsUpdate_Stat struct {
 
 func (x *CCSUsrMsg_PlayerStatsUpdate_Stat) Reset() {
 	*x = CCSUsrMsg_PlayerStatsUpdate_Stat{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[77]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4934,7 +5126,7 @@ func (x *CCSUsrMsg_PlayerStatsUpdate_Stat) String() string {
 func (*CCSUsrMsg_PlayerStatsUpdate_Stat) ProtoMessage() {}
 
 func (x *CCSUsrMsg_PlayerStatsUpdate_Stat) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[77]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4978,7 +5170,7 @@ type CCSUsrMsg_ServerRankUpdate_RankUpdate struct {
 
 func (x *CCSUsrMsg_ServerRankUpdate_RankUpdate) Reset() {
 	*x = CCSUsrMsg_ServerRankUpdate_RankUpdate{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[78]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4990,7 +5182,7 @@ func (x *CCSUsrMsg_ServerRankUpdate_RankUpdate) String() string {
 func (*CCSUsrMsg_ServerRankUpdate_RankUpdate) ProtoMessage() {}
 
 func (x *CCSUsrMsg_ServerRankUpdate_RankUpdate) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[78]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5060,7 +5252,7 @@ type CCSUsrMsg_SurvivalStats_Fact struct {
 
 func (x *CCSUsrMsg_SurvivalStats_Fact) Reset() {
 	*x = CCSUsrMsg_SurvivalStats_Fact{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[79]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5072,7 +5264,7 @@ func (x *CCSUsrMsg_SurvivalStats_Fact) String() string {
 func (*CCSUsrMsg_SurvivalStats_Fact) ProtoMessage() {}
 
 func (x *CCSUsrMsg_SurvivalStats_Fact) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[79]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5127,7 +5319,7 @@ type CCSUsrMsg_SurvivalStats_Placement struct {
 
 func (x *CCSUsrMsg_SurvivalStats_Placement) Reset() {
 	*x = CCSUsrMsg_SurvivalStats_Placement{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[80]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5139,7 +5331,7 @@ func (x *CCSUsrMsg_SurvivalStats_Placement) String() string {
 func (*CCSUsrMsg_SurvivalStats_Placement) ProtoMessage() {}
 
 func (x *CCSUsrMsg_SurvivalStats_Placement) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[80]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5189,7 +5381,7 @@ type CCSUsrMsg_SurvivalStats_Damage struct {
 
 func (x *CCSUsrMsg_SurvivalStats_Damage) Reset() {
 	*x = CCSUsrMsg_SurvivalStats_Damage{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[81]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5201,7 +5393,7 @@ func (x *CCSUsrMsg_SurvivalStats_Damage) String() string {
 func (*CCSUsrMsg_SurvivalStats_Damage) ProtoMessage() {}
 
 func (x *CCSUsrMsg_SurvivalStats_Damage) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[81]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5263,7 +5455,7 @@ type CCSUsrMsg_EndOfMatchAllPlayersData_Accolade struct {
 
 func (x *CCSUsrMsg_EndOfMatchAllPlayersData_Accolade) Reset() {
 	*x = CCSUsrMsg_EndOfMatchAllPlayersData_Accolade{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[82]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5275,7 +5467,7 @@ func (x *CCSUsrMsg_EndOfMatchAllPlayersData_Accolade) String() string {
 func (*CCSUsrMsg_EndOfMatchAllPlayersData_Accolade) ProtoMessage() {}
 
 func (x *CCSUsrMsg_EndOfMatchAllPlayersData_Accolade) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[82]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5333,7 +5525,7 @@ const (
 
 func (x *CCSUsrMsg_EndOfMatchAllPlayersData_PlayerData) Reset() {
 	*x = CCSUsrMsg_EndOfMatchAllPlayersData_PlayerData{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[83]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5345,7 +5537,7 @@ func (x *CCSUsrMsg_EndOfMatchAllPlayersData_PlayerData) String() string {
 func (*CCSUsrMsg_EndOfMatchAllPlayersData_PlayerData) ProtoMessage() {}
 
 func (x *CCSUsrMsg_EndOfMatchAllPlayersData_PlayerData) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[83]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5432,7 +5624,7 @@ type CCSUsrMsg_RoundEndReportData_RerEvent struct {
 
 func (x *CCSUsrMsg_RoundEndReportData_RerEvent) Reset() {
 	*x = CCSUsrMsg_RoundEndReportData_RerEvent{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[84]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5444,7 +5636,7 @@ func (x *CCSUsrMsg_RoundEndReportData_RerEvent) String() string {
 func (*CCSUsrMsg_RoundEndReportData_RerEvent) ProtoMessage() {}
 
 func (x *CCSUsrMsg_RoundEndReportData_RerEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[84]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5520,7 +5712,7 @@ type CCSUsrMsg_RoundEndReportData_InitialConditions struct {
 
 func (x *CCSUsrMsg_RoundEndReportData_InitialConditions) Reset() {
 	*x = CCSUsrMsg_RoundEndReportData_InitialConditions{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[85]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5532,7 +5724,7 @@ func (x *CCSUsrMsg_RoundEndReportData_InitialConditions) String() string {
 func (*CCSUsrMsg_RoundEndReportData_InitialConditions) ProtoMessage() {}
 
 func (x *CCSUsrMsg_RoundEndReportData_InitialConditions) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[85]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5588,7 +5780,7 @@ const (
 
 func (x *CCSUsrMsg_RoundEndReportData_RerEvent_Victim) Reset() {
 	*x = CCSUsrMsg_RoundEndReportData_RerEvent_Victim{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[86]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5600,7 +5792,7 @@ func (x *CCSUsrMsg_RoundEndReportData_RerEvent_Victim) String() string {
 func (*CCSUsrMsg_RoundEndReportData_RerEvent_Victim) ProtoMessage() {}
 
 func (x *CCSUsrMsg_RoundEndReportData_RerEvent_Victim) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[86]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5667,7 +5859,7 @@ type CCSUsrMsg_RoundEndReportData_RerEvent_Objective struct {
 
 func (x *CCSUsrMsg_RoundEndReportData_RerEvent_Objective) Reset() {
 	*x = CCSUsrMsg_RoundEndReportData_RerEvent_Objective{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[87]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5679,7 +5871,7 @@ func (x *CCSUsrMsg_RoundEndReportData_RerEvent_Objective) String() string {
 func (*CCSUsrMsg_RoundEndReportData_RerEvent_Objective) ProtoMessage() {}
 
 func (x *CCSUsrMsg_RoundEndReportData_RerEvent_Objective) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[87]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5721,7 +5913,7 @@ const (
 
 func (x *CCSUsrMsg_RoundEndReportData_RerEvent_Damage) Reset() {
 	*x = CCSUsrMsg_RoundEndReportData_RerEvent_Damage{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[88]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5733,7 +5925,7 @@ func (x *CCSUsrMsg_RoundEndReportData_RerEvent_Damage) String() string {
 func (*CCSUsrMsg_RoundEndReportData_RerEvent_Damage) ProtoMessage() {}
 
 func (x *CCSUsrMsg_RoundEndReportData_RerEvent_Damage) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[88]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5802,7 +5994,7 @@ type CCSUsrMsg_SendPlayerLoadout_LoadoutItem struct {
 
 func (x *CCSUsrMsg_SendPlayerLoadout_LoadoutItem) Reset() {
 	*x = CCSUsrMsg_SendPlayerLoadout_LoadoutItem{}
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[89]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5814,7 +6006,7 @@ func (x *CCSUsrMsg_SendPlayerLoadout_LoadoutItem) String() string {
 func (*CCSUsrMsg_SendPlayerLoadout_LoadoutItem) ProtoMessage() {}
 
 func (x *CCSUsrMsg_SendPlayerLoadout_LoadoutItem) ProtoReflect() protoreflect.Message {
-	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[89]
+	mi := &file_s2_cstrike15_usermessages_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6263,15 +6455,24 @@ const file_s2_cstrike15_usermessages_proto_rawDesc = "" +
 	"\vLoadoutItem\x12a\n" +
 	"\tecon_item\x18\x01 \x01(\v2D.com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlockR\beconItem\x12\x12\n" +
 	"\x04team\x18\x02 \x01(\x05R\x04team\x12\x12\n" +
-	"\x04slot\x18\x03 \x01(\x05R\x04slot:\x06\x80\xb5\x18\x80\x80\x01*\xed\x0f\n" +
+	"\x04slot\x18\x03 \x01(\x05R\x04slot:\x06\x80\xb5\x18\x80\x80\x01\"o\n" +
+	"\x1aCCSUsrMsg_CustomHudClicked\x124\n" +
+	"\x11custom_hud_layout\x18\x01 \x01(\r:\b16777215R\x0fcustomHudLayout\x12\x1b\n" +
+	"\tbutton_id\x18\x02 \x01(\tR\bbuttonId\"7\n" +
+	"\x1fCVacNet_GetReviewerInfo_Request\x12\x14\n" +
+	"\x05appid\x18\x01 \x01(\rR\x05appid\"7\n" +
+	"\x13CVacnetReviewerInfo\x12 \n" +
+	"\vpermissions\x18\x01 \x03(\tR\vpermissions\"\x87\x01\n" +
+	" CVacNet_GetReviewerInfo_Response\x12c\n" +
+	"\rreviewer_info\x18\x01 \x01(\v2>.com.github.markus_wa.demoinfocs_golang.s2.CVacnetReviewerInfoR\freviewerInfo*\xb6\x10\n" +
 	"\x16ECstrike15UserMessages\x12\x13\n" +
 	"\x0eCS_UM_VGUIMenu\x10\xad\x02\x12\x11\n" +
 	"\fCS_UM_Geiger\x10\xae\x02\x12\x10\n" +
 	"\vCS_UM_Train\x10\xaf\x02\x12\x12\n" +
-	"\rCS_UM_HudText\x10\xb0\x02\x12\x12\n" +
-	"\rCS_UM_SayText\x10\xb1\x02\x12\x13\n" +
-	"\x0eCS_UM_SayText2\x10\xb2\x02\x12\x12\n" +
-	"\rCS_UM_TextMsg\x10\xb3\x02\x12\x11\n" +
+	"\rCS_UM_HudText\x10\xb0\x02\x12\x1d\n" +
+	"\x18CS_UM_SayText_CSGOLegacy\x10\xb1\x02\x12\x1e\n" +
+	"\x19CS_UM_SayText2_CSGOLegacy\x10\xb2\x02\x12\x1d\n" +
+	"\x18CS_UM_TextMsg_CSGOLegacy\x10\xb3\x02\x12\x11\n" +
 	"\fCS_UM_HudMsg\x10\xb4\x02\x12\x13\n" +
 	"\x0eCS_UM_ResetHud\x10\xb5\x02\x12\x14\n" +
 	"\x0fCS_UM_GameTitle\x10\xb6\x02\x12\x10\n" +
@@ -6291,8 +6492,8 @@ const file_s2_cstrike15_usermessages_proto_rawDesc = "" +
 	"\x11CS_UM_KeyHintText\x10\xc4\x02\x12%\n" +
 	" CS_UM_ProcessSpottedEntityUpdate\x10\xc5\x02\x12\x17\n" +
 	"\x12CS_UM_ReloadEffect\x10\xc6\x02\x12\x16\n" +
-	"\x11CS_UM_AdjustMoney\x10\xc7\x02\x12\x1a\n" +
-	"\x15CS_UM_UpdateTeamMoney\x10\xc8\x02\x12\x1c\n" +
+	"\x11CS_UM_AdjustMoney\x10\xc7\x02\x12%\n" +
+	" CS_UM_UpdateTeamMoney_CSGOLegacy\x10\xc8\x02\x12\x1c\n" +
 	"\x17CS_UM_StopSpectatorMode\x10\xc9\x02\x12\x12\n" +
 	"\rCS_UM_KillCam\x10\xca\x02\x12\x1b\n" +
 	"\x16CS_UM_DesiredTimescale\x10\xcb\x02\x12\x1b\n" +
@@ -6344,7 +6545,8 @@ const file_s2_cstrike15_usermessages_proto_rawDesc = "" +
 	"\x16CS_UM_DamagePrediction\x10\x82\x03\x12!\n" +
 	"\x1cCS_UM_RecurringMissionSchema\x10\x83\x03\x12\x1c\n" +
 	"\x17CS_UM_SendPlayerLoadout\x10\x84\x03\x12\x18\n" +
-	"\x13CS_UM_WeaponMagDrop\x10\x85\x03*\x88\x01\n" +
+	"\x13CS_UM_WeaponMagDrop\x10\x85\x03\x12\x1b\n" +
+	"\x16CS_UM_CustomHudClicked\x10\x86\x03*\x88\x01\n" +
 	"\"ECSUsrMsg_DisconnectToLobby_Action\x120\n" +
 	",k_ECSUsrMsg_DisconnectToLobby_Action_Default\x10\x00\x120\n" +
 	",k_ECSUsrMsg_DisconnectToLobby_Action_GoQueue\x10\x01"
@@ -6362,7 +6564,7 @@ func file_s2_cstrike15_usermessages_proto_rawDescGZIP() []byte {
 }
 
 var file_s2_cstrike15_usermessages_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_s2_cstrike15_usermessages_proto_msgTypes = make([]protoimpl.MessageInfo, 90)
+var file_s2_cstrike15_usermessages_proto_msgTypes = make([]protoimpl.MessageInfo, 94)
 var file_s2_cstrike15_usermessages_proto_goTypes = []any{
 	(ECstrike15UserMessages)(0),                                      // 0: com.github.markus_wa.demoinfocs_golang.s2.ECstrike15UserMessages
 	(ECSUsrMsg_DisconnectToLobby_Action)(0),                          // 1: com.github.markus_wa.demoinfocs_golang.s2.ECSUsrMsg_DisconnectToLobby_Action
@@ -6440,76 +6642,81 @@ var file_s2_cstrike15_usermessages_proto_goTypes = []any{
 	(*CCSUsrMsg_DamagePrediction)(nil),                               // 73: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_DamagePrediction
 	(*CCSUsrMsg_RecurringMissionSchema)(nil),                         // 74: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RecurringMissionSchema
 	(*CCSUsrMsg_SendPlayerLoadout)(nil),                              // 75: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerLoadout
-	(*CCSUsrMsg_VGUIMenu_Keys)(nil),                                  // 76: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VGUIMenu.Keys
-	(*CCSUsrMsg_VoiceMask_PlayerMask)(nil),                           // 77: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VoiceMask.PlayerMask
-	(*CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate)(nil), // 78: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ProcessSpottedEntityUpdate.SpottedEntityUpdate
-	(*CCSUsrMsg_PlayerStatsUpdate_Stat)(nil),                         // 79: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_PlayerStatsUpdate.Stat
-	(*CCSUsrMsg_ServerRankUpdate_RankUpdate)(nil),                    // 80: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ServerRankUpdate.RankUpdate
-	(*CCSUsrMsg_SurvivalStats_Fact)(nil),                             // 81: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Fact
-	(*CCSUsrMsg_SurvivalStats_Placement)(nil),                        // 82: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Placement
-	(*CCSUsrMsg_SurvivalStats_Damage)(nil),                           // 83: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Damage
-	(*CCSUsrMsg_EndOfMatchAllPlayersData_Accolade)(nil),              // 84: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.Accolade
-	(*CCSUsrMsg_EndOfMatchAllPlayersData_PlayerData)(nil),            // 85: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.PlayerData
-	(*CCSUsrMsg_RoundEndReportData_RerEvent)(nil),                    // 86: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent
-	(*CCSUsrMsg_RoundEndReportData_InitialConditions)(nil),           // 87: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.InitialConditions
-	(*CCSUsrMsg_RoundEndReportData_RerEvent_Victim)(nil),             // 88: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Victim
-	(*CCSUsrMsg_RoundEndReportData_RerEvent_Objective)(nil),          // 89: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Objective
-	(*CCSUsrMsg_RoundEndReportData_RerEvent_Damage)(nil),             // 90: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Damage
-	(*CCSUsrMsg_SendPlayerLoadout_LoadoutItem)(nil),                  // 91: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerLoadout.LoadoutItem
-	(*CMsgVector2D)(nil),                                             // 92: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector2D
-	(*CMsgRGBA)(nil),                                                 // 93: com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA
-	(*CMsgVector)(nil),                                               // 94: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	(*CEconItemPreviewDataBlock)(nil),                                // 95: com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock
-	(*ScoreLeaderboardData)(nil),                                     // 96: com.github.markus_wa.demoinfocs_golang.s2.ScoreLeaderboardData
-	(*PlayerDecalDigitalSignature)(nil),                              // 97: com.github.markus_wa.demoinfocs_golang.s2.PlayerDecalDigitalSignature
-	(*CMsgGCCstrike15V2_GC2ServerNotifyXPRewarded)(nil),              // 98: com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCstrike15_v2_GC2ServerNotifyXPRewarded
-	(*CMsgGCCStrike15_ClientDeepStats)(nil),                          // 99: com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_ClientDeepStats
-	(*CMsgTransform)(nil),                                            // 100: com.github.markus_wa.demoinfocs_golang.s2.CMsgTransform
-	(*CMsgQAngle)(nil),                                               // 101: com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	(*CMsgGCCStrike15V2_MatchmakingGC2ServerReserve)(nil),            // 102: com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve
+	(*CCSUsrMsg_CustomHudClicked)(nil),                               // 76: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_CustomHudClicked
+	(*CVacNet_GetReviewerInfo_Request)(nil),                          // 77: com.github.markus_wa.demoinfocs_golang.s2.CVacNet_GetReviewerInfo_Request
+	(*CVacnetReviewerInfo)(nil),                                      // 78: com.github.markus_wa.demoinfocs_golang.s2.CVacnetReviewerInfo
+	(*CVacNet_GetReviewerInfo_Response)(nil),                         // 79: com.github.markus_wa.demoinfocs_golang.s2.CVacNet_GetReviewerInfo_Response
+	(*CCSUsrMsg_VGUIMenu_Keys)(nil),                                  // 80: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VGUIMenu.Keys
+	(*CCSUsrMsg_VoiceMask_PlayerMask)(nil),                           // 81: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VoiceMask.PlayerMask
+	(*CCSUsrMsg_ProcessSpottedEntityUpdate_SpottedEntityUpdate)(nil), // 82: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ProcessSpottedEntityUpdate.SpottedEntityUpdate
+	(*CCSUsrMsg_PlayerStatsUpdate_Stat)(nil),                         // 83: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_PlayerStatsUpdate.Stat
+	(*CCSUsrMsg_ServerRankUpdate_RankUpdate)(nil),                    // 84: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ServerRankUpdate.RankUpdate
+	(*CCSUsrMsg_SurvivalStats_Fact)(nil),                             // 85: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Fact
+	(*CCSUsrMsg_SurvivalStats_Placement)(nil),                        // 86: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Placement
+	(*CCSUsrMsg_SurvivalStats_Damage)(nil),                           // 87: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Damage
+	(*CCSUsrMsg_EndOfMatchAllPlayersData_Accolade)(nil),              // 88: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.Accolade
+	(*CCSUsrMsg_EndOfMatchAllPlayersData_PlayerData)(nil),            // 89: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.PlayerData
+	(*CCSUsrMsg_RoundEndReportData_RerEvent)(nil),                    // 90: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent
+	(*CCSUsrMsg_RoundEndReportData_InitialConditions)(nil),           // 91: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.InitialConditions
+	(*CCSUsrMsg_RoundEndReportData_RerEvent_Victim)(nil),             // 92: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Victim
+	(*CCSUsrMsg_RoundEndReportData_RerEvent_Objective)(nil),          // 93: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Objective
+	(*CCSUsrMsg_RoundEndReportData_RerEvent_Damage)(nil),             // 94: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Damage
+	(*CCSUsrMsg_SendPlayerLoadout_LoadoutItem)(nil),                  // 95: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerLoadout.LoadoutItem
+	(*CMsgVector2D)(nil),                                             // 96: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector2D
+	(*CMsgRGBA)(nil),                                                 // 97: com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA
+	(*CMsgVector)(nil),                                               // 98: com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	(*CEconItemPreviewDataBlock)(nil),                                // 99: com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock
+	(*ScoreLeaderboardData)(nil),                                     // 100: com.github.markus_wa.demoinfocs_golang.s2.ScoreLeaderboardData
+	(*PlayerDecalDigitalSignature)(nil),                              // 101: com.github.markus_wa.demoinfocs_golang.s2.PlayerDecalDigitalSignature
+	(*CMsgGCCstrike15V2_GC2ServerNotifyXPRewarded)(nil),              // 102: com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCstrike15_v2_GC2ServerNotifyXPRewarded
+	(*CMsgGCCStrike15_ClientDeepStats)(nil),                          // 103: com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_ClientDeepStats
+	(*CMsgTransform)(nil),                                            // 104: com.github.markus_wa.demoinfocs_golang.s2.CMsgTransform
+	(*CMsgQAngle)(nil),                                               // 105: com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	(*CMsgGCCStrike15V2_MatchmakingGC2ServerReserve)(nil),            // 106: com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve
 }
 var file_s2_cstrike15_usermessages_proto_depIdxs = []int32{
-	76,  // 0: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VGUIMenu.keys:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VGUIMenu.Keys
-	92,  // 1: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_HudMsg.pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector2D
-	93,  // 2: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_HudMsg.clr1:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA
-	93,  // 3: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_HudMsg.clr2:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA
-	93,  // 4: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_Fade.clr:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA
-	77,  // 5: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VoiceMask.player_masks:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VoiceMask.PlayerMask
-	94,  // 6: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_Damage.inflictor_world_pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	78,  // 7: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ProcessSpottedEntityUpdate.entity_updates:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ProcessSpottedEntityUpdate.SpottedEntityUpdate
-	95,  // 8: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerItemDrops.entity_updates:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock
-	95,  // 9: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerItemFound.iteminfo:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock
-	79,  // 10: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_PlayerStatsUpdate.stats:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_PlayerStatsUpdate.Stat
-	96,  // 11: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ScoreLeaderboardData.data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.ScoreLeaderboardData
-	97,  // 12: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_PlayerDecalDigitalSignature.data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.PlayerDecalDigitalSignature
-	80,  // 13: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ServerRankUpdate.rank_update:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ServerRankUpdate.RankUpdate
-	98,  // 14: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_XpUpdate.data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCstrike15_v2_GC2ServerNotifyXPRewarded
-	81,  // 15: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.facts:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Fact
-	82,  // 16: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.users:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Placement
-	83,  // 17: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.damages:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Damage
-	85,  // 18: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.allplayerdata:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.PlayerData
-	87,  // 19: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.init_conditions:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.InitialConditions
-	86,  // 20: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.all_rer_event_data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent
-	99,  // 21: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_DeepStats.stats:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_ClientDeepStats
-	100, // 22: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ShootInfo.hitbox_transforms:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgTransform
-	94,  // 23: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ShootInfo.shoot_pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	101, // 24: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ShootInfo.shoot_dir:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	102, // 25: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ServerRankRevealAll.reservation:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve
-	94,  // 26: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_DamagePrediction.shoot_pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
-	101, // 27: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_DamagePrediction.shoot_dir:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	101, // 28: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_DamagePrediction.aim_punch:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
-	91,  // 29: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerLoadout.loadout:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerLoadout.LoadoutItem
-	84,  // 30: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.PlayerData.nomination:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.Accolade
-	95,  // 31: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.PlayerData.items:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock
-	88,  // 32: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.victim_data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Victim
-	89,  // 33: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.objective_data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Objective
-	90,  // 34: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.all_damage_data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Damage
-	95,  // 35: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerLoadout.LoadoutItem.econ_item:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock
-	36,  // [36:36] is the sub-list for method output_type
-	36,  // [36:36] is the sub-list for method input_type
-	36,  // [36:36] is the sub-list for extension type_name
-	36,  // [36:36] is the sub-list for extension extendee
-	0,   // [0:36] is the sub-list for field type_name
+	80,  // 0: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VGUIMenu.keys:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VGUIMenu.Keys
+	96,  // 1: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_HudMsg.pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector2D
+	97,  // 2: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_HudMsg.clr1:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA
+	97,  // 3: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_HudMsg.clr2:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA
+	97,  // 4: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_Fade.clr:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgRGBA
+	81,  // 5: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VoiceMask.player_masks:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_VoiceMask.PlayerMask
+	98,  // 6: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_Damage.inflictor_world_pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	82,  // 7: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ProcessSpottedEntityUpdate.entity_updates:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ProcessSpottedEntityUpdate.SpottedEntityUpdate
+	99,  // 8: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerItemDrops.entity_updates:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock
+	99,  // 9: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerItemFound.iteminfo:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock
+	83,  // 10: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_PlayerStatsUpdate.stats:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_PlayerStatsUpdate.Stat
+	100, // 11: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ScoreLeaderboardData.data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.ScoreLeaderboardData
+	101, // 12: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_PlayerDecalDigitalSignature.data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.PlayerDecalDigitalSignature
+	84,  // 13: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ServerRankUpdate.rank_update:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ServerRankUpdate.RankUpdate
+	102, // 14: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_XpUpdate.data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCstrike15_v2_GC2ServerNotifyXPRewarded
+	85,  // 15: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.facts:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Fact
+	86,  // 16: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.users:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Placement
+	87,  // 17: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.damages:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SurvivalStats.Damage
+	89,  // 18: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.allplayerdata:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.PlayerData
+	91,  // 19: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.init_conditions:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.InitialConditions
+	90,  // 20: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.all_rer_event_data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent
+	103, // 21: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_DeepStats.stats:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_ClientDeepStats
+	104, // 22: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ShootInfo.hitbox_transforms:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgTransform
+	98,  // 23: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ShootInfo.shoot_pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	105, // 24: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ShootInfo.shoot_dir:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	106, // 25: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_ServerRankRevealAll.reservation:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgGCCStrike15_v2_MatchmakingGC2ServerReserve
+	98,  // 26: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_DamagePrediction.shoot_pos:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgVector
+	105, // 27: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_DamagePrediction.shoot_dir:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	105, // 28: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_DamagePrediction.aim_punch:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CMsgQAngle
+	95,  // 29: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerLoadout.loadout:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerLoadout.LoadoutItem
+	78,  // 30: com.github.markus_wa.demoinfocs_golang.s2.CVacNet_GetReviewerInfo_Response.reviewer_info:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CVacnetReviewerInfo
+	88,  // 31: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.PlayerData.nomination:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.Accolade
+	99,  // 32: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_EndOfMatchAllPlayersData.PlayerData.items:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock
+	92,  // 33: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.victim_data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Victim
+	93,  // 34: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.objective_data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Objective
+	94,  // 35: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.all_damage_data:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_RoundEndReportData.RerEvent.Damage
+	99,  // 36: com.github.markus_wa.demoinfocs_golang.s2.CCSUsrMsg_SendPlayerLoadout.LoadoutItem.econ_item:type_name -> com.github.markus_wa.demoinfocs_golang.s2.CEconItemPreviewDataBlock
+	37,  // [37:37] is the sub-list for method output_type
+	37,  // [37:37] is the sub-list for method input_type
+	37,  // [37:37] is the sub-list for extension type_name
+	37,  // [37:37] is the sub-list for extension extendee
+	0,   // [0:37] is the sub-list for field type_name
 }
 
 func init() { file_s2_cstrike15_usermessages_proto_init() }
@@ -6525,7 +6732,7 @@ func file_s2_cstrike15_usermessages_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_s2_cstrike15_usermessages_proto_rawDesc), len(file_s2_cstrike15_usermessages_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   90,
+			NumMessages:   94,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

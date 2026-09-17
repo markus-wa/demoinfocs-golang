@@ -83,6 +83,7 @@ var svcMsgCreators = map[msgs2.SVC_Messages]NetMessageCreator{
 	msgs2.SVC_Messages_svc_HltvFixupOperatorStatus: func() proto.Message { return &msgs2.CSVCMsg_HltvFixupOperatorStatus{} },
 	msgs2.SVC_Messages_svc_UserCmds:                func() proto.Message { return &msgs2.CSVCMsg_UserCommands{} },
 	msgs2.SVC_Messages_svc_NextMsgPredicted:        func() proto.Message { return &msgs2.CSVCMsg_NextMsgPredicted{} },
+	msgs2.SVC_Messages_svc_EncryptedData:           func() proto.Message { return &msgs2.CSVCMsg_EncryptedData{} },
 }
 
 var usrMsgCreators = map[msgs2.EBaseUserMessages]NetMessageCreator{
@@ -307,7 +308,37 @@ func (m *pendingMessage) priority() int {
 	return 0
 }
 
-//nolint:funlen
+// s2MsgCreatorForType returns the creator for a Source 2 net-message type,
+// or nil if the type is unknown.
+func s2MsgCreatorForType(t int32) NetMessageCreator {
+	switch {
+	case t < int32(msgs2.SVC_Messages_svc_ServerInfo):
+		msgCreator := netMsgCreators[msgs2.NET_Messages(t)]
+		if msgCreator == nil {
+			msgCreator = bidirectionalMessageCreators[msgs2.Bidirectional_Messages(t)]
+		}
+
+		return msgCreator
+	case t < int32(msgs2.EBaseUserMessages_UM_AchievementEvent):
+		return svcMsgCreators[msgs2.SVC_Messages(t)]
+	case t < int32(msgs2.EBaseGameEvents_GE_VDebugGameSessionIDEvent):
+		msgCreator := usrMsgCreators[msgs2.EBaseUserMessages(t)]
+		if msgCreator == nil {
+			msgCreator = emCreators[msgs2.EBaseEntityMessages(t)]
+		}
+
+		return msgCreator
+	case t < int32(msgs2.ECstrike15UserMessages_CS_UM_VGUIMenu):
+		return gameEventCreators[msgs2.EBaseGameEvents(t)]
+	case t < int32(msgs2.ETEProtobufIds_TE_EffectDispatchId):
+		return csUsrMsgCreators[msgs2.ECstrike15UserMessages(t)]
+	case t < int32(msgs2.ECsgoGameEvents_GE_PlayerAnimEventId):
+		return teCreators[msgs2.ETEProtobufIds(t)]
+	default:
+		return csgoGameEventCreators[msgs2.ECsgoGameEvents(t)]
+	}
+}
+
 func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket, isFullPacket bool) {
 	b := pack.GetData()
 
@@ -352,31 +383,7 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket, isFullPacket bool) {
 			continue
 		}
 
-		var msgCreator NetMessageCreator
-
-		switch {
-		case m.t < int32(msgs2.SVC_Messages_svc_ServerInfo):
-			msgCreator = netMsgCreators[msgs2.NET_Messages(m.t)]
-			if msgCreator == nil {
-				msgCreator = bidirectionalMessageCreators[msgs2.Bidirectional_Messages(m.t)]
-			}
-		case m.t < int32(msgs2.EBaseUserMessages_UM_AchievementEvent):
-			msgCreator = svcMsgCreators[msgs2.SVC_Messages(m.t)]
-		case m.t < int32(msgs2.EBaseGameEvents_GE_VDebugGameSessionIDEvent):
-			msgCreator = usrMsgCreators[msgs2.EBaseUserMessages(m.t)]
-
-			if msgCreator == nil {
-				msgCreator = emCreators[msgs2.EBaseEntityMessages(m.t)]
-			}
-		case m.t < int32(msgs2.ECstrike15UserMessages_CS_UM_VGUIMenu):
-			msgCreator = gameEventCreators[msgs2.EBaseGameEvents(m.t)]
-		case m.t < int32(msgs2.ETEProtobufIds_TE_EffectDispatchId):
-			msgCreator = csUsrMsgCreators[msgs2.ECstrike15UserMessages(m.t)]
-		case m.t < int32(msgs2.ECsgoGameEvents_GE_PlayerAnimEventId):
-			msgCreator = teCreators[msgs2.ETEProtobufIds(m.t)]
-		default:
-			msgCreator = csgoGameEventCreators[msgs2.ECsgoGameEvents(m.t)]
-		}
+		msgCreator := s2MsgCreatorForType(m.t)
 
 		if msgCreator == nil {
 			p.msgDispatcher.Dispatch(events.ParserWarn{
