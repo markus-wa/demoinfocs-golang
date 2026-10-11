@@ -239,16 +239,14 @@ func TestPolyNestedFieldPaths(t *testing.T) {
 }
 
 // TestPolyHandlerOrderRegistrationStable asserts that handlers sharing an fp key
-// (here via a deprecated bare-name alias resolving to the same field as
-// m_pMode.m_aField) fire in their original registration order and that this
+// (here via a second name resolving to the same field as m_pMode.m_aField) fire in their original registration order and that this
 // order is preserved across poly type-change rebuilds.
 func TestPolyHandlerOrderRegistrationStable(t *testing.T) {
 	t.Parallel()
 
 	cls, modeA, modeB := polyTestClass(t)
 
-	// Simulate the deprecated bare-name alias rebuildFieldIndexes creates for
-	// disambiguated field names: both names resolve to the same field path.
+	// Make a second name resolve to the same field path.
 	modeA.fieldIndexes["m_alias"] = modeA.fieldIndexes["m_aField"]
 
 	e := newEntity(1, 1, cls)
