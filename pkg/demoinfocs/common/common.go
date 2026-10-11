@@ -109,6 +109,10 @@ func (g *GrenadeProjectile) Velocity() r3.Vector {
 // The id is generated internally by this library and can be used to differentiate grenades from
 // each other. This is needed because demo-files reuse entity ids.
 //
+// Unlike WeaponInstance.UniqueID2(), which identifies the thrown weapon (and may be shared by
+// multiple throws), this identifies an individual thrown grenade. Grenade events (see events.GrenadeEvent.Projectile)
+// refer to the same projectile, so it can be used to follow a grenade from throw to effect.
+//
 // The id is unique within the Parser instance that created the grenade; ids from different Parser
 // instances (e.g. concurrently or sequentially parsed demos) may collide, so don't key data
 // across demos by it.
