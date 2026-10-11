@@ -1,13 +1,17 @@
 package demoinfocs
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 
-	"github.com/markus-wa/go-unassert"
-
+	bit "github.com/markus-wa/demoinfocs-golang/v5/internal/bitread"
 	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
+	"github.com/markus-wa/go-unassert"
+	"github.com/markus-wa/ice-cipher-go/pkg/ice"
+	"google.golang.org/protobuf/proto"
 )
 
 func (p *parser) onEntity(e sendtables.Entity, op sendtables.EntityOp) error {
@@ -109,4 +113,115 @@ func (p *parser) handleServerRankUpdate(msg *msg.CCSUsrMsg_ServerRankUpdate) {
 			Player:     player,
 		})
 	}
+}
+
+// encryptedNetMessageKeyType is the only key type the parser can decrypt,
+// it corresponds to the public key found in `match730_*.dem.info` files.
+const encryptedNetMessageKeyType = 2
+
+// decryptNetMessage decrypts an encrypted net-message payload and returns a
+// bit reader positioned at the start of the inner message, plus the number of
+// payload bytes. ok is false if the message could not be decrypted, in which
+// case a ParserWarn has been dispatched and the reader is nil.
+// The caller is responsible for pooling the returned reader.
+func (p *parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.BitReader, nBytesWritten int, ok bool) {
+	if keyType != encryptedNetMessageKeyType {
+		return nil, 0, false
+	}
+
+	if p.decryptionKey == nil {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Type:    events.WarnTypeMissingNetMessageDecryptionKey,
+			Message: "received encrypted net-message but no decryption key is set",
+		})
+
+		return nil, 0, false
+	}
+
+	k := ice.NewKey(encryptedNetMessageKeyType, p.decryptionKey)
+	b := k.DecryptAll(encrypted)
+
+	br = bit.NewSmallBitReader(bytes.NewReader(b))
+
+	const (
+		byteLenPadding = 1
+		byteLenWritten = 4
+	)
+
+	paddingBytes := br.ReadSingleByte()
+
+	if int(paddingBytes) >= len(b)-byteLenPadding-byteLenWritten {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "encrypted net-message has invalid number of padding bytes",
+			Type:    events.WarnTypeCantReadEncryptedNetMessage,
+		})
+
+		p.poolBitReader(br)
+
+		return nil, 0, false
+	}
+
+	br.Skip(int(paddingBytes) << 3)
+
+	bBytesWritten := br.ReadBytes(byteLenWritten)
+	nBytesWritten = int(binary.BigEndian.Uint32(bBytesWritten))
+
+	if len(b) != byteLenPadding+byteLenWritten+int(paddingBytes)+nBytesWritten {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "encrypted net-message has invalid length",
+			Type:    events.WarnTypeCantReadEncryptedNetMessage,
+		})
+
+		p.poolBitReader(br)
+
+		return nil, 0, false
+	}
+
+	return br, nBytesWritten, true
+}
+
+// handleEncryptedData decrypts encrypted net-messages (e.g. chat messages in Valve matchmaking demos)
+// and dispatches the inner message as if it had been received in plain text.
+// The inner message uses the same framing as CDemoPacket data:
+// a UBitInt message type followed by a varint size and the protobuf bytes.
+func (p *parser) handleEncryptedData(m *msg.CSVCMsg_EncryptedData) {
+	br, nBytesWritten, ok := p.decryptNetMessage(m.GetKeyType(), m.GetEncrypted())
+	if !ok {
+		return
+	}
+
+	defer p.poolBitReader(br)
+
+	t := int32(br.ReadUBitInt()) //nolint:gosec // net-message type IDs are small, same as in handleDemoPacket()
+	size := br.ReadVarInt32()
+
+	if int(size) > nBytesWritten {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "encrypted net-message has invalid inner message size",
+			Type:    events.WarnTypeCantReadEncryptedNetMessage,
+		})
+
+		return
+	}
+
+	msgCreator := msgCreatorForType(t)
+	if msgCreator == nil {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: fmt.Sprintf("unknown encrypted message type: %d", t),
+			Type:    events.WarnTypeUnknownProtobufMessage,
+		})
+
+		return
+	}
+
+	inner := msgCreator()
+
+	err := proto.Unmarshal(br.ReadBytes(int(size)), inner)
+	if err != nil {
+		p.setError(err)
+
+		return
+	}
+
+	p.msgDispatcher.Dispatch(inner)
 }

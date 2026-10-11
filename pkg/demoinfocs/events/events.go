@@ -598,6 +598,15 @@ const (
 	WarnTypeStringTableParsingFailure // Should happen only with CS2 POV demos
 	WarnTypePacketEntitiesPanic
 	WarnTypeUnknownProtobufMessage
+
+	// WarnTypeMissingNetMessageDecryptionKey occurs when encrypted net-messages are encountered and the decryption key is missing.
+	// See ParserConfig.NetMessageDecryptionKey
+	WarnTypeMissingNetMessageDecryptionKey
+
+	// WarnTypeCantReadEncryptedNetMessage occurs when an encrypted net-message can't be decrypted even though the decryption key is set.
+	// May occur because the decryption key used is incorrect.
+	// See ParserConfig.NetMessageDecryptionKey
+	WarnTypeCantReadEncryptedNetMessage
 )
 
 // WarnTypeUnknownDemoCommandMessageType occurs when a demo-command message type is unknown - contact a maintainer.

@@ -3,7 +3,7 @@ import "prediction_events.proto";
 
 enum ECSPredictionEvents {
 	CSPE_DamageTag = 1;
-	CSPE_AddAimPunch = 3;
+	CSPE_PlayerTeleport = 3;
 }
 
 message CCSPredictionEvent_DamageTag {
@@ -12,8 +12,9 @@ message CCSPredictionEvent_DamageTag {
 	optional float friendly_fire_damage_reduction_ratio = 3;
 }
 
-message CCSPredictionEvent_AddAimPunch {
-	optional .CMsgQAngle punch_angle = 1;
-	optional uint32 when_tick = 2;
-	optional float when_tick_frac = 3;
+message CCSPredictionEvent_PlayerTeleport {
+	optional bool relative = 1;
+	optional .CMsgVector origin = 2;
+	optional .CMsgQAngle angles = 3;
+	optional .CMsgVector velocity = 4;
 }

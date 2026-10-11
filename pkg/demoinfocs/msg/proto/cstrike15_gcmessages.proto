@@ -90,7 +90,6 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_ClientPerfReport = 9202;
 	k_EMsgGCCStrike15_v2_GetEventFavorites_Response = 9203;
 	k_EMsgGCCStrike15_v2_ClientRequestSouvenir = 9204;
-	k_EMsgGCCStrike15_v2_ClientReportValidation = 9205;
 	k_EMsgGCCStrike15_v2_GC2ClientRefuseSecureMode = 9206;
 	k_EMsgGCCStrike15_v2_GC2ClientRequestValidation = 9207;
 	k_EMsgGCCStrike15_v2_ClientRedeemMissionReward = 9209;
@@ -111,6 +110,8 @@ enum ECsgoGCMsg {
 	k_EMsgGCCStrike15_v2_RequestRecurringMissionSchedule = 9225;
 	k_EMsgGCCStrike15_v2_RecurringMissionSchema = 9226;
 	k_EMsgGCCStrike15_v2_VolatileItemClaimReward = 9227;
+	k_EMsgGCCStrike15_v2_VolatileShopSubscribe = 9228;
+	k_EMsgGCCStrike15_v2_SetClanId = 9229;
 }
 
 enum ECsgoSteamUserStat {
@@ -681,6 +682,7 @@ message CMsgGCCStrike15_v2_ServerNotificationForUserPenalty {
 	optional uint32 reason = 2;
 	optional uint32 seconds = 3;
 	optional bool communication_cooldown = 4;
+	optional uint32 cheating_penalty_level = 5;
 }
 
 message CMsgGCCStrike15_v2_ClientReportPlayer {
@@ -752,6 +754,7 @@ message CMsgGCCStrike15_v2_ClientRequestJoinFriendData {
 	optional uint32 join_ipp = 4;
 	optional .CMsgGCCStrike15_v2_MatchmakingGC2ClientReserve res = 5;
 	optional string errormsg = 6;
+	optional bool is_local_server = 7;
 }
 
 message CMsgGCCStrike15_v2_ClientRequestJoinServerData {
@@ -770,6 +773,8 @@ message CMsgGCCstrike15_v2_ClientRedeemMissionReward {
 	optional uint32 redeemable_balance = 3;
 	optional uint32 expected_cost = 4;
 	optional int32 bid_control = 5;
+	repeated uint64 volatile_shop = 6;
+	optional uint64 souvenir_matchid = 7;
 }
 
 message CMsgGCCstrike15_v2_ClientRedeemFreeReward {
@@ -1198,6 +1203,14 @@ message CSOVolatileItemClaimedRewards {
 	repeated uint32 generation_time = 3;
 }
 
+message CMsgGCCStrike15_v2_VolatileShopSubscribe {
+	optional uint32 defidx = 1;
+	optional uint64 psid = 2;
+	optional uint32 upnext = 3;
+	optional uint32 gctime = 4;
+	optional bytes payload = 5;
+}
+
 message CSOAccountKeychainRemoveToolCharges {
 	optional uint32 charges = 1;
 }
@@ -1235,6 +1248,7 @@ message CSOPersonaDataPublic {
 	optional bool elevated_state = 3;
 	optional uint32 xp_trail_timestamp_refresh = 4;
 	optional uint32 xp_trail_level = 5;
+	optional uint32 clan_id = 6;
 }
 
 message CSOAccountRecurringMission {
@@ -1429,6 +1443,10 @@ message CMsgGCCStrike15_v2_ClientAccountBalance {
 	optional string url = 2;
 }
 
+message CMsgGCCStrike15_v2_SetClanId {
+	optional uint32 clan_id = 1;
+}
+
 message CMsgGCCStrike15_v2_ClientPartyJoinRelay {
 	optional uint32 accountid = 1;
 	optional uint64 lobbyid = 2;
@@ -1476,29 +1494,6 @@ message CVDiagnostic {
 	optional uint32 extended = 2;
 	optional uint64 value = 3;
 	optional string string_value = 4;
-}
-
-message CMsgGCCStrike15_v2_ClientReportValidation {
-	optional string file_report = 1;
-	optional string command_line = 2;
-	optional uint32 total_files = 3;
-	optional uint32 internal_error = 4;
-	optional uint32 trust_time = 5;
-	optional uint32 count_pending = 6;
-	optional uint32 count_completed = 7;
-	optional uint32 process_id = 8;
-	optional int32 osversion = 9;
-	optional uint32 clientreportversion = 10;
-	optional uint32 status_id = 11;
-	optional uint32 diagnostic1 = 12;
-	optional uint64 diagnostic2 = 13;
-	optional uint64 diagnostic3 = 14;
-	optional string last_launch_data = 15;
-	optional uint32 report_count = 16;
-	optional uint64 client_time = 17;
-	optional uint64 diagnostic4 = 18;
-	optional uint64 diagnostic5 = 19;
-	repeated .CVDiagnostic diagnostics = 20;
 }
 
 message CMsgGCCStrike15_v2_GC2ClientRefuseSecureMode {

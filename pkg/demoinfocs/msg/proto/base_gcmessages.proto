@@ -274,15 +274,6 @@ message CMsgGCError {
 message CMsgRequestInventoryRefresh {
 }
 
-message CMsgConVarValue {
-	optional string name = 1;
-	optional string value = 2;
-}
-
-message CMsgReplicateConVars {
-	repeated .CMsgConVarValue convars = 1;
-}
-
 message CMsgUseItem {
 	optional uint64 item_id = 1;
 	optional fixed64 target_steam_id = 2;
@@ -540,6 +531,7 @@ message CMsgOpenCrate {
 	optional uint64 subject_item_id = 2;
 	optional bool for_rental = 3;
 	optional uint32 points_remaining = 4;
+	optional uint32 volatile_limit = 5;
 }
 
 message CSOEconRentalHistory {
