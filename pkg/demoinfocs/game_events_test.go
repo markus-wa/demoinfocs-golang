@@ -349,35 +349,74 @@ func TestPlayerHurt_KnownWeaponDispatchesImmediately(t *testing.T) {
 	assert.Equal(t, common.EqAK47, got[0].Weapon.Type)
 }
 
-func TestPlayerHurt_FatalHitCappedAtPriorHitHealthSameTick(t *testing.T) {
+// newPlayerWithPawnHealth registers a victim whose pawn reports the given (start-of-tick) health.
+func newPlayerWithPawnHealth(p *parser, userID int, health int) *common.Player {
+	const pawnHandle = 7
+
+	controller := new(stfake.Entity)
+	controller.On("PropertyValue", "m_hPawn").Return(st.PropertyValue{Any: uint64(pawnHandle)}, true)
+	controller.On("PropertyValue", "m_hPlayerPawn").Return(st.PropertyValue{Any: uint64(pawnHandle)}, true)
+
+	p.gameState.entities[pawnHandle] = stfake.NewEntityWithProperty("m_iHealth", st.PropertyValue{Any: int32(health)})
+
+	victim := common.NewPlayer(demoInfoProvider{parser: p})
+	victim.Entity = controller
+	victim.UserID = userID
+	p.gameState.playersByUserID[userID] = victim
+
+	return victim
+}
+
+func TestPlayerHurt_HealthDamageTakenIsHealthDrop(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
-	p.currentFrame = 100
 	p.gameState.ingameTick = 5000
 
-	victim := newPlayerWithEntityID(3)
-	victim.UserID = 42
-
-	p.gameState.playersByUserID[victim.UserID] = victim
+	victim := newPlayerWithPawnHealth(p, 42, 100)
 
 	var got []events.PlayerHurt
 	p.RegisterEventHandler(func(e events.PlayerHurt) {
 		got = append(got, e)
 	})
 
-	// First hit: non-fatal, victim reported at 35 HP after the hit.
+	// Since build 10581 a hit can remove dmg_health+1 HP (fractional damage).
 	data := playerHurtEventData(int32(victim.UserID), 1, "ak47")
-	data["health"].ValByte = proto.Int32(35)
+	data["health"].ValByte = proto.Int32(73)
 	data["armor"].ValByte = proto.Int32(50)
-	data["dmg_health"].ValShort = proto.Int32(15)
+	data["dmg_health"].ValShort = proto.Int32(26)
 
 	p.gameEventHandler.playerHurt(data)
 
-	// Second hit, same tick: fatal (health 0). Must be capped at the victim's remaining
-	// HP right before it (35), not the start-of-tick value (100) which would over-report.
+	assert.Len(t, got, 1)
+	assert.Equal(t, 26, got[0].HealthDamage)
+	assert.Equal(t, 27, got[0].HealthDamageTaken)
+}
+
+func TestPlayerHurt_SameTickHitsMeasuredFromPriorHitHealth(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	p.currentFrame = 100
+	p.gameState.ingameTick = 5000
+
+	victim := newPlayerWithPawnHealth(p, 42, 50)
+
+	var got []events.PlayerHurt
+	p.RegisterEventHandler(func(e events.PlayerHurt) {
+		got = append(got, e)
+	})
+
+	// First hit: non-fatal, dmg_health 14 but victim drops from 50 to 35.
+	data := playerHurtEventData(int32(victim.UserID), 1, "ak47")
+	data["health"].ValByte = proto.Int32(35)
+	data["armor"].ValByte = proto.Int32(50)
+	data["dmg_health"].ValShort = proto.Int32(14)
+
+	p.gameEventHandler.playerHurt(data)
+
+	// Second hit, same tick: fatal (health 0). Must be measured from the victim's HP right
+	// before it (35), not the start-of-tick value (50) which would over-report.
 	data2 := playerHurtEventData(int32(victim.UserID), 1, "ak47")
 	data2["health"].ValByte = proto.Int32(0)
 	data2["armor"].ValByte = proto.Int32(50)
-	data2["dmg_health"].ValShort = proto.Int32(35)
+	data2["dmg_health"].ValShort = proto.Int32(100)
 
 	p.gameEventHandler.playerHurt(data2)
 
