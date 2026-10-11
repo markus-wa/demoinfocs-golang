@@ -50,6 +50,9 @@ jobs:
 
       - name: Lint Changed Code
         run: scripts/lint-changes.sh
+        env:
+          # lint against the PR's base branch, otherwise lint-changes.sh defaults to origin/master (v6)
+          base_rev: origin/${{ github.base_ref || 'v5' }}
         continue-on-error: true
 
       - name: Race Tests
