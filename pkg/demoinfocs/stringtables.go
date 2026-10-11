@@ -347,13 +347,15 @@ func (p *parser) parseStringTable(
 		var value []byte
 
 		// Read a boolean to determine whether the operation is an increment or
-		// has a fixed index position. A fixed index position of zero should be
-		// the last data in the buffer, and indicates that all data has been read.
+		// skips ahead. Skips are relative to the previous index: the varint is the
+		// number of entries skipped minus one (i.e. index += varint + 2).
+		// Treating it as an absolute index put userinfo updates into the wrong
+		// player slots in demos that skip entries (e.g. Esportal GOTV).
 		incr := r.ReadBit()
 		if incr {
 			index++
 		} else {
-			index = int32(r.ReadVarInt32()) + 1
+			index += int32(r.ReadVarInt32()) + 2
 		}
 
 		// Some values have keys, some don't.
