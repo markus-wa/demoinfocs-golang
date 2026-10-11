@@ -456,9 +456,10 @@ const (
 // PlayerHurt signals that a player has been damaged.
 //
 // HealthDamage is the raw dmg_health of the game event, HealthDamageTaken the HP the hit actually removed.
-// Since the CS2 update of 16 Oct 2025 (build 10581) a hit can remove HealthDamage+1 HP.
-// HealthDamageTaken includes that +1, matching the game's own damage stats (m_pActionTrackingServices.m_iDamage);
-// HLTV's ADR sums HealthDamage instead.
+// On many demos a hit removes HealthDamage+1 HP (dmg_health is rounded down, the HP loss isn't).
+// This depends on the server build and is seen on demos from 2023 to 2026, but not on all of them.
+// HealthDamageTaken always equals the victim's actual HP loss, matching the game's own damage stats
+// (m_pActionTrackingServices.m_iDamage); HLTV's ADR sums HealthDamage instead.
 type PlayerHurt struct {
 	Player            *common.Player // May be nil with POV demos or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Attacker          *common.Player // May be nil if the player is taking world damage (e.g. fall damage) or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).

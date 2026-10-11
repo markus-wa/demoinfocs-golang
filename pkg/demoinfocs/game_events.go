@@ -128,7 +128,7 @@ func (p *parser) handleGameEventS2(ge *msgs2.CMsgSource1LegacyGameEvent) {
 // victimTickHealthDamage records the victim's last reported health within a single game tick, so a
 // same-tick follow-up hit is measured from the victim's actual HP right before it instead of the
 // stale start-of-tick value. Tracking the server's reported post-hit health is exact, whereas
-// summing raw dmg_health under-reports the true HP drop by 1 on many hits since build 10581.
+// summing raw dmg_health under-reports the true HP drop by 1 on many hits (on many server builds).
 type victimTickHealthDamage struct {
 	tick       int
 	lastHealth int
@@ -561,8 +561,8 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 		// this same tick, use that hit's reported post-damage health instead - the server's own HP
 		// after it - otherwise same-tick multi-hit sequences over-report.
 		//
-		// This is not the same as dmg_health: since the CS2 update of 16 Oct 2025 (build 10581)
-		// a hit can remove dmg_health+1 HP, and the game's own damage stats
+		// This is not the same as dmg_health: on many server builds a hit can remove
+		// dmg_health+1 HP, and the game's own damage stats
 		// (m_pActionTrackingServices.m_iDamage) count the HP removed.
 		healthBefore := player.Health()
 		if victimDamage.hasPrior {
