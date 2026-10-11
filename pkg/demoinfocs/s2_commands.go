@@ -345,7 +345,6 @@ func msgCreatorForType(t int32) NetMessageCreator {
 	}
 }
 
-//nolint:funlen
 func (p *parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
 	b := pack.GetData()
 
