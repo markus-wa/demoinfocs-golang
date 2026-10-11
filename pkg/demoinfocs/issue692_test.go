@@ -12,9 +12,9 @@ import (
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 )
 
-// brokenDemPath is a CS2 GOTV demo showing both player-identity regressions of #692
-// (reconnecting player's name reverted by stale userinfo updates; a re-used bot slot's
-// name binding the same *Player to two user-IDs, non-deterministically). It lives in the
+// brokenDemPath is a CS2 GOTV demo showing both player-identity issues of #692
+// (reconnecting players' names flip-flopping between their Steam & FACEIT names; a re-used
+// bot slot's name binding the same *Player to two user-IDs, non-deterministically). It lives in the
 // cs-demos submodule and is skipped if the submodule isn't initialized.
 const brokenDemPath = csDemosPath + "/s2/broken_1.dem"
 
@@ -32,10 +32,16 @@ func openBrokenDem(t *testing.T) demoinfocs.Parser {
 	return demoinfocs.NewParser(f)
 }
 
-// Test692NameChangeNotReverted asserts that a reconnecting player's name change
-// is applied exactly once and never reverted by stale GOTV userinfo updates.
+// Test692ControllerNameIsAuthoritative asserts that player names come from the player controller
+// (m_iszPlayerName, the server-enforced name shown on the scoreboard) and never flip-flop.
+//
+// The demo is from a FACEIT server: after reconnecting, two players' userinfo & player_connect carry
+// their Steam names ("- [Z]oRo", "BuddhaMonsteRRR"), while the server keeps enforcing their FACEIT
+// names ("ZoRoBeast", "iBaaaaaaad") - the controller never changes and the server's own
+// player_disconnect at the end of the demo still says "ZoRoBeast". The Steam names are only available
+// via PlayerInfo / player_connect.
 // See https://github.com/markus-wa/demoinfocs-golang/issues/692
-func Test692NameChangeNotReverted(t *testing.T) {
+func Test692ControllerNameIsAuthoritative(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test due to -short flag")
 	}
@@ -44,38 +50,64 @@ func Test692NameChangeNotReverted(t *testing.T) {
 
 	p := openBrokenDem(t)
 
-	type change struct {
-		oldName, newName string
-	}
+	const (
+		zoroSteamID = uint64(76561198870444951)
+		ibadSteamID = uint64(76561199129120571)
+	)
 
-	changes := make(map[int][]change)
+	var nameChanges []events.PlayerNameChange
 
 	p.RegisterEventHandler(func(e events.PlayerNameChange) {
-		changes[e.Player.UserID] = append(changes[e.Player.UserID],
-			change{oldName: e.OldName, newName: e.NewName})
+		nameChanges = append(nameChanges, e)
+	})
+
+	steamNamesSeen := make(map[uint64]map[string]bool)
+
+	p.RegisterEventHandler(func(e events.PlayerInfo) {
+		if steamNamesSeen[e.Info.XUID] == nil {
+			steamNamesSeen[e.Info.XUID] = make(map[string]bool)
+		}
+
+		steamNamesSeen[e.Info.XUID][e.Info.Name] = true
+	})
+
+	namesBySteamID := make(map[uint64]map[string]bool)
+	mismatches := 0
+
+	p.RegisterEventHandler(func(events.FrameDone) {
+		for _, pl := range p.GameState().Participants().Playing() {
+			if pl.Entity == nil {
+				continue
+			}
+
+			if ctrlName := pl.Entity.PropertyValueMust("m_iszPlayerName").String(); pl.Name != ctrlName {
+				if mismatches == 0 {
+					t.Errorf("tick %d: player name %q != controller name %q", p.GameState().IngameTick(), pl.Name, ctrlName)
+				}
+
+				mismatches++
+			}
+
+			if namesBySteamID[pl.SteamID64] == nil {
+				namesBySteamID[pl.SteamID64] = make(map[string]bool)
+			}
+
+			namesBySteamID[pl.SteamID64][pl.Name] = true
+		}
 	})
 
 	require.NoError(t, p.ParseToEnd())
 
-	// uid 4 disconnects and reconnects under a new name - the change must stick (applied once).
-	assert.Equal(t, []change{{oldName: "ZoRoBeast", newName: "- [Z]oRo"}},
-		changes[4], "uid 4's reconnect name change must be applied exactly once and not reverted")
+	assert.Zero(t, mismatches, "frames where a player's name didn't match its controller")
 
-	// uid 9 reconnects under a new name mid-round (same tick as the string-table update) -
-	// the connect event's name must win and never revert.
-	assert.Equal(t, []change{{oldName: "iBaaaaaaad", newName: "BuddhaMonsteRRR"}},
-		changes[9], "uid 9's reconnect name change must be applied exactly once and not reverted")
+	// the controller names never change in this demo, so neither may the players' names
+	assert.Empty(t, nameChanges, "no PlayerNameChange expected (names must not flip-flop)")
+	assert.Equal(t, map[string]bool{"ZoRoBeast": true}, namesBySteamID[zoroSteamID])
+	assert.Equal(t, map[string]bool{"iBaaaaaaad": true}, namesBySteamID[ibadSteamID])
 
-	for uid, c := range changes {
-		for i, ch := range c {
-			assert.NotEqual(t, ch.oldName, ch.newName, "uid %d change %d: no-op change dispatched", uid, i)
-
-			for _, prev := range c[:i] {
-				assert.NotEqual(t, prev.newName, ch.oldName,
-					"uid %d change %d: name %q was reverted by a stale update", uid, i, prev.newName)
-			}
-		}
-	}
+	// the Steam names are still available via PlayerInfo
+	assert.True(t, steamNamesSeen[zoroSteamID]["- [Z]oRo"], "Steam name of uid 4 should be available via PlayerInfo")
+	assert.True(t, steamNamesSeen[ibadSteamID]["BuddhaMonsteRRR"], "Steam name of uid 9 should be available via PlayerInfo")
 }
 
 // Test692NoDuplicatePlayerInPlaying asserts that GameState.Participants().Playing()

@@ -364,8 +364,9 @@ func (p *parser) bindPlayers() {
 	})
 }
 
-func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew bool, player *common.Player) {
-	player = p.gameState.playersByEntityID[entityID]
+// playerUserID returns the user-ID under which a player with the given raw info is registered
+// (-1 if there is no raw info). Game-event user-IDs only carry the slot in the low byte.
+func playerUserID(rp *common.PlayerInfo) int {
 	userID := -1
 
 	if rp != nil {
@@ -376,47 +377,26 @@ func (p *parser) getOrCreatePlayer(entityID int, rp *common.PlayerInfo) (isNew b
 		userID &= 0xff
 	}
 
-	if player == nil {
-		if rp != nil {
-			player = p.gameState.playersByUserID[userID]
-
-			if player == nil {
-				isNew = true
-
-				player = common.NewPlayer(p.demoInfoProvider)
-				player.Name = rp.Name
-				player.SteamID64 = rp.XUID
-				player.IsBot = rp.IsFakePlayer || rp.GUID == botGUID
-
-				p.gameState.indexPlayerBySteamID(player)
-			}
-		} else {
-			// see #162.
-			// GOTV doesn't crash here either so we just initialize this player with default values.
-			// this happens in some demos since November 2019 for players that were are actually connected.
-			// in GOTV these players are just called "unknown".
-			player = common.NewPlayer(p.demoInfoProvider)
-			player.Name = "unknown"
-			player.IsUnknown = true
-		}
-	}
-
-	player.UserID = userID
-
-	p.gameState.playersByEntityID[entityID] = player
-
-	if rp != nil {
-		p.gameState.playersByUserID[userID] = player
-	}
-
-	return isNew, player
+	return userID
 }
 
+// getOrCreatePlayerFromControllerEntity returns the player bound to the given CCSPlayerController,
+// creating it if necessary.
+//
+// The controller is the source of truth for a player's identity: Name and SteamID64 come from its
+// m_iszPlayerName and m_steamID props (the name the server enforces & the scoreboard shows, which
+// may differ from the Steam name in the userinfo string table & player_connect event, e.g. on
+// FACEIT - see #692). The userinfo string table is only used to map the controller to a user-ID.
+//
+// If the controller's slot is taken over by a different person (different m_steamID), a new
+// *Player is created - an existing player's SteamID64 is never changed.
 func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entity) *common.Player {
 	controllerEntityID := controllerEntity.ID()
 	p.gameState.playerControllerEntities[controllerEntityID] = controllerEntity
 
-	isBot := controllerEntity.PropertyValueMust("m_steamID").UInt64() == 0
+	steamID := controllerEntity.PropertyValueMust("m_steamID").UInt64()
+	name := controllerEntity.PropertyValueMust("m_iszPlayerName").String()
+	isBot := steamID == 0
 
 	// In regular demos player slots map to controller entities 1:1 (slot N is entity N+1),
 	// so the raw info for this controller lives at slot controllerEntityID-1. Match against
@@ -442,17 +422,110 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 		rp = p.rawPlayers[controllerEntityID-1]
 	}
 
-	_, player := p.getOrCreatePlayer(controllerEntityID, rp)
+	userID := playerUserID(rp)
+
+	player := p.gameState.playersByEntityID[controllerEntityID]
+	if player == nil && rp != nil {
+		player = p.gameState.playersByUserID[userID]
+	}
+
+	// A different person (or a bot replacing a human & vice versa) took over the slot.
+	// The controller entity is usually re-created when that happens, but may also be updated in place.
+	replacedInPlace := false
+
+	if player != nil && player.SteamID64 != steamID {
+		replacedInPlace = player.Entity == controllerEntity
+		player = nil
+	}
+
+	if name == "" && rp != nil && !isBot && rp.XUID == steamID {
+		name = rp.Name
+	}
+
+	if player == nil {
+		player = common.NewPlayer(p.demoInfoProvider)
+		player.SteamID64 = steamID
+		player.Name = name
+
+		if team, ok := controllerEntity.PropertyValue("m_iTeamNum"); ok {
+			player.Team = common.Team(team.UInt64())
+			player.TeamState = p.gameState.Team(player.Team)
+		}
+
+		p.gameState.indexPlayerBySteamID(player)
+	} else {
+		p.setPlayerName(player, name, isBot)
+	}
+
+	if player.Name == "" {
+		// see #162.
+		// GOTV doesn't crash here either so we just initialize this player with default values.
+		// this happens in some demos since November 2019 for players that were are actually connected.
+		// in GOTV these players are just called "unknown".
+		player.Name = "unknown"
+		player.IsUnknown = true
+	} else {
+		player.IsUnknown = false
+	}
+
+	player.UserID = userID
 	player.Entity = controllerEntity
 	player.EntityID = controllerEntityID
 	player.IsBot = isBot
 
-	if player.IsBot {
-		player.Name = controllerEntity.PropertyValueMust("m_iszPlayerName").String()
-		player.IsUnknown = false
+	p.gameState.playersByEntityID[controllerEntityID] = player
+
+	if rp != nil {
+		p.gameState.playersByUserID[userID] = player
+	}
+
+	if replacedInPlace {
+		// update handlers don't fire the controller's current state for in-place take-overs
+		p.connectPlayerIfConnected(player, controllerEntity)
 	}
 
 	return player
+}
+
+// connectPlayerIfConnected marks a player as connected and dispatches PlayerConnect / BotConnect
+// if the controller's m_iConnected state says it's connected and the player wasn't before.
+func (p *parser) connectPlayerIfConnected(player *common.Player, controllerEntity st.Entity) {
+	state, ok := controllerEntity.PropertyValue("m_iConnected")
+	if !ok || player.IsConnected || state.UInt32() != 0 {
+		return
+	}
+
+	player.IsConnected = true
+
+	if player.SteamID64 != 0 {
+		p.eventDispatcher.Dispatch(events.PlayerConnect{Player: player})
+	} else {
+		p.eventDispatcher.Dispatch(events.BotConnect{Player: player})
+	}
+}
+
+// setPlayerName applies a (controller) name to an existing player and dispatches PlayerNameChange
+// for humans if it changed. The old name is always taken from the player, never from a game-event.
+func (p *parser) setPlayerName(player *common.Player, name string, isBot bool) {
+	if name == "" || player.Name == name {
+		return
+	}
+
+	oldName := player.Name
+	wasUnknown := player.IsUnknown
+	player.Name = name
+
+	// Bots don't change their names - a different name on a bot controller is a different bot,
+	// and an unknown player getting its name isn't a name change either.
+	if isBot || player.IsBot || wasUnknown {
+		return
+	}
+
+	p.eventDispatcher.Dispatch(events.PlayerNameChange{
+		Player:  player,
+		OldName: oldName,
+		NewName: name,
+	})
 }
 
 // matchRawPlayerToController returns the raw player info at the given slot if it belongs to
@@ -477,24 +550,30 @@ func (p *parser) matchRawPlayerToController(slot int, isBot bool, controllerEnti
 func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 	pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
+	// the player bound to this controller may be replaced if a different person takes over the slot
+	currentPlayer := func() *common.Player {
+		if current := p.gameState.playersByEntityID[controllerEntity.ID()]; current != nil {
+			return current
+		}
+
+		return pl
+	}
+
+	// the controller's name & SteamID are the source of truth for the player's identity
+	syncIdentity := func(st.PropertyValue) {
+		p.getOrCreatePlayerFromControllerEntity(controllerEntity)
+	}
+
+	controllerEntity.Property("m_iszPlayerName").OnUpdate(syncIdentity)
+	controllerEntity.Property("m_steamID").OnUpdate(syncIdentity)
+
 	controllerEntity.Property("m_iConnected").OnUpdate(func(val st.PropertyValue) {
 		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 		state := val.UInt32()
-		wasConnected := pl.IsConnected
-		pl.IsConnected = state == 0
 
 		isDisconnection := state == 8
 		if isDisconnection {
-			for k, v := range p.rawPlayers {
-				// Only drop the disconnected session's raw info (slot-keyed, user-ID without
-				// the slot byte set - see the legacy-userid encoding in playerConnect). A
-				// reconnect under a new name may already have written the new session's raw
-				// info in the same frame; deleting it would re-arm the stale userinfo guard
-				// in parseUserInfo and re-apply the proxy's pre-reconnect name (#692).
-				if v.XUID == pl.SteamID64 && v.UserID == v.UserID&0xff {
-					delete(p.rawPlayers, k)
-				}
-			}
+			pl.IsConnected = false
 
 			p.gameEventHandler.dispatch(events.PlayerDisconnected{
 				Player: pl,
@@ -503,22 +582,23 @@ func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 			return
 		}
 
-		isConnection := !wasConnected && pl.IsConnected
-		if isConnection {
-			if pl.SteamID64 != 0 {
-				p.eventDispatcher.Dispatch(events.PlayerConnect{Player: pl})
-			} else {
-				p.eventDispatcher.Dispatch(events.BotConnect{Player: pl})
-			}
+		if state != 0 {
+			pl.IsConnected = false
+
+			return
 		}
+
+		p.connectPlayerIfConnected(pl, controllerEntity)
 	})
 
 	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
+		pl := currentPlayer()
 		pl.Team = common.Team(val.UInt64())
 		pl.TeamState = p.gameState.Team(pl.Team)
 	})
 
 	controllerEntity.OnDestroy(func() {
+		pl := currentPlayer()
 		pl.IsConnected = false
 
 		delete(p.gameState.playersByEntityID, controllerEntity.ID())

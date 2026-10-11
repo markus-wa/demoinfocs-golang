@@ -24,38 +24,41 @@ const (
 	stNameModelPreCache    = "modelprecache"
 )
 
+// updatePlayerFromRawIfExists applies raw player info (userinfo string table) to the player bound to
+// the slot's controller, if the info belongs to it. Raw info only maps the player to its user-ID -
+// name and SteamID64 come from the controller (see getOrCreatePlayerFromControllerEntity).
 func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
 	pl := p.gameState.playersByEntityID[index+1]
-	if pl == nil {
+	if pl == nil || pl.Entity == nil {
 		return
 	}
 
-	oldName := pl.Name
-	newName := raw.Name
-	nameChanged := !pl.IsBot && !raw.IsFakePlayer && raw.GUID != botGUID && oldName != newName
-
-	pl.Name = raw.Name
-	pl.SteamID64 = raw.XUID
-	pl.IsBot = raw.IsFakePlayer
-
-	p.gameState.indexPlayerBySteamID(pl)
-
-	if nameChanged {
-		p.eventDispatcher.Dispatch(events.PlayerNameChange{
-			Player:  pl,
-			OldName: oldName,
-			NewName: newName,
-		})
+	// The info may belong to a different person than the one currently bound to the slot's
+	// controller, e.g. the GOTV proxy's state dumps contain the next occupant of a slot before
+	// they connect (or the previous one after a reconnect).
+	if p.matchRawPlayerToController(index, pl.IsBot, pl.Entity) == nil {
+		return
 	}
+
+	pl = p.getOrCreatePlayerFromControllerEntity(pl.Entity)
 
 	p.eventDispatcher.Dispatch(events.StringTablePlayerUpdateApplied{
 		Player: pl,
 	})
 }
 
+// setRawPlayer stores raw player info for a slot (or a legacy user-ID, see playerConnect) and
+// dispatches PlayerInfo - only if the info actually changed, as the GOTV proxy & periodic
+// CDemoStringTables dumps re-send identical info.
 func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
-	if player.UserID == math.MaxUint16 && p.rawPlayers[index] != nil {
-		player.UserID = p.rawPlayers[index].UserID
+	existing := p.rawPlayers[index]
+
+	if player.UserID == math.MaxUint16 && existing != nil {
+		player.UserID = existing.UserID
+	}
+
+	if existing != nil && *existing == player {
+		return
 	}
 
 	p.rawPlayers[index] = &player
@@ -100,7 +103,7 @@ func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 			Flags:                cTab.Flags,
 			StringData:           tab.StringData,
 			UsingVarintBitcounts: cTab.UsingVarintBitcounts,
-		}, true)
+		})
 	}
 }
 
@@ -119,7 +122,7 @@ func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	case stNameModelPreCache:
 		fallthrough
 	case stNameInstanceBaseline:
-		p.processStringTable(tab, false)
+		p.processStringTable(tab)
 	}
 
 	p.stringTables = append(p.stringTables, tab)
@@ -277,7 +280,7 @@ func (p *parser) parseStringTable(
 
 var instanceBaselineKeyRegex = regexp.MustCompile(`^\d+:\d+$`)
 
-func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable, isIncrementalUpdate bool) {
+func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	if tab.GetName() == stNameModelPreCache {
 		for i := len(p.modelPreCache); i < int(tab.GetNumEntries()); i++ {
 			p.modelPreCache = append(p.modelPreCache, "")
@@ -311,7 +314,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable, isIncrem
 
 			p.stParser.SetInstanceBaseline(classID, item.Value)
 		case stNameUserInfo:
-			p.parseUserInfo(item.Value, int(item.Index), isIncrementalUpdate)
+			p.parseUserInfo(item.Value, int(item.Index))
 		}
 	}
 
@@ -372,7 +375,7 @@ func (p *parser) handleStringTables(msg *msg.CDemoStringTables) {
 					panic(errors.Wrap(err, "failed to parse playerIndex"))
 				}
 
-				p.parseUserInfo(item.GetData(), playerIndex, true)
+				p.parseUserInfo(item.GetData(), playerIndex)
 			}
 		}
 	}
@@ -380,20 +383,11 @@ func (p *parser) handleStringTables(msg *msg.CDemoStringTables) {
 
 // parseUserInfo applies a userinfo string-table entry for the given player slot.
 //
-// isIncrementalUpdate marks entries re-applying info for a slot we already have raw info
-// for. The GOTV proxy keeps a stale userinfo state for slots that were re-used after a
-// disconnect/reconnect under a new name (#692): updates carry the pre-reconnect name and
-// are re-sent periodically forever (CSVCMsg_UpdateStringTable entries and CDemoStringTables
-// state dumps alike), reverting the new name a few ticks after it was applied. Updates for
-// slots we already have raw info for are therefore ignored; raw info for the current
-// session is established by the signon table and kept authoritative by player_connect.
-// Only the first apply per slot passes (raw info is dropped on disconnect, so reconnects
-// re-apply their new session info - renames at reconnect work).
-func (p *parser) parseUserInfo(data []byte, playerIndex int, isIncrementalUpdate bool) {
-	if isIncrementalUpdate && p.rawPlayers[playerIndex] != nil {
-		return
-	}
-
+// Entries are applied even for slots we already have info for (needed to fix up user-ID mappings
+// when parsing broadcasts from mid-match, see #655). Stale entries - the GOTV proxy keeps the
+// pre-reconnect info for re-used slots (#692) - can't affect players' names or SteamIDs, as those
+// come from the player controller.
+func (p *parser) parseUserInfo(data []byte, playerIndex int) {
 	var userInfo msg.CMsgPlayerInfo
 
 	err := proto.Unmarshal(data, &userInfo)

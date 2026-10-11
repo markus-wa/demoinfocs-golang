@@ -16,7 +16,7 @@ type Player struct {
 
 	SteamID64           uint64             // 64-bit representation of the user's Steam ID. See https://developer.valvesoftware.com/wiki/SteamID
 	UserID              int                // Mostly used in game-events to address this player
-	Name                string             // Steam / in-game user name
+	Name                string             // In-game name as enforced by the server & shown on the scoreboard (the player controller's m_iszPlayerName). May differ from the Steam name in PlayerInfo / PlayerConnect, e.g. on FACEIT.
 	Inventory           map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
 	EntityID            int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
 	Entity              st.Entity          // May be nil between player-death and re-spawn

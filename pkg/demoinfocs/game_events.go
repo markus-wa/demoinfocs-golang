@@ -215,7 +215,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"other_death":                     geh.otherDeath,                        // Other deaths, like chickens.
 		"player_activate":                 nil,                                   // CS2 POV demos
 		"player_blind":                    delay(geh.playerBlind),                // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
-		"player_changename":               nil,                                   // Name change
+		"player_changename":               nil,                                   // Name change - handled via the controller's m_iszPlayerName (see bindNewPlayerController)
 		"player_chat":                     nil,                                   // CS2 only, not always present and ChatMessage events are already dispatched through CUserMessageSayText2
 		"player_connect":                  geh.playerConnect,                     // Bot connected or player reconnected, players normally come in via string tables & data tables
 		"player_connect_full":             nil,                                   // Connecting finished
@@ -728,36 +728,8 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CMsgSource1Legacy
 		pl.UserID |= math.MaxUint8 << 8
 	}
 
+	// Only used for user-ID mapping & PlayerInfo - Name & SteamID64 come from the player controller.
 	geh.parser.setRawPlayer(pl.UserID, pl)
-
-	geh.applyConnectNameToPlayer(pl)
-}
-
-// applyConnectNameToPlayer syncs the name from the server's player_connect event onto the
-// player object. The connect event carries the authoritative name for the new session -
-// the GOTV proxy's userinfo string-table state is stale for re-used slots and would
-// otherwise revert the name (see parseUserInfo & #692).
-func (geh gameEventHandler) applyConnectNameToPlayer(info common.PlayerInfo) {
-	slot := info.UserID & 0xff
-
-	pl := geh.gameState().playersByUserID[slot]
-	if pl == nil || pl.Name == info.Name {
-		return
-	}
-
-	// Record the authoritative session info under the slot key as well, so the
-	// parseUserInfo existence-guard also suppresses the proxy's stale userinfo state
-	// for that slot (CSVCMsg_UpdateStringTable entries & CDemoStringTables dumps).
-	geh.parser.rawPlayers[slot] = &info
-
-	oldName := pl.Name
-	pl.Name = info.Name
-
-	geh.dispatch(events.PlayerNameChange{
-		Player:  pl,
-		OldName: oldName,
-		NewName: info.Name,
-	})
 }
 
 func (geh gameEventHandler) playerDisconnect(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
