@@ -184,13 +184,17 @@ func (p *parser) handleServerRankUpdate(msg *msgs2.CCSUsrMsg_ServerRankUpdate) {
 	}
 }
 
+// encryptedNetMessageKeyType is the only key type the parser can decrypt,
+// it corresponds to the public key found in `match730_*.dem.info` files.
+const encryptedNetMessageKeyType = 2
+
 // decryptNetMessage decrypts an encrypted net-message payload and returns a
 // bit reader positioned at the start of the inner message, plus the number of
 // payload bytes. ok is false if the message could not be decrypted, in which
 // case a ParserWarn has been dispatched and the reader is nil.
 // The caller is responsible for pooling the returned reader.
 func (p *parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.BitReader, nBytesWritten int, ok bool) {
-	if keyType != 2 {
+	if keyType != encryptedNetMessageKeyType {
 		return nil, 0, false
 	}
 
@@ -203,23 +207,26 @@ func (p *parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.Bit
 		return nil, 0, false
 	}
 
-	k := ice.NewKey(2, p.decryptionKey)
+	k := ice.NewKey(encryptedNetMessageKeyType, p.decryptionKey)
 	b := k.DecryptAll(encrypted)
-
-	br = bit.NewSmallBitReader(bytes.NewReader(b))
 
 	const (
 		byteLenPadding = 1
 		byteLenWritten = 4
 	)
 
+	if len(b) <= byteLenPadding+byteLenWritten {
+		p.warnCantReadEncryptedNetMessage("encrypted net-message is too short")
+
+		return nil, 0, false
+	}
+
+	br = bit.NewSmallBitReader(bytes.NewReader(b))
+
 	paddingBytes := br.ReadSingleByte()
 
 	if int(paddingBytes) >= len(b)-byteLenPadding-byteLenWritten {
-		p.eventDispatcher.Dispatch(events.ParserWarn{
-			Message: "encrypted net-message has invalid number of padding bytes",
-			Type:    events.WarnTypeCantReadEncryptedNetMessage,
-		})
+		p.warnCantReadEncryptedNetMessage("encrypted net-message has invalid number of padding bytes")
 
 		p.poolBitReader(br)
 
@@ -232,10 +239,7 @@ func (p *parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.Bit
 	nBytesWritten = int(binary.BigEndian.Uint32(bBytesWritten))
 
 	if len(b) != byteLenPadding+byteLenWritten+int(paddingBytes)+nBytesWritten {
-		p.eventDispatcher.Dispatch(events.ParserWarn{
-			Message: "encrypted net-message has invalid length",
-			Type:    events.WarnTypeCantReadEncryptedNetMessage,
-		})
+		p.warnCantReadEncryptedNetMessage("encrypted net-message has invalid length")
 
 		p.poolBitReader(br)
 
@@ -247,25 +251,34 @@ func (p *parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.Bit
 
 // handleEncryptedDataS1 handles encrypted net-messages in CS:GO demos.
 // The inner message is framed as varint cmd + varint size + protobuf bytes.
+//
+// Anything that doesn't decode (most likely a wrong ParserConfig.NetMessageDecryptionKey)
+// is reported as a ParserWarn and skipped - it never aborts parsing.
 func (p *parser) handleEncryptedDataS1(msg *msg.CSVCMsg_EncryptedData) {
-	br, _, ok := p.decryptNetMessage(msg.GetKeyType(), msg.GetEncrypted())
+	br, nBytesWritten, ok := p.decryptNetMessage(msg.GetKeyType(), msg.GetEncrypted())
 	if !ok {
 		return
 	}
 
 	defer p.poolBitReader(br)
 
-	cmd := br.ReadVarInt32()
-	size := br.ReadVarInt32()
+	totalBits := len(msg.GetEncrypted()) << 3
+
+	cmd, size, ok := readEncryptedInnerHeader(br, totalBits, false)
+	if !ok || size > nBytesWritten {
+		p.warnCantReadEncryptedNetMessage("encrypted net-message has invalid inner message header")
+
+		return
+	}
 
 	m := p.netMessageForCmd(int(cmd))
 	if m == nil {
 		return
 	}
 
-	err := proto.Unmarshal(br.ReadBytes(int(size)), m)
+	err := proto.Unmarshal(br.ReadBytes(size), m)
 	if err != nil {
-		p.setError(err)
+		p.warnCantReadEncryptedNetMessage(fmt.Sprintf("failed to unmarshal encrypted net-message of type %d: %v", cmd, err))
 
 		return
 	}
@@ -276,6 +289,9 @@ func (p *parser) handleEncryptedDataS1(msg *msg.CSVCMsg_EncryptedData) {
 // handleEncryptedDataS2 handles encrypted net-messages in CS2 demos.
 // The inner message uses the same framing as CDemoPacket data:
 // a UBitInt message type followed by a varint size and the protobuf bytes.
+//
+// Anything that doesn't decode (most likely a wrong ParserConfig.NetMessageDecryptionKey)
+// is reported as a ParserWarn and skipped - it never aborts parsing.
 func (p *parser) handleEncryptedDataS2(msg *msgs2.CSVCMsg_EncryptedData) {
 	br, nBytesWritten, ok := p.decryptNetMessage(msg.GetKeyType(), msg.GetEncrypted())
 	if !ok {
@@ -284,14 +300,11 @@ func (p *parser) handleEncryptedDataS2(msg *msgs2.CSVCMsg_EncryptedData) {
 
 	defer p.poolBitReader(br)
 
-	t := int32(br.ReadUBitInt())
-	size := br.ReadVarInt32()
+	totalBits := len(msg.GetEncrypted()) << 3
 
-	if int(size) > nBytesWritten {
-		p.eventDispatcher.Dispatch(events.ParserWarn{
-			Message: "encrypted net-message has invalid inner message size",
-			Type:    events.WarnTypeCantReadEncryptedNetMessage,
-		})
+	t, size, ok := readEncryptedInnerHeader(br, totalBits, true)
+	if !ok || size > nBytesWritten {
+		p.warnCantReadEncryptedNetMessage("encrypted net-message has invalid inner message header")
 
 		return
 	}
@@ -308,12 +321,46 @@ func (p *parser) handleEncryptedDataS2(msg *msgs2.CSVCMsg_EncryptedData) {
 
 	m := msgCreator()
 
-	err := proto.Unmarshal(br.ReadBytes(int(size)), m)
+	err := proto.Unmarshal(br.ReadBytes(size), m)
 	if err != nil {
-		p.setError(err)
+		p.warnCantReadEncryptedNetMessage(fmt.Sprintf("failed to unmarshal encrypted net-message of type %d: %v", t, err))
 
 		return
 	}
 
 	p.msgDispatcher.Dispatch(m)
+}
+
+// readEncryptedInnerHeader reads the message type and size of a decrypted net-message
+// (CS2: UBitInt type, CS:GO: varint type). ok is false if the header runs past the end of the payload or the size exceeds
+// the remaining bits - both happen when the payload was decrypted with the wrong key.
+func readEncryptedInnerHeader(br *bit.BitReader, totalBits int, isS2 bool) (t int32, size int, ok bool) {
+	defer func() {
+		// the bit reader panics when reading past the end of its underlying reader
+		if recover() != nil {
+			ok = false
+		}
+	}()
+
+	if isS2 {
+		t = int32(br.ReadUBitInt())
+	} else {
+		t = int32(br.ReadVarInt32())
+	}
+
+	size = int(br.ReadVarInt32())
+
+	remainingBits := totalBits - br.ActualPosition()
+	if size<<3 > remainingBits {
+		return t, size, false
+	}
+
+	return t, size, true
+}
+
+func (p *parser) warnCantReadEncryptedNetMessage(message string) {
+	p.eventDispatcher.Dispatch(events.ParserWarn{
+		Message: message,
+		Type:    events.WarnTypeCantReadEncryptedNetMessage,
+	})
 }
