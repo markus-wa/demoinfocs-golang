@@ -88,3 +88,5 @@ func (p demoInfoProviderMock) NetworkProtocol() int {
 func (p demoInfoProviderMock) VelocityFromPositionDelta() bool {
 	return false
 }
+
+func (p demoInfoProviderMock) TrackFramePosition(func(), bool) {}

@@ -185,10 +185,22 @@ type demoInfoProviderMock struct {
 	equipment        *Equipment
 	networkProtocol  int
 	velocityFallback bool
+	tracked          *[]trackedRecorder
+}
+
+type trackedRecorder struct {
+	record func()
+	lazy   bool
 }
 
 func (p demoInfoProviderMock) VelocityFromPositionDelta() bool {
 	return p.velocityFallback
+}
+
+func (p demoInfoProviderMock) TrackFramePosition(record func(), lazy bool) {
+	if p.tracked != nil {
+		*p.tracked = append(*p.tracked, trackedRecorder{record: record, lazy: lazy})
+	}
 }
 
 func (p demoInfoProviderMock) NetworkProtocol() int {

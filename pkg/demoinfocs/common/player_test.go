@@ -7,6 +7,7 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
@@ -350,7 +351,7 @@ func newVelocityFixture(networkProtocol int) *velocityFixture {
 		provider: &demoInfoProviderMock{
 			tickRate:         64,
 			networkProtocol:  networkProtocol,
-			velocityFallback: true,
+			tracked:          &[]trackedRecorder{},
 			entitiesByHandle: map[uint64]st.Entity{},
 		},
 		pawnID: 1,
@@ -418,7 +419,10 @@ func (f *velocityFixture) frame(tick int, pos r3.Vector) r3.Vector {
 
 	v := f.pl.Velocity()
 
-	f.pl.RecordFramePosition()
+	// end of frame: the parser runs the registered position recorders
+	for _, r := range *f.provider.tracked {
+		r.record()
+	}
 
 	return v
 }
@@ -447,19 +451,57 @@ func TestPlayer_Velocity_PositionDelta(t *testing.T) {
 	assert.Equal(t, r3.Vector{}, f.frame(105, r3.Vector{X: 1015, Y: -2006, Z: 49}))
 }
 
-// Without ParserConfig.VelocityFromPositionDelta, older demos keep master's behaviour:
-// the raw (unpopulated or stale) m_vecVelocity value is returned and no history is used.
-func TestPlayer_Velocity_PositionDelta_DisabledByDefault(t *testing.T) {
+// Positions are recorded lazily: the first Velocity() call registers the player (once) and returns zero.
+func TestPlayer_Velocity_PositionDelta_LazyTracking(t *testing.T) {
 	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
-	f.provider.velocityFallback = false
 
-	f.frame(100, r3.Vector{})
-	assert.Equal(t, r3.Vector{}, f.frame(101, r3.Vector{X: 2}))
+	assert.Empty(t, *f.provider.tracked)
 
-	stale := r3.Vector{X: 7, Y: 8, Z: 9}
-	f.velocity = &stale
+	f.provider.ingameTick = 100
+	assert.Equal(t, r3.Vector{}, f.pl.Velocity())
+	assert.Equal(t, r3.Vector{}, f.pl.Velocity())
+
+	require.Len(t, *f.provider.tracked, 1, "registered exactly once")
+	assert.True(t, (*f.provider.tracked)[0].lazy)
+}
+
+// Demos with networked velocity never record positions.
+func TestPlayer_Velocity_Networked_NoTracking(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2)
+	v := r3.Vector{X: 1}
+	f.velocity = &v
 	f.update()
-	assert.Equal(t, stale, f.pl.Velocity())
+
+	assert.Equal(t, v, f.pl.Velocity())
+	assert.Empty(t, *f.provider.tracked)
+}
+
+// ParserConfig.VelocityFromPositionDelta registers players at creation (not lazily), only on older demos.
+func TestNewPlayer_EagerPositionTracking(t *testing.T) {
+	cases := []struct {
+		name     string
+		protocol int
+		flag     bool
+		tracked  bool
+	}{
+		{"flag on, old demo", constants.NetworkProtocolAnimGraph2 - 1, true, true},
+		{"flag on, new demo", constants.NetworkProtocolAnimGraph2, true, false},
+		{"flag off, old demo", constants.NetworkProtocolAnimGraph2 - 1, false, false},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			tracked := []trackedRecorder{}
+			NewPlayer(demoInfoProviderMock{networkProtocol: c.protocol, velocityFallback: c.flag, tracked: &tracked})
+
+			if c.tracked {
+				require.Len(t, tracked, 1)
+				assert.False(t, tracked[0].lazy)
+			} else {
+				assert.Empty(t, tracked)
+			}
+		})
+	}
 }
 
 func TestPlayer_Velocity_PositionDelta_FrameWithoutTickAdvance(t *testing.T) {

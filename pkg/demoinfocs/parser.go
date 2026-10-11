@@ -121,6 +121,8 @@ type parser struct {
 	recordingPlayerSlot           int
 	disableMimicSource1GameEvents bool
 	velocityFromPositionDelta     bool
+	framePositionRecorders        []func() // see Player.Velocity()
+	lazyVelocityTrackingWarned    bool
 
 	// Additional fields, mainly caching & tracking things
 
@@ -588,14 +590,15 @@ type ParserConfig struct {
 	// UserCmdParsingButtonsOnly, including when ParserConfig is created as a zero value.
 	UserCmdParsing UserCmdParsingMode
 
-	// VelocityFromPositionDelta makes Player.Velocity() derive the velocity from the position delta
-	// between frames on demos that don't network it (recorded before the CS2 "AnimGraph 2" update,
-	// network protocol < 14089). Without it, Player.Velocity() returns the raw m_vecVelocity value, which
-	// is zero on those GOTV demos and only correct for the recording player on those POV demos.
+	// VelocityFromPositionDelta makes the parser record every player's position from the start on demos
+	// that don't network the player velocity (recorded before the CS2 "AnimGraph 2" update, network
+	// protocol < 14089), so Player.Velocity() can derive it from the position delta for every player
+	// from the first frame on.
 	//
-	// When enabled, every player's position is recorded at the end of every frame on such demos,
-	// which costs roughly 20-25% parsing time. It has no effect (and no cost) on newer demos,
-	// where the velocity is networked. False by default.
+	// Without it, positions are only recorded for players Player.Velocity() has been called for, starting
+	// with that call (which returns a zero vector), and a ParserWarn (WarnTypeVelocityTrackingStartedLazily)
+	// is dispatched once. Recording all players costs roughly 30% parsing time on those demos.
+	// It has no effect (and no cost) on newer demos, where the velocity is networked. False by default.
 	VelocityFromPositionDelta bool
 }
 
@@ -696,6 +699,21 @@ func (p demoInfoProvider) TickRate() float64 {
 
 func (p demoInfoProvider) VelocityFromPositionDelta() bool {
 	return p.parser.velocityFromPositionDelta
+}
+
+func (p demoInfoProvider) TrackFramePosition(record func(), lazy bool) {
+	p.parser.framePositionRecorders = append(p.parser.framePositionRecorders, record)
+
+	if lazy && !p.parser.lazyVelocityTrackingWarned {
+		p.parser.lazyVelocityTrackingWarned = true
+
+		p.parser.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "Player.Velocity() called on a demo without networked player velocity; deriving it from position " +
+				"deltas from now on - the first call per player returns a zero vector. " +
+				"Set ParserConfig.VelocityFromPositionDelta to record all players from the start.",
+			Type: events.WarnTypeVelocityTrackingStartedLazily,
+		})
+	}
 }
 
 func (p demoInfoProvider) NetworkProtocol() int {

@@ -659,6 +659,11 @@ const (
 	// May occur because the decryption key used is incorrect.
 	// See ParserConfig.NetMessageDecryptionKey
 	WarnTypeCantReadEncryptedNetMessage
+
+	// WarnTypeVelocityTrackingStartedLazily occurs (once per parse) when Player.Velocity() starts recording
+	// positions for a player on a demo that doesn't network the player velocity. The first Velocity() call
+	// per player returns a zero vector; set ParserConfig.VelocityFromPositionDelta to record from the start.
+	WarnTypeVelocityTrackingStartedLazily
 )
 
 // WarnTypeUnknownDemoCommandMessageType occurs when a demo-command message type is unknown - contact a maintainer.

@@ -66,8 +66,9 @@ func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 	assert.Greater(t, float64(moving)/float64(len(speeds)), 0.3)
 }
 
-// Without the opt-in, s2.dem keeps master's behaviour: m_vecVelocity isn't populated, so zero.
-func TestPlayerVelocity_PositionDeltaFallbackIsOptIn(t *testing.T) {
+// Without the config flag, positions are recorded lazily once Velocity() is called for a player.
+// The parser warns once, and from the second frame on the velocity is derived as with the flag.
+func TestPlayerVelocity_LazyPositionTracking(t *testing.T) {
 	t.Parallel()
 
 	if testing.Short() {
@@ -79,16 +80,36 @@ func TestPlayerVelocity_PositionDeltaFallbackIsOptIn(t *testing.T) {
 
 	p := demoinfocs.NewParser(f)
 
-	var nonZero int
+	var (
+		lazyWarnings int
+		maxSpeed     float64
+		moving       int
+	)
+
+	p.RegisterEventHandler(func(w events.ParserWarn) {
+		if w.Type == events.WarnTypeVelocityTrackingStartedLazily {
+			lazyWarnings++
+		}
+	})
 
 	p.RegisterEventHandler(func(events.FrameDone) {
 		for _, pl := range p.GameState().Participants().Playing() {
-			if v := pl.Velocity(); v.X != 0 || v.Y != 0 || v.Z != 0 {
-				nonZero++
+			if !pl.IsAlive() {
+				continue
+			}
+
+			v := pl.Velocity()
+			s := math.Hypot(v.X, v.Y)
+			maxSpeed = max(maxSpeed, s)
+
+			if s > 100 {
+				moving++
 			}
 		}
 	})
 
 	assert.NoError(t, p.ParseToEnd())
-	assert.Zero(t, nonZero)
+	assert.Equal(t, 1, lazyWarnings)
+	assert.Less(t, maxSpeed, 350.0)
+	assert.Positive(t, moving)
 }

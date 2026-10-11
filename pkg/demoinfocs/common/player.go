@@ -36,6 +36,9 @@ type Player struct {
 	// positionHistory holds the pawn position at the end of the last two parsed frames with distinct ticks
 	// ([0] = most recent). Used by Velocity() to derive the velocity when m_vecVelocity isn't networked.
 	positionHistory [2]positionSample
+	// trackingPosition is set once the parser records this player's position at the end of every frame,
+	// see startPositionTracking().
+	trackingPosition bool
 }
 
 // positionSample is a pawn position recorded at the end of a frame.
@@ -455,12 +458,17 @@ func (p *Player) ViewDirectionY() float32 {
 // The velocity is read from the pawn's m_vecVelocity property when it is networked, which is the case
 // for demos recorded since the CS2 "AnimGraph 2" update (28/07/2025, network protocol 14089) - GOTV
 // and POV alike. Older demos declare the property but don't populate it (or, on POV demos, only for
-// the recording player), so by default Velocity() returns a zero vector on older GOTV demos and
-// stale values for all but the recording player on older POV demos.
+// the recording player). For those, the velocity is derived from the position delta between the
+// current position and the position at the end of an earlier frame, divided by the in-game time
+// elapsed between the two (see TickRate()).
 //
-// Set ParserConfig.VelocityFromPositionDelta to derive the velocity on those older demos from the
-// position delta between the current position and the position at the end of an earlier frame,
-// divided by the in-game time elapsed between the two (see TickRate()). This fallback:
+// Positions are only recorded for players Velocity() has been called for, so the fallback costs nothing
+// unless it's used. The first call per player therefore returns a zero vector, and the parser dispatches
+// a ParserWarn (WarnTypeVelocityTrackingStartedLazily) the first time this happens.
+// Set ParserConfig.VelocityFromPositionDelta to record all players from the start instead
+// (costs roughly 30% parsing time on those demos).
+//
+// The fallback:
 //   - returns a zero vector on the first frame after a player (re-)spawned, while dead, and on the
 //     frame a pawn was teleported (m_ubInterpolationFrame changed, or a delta above sv_maxvelocity);
 //   - it lags the networked value by up to one frame and is noisier, since it is a finite difference
@@ -471,7 +479,9 @@ func (p *Player) Velocity() r3.Vector {
 		return r3.Vector{}
 	}
 
-	if !p.isVelocityNetworked(pawnEntity) && p.demoInfoProvider.VelocityFromPositionDelta() {
+	if !p.isVelocityNetworked(pawnEntity) {
+		p.startPositionTracking(true)
+
 		return p.positionDeltaVelocity(pawnEntity)
 	}
 
@@ -538,12 +548,19 @@ func (p *Player) positionDeltaVelocity(pawnEntity st.Entity) r3.Vector {
 	return v
 }
 
-// RecordFramePosition records the pawn position at the end of a frame, used by Velocity() when the
-// velocity isn't networked.
-//
-// Intended for internal use only - called by the parser once per frame if
-// ParserConfig.VelocityFromPositionDelta is set.
-func (p *Player) RecordFramePosition() {
+// startPositionTracking makes the parser record this player's position at the end of every frame,
+// used by Velocity() when the velocity isn't networked. Registered at most once per player.
+func (p *Player) startPositionTracking(lazy bool) {
+	if p.trackingPosition {
+		return
+	}
+
+	p.trackingPosition = true
+	p.demoInfoProvider.TrackFramePosition(p.recordFramePosition, lazy)
+}
+
+// recordFramePosition records the pawn position at the end of a frame.
+func (p *Player) recordFramePosition() {
 	pawnEntity := p.PlayerPawnEntity()
 
 	// The position lookup is relatively expensive, skip it when the networked velocity is available anyway.
@@ -830,16 +847,28 @@ type demoInfoProvider interface {
 	NetworkProtocol() int // demo network protocol (patch version), used for Player.Velocity()
 	// VelocityFromPositionDelta returns whether ParserConfig.VelocityFromPositionDelta is set.
 	VelocityFromPositionDelta() bool
+	// TrackFramePosition registers a function the parser calls at the end of every frame (after FrameDone).
+	// lazy is true if tracking was started by a Velocity() call rather than by the config.
+	TrackFramePosition(record func(), lazy bool)
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.
 //
 // Intended for internal use only.
 func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
-	return &Player{
+	pl := &Player{
 		Inventory:        make(map[int]*Equipment),
 		demoInfoProvider: demoInfoProvider,
 	}
+
+	// ParserConfig.VelocityFromPositionDelta: record positions from the start on demos that don't network
+	// the velocity, instead of lazily on the first Velocity() call.
+	if demoInfoProvider != nil && demoInfoProvider.VelocityFromPositionDelta() &&
+		demoInfoProvider.NetworkProtocol() < constants.NetworkProtocolAnimGraph2 {
+		pl.startPositionTracking(false)
+	}
+
+	return pl
 }
 
 // PlayerInfo contains information about a player such as their name and SteamID.
