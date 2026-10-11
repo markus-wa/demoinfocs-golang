@@ -183,6 +183,11 @@ type demoInfoProviderMock struct {
 	playersByHandle  map[uint64]*Player
 	entitiesByHandle map[uint64]st.Entity
 	equipment        *Equipment
+	networkProtocol  int
+}
+
+func (p demoInfoProviderMock) NetworkProtocol() int {
+	return p.networkProtocol
 }
 
 func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {

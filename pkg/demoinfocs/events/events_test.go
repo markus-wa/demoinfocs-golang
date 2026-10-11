@@ -80,3 +80,7 @@ func (p demoInfoProviderMock) FindPlayerByPawnHandle(uint64) *common.Player {
 func (p demoInfoProviderMock) FindWeaponByEntityID(int) *common.Equipment {
 	return nil
 }
+
+func (p demoInfoProviderMock) NetworkProtocol() int {
+	return 0
+}

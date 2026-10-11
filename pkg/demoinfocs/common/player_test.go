@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
@@ -323,8 +324,247 @@ func TestPlayer_Velocity(t *testing.T) {
 		{propName: "m_vecVelocity.m_vecY", value: st.PropertyValue{Any: float32(-130.5)}},
 		{propName: "m_vecVelocity.m_vecZ", value: st.PropertyValue{Any: float32(0)}},
 	})
+	pl.demoInfoProvider = demoInfoProviderMock{
+		entitiesByHandle: pl.demoInfoProvider.(demoInfoProviderMock).entitiesByHandle,
+		networkProtocol:  constants.NetworkProtocolAnimGraph2,
+	}
 
 	assert.Equal(t, r3.Vector{X: 250, Y: -130.5, Z: 0}, pl.Velocity())
+}
+
+// velocityFixture is a player whose pawn position / tick can be changed between frames,
+// to test the position delta fallback of Player.Velocity().
+type velocityFixture struct {
+	pl       *Player
+	provider *demoInfoProviderMock
+	pawnID   int
+	pos      r3.Vector
+	interp   uint64
+	health   int32
+	velocity *r3.Vector // networked m_vecVelocity, nil = declared but not populated (pre AnimGraph 2)
+}
+
+func newVelocityFixture(networkProtocol int) *velocityFixture {
+	h := uint64(1)
+	f := &velocityFixture{
+		provider: &demoInfoProviderMock{
+			tickRate:         64,
+			networkProtocol:  networkProtocol,
+			entitiesByHandle: map[uint64]st.Entity{},
+		},
+		pawnID: 1,
+		health: 100,
+	}
+
+	f.pl = &Player{
+		Entity: entityWithProperties([]fakeProp{
+			{propName: "m_hPawn", value: st.PropertyValue{Any: h}},
+			{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: h}},
+		}),
+		demoInfoProvider: f.provider,
+	}
+
+	f.update()
+
+	return f
+}
+
+// update rebuilds the fake pawn from the fixture's current state.
+func (f *velocityFixture) update() {
+	props := []fakeProp{
+		{propName: "m_iHealth", value: st.PropertyValue{Any: f.health}},
+		{propName: "m_lifeState", value: st.PropertyValue{Any: uint64(map[bool]int{true: 0, false: 2}[f.health > 0])}},
+		{propName: "m_ubInterpolationFrame", value: st.PropertyValue{Any: f.interp}},
+	}
+
+	if f.velocity != nil {
+		props = append(props,
+			fakeProp{propName: "m_vecVelocity.m_vecX", value: st.PropertyValue{Any: float32(f.velocity.X)}},
+			fakeProp{propName: "m_vecVelocity.m_vecY", value: st.PropertyValue{Any: float32(f.velocity.Y)}},
+			fakeProp{propName: "m_vecVelocity.m_vecZ", value: st.PropertyValue{Any: float32(f.velocity.Z)}},
+		)
+	} else {
+		// pre AnimGraph 2 demos declare the property, but it's never populated
+		props = append(props,
+			fakeProp{propName: "m_vecVelocity.m_vecX", value: st.PropertyValue{}},
+			fakeProp{propName: "m_vecVelocity.m_vecY", value: st.PropertyValue{}},
+			fakeProp{propName: "m_vecVelocity.m_vecZ", value: st.PropertyValue{}},
+		)
+	}
+
+	pawn := entityWithProperties(props)
+	pawn.ExpectedCalls = nil // drop the default ID
+
+	pawn.On("ID").Return(f.pawnID)
+	pawn.On("Position").Return(f.pos)
+
+	for _, prop := range props {
+		pawn.On("PropertyValue", prop.propName).Return(prop.value, true)
+		pawn.On("PropertyValueMust", prop.propName).Return(prop.value)
+	}
+
+	pawn.On("PropertyValue", mock.Anything).Return(st.PropertyValue{}, false)
+
+	f.provider.entitiesByHandle[1] = pawn
+}
+
+// frame simulates a parsed frame at the given tick with the given pawn position
+// and returns the velocity as seen during that frame (e.g. by a FrameDone handler).
+func (f *velocityFixture) frame(tick int, pos r3.Vector) r3.Vector {
+	f.provider.ingameTick = tick
+	f.pos = pos
+	f.update()
+
+	v := f.pl.Velocity()
+
+	f.pl.RecordFramePosition()
+
+	return v
+}
+
+func assertVectorInDelta(t *testing.T, expected, actual r3.Vector) {
+	t.Helper()
+
+	assert.InDelta(t, expected.X, actual.X, 1e-6)
+	assert.InDelta(t, expected.Y, actual.Y, 1e-6)
+	assert.InDelta(t, expected.Z, actual.Z, 1e-6)
+}
+
+func TestPlayer_Velocity_PositionDelta(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	// first frame of a player - no history, no spike
+	assert.Equal(t, r3.Vector{}, f.frame(100, r3.Vector{X: 1000, Y: -2000, Z: 50}))
+
+	// 3 ticks per frame (like older GOTV demos) at 64 tick: 12 units / (3/64 s) = 256 u/s
+	assertVectorInDelta(t, r3.Vector{X: 256, Y: -128, Z: 0}, f.frame(103, r3.Vector{X: 1012, Y: -2006, Z: 50}))
+
+	// 1 tick per frame
+	assertVectorInDelta(t, r3.Vector{X: 192, Y: 0, Z: -64}, f.frame(104, r3.Vector{X: 1015, Y: -2006, Z: 49}))
+
+	// standing still
+	assert.Equal(t, r3.Vector{}, f.frame(105, r3.Vector{X: 1015, Y: -2006, Z: 49}))
+}
+
+// Positions are only recorded once Velocity() was called for a player.
+func TestPlayer_Velocity_PositionDelta_TrackingStartsOnFirstCall(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	f.provider.ingameTick = 100
+	f.pl.RecordFramePosition()
+	assert.False(t, f.pl.positionHistory[0].valid)
+
+	f.provider.ingameTick = 101
+	assert.Equal(t, r3.Vector{}, f.pl.Velocity())
+	f.pl.RecordFramePosition()
+	assert.True(t, f.pl.positionHistory[0].valid)
+
+	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(102, r3.Vector{X: 1}))
+}
+
+func TestPlayer_Velocity_PositionDelta_FrameWithoutTickAdvance(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	f.frame(100, r3.Vector{})
+	assertVectorInDelta(t, r3.Vector{X: 128}, f.frame(101, r3.Vector{X: 2}))
+
+	// same tick again, delta must be computed against the last frame of an earlier tick, not divided by zero
+	assertVectorInDelta(t, r3.Vector{X: 128}, f.frame(101, r3.Vector{X: 2}))
+	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(102, r3.Vector{X: 3}))
+}
+
+func TestPlayer_Velocity_PositionDelta_Teleport(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	f.frame(100, r3.Vector{})
+	f.frame(101, r3.Vector{X: 1})
+
+	// teleport flagged by m_ubInterpolationFrame, small enough to look like a plausible movement
+	f.interp++
+	assert.Equal(t, r3.Vector{}, f.frame(102, r3.Vector{X: 30}))
+
+	// back to normal on the next frame
+	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(103, r3.Vector{X: 31}))
+
+	// not flagged, but physically impossible (> sv_maxvelocity)
+	assert.Equal(t, r3.Vector{}, f.frame(104, r3.Vector{X: 31 + 100}))
+}
+
+func TestPlayer_Velocity_PositionDelta_Respawn(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	f.frame(100, r3.Vector{})
+	f.frame(101, r3.Vector{X: 1})
+
+	// died this frame - the history is cleared at the end of it
+	f.health = 0
+	f.frame(102, r3.Vector{X: 2})
+	assert.Equal(t, r3.Vector{}, f.frame(103, r3.Vector{X: 2}))
+
+	// respawned elsewhere - first frame after respawn is zero, not a spike
+	f.health = 100
+	assert.Equal(t, r3.Vector{}, f.frame(104, r3.Vector{X: 50}))
+	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(105, r3.Vector{X: 51}))
+}
+
+func TestPlayer_Velocity_PositionDelta_PawnChanged(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	f.frame(100, r3.Vector{})
+	f.frame(101, r3.Vector{X: 1})
+
+	f.pawnID = 2
+	assert.Equal(t, r3.Vector{}, f.frame(102, r3.Vector{X: 2}))
+	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(103, r3.Vector{X: 3}))
+}
+
+func TestPlayer_Velocity_PositionDelta_TickWentBackwards(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	f.frame(100, r3.Vector{})
+	f.frame(101, r3.Vector{X: 1})
+
+	assert.Equal(t, r3.Vector{}, f.frame(50, r3.Vector{X: 2}))
+	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(51, r3.Vector{X: 3}))
+}
+
+func TestPlayer_Velocity_PositionDelta_NoTickRate(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+	f.provider.tickRate = 0
+
+	f.frame(100, r3.Vector{})
+	assert.Equal(t, r3.Vector{}, f.frame(101, r3.Vector{X: 1}))
+}
+
+// Since AnimGraph 2 the networked value is used, even when it's zero (standing still) -
+// the source must not depend on the value.
+func TestPlayer_Velocity_AnimGraph2_UsesNetworkedValue(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2)
+	f.velocity = &r3.Vector{X: 250, Y: -10, Z: 0}
+
+	assertVectorInDelta(t, r3.Vector{X: 250, Y: -10}, f.frame(100, r3.Vector{}))
+	assertVectorInDelta(t, r3.Vector{X: 250, Y: -10}, f.frame(101, r3.Vector{X: 3.9}))
+
+	f.velocity = &r3.Vector{}
+	assert.Equal(t, r3.Vector{}, f.frame(102, r3.Vector{X: 10}))
+}
+
+// If a demo after AnimGraph 2 doesn't populate m_vecVelocity for a pawn, fall back to the position delta.
+func TestPlayer_Velocity_AnimGraph2_NotPopulated(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2)
+
+	f.frame(100, r3.Vector{})
+	assertVectorInDelta(t, r3.Vector{Y: 128}, f.frame(101, r3.Vector{Y: 2}))
+}
+
+// Before AnimGraph 2 the property may hold stale values (e.g. on POV demos for non-recording players),
+// they must be ignored.
+func TestPlayer_Velocity_BeforeAnimGraph2_IgnoresNetworkedValue(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+	f.velocity = &r3.Vector{X: 999}
+
+	f.frame(100, r3.Vector{})
+	assertVectorInDelta(t, r3.Vector{Y: 64}, f.frame(101, r3.Vector{Y: 1}))
 }
 
 // Demos that don't network pawn velocity (e.g. before AnimGraph 2 update) must

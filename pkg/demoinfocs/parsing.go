@@ -495,6 +495,12 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 
 	p.currentFrame++
 	p.eventDispatcher.Dispatch(events.FrameDone{})
+
+	// Record positions after FrameDone so that handlers see the velocity relative to the previous frame.
+	// Used by Player.Velocity() when m_vecVelocity isn't networked (demos before the AnimGraph 2 update).
+	for _, pl := range p.gameState.participantsRaw() {
+		pl.RecordFramePosition()
+	}
 }
 
 // CS2 demos playback info are available in the CDemoFileInfo message that should be parsed at the end of the demo.

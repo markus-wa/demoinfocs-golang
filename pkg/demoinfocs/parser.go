@@ -682,6 +682,14 @@ func (p demoInfoProvider) TickRate() float64 {
 	return p.parser.TickRate()
 }
 
+func (p demoInfoProvider) NetworkProtocol() int {
+	if p.parser.header == nil {
+		return 0
+	}
+
+	return p.parser.header.NetworkProtocol
+}
+
 func (p demoInfoProvider) FindPlayerByHandle(handle uint64) *common.Player {
 	return p.parser.gameState.Participants().FindByHandle64(handle)
 }

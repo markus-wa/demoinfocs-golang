@@ -1,6 +1,7 @@
 package common
 
 import (
+	"math"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -31,6 +32,43 @@ type Player struct {
 	IsReloading         bool
 	IsUnknown           bool   // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 	ButtonsPressedState uint64 // Pressed buttons state represented as an uint64. You can use IsPressingButton(buttonMask) to check for specific buttons.
+
+	// positionHistory holds the pawn position at the end of the last two parsed frames with distinct ticks
+	// ([0] = most recent). Used by Velocity() to derive the velocity when m_vecVelocity isn't networked.
+	positionHistory [2]positionSample
+	// trackPosition is set on the first Velocity() call that needs the position delta fallback,
+	// positions are only recorded from then on to avoid the overhead for users that don't need it.
+	trackPosition bool
+}
+
+// positionSample is a pawn position recorded at the end of a frame.
+type positionSample struct {
+	pos         r3.Vector
+	tick        int
+	pawnID      int
+	interpFrame any // m_ubInterpolationFrame, changes when the pawn is teleported
+	valid       bool
+}
+
+// isPawnAlive returns whether the pawn's m_lifeState is LIFE_ALIVE.
+func isPawnAlive(pawnEntity st.Entity) bool {
+	v, ok := pawnEntity.PropertyValue("m_lifeState")
+	if !ok || v.Any == nil {
+		return true
+	}
+
+	return v.UInt64() == 0
+}
+
+// interpolationFrame returns the pawn's m_ubInterpolationFrame value (nil if unavailable).
+// The engine changes it whenever an entity is teleported, so that clients don't interpolate.
+func interpolationFrame(pawnEntity st.Entity) any {
+	v, ok := pawnEntity.PropertyValue("m_ubInterpolationFrame")
+	if !ok {
+		return nil
+	}
+
+	return v.Any
 }
 
 func (p *Player) PlayerPawnEntity() st.Entity {
@@ -245,9 +283,7 @@ func (p *Player) IsInBuyZone() bool {
 //
 // Note: this does not indicate that the player is actually moving - it is true
 // even while standing still, as long as the walk key is held.
-// For actual movement detection use Velocity() instead, or derive it from the
-// position delta between ticks (see Position()), since Velocity() returns a
-// zero vector on GOTV demos.
+// For actual movement detection use Velocity() instead.
 //
 // See https://github.com/markus-wa/demoinfocs-golang/issues/318
 func (p *Player) IsWalking() bool {
@@ -417,25 +453,133 @@ func (p *Player) ViewDirectionY() float32 {
 	return 0
 }
 
-// Velocity returns the player's velocity in units per second.
+// Velocity returns the player's velocity in game units per second.
 //
-// Note: on CS2 GOTV demos - both broadcast-GOTV and match-server SourceTV - the m_vecVelocity
-// property is not networked on player pawns and this returns a zero vector; it is populated only on
-// POV / match-making demos. For GOTV, derive velocity from the position delta between ticks instead.
+// The velocity is read from the pawn's m_vecVelocity property when it is networked, which is the case
+// for demos recorded since the CS2 "AnimGraph 2" update (28/07/2025, network protocol 14089) - GOTV
+// and POV alike. Older demos declare the property but don't populate it (or, on POV demos, only for
+// the recording player). For those, and for any pawn where the property is missing, the velocity is
+// derived from the position delta between the current position and the position at the end of an
+// earlier frame, divided by the in-game time elapsed between the two (see TickRate()).
+//
+// The fallback has some limitations:
+//   - positions are only recorded for a player once Velocity() has been called for them, so the
+//     first call per player returns a zero vector (this avoids the overhead when Velocity() isn't used);
+//   - it returns a zero vector on the first frame after a player (re-)spawned, while dead, and on the
+//     frame a pawn was teleported (m_ubInterpolationFrame changed, or a delta above sv_maxvelocity);
+//   - it lags the networked value by up to one frame and is noisier, since it is a finite difference
+//     over the frame interval (e.g. 3 ticks on older GOTV demos).
 func (p *Player) Velocity() r3.Vector {
 	pawnEntity := p.PlayerPawnEntity()
 	if pawnEntity == nil {
 		return r3.Vector{}
 	}
 
-	x, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
-	y, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecY")
-	z, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecZ")
+	if p.isVelocityNetworked(pawnEntity) {
+		x, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
+		y, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecY")
+		z, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecZ")
 
-	return r3.Vector{
-		X: float64(x),
-		Y: float64(y),
-		Z: float64(z),
+		return r3.Vector{
+			X: float64(x),
+			Y: float64(y),
+			Z: float64(z),
+		}
+	}
+
+	return p.positionDeltaVelocity(pawnEntity)
+}
+
+// isVelocityNetworked returns whether the pawn's m_vecVelocity property holds the actual velocity.
+//
+// The decision is made per demo (network protocol) and per pawn (property presence) - never on the
+// value itself - so the source doesn't flip between frames for a player legitimately standing still.
+// Before AnimGraph 2 the property is either never populated (GOTV) or only for the recording player,
+// with stale values for everybody else (POV), so it's ignored entirely.
+func (p *Player) isVelocityNetworked(pawnEntity st.Entity) bool {
+	if p.demoInfoProvider.NetworkProtocol() < constants.NetworkProtocolAnimGraph2 {
+		return false
+	}
+
+	_, ok := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
+
+	return ok
+}
+
+// positionDeltaVelocity derives the velocity from the position history recorded by RecordFramePosition().
+func (p *Player) positionDeltaVelocity(pawnEntity st.Entity) r3.Vector {
+	p.trackPosition = true
+
+	tickRate := p.demoInfoProvider.TickRate()
+	if tickRate <= 0 {
+		return r3.Vector{}
+	}
+
+	tick := p.demoInfoProvider.IngameTick()
+
+	// Use the most recent sample from a tick before the current one.
+	// If the current frame didn't advance the tick, that is the second most recent one.
+	ref := p.positionHistory[0]
+	if ref.tick >= tick {
+		ref = p.positionHistory[1]
+	}
+
+	if !ref.valid || ref.tick >= tick || ref.pawnID != pawnEntity.ID() {
+		return r3.Vector{}
+	}
+
+	if ref.interpFrame != interpolationFrame(pawnEntity) {
+		// teleported (e.g. round restart) since the reference sample - not a real movement
+		return r3.Vector{}
+	}
+
+	dt := float64(tick-ref.tick) / tickRate
+	v := pawnEntity.Position().Sub(ref.pos).Mul(1 / dt)
+
+	if math.Abs(v.X) > constants.MaxVelocity || math.Abs(v.Y) > constants.MaxVelocity || math.Abs(v.Z) > constants.MaxVelocity {
+		// physically impossible, must be a teleport that wasn't flagged as such
+		return r3.Vector{}
+	}
+
+	return v
+}
+
+// RecordFramePosition records the pawn position at the end of a frame, used by Velocity() when the
+// velocity isn't networked.
+//
+// Intended for internal use only - called by the parser once per frame.
+func (p *Player) RecordFramePosition() {
+	if !p.trackPosition {
+		return
+	}
+
+	pawnEntity := p.PlayerPawnEntity()
+
+	// The position lookup is relatively expensive, skip it when the networked velocity is available anyway.
+	if pawnEntity == nil || !isPawnAlive(pawnEntity) || p.isVelocityNetworked(pawnEntity) {
+		p.positionHistory = [2]positionSample{}
+
+		return
+	}
+
+	sample := positionSample{
+		pos:         pawnEntity.Position(),
+		tick:        p.demoInfoProvider.IngameTick(),
+		pawnID:      pawnEntity.ID(),
+		interpFrame: interpolationFrame(pawnEntity),
+		valid:       true,
+	}
+
+	last := p.positionHistory[0]
+
+	switch {
+	case last.valid && last.pawnID == sample.pawnID && sample.tick == last.tick:
+		p.positionHistory[0] = sample
+	case last.valid && last.pawnID == sample.pawnID && sample.tick > last.tick:
+		p.positionHistory = [2]positionSample{sample, last}
+	default:
+		// first sample, new pawn or tick went backwards
+		p.positionHistory = [2]positionSample{sample}
 	}
 }
 
@@ -692,6 +836,7 @@ type demoInfoProvider interface {
 	FindPlayerByPawnHandle(handle uint64) *Player
 	FindWeaponByEntityID(id int) *Equipment
 	FindEntityByHandle(handle uint64) st.Entity
+	NetworkProtocol() int // demo network protocol (patch version), used for Player.Velocity()
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.
