@@ -358,6 +358,12 @@ func (e *Equipment) UniqueID() int64 {
 // equipment from each other. This is needed because demo-files reuse entity ids.
 // The id is unique within the Parser instance that created the equipment; ids from different
 // Parser instances may collide, so don't key data across demos by it.
+//
+// For grenades, UniqueID2 identifies the weapon entity (the inventory item), not an individual throw:
+// several grenades thrown from the same inventory slot (e.g. two flashbangs)
+// can share the same UniqueID2.
+// To track individual grenades use GrenadeProjectile.UniqueID() instead, e.g. via GrenadeEvent.Projectile,
+// GrenadeProjectileThrow.Projectile and GrenadeProjectileDestroy.Projectile.
 func (e *Equipment) UniqueID2() ulid.ULID {
 	return e.uniqueID2
 }

@@ -1465,6 +1465,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 				GrenadeEvent: events.GrenadeEvent{
 					GrenadeType:     common.EqFlash,
 					Grenade:         proj.WeaponInstance,
+					Projectile:      proj,
 					Position:        proj.Position(),
 					Thrower:         proj.Thrower,
 					GrenadeEntityID: proj.Entity.ID(),
@@ -1572,6 +1573,67 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 	if !isInferno && !isSmoke && !isDecoy {
 		p.gameEventHandler.deleteThrownGrenade(proj.Thrower, proj.WeaponInstance.Type)
+	}
+
+	if isInferno {
+		if ownerVal := proj.Entity.PropertyValueMust("m_hOwnerEntity"); ownerVal.Any != nil {
+			p.linkInfernoProjectile(pendingInfernoLink{
+				frame:       p.currentFrame,
+				ownerHandle: ownerVal.Handle(),
+				projectile:  proj,
+			})
+		}
+	}
+}
+
+// linkInfernoProjectile links an inferno (CInferno entity) to the molotov / incendiary projectile it
+// was spawned from, so FireGrenadeStart / FireGrenadeExpired can carry the projectile.
+//
+// The CInferno entity has no property referencing the projectile. However the server destroys the
+// projectile and creates the inferno in the same tick, so both show up in the same frame (in either
+// order) with the same m_hOwnerEntity (the thrower's pawn). It is called once for each side; the
+// side that comes first is kept as pending until the other one arrives in the same frame.
+//
+// A link is only made if exactly one counterpart from the same owner is pending in the current frame,
+// otherwise (e.g. the projectile was extinguished by a smoke and never spawned an inferno, or the
+// inferno entity was re-created after leaving the PVS in a POV demo) the inferno stays unlinked.
+func (p *parser) linkInfernoProjectile(link pendingInfernoLink) {
+	gs := p.gameState
+	kept := gs.pendingInfernoLinks[:0]
+	match := -1
+	nMatches := 0
+
+	for _, pending := range gs.pendingInfernoLinks {
+		if pending.frame != link.frame {
+			// stale - its counterpart never showed up
+			continue
+		}
+
+		isCounterpart := (pending.projectile == nil) != (link.projectile == nil)
+		if isCounterpart && pending.ownerHandle == link.ownerHandle {
+			match = len(kept)
+			nMatches++
+		}
+
+		kept = append(kept, pending)
+	}
+
+	gs.pendingInfernoLinks = kept
+
+	switch nMatches {
+	case 0:
+		gs.pendingInfernoLinks = append(gs.pendingInfernoLinks, link)
+	case 1:
+		counterpart := gs.pendingInfernoLinks[match]
+		gs.pendingInfernoLinks = append(gs.pendingInfernoLinks[:match], gs.pendingInfernoLinks[match+1:]...)
+
+		if link.projectile != nil {
+			gs.infernoProjectiles[counterpart.infernoEntityID] = link.projectile
+		} else {
+			gs.infernoProjectiles[link.infernoEntityID] = counterpart.projectile
+		}
+	default:
+		// ambiguous - don't guess
 	}
 }
 
@@ -1768,6 +1830,12 @@ func (p *parser) bindNewInferno(entity st.Entity) {
 	inf := common.NewInferno(p.demoInfoProvider, entity, thrower, p.nextUniqueID())
 	p.gameState.infernos[entity.ID()] = inf
 
+	p.linkInfernoProjectile(pendingInfernoLink{
+		frame:           p.currentFrame,
+		ownerHandle:     throwerHandle,
+		infernoEntityID: entity.ID(),
+	})
+
 	entity.OnCreateFinished(func() {
 		p.eventDispatcher.Dispatch(events.InfernoStart{
 			Inferno: inf,
@@ -1793,6 +1861,7 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 
 	delete(p.gameState.infernos, inf.Entity.ID())
 	delete(p.gameState.infernoFireStates, inf.Entity.ID())
+	delete(p.gameState.infernoProjectiles, inf.Entity.ID())
 
 	p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
 }
