@@ -6,9 +6,9 @@ enum ECstrike15UserMessages {
 	CS_UM_Geiger = 302;
 	CS_UM_Train = 303;
 	CS_UM_HudText = 304;
-	CS_UM_SayText = 305;
-	CS_UM_SayText2 = 306;
-	CS_UM_TextMsg = 307;
+	CS_UM_SayText_CSGOLegacy = 305;
+	CS_UM_SayText2_CSGOLegacy = 306;
+	CS_UM_TextMsg_CSGOLegacy = 307;
 	CS_UM_HudMsg = 308;
 	CS_UM_ResetHud = 309;
 	CS_UM_GameTitle = 310;
@@ -28,7 +28,7 @@ enum ECstrike15UserMessages {
 	CS_UM_ProcessSpottedEntityUpdate = 325;
 	CS_UM_ReloadEffect = 326;
 	CS_UM_AdjustMoney = 327;
-	CS_UM_UpdateTeamMoney = 328;
+	CS_UM_UpdateTeamMoney_CSGOLegacy = 328;
 	CS_UM_StopSpectatorMode = 329;
 	CS_UM_KillCam = 330;
 	CS_UM_DesiredTimescale = 331;
@@ -80,6 +80,7 @@ enum ECstrike15UserMessages {
 	CS_UM_RecurringMissionSchema = 387;
 	CS_UM_SendPlayerLoadout = 388;
 	CS_UM_WeaponMagDrop = 389;
+	CS_UM_CustomHudClicked = 390;
 }
 
 enum ECSUsrMsg_DisconnectToLobby_Action {
@@ -630,4 +631,21 @@ message CCSUsrMsg_SendPlayerLoadout {
 
 	repeated .CCSUsrMsg_SendPlayerLoadout.LoadoutItem loadout = 1;
 	optional int32 playerslot = 2 [default = -1];
+}
+
+message CCSUsrMsg_CustomHudClicked {
+	optional uint32 custom_hud_layout = 1 [default = 16777215];
+	optional string button_id = 2;
+}
+
+message CVacNet_GetReviewerInfo_Request {
+	optional uint32 appid = 1;
+}
+
+message CVacnetReviewerInfo {
+	repeated string permissions = 1;
+}
+
+message CVacNet_GetReviewerInfo_Response {
+	optional .CVacnetReviewerInfo reviewer_info = 1;
 }

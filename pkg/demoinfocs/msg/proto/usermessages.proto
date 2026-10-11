@@ -181,6 +181,7 @@ message CUserMessageSayText {
 	optional int32 playerindex = 1 [default = -1];
 	optional string text = 2;
 	optional bool chat = 3;
+	optional bool textallchat = 4;
 }
 
 message CUserMessageSayText2 {
@@ -191,6 +192,7 @@ message CUserMessageSayText2 {
 	optional string param2 = 5;
 	optional string param3 = 6;
 	optional string param4 = 7;
+	optional bool textallchat = 8;
 }
 
 message CUserMessageHudMsg {
