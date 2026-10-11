@@ -221,3 +221,126 @@ func TestBindBomb_NilEntityChecks(t *testing.T) {
 		assert.Nil(t, planter, "planter should be nil when not in playersByEntityID map")
 	})
 }
+
+type fakeServerClass struct {
+	st.ServerClass
+	onCreated []st.EntityCreatedHandler
+}
+
+func (sc *fakeServerClass) OnEntityCreated(handler st.EntityCreatedHandler) {
+	sc.onCreated = append(sc.onCreated, handler)
+}
+
+type fakeServerClasses map[string]*fakeServerClass
+
+func (scs fakeServerClasses) All() []st.ServerClass {
+	return nil
+}
+
+func (scs fakeServerClasses) FindByName(name string) st.ServerClass {
+	if scs[name] == nil {
+		scs[name] = new(fakeServerClass)
+	}
+
+	return scs[name]
+}
+
+type fakeSendTableParser struct {
+	sendTableParser
+	serverClasses fakeServerClasses
+}
+
+func (p fakeSendTableParser) ServerClasses() st.ServerClasses {
+	return p.serverClasses
+}
+
+func newBombTestParser() (*parser, fakeServerClasses) {
+	p := newParser()
+	p.header.Filestamp = filestampS2
+	serverClasses := make(fakeServerClasses)
+	p.stParser = fakeSendTableParser{serverClasses: serverClasses}
+	p.bindBomb()
+
+	return p, serverClasses
+}
+
+// createFakePlantedC4 creates a planted bomb entity and returns a function to update its properties.
+// Properties not listed in props are missing from the entity.
+func createFakePlantedC4(serverClasses fakeServerClasses, props ...string) func(name string, val any) {
+	handlers := make(map[string]st.PropertyUpdateHandler)
+
+	entity := new(stfake.Entity)
+	entity.On("Position").Return(r3.Vector{})
+	entity.On("PropertyValueMust", "m_hOwnerEntity").Return(st.PropertyValue{})
+	entity.On("PropertyValueMust", "m_nBombSite").Return(st.PropertyValue{})
+	entity.On("OnDestroy", mock.Anything)
+
+	for _, name := range props {
+		prop := new(stfake.Property)
+		prop.On("OnUpdate", mock.Anything).Run(func(args mock.Arguments) {
+			handlers[name] = args.Get(0).(st.PropertyUpdateHandler)
+		})
+		entity.On("Property", name).Return(prop)
+	}
+
+	entity.On("Property", mock.Anything).Return(nil)
+
+	for _, h := range serverClasses["CPlantedC4"].onCreated {
+		h(entity)
+	}
+
+	return func(name string, val any) {
+		if h := handlers[name]; h != nil {
+			h(st.PropertyValue{Any: val, S2: true})
+		}
+	}
+}
+
+func TestBindBomb_BombExplode(t *testing.T) {
+	t.Run("bomb stopped ticking without exploding", func(t *testing.T) {
+		p, serverClasses := newBombTestParser()
+
+		var explosions int
+		p.RegisterEventHandler(func(events.BombExplode) { explosions++ })
+
+		update := createFakePlantedC4(serverClasses, "m_bBombTicking", "m_bHasExploded", "m_hBombDefuser", "m_bBombDefused")
+
+		update("m_bBombTicking", false)
+		update("m_bHasExploded", false)
+
+		assert.Zero(t, explosions)
+		assert.False(t, p.gameEventHandler.frameToBombExploded[p.currentFrame])
+	})
+
+	t.Run("bomb exploded", func(t *testing.T) {
+		p, serverClasses := newBombTestParser()
+		p.currentFrame = 42
+
+		var explosions int
+		p.RegisterEventHandler(func(events.BombExplode) { explosions++ })
+
+		update := createFakePlantedC4(serverClasses, "m_bBombTicking", "m_bHasExploded", "m_hBombDefuser", "m_bBombDefused")
+
+		update("m_bHasExploded", false)
+		update("m_bBombTicking", false)
+		update("m_bHasExploded", true)
+		update("m_bHasExploded", true)
+
+		assert.Equal(t, 1, explosions)
+		assert.True(t, p.gameEventHandler.frameToBombExploded[42])
+	})
+
+	t.Run("fallback to m_bBombTicking without m_bHasExploded", func(t *testing.T) {
+		p, serverClasses := newBombTestParser()
+
+		var explosions int
+		p.RegisterEventHandler(func(events.BombExplode) { explosions++ })
+
+		update := createFakePlantedC4(serverClasses, "m_bBombTicking", "m_hBombDefuser", "m_bBombDefused")
+
+		update("m_bBombTicking", true)
+		update("m_bBombTicking", false)
+
+		assert.Equal(t, 1, explosions)
+	})
+}
