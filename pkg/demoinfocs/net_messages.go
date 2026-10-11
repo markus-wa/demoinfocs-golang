@@ -162,20 +162,23 @@ func (p *parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.Bit
 	k := ice.NewKey(encryptedNetMessageKeyType, p.decryptionKey)
 	b := k.DecryptAll(encrypted)
 
-	br = bit.NewSmallBitReader(bytes.NewReader(b))
-
 	const (
 		byteLenPadding = 1
 		byteLenWritten = 4
 	)
 
+	if len(b) <= byteLenPadding+byteLenWritten {
+		p.warnCantReadEncryptedNetMessage("encrypted net-message is too short")
+
+		return nil, 0, false
+	}
+
+	br = bit.NewSmallBitReader(bytes.NewReader(b))
+
 	paddingBytes := br.ReadSingleByte()
 
 	if int(paddingBytes) >= len(b)-byteLenPadding-byteLenWritten {
-		p.eventDispatcher.Dispatch(events.ParserWarn{
-			Message: "encrypted net-message has invalid number of padding bytes",
-			Type:    events.WarnTypeCantReadEncryptedNetMessage,
-		})
+		p.warnCantReadEncryptedNetMessage("encrypted net-message has invalid number of padding bytes")
 
 		p.poolBitReader(br)
 
@@ -188,10 +191,7 @@ func (p *parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.Bit
 	nBytesWritten = int(binary.BigEndian.Uint32(bBytesWritten))
 
 	if len(b) != byteLenPadding+byteLenWritten+int(paddingBytes)+nBytesWritten {
-		p.eventDispatcher.Dispatch(events.ParserWarn{
-			Message: "encrypted net-message has invalid length",
-			Type:    events.WarnTypeCantReadEncryptedNetMessage,
-		})
+		p.warnCantReadEncryptedNetMessage("encrypted net-message has invalid length")
 
 		p.poolBitReader(br)
 
@@ -205,6 +205,9 @@ func (p *parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.Bit
 // and dispatches the inner message as if it had been received in plain text.
 // The inner message uses the same framing as CDemoPacket data:
 // a UBitInt message type followed by a varint size and the protobuf bytes.
+//
+// Anything that doesn't decode (most likely a wrong ParserConfig.NetMessageDecryptionKey)
+// is reported as a ParserWarn and skipped - it never aborts parsing.
 func (p *parser) handleEncryptedData(m *msg.CSVCMsg_EncryptedData) {
 	br, nBytesWritten, ok := p.decryptNetMessage(m.GetKeyType(), m.GetEncrypted())
 	if !ok {
@@ -213,14 +216,11 @@ func (p *parser) handleEncryptedData(m *msg.CSVCMsg_EncryptedData) {
 
 	defer p.poolBitReader(br)
 
-	t := int32(br.ReadUBitInt())
-	size := br.ReadVarInt32()
+	totalBits := len(m.GetEncrypted()) << 3
 
-	if int(size) > nBytesWritten {
-		p.eventDispatcher.Dispatch(events.ParserWarn{
-			Message: "encrypted net-message has invalid inner message size",
-			Type:    events.WarnTypeCantReadEncryptedNetMessage,
-		})
+	t, size, ok := readEncryptedInnerHeader(br, totalBits)
+	if !ok || size > nBytesWritten {
+		p.warnCantReadEncryptedNetMessage("encrypted net-message has invalid inner message header")
 
 		return
 	}
@@ -237,12 +237,41 @@ func (p *parser) handleEncryptedData(m *msg.CSVCMsg_EncryptedData) {
 
 	inner := msgCreator()
 
-	err := proto.Unmarshal(br.ReadBytes(int(size)), inner)
+	err := proto.Unmarshal(br.ReadBytes(size), inner)
 	if err != nil {
-		p.setError(err)
+		p.warnCantReadEncryptedNetMessage(fmt.Sprintf("failed to unmarshal encrypted net-message of type %d: %v", t, err))
 
 		return
 	}
 
 	p.msgDispatcher.Dispatch(inner)
+}
+
+// readEncryptedInnerHeader reads the message type and size of a decrypted net-message.
+// ok is false if the header runs past the end of the payload or the size exceeds
+// the remaining bits - both happen when the payload was decrypted with the wrong key.
+func readEncryptedInnerHeader(br *bit.BitReader, totalBits int) (t int32, size int, ok bool) {
+	defer func() {
+		// the bit reader panics when reading past the end of its underlying reader
+		if recover() != nil {
+			ok = false
+		}
+	}()
+
+	t = int32(br.ReadUBitInt())
+	size = int(br.ReadVarInt32())
+
+	remainingBits := totalBits - br.ActualPosition()
+	if size<<3 > remainingBits {
+		return t, size, false
+	}
+
+	return t, size, true
+}
+
+func (p *parser) warnCantReadEncryptedNetMessage(message string) {
+	p.eventDispatcher.Dispatch(events.ParserWarn{
+		Message: message,
+		Type:    events.WarnTypeCantReadEncryptedNetMessage,
+	})
 }
