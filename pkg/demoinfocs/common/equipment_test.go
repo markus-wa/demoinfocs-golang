@@ -187,6 +187,23 @@ func TestEquipment_Silenced_On_Off(t *testing.T) {
 	assert.Equal(t, false, wep.Silenced(), "Weapon should not be silenced after the property value has been set to 0.")
 }
 
+func TestEquipment_Silenced_PropertyMissing(t *testing.T) {
+	wep := &Equipment{
+		Type:   EqDefuseKit,
+		Entity: entityWithProperties(nil),
+	}
+
+	assert.False(t, wep.Silenced())
+}
+
+func TestEquipment_Silenced_EntityNil(t *testing.T) {
+	wep := &Equipment{
+		Type: EqAK47,
+	}
+
+	assert.False(t, wep.Silenced())
+}
+
 func TestEquipmentAlternative(t *testing.T) {
 	assert.Equal(t, EqUSP, EquipmentAlternative(EqP2000))
 	assert.Equal(t, EqCZ, EquipmentAlternative(EqP250))

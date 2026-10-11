@@ -449,7 +449,11 @@ func (e *Equipment) Silenced() bool {
 		return false
 	}
 
+	// Entities whose class does not declare m_bSilencerOn (e.g. equipment items) get a nil property.
 	prop := e.Entity.Property("m_bSilencerOn")
+	if prop == nil {
+		return false
+	}
 
 	return prop.Value().BoolVal()
 }
