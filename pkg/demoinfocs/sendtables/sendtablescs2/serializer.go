@@ -101,26 +101,6 @@ func (s *serializer) rebuildFieldIndexes() {
 			field: f,
 		}
 	}
-
-	// Deprecated aliases: the bare varName of a disambiguated field keeps
-	// resolving to the same declaration it resolved to before the rename
-	// (the last one registered), so existing name-based lookups keep working.
-	// Use the sendNode-prefixed names instead; these aliases may be removed
-	// in a future major version.
-	for i, f := range s.fields {
-		if f.name == f.varName {
-			continue
-		}
-
-		if owner := s.fieldIndexes[f.varName]; owner != nil && owner.field.name == f.varName {
-			continue // a field legitimately owns the bare name
-		}
-
-		s.fieldIndexes[f.varName] = &fieldIndex{
-			index: i,
-			field: f,
-		}
-	}
 }
 
 // resolveFieldNameCollisions disambiguates fields that share a varName within

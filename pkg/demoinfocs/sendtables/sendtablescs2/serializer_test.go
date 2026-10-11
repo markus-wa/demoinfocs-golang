@@ -54,23 +54,22 @@ func TestResolveFieldNameCollisions(t *testing.T) {
 		assert.True(t, s.getFieldPathForName(fp, "m_vecViewOffset.m_vecX", nil))
 		assert.Equal(t, 1, fp.path[0])
 
-		// the bare name stays as a deprecated alias resolving to the
-		// declaration that won before the rename (the last one registered)
+		// the ambiguous bare name no longer resolves; callers must use the
+		// sendNode-prefixed name (see #674)
 		fp = newFieldPath()
-		assert.True(t, s.getFieldPathForName(fp, "m_vecX", nil))
-		assert.Equal(t, 1, fp.path[0])
+		assert.False(t, s.getFieldPathForName(fp, "m_vecX", nil))
 
 		fp = newFieldPath()
 		assert.True(t, s.getFieldPathForName(fp, "m_iHealth", nil))
 		assert.Equal(t, 2, fp.path[0])
 	}
 
-	// in the partial serializer the alias resolves to its only declaration
+	// the partial serializer uses the same canonical name as every other
+	// serializer sharing the field
 	fp := newFieldPath()
 	assert.True(t, partial.getFieldPathForName(fp, "m_vecVelocity.m_vecX", nil))
 	fp = newFieldPath()
-	assert.True(t, partial.getFieldPathForName(fp, "m_vecX", nil))
-	assert.Equal(t, 0, fp.path[0])
+	assert.False(t, partial.getFieldPathForName(fp, "m_vecX", nil))
 
 	// name generation must produce the canonical, disambiguated names
 	fp = newFieldPath()
@@ -113,7 +112,7 @@ func tableField(varName, sendNode string, sub *serializer) *field {
 
 // Renamed non-leaf fields have dots inside their own name; their generated
 // child names (e.g. m_weaponPurchasesThisMatch.m_weaponPurchases.0000.m_nCount)
-// must still resolve, both through the canonical name and the bare alias.
+// must still resolve through the canonical name.
 func TestResolveFieldNameCollisions_NonLeafRoundTrip(t *testing.T) {
 	t.Parallel()
 
@@ -153,10 +152,9 @@ func TestResolveFieldNameCollisions_NonLeafRoundTrip(t *testing.T) {
 	assert.True(t, s.getFieldPathForName(fp, "m_weaponPurchasesThisRound.m_weaponPurchases.0003.m_nCount", nil))
 	assert.Equal(t, []int{1, 3, 0}, fp.path[:3])
 
-	// the bare alias resolves child names to the pre-rename winner (last one)
+	// the ambiguous bare name doesn't resolve child names either
 	fp = newFieldPath()
-	assert.True(t, s.getFieldPathForName(fp, "m_weaponPurchases.0003.m_nCount", nil))
-	assert.Equal(t, []int{1, 3, 0}, fp.path[:3])
+	assert.False(t, s.getFieldPathForName(fp, "m_weaponPurchases.0003.m_nCount", nil))
 
 	// non-existent member below a valid table must fail, not panic
 	fp = newFieldPath()
