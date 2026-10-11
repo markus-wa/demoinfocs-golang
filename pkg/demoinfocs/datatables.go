@@ -132,8 +132,6 @@ func (p *parser) bindBomb() {
 			}
 		}
 
-		isTicking := true
-
 		siteNumberVal := bombEntity.PropertyValueMust("m_nBombSite")
 
 		site := events.BomsiteUnknown
@@ -157,23 +155,8 @@ func (p *parser) bindBomb() {
 			})
 		}
 
-		// Set to true when the bomb has been planted and to false when it has been defused or has exploded.
-		bombEntity.Property("m_bBombTicking").OnUpdate(func(val st.PropertyValue) {
-			if val.Any == nil {
-				return
-			}
-
-			isTicking = val.BoolVal()
-			if isTicking {
-				return
-			}
-
-			// At this point the bomb stopped ticking either because it has been defused or has exploded.
-			// We detect only explosions here, defuse events are detected with m_bBombDefused updates which seems more suitable.
-			// When the bomb is defused, m_bBombTicking is set to false and then m_hBombDefuser is set to nil.
-			// It means that if a player is currently defusing the bomb, it's a defuse event.
-			isDefuseEvent := p.gameState.currentDefuser != nil
-			if isDefuseEvent || p.disableMimicSource1GameEvents {
+		dispatchBombExplode := func() {
+			if p.disableMimicSource1GameEvents {
 				return
 			}
 
@@ -184,7 +167,42 @@ func (p *parser) bindBomb() {
 					Site:   site,
 				},
 			})
-		})
+		}
+
+		if hasExplodedProp := bombEntity.Property("m_bHasExploded"); hasExplodedProp != nil {
+			// Set to true when the bomb explodes.
+			// m_bBombTicking is not suitable for this: after the round has already been decided,
+			// the server may stop the bomb without detonating it (e.g. at half-time or map end).
+			hasExploded := false
+
+			hasExplodedProp.OnUpdate(func(val st.PropertyValue) {
+				if val.Any == nil || !val.BoolVal() || hasExploded {
+					return
+				}
+
+				hasExploded = true
+
+				dispatchBombExplode()
+			})
+		} else {
+			// Fallback for demos without m_bHasExploded.
+			// Set to true when the bomb has been planted and to false when it has been defused or has exploded.
+			bombEntity.Property("m_bBombTicking").OnUpdate(func(val st.PropertyValue) {
+				if val.Any == nil || val.BoolVal() {
+					return
+				}
+
+				// At this point the bomb stopped ticking either because it has been defused or has exploded.
+				// We detect only explosions here, defuse events are detected with m_bBombDefused updates which seems more suitable.
+				// When the bomb is defused, m_bBombTicking is set to false and then m_hBombDefuser is set to nil.
+				// It means that if a player is currently defusing the bomb, it's a defuse event.
+				if p.gameState.currentDefuser != nil {
+					return
+				}
+
+				dispatchBombExplode()
+			})
+		}
 
 		// Updated when a player starts/stops defusing the bomb
 		bombEntity.Property("m_hBombDefuser").OnUpdate(func(val st.PropertyValue) {
@@ -247,7 +265,6 @@ func (p *parser) bindBomb() {
 		})
 
 		bombEntity.OnDestroy(func() {
-			isTicking = true
 			p.gameState.currentDefuser = nil
 		})
 	})
