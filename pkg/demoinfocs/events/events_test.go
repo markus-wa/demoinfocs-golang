@@ -84,3 +84,7 @@ func (p demoInfoProviderMock) FindWeaponByEntityID(int) *common.Equipment {
 func (p demoInfoProviderMock) NetworkProtocol() int {
 	return 0
 }
+
+func (p demoInfoProviderMock) VelocityFromPositionDelta() bool {
+	return false
+}

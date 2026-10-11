@@ -36,9 +36,6 @@ type Player struct {
 	// positionHistory holds the pawn position at the end of the last two parsed frames with distinct ticks
 	// ([0] = most recent). Used by Velocity() to derive the velocity when m_vecVelocity isn't networked.
 	positionHistory [2]positionSample
-	// trackPosition is set on the first Velocity() call that needs the position delta fallback,
-	// positions are only recorded from then on to avoid the overhead for users that don't need it.
-	trackPosition bool
 }
 
 // positionSample is a pawn position recorded at the end of a frame.
@@ -458,14 +455,13 @@ func (p *Player) ViewDirectionY() float32 {
 // The velocity is read from the pawn's m_vecVelocity property when it is networked, which is the case
 // for demos recorded since the CS2 "AnimGraph 2" update (28/07/2025, network protocol 14089) - GOTV
 // and POV alike. Older demos declare the property but don't populate it (or, on POV demos, only for
-// the recording player). For those, and for any pawn where the property is missing, the velocity is
-// derived from the position delta between the current position and the position at the end of an
-// earlier frame, divided by the in-game time elapsed between the two (see TickRate()).
+// the recording player), so by default Velocity() returns a zero vector on older GOTV demos and
+// stale values for all but the recording player on older POV demos.
 //
-// The fallback has some limitations:
-//   - positions are only recorded for a player once Velocity() has been called for them, so the
-//     first call per player returns a zero vector (this avoids the overhead when Velocity() isn't used);
-//   - it returns a zero vector on the first frame after a player (re-)spawned, while dead, and on the
+// Set ParserConfig.VelocityFromPositionDelta to derive the velocity on those older demos from the
+// position delta between the current position and the position at the end of an earlier frame,
+// divided by the in-game time elapsed between the two (see TickRate()). This fallback:
+//   - returns a zero vector on the first frame after a player (re-)spawned, while dead, and on the
 //     frame a pawn was teleported (m_ubInterpolationFrame changed, or a delta above sv_maxvelocity);
 //   - it lags the networked value by up to one frame and is noisier, since it is a finite difference
 //     over the frame interval (e.g. 3 ticks on older GOTV demos).
@@ -475,19 +471,19 @@ func (p *Player) Velocity() r3.Vector {
 		return r3.Vector{}
 	}
 
-	if p.isVelocityNetworked(pawnEntity) {
-		x, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
-		y, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecY")
-		z, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecZ")
-
-		return r3.Vector{
-			X: float64(x),
-			Y: float64(y),
-			Z: float64(z),
-		}
+	if !p.isVelocityNetworked(pawnEntity) && p.demoInfoProvider.VelocityFromPositionDelta() {
+		return p.positionDeltaVelocity(pawnEntity)
 	}
 
-	return p.positionDeltaVelocity(pawnEntity)
+	x, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
+	y, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecY")
+	z, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecZ")
+
+	return r3.Vector{
+		X: float64(x),
+		Y: float64(y),
+		Z: float64(z),
+	}
 }
 
 // isVelocityNetworked returns whether the pawn's m_vecVelocity property holds the actual velocity.
@@ -508,8 +504,6 @@ func (p *Player) isVelocityNetworked(pawnEntity st.Entity) bool {
 
 // positionDeltaVelocity derives the velocity from the position history recorded by RecordFramePosition().
 func (p *Player) positionDeltaVelocity(pawnEntity st.Entity) r3.Vector {
-	p.trackPosition = true
-
 	tickRate := p.demoInfoProvider.TickRate()
 	if tickRate <= 0 {
 		return r3.Vector{}
@@ -547,12 +541,9 @@ func (p *Player) positionDeltaVelocity(pawnEntity st.Entity) r3.Vector {
 // RecordFramePosition records the pawn position at the end of a frame, used by Velocity() when the
 // velocity isn't networked.
 //
-// Intended for internal use only - called by the parser once per frame.
+// Intended for internal use only - called by the parser once per frame if
+// ParserConfig.VelocityFromPositionDelta is set.
 func (p *Player) RecordFramePosition() {
-	if !p.trackPosition {
-		return
-	}
-
 	pawnEntity := p.PlayerPawnEntity()
 
 	// The position lookup is relatively expensive, skip it when the networked velocity is available anyway.
@@ -837,6 +828,8 @@ type demoInfoProvider interface {
 	FindWeaponByEntityID(id int) *Equipment
 	FindEntityByHandle(handle uint64) st.Entity
 	NetworkProtocol() int // demo network protocol (patch version), used for Player.Velocity()
+	// VelocityFromPositionDelta returns whether ParserConfig.VelocityFromPositionDelta is set.
+	VelocityFromPositionDelta() bool
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.

@@ -12,7 +12,8 @@ import (
 )
 
 // s2.dem is a GOTV demo recorded before the AnimGraph 2 update, m_vecVelocity isn't networked,
-// so Player.Velocity() must fall back to the position delta between frames (3 ticks apart).
+// so with ParserConfig.VelocityFromPositionDelta Player.Velocity() falls back to the position delta
+// between frames (3 ticks apart).
 func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 	t.Parallel()
 
@@ -23,7 +24,9 @@ func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 	f := openFile(t, s2DemPath)
 	defer mustClose(t, f)
 
-	p := demoinfocs.NewParser(f)
+	cfg := demoinfocs.DefaultParserConfig
+	cfg.VelocityFromPositionDelta = true
+	p := demoinfocs.NewParserWithConfig(f, cfg)
 
 	var speeds []float64
 
@@ -61,4 +64,31 @@ func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 	assert.Less(t, p99, 260.0)
 	// a good share of alive player-frames is moving
 	assert.Greater(t, float64(moving)/float64(len(speeds)), 0.3)
+}
+
+// Without the opt-in, s2.dem keeps master's behaviour: m_vecVelocity isn't populated, so zero.
+func TestPlayerVelocity_PositionDeltaFallbackIsOptIn(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
+	f := openFile(t, s2DemPath)
+	defer mustClose(t, f)
+
+	p := demoinfocs.NewParser(f)
+
+	var nonZero int
+
+	p.RegisterEventHandler(func(events.FrameDone) {
+		for _, pl := range p.GameState().Participants().Playing() {
+			if v := pl.Velocity(); v.X != 0 || v.Y != 0 || v.Z != 0 {
+				nonZero++
+			}
+		}
+	})
+
+	assert.NoError(t, p.ParseToEnd())
+	assert.Zero(t, nonZero)
 }

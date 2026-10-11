@@ -184,6 +184,11 @@ type demoInfoProviderMock struct {
 	entitiesByHandle map[uint64]st.Entity
 	equipment        *Equipment
 	networkProtocol  int
+	velocityFallback bool
+}
+
+func (p demoInfoProviderMock) VelocityFromPositionDelta() bool {
+	return p.velocityFallback
 }
 
 func (p demoInfoProviderMock) NetworkProtocol() int {

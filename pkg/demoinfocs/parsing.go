@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/sendtablescs2"
 
@@ -498,8 +499,11 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 
 	// Record positions after FrameDone so that handlers see the velocity relative to the previous frame.
 	// Used by Player.Velocity() when m_vecVelocity isn't networked (demos before the AnimGraph 2 update).
-	for _, pl := range p.gameState.participantsRaw() {
-		pl.RecordFramePosition()
+	// Opt-in, since it costs ~20-25% parsing time on those demos.
+	if p.velocityFromPositionDelta && p.header != nil && p.header.NetworkProtocol < constants.NetworkProtocolAnimGraph2 {
+		for _, pl := range p.gameState.participantsRaw() {
+			pl.RecordFramePosition()
+		}
 	}
 }
 

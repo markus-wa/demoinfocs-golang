@@ -350,6 +350,7 @@ func newVelocityFixture(networkProtocol int) *velocityFixture {
 		provider: &demoInfoProviderMock{
 			tickRate:         64,
 			networkProtocol:  networkProtocol,
+			velocityFallback: true,
 			entitiesByHandle: map[uint64]st.Entity{},
 		},
 		pawnID: 1,
@@ -446,20 +447,19 @@ func TestPlayer_Velocity_PositionDelta(t *testing.T) {
 	assert.Equal(t, r3.Vector{}, f.frame(105, r3.Vector{X: 1015, Y: -2006, Z: 49}))
 }
 
-// Positions are only recorded once Velocity() was called for a player.
-func TestPlayer_Velocity_PositionDelta_TrackingStartsOnFirstCall(t *testing.T) {
+// Without ParserConfig.VelocityFromPositionDelta, older demos keep master's behaviour:
+// the raw (unpopulated or stale) m_vecVelocity value is returned and no history is used.
+func TestPlayer_Velocity_PositionDelta_DisabledByDefault(t *testing.T) {
 	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+	f.provider.velocityFallback = false
 
-	f.provider.ingameTick = 100
-	f.pl.RecordFramePosition()
-	assert.False(t, f.pl.positionHistory[0].valid)
+	f.frame(100, r3.Vector{})
+	assert.Equal(t, r3.Vector{}, f.frame(101, r3.Vector{X: 2}))
 
-	f.provider.ingameTick = 101
-	assert.Equal(t, r3.Vector{}, f.pl.Velocity())
-	f.pl.RecordFramePosition()
-	assert.True(t, f.pl.positionHistory[0].valid)
-
-	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(102, r3.Vector{X: 1}))
+	stale := r3.Vector{X: 7, Y: 8, Z: 9}
+	f.velocity = &stale
+	f.update()
+	assert.Equal(t, stale, f.pl.Velocity())
 }
 
 func TestPlayer_Velocity_PositionDelta_FrameWithoutTickAdvance(t *testing.T) {

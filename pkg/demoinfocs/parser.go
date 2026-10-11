@@ -120,6 +120,7 @@ type parser struct {
 	 */
 	recordingPlayerSlot           int
 	disableMimicSource1GameEvents bool
+	velocityFromPositionDelta     bool
 
 	// Additional fields, mainly caching & tracking things
 
@@ -586,6 +587,16 @@ type ParserConfig struct {
 	// UserCmdParsing controls CSVCMsg_UserCommands parsing. It defaults to
 	// UserCmdParsingButtonsOnly, including when ParserConfig is created as a zero value.
 	UserCmdParsing UserCmdParsingMode
+
+	// VelocityFromPositionDelta makes Player.Velocity() derive the velocity from the position delta
+	// between frames on demos that don't network it (recorded before the CS2 "AnimGraph 2" update,
+	// network protocol < 14089). Without it, Player.Velocity() returns the raw m_vecVelocity value, which
+	// is zero on those GOTV demos and only correct for the recording player on those POV demos.
+	//
+	// When enabled, every player's position is recorded at the end of every frame on such demos,
+	// which costs roughly 20-25% parsing time. It has no effect (and no cost) on newer demos,
+	// where the velocity is networked. False by default.
+	VelocityFromPositionDelta bool
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
@@ -625,6 +636,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.bombsiteB.index = -1
 	p.recordingPlayerSlot = -1
 	p.disableMimicSource1GameEvents = config.DisableMimicSource1Events
+	p.velocityFromPositionDelta = config.VelocityFromPositionDelta
 	p.source2FallbackGameEventListBin = config.Source2FallbackGameEventListBin
 	p.ignorePacketEntitiesPanic = config.IgnorePacketEntitiesPanic
 	p.decryptionKey = config.NetMessageDecryptionKey
@@ -680,6 +692,10 @@ func (p demoInfoProvider) IngameTick() int {
 
 func (p demoInfoProvider) TickRate() float64 {
 	return p.parser.TickRate()
+}
+
+func (p demoInfoProvider) VelocityFromPositionDelta() bool {
+	return p.parser.velocityFromPositionDelta
 }
 
 func (p demoInfoProvider) NetworkProtocol() int {
