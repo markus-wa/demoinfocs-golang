@@ -378,7 +378,7 @@ func TestPlayerHurt_HealthDamageTakenIsHealthDrop(t *testing.T) {
 		got = append(got, e)
 	})
 
-	// Since build 10581 a hit can remove dmg_health+1 HP (fractional damage).
+	// On many server builds a hit can remove dmg_health+1 HP (fractional damage).
 	data := playerHurtEventData(int32(victim.UserID), 1, "ak47")
 	data["health"].ValByte = proto.Int32(73)
 	data["armor"].ValByte = proto.Int32(50)
