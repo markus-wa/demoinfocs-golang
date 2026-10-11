@@ -1096,14 +1096,43 @@ func (geh gameEventHandler) nadeEvent(data map[string]*msg.CMsgSource1LegacyGame
 		Z: float64(data["z"].GetValFloat()),
 	}
 	nadeEntityID := int(data["entityid"].GetValShort())
+	projectile := geh.grenadeEventProjectile(nadeEntityID, nadeType)
+
+	// CS2 doesn't send the thrower with some events (e.g. inferno_startburn / inferno_expire).
+	if thrower == nil && projectile != nil {
+		thrower = projectile.Thrower
+	}
+
+	// Prefer the weapon of the projectile this event is about - the thrower's last thrown grenade of
+	// this type is wrong if the player has more than one of them in flight / active (e.g. two smokes).
+	var grenade *common.Equipment
+	if projectile != nil && projectile.WeaponInstance != nil {
+		grenade = projectile.WeaponInstance
+	} else {
+		grenade = geh.getThrownGrenade(thrower, nadeType)
+	}
 
 	return events.GrenadeEvent{
 		GrenadeType:     nadeType,
-		Grenade:         geh.getThrownGrenade(thrower, nadeType),
+		Grenade:         grenade,
+		Projectile:      projectile,
 		Thrower:         thrower,
 		Position:        position,
 		GrenadeEntityID: nadeEntityID,
 	}
+}
+
+// grenadeEventProjectile returns the projectile a grenade game event (see nadeEvent) refers to, or nil.
+//
+// For most grenades the event's entity-ID is the one of the (still live) projectile.
+// For fire grenades it's the one of the inferno, which is mapped to the projectile it was spawned from
+// (see parser.linkInfernoProjectile).
+func (geh gameEventHandler) grenadeEventProjectile(entityID int, nadeType common.EquipmentType) *common.GrenadeProjectile {
+	if nadeType == common.EqIncendiary || nadeType == common.EqMolotov {
+		return geh.gameState().infernoProjectiles[entityID]
+	}
+
+	return geh.gameState().grenadeProjectiles[entityID]
 }
 
 func (geh gameEventHandler) addThrownGrenade(p *common.Player, wep *common.Equipment) {

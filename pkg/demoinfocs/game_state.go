@@ -29,6 +29,8 @@ type gameState struct {
 	grenadeProjectiles           map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos                     map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	infernoFireStates            map[int]*infernoFireState         // Maps inferno entity-IDs to their burning state, for InfernoFireOut.
+	infernoProjectiles           map[int]*common.GrenadeProjectile // Maps inferno entity-IDs to the molotov/incendiary projectile that spawned them, see linkInfernoProjectile.
+	pendingInfernoLinks          []pendingInfernoLink              // Fire-grenade projectiles destroyed / infernos created in the current frame that are still waiting for their counterpart.
 	weapons                      map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
 	hostages                     map[int]*common.Hostage           // Maps entity-IDs to hostages.
 	entities                     map[int]st.Entity                 // Maps entity IDs to entities
@@ -85,6 +87,16 @@ type FlyingFlashbang struct {
 type infernoFireState struct {
 	wasBurning bool
 	firedOut   bool
+}
+
+// pendingInfernoLink is one side of an inferno <-> fire-grenade projectile link that was seen during
+// a frame before its counterpart (see parser.linkInfernoProjectile).
+// Exactly one of projectile / infernoEntityID is set.
+type pendingInfernoLink struct {
+	frame           int
+	ownerHandle     uint64
+	projectile      *common.GrenadeProjectile
+	infernoEntityID int
 }
 
 type lastFlash struct {
@@ -291,6 +303,7 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		grenadeProjectiles:       make(map[int]*common.GrenadeProjectile),
 		infernos:                 make(map[int]*common.Inferno),
 		infernoFireStates:        make(map[int]*infernoFireState),
+		infernoProjectiles:       make(map[int]*common.GrenadeProjectile),
 		weapons:                  make(map[int]*common.Equipment),
 		hostages:                 make(map[int]*common.Hostage),
 		entities:                 make(map[int]st.Entity),
