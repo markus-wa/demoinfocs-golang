@@ -87,7 +87,8 @@ jobs:
       - name: Pick CSDA branch
         id: csda-ref
         env:
-          HEAD_REF: ${{ github.head_ref }}
+          # head_ref on pull_request events, the branch name on push events
+          HEAD_REF: ${{ github.head_ref || github.ref_name }}
         run: |
           ref=demoinfocs-v6
           if [ -n "$HEAD_REF" ] && git ls-remote --exit-code --heads https://github.com/markus-wa/cs-demo-analyzer.git "refs/heads/$HEAD_REF" > /dev/null; then
