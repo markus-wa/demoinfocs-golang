@@ -215,7 +215,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"other_death":                     geh.otherDeath,                        // Other deaths, like chickens.
 		"player_activate":                 nil,                                   // CS2 POV demos
 		"player_blind":                    delay(geh.playerBlind),                // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
-		"player_changename":               nil,                                   // Name change
+		"player_changename":               geh.playerChangeName,                  // Name change
 		"player_chat":                     nil,                                   // CS2 only, not always present and ChatMessage events are already dispatched through CUserMessageSayText2
 		"player_connect":                  geh.playerConnect,                     // Bot connected or player reconnected, players normally come in via string tables & data tables
 		"player_connect_full":             nil,                                   // Connecting finished
@@ -757,6 +757,39 @@ func (geh gameEventHandler) applyConnectNameToPlayer(info common.PlayerInfo) {
 		Player:  pl,
 		OldName: oldName,
 		NewName: info.Name,
+	})
+}
+
+// playerChangeName applies a server-side rename (player_changename) to the player.
+// Renames used to reach the library only via incremental userinfo string-table updates,
+// which parseUserInfo now ignores for known slots because the GOTV proxy re-sends stale
+// userinfo for re-used slots (#692). The game event is authoritative, so apply it here.
+func (geh gameEventHandler) playerChangeName(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
+	uid := int(data["userid"].GetValShort())
+	if uid <= math.MaxUint16 {
+		uid &= 0xff
+	}
+
+	newName := data["newname"].GetValString()
+
+	if raw := geh.parser.rawPlayers[uid]; raw != nil && raw.Name != newName {
+		updated := *raw
+		updated.Name = newName
+		geh.parser.rawPlayers[uid] = &updated
+	}
+
+	pl := geh.playerByUserID(uid)
+	if pl == nil || pl.Name == newName {
+		return
+	}
+
+	oldName := pl.Name
+	pl.Name = newName
+
+	geh.dispatch(events.PlayerNameChange{
+		Player:  pl,
+		OldName: oldName,
+		NewName: newName,
 	})
 }
 

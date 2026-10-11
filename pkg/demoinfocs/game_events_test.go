@@ -554,3 +554,57 @@ func TestGetCommunityId_Error(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "strconv.ParseUint: parsing \"abc\": invalid syntax", err.Error())
 }
+
+func playerChangeNameEventData(userID int32, oldName, newName string) map[string]*msg.CMsgSource1LegacyGameEventKeyT {
+	return map[string]*msg.CMsgSource1LegacyGameEventKeyT{
+		"userid":  {ValShort: proto.Int32(userID)},
+		"oldname": {ValString: proto.String(oldName)},
+		"newname": {ValString: proto.String(newName)},
+	}
+}
+
+func TestPlayerChangeName_RenamesPlayerAndDispatches(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+
+	pl := common.NewPlayer(demoInfoProvider{parser: p})
+	pl.UserID = 3
+	pl.Name = "old"
+	p.gameState.playersByUserID[3] = pl
+	p.rawPlayers[3] = &common.PlayerInfo{UserID: 3, Name: "old", XUID: 76561198000000000}
+
+	var got []events.PlayerNameChange
+	p.RegisterEventHandler(func(e events.PlayerNameChange) {
+		got = append(got, e)
+	})
+
+	p.gameEventHandler.playerChangeName(playerChangeNameEventData(3, "old", "new"))
+
+	assert.Equal(t, "new", pl.Name)
+	assert.Equal(t, "new", p.rawPlayers[3].Name, "raw info must follow so later lookups agree")
+	assert.Equal(t, uint64(76561198000000000), p.rawPlayers[3].XUID)
+	assert.Equal(t, []events.PlayerNameChange{{Player: pl, OldName: "old", NewName: "new"}}, got)
+}
+
+func TestPlayerChangeName_NoOpWhenNameUnchanged(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+
+	pl := common.NewPlayer(demoInfoProvider{parser: p})
+	pl.UserID = 3
+	pl.Name = "same"
+	p.gameState.playersByUserID[3] = pl
+
+	dispatched := false
+	p.RegisterEventHandler(func(events.PlayerNameChange) { dispatched = true })
+
+	p.gameEventHandler.playerChangeName(playerChangeNameEventData(3, "same", "same"))
+
+	assert.False(t, dispatched)
+}
+
+func TestPlayerChangeName_UnknownPlayerIsIgnored(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+
+	assert.NotPanics(t, func() {
+		p.gameEventHandler.playerChangeName(playerChangeNameEventData(9, "a", "b"))
+	})
+}
