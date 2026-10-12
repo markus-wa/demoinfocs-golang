@@ -312,6 +312,10 @@ func TestParseToEnd_MultiCancel(t *testing.T) {
 func TestParseToEnd_ContextAlreadyDone(t *testing.T) {
 	t.Parallel()
 
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
 	cancelled, cancel := context.WithCancel(t.Context())
 	cancel()
 
