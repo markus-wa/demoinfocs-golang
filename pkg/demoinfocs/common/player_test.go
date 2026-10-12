@@ -12,6 +12,7 @@ import (
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
+	stfake "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/fake"
 )
 
 func TestPlayerActiveWeapon(t *testing.T) {
@@ -340,6 +341,8 @@ type velocityFixture struct {
 	pl       *Player
 	provider *demoInfoProviderMock
 	pawnID   int
+	pawn     *stfake.Entity // re-used across frames while pawnID doesn't change, set to nil to re-create the pawn
+	pawnOfID int            // pawnID the pawn entity was created for
 	pos      r3.Vector
 	interp   uint64
 	health   int32
@@ -370,7 +373,7 @@ func newVelocityFixture(networkProtocol int) *velocityFixture {
 	})
 	controller.On("ID").Return(velocityFixtureControllerID)
 
-	// the controller must be found by its handle, otherwise the recorder stops (disconnect)
+	// the controller must be found by its entity ID, otherwise the recorder stops (disconnect)
 	f.provider.entitiesByHandle[velocityFixtureControllerID] = controller
 
 	f.pl = &Player{
@@ -407,8 +410,13 @@ func (f *velocityFixture) update() {
 		)
 	}
 
-	pawn := entityWithProperties(props)
-	pawn.ExpectedCalls = nil // drop the default ID
+	if f.pawn == nil || f.pawnOfID != f.pawnID {
+		f.pawn = new(stfake.Entity)
+		f.pawnOfID = f.pawnID
+	}
+
+	pawn := f.pawn
+	pawn.ExpectedCalls = nil
 
 	pawn.On("ID").Return(f.pawnID)
 	pawn.On("Position").Return(f.pos)
@@ -649,6 +657,18 @@ func TestPlayer_Velocity_PositionDelta_PawnChanged(t *testing.T) {
 	f.frame(101, r3.Vector{X: 1})
 
 	f.pawnID = 2
+	assert.Equal(t, r3.Vector{}, f.frame(102, r3.Vector{X: 2}))
+	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(103, r3.Vector{X: 3}))
+}
+
+// A pawn destroyed and re-created in the same entity slot between two samples is a different pawn.
+func TestPlayer_Velocity_PositionDelta_PawnRecreatedInSameSlot(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	f.frame(100, r3.Vector{})
+	f.frame(101, r3.Vector{X: 1})
+
+	f.pawn = nil // same ID, new entity
 	assert.Equal(t, r3.Vector{}, f.frame(102, r3.Vector{X: 2}))
 	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(103, r3.Vector{X: 3}))
 }

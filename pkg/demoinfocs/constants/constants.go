@@ -15,7 +15,3 @@ const (
 // (m_vecVelocity.m_vec* properties); older demos declare these properties, but don't populate them on GOTV
 // demos and only populate them correctly for the recording player on POV demos.
 const NetworkProtocolAnimGraph2 = 14089
-
-// DefaultMaxVelocity is the default value of the sv_maxvelocity convar, the maximum velocity (per axis, in
-// game units per second) the engine allows for any entity.
-const DefaultMaxVelocity = 3500

@@ -100,7 +100,7 @@ func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 }
 
 // Without the config flag, positions are recorded lazily once Velocity() is called for a player.
-// The parser warns once, and from the second frame on the velocity is derived as with the flag.
+// The parser warns once, and once the next entity snapshot has been applied the velocity is derived as with the flag.
 func TestPlayerVelocity_LazyPositionTracking(t *testing.T) {
 	t.Parallel()
 

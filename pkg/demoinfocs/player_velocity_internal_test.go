@@ -98,6 +98,7 @@ func TestPlayerVelocity_POV(t *testing.T) {
 
 			assert.InDelta(t, float64(x.Float()), v.X, 1e-6)
 			assert.InDelta(t, float64(pawn.PropertyValueMust("m_vecVelocity.m_vecY").Float()), v.Y, 1e-6)
+			assert.InDelta(t, float64(pawn.PropertyValueMust("m_vecVelocity.m_vecZ").Float()), v.Z, 1e-6)
 
 			if math.Hypot(v.X, v.Y) > 100 {
 				recorded++

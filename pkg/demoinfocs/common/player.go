@@ -39,16 +39,17 @@ type Player struct {
 	// trackingPosition is set once the parser records this player's position at the end of every frame,
 	// see startPositionTracking().
 	trackingPosition bool
-	// recordedTick is the SnapshotTick() recordFramePosition() last ran in full for, -1 to force the next run.
+	// recordedTick is the SnapshotTick() recordFramePosition() last ran in full for, reset to -1 when tracking
+	// starts so the next snapshot is recorded.
 	recordedTick int
 }
 
 // positionSample is a pawn position recorded at the end of a frame.
 type positionSample struct {
 	pos         r3.Vector
-	tick        int // server tick of the entity snapshot, see demoInfoProvider.SnapshotTick()
-	pawnID      int
-	interpFrame any // m_ubInterpolationFrame, changes when the pawn is teleported
+	tick        int       // server tick of the entity snapshot, see demoInfoProvider.SnapshotTick()
+	pawn        st.Entity // compared by identity: a pawn re-created in the same slot is a new entity
+	interpFrame any       // m_ubInterpolationFrame, changes when the pawn is teleported
 	valid       bool
 }
 
@@ -500,7 +501,8 @@ func (p *Player) Velocity() r3.Vector {
 	}
 
 	if !p.isVelocityNetworked(pawnEntity) {
-		// not lazy if the config flag is set but tracking stopped (e.g. the player re-connected)
+		// not lazy if the config flag is set but tracking stopped (the controller is gone, e.g. Velocity()
+		// called on a Player kept from before a disconnect - a reconnect creates a new Player)
 		p.startPositionTracking(!p.demoInfoProvider.EagerVelocityTracking())
 
 		return p.positionDeltaVelocity(pawnEntity)
@@ -543,6 +545,10 @@ func (p *Player) isRecordingPlayer() bool {
 	return slot >= 0 && p.EntityID-1 == slot
 }
 
+// maxVelocity is the default value of the sv_maxvelocity convar, the maximum velocity (per axis, in
+// game units per second) the engine allows for any entity.
+const maxVelocity = 3500
+
 // positionDeltaVelocity derives the velocity from the position history recorded by recordFramePosition().
 //
 // Time is measured in server ticks of entity snapshots (see demoInfoProvider.SnapshotTick()), not in-game
@@ -573,7 +579,7 @@ func (p *Player) positionDeltaVelocity(pawnEntity st.Entity) r3.Vector {
 func (p *Player) velocitySince(ref positionSample, pos r3.Vector, tick int, pawnEntity st.Entity) r3.Vector {
 	tickRate := p.demoInfoProvider.TickRate()
 
-	if tickRate <= 0 || !ref.valid || ref.tick >= tick || ref.pawnID != pawnEntity.ID() {
+	if tickRate <= 0 || !ref.valid || ref.tick >= tick || ref.pawn != pawnEntity {
 		return r3.Vector{}
 	}
 
@@ -584,8 +590,6 @@ func (p *Player) velocitySince(ref positionSample, pos r3.Vector, tick int, pawn
 
 	dt := float64(tick-ref.tick) / tickRate
 	v := pos.Sub(ref.pos).Mul(1 / dt)
-
-	const maxVelocity = constants.DefaultMaxVelocity
 
 	if math.Abs(v.X) > maxVelocity || math.Abs(v.Y) > maxVelocity || math.Abs(v.Z) > maxVelocity {
 		// physically impossible, must be a teleport that wasn't flagged as such
@@ -639,7 +643,7 @@ func (p *Player) recordFramePosition() (keep bool) {
 	sample := positionSample{
 		pos:         pawnEntity.Position(),
 		tick:        tick,
-		pawnID:      pawnEntity.ID(),
+		pawn:        pawnEntity,
 		interpFrame: interpolationFrame(pawnEntity),
 		valid:       true,
 	}
@@ -647,7 +651,7 @@ func (p *Player) recordFramePosition() (keep bool) {
 	last := p.positionHistory[0]
 
 	switch {
-	case last.valid && last.pawnID == sample.pawnID && sample.tick > last.tick:
+	case last.valid && last.pawn == sample.pawn && sample.tick > last.tick:
 		p.positionHistory = [2]positionSample{sample, last}
 	default:
 		// first sample, new pawn or tick went backwards
