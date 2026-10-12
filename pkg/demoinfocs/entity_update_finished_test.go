@@ -63,7 +63,7 @@ func TestEntityOnUpdateFinished(t *testing.T) {
 		unfinished += len(pending)
 	})
 
-	require.NoError(t, p.ParseToEnd())
+	require.NoError(t, p.ParseToEnd(t.Context()))
 
 	require.NotZero(t, created)
 	assert.Zero(t, unfinished, "frames that ended with controller updates not followed by OnUpdateFinished")

@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -60,7 +61,7 @@ func main() {
 		fmt.Printf("[Tick %d] %s actions: %v (raw state: 0x%x)\n", p.GameState().IngameTick(), e.Player.Name, actions, e.ButtonsState)
 	})
 
-	err = p.ParseToEnd()
+	err = p.ParseToEnd(context.Background())
 	checkError(err)
 }
 

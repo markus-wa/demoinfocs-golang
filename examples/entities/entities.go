@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	_ "image/jpeg"
 	"os"
@@ -47,7 +48,7 @@ func main() {
 		})
 	})
 
-	err = p.ParseToEnd()
+	err = p.ParseToEnd(context.Background())
 	checkError(err)
 }
 

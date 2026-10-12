@@ -683,18 +683,18 @@ const (
 	WarnTypeUnknownGrenadeModel // a grenade projectile's model hash isn't in the item->model map (e.g. a post-patch model variant)
 
 	// WarnTypeMissingNetMessageDecryptionKey occurs when encrypted net-messages are encountered and the decryption key is missing.
-	// See ParserConfig.NetMessageDecryptionKey
+	// See demoinfocs.WithNetMessageDecryptionKey()
 	WarnTypeMissingNetMessageDecryptionKey
 
 	// WarnTypeCantReadEncryptedNetMessage occurs when an encrypted net-message can't be decrypted even though the decryption key is set.
 	// May occur because the decryption key used is incorrect.
-	// See ParserConfig.NetMessageDecryptionKey
+	// See demoinfocs.WithNetMessageDecryptionKey()
 	WarnTypeCantReadEncryptedNetMessage
 
 	// WarnTypeVelocityTrackingStartedLazily occurs (once per parse) when Player.Velocity() starts recording
 	// positions for a player on a demo that doesn't network the player velocity. Velocity() returns a zero
-	// vector for that player until the next entity snapshot has been applied; set
-	// ParserConfig.EagerVelocityTracking to record from the start.
+	// vector for that player until the next entity snapshot has been applied; use
+	// demoinfocs.WithEagerVelocityTracking(true) to record from the start.
 	WarnTypeVelocityTrackingStartedLazily
 )
 

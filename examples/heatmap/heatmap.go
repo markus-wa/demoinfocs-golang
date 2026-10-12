@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"image"
 	"image/draw"
 	"image/jpeg"
@@ -59,7 +60,7 @@ func main() {
 	})
 
 	// Parse the whole demo
-	err = p.ParseToEnd()
+	err = p.ParseToEnd(context.Background())
 	checkError(err)
 
 	//

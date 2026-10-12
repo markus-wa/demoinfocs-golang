@@ -4,6 +4,7 @@ package fake
 
 import (
 	"cmp"
+	"context"
 	"time"
 
 	dp "github.com/markus-wa/godispatch"
@@ -155,8 +156,9 @@ func (p *Parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 //
 // Dispatches Parser.Events and Parser.NetMessages in the specified order.
 //
-// Returns the mocked error value.
-func (p *Parser) ParseToEnd() (err error) {
+// Stops dispatching and returns context.Cause(ctx) once ctx is done, otherwise returns the mocked error value.
+// The mock is called without arguments, i.e. set it up with On("ParseToEnd").
+func (p *Parser) ParseToEnd(ctx context.Context) (err error) {
 	args := p.Called()
 
 	maxFrame := maxKey(p.Events)
@@ -167,6 +169,10 @@ func (p *Parser) ParseToEnd() (err error) {
 	}
 
 	for p.currentFrame <= maxFrame {
+		if ctx.Err() != nil {
+			return context.Cause(ctx)
+		}
+
 		p.parseNextFrame()
 	}
 
@@ -212,13 +218,6 @@ func maxKey[T any, N cmp.Ordered](numbers map[N]T) (maxNumber N) {
 	}
 
 	return
-}
-
-// Cancel is a mock-implementation of Parser.Cancel().
-// Does not cancel the mock's ParseToEnd() function,
-// mock the return value of ParseToEnd() to be ErrCancelled instead.
-func (p *Parser) Cancel() {
-	p.Called()
 }
 
 // Close is a mock-implementation of Parser.Close().

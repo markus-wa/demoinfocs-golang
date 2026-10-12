@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -19,14 +20,11 @@ func main() {
 	defer f.Close()
 
 	// Configure parsing of BSPDecal net-message
-	cfg := demoinfocs.DefaultParserConfig
-	cfg.AdditionalNetMessageCreators = map[int]demoinfocs.NetMessageCreator{
+	p := demoinfocs.NewParser(f, demoinfocs.WithAdditionalNetMessageCreators(map[int]demoinfocs.NetMessageCreator{
 		int(msg.SVC_Messages_svc_BSPDecal): func() proto.Message {
 			return new(msg.CSVCMsg_BSPDecal)
 		},
-	}
-
-	p := demoinfocs.NewParserWithConfig(f, cfg)
+	}))
 	defer p.Close()
 
 	// Register handler for BSPDecal messages
@@ -35,7 +33,7 @@ func main() {
 	})
 
 	// Parse to end
-	err = p.ParseToEnd()
+	err = p.ParseToEnd(context.Background())
 	checkError(err)
 }
 

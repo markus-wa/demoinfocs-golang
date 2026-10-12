@@ -97,7 +97,7 @@ func Test692ControllerNameIsAuthoritative(t *testing.T) {
 		}
 	})
 
-	require.NoError(t, p.ParseToEnd())
+	require.NoError(t, p.ParseToEnd(t.Context()))
 
 	assert.Zero(t, mismatches, "frames where a player's name didn't match its controller")
 
@@ -148,7 +148,7 @@ func Test692NoDuplicatePlayerInPlaying(t *testing.T) {
 		}
 	})
 
-	require.NoError(t, p.ParseToEnd())
+	require.NoError(t, p.ParseToEnd(t.Context()))
 }
 
 // TestControllerSteamIDPlaceholderName asserts that a controller created with the player's SteamID64 as a
@@ -196,7 +196,7 @@ func TestControllerSteamIDPlaceholderName(t *testing.T) {
 		}
 	})
 
-	require.NoError(t, p.ParseToEnd())
+	require.NoError(t, p.ParseToEnd(t.Context()))
 
 	assert.Zero(t, placeholders, "frames where a player was named after its SteamID")
 	assert.Empty(t, nameChanges, "no player changes their name in this demo")

@@ -9,18 +9,20 @@ First, let's have a look at the API of our code, the 'system under test':
 
 ```go
 import (
+	"context"
+
 	dem "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 )
 
-func collectKills(parser dem.Parser) (kills []events.Kill, err error) {
+func collectKills(ctx context.Context, parser dem.Parser) (kills []events.Kill, err error) {
     ...
 }
 ```
 
 We deliberately ignore the implementation so we don't make assumptions about the code since it might change in the future.
 
-As you can see `collectKills` takes an `Parser` as input and returns a slice of `events.Kill` and potentially an error.
+As you can see `collectKills` takes a `context.Context` and a `Parser` as input and returns a slice of `events.Kill` and potentially an error.
 
 ## Positive test case
 
@@ -48,7 +50,7 @@ func TestCollectKills(t *testing.T) {
 
 	parser.On("ParseToEnd").Return(nil) // Return no error
 
-	actual, err := collectKills(parser)
+	actual, err := collectKills(t.Context(), parser)
 
 	assert.Nil(t, err)
 	expected := []events.Kill{kill1, kill2, kill3}
@@ -93,7 +95,7 @@ func TestCollectKillsError(t *testing.T) {
 	expectedErr := errors.New("Test error")
 	parser.On("ParseToEnd").Return(expectedErr)
 
-	kills, actualErr := collectKills(parser)
+	kills, actualErr := collectKills(t.Context(), parser)
 
 	assert.Equal(t, expectedErr, actualErr)
 	assert.Nil(t, kills)

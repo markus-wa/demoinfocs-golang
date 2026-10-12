@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -63,9 +64,6 @@ const (
 
 // Parsing errors
 var (
-	// ErrCancelled signals that parsing was cancelled via Parser.Cancel()
-	ErrCancelled = errors.New("parsing was cancelled before it finished (ErrCancelled)")
-
 	// ErrUnexpectedEndOfDemo signals that the demo is incomplete / corrupt -
 	// these demos may still be useful, check how far the parser got.
 	ErrUnexpectedEndOfDemo = errors.New("demo stream ended unexpectedly (ErrUnexpectedEndOfDemo)")
@@ -81,7 +79,7 @@ var (
 func (p *parser) parseHeader() error {
 	var h header
 
-	isCSTVBroadcast := p.config.Format == DemoFormatCSTVBroadcast
+	isCSTVBroadcast := p.config.Format == demoFormatCSTVBroadcast
 
 	if isCSTVBroadcast {
 		h.Filestamp = filestampS2
@@ -152,10 +150,19 @@ func msgQueueSize(ticks int) int {
 }
 
 // ParseToEnd attempts to parse the demo until the end.
-// Aborts and returns ErrCancelled if Cancel() is called before the end.
+//
+// Parsing is aborted when ctx is done (it may be cancelled from a handler or another goroutine):
+// no further events are dispatched, all handlers are unregistered, net-messages that are already
+// queued are dropped and context.Cause(ctx) is returned, so errors.Is(err, context.Canceled)
+// and errors.Is(err, context.DeadlineExceeded) can be used to detect it.
+// If ctx is already done, ParseToEnd returns right away without parsing anything.
 //
 // See also: ParseNextFrame() for other possible errors.
-func (p *parser) ParseToEnd() (err error) {
+func (p *parser) ParseToEnd(ctx context.Context) (err error) {
+	if ctx.Err() != nil {
+		return context.Cause(ctx)
+	}
+
 	defer func() {
 		// Make sure all the messages of the demo are handled
 		p.msgDispatcher.SyncAllQueues()
@@ -180,6 +187,8 @@ func (p *parser) ParseToEnd() (err error) {
 		}
 	}()
 
+	defer p.watchContext(ctx)()
+
 	if p.header == nil {
 		err = p.parseHeader()
 		if err != nil {
@@ -194,6 +203,42 @@ func (p *parser) ParseToEnd() (err error) {
 
 		if err = p.error(); err != nil {
 			return err
+		}
+
+		if ctx.Err() != nil {
+			return context.Cause(ctx)
+		}
+	}
+}
+
+// watchContext aborts parsing via setError() once ctx is done, which also stops
+// all handlers and drains the queued backlog without dispatching it.
+// Until setError() has run (context.AfterFunc() runs it on a separate goroutine),
+// aborted() checks ctx directly so cancelling from within a handler takes effect immediately.
+//
+// The returned function must be called before the message queues are synced/removed.
+// It waits for a running abort to finish so no handler is called after ParseToEnd() returns.
+func (p *parser) watchContext(ctx context.Context) (stop func()) {
+	if ctx.Done() == nil {
+		// ctx can never be cancelled (e.g. context.Background())
+		return func() {}
+	}
+
+	p.ctx = ctx
+
+	aborted := make(chan struct{})
+
+	stopAfterFunc := context.AfterFunc(ctx, func() {
+		p.setError(context.Cause(ctx))
+		close(aborted)
+	})
+
+	return func() {
+		if !stopAfterFunc() {
+			<-aborted
+		} else if ctx.Err() != nil {
+			// ctx was cancelled but the AfterFunc hasn't been started yet
+			p.setError(context.Cause(ctx))
 		}
 	}
 }
@@ -216,12 +261,6 @@ func recoverFromUnexpectedEOF(r any) error {
 	}
 }
 
-// Cancel aborts ParseToEnd() and drains the internal event queues.
-// No further events will be sent to event or message handlers after this.
-func (p *parser) Cancel() {
-	p.setError(ErrCancelled)
-}
-
 /*
 ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
 
@@ -229,6 +268,9 @@ Returns true unless the demo command 'stop' or an error was encountered.
 
 May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
 May panic if the demo is corrupt in some way.
+
+ParseNextFrame doesn't take a context.Context: callers that need cancellation
+should check their context between frames and stop calling ParseNextFrame once it's done.
 
 See also: ParseToEnd() for parsing the complete demo in one go (faster).
 */
@@ -369,7 +411,7 @@ func (p *parser) parseFrame() bool {
 		size uint32
 	)
 
-	isCSTVBroadcast := p.config.Format == DemoFormatCSTVBroadcast
+	isCSTVBroadcast := p.config.Format == demoFormatCSTVBroadcast
 
 	if isCSTVBroadcast {
 		tick = uint32(p.bitReader.ReadInt(32))
@@ -514,7 +556,7 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 
 	// Record positions after FrameDone so that handlers see the velocity relative to the previous frame.
 	// Used by Player.Velocity() when m_vecVelocity isn't networked (demos before the AnimGraph 2 update).
-	// Players only get registered once Velocity() is called for them (or with ParserConfig.EagerVelocityTracking).
+	// Players only get registered once Velocity() is called for them (or with WithEagerVelocityTracking(true)).
 	// Recorders of players whose controller is gone return false and are dropped.
 	p.framePositionRecorders = slices.DeleteFunc(p.framePositionRecorders, func(record func() bool) bool {
 		return !record()

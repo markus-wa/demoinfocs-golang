@@ -110,9 +110,7 @@ type encryptedTestResult struct {
 func parseEncrypted(t *testing.T, parserKey []byte, data *msg.CSVCMsg_EncryptedData) encryptedTestResult {
 	t.Helper()
 
-	cfg := DefaultParserConfig
-	cfg.NetMessageDecryptionKey = parserKey
-	p := NewParserWithConfig(rand.Reader, cfg).(*parser)
+	p := NewParser(rand.Reader, WithNetMessageDecryptionKey(parserKey)).(*parser)
 
 	var res encryptedTestResult
 

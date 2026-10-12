@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -47,7 +48,7 @@ func main() {
 	})
 
 	// Parse to end
-	err = p.ParseToEnd()
+	err = p.ParseToEnd(context.Background())
 	if err != nil {
 		panic(err)
 	}

@@ -14,7 +14,7 @@ import (
 )
 
 // s2.dem is a GOTV demo recorded before the AnimGraph 2 update, m_vecVelocity isn't networked,
-// so with ParserConfig.EagerVelocityTracking Player.Velocity() falls back to the position delta
+// so with WithEagerVelocityTracking(true) Player.Velocity() falls back to the position delta
 // between frames (3 ticks apart).
 func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 	t.Parallel()
@@ -26,9 +26,7 @@ func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 	f := openFile(t, s2DemPath)
 	defer mustClose(t, f)
 
-	cfg := demoinfocs.DefaultParserConfig
-	cfg.EagerVelocityTracking = true
-	p := demoinfocs.NewParserWithConfig(f, cfg)
+	p := demoinfocs.NewParser(f, demoinfocs.WithEagerVelocityTracking(true))
 
 	type sample struct {
 		pos  r3.Vector
@@ -69,7 +67,7 @@ func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 		}
 	})
 
-	err := p.ParseToEnd()
+	err := p.ParseToEnd(t.Context())
 	assert.NoError(t, err)
 
 	slices.Sort(speeds)
@@ -141,7 +139,7 @@ func TestPlayerVelocity_LazyPositionTracking(t *testing.T) {
 		}
 	})
 
-	assert.NoError(t, p.ParseToEnd())
+	assert.NoError(t, p.ParseToEnd(t.Context()))
 	assert.Equal(t, 1, lazyWarnings)
 	assert.Less(t, maxSpeed, 350.0)
 	assert.Positive(t, moving)
@@ -159,9 +157,7 @@ func TestPlayerVelocity_DuringSnapshot(t *testing.T) {
 	f := openFile(t, s2DemPath)
 	defer mustClose(t, f)
 
-	cfg := demoinfocs.DefaultParserConfig
-	cfg.EagerVelocityTracking = true
-	p := demoinfocs.NewParserWithConfig(f, cfg)
+	p := demoinfocs.NewParser(f, demoinfocs.WithEagerVelocityTracking(true))
 
 	type shot struct {
 		shooter  *common.Player
@@ -200,7 +196,7 @@ func TestPlayerVelocity_DuringSnapshot(t *testing.T) {
 		shots = shots[:0]
 	})
 
-	assert.NoError(t, p.ParseToEnd())
+	assert.NoError(t, p.ParseToEnd(t.Context()))
 
 	slices.Sort(diffs)
 	diffP50 := diffs[len(diffs)/2]
