@@ -310,9 +310,12 @@ type Bombsite rune
 
 // Bombsite identifiers
 const (
-	BomsiteUnknown Bombsite = 0
-	BombsiteA      Bombsite = 'A'
-	BombsiteB      Bombsite = 'B'
+	BombsiteUnknown Bombsite = 0
+	BombsiteA       Bombsite = 'A'
+	BombsiteB       Bombsite = 'B'
+
+	// Deprecated: use BombsiteUnknown.
+	BomsiteUnknown = BombsiteUnknown
 )
 
 // BombEvent contains the common attributes of bomb events. Dont register

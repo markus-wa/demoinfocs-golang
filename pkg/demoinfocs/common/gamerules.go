@@ -1,6 +1,6 @@
 package common
 
-// GamePhase represents a phase in CS:GO
+// GamePhase represents a phase of the game (e.g. warmup, first/second half, game over).
 type GamePhase int
 
 // The following game rules have been found at https://github.com/pmrowla/hl2sdk-csgo/blob/master/game/shared/teamplayroundbased_gamerules.h#L37.

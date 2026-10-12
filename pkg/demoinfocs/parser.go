@@ -72,12 +72,11 @@ func (h *header) FrameTime() time.Duration {
 }
 
 /*
-Parser can parse a CS:GO demo.
-Creating a new instance is done via NewParser().
+Parser can parse a CS2 demo.
+Creating a new instance is done via NewParser() or NewParserWithConfig().
 
-To start off you may use Parser.ParseHeader() to parse the demo header
-(this can be skipped and will be done automatically if necessary).
-Further, Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo.
+Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo
+(the demo header is parsed automatically when parsing starts).
 
 Use Parser.RegisterEventHandler() to receive notifications about events.
 
@@ -87,7 +86,7 @@ Example (without error handling):
 	p := dem.NewParser(f)
 	defer p.Close()
 	p.RegisterEventHandler(func(e events.BombExplode) {
-		fmt.Printf(e.Site, "went BOOM!")
+		fmt.Printf("%c site went BOOM!\n", e.Site)
 	})
 	p.ParseToEnd()
 
@@ -404,7 +403,7 @@ func (p *parser) poolBitReader(r *bit.BitReader) {
 // NewParser creates a new Parser with the default configuration.
 // The demostream io.Reader (e.g. os.File or bytes.Reader) must provide demo data in the '.DEM' format.
 //
-// See also: NewCustomParser() & DefaultParserConfig
+// See also: NewParserWithConfig() & DefaultParserConfig
 func NewParser(demostream io.Reader) Parser {
 	return NewParserWithConfig(demostream, DefaultParserConfig)
 }

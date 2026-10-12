@@ -19,7 +19,7 @@ const (
 )
 
 // Can be overridden via -ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs.debugServerClasses=YES'"
-// e.g. `go run -tags debugdemoinfocs -ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs.debugDemoCommands=YES'" examples/print-events/print_events.go -demo example.dem`
+// e.g. (from the examples directory) `go run -tags debugdemoinfocs -ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs.debugDemoCommands=YES'" ./print-events -demo example.dem`
 // Oh and btw we cant use bools for this, Go says 'cannot use -X with non-string symbol'
 var (
 	debugGameEvents    = yes

@@ -896,7 +896,7 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CMsgSource1LegacyGame
 			}
 		}
 
-		if bombEvent.Site == events.BomsiteUnknown {
+		if bombEvent.Site == events.BombsiteUnknown {
 			// this may occur on de_grind for bombsite B, really makes you think
 			// see https://github.com/markus-wa/demoinfocs-golang/issues/280
 			geh.dispatch(events.ParserWarn{

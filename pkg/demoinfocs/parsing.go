@@ -70,8 +70,8 @@ var (
 	// these demos may still be useful, check how far the parser got.
 	ErrUnexpectedEndOfDemo = errors.New("demo stream ended unexpectedly (ErrUnexpectedEndOfDemo)")
 
-	// ErrInvalidFileType signals that the input isn't a valid CS:GO demo.
-	ErrInvalidFileType = errors.New("invalid File-Type; expecting HL2DEMO in the first 8 bytes (ErrInvalidFileType)")
+	// ErrInvalidFileType signals that the input isn't a valid CS2 demo.
+	ErrInvalidFileType = errors.New("invalid File-Type; expecting PBDEMS2 in the first 8 bytes (ErrInvalidFileType)")
 )
 
 // parseHeader attempts to parse the header of the demo and stores it in p.header.
