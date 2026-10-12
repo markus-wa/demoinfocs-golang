@@ -60,7 +60,7 @@ func TestNadeEvent_ResolvesProjectileByEntityID(t *testing.T) {
 	assert.Equal(t, common.EqSmoke, got[0].GrenadeType)
 }
 
-func TestNadeEvent_UnknownProjectile_FallsBackToLastThrownGrenade(t *testing.T) {
+func TestNadeEvent_UnknownProjectile_FallsBackToThrownGrenade(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 
 	var got []events.HeExplode

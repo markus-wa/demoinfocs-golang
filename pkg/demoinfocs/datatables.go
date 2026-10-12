@@ -1254,7 +1254,7 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	isDecoy := proj.WeaponInstance.Type == common.EqDecoy
 
 	if replaced || (!isInferno && !isSmoke && !isDecoy) {
-		p.gameEventHandler.deleteThrownGrenade(proj.Thrower, proj.WeaponInstance.Type)
+		p.gameEventHandler.removeThrownGrenade(proj.WeaponInstance)
 	}
 
 	if isInferno && !replaced {
@@ -1488,16 +1488,22 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 		return
 	}
 
+	proj := p.gameState.infernoProjectiles[inf.Entity.ID()]
+
 	p.eventDispatcher.Dispatch(events.InfernoExpired{
 		Inferno:    inf,
-		Projectile: p.gameState.infernoProjectiles[inf.Entity.ID()],
+		Projectile: proj,
 	})
 
 	delete(p.gameState.infernos, inf.Entity.ID())
 	delete(p.gameState.infernoFireStates, inf.Entity.ID())
 	delete(p.gameState.infernoProjectiles, inf.Entity.ID())
 
-	p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
+	if proj != nil && proj.WeaponInstance != nil {
+		p.gameEventHandler.removeThrownGrenade(proj.WeaponInstance)
+	} else {
+		p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
+	}
 }
 
 //nolint:funlen,gocognit,gocyclo
