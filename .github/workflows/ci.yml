@@ -76,9 +76,14 @@ jobs:
       # Note: We run ALL tests again to get full coverage
       #       Race tests are too slow and skip the regression set
       - name: All Tests + Coverage
-        run: |
-          scripts/coverage.sh
-          bash <(curl -s https://codecov.io/bash)
+        run: scripts/coverage.sh
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v7
+        with:
+          files: coverage.txt
+          # secrets aren't available to fork PRs; the action falls back to tokenless upload there
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   test-csda: # Run tests of CS Demo Analyzer
     runs-on: ubuntu-latest
