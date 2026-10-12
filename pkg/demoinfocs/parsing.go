@@ -483,6 +483,9 @@ func (p *parser) handlePacketEntities(m *msg.CSVCMsg_PacketEntities) {
 
 	_ = p.stParser.OnPacketEntities(m)
 
+	// backstop for controller identity & connection changes not applied per entity yet
+	p.flushPlayerControllerUpdates()
+
 	p.processingSnapshot = false
 }
 

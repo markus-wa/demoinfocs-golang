@@ -488,14 +488,17 @@ type PlayerDisconnected struct {
 	Player *common.Player
 }
 
-// PlayerNameChange signals that a player's name has changed.
+// PlayerNameChange signals that a player's in-game name (the player controller's m_iszPlayerName) has changed.
+// Not dispatched for bots. OldName is the player's previous name.
 type PlayerNameChange struct {
 	Player  *common.Player
 	OldName string
 	NewName string
 }
 
-// StringTablePlayerUpdateApplied signals that a player has been updated via stringtables.
+// StringTablePlayerUpdateApplied signals that changed userinfo string-table info has been applied to a player
+// (used to map the player to its user-ID). Player.Name and Player.SteamID64 come from the player controller
+// and aren't changed by string-table updates.
 type StringTablePlayerUpdateApplied struct {
 	Player *common.Player
 }
@@ -781,7 +784,9 @@ type ConVarsUpdated struct {
 	UpdatedConVars map[string]string
 }
 
-// PlayerInfo signals that basic player information was read via stringtables.
+// PlayerInfo signals that basic player information was read via stringtables (or the player_connect game-event).
+// Only dispatched when the information for a slot changes, not for identical re-sends.
+// Info.Name is the Steam name, which may differ from the in-game Player.Name (e.g. on FACEIT).
 type PlayerInfo struct {
 	Index int
 	Info  common.PlayerInfo

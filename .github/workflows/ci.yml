@@ -81,13 +81,29 @@ jobs:
         with:
           path: demoinfocs-golang
 
+      # PRs that legitimately change CSDA's output can ship updated snapshots on a fork branch
+      # with the same name as the PR branch; everything else runs against demoinfocs-v6.
+      # When such a PR is merged, fast-forward the fork's demoinfocs-v6 to that branch.
+      - name: Pick CSDA branch
+        id: csda-ref
+        env:
+          # head_ref on pull_request events, the branch name on push events
+          HEAD_REF: ${{ github.head_ref || github.ref_name }}
+        run: |
+          ref=demoinfocs-v6
+          if [ -n "$HEAD_REF" ] && git ls-remote --exit-code --heads https://github.com/markus-wa/cs-demo-analyzer.git "refs/heads/$HEAD_REF" > /dev/null; then
+            ref="$HEAD_REF"
+          fi
+          echo "Using CSDA branch: $ref"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
       - name: Checkout CSDA repo
         uses: actions/checkout@v7
         with:
           # TODO: switch back to akiver/cs-demo-analyzer@main once upstream has migrated to v6
           repository: markus-wa/cs-demo-analyzer
           path: cs-demo-analyzer
-          ref: demoinfocs-v6
+          ref: ${{ steps.csda-ref.outputs.ref }}
 
       - name: Install Go
         uses: actions/setup-go@v7
