@@ -413,23 +413,20 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 
 	// A different person (or a bot replacing a human & vice versa) took over the slot.
 	// The controller entity is usually re-created when that happens, but may also be updated in place.
-	replacedInPlace := false
+	var replacedInPlace *common.Player
 
 	if player != nil && player.SteamID64 != steamID {
-		replacedInPlace = player.Entity == controllerEntity
-		if replacedInPlace {
+		delete(p.provisionalNames, player)
+
+		if player.Entity == controllerEntity {
+			replacedInPlace = player
 			p.unbindReplacedPlayer(player)
 		}
 
 		player = nil
 	}
 
-	// Some servers create the controller before naming it - with an empty name or the SteamID as a
-	// placeholder. Use the userinfo name until the controller has a real one.
-	provisional := name == "" || isSteamIDPlaceholderName(name, steamID)
-	if provisional && rp != nil && !isBot && rp.XUID == steamID && rp.Name != "" {
-		name = rp.Name
-	}
+	name, provisional := playerNameFromController(name, steamID, isBot, rp)
 
 	if player == nil {
 		player = p.newPlayerFromController(controllerEntity, steamID, name, provisional)
@@ -440,10 +437,8 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 	if name != "" {
 		player.IsUnknown = false
 	} else if player.Name == "" {
-		// see #162.
-		// GOTV doesn't crash here either so we just initialize this player with default values.
-		// this happens in some demos since November 2019 for players that were are actually connected.
-		// in GOTV these players are just called "unknown".
+		// see #162: some demos since November 2019 have connected players without a name,
+		// GOTV calls them "unknown" too.
 		player.Name = "unknown"
 		player.IsUnknown = true
 	}
@@ -459,9 +454,8 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 		p.gameState.playersByUserID[userID] = player
 	}
 
-	if replacedInPlace {
-		// update handlers don't fire the controller's current state for in-place take-overs
-		p.connectPlayerIfConnected(player, controllerEntity)
+	if replacedInPlace != nil {
+		p.takeOverInPlace(replacedInPlace, player, controllerEntity)
 	}
 
 	return player
@@ -517,6 +511,31 @@ func (p *parser) newPlayerFromController(controllerEntity st.Entity, steamID uin
 	return player
 }
 
+// takeOverInPlace hands a controller that was taken over in place from the previous to the new occupant.
+func (p *parser) takeOverInPlace(previous, player *common.Player, controllerEntity st.Entity) {
+	// the pawn's weapons now belong to the new occupant (see bindPlayerWeapons)
+	player.Inventory, previous.Inventory = previous.Inventory, make(map[int]*common.Equipment)
+
+	for _, wep := range player.Inventory {
+		wep.Owner = player
+	}
+
+	// update handlers don't fire the controller's current state for in-place take-overs
+	p.connectPlayerIfConnected(player, controllerEntity)
+}
+
+// playerNameFromController returns the name to use for a controller's player. Some servers create the
+// controller before naming it - with an empty name or the SteamID as a placeholder. The userinfo name is
+// used until the controller has a real one; provisional reports that the name isn't the controller's yet.
+func playerNameFromController(name string, steamID uint64, isBot bool, rp *common.PlayerInfo) (string, bool) {
+	provisional := name == "" || isSteamIDPlaceholderName(name, steamID)
+	if provisional && rp != nil && !isBot && rp.XUID == steamID && rp.Name != "" {
+		return rp.Name, true
+	}
+
+	return name, provisional
+}
+
 // isSteamIDPlaceholderName reports whether a controller name is just the player's SteamID64,
 // which some servers use until the player's real name is set.
 func isSteamIDPlaceholderName(name string, steamID uint64) bool {
@@ -526,8 +545,6 @@ func isSteamIDPlaceholderName(name string, steamID uint64) bool {
 // unbindReplacedPlayer detaches a player from a controller that was taken over in place by a different
 // person, so the stale *Player neither stays connected nor reads the new occupant's entity data.
 func (p *parser) unbindReplacedPlayer(player *common.Player) {
-	delete(p.provisionalNames, player)
-
 	player.Entity = nil // EntityID is kept for reference
 
 	if !player.IsConnected {
@@ -541,21 +558,22 @@ func (p *parser) unbindReplacedPlayer(player *common.Player) {
 	})
 }
 
-// dirtyPlayerController is a player controller whose identity or connection state changed
+// dirtyPlayerController is a player controller whose identity, team or connection state changed
 // in the entity packet currently being applied.
 type dirtyPlayerController struct {
 	entity            st.Entity
+	teamChanged       bool
 	connectionChanged bool
 }
 
-func (p *parser) markPlayerControllerDirty(controllerEntity st.Entity, connectionChanged bool) {
+func (p *parser) markPlayerControllerDirty(controllerEntity st.Entity) *dirtyPlayerController {
 	d := p.dirtyControllers[controllerEntity.ID()]
 	if d == nil || d.entity != controllerEntity {
 		d = &dirtyPlayerController{entity: controllerEntity}
 		p.dirtyControllers[controllerEntity.ID()] = d
 	}
 
-	d.connectionChanged = d.connectionChanged || connectionChanged
+	return d
 }
 
 // flushPlayerControllerUpdates applies all pending controller identity & connection changes.
@@ -581,6 +599,11 @@ func (p *parser) flushPlayerController(controllerEntityID int) {
 	delete(p.dirtyControllers, controllerEntityID)
 
 	pl := p.getOrCreatePlayerFromControllerEntity(d.entity)
+
+	if d.teamChanged {
+		pl.Team = common.Team(d.entity.PropertyValueMust("m_iTeamNum").UInt64())
+		pl.TeamState = p.gameState.Team(pl.Team)
+	}
 
 	if d.connectionChanged {
 		p.applyControllerConnectionState(pl, d.entity)
@@ -699,29 +722,28 @@ func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 	}
 
 	// The controller's name & SteamID are the source of truth for the player's identity.
-	// Prop update handlers fire per field in field-path order (m_iConnected, m_iszPlayerName, m_steamID),
-	// so reacting to each of them directly would see a half-applied update when a different person takes
-	// over a slot - e.g. renaming the previous occupant to the new name. The handlers only mark the
-	// controller dirty; the changes are applied once all of the controller's updates in the packet are.
+	// Prop update handlers fire per field in field-path order (m_iTeamNum, m_iConnected, m_iszPlayerName,
+	// m_steamID), so reacting to each of them directly would see a half-applied update when a different
+	// person takes over a slot - e.g. renaming the previous occupant to the new name or changing its team.
+	// The handlers only mark the controller dirty; the changes are applied once all of the controller's
+	// updates in the packet are.
 	controllerEntity.OnUpdateFinished(func() {
 		p.flushPlayerController(controllerEntity.ID())
 	})
 
 	syncIdentity := func(st.PropertyValue) {
-		p.markPlayerControllerDirty(controllerEntity, false)
+		p.markPlayerControllerDirty(controllerEntity)
 	}
 
 	controllerEntity.Property("m_iszPlayerName").OnUpdate(syncIdentity)
 	controllerEntity.Property("m_steamID").OnUpdate(syncIdentity)
 
 	controllerEntity.Property("m_iConnected").OnUpdate(func(st.PropertyValue) {
-		p.markPlayerControllerDirty(controllerEntity, true)
+		p.markPlayerControllerDirty(controllerEntity).connectionChanged = true
 	})
 
-	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
-		pl := currentPlayer()
-		pl.Team = common.Team(val.UInt64())
-		pl.TeamState = p.gameState.Team(pl.Team)
+	controllerEntity.Property("m_iTeamNum").OnUpdate(func(st.PropertyValue) {
+		p.markPlayerControllerDirty(controllerEntity).teamChanged = true
 	})
 
 	controllerEntity.OnDestroy(func() {
@@ -765,7 +787,14 @@ func (p *parser) bindNewPlayerPawn(pawnEntity st.Entity) {
 
 		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
-		p.bindPlayerWeapons(pawnEntity, pl)
+		// the controller's player may be replaced by an in-place take-over while the pawn lives on
+		p.bindPlayerWeapons(pawnEntity, func() *common.Player {
+			if current := p.gameState.playersByEntityID[controllerEntityID]; current != nil {
+				return current
+			}
+
+			return pl
+		})
 	})
 
 	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
@@ -848,7 +877,7 @@ func (p *parser) bindNewPlayerPawn(pawnEntity st.Entity) {
 }
 
 //nolint:funlen
-func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, pl *common.Player) {
+func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, currentPlayer func() *common.Player) {
 	const inventoryCapacity = 64
 
 	inventorySize := 64
@@ -886,6 +915,7 @@ func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, pl *common.Player) {
 			inventory[int(entityID)] = wep
 		}
 
+		pl := currentPlayer()
 		pl.Inventory = inventory
 
 		// Track grenades for the fallback in bindGrenadeProjectiles (#580).
@@ -907,6 +937,7 @@ func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, pl *common.Player) {
 			}
 
 			entityID, wep := getWep(val)
+			pl := currentPlayer()
 			wep.Owner = pl
 
 			entityWasCreated := entityID != constants.EntityHandleIndexMaskSource2

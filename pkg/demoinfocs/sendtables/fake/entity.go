@@ -110,5 +110,5 @@ func (e *Entity) OnCreateFinished(delegate func()) {
 
 // OnUpdateFinished is a mock-implementation of Entity.OnUpdateFinished().
 func (e *Entity) OnUpdateFinished(delegate func()) {
-	e.Called()
+	e.Called(delegate)
 }

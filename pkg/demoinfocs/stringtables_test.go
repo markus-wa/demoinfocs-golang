@@ -104,9 +104,10 @@ func TestParseStringTable_EntryIndices(t *testing.T) {
 			want:    []int32{0, 1, 3, 4},
 		},
 		{
-			name:    "skip as the first entry",
-			entries: []stringTableTestEntry{{skip: skipBy(3), key: "e"}, {key: "f"}},
-			want:    []int32{4, 5},
+			// the old absolute decoding (index = varint + 1) gives 4 here
+			name:    "skip after the first entry",
+			entries: []stringTableTestEntry{{key: "a"}, {skip: skipBy(3), key: "f"}, {key: "g"}},
+			want:    []int32{0, 5, 6},
 		},
 		{
 			name: "values and multi-byte skips",
