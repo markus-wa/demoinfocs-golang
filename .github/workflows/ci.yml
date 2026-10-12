@@ -102,9 +102,15 @@ jobs:
           HEAD_REF: ${{ github.head_ref || github.ref_name }}
         run: |
           ref=demoinfocs-v6
-          if [ -n "$HEAD_REF" ] && git ls-remote --exit-code --heads https://github.com/markus-wa/cs-demo-analyzer.git "refs/heads/$HEAD_REF" > /dev/null; then
-            ref="$HEAD_REF"
-          fi
+          case "$HEAD_REF" in
+            # the fork's main/master track upstream CSDA, which isn't on v6
+            ""|main|master) ;;
+            *)
+              if git ls-remote --exit-code --heads https://github.com/markus-wa/cs-demo-analyzer.git "refs/heads/$HEAD_REF" > /dev/null; then
+                ref="$HEAD_REF"
+              fi
+              ;;
+          esac
           echo "Using CSDA branch: $ref"
           echo "ref=$ref" >> "$GITHUB_OUTPUT"
 

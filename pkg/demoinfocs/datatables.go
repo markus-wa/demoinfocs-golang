@@ -1442,8 +1442,12 @@ func (p *parser) bindNewInferno(entity st.Entity) {
 	})
 
 	entity.OnCreateFinished(func() {
-		p.eventDispatcher.Dispatch(events.InfernoStart{
-			Inferno: inf,
+		// at the end of the frame - the projectile may be destroyed later in the same frame (see linkInfernoProjectile)
+		p.delayedEventHandlers = append(p.delayedEventHandlers, func() {
+			p.eventDispatcher.Dispatch(events.InfernoStart{
+				Inferno:    inf,
+				Projectile: p.gameState.infernoProjectiles[entity.ID()],
+			})
 		})
 	})
 
@@ -1461,7 +1465,8 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 	}
 
 	p.eventDispatcher.Dispatch(events.InfernoExpired{
-		Inferno: inf,
+		Inferno:    inf,
+		Projectile: p.gameState.infernoProjectiles[inf.Entity.ID()],
 	})
 
 	delete(p.gameState.infernos, inf.Entity.ID())

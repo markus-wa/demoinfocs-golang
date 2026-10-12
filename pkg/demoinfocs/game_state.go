@@ -30,7 +30,7 @@ type gameState struct {
 	infernos                     map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	infernoFireStates            map[int]*infernoFireState         // Maps inferno entity-IDs to their burning state, for InfernoFireOut.
 	infernoProjectiles           map[int]*common.GrenadeProjectile // Maps inferno entity-IDs to the molotov/incendiary projectile that spawned them, see linkInfernoProjectile.
-	pendingInfernoLinks          []pendingInfernoLink              // Fire-grenade projectiles destroyed / infernos created in the current frame that are still waiting for their counterpart.
+	pendingInfernoLinks          []pendingInfernoLink              // Fire-grenade projectiles destroyed / infernos created that are still waiting for their counterpart. Entries from earlier frames are pruned on the next link attempt.
 	weapons                      map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
 	hostages                     map[int]*common.Hostage           // Maps entity-IDs to hostages.
 	entities                     map[int]st.Entity                 // Maps entity IDs to entities
