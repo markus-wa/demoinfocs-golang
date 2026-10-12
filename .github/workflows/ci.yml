@@ -3,7 +3,6 @@ on:
     branches: [master, 'v[0-9]*'] # master + release/backport branches (v5, ...)
     tags: ['v*']
   pull_request:
-  workflow_dispatch: {} # manual run for branches without a PR
 
 name: CI
 
