@@ -1,3 +1,4 @@
+// Package cstv reads live CSTV broadcasts, see NewReader().
 package cstv
 
 import (
@@ -175,11 +176,24 @@ func (c *Reader) Read(p []byte) (n int, err error) {
 	return n, err
 }
 
-// NewReader creates a new CSTV reader.
+// NewReader creates a new CSTV reader for the broadcast at baseURL, e.g. "http://localhost:8080/s85568392932860274t1733091777".
 // The ctx is used for all requests to the CSTV server, including the ones made by Read(),
 // so it should live as long as the Reader is used.
 // See WithTimeout() and WithHTTPClient() for the options.
 // If the timeout is exceeded while waiting for new fragments, Read() returns an io.EOF error.
+//
+// Pass the Reader directly to demoinfocs.NewParser(), which detects it and parses the CSTV broadcast format;
+// a Reader wrapped in another io.Reader (e.g. bufio.Reader) isn't detected and is parsed as a .dem file:
+//
+//	r, err := cstv.NewReader(ctx, baseURL, cstv.WithTimeout(30*time.Second))
+//	if err != nil {
+//		return err
+//	}
+//
+//	p := demoinfocs.NewParser(r)
+//	defer p.Close()
+//
+//	err = p.ParseToEnd(ctx)
 func NewReader(ctx context.Context, baseURL string, opts ...Option) (*Reader, error) {
 	r := &Reader{
 		ctx:     ctx,

@@ -10,6 +10,7 @@ import (
 
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/cstv"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
@@ -36,9 +37,11 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	p, err := demoinfocs.NewCSTVBroadcastParser(ctx, url)
+	r, err := cstv.NewReader(ctx, url)
 	checkError(err)
 
+	// NewParser detects the *cstv.Reader and parses the broadcast format
+	p := demoinfocs.NewParser(r)
 	defer p.Close()
 
 	registerHandlers(p)

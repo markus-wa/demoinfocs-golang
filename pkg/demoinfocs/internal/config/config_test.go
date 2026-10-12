@@ -2,7 +2,6 @@ package config
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -11,7 +10,6 @@ func TestDefault(t *testing.T) {
 	// same values as the former demoinfocs.DefaultParserConfig
 	assert.Equal(t, Config{
 		MsgQueueBufferSize: -1,
-		CSTVTimeout:        10 * time.Second,
 		UserCmdParsing:     UserCmdParsingButtonsOnly,
 	}, Default())
 
@@ -32,5 +30,5 @@ func TestNew(t *testing.T) {
 
 	assert.False(t, cfg.EagerVelocityTracking, "last option should win")
 	assert.Equal(t, 100, cfg.MsgQueueBufferSize)
-	assert.Equal(t, Default().CSTVTimeout, cfg.CSTVTimeout)
+	assert.Equal(t, Default().UserCmdParsing, cfg.UserCmdParsing)
 }

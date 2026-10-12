@@ -3,14 +3,11 @@
 package config
 
 import (
-	"net/http"
-	"time"
-
 	"google.golang.org/protobuf/proto"
 )
 
 // Format is the format of the demo stream (".dem" file or live CSTV broadcast).
-// It's set internally: demoinfocs.NewCSTVBroadcastParser() selects the CSTV broadcast format.
+// It's not configurable: demoinfocs.NewParser() derives it from the reader type (*cstv.Reader or not).
 type Format byte
 
 const (
@@ -42,8 +39,6 @@ type Config struct {
 	Source2FallbackGameEventListBin []byte
 	IgnorePacketEntitiesPanic       bool
 	Format                          Format
-	CSTVTimeout                     time.Duration
-	HTTPClient                      *http.Client
 	UserCmdParsing                  UserCmdParsingMode
 	EagerVelocityTracking           bool
 }
@@ -52,7 +47,6 @@ type Config struct {
 func Default() Config {
 	return Config{
 		MsgQueueBufferSize: -1,
-		CSTVTimeout:        10 * time.Second,
 		UserCmdParsing:     UserCmdParsingButtonsOnly,
 	}
 }

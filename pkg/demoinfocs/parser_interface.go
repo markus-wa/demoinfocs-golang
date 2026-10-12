@@ -12,7 +12,7 @@ import (
 
 // Parser is an auto-generated interface for Parser, intended to be used when mockability is needed.
 // Parser can parse a CS2 demo.
-// Creating a new instance is done via NewParser() or NewCSTVBroadcastParser().
+// Creating a new instance is done via NewParser().
 //
 // Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo
 // (the demo header is parsed automatically when parsing starts).

@@ -74,7 +74,7 @@ func (h *header) FrameTime() time.Duration {
 
 /*
 Parser can parse a CS2 demo.
-Creating a new instance is done via NewParser() or NewCSTVBroadcastParser().
+Creating a new instance is done via NewParser().
 
 Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo
 (the demo header is parsed automatically when parsing starts).
@@ -399,64 +399,40 @@ func (p *parser) poolBitReader(r *bit.BitReader) {
 }
 
 // NewParser creates a new Parser.
-// The demostream io.Reader (e.g. os.File or bytes.Reader) must provide demo data in the '.DEM' format.
 // The options are applied on top of the default configuration, see the option package.
 //
-// See also: NewCSTVBroadcastParser() & Parse()
+// The demostream io.Reader (e.g. os.File or bytes.Reader) must provide demo data in the '.DEM' format,
+// unless it's a *cstv.Reader: then the Parser reads the live CSTV broadcast frame format.
+// Only a *cstv.Reader passed directly is detected, not one wrapped in another reader (e.g. bufio.Reader).
+//
+// Example for a live CSTV broadcast:
+//
+//	r, err := cstv.NewReader(ctx, "http://localhost:8080/s85568392932860274t1733091777")
+//	if err != nil {
+//		return err
+//	}
+//
+//	p := demoinfocs.NewParser(r)
+//	defer p.Close()
+//
+//	err = p.ParseToEnd(ctx)
+//
+// See also: ParseFile()
 func NewParser(demostream io.Reader, opts ...option.Option) Parser {
-	return newParserFromConfig(demostream, config.New(opts))
-}
-
-// NewCSTVBroadcastParser creates a new Parser for a live CSTV broadcast.
-// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
-// The ctx is used for all HTTP requests to the CSTV server, including the ones made while parsing,
-// so it should live at least as long as the Parser is used.
-// See option.CSTVTimeout() and option.HTTPClient() for CSTV specific options.
-func NewCSTVBroadcastParser(ctx context.Context, baseURL string, opts ...option.Option) (Parser, error) {
 	cfg := config.New(opts)
 
-	cstvOpts := []cstv.Option{cstv.WithTimeout(cfg.CSTVTimeout)}
-
-	if cfg.HTTPClient != nil {
-		cstvOpts = append(cstvOpts, cstv.WithHTTPClient(cfg.HTTPClient))
+	if _, ok := demostream.(*cstv.Reader); ok {
+		cfg.Format = config.FormatCSTVBroadcast
 	}
 
-	r, err := cstv.NewReader(ctx, baseURL, cstvOpts...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create CSTV reader: %w", err)
-	}
-
-	cfg.Format = config.FormatCSTVBroadcast
-
-	return newParserFromConfig(r, cfg), nil
+	return newParserFromConfig(demostream, cfg)
 }
 
+// ParserCallback configures a Parser (e.g. registers handlers) before ParseFile() parses the demo.
 type ParserCallback func(Parser) error
 
-// Parse parses a demo from the given io.Reader.
-// The handler is called with the Parser instance.
-// The options are applied on top of the default configuration, see the option package.
-//
-// Returns an error if the parser encounters an error or ctx is done before the end of the demo.
-func Parse(ctx context.Context, r io.Reader, configure ParserCallback, opts ...option.Option) error {
-	p := NewParser(r, opts...)
-	defer p.Close()
-
-	err := configure(p)
-	if err != nil {
-		return fmt.Errorf("failed to configure parser: %w", err)
-	}
-
-	err = p.ParseToEnd(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to parse demo: %w", err)
-	}
-
-	return nil
-}
-
 // ParseFile parses a demo file at the given path.
-// The handler is called with the Parser instance.
+// The handler is called with the Parser instance before parsing starts.
 // The options are applied on top of the default configuration, see the option package.
 //
 // Returns an error if the file can't be opened, if the parser encounters an error or ctx is done before the end of the demo.
@@ -468,21 +444,7 @@ func ParseFile(ctx context.Context, path string, configure ParserCallback, opts 
 
 	defer f.Close()
 
-	return Parse(ctx, f, configure, opts...)
-}
-
-// ParseCSTVBroadcast parses a live CSTV broadcast from the given base URL.
-// The handler is called with the Parser instance.
-// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
-// The options are applied on top of the default configuration, see the option package.
-// Returns an error if the CSTV reader can't be created, if the parser encounters an error or ctx is done.
-// Note that the CSTV broadcast is a live stream and will not end until the broadcast ends.
-func ParseCSTVBroadcast(ctx context.Context, baseURL string, configure ParserCallback, opts ...option.Option) error {
-	p, err := NewCSTVBroadcastParser(ctx, baseURL, opts...)
-	if err != nil {
-		return fmt.Errorf("failed to create CSTV broadcast parser: %w", err)
-	}
-
+	p := NewParser(f, opts...)
 	defer p.Close()
 
 	err = configure(p)
@@ -492,7 +454,7 @@ func ParseCSTVBroadcast(ctx context.Context, baseURL string, configure ParserCal
 
 	err = p.ParseToEnd(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to parse CSTV broadcast: %w", err)
+		return fmt.Errorf("failed to parse demo: %w", err)
 	}
 
 	return nil

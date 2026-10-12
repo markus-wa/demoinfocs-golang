@@ -3,6 +3,9 @@ Package option provides the options for creating a demoinfocs.Parser.
 
 Options are applied in order on top of the defaults, so the last one wins if an option is passed more than once.
 
+CSTV broadcast settings (timeout, HTTP client) aren't parser options: pass them to cstv.NewReader()
+and give the *cstv.Reader to demoinfocs.NewParser().
+
 Example:
 
 	p := demoinfocs.NewParser(f,
@@ -17,9 +20,6 @@ Example:
 package option
 
 import (
-	"net/http"
-	"time"
-
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
 )
 
@@ -133,22 +133,5 @@ func UserCmdParsing(mode UserCmdParsingMode) Option {
 func EagerVelocityTracking(eager bool) Option {
 	return func(c *config.Config) {
 		c.EagerVelocityTracking = eager
-	}
-}
-
-// CSTVTimeout sets the timeout for CSTV broadcasts (10s by default).
-// It's the maximum time to retry for a response from the CSTV server, using an exponential backoff mechanism, starting at 1s.
-// Only used by demoinfocs.NewCSTVBroadcastParser() and demoinfocs.ParseCSTVBroadcast().
-func CSTVTimeout(timeout time.Duration) Option {
-	return func(c *config.Config) {
-		c.CSTVTimeout = timeout
-	}
-}
-
-// HTTPClient sets the HTTP client used to fetch CSTV broadcast fragments (http.DefaultClient by default).
-// Only used by demoinfocs.NewCSTVBroadcastParser() and demoinfocs.ParseCSTVBroadcast().
-func HTTPClient(client *http.Client) Option {
-	return func(c *config.Config) {
-		c.HTTPClient = client
 	}
 }

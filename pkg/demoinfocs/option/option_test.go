@@ -1,9 +1,7 @@
 package option
 
 import (
-	"net/http"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
@@ -16,7 +14,6 @@ func TestOptions(t *testing.T) {
 	creators := map[int]NetMessageCreator{
 		4: func() proto.Message { return new(msg.CNETMsg_Tick) },
 	}
-	client := &http.Client{}
 
 	cfg := config.New([]Option{
 		MsgQueueBufferSize(0),
@@ -28,8 +25,6 @@ func TestOptions(t *testing.T) {
 		IgnorePacketEntitiesPanic(true),
 		UserCmdParsing(UserCmdParsingFull),
 		EagerVelocityTracking(true),
-		CSTVTimeout(time.Minute),
-		HTTPClient(client),
 	})
 
 	assert.Equal(t, 0, cfg.MsgQueueBufferSize)
@@ -40,8 +35,6 @@ func TestOptions(t *testing.T) {
 	assert.Equal(t, []byte("bin"), cfg.Source2FallbackGameEventListBin)
 	assert.True(t, cfg.IgnorePacketEntitiesPanic)
 	assert.Equal(t, config.FormatFile, cfg.Format)
-	assert.Equal(t, time.Minute, cfg.CSTVTimeout)
-	assert.Same(t, client, cfg.HTTPClient)
 	assert.Equal(t, UserCmdParsingFull, cfg.UserCmdParsing)
 	assert.True(t, cfg.EagerVelocityTracking)
 }
@@ -55,5 +48,5 @@ func TestOptions_LastOneWins(t *testing.T) {
 
 	assert.False(t, cfg.EagerVelocityTracking)
 	assert.Equal(t, 100, cfg.MsgQueueBufferSize)
-	assert.Equal(t, config.Default().CSTVTimeout, cfg.CSTVTimeout)
+	assert.Equal(t, config.Default().UserCmdParsing, cfg.UserCmdParsing)
 }

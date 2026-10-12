@@ -1,17 +1,17 @@
 package demoinfocs
 
 import (
+	"bufio"
 	"bytes"
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"sync/atomic"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/cstv"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 )
@@ -30,38 +30,50 @@ func TestNewParser_AppliesOptions(t *testing.T) {
 	assert.Equal(t, config.FormatFile, p.config.Format)
 }
 
-type roundTripperFunc func(*http.Request) (*http.Response, error)
+// newCSTVReader returns a *cstv.Reader for a broadcast whose start fragment only contains zero bytes.
+// In the CSTV frame format that's a DEM_Stop frame (command 0, tick 0) followed by padding,
+// in the .dem format it's an invalid filestamp.
+func newCSTVReader(t *testing.T) *cstv.Reader {
+	t.Helper()
 
-func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req)
-}
-
-func TestNewCSTVBroadcastParser_ForwardsOptions(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/sync":
 			_, _ = io.WriteString(w, `{"fragment": 2, "signup_fragment": 1}`)
 		case "/1/start":
-			// enough data for the parser's initial read so it doesn't wait for delta fragments
+			// enough data for the parser's reads so it doesn't wait for delta fragments
 			_, _ = w.Write(make([]byte, 4096))
+		default:
+			http.NotFound(w, r)
 		}
 	}))
-	defer srv.Close()
+	t.Cleanup(srv.Close)
 
-	var requests atomic.Int32
-
-	client := &http.Client{Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
-		requests.Add(1)
-
-		return http.DefaultTransport.RoundTrip(req)
-	})}
-
-	p, err := NewCSTVBroadcastParser(t.Context(), srv.URL, option.HTTPClient(client), option.CSTVTimeout(time.Minute))
+	r, err := cstv.NewReader(t.Context(), srv.URL)
 	require.NoError(t, err)
 
+	return r
+}
+
+func TestNewParser_DetectsCSTVReader(t *testing.T) {
+	p := NewParser(newCSTVReader(t))
 	defer p.Close()
 
-	assert.EqualValues(t, 3, requests.Load(), "sync, start & full should be requested via the custom client")
 	assert.Equal(t, config.FormatCSTVBroadcast, p.(*parser).config.Format)
-	assert.Equal(t, time.Minute, p.(*parser).config.CSTVTimeout)
+
+	// the CSTV path doesn't read a PBDEMS2 filestamp and parses the DEM_Stop frame
+	err := p.ParseToEnd(t.Context())
+	require.NoError(t, err)
+	assert.Equal(t, filestampS2, p.(*parser).header.Filestamp)
+}
+
+func TestNewParser_WrappedCSTVReaderIsNotDetected(t *testing.T) {
+	// the same bytes through a wrapper are read as a .dem file
+	p := NewParser(bufio.NewReader(newCSTVReader(t)))
+	defer p.Close()
+
+	assert.Equal(t, config.FormatFile, p.(*parser).config.Format)
+
+	err := p.ParseToEnd(t.Context())
+	assert.ErrorIs(t, err, ErrInvalidFileType)
 }
