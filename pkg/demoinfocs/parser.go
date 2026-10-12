@@ -145,7 +145,7 @@ type parser struct {
 	userCmdStates         map[int32]*userCmdPlayerState                            // Per-player command-number ring reconstructed from full + delta updates
 	userCmdButtonStates   map[int32]*userCmdButtonPlayerState                      // Per-player command-number ring containing buttonstate1 only
 	hasUserCmdMessages    bool                                                     // True once a CSVCMsg_UserCommands message has been seen; replace the legacy m_nButtonDownMaskPrev prop
-	lastUniqueID          int64                                                    // Backs nextUniqueID; ids for grenades/infernos/equipment created during this parse
+	lastUniqueID          uint64                                                   // Backs nextUniqueID; ids for grenades/infernos/equipment created during this parse
 }
 
 // nextUniqueID returns the next monotonically increasing id for entities created during this parse
@@ -155,8 +155,8 @@ type parser struct {
 //
 // All construction happens on the message-handling goroutine, but the atomic keeps it
 // race-detector-clean if that ever changes.
-func (p *parser) nextUniqueID() int64 {
-	return atomic.AddInt64(&p.lastUniqueID, 1)
+func (p *parser) nextUniqueID() common.UniqueID {
+	return common.UniqueID(atomic.AddUint64(&p.lastUniqueID, 1))
 }
 
 // NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.

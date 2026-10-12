@@ -203,10 +203,34 @@ type GrenadeEventIf interface {
 // GrenadeEvent contains the common attributes of nade events. Dont register
 // handlers on this tho, you want GrenadeEventIf for that
 type GrenadeEvent struct {
-	GrenadeType     common.EquipmentType
-	Grenade         *common.Equipment // Maybe nil for InfernoStart & InfernoExpired since we don't know the thrower (at least in old demos)
+	// GrenadeType is the type of grenade the event is about.
+	// For FireGrenadeStart & FireGrenadeExpired it's always EqIncendiary, see Grenade.Type to tell molotovs and incendiaries apart.
+	GrenadeType common.EquipmentType
+	// Grenade is the weapon that was thrown - a per-throw copy of the inventory item, so it's not the same pointer
+	// as the one in Player.Inventory (but has the same UniqueID()).
+	// If Projectile is known this is Projectile.WeaponInstance, otherwise it's the last grenade of
+	// GrenadeType thrown by Thrower, which may be wrong if they have multiple of them in flight / active.
+	//
+	// Note that Grenade.UniqueID() identifies the weapon entity, not the throw - multiple grenades
+	// thrown from the same inventory slot (e.g. two flashbangs) can share it.
+	// Use Projectile.UniqueID() to track an individual grenade.
+	//
+	// May be nil for FireGrenadeStart & FireGrenadeExpired if Projectile is nil and the thrower is unknown.
+	Grenade *common.Equipment
+	// Projectile is the projectile of the grenade this event is about,
+	// i.e. the same instance as in GrenadeProjectileThrow / GrenadeProjectileDestroy and GameState().GrenadeProjectiles().
+	// Use Projectile.UniqueID() to follow an individual grenade from throw to effect.
+	//
+	// For FireGrenadeStart & FireGrenadeExpired, GrenadeEntityID is the entity-ID of the inferno, not of the projectile.
+	// The projectile has already been destroyed then and is linked to the inferno by thrower and frame of
+	// detonation; it's nil if that link isn't unambiguous (more than one counterpart from the same thrower
+	// seen in that frame so far). In POV demos FireGrenadeStart.Projectile is always nil, as the game-event
+	// is sent before the inferno entity is created (FireGrenadeExpired is linked); see InfernoStart.Projectile.
+	// May also be nil if the projectile entity isn't known (anymore), e.g. events after the end of a round,
+	// a recording that started mid-round, or in POV demos for entities outside of the recording player's PVS.
+	Projectile      *common.GrenadeProjectile
 	Position        r3.Vector
-	Thrower         *common.Player // May be nil with POV demos or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
+	Thrower         *common.Player // May be nil with POV demos or if the demo is partially corrupt (player is 'unconnected', see #156 and #172). Taken from Projectile if the event itself doesn't contain it.
 	GrenadeEntityID int
 }
 
@@ -247,7 +271,7 @@ type SmokeExpired struct {
 
 // FireGrenadeStart signals the start of a molly/incendiary.
 // GrenadeType will always be EqIncendiary as it's not networked whether it's an incendiary or molotov.
-// Thrower will always be nil as this isn't networked.
+// The game-event doesn't contain the thrower, Thrower and Grenade are taken from Projectile if it's known.
 // May not be triggered with Source 2 demos and contain missing/incorrect data, it's recommended to use InfernoStart instead.
 type FireGrenadeStart struct {
 	GrenadeEvent
@@ -255,7 +279,7 @@ type FireGrenadeStart struct {
 
 // FireGrenadeExpired signals that all fires of a molly/incendiary have extinguished.
 // GrenadeType will always be EqIncendiary as it's not networked whether it's an incendiary or molotov.
-// Thrower will always be nil as this isn't networked.
+// The game-event doesn't contain the thrower, Thrower and Grenade are taken from Projectile if it's known.
 // May not be triggered with Source 2 demos and contain missing/incorrect data, it's recommended to use InfernoExpired instead.
 type FireGrenadeExpired struct {
 	GrenadeEvent
@@ -691,9 +715,13 @@ type GenericGameEvent struct {
 }
 
 // InfernoStart signals that the fire of a incendiary or Molotov is starting.
-// This is different from the FireGrenadeStart because it's sent out when the inferno entity is created instead of on the game-event.
+// This is different from the FireGrenadeStart because it's sent out when the inferno entity is created instead of on the game-event
+// (at the end of the frame it was created in, so the projectile it was spawned from can be linked).
 type InfernoStart struct {
 	Inferno *common.Inferno
+	// Projectile is the molotov / incendiary projectile the inferno was spawned from.
+	// May be nil, see GrenadeEvent.Projectile.
+	Projectile *common.GrenadeProjectile
 }
 
 // InfernoFireOut signals that all fires of an inferno (incendiary/Molotov) have gone out, i.e.
@@ -713,6 +741,9 @@ type InfernoFireOut struct {
 // Mainly useful for getting the final area of an inferno.
 type InfernoExpired struct {
 	Inferno *common.Inferno
+	// Projectile is the molotov / incendiary projectile the inferno was spawned from.
+	// May be nil, see GrenadeEvent.Projectile.
+	Projectile *common.GrenadeProjectile
 }
 
 // ScoreUpdated signals that the score of one of the teams has been updated.

@@ -29,6 +29,8 @@ type gameState struct {
 	grenadeProjectiles           map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos                     map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	infernoFireStates            map[int]*infernoFireState         // Maps inferno entity-IDs to their burning state, for InfernoFireOut.
+	infernoProjectiles           map[int]*common.GrenadeProjectile // Maps inferno entity-IDs to the molotov/incendiary projectile that spawned them, see linkInfernoProjectile.
+	pendingInfernoLinks          []pendingInfernoLink              // Fire-grenade projectiles destroyed / infernos created that are still waiting for their counterpart. Entries from earlier frames are pruned on the next link attempt.
 	weapons                      map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
 	hostages                     map[int]*common.Hostage           // Maps entity-IDs to hostages.
 	entities                     map[int]st.Entity                 // Maps entity IDs to entities
@@ -85,6 +87,16 @@ type FlyingFlashbang struct {
 type infernoFireState struct {
 	wasBurning bool
 	firedOut   bool
+}
+
+// pendingInfernoLink is one side of an inferno <-> fire-grenade projectile link that was seen during
+// a frame before its counterpart (see parser.linkInfernoProjectile).
+// Exactly one of projectile / infernoEntityID is set.
+type pendingInfernoLink struct {
+	frame           int
+	ownerHandle     uint64
+	projectile      *common.GrenadeProjectile
+	infernoEntityID int
 }
 
 type lastFlash struct {
@@ -179,7 +191,7 @@ func (gs gameState) Hostages() []*common.Hostage {
 // i.e. have been thrown but have yet to detonate.
 //
 // Note: this is a map, so ranging it yields a non-deterministic order. For reproducible output sort
-// the values by entity-ID or GrenadeProjectile.UniqueID() (which is itself deterministic) first.
+// the values by entity-ID or GrenadeProjectile.UniqueID() (which is itself deterministic, see common.UniqueID) first.
 func (gs gameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 	return gs.grenadeProjectiles
 }
@@ -187,7 +199,7 @@ func (gs gameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 // Infernos returns a map from entity-IDs to all currently burning infernos (fires from incendiaries and Molotovs).
 //
 // Note: this is a map, so ranging it yields a non-deterministic order. For reproducible output sort
-// the values by entity-ID or Inferno.UniqueID() (which is itself deterministic) first.
+// the values by entity-ID or Inferno.UniqueID() (which is itself deterministic, see common.UniqueID) first.
 func (gs gameState) Infernos() map[int]*common.Inferno {
 	return gs.infernos
 }
@@ -236,6 +248,14 @@ func (gs gameState) IsMatchStarted() bool {
 // OvertimeCount returns the number of overtime according to CCSGameRulesProxy.
 func (gs gameState) OvertimeCount() int {
 	return gs.overtimeCount
+}
+
+// isEntityReplaced returns true if the entity was destroyed because a new entity was created at its index,
+// rather than being deleted (see sendtablescs2.Entity.Replaced()).
+func isEntityReplaced(entity st.Entity) bool {
+	replaceable, ok := entity.(interface{ Replaced() bool })
+
+	return ok && replaceable.Replaced()
 }
 
 func entityIDFromHandle(handle uint64) int {
@@ -291,6 +311,7 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		grenadeProjectiles:       make(map[int]*common.GrenadeProjectile),
 		infernos:                 make(map[int]*common.Inferno),
 		infernoFireStates:        make(map[int]*infernoFireState),
+		infernoProjectiles:       make(map[int]*common.GrenadeProjectile),
 		weapons:                  make(map[int]*common.Equipment),
 		hostages:                 make(map[int]*common.Hostage),
 		entities:                 make(map[int]st.Entity),

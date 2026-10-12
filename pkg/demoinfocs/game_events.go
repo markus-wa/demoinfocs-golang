@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"slices"
 	"sort"
 	"time"
 
@@ -628,7 +629,7 @@ func (geh gameEventHandler) decoyDetonate(data map[string]*msg.CMsgSource1Legacy
 	})
 
 	geh.parser.delayedEventHandlers = append(geh.parser.delayedEventHandlers, func() {
-		geh.deleteThrownGrenade(event.Thrower, common.EqDecoy)
+		geh.removeThrownGrenade(event.Grenade)
 	})
 }
 
@@ -644,7 +645,7 @@ func (geh gameEventHandler) smokeGrenadeExpired(data map[string]*msg.CMsgSource1
 		GrenadeEvent: event,
 	})
 
-	geh.deleteThrownGrenade(event.Thrower, common.EqSmoke)
+	geh.removeThrownGrenade(event.Grenade)
 }
 
 func (geh gameEventHandler) infernoStartBurn(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
@@ -1096,14 +1097,62 @@ func (geh gameEventHandler) nadeEvent(data map[string]*msg.CMsgSource1LegacyGame
 		Z: float64(data["z"].GetValFloat()),
 	}
 	nadeEntityID := int(data["entityid"].GetValShort())
+	projectile := geh.grenadeEventProjectile(nadeEntityID, nadeType)
+
+	// CS2 doesn't send the thrower with some events (e.g. inferno_startburn / inferno_expire).
+	if thrower == nil && projectile != nil {
+		thrower = projectile.Thrower
+	}
+
+	// Prefer the weapon of the projectile this event is about - the thrower's last thrown grenade of
+	// this type is wrong if the player has more than one of them in flight / active (e.g. two smokes).
+	var grenade *common.Equipment
+	if projectile != nil && projectile.WeaponInstance != nil {
+		grenade = projectile.WeaponInstance
+	} else {
+		grenade = geh.getThrownGrenade(thrower, nadeType)
+	}
 
 	return events.GrenadeEvent{
 		GrenadeType:     nadeType,
-		Grenade:         geh.getThrownGrenade(thrower, nadeType),
+		Grenade:         grenade,
+		Projectile:      projectile,
 		Thrower:         thrower,
 		Position:        position,
 		GrenadeEntityID: nadeEntityID,
 	}
+}
+
+// grenadeEventProjectile returns the projectile a grenade game event (see nadeEvent) refers to, or nil.
+//
+// For most grenades the event's entity-ID is the one of the (still live) projectile.
+// For fire grenades it's the one of the inferno, which is mapped to the projectile it was spawned from
+// (see parser.linkInfernoProjectile).
+func (geh gameEventHandler) grenadeEventProjectile(entityID int, nadeType common.EquipmentType) *common.GrenadeProjectile {
+	var proj *common.GrenadeProjectile
+
+	if isFireGrenade(nadeType) {
+		proj = geh.gameState().infernoProjectiles[entityID]
+	} else {
+		proj = geh.gameState().grenadeProjectiles[entityID]
+	}
+
+	// The entity-ID may have been re-used by a different grenade (e.g. for an event after the projectile was removed).
+	if proj != nil && proj.WeaponInstance != nil && !isSameGrenadeType(proj.WeaponInstance.Type, nadeType) {
+		return nil
+	}
+
+	return proj
+}
+
+func isFireGrenade(t common.EquipmentType) bool {
+	return t == common.EqIncendiary || t == common.EqMolotov
+}
+
+// isSameGrenadeType returns whether a and b are the same grenade type,
+// treating molotovs and incendiaries as the same (they may be reported as each other in game-events).
+func isSameGrenadeType(a, b common.EquipmentType) bool {
+	return a == b || (isFireGrenade(a) && isFireGrenade(b))
 }
 
 func (geh gameEventHandler) addThrownGrenade(p *common.Player, wep *common.Equipment) {
@@ -1148,6 +1197,8 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 			}
 		}
 
+		// The most recently thrown one. Grenades that already detonated may still be in the list for a while
+		// (e.g. an HE projectile entity lingers after the explosion), so the oldest one is often not the right one.
 		if len(grenades) > 0 {
 			return grenades[len(grenades)-1]
 		}
@@ -1164,26 +1215,34 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 	return nil
 }
 
+// deleteThrownGrenade deletes the grenade getThrownGrenade() returns for the player and grenade type.
+// Use removeThrownGrenade() instead if the grenade is known.
 func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common.EquipmentType) {
-	if p == nil {
-		// can happen for incendiaries or "unknown" players (see #162)
+	geh.removeThrownGrenade(geh.getThrownGrenade(p, wepType))
+}
+
+// removeThrownGrenade removes the given grenade from the thrown grenades.
+// It's looked up across all players, as the player it was stored for (the projectile's thrower when it was
+// thrown, or a bot they controlled) isn't necessarily the one an event reports.
+func (geh gameEventHandler) removeThrownGrenade(wep *common.Equipment) {
+	if wep == nil {
 		return
 	}
 
-	playerGrenades := geh.gameState().thrownGrenades[p]
-	if len(playerGrenades) == 0 {
-		return
-	}
+	for _, playerGrenades := range geh.gameState().thrownGrenades {
+		grenades := playerGrenades[wep.Type]
 
-	grenades := playerGrenades[wepType]
-	if len(grenades) == 0 {
-		return
-	}
+		i := slices.Index(grenades, wep)
+		if i < 0 {
+			continue
+		}
 
-	// Delete the first grenade thrown by the player and this grenade type.
-	playerGrenades[wepType] = grenades[:len(grenades)-1]
-	if len(playerGrenades[wepType]) == 0 {
-		delete(playerGrenades, wepType)
+		playerGrenades[wep.Type] = slices.Delete(grenades, i, i+1)
+		if len(playerGrenades[wep.Type]) == 0 {
+			delete(playerGrenades, wep.Type)
+		}
+
+		return
 	}
 }
 
@@ -1216,8 +1275,8 @@ func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType 
 //
 // The weapon's OriginalString is set to the raw event weapon name (rawName),
 // which may be empty (e.g. for grenade projectiles).
-// The id is used for the new instance's UniqueID2 (see parser.nextUniqueID).
-func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawName string, id int64) *common.Equipment {
+// The id is used for the new instance's UniqueID (see parser.nextUniqueID).
+func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawName string, id common.UniqueID) *common.Equipment {
 	if player != nil {
 		alternateWepType := common.EquipmentAlternative(wepType)
 		for _, wep := range player.Weapons() {

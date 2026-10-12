@@ -110,6 +110,12 @@ func (p *parser) bindBomb() {
 		})
 
 		bombEntity.OnDestroy(func() {
+			// the bomb was re-created (e.g. round restart) while it was being planted
+			if isEntityReplaced(bombEntity) && p.gameState.currentPlanter != nil && p.gameState.currentPlanter.IsPlanting {
+				p.gameState.currentPlanter.IsPlanting = false
+				p.eventDispatcher.Dispatch(events.BombPlantAborted{Player: p.gameState.currentPlanter})
+			}
+
 			p.gameState.currentPlanter = nil
 		})
 	})
@@ -892,10 +898,18 @@ func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, currentPlayer func() *c
 	playerInventory := make(map[int]eq)
 
 	getWep := func(wepSlotPropertyValue st.PropertyValue) (uint64, *common.Equipment) {
-		entityID := wepSlotPropertyValue.UInt64() & constants.EntityHandleIndexMaskSource2
+		handle := wepSlotPropertyValue.UInt64()
+		entityID := handle & constants.EntityHandleIndexMaskSource2
 		wep := p.gameState.weapons[int(entityID)]
 
-		if wep == nil {
+		// If the index is re-used for a new weapon (see sendtablescs2.Entity.Replaced()), the map may still hold the
+		// previous weapon when the pawn gets the new one before the new weapon entity is created in the same packet.
+		// The other way around (new weapon created first) the pawn may still reference the previous serial in
+		// slots that haven't been updated yet, so only a newer serial makes the entry stale.
+		handleSerial := handle >> constants.MaxEdictBitsSource2
+		isStale := wep != nil && wep.Entity != nil && handleSerial > uint64(wep.Entity.SerialNum())
+
+		if wep == nil || isStale {
 			// sometimes a weapon is assigned to a player before the weapon entity is created
 			wep = common.NewEquipment(common.EqUnknown, p.nextUniqueID())
 			p.gameState.weapons[int(entityID)] = wep
@@ -1140,11 +1154,13 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			Time:     p.CurrentTime(),
 		})
 
-		if wep == common.EqFlash && !p.disableMimicSource1GameEvents {
+		// a replaced projectile (e.g. round restart) didn't detonate
+		if wep == common.EqFlash && !p.disableMimicSource1GameEvents && !isEntityReplaced(entity) {
 			p.gameEventHandler.dispatch(events.FlashExplode{
 				GrenadeEvent: events.GrenadeEvent{
 					GrenadeType:     common.EqFlash,
 					Grenade:         proj.WeaponInstance,
+					Projectile:      proj,
 					Position:        proj.Position(),
 					Thrower:         proj.Thrower,
 					GrenadeEntityID: proj.Entity.ID(),
@@ -1224,7 +1240,11 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 	delete(p.gameState.grenadeProjectiles, proj.Entity.ID())
 
-	if proj.WeaponInstance.Type == common.EqFlash {
+	// A replaced projectile (its index was re-used, e.g. on a round restart) didn't detonate - it won't flash
+	// anybody, spawn an inferno or expire.
+	replaced := isEntityReplaced(proj.Entity)
+
+	if proj.WeaponInstance.Type == common.EqFlash && !replaced {
 		p.gameState.lastFlash.projectileByPlayer[proj.Owner] = proj
 	}
 
@@ -1233,8 +1253,69 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	isSmoke := proj.WeaponInstance.Type == common.EqSmoke
 	isDecoy := proj.WeaponInstance.Type == common.EqDecoy
 
-	if !isInferno && !isSmoke && !isDecoy {
-		p.gameEventHandler.deleteThrownGrenade(proj.Thrower, proj.WeaponInstance.Type)
+	if replaced || (!isInferno && !isSmoke && !isDecoy) {
+		p.gameEventHandler.removeThrownGrenade(proj.WeaponInstance)
+	}
+
+	if isInferno && !replaced {
+		if ownerVal := proj.Entity.PropertyValueMust("m_hOwnerEntity"); ownerVal.Any != nil {
+			p.linkInfernoProjectile(pendingInfernoLink{
+				frame:       p.currentFrame,
+				ownerHandle: ownerVal.Handle(),
+				projectile:  proj,
+			})
+		}
+	}
+}
+
+// linkInfernoProjectile links an inferno (CInferno entity) to the molotov / incendiary projectile it
+// was spawned from, so FireGrenadeStart / FireGrenadeExpired can carry the projectile.
+//
+// The CInferno entity has no property referencing the projectile. However the server destroys the
+// projectile and creates the inferno in the same tick, so both show up in the same frame (in either
+// order) with the same m_hOwnerEntity (the thrower's pawn). It is called once for each side; the
+// side that comes first is kept as pending until the other one arrives in the same frame.
+//
+// A link is only made if exactly one counterpart from the same owner is pending in the current frame,
+// otherwise (e.g. the projectile was extinguished by a smoke and never spawned an inferno, or the
+// inferno entity was re-created after leaving the PVS in a POV demo) the inferno stays unlinked.
+func (p *parser) linkInfernoProjectile(link pendingInfernoLink) {
+	gs := p.gameState
+	kept := gs.pendingInfernoLinks[:0]
+	match := -1
+	nMatches := 0
+
+	for _, pending := range gs.pendingInfernoLinks {
+		if pending.frame != link.frame {
+			// stale - its counterpart never showed up
+			continue
+		}
+
+		isCounterpart := (pending.projectile == nil) != (link.projectile == nil)
+		if isCounterpart && pending.ownerHandle == link.ownerHandle {
+			match = len(kept)
+			nMatches++
+		}
+
+		kept = append(kept, pending)
+	}
+
+	gs.pendingInfernoLinks = kept
+
+	switch nMatches {
+	case 0:
+		gs.pendingInfernoLinks = append(gs.pendingInfernoLinks, link)
+	case 1:
+		counterpart := gs.pendingInfernoLinks[match]
+		gs.pendingInfernoLinks = append(gs.pendingInfernoLinks[:match], gs.pendingInfernoLinks[match+1:]...)
+
+		if link.projectile != nil {
+			gs.infernoProjectiles[counterpart.infernoEntityID] = link.projectile
+		} else {
+			gs.infernoProjectiles[link.infernoEntityID] = counterpart.projectile
+		}
+	default:
+		// ambiguous - don't guess
 	}
 }
 
@@ -1310,7 +1391,9 @@ func (p *parser) bindWeapon(entity st.Entity) {
 
 	entity.OnDestroy(func() {
 		owner := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
-		if owner != nil && owner.IsInBuyZone() && p.GameState().IngameTick() == lastMoneyUpdateTick && lastMoneyIncreased {
+		// replaced weapons (e.g. round restart / backup restore) weren't refunded, even though the money may have changed
+		if owner != nil && !isEntityReplaced(entity) && owner.IsInBuyZone() &&
+			p.GameState().IngameTick() == lastMoneyUpdateTick && lastMoneyIncreased {
 			p.eventDispatcher.Dispatch(events.ItemRefund{
 				Player: owner,
 				Weapon: equipment,
@@ -1320,7 +1403,10 @@ func (p *parser) bindWeapon(entity st.Entity) {
 		lastMoneyIncreased = false
 		equipment.Owner = nil
 
-		delete(p.gameState.weapons, entityID)
+		// the entry may already belong to the weapon entity replacing this one (see bindPlayerWeapons)
+		if p.gameState.weapons[entityID] == equipment {
+			delete(p.gameState.weapons, entityID)
+		}
 	})
 
 	// Detect weapon firing, we don't use m_iClip1 because it would not work with weapons such as the knife (no ammo).
@@ -1373,9 +1459,19 @@ func (p *parser) bindNewInferno(entity st.Entity) {
 	inf := common.NewInferno(p.demoInfoProvider, entity, thrower, p.nextUniqueID())
 	p.gameState.infernos[entity.ID()] = inf
 
+	p.linkInfernoProjectile(pendingInfernoLink{
+		frame:           p.currentFrame,
+		ownerHandle:     throwerHandle,
+		infernoEntityID: entity.ID(),
+	})
+
 	entity.OnCreateFinished(func() {
-		p.eventDispatcher.Dispatch(events.InfernoStart{
-			Inferno: inf,
+		// at the end of the frame - the projectile may be destroyed later in the same frame (see linkInfernoProjectile)
+		p.delayedEventHandlers = append(p.delayedEventHandlers, func() {
+			p.eventDispatcher.Dispatch(events.InfernoStart{
+				Inferno:    inf,
+				Projectile: p.gameState.infernoProjectiles[entity.ID()],
+			})
 		})
 	})
 
@@ -1392,14 +1488,22 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 		return
 	}
 
+	proj := p.gameState.infernoProjectiles[inf.Entity.ID()]
+
 	p.eventDispatcher.Dispatch(events.InfernoExpired{
-		Inferno: inf,
+		Inferno:    inf,
+		Projectile: proj,
 	})
 
 	delete(p.gameState.infernos, inf.Entity.ID())
 	delete(p.gameState.infernoFireStates, inf.Entity.ID())
+	delete(p.gameState.infernoProjectiles, inf.Entity.ID())
 
-	p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
+	if proj != nil && proj.WeaponInstance != nil {
+		p.gameEventHandler.removeThrownGrenade(proj.WeaponInstance)
+	} else {
+		p.gameEventHandler.deleteThrownGrenade(inf.Thrower(), common.EqIncendiary)
+	}
 }
 
 //nolint:funlen,gocognit,gocyclo
