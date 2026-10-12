@@ -28,6 +28,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 )
 
 const (
@@ -63,8 +64,8 @@ func TestDemoInfoCs(t *testing.T) {
 	defer mustClose(t, f)
 
 	p := demoinfocs.NewParser(f,
-		demoinfocs.WithMsgQueueBufferSize(1000),
-		demoinfocs.WithAdditionalNetMessageCreators(map[int]demoinfocs.NetMessageCreator{
+		option.MsgQueueBufferSize(1000),
+		option.AdditionalNetMessageCreators(map[int]option.NetMessageCreator{
 			4: func() proto.Message { return new(msg.CNETMsg_Tick) },
 		}),
 	)
@@ -209,7 +210,7 @@ func TestS2(t *testing.T) {
 
 	defer mustClose(t, f)
 
-	p := demoinfocs.NewParser(f, demoinfocs.WithMsgQueueBufferSize(0))
+	p := demoinfocs.NewParser(f, option.MsgQueueBufferSize(0))
 
 	if *update {
 		p.RegisterNetMessageHandler(func(gel *msg.CMsgSource1LegacyGameEventList) {

@@ -10,6 +10,7 @@ import (
 	ex "github.com/markus-wa/demoinfocs-golang/v6/examples"
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
 	msg "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 )
 
 // Run like this: go run netmessages.go -demo /path/to/demo.dem > out.png
@@ -20,7 +21,7 @@ func main() {
 	defer f.Close()
 
 	// Configure parsing of BSPDecal net-message
-	p := demoinfocs.NewParser(f, demoinfocs.WithAdditionalNetMessageCreators(map[int]demoinfocs.NetMessageCreator{
+	p := demoinfocs.NewParser(f, option.AdditionalNetMessageCreators(map[int]option.NetMessageCreator{
 		int(msg.SVC_Messages_svc_BSPDecal): func() proto.Message {
 			return new(msg.CSVCMsg_BSPDecal)
 		},

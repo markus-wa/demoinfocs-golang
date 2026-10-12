@@ -11,10 +11,11 @@ import (
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 )
 
 // s2.dem is a GOTV demo recorded before the AnimGraph 2 update, m_vecVelocity isn't networked,
-// so with WithEagerVelocityTracking(true) Player.Velocity() falls back to the position delta
+// so with option.EagerVelocityTracking(true) Player.Velocity() falls back to the position delta
 // between frames (3 ticks apart).
 func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 	t.Parallel()
@@ -26,7 +27,7 @@ func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 	f := openFile(t, s2DemPath)
 	defer mustClose(t, f)
 
-	p := demoinfocs.NewParser(f, demoinfocs.WithEagerVelocityTracking(true))
+	p := demoinfocs.NewParser(f, option.EagerVelocityTracking(true))
 
 	type sample struct {
 		pos  r3.Vector
@@ -157,7 +158,7 @@ func TestPlayerVelocity_DuringSnapshot(t *testing.T) {
 	f := openFile(t, s2DemPath)
 	defer mustClose(t, f)
 
-	p := demoinfocs.NewParser(f, demoinfocs.WithEagerVelocityTracking(true))
+	p := demoinfocs.NewParser(f, option.EagerVelocityTracking(true))
 
 	type shot struct {
 		shooter  *common.Player

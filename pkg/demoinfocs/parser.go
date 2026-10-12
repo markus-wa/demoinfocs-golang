@@ -12,13 +12,14 @@ import (
 
 	"github.com/golang/geo/r3"
 	dp "github.com/markus-wa/godispatch"
-	"google.golang.org/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/cstv"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
@@ -95,14 +96,14 @@ Prints out '{A/B} site went BOOM!' when a bomb explodes.
 type parser struct {
 	// Important fields
 
-	config                          config
+	config                          config.Config
 	ctx                             context.Context // context of the running ParseToEnd() call, nil if it can't be cancelled; see aborted()
 	bitReader                       *bit.BitReader
 	stParser                        sendTableParser
-	additionalNetMessageCreators    map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
-	msgQueue                        chan any                  // Queue of net-messages
-	msgDispatcher                   *dp.Dispatcher            // Net-message dispatcher
-	decryptionKey                   []byte                    // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
+	additionalNetMessageCreators    map[int]config.NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
+	msgQueue                        chan any                         // Queue of net-messages
+	msgDispatcher                   *dp.Dispatcher                   // Net-message dispatcher
+	decryptionKey                   []byte                           // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
 	gameEventHandler                gameEventHandler
 	eventDispatcher                 *dp.Dispatcher
 	currentFrame                    int     // Demo-frame, not ingame-tick
@@ -160,11 +161,6 @@ type parser struct {
 func (p *parser) nextUniqueID() common.UniqueID {
 	return common.UniqueID(atomic.AddUint64(&p.lastUniqueID, 1))
 }
-
-// NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
-//
-// See also: WithAdditionalNetMessageCreators() & Parser.RegisterNetMessageHandler()
-type NetMessageCreator func() proto.Message
 
 type bombsite struct {
 	index  int
@@ -404,20 +400,20 @@ func (p *parser) poolBitReader(r *bit.BitReader) {
 
 // NewParser creates a new Parser.
 // The demostream io.Reader (e.g. os.File or bytes.Reader) must provide demo data in the '.DEM' format.
-// The options are applied on top of the default configuration, see the With*() functions.
+// The options are applied on top of the default configuration, see the option package.
 //
 // See also: NewCSTVBroadcastParser() & Parse()
-func NewParser(demostream io.Reader, opts ...Option) Parser {
-	return newParserFromConfig(demostream, newConfig(opts))
+func NewParser(demostream io.Reader, opts ...option.Option) Parser {
+	return newParserFromConfig(demostream, config.New(opts))
 }
 
 // NewCSTVBroadcastParser creates a new Parser for a live CSTV broadcast.
 // The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
 // The ctx is used for all HTTP requests to the CSTV server, including the ones made while parsing,
 // so it should live at least as long as the Parser is used.
-// See WithCSTVTimeout() and WithHTTPClient() for CSTV specific options.
-func NewCSTVBroadcastParser(ctx context.Context, baseURL string, opts ...Option) (Parser, error) {
-	cfg := newConfig(opts)
+// See option.CSTVTimeout() and option.HTTPClient() for CSTV specific options.
+func NewCSTVBroadcastParser(ctx context.Context, baseURL string, opts ...option.Option) (Parser, error) {
+	cfg := config.New(opts)
 
 	cstvOpts := []cstv.Option{cstv.WithTimeout(cfg.CSTVTimeout)}
 
@@ -430,7 +426,7 @@ func NewCSTVBroadcastParser(ctx context.Context, baseURL string, opts ...Option)
 		return nil, fmt.Errorf("failed to create CSTV reader: %w", err)
 	}
 
-	cfg.Format = demoFormatCSTVBroadcast
+	cfg.Format = config.FormatCSTVBroadcast
 
 	return newParserFromConfig(r, cfg), nil
 }
@@ -439,10 +435,10 @@ type ParserCallback func(Parser) error
 
 // Parse parses a demo from the given io.Reader.
 // The handler is called with the Parser instance.
-// The options are applied on top of the default configuration, see the With*() functions.
+// The options are applied on top of the default configuration, see the option package.
 //
 // Returns an error if the parser encounters an error or ctx is done before the end of the demo.
-func Parse(ctx context.Context, r io.Reader, configure ParserCallback, opts ...Option) error {
+func Parse(ctx context.Context, r io.Reader, configure ParserCallback, opts ...option.Option) error {
 	p := NewParser(r, opts...)
 	defer p.Close()
 
@@ -461,10 +457,10 @@ func Parse(ctx context.Context, r io.Reader, configure ParserCallback, opts ...O
 
 // ParseFile parses a demo file at the given path.
 // The handler is called with the Parser instance.
-// The options are applied on top of the default configuration, see the With*() functions.
+// The options are applied on top of the default configuration, see the option package.
 //
 // Returns an error if the file can't be opened, if the parser encounters an error or ctx is done before the end of the demo.
-func ParseFile(ctx context.Context, path string, configure ParserCallback, opts ...Option) error {
+func ParseFile(ctx context.Context, path string, configure ParserCallback, opts ...option.Option) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
@@ -478,10 +474,10 @@ func ParseFile(ctx context.Context, path string, configure ParserCallback, opts 
 // ParseCSTVBroadcast parses a live CSTV broadcast from the given base URL.
 // The handler is called with the Parser instance.
 // The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
-// The options are applied on top of the default configuration, see the With*() functions.
+// The options are applied on top of the default configuration, see the option package.
 // Returns an error if the CSTV reader can't be created, if the parser encounters an error or ctx is done.
 // Note that the CSTV broadcast is a live stream and will not end until the broadcast ends.
-func ParseCSTVBroadcast(ctx context.Context, baseURL string, configure ParserCallback, opts ...Option) error {
+func ParseCSTVBroadcast(ctx context.Context, baseURL string, configure ParserCallback, opts ...option.Option) error {
 	p, err := NewCSTVBroadcastParser(ctx, baseURL, opts...)
 	if err != nil {
 		return fmt.Errorf("failed to create CSTV broadcast parser: %w", err)
@@ -503,12 +499,12 @@ func ParseCSTVBroadcast(ctx context.Context, baseURL string, configure ParserCal
 }
 
 //nolint:funlen
-func newParserFromConfig(demostream io.Reader, cfg config) Parser {
+func newParserFromConfig(demostream io.Reader, cfg config.Config) Parser {
 	var p parser
 
 	// Init parser
 	p.config = cfg
-	if p.config.Format == demoFormatFile {
+	if p.config.Format == config.FormatFile {
 		p.bitReader = bit.NewLargeBitReader(demostream)
 	} else {
 		p.bitReader = bit.NewSmallBitReader(demostream)
@@ -610,7 +606,7 @@ func (p demoInfoProvider) TrackFramePosition(record func() bool, lazy bool) {
 		p.parser.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: "Player.Velocity() called on a demo without networked player velocity; deriving it from position " +
 				"deltas from now on - it's zero for a newly tracked player until the next entity snapshot has been applied. " +
-				"Use WithEagerVelocityTracking(true) to record all players from the start.",
+				"Use option.EagerVelocityTracking(true) to record all players from the start.",
 			Type: events.WarnTypeVelocityTrackingStartedLazily,
 		})
 	}

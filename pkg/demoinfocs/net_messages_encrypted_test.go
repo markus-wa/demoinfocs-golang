@@ -14,6 +14,7 @@ import (
 
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 )
 
 var testDecryptionKey = []byte("0123456789ABCDEF")
@@ -110,7 +111,7 @@ type encryptedTestResult struct {
 func parseEncrypted(t *testing.T, parserKey []byte, data *msg.CSVCMsg_EncryptedData) encryptedTestResult {
 	t.Helper()
 
-	p := NewParser(rand.Reader, WithNetMessageDecryptionKey(parserKey)).(*parser)
+	p := NewParser(rand.Reader, option.NetMessageDecryptionKey(parserKey)).(*parser)
 
 	var res encryptedTestResult
 

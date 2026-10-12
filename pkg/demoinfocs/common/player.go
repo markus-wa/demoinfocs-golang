@@ -478,7 +478,7 @@ func (p *Player) ViewDirectionY() float32 {
 // Positions are only recorded for players Velocity() has been called for, so the fallback costs nothing
 // unless it's used. Calls for a player therefore return a zero vector until the entity snapshot after the
 // first call has been applied, and the parser dispatches a ParserWarn (WarnTypeVelocityTrackingStartedLazily)
-// the first time this happens. Use demoinfocs.WithEagerVelocityTracking(true) to record all players from the start
+// the first time this happens. Use option.EagerVelocityTracking(true) to record all players from the start
 // instead. On those demos Velocity() thus registers the player with the parser - like the parser itself,
 // it must not be called concurrently with parsing (e.g. from another goroutine).
 //
@@ -917,7 +917,7 @@ type demoInfoProvider interface {
 	FindEntityByID(id int) st.Entity
 	NetworkProtocol() int     // demo network protocol (patch version), 0 if unknown, used for Player.Velocity()
 	RecordingPlayerSlot() int // player slot of the POV demo's recording player, -1 for GOTV demos
-	// EagerVelocityTracking returns whether demoinfocs.WithEagerVelocityTracking(true) is set.
+	// EagerVelocityTracking returns whether option.EagerVelocityTracking(true) is set.
 	EagerVelocityTracking() bool
 	// SnapshotTick returns the server tick of the last entity snapshot (svc_PacketEntities), -1 if none yet.
 	// Unlike IngameTick() it only advances with entity data, used for Player.Velocity().
@@ -940,7 +940,7 @@ func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 		demoInfoProvider: demoInfoProvider,
 	}
 
-	// demoinfocs.WithEagerVelocityTracking(true): record positions from the start on demos that don't network
+	// option.EagerVelocityTracking(true): record positions from the start on demos that don't network
 	// the velocity, instead of lazily on the first Velocity() call.
 	// Not with an unknown protocol (0, i.e. no file header with a patch version parsed yet) - Velocity() still
 	// falls back lazily then if the velocity isn't networked.

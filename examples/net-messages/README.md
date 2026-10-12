@@ -28,7 +28,7 @@ Example: `go run myprogram.go -tags debugdemoinfocs -ldflags '-X github.com/mark
 
 NetMessageCreators are needed for creating instances of net-messages that aren't parsed by default.
 
-You need to pass them to the parser with the `WithAdditionalNetMessageCreators()` option, as a map where the key is the message-ID as seen in the debug output.
+You need to pass them to the parser with the `option.AdditionalNetMessageCreators()` option, as a map where the key is the message-ID as seen in the debug output.
 
 Example: Bullet Decal (`BSPDecal`) messages
 
@@ -36,11 +36,12 @@ Example: Bullet Decal (`BSPDecal`) messages
 import (
 	"google.golang.org/protobuf/proto"
 
-	dem "github.com/markus-wa/demoinfocs-golang"
+	dem "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 )
 
-p := dem.NewParser(f, dem.WithAdditionalNetMessageCreators(map[int]dem.NetMessageCreator{
+p := dem.NewParser(f, option.AdditionalNetMessageCreators(map[int]option.NetMessageCreator{
 	int(msg.SVC_Messages_svc_BSPDecal): func() proto.Message {
 		return new(msg.CSVCMsg_BSPDecal)
 	},

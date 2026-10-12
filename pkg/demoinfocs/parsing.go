@@ -14,6 +14,7 @@ import (
 	dispatch "github.com/markus-wa/godispatch"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/sendtablescs2"
 
@@ -79,7 +80,7 @@ var (
 func (p *parser) parseHeader() error {
 	var h header
 
-	isCSTVBroadcast := p.config.Format == demoFormatCSTVBroadcast
+	isCSTVBroadcast := p.config.Format == config.FormatCSTVBroadcast
 
 	if isCSTVBroadcast {
 		h.Filestamp = filestampS2
@@ -302,7 +303,7 @@ func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 	return moreFrames, p.error()
 }
 
-var demoCommandMsgsCreators = map[msg.EDemoCommands]NetMessageCreator{
+var demoCommandMsgsCreators = map[msg.EDemoCommands]config.NetMessageCreator{
 	msg.EDemoCommands_DEM_Stop:            func() proto.Message { return &msg.CDemoStop{} },
 	msg.EDemoCommands_DEM_FileHeader:      func() proto.Message { return &msg.CDemoFileHeader{} },
 	msg.EDemoCommands_DEM_FileInfo:        func() proto.Message { return &msg.CDemoFileInfo{} },
@@ -411,7 +412,7 @@ func (p *parser) parseFrame() bool {
 		size uint32
 	)
 
-	isCSTVBroadcast := p.config.Format == demoFormatCSTVBroadcast
+	isCSTVBroadcast := p.config.Format == config.FormatCSTVBroadcast
 
 	if isCSTVBroadcast {
 		tick = uint32(p.bitReader.ReadInt(32))
@@ -556,7 +557,7 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 
 	// Record positions after FrameDone so that handlers see the velocity relative to the previous frame.
 	// Used by Player.Velocity() when m_vecVelocity isn't networked (demos before the AnimGraph 2 update).
-	// Players only get registered once Velocity() is called for them (or with WithEagerVelocityTracking(true)).
+	// Players only get registered once Velocity() is called for them (or with option.EagerVelocityTracking(true)).
 	// Recorders of players whose controller is gone return false and are dropped.
 	p.framePositionRecorders = slices.DeleteFunc(p.framePositionRecorders, func(record func() bool) bool {
 		return !record()
