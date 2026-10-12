@@ -520,6 +520,8 @@ func (p *parser) takeOverInPlace(previous, player *common.Player, controllerEnti
 		wep.Owner = player
 	}
 
+	p.gameState.updateLastKnownGrenadeWeapons(player)
+
 	// update handlers don't fire the controller's current state for in-place take-overs
 	p.connectPlayerIfConnected(player, controllerEntity)
 }

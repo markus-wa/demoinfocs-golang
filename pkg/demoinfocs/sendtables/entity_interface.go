@@ -59,5 +59,8 @@ type Entity interface {
 	// For created entities it is called after the initial firing of all update handlers, which
 	// happens after the parser's entity handlers. It isn't called when an entity leaves the PVS
 	// or is deleted, for skipped updates, or if the packet fails to parse.
+	//
+	// The parser applies player controllers' changes (e.g. Player.Name, SteamID64, Team, IsConnected)
+	// here too, so inside a controller's own update handlers the bound Player isn't updated yet.
 	OnUpdateFinished(delegate func())
 }
