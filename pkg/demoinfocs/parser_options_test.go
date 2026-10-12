@@ -43,6 +43,8 @@ func newCSTVReader(t *testing.T) *cstv.Reader {
 		case "/1/start":
 			// enough data for the parser's reads so it doesn't wait for delta fragments
 			_, _ = w.Write(make([]byte, 4096))
+		case "/2/full":
+			// empty: everything the parser needs is in the start fragment
 		default:
 			http.NotFound(w, r)
 		}

@@ -28,6 +28,9 @@ type sync struct {
 	TokenRedirect    string  `json:"token_redirect"`
 }
 
+// ErrUnexpectedStatus is returned by NewReader() if the CSTV server responds with a status other than 200 OK.
+var ErrUnexpectedStatus = errors.New("unexpected HTTP status")
+
 // Reader reads a live CSTV broadcast as a continuous demo stream.
 //
 // It stores the context.Context passed to NewReader() because io.Reader.Read() can't take one:
@@ -76,9 +79,25 @@ func (c *Reader) get(url string) (*http.Response, error) {
 	return resp, nil
 }
 
+// getOK is like get but returns ErrUnexpectedStatus for responses other than 200 OK.
+func (c *Reader) getOK(url string) (*http.Response, error) {
+	resp, err := c.get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+
+		return nil, fmt.Errorf("%w %q for %q", ErrUnexpectedStatus, resp.Status, url)
+	}
+
+	return resp, nil
+}
+
 // fetchInto appends the response body of url to c.buf.
 func (c *Reader) fetchInto(url string) error {
-	resp, err := c.get(url)
+	resp, err := c.getOK(url)
 	if err != nil {
 		return err
 	}
@@ -181,6 +200,9 @@ func (c *Reader) Read(p []byte) (n int, err error) {
 // so it should live as long as the Reader is used.
 // See WithTimeout() and WithHTTPClient() for the options.
 // If the timeout is exceeded while waiting for new fragments, Read() returns an io.EOF error.
+// The timeout doesn't apply to the initial requests made by NewReader(); bound those with a ctx deadline
+// or a http.Client with a Timeout (see WithHTTPClient()).
+// Returns ErrUnexpectedStatus if the server doesn't respond with 200 OK to one of the initial requests.
 //
 // Pass the Reader directly to demoinfocs.NewParser(), which detects it and parses the CSTV broadcast format;
 // a Reader wrapped in another io.Reader (e.g. bufio.Reader) isn't detected and is parsed as a .dem file:
@@ -207,7 +229,7 @@ func NewReader(ctx context.Context, baseURL string, opts ...Option) (*Reader, er
 
 	syncURL := baseURL + "/sync"
 
-	syncResp, err := r.get(syncURL)
+	syncResp, err := r.getOK(syncURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sync: %w", err)
 	}

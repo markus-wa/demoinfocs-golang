@@ -21,6 +21,13 @@ import (
 func newBroadcastServer(t *testing.T) *httptest.Server {
 	t.Helper()
 
+	return newFailingBroadcastServer(t, "")
+}
+
+// newFailingBroadcastServer is like newBroadcastServer but responds with 500 Internal Server Error to failPath.
+func newFailingBroadcastServer(t *testing.T, failPath string) *httptest.Server {
+	t.Helper()
+
 	fragments := map[string]string{
 		"/bc/tok/1/start": "start-",
 		"/bc/tok/5/full":  "full-",
@@ -29,6 +36,12 @@ func newBroadcastServer(t *testing.T) *httptest.Server {
 	}
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == failPath {
+			http.Error(w, "boom", http.StatusInternalServerError)
+
+			return
+		}
+
 		if r.URL.Path == "/bc/sync" {
 			_, _ = io.WriteString(w, `{"tick": 1000, "fragment": 5, "signup_fragment": 1, "token_redirect": "tok"}`)
 
@@ -153,4 +166,21 @@ func TestNewReader_InvalidSync(t *testing.T) {
 
 	var syntaxErr *json.SyntaxError
 	assert.ErrorAs(t, err, &syntaxErr)
+}
+
+func TestNewReader_UnexpectedStatus(t *testing.T) {
+	t.Parallel()
+
+	for _, path := range []string{"/bc/sync", "/bc/tok/1/start", "/bc/tok/5/full"} {
+		t.Run(path, func(t *testing.T) {
+			t.Parallel()
+
+			srv := newFailingBroadcastServer(t, path)
+
+			_, err := cstv.NewReader(t.Context(), srv.URL+"/bc")
+			assert.ErrorIs(t, err, cstv.ErrUnexpectedStatus)
+			assert.ErrorContains(t, err, "500 Internal Server Error")
+			assert.ErrorContains(t, err, path)
+		})
+	}
 }
