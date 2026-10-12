@@ -254,6 +254,14 @@ func (gs gameState) OvertimeCount() int {
 	return gs.overtimeCount
 }
 
+// isEntityReplaced returns true if the entity was destroyed because a new entity was created at its index,
+// rather than being deleted (see sendtables2.Entity.Replaced()).
+func isEntityReplaced(entity st.Entity) bool {
+	replaceable, ok := entity.(interface{ Replaced() bool })
+
+	return ok && replaceable.Replaced()
+}
+
 // PlayerResourceEntity returns the game's CCSPlayerResource entity.
 // Contains scoreboard information and more.
 func (gs gameState) PlayerResourceEntity() st.Entity {
