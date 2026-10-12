@@ -9,6 +9,9 @@ import (
 
 // Entity is an auto-generated interface for entity, intended to be used when mockability is needed.
 // entity stores a entity in the game (e.g. players etc.) with its properties.
+//
+// Entities of CS2 demos additionally implement Replaced() bool (see sendtables2.Entity.Replaced()),
+// which tells whether a destroyed entity was replaced by a new entity at its index rather than deleted.
 type Entity interface {
 	// ServerClass returns the entity's server-class.
 	ServerClass() ServerClass

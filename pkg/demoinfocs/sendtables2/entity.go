@@ -14,13 +14,15 @@ import (
 
 // Entity represents a single game entity in the replay
 type Entity struct {
-	index   int32
-	serial  int32
-	class   *class
-	active  bool
-	state   *fieldState
-	fpCache map[string]*fieldPath
-	fpNoop  map[string]bool
+	index  int32
+	serial int32
+	class  *class
+	active bool
+	// replaced is set if the entity was destroyed because a new entity was created at its index, see Replaced().
+	replaced bool
+	state    *fieldState
+	fpCache  map[string]*fieldPath
+	fpNoop   map[string]bool
 	// polySerializers holds the currently active serializer for each polymorphic
 	// pointer field, indexed by field.polySerializerID. Nil entries mean the
 	// pointer is inactive. This slice is per-entity so that two entities of the
@@ -430,6 +432,15 @@ func (e *Entity) OnDestroy(delegate func()) {
 	e.onDestroy = append(e.onDestroy, delegate)
 }
 
+// Replaced returns true if the entity was destroyed because the server created a new entity (new serial) at its index
+// without an explicit delete for it - usually because entities are re-created on a round restart or backup restore.
+// The entity may or may not have gone away in-game the usual way (e.g. a flashbang may not have detonated),
+// so OnDestroy handlers can use this to skip events derived from a regular deletion.
+func (e *Entity) Replaced() bool {
+	return e.replaced
+}
+
+// Destroy marks the entity as inactive and fires all OnDestroy handlers.
 func (e *Entity) Destroy() {
 	e.active = false
 
@@ -794,6 +805,18 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 				class := p.classesById[classID]
 				if class == nil {
 					_panicf("unable to find new class %d", classID)
+				}
+
+				// The server may reuse the index of an entity for a new one (new serial) without sending
+				// a delete for the old one first (e.g. on round restarts). The old entity is gone either way -
+				// destroy it so its OnDestroy handlers run and consumers don't keep using state bound to it
+				// (e.g. a weapon's unique id, #601).
+				// The same serial means the same entity is re-created, e.g. when it re-enters the PVS on POV demos.
+				if old := p.entities[index]; old != nil && old.active && old.serial != serial {
+					old.replaced = true
+					old.Destroy()
+
+					p.tuplesCache = append(p.tuplesCache, tuple{old, st.EntityOpLeft | st.EntityOpDeleted})
 				}
 
 				e = newEntity(index, serial, class)

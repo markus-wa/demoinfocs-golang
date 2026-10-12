@@ -172,6 +172,12 @@ func (p *parser) bindBomb() {
 		})
 
 		bombEntity.OnDestroy(func() {
+			// the bomb was re-created (e.g. round restart) while it was being planted
+			if isEntityReplaced(bombEntity) && p.gameState.currentPlanter != nil && p.gameState.currentPlanter.IsPlanting {
+				p.gameState.currentPlanter.IsPlanting = false
+				p.eventDispatcher.Dispatch(events.BombPlantAborted{Player: p.gameState.currentPlanter})
+			}
+
 			p.gameState.currentPlanter = nil
 		})
 	})
@@ -1177,10 +1183,18 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, currentPlayer func() 
 	playerInventory := make(map[int]eq)
 
 	getWep := func(wepSlotPropertyValue st.PropertyValue) (uint64, *common.Equipment) {
-		entityID := wepSlotPropertyValue.S2UInt64() & constants.EntityHandleIndexMaskSource2
+		handle := wepSlotPropertyValue.S2UInt64()
+		entityID := handle & constants.EntityHandleIndexMaskSource2
 		wep := p.gameState.weapons[int(entityID)]
 
-		if wep == nil {
+		// If the index is re-used for a new weapon (see sendtables2.Entity.Replaced()), the map may still hold the
+		// previous weapon when the pawn gets the new one before the new weapon entity is created in the same packet.
+		// The other way around (new weapon created first) the pawn may still reference the previous serial in
+		// slots that haven't been updated yet, so only a newer serial makes the entry stale.
+		handleSerial := handle >> constants.MaxEdictBitsSource2
+		isStale := wep != nil && wep.Entity != nil && handleSerial > uint64(wep.Entity.SerialNum())
+
+		if wep == nil || isStale {
 			// sometimes a weapon is assigned to a player before the weapon entity is created
 			wep = common.NewEquipment(common.EqUnknown, p.nextUniqueID())
 			p.gameState.weapons[int(entityID)] = wep
@@ -1337,7 +1351,7 @@ func equipmentTypeFromProjectileClass(className string) common.EquipmentType {
 // bindGrenadeProjectiles keeps track of the location of live grenades (parser.gameState.grenadeProjectiles), actively thrown by players.
 // It does NOT track the location of grenades lying on the ground, i.e. that were dropped by dead players.
 //
-//nolint:gocognit,funlen
+//nolint:gocognit,gocyclo,funlen
 func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	entityID := entity.ID()
 
@@ -1460,7 +1474,8 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 			Time:     p.CurrentTime(),
 		})
 
-		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash && !p.disableMimicSource1GameEvents {
+		// a replaced projectile (e.g. round restart) didn't detonate
+		if p.demoInfoProvider.IsSource2() && wep == common.EqFlash && !p.disableMimicSource1GameEvents && !isEntityReplaced(entity) {
 			p.gameEventHandler.dispatch(events.FlashExplode{
 				GrenadeEvent: events.GrenadeEvent{
 					GrenadeType:     common.EqFlash,
@@ -1562,7 +1577,11 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 
 	delete(p.gameState.grenadeProjectiles, proj.Entity.ID())
 
-	if proj.WeaponInstance.Type == common.EqFlash {
+	// A replaced projectile (its index was re-used, e.g. on a round restart) didn't detonate - it won't flash
+	// anybody, spawn an inferno or expire.
+	replaced := isEntityReplaced(proj.Entity)
+
+	if proj.WeaponInstance.Type == common.EqFlash && !replaced {
 		p.gameState.lastFlash.projectileByPlayer[proj.Owner] = proj
 	}
 
@@ -1571,11 +1590,11 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	isSmoke := proj.WeaponInstance.Type == common.EqSmoke
 	isDecoy := proj.WeaponInstance.Type == common.EqDecoy
 
-	if !isInferno && !isSmoke && !isDecoy {
+	if replaced || (!isInferno && !isSmoke && !isDecoy) {
 		p.gameEventHandler.deleteThrownGrenade(proj.Thrower, proj.WeaponInstance.Type)
 	}
 
-	if isInferno {
+	if isInferno && !replaced {
 		if ownerVal := proj.Entity.PropertyValueMust("m_hOwnerEntity"); ownerVal.Any != nil {
 			p.linkInfernoProjectile(pendingInfernoLink{
 				frame:       p.currentFrame,
@@ -1637,7 +1656,7 @@ func (p *parser) linkInfernoProjectile(link pendingInfernoLink) {
 	}
 }
 
-//nolint:funlen
+//nolint:funlen,gocognit
 func (p *parser) bindWeaponS2(entity st.Entity) {
 	entityID := entity.ID()
 	itemIndexVal := entity.PropertyValueMust("m_AttributeManager.m_Item.m_iItemDefinitionIndex")
@@ -1709,7 +1728,9 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 
 	entity.OnDestroy(func() {
 		owner := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
-		if owner != nil && owner.IsInBuyZone() && p.GameState().IngameTick() == lastMoneyUpdateTick && lastMoneyIncreased {
+		// replaced weapons (e.g. round restart / backup restore) weren't refunded, even though the money may have changed
+		if owner != nil && !isEntityReplaced(entity) && owner.IsInBuyZone() &&
+			p.GameState().IngameTick() == lastMoneyUpdateTick && lastMoneyIncreased {
 			p.eventDispatcher.Dispatch(events.ItemRefund{
 				Player: owner,
 				Weapon: equipment,
@@ -1719,7 +1740,10 @@ func (p *parser) bindWeaponS2(entity st.Entity) {
 		lastMoneyIncreased = false
 		equipment.Owner = nil
 
-		delete(p.gameState.weapons, entityID)
+		// the entry may already belong to the weapon entity replacing this one (see bindPlayerWeapons)
+		if p.gameState.weapons[entityID] == equipment {
+			delete(p.gameState.weapons, entityID)
+		}
 	})
 
 	// Detect weapon firing, we don't use m_iClip1 because it would not work with weapons such as the knife (no ammo).
