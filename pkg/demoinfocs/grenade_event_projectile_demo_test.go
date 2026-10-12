@@ -20,7 +20,23 @@ func TestGrenadeEvent_Projectile(t *testing.T) {
 		t.Skip("skipping test due to -short flag")
 	}
 
-	f := openFile(t, s2POVDemPath)
+	t.Run("POV", func(t *testing.T) {
+		t.Parallel()
+
+		testGrenadeEventProjectile(t, s2POVDemPath, true)
+	})
+
+	t.Run("GOTV", func(t *testing.T) {
+		t.Parallel()
+
+		testGrenadeEventProjectile(t, demSetPathS2+"/arsham_infernocs2_1stSept23.dem", false)
+	})
+}
+
+func testGrenadeEventProjectile(t *testing.T, demPath string, isPOV bool) {
+	t.Helper()
+
+	f := openFile(t, demPath)
 	defer mustClose(t, f)
 
 	p := demoinfocs.NewParser(f)
@@ -35,12 +51,13 @@ func TestGrenadeEvent_Projectile(t *testing.T) {
 		counts[name]++
 
 		switch e.(type) {
-		case events.FireGrenadeStart:
-			// in POV demos inferno_startburn is sent before the inferno entity is created,
-			// so the projectile isn't linked yet
-			return
+		case events.FireGrenadeStart, events.FireGrenadeExpired:
+			if _, isStart := e.(events.FireGrenadeStart); isStart && isPOV {
+				// in POV demos inferno_startburn is sent before the inferno entity is created,
+				// so the projectile isn't linked yet
+				return
+			}
 
-		case events.FireGrenadeExpired:
 			if !assert.NotNil(t, base.Projectile, name) {
 				return
 			}
@@ -78,10 +95,38 @@ func TestGrenadeEvent_Projectile(t *testing.T) {
 		}
 	})
 
+	var infernoEvents, infernoEventsWithProjectile int
+
+	checkInfernoProjectile := func(inf *common.Inferno, proj *common.GrenadeProjectile) {
+		infernoEvents++
+
+		if proj == nil {
+			return
+		}
+
+		infernoEventsWithProjectile++
+
+		assert.Contains(t, []common.EquipmentType{common.EqMolotov, common.EqIncendiary}, proj.WeaponInstance.Type)
+		assert.Same(t, inf.Thrower(), proj.Thrower)
+	}
+
+	p.RegisterEventHandler(func(e events.InfernoStart) { checkInfernoProjectile(e.Inferno, e.Projectile) })
+	p.RegisterEventHandler(func(e events.InfernoExpired) { checkInfernoProjectile(e.Inferno, e.Projectile) })
+
 	err := p.ParseToEnd()
 	assert.NoError(t, err)
 
-	for _, name := range []string{"events.HeExplode", "events.FlashExplode", "events.SmokeStart", "events.SmokeExpired", "events.FireGrenadeExpired"} {
+	names := []string{"events.HeExplode", "events.FlashExplode", "events.SmokeStart", "events.SmokeExpired", "events.FireGrenadeExpired"}
+	if !isPOV {
+		names = append(names, "events.FireGrenadeStart")
+
+		// POV demos re-create infernos re-entering the PVS, those can't be linked
+		assert.Equal(t, infernoEvents, infernoEventsWithProjectile, "InfernoStart/Expired without Projectile")
+	}
+
+	for _, name := range names {
 		assert.Positive(t, counts[name], "expected %s events in the demo", name)
 	}
+
+	t.Logf("inferno events: %d, with projectile: %d", infernoEvents, infernoEventsWithProjectile)
 }
