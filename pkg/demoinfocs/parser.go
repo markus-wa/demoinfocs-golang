@@ -120,6 +120,11 @@ type parser struct {
 	 */
 	recordingPlayerSlot           int
 	disableMimicSource1GameEvents bool
+	eagerVelocityTracking         bool
+	snapshotTick                  int           // server tick of the last svc_PacketEntities, see Player.Velocity()
+	processingSnapshot            bool          // true while a svc_PacketEntities is applied, see Player.Velocity()
+	framePositionRecorders        []func() bool // see Player.Velocity()
+	lazyVelocityTrackingWarned    bool
 
 	// Additional fields, mainly caching & tracking things
 
@@ -588,6 +593,20 @@ type ParserConfig struct {
 	// UserCmdParsing controls CSVCMsg_UserCommands parsing. It defaults to
 	// UserCmdParsingButtonsOnly, including when ParserConfig is created as a zero value.
 	UserCmdParsing UserCmdParsingMode
+
+	// EagerVelocityTracking makes the parser record every player's position from the start on demos that
+	// don't network the player velocity (recorded before the CS2 "AnimGraph 2" update, network protocol
+	// < 14089).
+	//
+	// On those demos Player.Velocity() derives the velocity from position deltas for everybody but the
+	// recording player of POV demos, whose velocity is networked. Without this flag, positions are only
+	// recorded for players Player.Velocity() has been called for, starting with that call (calls return a
+	// zero vector until the entity snapshot after it has been applied), and a ParserWarn
+	// (WarnTypeVelocityTrackingStartedLazily) is dispatched once. With it, the velocity is available for every
+	// player once their second entity snapshot has been applied, at the cost of recording positions for all
+	// players.
+	// It has no effect (and no cost) on newer demos, where the velocity is networked. False by default.
+	EagerVelocityTracking bool
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
@@ -628,7 +647,9 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1
 	p.recordingPlayerSlot = -1
+	p.snapshotTick = -1
 	p.disableMimicSource1GameEvents = config.DisableMimicSource1Events
+	p.eagerVelocityTracking = config.EagerVelocityTracking
 	p.source2FallbackGameEventListBin = config.Source2FallbackGameEventListBin
 	p.ignorePacketEntitiesPanic = config.IgnorePacketEntitiesPanic
 	p.decryptionKey = config.NetMessageDecryptionKey
@@ -686,6 +707,46 @@ func (p demoInfoProvider) TickRate() float64 {
 	return p.parser.TickRate()
 }
 
+func (p demoInfoProvider) EagerVelocityTracking() bool {
+	return p.parser.eagerVelocityTracking
+}
+
+func (p demoInfoProvider) SnapshotTick() int {
+	return p.parser.snapshotTick
+}
+
+func (p demoInfoProvider) ProcessingSnapshot() bool {
+	return p.parser.processingSnapshot
+}
+
+func (p demoInfoProvider) TrackFramePosition(record func() bool, lazy bool) {
+	p.parser.framePositionRecorders = append(p.parser.framePositionRecorders, record)
+
+	if lazy && !p.parser.lazyVelocityTrackingWarned {
+		p.parser.lazyVelocityTrackingWarned = true
+
+		p.parser.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "Player.Velocity() called on a demo without networked player velocity; deriving it from position " +
+				"deltas from now on - it's zero for a newly tracked player until the next entity snapshot has been applied. " +
+				"Set ParserConfig.EagerVelocityTracking to record all players from the start.",
+			Type: events.WarnTypeVelocityTrackingStartedLazily,
+		})
+	}
+}
+
+// NetworkProtocol returns the demo's network protocol (patch version), 0 if not (yet) known.
+func (p demoInfoProvider) NetworkProtocol() int {
+	if p.parser.header == nil {
+		return 0
+	}
+
+	return p.parser.header.NetworkProtocol
+}
+
+func (p demoInfoProvider) RecordingPlayerSlot() int {
+	return p.parser.recordingPlayerSlot
+}
+
 func (p demoInfoProvider) FindPlayerByHandle(handle uint64) *common.Player {
 	return p.parser.gameState.Participants().FindByHandle64(handle)
 }
@@ -696,6 +757,10 @@ func (p demoInfoProvider) FindPlayerByPawnHandle(handle uint64) *common.Player {
 
 func (p demoInfoProvider) FindEntityByHandle(handle uint64) st.Entity {
 	return p.parser.gameState.EntityByHandle(handle)
+}
+
+func (p demoInfoProvider) FindEntityByID(id int) st.Entity {
+	return p.parser.gameState.entities[id]
 }
 
 func (p demoInfoProvider) FindWeaponByEntityID(entityID int) *common.Equipment {
