@@ -250,6 +250,14 @@ func (gs gameState) OvertimeCount() int {
 	return gs.overtimeCount
 }
 
+// isEntityReplaced returns true if the entity was destroyed because a new entity was created at its index,
+// rather than being deleted (see sendtablescs2.Entity.Replaced()).
+func isEntityReplaced(entity st.Entity) bool {
+	replaceable, ok := entity.(interface{ Replaced() bool })
+
+	return ok && replaceable.Replaced()
+}
+
 func entityIDFromHandle(handle uint64) int {
 	if handle == constants.InvalidEntityHandleSource2 {
 		return -1
