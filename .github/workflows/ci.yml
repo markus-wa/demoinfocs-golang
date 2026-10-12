@@ -62,6 +62,9 @@ jobs:
       - name: Race Tests
         run: scripts/race-tests.sh
 
+      - name: Examples Tests
+        run: scripts/examples-tests.sh
+
       # Note: We run ALL tests again to get full coverage
       #       Race tests are too slow and skip the regression set
       - name: All Tests + Coverage

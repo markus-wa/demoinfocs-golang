@@ -84,7 +84,7 @@ func (p *parser) bindBomb() {
 				p.gameState.currentPlanter = planter
 
 				siteNumber := p.gameState.currentPlanter.PlayerPawnEntity().PropertyValueMust("m_nWhichBombZone").Int()
-				site := events.BomsiteUnknown
+				site := events.BombsiteUnknown
 
 				switch siteNumber {
 				case 1:
@@ -137,7 +137,7 @@ func (p *parser) bindBomb() {
 
 		siteNumberVal := bombEntity.PropertyValueMust("m_nBombSite")
 
-		site := events.BomsiteUnknown
+		site := events.BombsiteUnknown
 
 		if siteNumberVal.Any != nil {
 			siteNumber := siteNumberVal.Int()

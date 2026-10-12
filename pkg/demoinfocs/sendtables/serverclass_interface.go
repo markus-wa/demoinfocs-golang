@@ -1,7 +1,7 @@
 package sendtables
 
-// ServerClass is an auto-generated interface for property, intended to be used when mockability is needed.
-// serverClass stores meta information about Entity types (e.g. palyers, teams etc.).
+// ServerClass is an interface for serverClass, intended to be used when mockability is needed.
+// serverClass stores meta information about Entity types (e.g. players, teams etc.).
 type ServerClass interface {
 	// ID returns the server-class's ID.
 	ID() int

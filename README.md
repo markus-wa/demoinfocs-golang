@@ -230,7 +230,8 @@ You can use the build tag `debugdemoinfocs` to print out debugging information -
 
 e.g.
 
-    go run -tags debugdemoinfocs examples/print-events/print_events.go -demo example.dem
+    cd examples # examples are a separate Go module
+    go run -tags debugdemoinfocs ./print-events -demo example.dem
 
 Side-note: The tag isn't called `debug` to avoid naming conflicts with other libs (and underscores in tags don't work, apparently).
 
@@ -238,7 +239,7 @@ To change the default debugging behavior, Go's `ldflags` parameter can be used. 
 
 e.g.
 
-    go run -tags debugdemoinfocs -ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs.debugServerClasses=YES'" examples/print-events/print_events.go -demo example.dem
+    go run -tags debugdemoinfocs -ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v2/pkg/demoinfocs.debugServerClasses=YES'" ./print-events -demo example.dem
 
 Check out `debug_on.go` for any other settings that can be changed.
 
