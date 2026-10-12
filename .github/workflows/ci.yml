@@ -1,6 +1,14 @@
-on: [push, pull_request]
+on:
+  push:
+    branches: [master, 'v[0-9]*'] # master + release/backport branches (v5, ...)
+    tags: ['v*']
+  pull_request:
 
 name: CI
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   ci:
