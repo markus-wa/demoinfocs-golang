@@ -483,7 +483,7 @@ func (p *parser) handlePacketEntities(m *msg.CSVCMsg_PacketEntities) {
 
 	_ = p.stParser.OnPacketEntities(m)
 
-	// controller identity & connection changes are applied once the whole packet is read
+	// backstop for controller identity & connection changes not applied per entity yet
 	p.flushPlayerControllerUpdates()
 
 	p.processingSnapshot = false

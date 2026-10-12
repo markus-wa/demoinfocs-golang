@@ -393,8 +393,9 @@ func playerUserID(rp *common.PlayerInfo) int {
 // *Player is created - an existing player's SteamID64 is never changed. The *Player is kept per
 // controller slot (or live user-ID): a person reconnecting into a different slot gets a new *Player.
 //
-// Controller prop updates call this once per entity packet (see flushPlayerControllerUpdates), so it
-// always sees the controller's complete state - never a half-applied take-over.
+// Controller prop updates call this once all of the controller's updates in an entity packet are applied
+// (see bindNewPlayerController), so it always sees the controller's complete state - never a half-applied
+// take-over.
 func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entity) *common.Player {
 	controllerEntityID := controllerEntity.ID()
 	p.gameState.playerControllerEntities[controllerEntityID] = controllerEntity
@@ -557,25 +558,33 @@ func (p *parser) markPlayerControllerDirty(controllerEntity st.Entity, connectio
 	d.connectionChanged = d.connectionChanged || connectionChanged
 }
 
-// flushPlayerControllerUpdates applies controller identity & connection changes once the whole entity
-// packet has been read. Prop update handlers fire per field in field-path order (m_iConnected,
-// m_iszPlayerName, m_steamID), so reacting to each of them directly would see a half-applied update
-// when a different person takes over a slot - e.g. renaming the previous occupant to the new name.
+// flushPlayerControllerUpdates applies all pending controller identity & connection changes.
+// Controllers are normally flushed one by one once their own updates are applied (see
+// bindNewPlayerController); this is the backstop at the end of each entity packet.
 func (p *parser) flushPlayerControllerUpdates() {
 	if len(p.dirtyControllers) == 0 {
 		return
 	}
 
 	for _, id := range slices.Sorted(maps.Keys(p.dirtyControllers)) {
-		d := p.dirtyControllers[id]
-		pl := p.getOrCreatePlayerFromControllerEntity(d.entity)
+		p.flushPlayerController(id)
+	}
+}
 
-		if d.connectionChanged {
-			p.applyControllerConnectionState(pl, d.entity)
-		}
+// flushPlayerController applies the pending identity & connection changes of one controller.
+func (p *parser) flushPlayerController(controllerEntityID int) {
+	d := p.dirtyControllers[controllerEntityID]
+	if d == nil {
+		return
 	}
 
-	clear(p.dirtyControllers)
+	delete(p.dirtyControllers, controllerEntityID)
+
+	pl := p.getOrCreatePlayerFromControllerEntity(d.entity)
+
+	if d.connectionChanged {
+		p.applyControllerConnectionState(pl, d.entity)
+	}
 }
 
 func (p *parser) applyControllerConnectionState(pl *common.Player, controllerEntity st.Entity) {
@@ -690,7 +699,14 @@ func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 	}
 
 	// The controller's name & SteamID are the source of truth for the player's identity.
-	// Changes are applied once the whole entity packet is read, see flushPlayerControllerUpdates.
+	// Prop update handlers fire per field in field-path order (m_iConnected, m_iszPlayerName, m_steamID),
+	// so reacting to each of them directly would see a half-applied update when a different person takes
+	// over a slot - e.g. renaming the previous occupant to the new name. The handlers only mark the
+	// controller dirty; the changes are applied once all of the controller's updates in the packet are.
+	controllerEntity.OnUpdateFinished(func() {
+		p.flushPlayerController(controllerEntity.ID())
+	})
+
 	syncIdentity := func(st.PropertyValue) {
 		p.markPlayerControllerDirty(controllerEntity, false)
 	}

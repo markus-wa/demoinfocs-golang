@@ -47,4 +47,12 @@ type Entity interface {
 	// OnCreateFinished registers a function to be called once the entity is fully created -
 	// i.e. once all property updates have been sent out.
 	OnCreateFinished(delegate func())
+	// OnUpdateFinished registers a function to be called once all property updates of the entity
+	// in an entity packet have been applied and their update handlers fired - including the initial
+	// firing of all update handlers after the entity was created.
+	//
+	// Update handlers fire per property in field-path order while the entity's data is read, so a
+	// handler can see some of the packet's updates of the entity but not others yet.
+	// Use this to act on the entity's consistent state.
+	OnUpdateFinished(delegate func())
 }

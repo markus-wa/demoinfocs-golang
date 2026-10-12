@@ -21,6 +21,7 @@ type fakeController struct {
 	props     map[string]any
 	handlers  map[string][]st.PropertyUpdateHandler
 	onDestroy []func()
+	onUpdated []func()
 }
 
 func newFakeController(id int, steamID uint64, name string) *fakeController {
@@ -58,13 +59,23 @@ func (c *fakeController) OnDestroy(delegate func()) {
 	c.onDestroy = append(c.onDestroy, delegate)
 }
 
+func (c *fakeController) OnUpdateFinished(delegate func()) {
+	c.onUpdated = append(c.onUpdated, delegate)
+}
+
+func (c *fakeController) fireUpdateFinished() {
+	for _, f := range c.onUpdated {
+		f()
+	}
+}
+
 // controllerFieldOrder is the field-path order of the controller props used here - the order in which
 // the real entity applies them & fires their update handlers within one entity packet.
 var controllerFieldOrder = []string{"m_iTeamNum", "m_iConnected", "m_iszPlayerName", "m_steamID"}
 
 // update applies one entity packet's worth of prop changes like the real entity does: each prop is set
 // and its handlers fired before the next prop is read (in field-path order, regardless of the order
-// given), then the parser finishes the packet.
+// given), then the entity's update-finished delegates fire and the parser finishes the packet.
 func (c *fakeController) update(p *parser, kv ...any) {
 	changed := make(map[string]any, len(kv)/2)
 	for i := 0; i < len(kv); i += 2 {
@@ -84,6 +95,7 @@ func (c *fakeController) update(p *parser, kv ...any) {
 		}
 	}
 
+	c.fireUpdateFinished()
 	p.flushPlayerControllerUpdates()
 }
 
@@ -94,7 +106,7 @@ func (c *fakeController) destroy() {
 }
 
 // createController binds a new controller like an entity packet creating it does: created-handlers,
-// then the initial firing of all update handlers, then the end of the packet.
+// then the initial firing of all update handlers and the update-finished delegates, then the end of the packet.
 func createController(p *parser, c *fakeController) {
 	p.bindNewPlayerController(c)
 
@@ -104,6 +116,7 @@ func createController(p *parser, c *fakeController) {
 		}
 	}
 
+	c.fireUpdateFinished()
 	p.flushPlayerControllerUpdates()
 }
 

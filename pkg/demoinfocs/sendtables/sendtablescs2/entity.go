@@ -27,6 +27,7 @@ type Entity struct {
 	polySerializers []*serializer
 
 	onCreateFinished []func()
+	onUpdateFinished []func()
 	onDestroy        []func()
 	updateHandlers   map[string][]st.PropertyUpdateHandler
 	// handlerLog preserves the global registration order of update handlers.
@@ -385,6 +386,22 @@ func (e *Entity) Destroy() {
 
 	for _, delegate := range e.onDestroy {
 		delegate()
+	}
+}
+
+// OnUpdateFinished registers a function that is called once all property updates of the entity in an
+// entity packet have been applied and their update handlers fired - including the initial firing of
+// all update handlers after the entity was created.
+//
+// Update handlers fire per property in field-path order while the entity's data is read, so a handler
+// can see some of the packet's updates of the entity but not others. Use this to act on a consistent state.
+func (e *Entity) OnUpdateFinished(delegate func()) {
+	e.onUpdateFinished = append(e.onUpdateFinished, delegate)
+}
+
+func (e *Entity) fireUpdateFinished() {
+	for _, f := range e.onUpdateFinished {
+		f()
 	}
 }
 
@@ -776,6 +793,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 				}
 
 				e.readFields(r, &p.pathCache)
+				e.fireUpdateFinished()
 			}
 		} else {
 			e = p.entities[index]
@@ -809,6 +827,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 
 		if t.op&st.EntityOpCreated != 0 {
 			e.fireInitialUpdateHandlers()
+			e.fireUpdateFinished()
 		}
 	}
 
