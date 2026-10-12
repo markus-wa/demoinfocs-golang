@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"fmt"
 	"math"
+	"slices"
 	"sort"
 	"time"
 
@@ -675,7 +676,7 @@ func (geh gameEventHandler) decoyDetonate(data map[string]*msg.CSVCMsg_GameEvent
 	})
 
 	geh.parser.delayedEventHandlers = append(geh.parser.delayedEventHandlers, func() {
-		geh.deleteThrownGrenade(event.Thrower, common.EqDecoy)
+		geh.removeThrownGrenade(event.Grenade)
 	})
 }
 
@@ -691,7 +692,7 @@ func (geh gameEventHandler) smokeGrenadeExpired(data map[string]*msg.CSVCMsg_Gam
 		GrenadeEvent: event,
 	})
 
-	geh.deleteThrownGrenade(event.Thrower, common.EqSmoke)
+	geh.removeThrownGrenade(event.Grenade)
 }
 
 func (geh gameEventHandler) infernoStartBurn(data map[string]*msg.CSVCMsg_GameEventKeyT) {
@@ -1270,6 +1271,8 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 			}
 		}
 
+		// The most recently thrown one. Grenades that already detonated may still be in the list for a while
+		// (e.g. an HE projectile entity lingers after the explosion), so the oldest one is often not the right one.
 		if len(grenades) > 0 {
 			return grenades[len(grenades)-1]
 		}
@@ -1286,26 +1289,34 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 	return nil
 }
 
+// deleteThrownGrenade deletes the grenade getThrownGrenade() returns for the player and grenade type.
+// Use removeThrownGrenade() instead if the grenade is known.
 func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common.EquipmentType) {
-	if p == nil {
-		// can happen for incendiaries or "unknown" players (see #162)
+	geh.removeThrownGrenade(geh.getThrownGrenade(p, wepType))
+}
+
+// removeThrownGrenade removes the given grenade from the thrown grenades.
+// It's looked up across all players, as the player it was stored for (the projectile's thrower when it was
+// thrown, or a bot they controlled) isn't necessarily the one an event reports.
+func (geh gameEventHandler) removeThrownGrenade(wep *common.Equipment) {
+	if wep == nil {
 		return
 	}
 
-	playerGrenades := geh.gameState().thrownGrenades[p]
-	if len(playerGrenades) == 0 {
-		return
-	}
+	for _, playerGrenades := range geh.gameState().thrownGrenades {
+		grenades := playerGrenades[wep.Type]
 
-	grenades := playerGrenades[wepType]
-	if len(grenades) == 0 {
-		return
-	}
+		i := slices.Index(grenades, wep)
+		if i < 0 {
+			continue
+		}
 
-	// Delete the first grenade thrown by the player and this grenade type.
-	playerGrenades[wepType] = grenades[:len(grenades)-1]
-	if len(playerGrenades[wepType]) == 0 {
-		delete(playerGrenades, wepType)
+		playerGrenades[wep.Type] = slices.Delete(grenades, i, i+1)
+		if len(playerGrenades[wep.Type]) == 0 {
+			delete(playerGrenades, wep.Type)
+		}
+
+		return
 	}
 }
 

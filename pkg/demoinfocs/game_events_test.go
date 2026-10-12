@@ -9,6 +9,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	common "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
@@ -241,6 +242,138 @@ func TestDeleteThrownGrenade_Found(t *testing.T) {
 	assert.NotEmpty(t, p.gameState.thrownGrenades[pl])
 
 	p.gameEventHandler.deleteThrownGrenade(pl, he.Type)
+
+	assert.Empty(t, p.gameState.thrownGrenades[pl])
+}
+
+// Without a known grenade the most recently thrown one of the type is resolved and deleted - grenades that
+// already detonated may still be in the list (e.g. an HE projectile lingers after the explosion).
+func TestThrownGrenade_MostRecentFirst(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	pl := &common.Player{}
+	he1 := common.NewEquipment(common.EqHE, 1)
+	he2 := common.NewEquipment(common.EqHE, 2)
+
+	p.gameEventHandler.addThrownGrenade(pl, he1)
+	p.gameEventHandler.addThrownGrenade(pl, he2)
+
+	assert.Same(t, he2, p.gameEventHandler.getThrownGrenade(pl, common.EqHE))
+
+	p.gameEventHandler.deleteThrownGrenade(pl, common.EqHE)
+
+	assert.Same(t, he1, p.gameEventHandler.getThrownGrenade(pl, common.EqHE))
+}
+
+// A known grenade is removed exactly, regardless of its position in the list.
+func TestRemoveThrownGrenade(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	pl := &common.Player{}
+	smoke1 := common.NewEquipment(common.EqSmoke, 1)
+	smoke2 := common.NewEquipment(common.EqSmoke, 2)
+	he := common.NewEquipment(common.EqHE, 3)
+
+	p.gameEventHandler.addThrownGrenade(pl, smoke1)
+	p.gameEventHandler.addThrownGrenade(pl, smoke2)
+	p.gameEventHandler.addThrownGrenade(pl, he)
+
+	p.gameEventHandler.removeThrownGrenade(smoke2)
+
+	assert.Equal(t, []*common.Equipment{smoke1}, p.gameState.thrownGrenades[pl][common.EqSmoke])
+	assert.Equal(t, []*common.Equipment{he}, p.gameState.thrownGrenades[pl][common.EqHE])
+
+	// not thrown (anymore) - no-op
+	p.gameEventHandler.removeThrownGrenade(smoke2)
+	p.gameEventHandler.removeThrownGrenade(nil)
+
+	p.gameEventHandler.removeThrownGrenade(smoke1)
+	p.gameEventHandler.removeThrownGrenade(he)
+
+	assert.Empty(t, p.gameState.thrownGrenades[pl])
+}
+
+// The grenade is removed even if it was stored for a different player than the one an event reports
+// (e.g. the projectile's thrower changed or the event has no thrower).
+func TestRemoveThrownGrenade_StoredForOtherPlayer(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	thrower := &common.Player{Name: "thrower"}
+	other := &common.Player{Name: "other"}
+	smokeOther := common.NewEquipment(common.EqSmoke, 1)
+	smoke := common.NewEquipment(common.EqSmoke, 2)
+
+	p.gameEventHandler.addThrownGrenade(other, smokeOther)
+	p.gameEventHandler.addThrownGrenade(thrower, smoke)
+
+	p.gameEventHandler.removeThrownGrenade(smoke)
+
+	assert.Empty(t, p.gameState.thrownGrenades[thrower])
+	assert.Equal(t, []*common.Equipment{smokeOther}, p.gameState.thrownGrenades[other][common.EqSmoke])
+}
+
+// An expired inferno removes the grenade of the projectile it's linked to, even without a known thrower.
+func TestInfernoExpired_RemovesLinkedProjectilesGrenade(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	pl := &common.Player{}
+	molotov1 := common.NewEquipment(common.EqMolotov, 1)
+	molotov2 := common.NewEquipment(common.EqMolotov, 2)
+
+	p.gameEventHandler.addThrownGrenade(pl, molotov1)
+	p.gameEventHandler.addThrownGrenade(pl, molotov2)
+
+	const infernoID = 77
+
+	infEntity := new(stfake.Entity)
+	infEntity.On("ID").Return(infernoID)
+
+	inf := common.NewInferno(p.demoInfoProvider, infEntity, nil, 3)
+	p.gameState.infernos[infernoID] = inf
+	p.gameState.infernoProjectiles[infernoID] = &common.GrenadeProjectile{WeaponInstance: molotov2}
+
+	var got []events.InfernoExpired
+	p.RegisterEventHandler(func(e events.InfernoExpired) {
+		got = append(got, e)
+	})
+
+	p.infernoExpired(inf)
+
+	assert.Len(t, got, 1)
+	assert.Same(t, molotov2, got[0].Projectile.WeaponInstance)
+	assert.Equal(t, []*common.Equipment{molotov1}, p.gameState.thrownGrenades[pl][common.EqMolotov])
+	assert.Empty(t, p.gameState.infernoProjectiles)
+}
+
+// Grenades thrown while controlling a bot are stored for the bot and deleted from there.
+func TestDeleteThrownGrenade_ControlledBot(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	p.header = &common.DemoHeader{Filestamp: filestampS2}
+	provider := demoInfoProvider{parser: p}
+
+	human := common.NewPlayer(provider)
+	human.SteamID64 = 1
+	bot := common.NewPlayer(provider)
+	bot.SteamID64 = 0
+
+	p.gameState.playersByEntityID[2] = bot
+	human.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(2)})
+	bot.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(constants.InvalidEntityHandleSource2)})
+
+	smoke := common.NewEquipment(common.EqSmoke, 1)
+	p.gameEventHandler.addThrownGrenade(bot, smoke)
+
+	assert.Same(t, smoke, p.gameEventHandler.getThrownGrenade(human, common.EqSmoke))
+
+	p.gameEventHandler.deleteThrownGrenade(human, common.EqSmoke)
+
+	assert.Empty(t, p.gameState.thrownGrenades[bot])
+}
+
+// Molotovs may be reported as incendiaries and vice versa (e.g. by InfernoExpired), deleting must handle that too.
+func TestDeleteThrownGrenade_MolotovReportedAsIncendiary(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	pl := &common.Player{}
+	molotov := common.NewEquipment(common.EqMolotov, 1)
+
+	p.gameEventHandler.addThrownGrenade(pl, molotov)
+	p.gameEventHandler.deleteThrownGrenade(pl, common.EqIncendiary)
 
 	assert.Empty(t, p.gameState.thrownGrenades[pl])
 }
