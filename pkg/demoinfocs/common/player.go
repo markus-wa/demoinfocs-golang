@@ -470,21 +470,25 @@ func (p *Player) ViewDirectionY() float32 {
 // for GOTV demos recorded since the CS2 "AnimGraph 2" update (28/07/2025, network protocol 14089),
 // and as far as known for POV demos too. Older demos declare the property but don't populate it - except
 // for the recording player of POV demos, whose networked value is used. For everybody else on those
-// demos, the velocity is derived from the position delta between the current position and the position
-// at the end of an earlier frame, divided by the in-game time elapsed between the two (see TickRate()).
+// demos, the velocity is derived from the position delta between two entity snapshots, divided by the
+// server time elapsed between them (server ticks, see TickRate()).
 //
 // Positions are only recorded for players Velocity() has been called for, so the fallback costs nothing
-// unless it's used. Calls during the first frame a player is tracked therefore return a zero vector, and
-// the parser dispatches a ParserWarn (WarnTypeVelocityTrackingStartedLazily) the first time this happens.
-// Set ParserConfig.EagerVelocityTracking to record all players from the start instead.
+// unless it's used. Calls before the next entity snapshot after the first call for a player therefore
+// return a zero vector, and the parser dispatches a ParserWarn (WarnTypeVelocityTrackingStartedLazily)
+// the first time this happens. Set ParserConfig.EagerVelocityTracking to record all players from the start
+// instead. On those demos Velocity() thus registers the player with the parser - like the parser itself,
+// it must not be called concurrently with parsing (e.g. from another goroutine).
 //
 // The fallback:
-//   - returns a zero vector on the first frame after a player (re-)spawned, while dead, and on the
-//     frame a pawn was teleported (m_ubInterpolationFrame changed, or a delta above sv_maxvelocity);
-//   - measures the elapsed time in server ticks of the entity snapshots, and keeps the last value during
-//     frames without one (e.g. the user command frames of POV demos);
-//   - it lags the networked value by up to one frame and is noisier, since it is a finite difference
-//     over the frame interval (e.g. 3 ticks on older GOTV demos).
+//   - returns a zero vector until the next entity snapshot after a player (re-)spawned, while dead, and
+//     when a pawn was teleported (m_ubInterpolationFrame changed, or a delta above sv_maxvelocity);
+//   - keeps the last value during frames without an entity snapshot (e.g. the user command frames of POV
+//     demos), and returns the value of the previous snapshot while one is applied (e.g. in WeaponFire
+//     handlers), since the pawn's position may not be updated yet at that point;
+//   - lags the networked value by up to one snapshot and is noisier, since it is a finite difference over
+//     the snapshot interval (e.g. 3 ticks on older GOTV demos) - e.g. Z briefly spikes when a pawn steps up
+//     stairs or lands.
 func (p *Player) Velocity() r3.Vector {
 	pawnEntity := p.PlayerPawnEntity()
 	if pawnEntity == nil {
@@ -540,22 +544,31 @@ func (p *Player) isRecordingPlayer() bool {
 // ticks: on POV demos the latter advance in frames without a snapshot and jitter against the snapshots,
 // which made the velocity alternate between the real value and zero and produced spikes.
 func (p *Player) positionDeltaVelocity(pawnEntity st.Entity) r3.Vector {
-	tickRate := p.demoInfoProvider.TickRate()
-	if tickRate <= 0 {
+	last, prev := p.positionHistory[0], p.positionHistory[1]
+	tick := p.demoInfoProvider.SnapshotTick()
+
+	if !last.valid || last.tick > tick {
+		// no history, or the tick went backwards
 		return r3.Vector{}
 	}
 
-	tick := p.demoInfoProvider.SnapshotTick()
-
-	// Use the most recent sample from a snapshot before the current one.
-	// If there was no new snapshot since the last sample (e.g. a user command frame of a POV demo),
-	// that is the second most recent one - so the last velocity is kept.
-	ref := p.positionHistory[0]
-	if ref.tick >= tick {
-		ref = p.positionHistory[1]
+	// While a snapshot is being processed (e.g. in a WeaponFire handler), the pawn's position may or may not
+	// be updated yet - use the velocity between the last two samples instead, which lags by one snapshot.
+	// Without a new snapshot since the last sample (e.g. a user command frame of a POV demo), the position
+	// hasn't changed since, so that's the current velocity as well.
+	if p.demoInfoProvider.ProcessingSnapshot() || last.tick == tick {
+		return p.velocitySince(prev, last.pos, last.tick, pawnEntity)
 	}
 
-	if !ref.valid || ref.tick >= tick || ref.pawnID != pawnEntity.ID() {
+	return p.velocitySince(last, pawnEntity.Position(), tick, pawnEntity)
+}
+
+// velocitySince returns the average velocity from the reference sample to the given position and tick
+// of the same pawn, or a zero vector if they can't be compared.
+func (p *Player) velocitySince(ref positionSample, pos r3.Vector, tick int, pawnEntity st.Entity) r3.Vector {
+	tickRate := p.demoInfoProvider.TickRate()
+
+	if tickRate <= 0 || !ref.valid || ref.tick >= tick || ref.pawnID != pawnEntity.ID() {
 		return r3.Vector{}
 	}
 
@@ -565,7 +578,7 @@ func (p *Player) positionDeltaVelocity(pawnEntity st.Entity) r3.Vector {
 	}
 
 	dt := float64(tick-ref.tick) / tickRate
-	v := pawnEntity.Position().Sub(ref.pos).Mul(1 / dt)
+	v := pos.Sub(ref.pos).Mul(1 / dt)
 
 	if math.Abs(v.X) > constants.MaxVelocity || math.Abs(v.Y) > constants.MaxVelocity || math.Abs(v.Z) > constants.MaxVelocity {
 		// physically impossible, must be a teleport that wasn't flagged as such
@@ -897,6 +910,9 @@ type demoInfoProvider interface {
 	// SnapshotTick returns the server tick of the last entity snapshot (svc_PacketEntities), -1 if none yet.
 	// Unlike IngameTick() it only advances with entity data, used for Player.Velocity().
 	SnapshotTick() int
+	// ProcessingSnapshot returns whether an entity snapshot is currently being applied
+	// (e.g. while dispatching events triggered by entity updates).
+	ProcessingSnapshot() bool
 	// TrackFramePosition registers a function the parser calls at the end of every frame (after FrameDone),
 	// until it returns false.
 	// lazy is true if tracking was started by a Velocity() call rather than by the config.

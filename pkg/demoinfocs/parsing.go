@@ -122,15 +122,7 @@ func (p *parser) parseHeader() error {
 
 			_ = p.stParser.OnServerInfo(m)
 		})
-		p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_PacketEntities) {
-			if p.aborted() {
-				return
-			}
-
-			p.snapshotTick = int(m.GetServerTick()) // see Player.Velocity()
-
-			_ = p.stParser.OnPacketEntities(m)
-		})
+		p.RegisterNetMessageHandler(p.handlePacketEntities)
 
 	default:
 		return ErrInvalidFileType
@@ -474,6 +466,27 @@ func (p *parser) parseFrame() bool {
 	p.msgQueue <- frameParsedToken
 
 	return msgType != msg.EDemoCommands_DEM_Stop
+}
+
+func (p *parser) handlePacketEntities(m *msg.CSVCMsg_PacketEntities) {
+	if p.aborted() {
+		return
+	}
+
+	// Used by Player.Velocity(). Also set for snapshots OnPacketEntities() ignores (e.g. the ones of
+	// DEM_FullPacket, which repeat the last server tick) - position recording skips repeated ticks.
+	if m.ServerTick != nil {
+		p.snapshotTick = int(m.GetServerTick())
+	} else {
+		// not seen in practice - fall back to the in-game tick rather than freezing the clock
+		p.snapshotTick = p.gameState.ingameTick
+	}
+
+	p.processingSnapshot = true
+
+	_ = p.stParser.OnPacketEntities(m)
+
+	p.processingSnapshot = false
 }
 
 type frameParsedTokenType struct{}

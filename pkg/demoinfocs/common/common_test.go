@@ -178,17 +178,18 @@ type fakeProp struct {
 }
 
 type demoInfoProviderMock struct {
-	tickRate         float64
-	ingameTick       int
-	playersByHandle  map[uint64]*Player
-	entitiesByHandle map[uint64]st.Entity
-	equipment        *Equipment
-	networkProtocol  int
-	velocityFallback bool
-	snapshotTick     int
-	tracked          *[]trackedRecorder
-	pov              bool // recordingSlot is only used if set, so the zero value is a GOTV demo
-	recordingSlot    int
+	tickRate              float64
+	ingameTick            int
+	playersByHandle       map[uint64]*Player
+	entitiesByHandle      map[uint64]st.Entity
+	equipment             *Equipment
+	networkProtocol       int
+	eagerVelocityTracking bool
+	snapshotTick          int
+	processingSnapshot    bool
+	tracked               *[]trackedRecorder
+	pov                   bool // recordingSlot is only used if set, so the zero value is a GOTV demo
+	recordingSlot         int
 }
 
 type trackedRecorder struct {
@@ -197,11 +198,15 @@ type trackedRecorder struct {
 }
 
 func (p demoInfoProviderMock) EagerVelocityTracking() bool {
-	return p.velocityFallback
+	return p.eagerVelocityTracking
 }
 
 func (p demoInfoProviderMock) SnapshotTick() int {
 	return p.snapshotTick
+}
+
+func (p demoInfoProviderMock) ProcessingSnapshot() bool {
+	return p.processingSnapshot
 }
 
 func (p demoInfoProviderMock) RecordingPlayerSlot() int {

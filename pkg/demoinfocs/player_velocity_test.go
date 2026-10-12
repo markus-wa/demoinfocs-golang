@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
+	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 )
 
@@ -144,4 +145,72 @@ func TestPlayerVelocity_LazyPositionTracking(t *testing.T) {
 	assert.Equal(t, 1, lazyWarnings)
 	assert.Less(t, maxSpeed, 350.0)
 	assert.Positive(t, moving)
+}
+
+// Events like WeaponFire are dispatched while an entity snapshot is applied, possibly before the shooter's pawn
+// position is updated. Velocity() must not report moving players as standing still there.
+func TestPlayerVelocity_DuringSnapshot(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
+	f := openFile(t, s2DemPath)
+	defer mustClose(t, f)
+
+	cfg := demoinfocs.DefaultParserConfig
+	cfg.EagerVelocityTracking = true
+	p := demoinfocs.NewParserWithConfig(f, cfg)
+
+	type shot struct {
+		shooter  *common.Player
+		velocity r3.Vector
+	}
+
+	var (
+		shots                  []shot
+		movingShots, zeroShots int
+		diffs                  []float64 // to the velocity at the end of the frame
+	)
+
+	p.RegisterEventHandler(func(e events.WeaponFire) {
+		if e.Shooter != nil && e.Shooter.IsAlive() {
+			shots = append(shots, shot{shooter: e.Shooter, velocity: e.Shooter.Velocity()})
+		}
+	})
+
+	p.RegisterEventHandler(func(events.FrameDone) {
+		for _, s := range shots {
+			atFrameEnd := s.shooter.Velocity()
+
+			if math.Hypot(atFrameEnd.X, atFrameEnd.Y) <= 50 {
+				continue
+			}
+
+			movingShots++
+
+			if s.velocity.Norm() == 0 {
+				zeroShots++
+			}
+
+			diffs = append(diffs, s.velocity.Sub(atFrameEnd).Norm())
+		}
+
+		shots = shots[:0]
+	})
+
+	assert.NoError(t, p.ParseToEnd())
+
+	slices.Sort(diffs)
+	diffP50 := diffs[len(diffs)/2]
+
+	t.Logf("moving shots=%d zero at WeaponFire=%d, diff to frame end p50=%.1f p90=%.1f max=%.1f",
+		movingShots, zeroShots, diffP50, diffs[len(diffs)*9/10], diffs[len(diffs)-1])
+
+	assert.Positive(t, movingShots)
+	// was 72% before using the velocity of the last two samples while a snapshot is applied
+	assert.Less(t, float64(zeroShots)/float64(movingShots), 0.01)
+	// lags by one snapshot at most
+	assert.Less(t, diffP50, 50.0)
 }

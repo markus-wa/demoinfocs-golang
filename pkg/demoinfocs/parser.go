@@ -122,6 +122,7 @@ type parser struct {
 	disableMimicSource1GameEvents bool
 	eagerVelocityTracking         bool
 	snapshotTick                  int           // server tick of the last svc_PacketEntities, see Player.Velocity()
+	processingSnapshot            bool          // true while a svc_PacketEntities is applied, see Player.Velocity()
 	framePositionRecorders        []func() bool // see Player.Velocity()
 	lazyVelocityTrackingWarned    bool
 
@@ -595,10 +596,11 @@ type ParserConfig struct {
 	// don't network the player velocity (recorded before the CS2 "AnimGraph 2" update, network protocol
 	// < 14089).
 	//
-	// On those demos Player.Velocity() always derives the velocity from position deltas. Without this flag,
-	// positions are only recorded for players Player.Velocity() has been called for, starting with that
-	// call (calls during that frame return a zero vector), and a ParserWarn
-	// (WarnTypeVelocityTrackingStartedLazily) is dispatched once. With it, the velocity is available for
+	// On those demos Player.Velocity() derives the velocity from position deltas for everybody but the
+	// recording player of POV demos, whose velocity is networked. Without this flag, positions are only
+	// recorded for players Player.Velocity() has been called for, starting with that call (calls until the
+	// next entity snapshot return a zero vector), and a ParserWarn (WarnTypeVelocityTrackingStartedLazily)
+	// is dispatched once. With it, the velocity is available for
 	// every player from their first frame on, at the cost of recording positions for all players.
 	// It has no effect (and no cost) on newer demos, where the velocity is networked. False by default.
 	EagerVelocityTracking bool
@@ -708,6 +710,10 @@ func (p demoInfoProvider) SnapshotTick() int {
 	return p.parser.snapshotTick
 }
 
+func (p demoInfoProvider) ProcessingSnapshot() bool {
+	return p.parser.processingSnapshot
+}
+
 func (p demoInfoProvider) TrackFramePosition(record func() bool, lazy bool) {
 	p.parser.framePositionRecorders = append(p.parser.framePositionRecorders, record)
 
@@ -716,7 +722,7 @@ func (p demoInfoProvider) TrackFramePosition(record func() bool, lazy bool) {
 
 		p.parser.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: "Player.Velocity() called on a demo without networked player velocity; deriving it from position " +
-				"deltas from now on - calls during a player's first tracked frame return a zero vector. " +
+				"deltas from now on - calls until the next entity snapshot return a zero vector for a newly tracked player. " +
 				"Set ParserConfig.EagerVelocityTracking to record all players from the start.",
 			Type: events.WarnTypeVelocityTrackingStartedLazily,
 		})

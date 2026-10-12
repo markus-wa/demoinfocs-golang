@@ -93,6 +93,10 @@ func (p demoInfoProviderMock) SnapshotTick() int {
 	return -1
 }
 
+func (p demoInfoProviderMock) ProcessingSnapshot() bool {
+	return false
+}
+
 func (p demoInfoProviderMock) RecordingPlayerSlot() int {
 	return -1
 }

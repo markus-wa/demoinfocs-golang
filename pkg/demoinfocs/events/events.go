@@ -661,9 +661,9 @@ const (
 	WarnTypeCantReadEncryptedNetMessage
 
 	// WarnTypeVelocityTrackingStartedLazily occurs (once per parse) when Player.Velocity() starts recording
-	// positions for a player on a demo that doesn't network the player velocity. Velocity() calls during a
-	// player's first tracked frame return a zero vector; set ParserConfig.EagerVelocityTracking to record
-	// from the start.
+	// positions for a player on a demo that doesn't network the player velocity. Velocity() calls until the
+	// next entity snapshot return a zero vector for that player; set ParserConfig.EagerVelocityTracking to
+	// record from the start.
 	WarnTypeVelocityTrackingStartedLazily
 )
 

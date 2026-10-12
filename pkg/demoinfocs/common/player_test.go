@@ -478,7 +478,7 @@ func TestPlayer_Velocity_PositionDelta_LazyTracking(t *testing.T) {
 
 	assert.Empty(t, *f.provider.tracked)
 
-	f.provider.ingameTick = 100
+	f.provider.snapshotTick = 100
 	assert.Equal(t, r3.Vector{}, f.pl.Velocity())
 	assert.Equal(t, r3.Vector{}, f.pl.Velocity())
 
@@ -514,7 +514,7 @@ func TestNewPlayer_EagerPositionTracking(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			tracked := []trackedRecorder{}
-			NewPlayer(demoInfoProviderMock{networkProtocol: c.protocol, velocityFallback: c.flag, tracked: &tracked})
+			NewPlayer(demoInfoProviderMock{networkProtocol: c.protocol, eagerVelocityTracking: c.flag, tracked: &tracked})
 
 			if c.tracked {
 				require.Len(t, tracked, 1)
@@ -558,6 +558,29 @@ func TestPlayer_Velocity_PositionDelta_FrameWithoutSnapshot(t *testing.T) {
 	// the next snapshot doesn't update the pawn - standing still
 	assert.Equal(t, r3.Vector{}, f.frame(103, r3.Vector{X: 5}))
 	assert.Equal(t, r3.Vector{}, f.frameNoSnapshot(104))
+}
+
+// Events like WeaponFire are dispatched while a snapshot is applied, when the pawn's position may or may not be
+// updated yet - the velocity between the last two samples is used then.
+func TestPlayer_Velocity_PositionDelta_DuringSnapshot(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	f.frame(100, r3.Vector{})
+	f.frame(101, r3.Vector{X: 1})
+
+	// the next snapshot is being applied, the pawn isn't updated yet - not a standstill
+	f.provider.snapshotTick = 102
+	f.provider.processingSnapshot = true
+	assertVectorInDelta(t, r3.Vector{X: 64}, f.pl.Velocity())
+
+	// updated within the same snapshot - still the last value, consistently for all players
+	f.pos = r3.Vector{X: 3}
+	f.update()
+	assertVectorInDelta(t, r3.Vector{X: 64}, f.pl.Velocity())
+
+	// after the snapshot
+	f.provider.processingSnapshot = false
+	assertVectorInDelta(t, r3.Vector{X: 128}, f.frameNoSnapshot(102))
 }
 
 // The recorder skips the (relatively expensive) position lookup in frames without an entity snapshot.
@@ -740,13 +763,24 @@ func TestPlayer_Velocity_PositionDelta_ControllerDestroyed(t *testing.T) {
 	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(104, r3.Vector{X: 4}))
 }
 
-// With ParserConfig.EagerVelocityTracking a re-registration isn't lazy (no warning).
+// With ParserConfig.EagerVelocityTracking a re-registration (after the recorder was dropped) isn't lazy (no warning).
 func TestPlayer_Velocity_PositionDelta_ReRegistrationWithFlag(t *testing.T) {
 	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
-	f.provider.velocityFallback = true
+	f.provider.eagerVelocityTracking = true
 
 	f.frame(100, r3.Vector{})
 	require.Len(t, *f.provider.tracked, 1)
+
+	controller := f.provider.entitiesByHandle[velocityFixtureControllerID]
+	delete(f.provider.entitiesByHandle, velocityFixtureControllerID)
+
+	f.frame(101, r3.Vector{})
+	require.Empty(t, *f.provider.tracked, "recorder dropped")
+
+	f.provider.entitiesByHandle[velocityFixtureControllerID] = controller
+
+	f.frame(102, r3.Vector{})
+	require.Len(t, *f.provider.tracked, 1, "registered again")
 	assert.False(t, (*f.provider.tracked)[0].lazy)
 }
 

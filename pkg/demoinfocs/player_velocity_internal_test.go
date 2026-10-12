@@ -9,10 +9,40 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 )
 
 const povDemPathInternal = "../../test/cs-demos/s2/pov.dem"
+
+// derivedVelocityStats collects the derived velocity of players whose velocity isn't networked.
+type derivedVelocityStats struct {
+	positions          map[int][]r3.Vector // last 5 positions per player
+	moving, movingZero int
+	maxSpeed           float64
+}
+
+func (s *derivedVelocityStats) add(pl *common.Player, v r3.Vector) {
+	s.maxSpeed = max(s.maxSpeed, math.Hypot(v.X, v.Y))
+
+	positions := s.positions[pl.EntityID]
+	positions = append(positions, pl.Position())
+
+	if len(positions) > 5 {
+		positions = positions[1:]
+	}
+
+	s.positions[pl.EntityID] = positions
+
+	// clearly moving: more than 8 units over the last 4 frames
+	if len(positions) == 5 && positions[4].Sub(positions[0]).Norm() > 8 {
+		s.moving++
+
+		if v.Norm() == 0 {
+			s.movingZero++
+		}
+	}
+}
 
 // pov.dem is a POV demo recorded before the AnimGraph 2 update: the recording player's velocity is networked
 // and must be used as-is, everybody else's is derived from position deltas.
@@ -35,10 +65,7 @@ func TestPlayerVelocity_POV(t *testing.T) {
 		recordingSlot              = -1
 		recordingChecked, recorded int
 		maxRecorders, dropped      int
-
-		othersPositions                = map[int][]r3.Vector{}
-		othersMoving, othersMovingZero int
-		othersMaxSpeed                 float64
+		others                     = derivedVelocityStats{positions: map[int][]r3.Vector{}}
 	)
 
 	p.RegisterEventHandler(func(e events.POVRecordingPlayerDetected) {
@@ -54,23 +81,7 @@ func TestPlayerVelocity_POV(t *testing.T) {
 			v := pl.Velocity()
 
 			if pl.EntityID-1 != recordingSlot {
-				othersMaxSpeed = max(othersMaxSpeed, math.Hypot(v.X, v.Y))
-
-				// clearly moving: more than 8 units over the last 4 frames
-				positions := append(othersPositions[pl.EntityID], pl.Position())
-				if len(positions) > 5 {
-					positions = positions[1:]
-				}
-
-				othersPositions[pl.EntityID] = positions
-
-				if len(positions) == 5 && positions[4].Sub(positions[0]).Norm() > 8 {
-					othersMoving++
-
-					if v.Norm() == 0 {
-						othersMovingZero++
-					}
-				}
+				others.add(pl, v)
 
 				continue
 			}
@@ -111,7 +122,7 @@ func TestPlayerVelocity_POV(t *testing.T) {
 	}
 
 	t.Logf("recording player samples=%d moving=%d, max recorders=%d, dropped=%d", recordingChecked, recorded, maxRecorders, dropped)
-	t.Logf("other players moving=%d zero while moving=%d, max speed=%.1f", othersMoving, othersMovingZero, othersMaxSpeed)
+	t.Logf("other players moving=%d zero while moving=%d, max speed=%.1f", others.moving, others.movingZero, others.maxSpeed)
 
 	assert.NotEqual(t, -1, recordingSlot)
 	assert.Positive(t, recordingChecked)
@@ -121,8 +132,8 @@ func TestPlayerVelocity_POV(t *testing.T) {
 	assert.Positive(t, dropped, "recorder of the disconnected player wasn't dropped")
 
 	// players run at most at 250 u/s (knife) - no spikes from snapshots arriving within one in-game tick
-	assert.Less(t, othersMaxSpeed, 350.0)
+	assert.Less(t, others.maxSpeed, 350.0)
 	// zeros while moving are teleports / (re-)spawns only, not frames without a snapshot (was 26%)
-	assert.Positive(t, othersMoving)
-	assert.Less(t, float64(othersMovingZero)/float64(othersMoving), 0.02)
+	assert.Positive(t, others.moving)
+	assert.Less(t, float64(others.movingZero)/float64(others.moving), 0.02)
 }
