@@ -205,3 +205,30 @@ func TestFireGrenadeEvents_UseLinkedProjectile(t *testing.T) {
 	p.gameEventHandler.infernoExpire(grenadeEventData(infernoID + 1))
 	assert.Nil(t, got[2].Base().Projectile)
 }
+
+// The entity-ID of an event may have been re-used by a different grenade - don't attribute the event to it.
+func TestNadeEvent_ProjectileOfDifferentType_Ignored(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	pl := &common.Player{}
+	p.gameState.grenadeProjectiles[42] = newTestProjectile(1, pl, common.NewEquipment(common.EqSmoke, 1))
+
+	var got []events.HeExplode
+	p.RegisterEventHandler(func(e events.HeExplode) {
+		got = append(got, e)
+	})
+
+	p.gameEventHandler.heGrenadeDetonate(grenadeEventData(42))
+
+	assert.Len(t, got, 1)
+	assert.Nil(t, got[0].Projectile)
+	assert.Nil(t, got[0].Grenade)
+}
+
+// Molotovs and incendiaries may be reported as each other, that's not a different grenade.
+func TestIsSameGrenadeType(t *testing.T) {
+	assert.True(t, isSameGrenadeType(common.EqSmoke, common.EqSmoke))
+	assert.True(t, isSameGrenadeType(common.EqMolotov, common.EqIncendiary))
+	assert.True(t, isSameGrenadeType(common.EqIncendiary, common.EqMolotov))
+	assert.False(t, isSameGrenadeType(common.EqSmoke, common.EqHE))
+	assert.False(t, isSameGrenadeType(common.EqMolotov, common.EqHE))
+}

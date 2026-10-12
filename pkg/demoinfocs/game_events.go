@@ -1203,11 +1203,30 @@ func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT
 // For fire grenades it's the one of the inferno, which is mapped to the projectile it was spawned from
 // (see parser.linkInfernoProjectile).
 func (geh gameEventHandler) grenadeEventProjectile(entityID int, nadeType common.EquipmentType) *common.GrenadeProjectile {
-	if nadeType == common.EqIncendiary || nadeType == common.EqMolotov {
-		return geh.gameState().infernoProjectiles[entityID]
+	var proj *common.GrenadeProjectile
+
+	if isFireGrenade(nadeType) {
+		proj = geh.gameState().infernoProjectiles[entityID]
+	} else {
+		proj = geh.gameState().grenadeProjectiles[entityID]
 	}
 
-	return geh.gameState().grenadeProjectiles[entityID]
+	// The entity-ID may have been re-used by a different grenade (e.g. for an event after the projectile was removed).
+	if proj != nil && proj.WeaponInstance != nil && !isSameGrenadeType(proj.WeaponInstance.Type, nadeType) {
+		return nil
+	}
+
+	return proj
+}
+
+func isFireGrenade(t common.EquipmentType) bool {
+	return t == common.EqIncendiary || t == common.EqMolotov
+}
+
+// isSameGrenadeType returns whether a and b are the same grenade type,
+// treating molotovs and incendiaries as the same (they may be reported as each other in game-events).
+func isSameGrenadeType(a, b common.EquipmentType) bool {
+	return a == b || (isFireGrenade(a) && isFireGrenade(b))
 }
 
 func (geh gameEventHandler) addThrownGrenade(p *common.Player, wep *common.Equipment) {
