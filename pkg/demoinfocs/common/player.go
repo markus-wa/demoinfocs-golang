@@ -1,11 +1,11 @@
 package common
 
 import (
+	"errors"
 	"math"
 	"time"
 
 	"github.com/golang/geo/r3"
-	"github.com/pkg/errors"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"

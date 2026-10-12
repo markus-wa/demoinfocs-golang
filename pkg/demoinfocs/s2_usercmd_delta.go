@@ -1,8 +1,10 @@
 package demoinfocs
 
 import (
+	"errors"
+	"fmt"
+
 	msg "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/encoding/protowire"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -93,7 +95,7 @@ func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
 	for len(data) > 0 {
 		num, typ, tagLen := protowire.ConsumeTag(data)
 		if tagLen < 0 {
-			return errors.Wrap(protowire.ParseError(tagLen), "failed to read delta field tag")
+			return fmt.Errorf("failed to read delta field tag: %w", protowire.ParseError(tagLen))
 		}
 
 		if num == 0 {
@@ -104,7 +106,7 @@ func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
 
 		if typ == wireTypeReset {
 			if fd == nil {
-				return errors.Errorf("wire type 7 references unknown field %d", num)
+				return fmt.Errorf("wire type 7 references unknown field %d", num)
 			}
 
 			target.Clear(fd)
@@ -117,7 +119,7 @@ func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
 		if typ == protowire.BytesType {
 			value, valueLen := protowire.ConsumeBytes(data[tagLen:])
 			if valueLen < 0 {
-				return errors.Wrap(protowire.ParseError(valueLen), "failed to read length-delimited delta field")
+				return fmt.Errorf("failed to read length-delimited delta field: %w", protowire.ParseError(valueLen))
 			}
 
 			switch {
@@ -144,7 +146,7 @@ func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
 
 		valueLen := protowire.ConsumeFieldValue(num, typ, data[tagLen:])
 		if valueLen < 0 {
-			return errors.Wrap(protowire.ParseError(valueLen), "failed to read delta field value")
+			return fmt.Errorf("failed to read delta field value: %w", protowire.ParseError(valueLen))
 		}
 
 		if fd != nil && !fd.IsList() {
@@ -156,7 +158,7 @@ func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
 
 	if len(scalars) > 0 {
 		if err := (proto.UnmarshalOptions{Merge: true}).Unmarshal(scalars, target.Interface()); err != nil {
-			return errors.Wrap(err, "failed to merge scalar delta fields")
+			return fmt.Errorf("failed to merge scalar delta fields: %w", err)
 		}
 	}
 
@@ -165,7 +167,7 @@ func mergeUserCmdDelta(target protoreflect.Message, data []byte) error {
 
 func mergeUserCmdRepeated(parent protoreflect.Message, fd protoreflect.FieldDescriptor, data []byte) error {
 	if fd.Kind() != protoreflect.MessageKind && fd.Kind() != protoreflect.GroupKind {
-		return errors.Errorf("repeated field %s is not a message list", fd.FullName())
+		return fmt.Errorf("repeated field %s is not a message list", fd.FullName())
 	}
 
 	list := parent.Mutable(fd).List()
@@ -176,7 +178,7 @@ func mergeUserCmdRepeated(parent protoreflect.Message, fd protoreflect.FieldDesc
 		// number zero. Read the raw varint instead of ConsumeTag.
 		key, tagLen := protowire.ConsumeVarint(data)
 		if tagLen < 0 {
-			return errors.Wrap(protowire.ParseError(tagLen), "failed to read repeated delta index")
+			return fmt.Errorf("failed to read repeated delta index: %w", protowire.ParseError(tagLen))
 		}
 
 		if key>>3 > uint64(^uint(0)>>1) {
@@ -191,7 +193,7 @@ func mergeUserCmdRepeated(parent protoreflect.Message, fd protoreflect.FieldDesc
 		switch typ {
 		case wireTypeReset:
 			if index > userCmdRepeatedLimit {
-				return errors.Errorf("repeated delta index %d exceeds limit %d", index, userCmdRepeatedLimit)
+				return fmt.Errorf("repeated delta index %d exceeds limit %d", index, userCmdRepeatedLimit)
 			}
 
 			if index > list.Len() {
@@ -206,20 +208,20 @@ func mergeUserCmdRepeated(parent protoreflect.Message, fd protoreflect.FieldDesc
 		case protowire.BytesType:
 			value, valueLen := protowire.ConsumeBytes(data[tagLen:])
 			if valueLen < 0 {
-				return errors.Wrap(protowire.ParseError(valueLen), "failed to read repeated delta message")
+				return fmt.Errorf("failed to read repeated delta message: %w", protowire.ParseError(valueLen))
 			}
 
 			if index >= list.Len() {
-				return errors.Errorf("repeated delta index %d is out of bounds for length %d", index, list.Len())
+				return fmt.Errorf("repeated delta index %d is out of bounds for length %d", index, list.Len())
 			}
 
 			if err := mergeUserCmdDelta(list.Get(index).Message(), value); err != nil {
-				return errors.Wrapf(err, "failed to merge repeated field %s[%d]", fd.FullName(), index)
+				return fmt.Errorf("failed to merge repeated field %s[%d]: %w", fd.FullName(), index, err)
 			}
 
 			data = data[tagLen+valueLen:]
 		default:
-			return errors.Errorf("unsupported repeated delta wire type %d", typ)
+			return fmt.Errorf("unsupported repeated delta wire type %d", typ)
 		}
 	}
 

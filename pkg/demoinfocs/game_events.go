@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"sort"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
@@ -884,7 +884,7 @@ func (geh gameEventHandler) bombEvent(data map[string]*msg.CMsgSource1LegacyGame
 		// when not found, only error if site is not 0, for retake games it may be 0 => unknown
 		if t == nil {
 			if !geh.ignoreBombsiteIndexNotFound {
-				return bombEvent, errors.Wrapf(ErrBombsiteIndexNotFound, "bombsite with index %d not found", site)
+				return bombEvent, fmt.Errorf("bombsite with index %d not found: %w", site, ErrBombsiteIndexNotFound)
 			}
 		} else {
 			if t.contains(geh.parser.bombsiteA.center) {

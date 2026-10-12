@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -17,7 +16,7 @@ func MatchInfoDecryptionKey(b []byte) ([]byte, error) {
 
 	err := proto.Unmarshal(b, m)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal MatchInfo message")
+		return nil, fmt.Errorf("failed to unmarshal MatchInfo message: %w", err)
 	}
 
 	k := []byte(strings.ToUpper(fmt.Sprintf("%016x", m.GetWatchablematchinfo().GetClDecryptdataKeyPub())))

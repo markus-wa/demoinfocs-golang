@@ -70,6 +70,7 @@ func TestRecoverFromUnexpectedEOF(t *testing.T) {
 	assert.Nil(t, recoverFromUnexpectedEOF(nil))
 	assert.ErrorIs(t, recoverFromUnexpectedEOF(io.ErrUnexpectedEOF), ErrUnexpectedEndOfDemo)
 	assert.ErrorIs(t, recoverFromUnexpectedEOF(io.EOF), ErrUnexpectedEndOfDemo)
+	assert.EqualError(t, recoverFromUnexpectedEOF(io.EOF), "unexpected EOF: "+ErrUnexpectedEndOfDemo.Error())
 
 	assert.Panics(t, func() {
 		r := recoverFromUnexpectedEOF(errors.New("test"))
