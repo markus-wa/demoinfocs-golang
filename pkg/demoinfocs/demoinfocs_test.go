@@ -422,6 +422,61 @@ func TestParseToEnd_CancelFromOtherGoroutine(t *testing.T) {
 	assert.Equal(t, n, nEvents.Load(), "events were dispatched after ParseToEnd returned")
 }
 
+// readSignaler closes done once all of data has been read.
+type readSignaler struct {
+	r    *bytes.Reader
+	done chan struct{}
+	once sync.Once
+}
+
+func (rs *readSignaler) Read(p []byte) (int, error) {
+	n, err := rs.r.Read(p)
+	if rs.r.Len() == 0 {
+		rs.once.Do(func() { close(rs.done) })
+	}
+
+	return n, err
+}
+
+// A cancellation while the message queue is still being drained (after the frame loop has finished)
+// must be returned, since handlers skip the remaining messages once ctx is done.
+func TestParseToEnd_CancelDuringQueueDrain(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
+	data, err := os.ReadFile(s2DemPath)
+	assert.NoError(t, err, "failed to read demo")
+
+	rs := &readSignaler{r: bytes.NewReader(data), done: make(chan struct{})}
+
+	// large enough for the frame loop to finish while the first handler still blocks
+	p := demoinfocs.NewParser(rs, option.MsgQueueBufferSize(1<<21))
+
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
+	var once sync.Once
+
+	p.RegisterEventHandler(func(events.FrameDone) {
+		once.Do(func() {
+			select {
+			case <-rs.done:
+				// give the frame loop time to return
+				time.Sleep(500 * time.Millisecond)
+			case <-time.After(10 * time.Second):
+			}
+
+			cancel()
+		})
+	})
+
+	err = p.ParseToEnd(ctx)
+	assert.ErrorIs(t, err, context.Canceled, "cancellation during the queue drain was not returned")
+}
+
 func TestInvalidFileType(t *testing.T) {
 	t.Parallel()
 

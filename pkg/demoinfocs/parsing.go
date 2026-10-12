@@ -164,9 +164,16 @@ func (p *parser) ParseToEnd(ctx context.Context) (err error) {
 		return context.Cause(ctx)
 	}
 
+	stopWatchingContext := p.watchContext(ctx)
+
 	defer func() {
 		// Make sure all the messages of the demo are handled
 		p.msgDispatcher.SyncAllQueues()
+
+		// Only stop watching ctx after the queues are drained: handlers skip messages once ctx is done
+		// (see aborted()), so a cancellation during the drain must still be returned.
+		stopWatchingContext()
+
 		p.msgDispatcher.RemoveAllQueues()
 
 		// Close msgQueue
@@ -187,8 +194,6 @@ func (p *parser) ParseToEnd(ctx context.Context) (err error) {
 			p.ensurePlaybackValuesAreSet()
 		}
 	}()
-
-	defer p.watchContext(ctx)()
 
 	if p.header == nil {
 		err = p.parseHeader()
