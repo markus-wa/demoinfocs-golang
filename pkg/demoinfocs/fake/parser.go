@@ -3,11 +3,11 @@
 package fake
 
 import (
+	"cmp"
 	"time"
 
 	dp "github.com/markus-wa/godispatch"
 	mock "github.com/stretchr/testify/mock"
-	"golang.org/x/exp/constraints"
 
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
@@ -204,7 +204,7 @@ func (p *Parser) ParseNextFrame() (b bool, err error) {
 	return args.Bool(0), args.Error(1)
 }
 
-func maxKey[T any, N constraints.Ordered](numbers map[N]T) (maxNumber N) {
+func maxKey[T any, N cmp.Ordered](numbers map[N]T) (maxNumber N) {
 	for n := range numbers {
 		if n > maxNumber {
 			maxNumber = n

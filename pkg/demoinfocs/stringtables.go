@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/golang/snappy"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
@@ -309,7 +308,7 @@ func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 
 			classID, err := strconv.Atoi(item.Key)
 			if err != nil {
-				panic(errors.Wrap(err, "failed to parse serverClassID"))
+				panic(fmt.Errorf("failed to parse serverClassID: %w", err))
 			}
 
 			p.stParser.SetInstanceBaseline(classID, item.Value)
@@ -363,7 +362,7 @@ func (p *parser) handleStringTables(msg *msg.CDemoStringTables) {
 
 				classID, err := strconv.Atoi(key)
 				if err != nil {
-					panic(errors.Wrap(err, "failed to parse serverClassID"))
+					panic(fmt.Errorf("failed to parse serverClassID: %w", err))
 				}
 
 				p.stParser.SetInstanceBaseline(classID, item.GetData())
@@ -372,7 +371,7 @@ func (p *parser) handleStringTables(msg *msg.CDemoStringTables) {
 			for _, item := range tab.GetItems() {
 				playerIndex, err := strconv.Atoi(item.GetStr())
 				if err != nil {
-					panic(errors.Wrap(err, "failed to parse playerIndex"))
+					panic(fmt.Errorf("failed to parse playerIndex: %w", err))
 				}
 
 				p.parseUserInfo(item.GetData(), playerIndex)
@@ -392,7 +391,7 @@ func (p *parser) parseUserInfo(data []byte, playerIndex int) {
 
 	err := proto.Unmarshal(data, &userInfo)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to parse CMsgPlayerInfo msg"))
+		panic(fmt.Errorf("failed to parse CMsgPlayerInfo msg: %w", err))
 	}
 
 	xuid := userInfo.GetXuid() // TODO: what to do with userInfo.GetSteamid()? (seems to be the same, but maybe not in China?)
