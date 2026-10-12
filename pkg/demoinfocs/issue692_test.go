@@ -2,6 +2,7 @@ package demoinfocs_test
 
 import (
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -148,4 +149,55 @@ func Test692NoDuplicatePlayerInPlaying(t *testing.T) {
 	})
 
 	require.NoError(t, p.ParseToEnd())
+}
+
+// TestControllerSteamIDPlaceholderName asserts that a controller created with the player's SteamID64 as a
+// placeholder name doesn't leak into Player.Name nor cause PlayerNameChange events once the real name is set.
+// In this demo the controllers start out named "76561198…" while the userinfo string table already has the
+// players' names.
+func TestControllerSteamIDPlaceholderName(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	t.Parallel()
+
+	const demPath = csDemosPath + "/s2/arsham_infernocs2_1stSept23.dem"
+
+	if _, err := os.Stat(demPath); err != nil {
+		t.Skipf("test data %q not available, is the cs-demos submodule initialized?", demPath)
+	}
+
+	f, err := os.Open(demPath)
+	require.NoError(t, err)
+	t.Cleanup(func() { mustClose(t, f) })
+
+	p := demoinfocs.NewParser(f)
+
+	var nameChanges []events.PlayerNameChange
+
+	p.RegisterEventHandler(func(e events.PlayerNameChange) {
+		nameChanges = append(nameChanges, e)
+	})
+
+	placeholders := 0
+
+	p.RegisterEventHandler(func(events.FrameDone) {
+		for _, pl := range p.GameState().Participants().All() {
+			if pl.IsBot || pl.Name != strconv.FormatUint(pl.SteamID64, 10) {
+				continue
+			}
+
+			if placeholders == 0 {
+				t.Errorf("tick %d: player %d is named after its SteamID", p.GameState().IngameTick(), pl.SteamID64)
+			}
+
+			placeholders++
+		}
+	})
+
+	require.NoError(t, p.ParseToEnd())
+
+	assert.Zero(t, placeholders, "frames where a player was named after its SteamID")
+	assert.Empty(t, nameChanges, "no player changes their name in this demo")
 }

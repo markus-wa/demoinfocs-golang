@@ -127,6 +127,8 @@ func (p *parser) parseHeader() error {
 			}
 
 			_ = p.stParser.OnPacketEntities(m)
+
+			p.flushPlayerControllerUpdates()
 		})
 
 	default:

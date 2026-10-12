@@ -27,7 +27,7 @@ const (
 // updatePlayerFromRawIfExists applies raw player info (userinfo string table) to the player bound to
 // the slot's controller, if the info belongs to it. Raw info only maps the player to its user-ID -
 // name and SteamID64 come from the controller (see getOrCreatePlayerFromControllerEntity).
-func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
+func (p *parser) updatePlayerFromRawIfExists(index int) {
 	pl := p.gameState.playersByEntityID[index+1]
 	if pl == nil || pl.Entity == nil {
 		return
@@ -63,7 +63,7 @@ func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
 
 	p.rawPlayers[index] = &player
 
-	p.updatePlayerFromRawIfExists(index, player)
+	p.updatePlayerFromRawIfExists(index)
 
 	p.eventDispatcher.Dispatch(events.PlayerInfo{
 		Index: index,

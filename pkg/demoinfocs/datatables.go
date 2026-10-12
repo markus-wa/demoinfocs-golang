@@ -5,6 +5,7 @@ import (
 	"maps"
 	"math"
 	"slices"
+	"strconv"
 
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/go-unassert"
@@ -389,7 +390,11 @@ func playerUserID(rp *common.PlayerInfo) int {
 // FACEIT - see #692). The userinfo string table is only used to map the controller to a user-ID.
 //
 // If the controller's slot is taken over by a different person (different m_steamID), a new
-// *Player is created - an existing player's SteamID64 is never changed.
+// *Player is created - an existing player's SteamID64 is never changed. The *Player is kept per
+// controller slot (or live user-ID): a person reconnecting into a different slot gets a new *Player.
+//
+// Controller prop updates call this once per entity packet (see flushPlayerControllerUpdates), so it
+// always sees the controller's complete state - never a half-applied take-over.
 func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entity) *common.Player {
 	controllerEntityID := controllerEntity.ID()
 	p.gameState.playerControllerEntities[controllerEntityID] = controllerEntity
@@ -397,6 +402,73 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 	steamID := controllerEntity.PropertyValueMust("m_steamID").UInt64()
 	name := controllerEntity.PropertyValueMust("m_iszPlayerName").String()
 	isBot := steamID == 0
+	rp := p.rawPlayerForController(controllerEntity, isBot)
+	userID := playerUserID(rp)
+
+	player := p.gameState.playersByEntityID[controllerEntityID]
+	if player == nil && rp != nil {
+		player = p.gameState.playersByUserID[userID]
+	}
+
+	// A different person (or a bot replacing a human & vice versa) took over the slot.
+	// The controller entity is usually re-created when that happens, but may also be updated in place.
+	replacedInPlace := false
+
+	if player != nil && player.SteamID64 != steamID {
+		replacedInPlace = player.Entity == controllerEntity
+		if replacedInPlace {
+			p.unbindReplacedPlayer(player)
+		}
+
+		player = nil
+	}
+
+	// Some servers create the controller before naming it - with an empty name or the SteamID as a
+	// placeholder. Use the userinfo name until the controller has a real one.
+	provisional := name == "" || isSteamIDPlaceholderName(name, steamID)
+	if provisional && rp != nil && !isBot && rp.XUID == steamID && rp.Name != "" {
+		name = rp.Name
+	}
+
+	if player == nil {
+		player = p.newPlayerFromController(controllerEntity, steamID, name, provisional)
+	} else {
+		p.setPlayerName(player, name, isBot, provisional)
+	}
+
+	if name != "" {
+		player.IsUnknown = false
+	} else if player.Name == "" {
+		// see #162.
+		// GOTV doesn't crash here either so we just initialize this player with default values.
+		// this happens in some demos since November 2019 for players that were are actually connected.
+		// in GOTV these players are just called "unknown".
+		player.Name = "unknown"
+		player.IsUnknown = true
+	}
+
+	player.UserID = userID
+	player.Entity = controllerEntity
+	player.EntityID = controllerEntityID
+	player.IsBot = isBot
+
+	p.gameState.playersByEntityID[controllerEntityID] = player
+
+	if rp != nil {
+		p.gameState.playersByUserID[userID] = player
+	}
+
+	if replacedInPlace {
+		// update handlers don't fire the controller's current state for in-place take-overs
+		p.connectPlayerIfConnected(player, controllerEntity)
+	}
+
+	return player
+}
+
+// rawPlayerForController returns the raw player info (userinfo string table) of a controller, if any.
+func (p *parser) rawPlayerForController(controllerEntity st.Entity, isBot bool) *common.PlayerInfo {
+	controllerEntityID := controllerEntity.ID()
 
 	// In regular demos player slots map to controller entities 1:1 (slot N is entity N+1),
 	// so the raw info for this controller lives at slot controllerEntityID-1. Match against
@@ -422,69 +494,111 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 		rp = p.rawPlayers[controllerEntityID-1]
 	}
 
-	userID := playerUserID(rp)
+	return rp
+}
 
-	player := p.gameState.playersByEntityID[controllerEntityID]
-	if player == nil && rp != nil {
-		player = p.gameState.playersByUserID[userID]
+func (p *parser) newPlayerFromController(controllerEntity st.Entity, steamID uint64, name string, provisional bool) *common.Player {
+	player := common.NewPlayer(p.demoInfoProvider)
+	player.SteamID64 = steamID
+	player.Name = name
+
+	if provisional && name != "" {
+		p.provisionalNames[player] = struct{}{}
 	}
 
-	// A different person (or a bot replacing a human & vice versa) took over the slot.
-	// The controller entity is usually re-created when that happens, but may also be updated in place.
-	replacedInPlace := false
-
-	if player != nil && player.SteamID64 != steamID {
-		replacedInPlace = player.Entity == controllerEntity
-		player = nil
+	if team, ok := controllerEntity.PropertyValue("m_iTeamNum"); ok {
+		player.Team = common.Team(team.UInt64())
+		player.TeamState = p.gameState.Team(player.Team)
 	}
 
-	if name == "" && rp != nil && !isBot && rp.XUID == steamID {
-		name = rp.Name
-	}
-
-	if player == nil {
-		player = common.NewPlayer(p.demoInfoProvider)
-		player.SteamID64 = steamID
-		player.Name = name
-
-		if team, ok := controllerEntity.PropertyValue("m_iTeamNum"); ok {
-			player.Team = common.Team(team.UInt64())
-			player.TeamState = p.gameState.Team(player.Team)
-		}
-
-		p.gameState.indexPlayerBySteamID(player)
-	} else {
-		p.setPlayerName(player, name, isBot)
-	}
-
-	if player.Name == "" {
-		// see #162.
-		// GOTV doesn't crash here either so we just initialize this player with default values.
-		// this happens in some demos since November 2019 for players that were are actually connected.
-		// in GOTV these players are just called "unknown".
-		player.Name = "unknown"
-		player.IsUnknown = true
-	} else {
-		player.IsUnknown = false
-	}
-
-	player.UserID = userID
-	player.Entity = controllerEntity
-	player.EntityID = controllerEntityID
-	player.IsBot = isBot
-
-	p.gameState.playersByEntityID[controllerEntityID] = player
-
-	if rp != nil {
-		p.gameState.playersByUserID[userID] = player
-	}
-
-	if replacedInPlace {
-		// update handlers don't fire the controller's current state for in-place take-overs
-		p.connectPlayerIfConnected(player, controllerEntity)
-	}
+	p.gameState.indexPlayerBySteamID(player)
 
 	return player
+}
+
+// isSteamIDPlaceholderName reports whether a controller name is just the player's SteamID64,
+// which some servers use until the player's real name is set.
+func isSteamIDPlaceholderName(name string, steamID uint64) bool {
+	return steamID != 0 && name == strconv.FormatUint(steamID, 10)
+}
+
+// unbindReplacedPlayer detaches a player from a controller that was taken over in place by a different
+// person, so the stale *Player neither stays connected nor reads the new occupant's entity data.
+func (p *parser) unbindReplacedPlayer(player *common.Player) {
+	delete(p.provisionalNames, player)
+
+	player.Entity = nil // EntityID is kept for reference
+
+	if !player.IsConnected {
+		return
+	}
+
+	player.IsConnected = false
+
+	p.gameEventHandler.dispatch(events.PlayerDisconnected{
+		Player: player,
+	})
+}
+
+// dirtyPlayerController is a player controller whose identity or connection state changed
+// in the entity packet currently being applied.
+type dirtyPlayerController struct {
+	entity            st.Entity
+	connectionChanged bool
+}
+
+func (p *parser) markPlayerControllerDirty(controllerEntity st.Entity, connectionChanged bool) {
+	d := p.dirtyControllers[controllerEntity.ID()]
+	if d == nil || d.entity != controllerEntity {
+		d = &dirtyPlayerController{entity: controllerEntity}
+		p.dirtyControllers[controllerEntity.ID()] = d
+	}
+
+	d.connectionChanged = d.connectionChanged || connectionChanged
+}
+
+// flushPlayerControllerUpdates applies controller identity & connection changes once the whole entity
+// packet has been read. Prop update handlers fire per field in field-path order (m_iConnected,
+// m_iszPlayerName, m_steamID), so reacting to each of them directly would see a half-applied update
+// when a different person takes over a slot - e.g. renaming the previous occupant to the new name.
+func (p *parser) flushPlayerControllerUpdates() {
+	if len(p.dirtyControllers) == 0 {
+		return
+	}
+
+	for _, id := range slices.Sorted(maps.Keys(p.dirtyControllers)) {
+		d := p.dirtyControllers[id]
+		pl := p.getOrCreatePlayerFromControllerEntity(d.entity)
+
+		if d.connectionChanged {
+			p.applyControllerConnectionState(pl, d.entity)
+		}
+	}
+
+	clear(p.dirtyControllers)
+}
+
+func (p *parser) applyControllerConnectionState(pl *common.Player, controllerEntity st.Entity) {
+	state := controllerEntity.PropertyValueMust("m_iConnected").UInt32()
+
+	isDisconnection := state == 8
+	if isDisconnection {
+		pl.IsConnected = false
+
+		p.gameEventHandler.dispatch(events.PlayerDisconnected{
+			Player: pl,
+		})
+
+		return
+	}
+
+	if state != 0 {
+		pl.IsConnected = false
+
+		return
+	}
+
+	p.connectPlayerIfConnected(pl, controllerEntity)
 }
 
 // connectPlayerIfConnected marks a player as connected and dispatches PlayerConnect / BotConnect
@@ -506,8 +620,20 @@ func (p *parser) connectPlayerIfConnected(player *common.Player, controllerEntit
 
 // setPlayerName applies a (controller) name to an existing player and dispatches PlayerNameChange
 // for humans if it changed. The old name is always taken from the player, never from a game-event.
-func (p *parser) setPlayerName(player *common.Player, name string, isBot bool) {
+//
+// provisional means the name isn't the controller's real name yet (userinfo fallback or SteamID
+// placeholder): it never replaces a real name, and replacing it isn't a name change.
+func (p *parser) setPlayerName(player *common.Player, name string, isBot, provisional bool) {
+	_, wasProvisional := p.provisionalNames[player]
+	if !provisional {
+		delete(p.provisionalNames, player)
+	}
+
 	if name == "" || player.Name == name {
+		return
+	}
+
+	if provisional && !wasProvisional && !player.IsUnknown {
 		return
 	}
 
@@ -515,9 +641,13 @@ func (p *parser) setPlayerName(player *common.Player, name string, isBot bool) {
 	wasUnknown := player.IsUnknown
 	player.Name = name
 
-	// Bots don't change their names - a different name on a bot controller is a different bot,
-	// and an unknown player getting its name isn't a name change either.
-	if isBot || player.IsBot || wasUnknown {
+	if provisional {
+		p.provisionalNames[player] = struct{}{}
+	}
+
+	// A renamed bot controller is treated as the same bot without dispatching an event, and a player
+	// getting its first real name (from unknown or a provisional name) isn't a name change either.
+	if isBot || player.IsBot || wasUnknown || wasProvisional {
 		return
 	}
 
@@ -559,36 +689,17 @@ func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 		return pl
 	}
 
-	// the controller's name & SteamID are the source of truth for the player's identity
+	// The controller's name & SteamID are the source of truth for the player's identity.
+	// Changes are applied once the whole entity packet is read, see flushPlayerControllerUpdates.
 	syncIdentity := func(st.PropertyValue) {
-		p.getOrCreatePlayerFromControllerEntity(controllerEntity)
+		p.markPlayerControllerDirty(controllerEntity, false)
 	}
 
 	controllerEntity.Property("m_iszPlayerName").OnUpdate(syncIdentity)
 	controllerEntity.Property("m_steamID").OnUpdate(syncIdentity)
 
-	controllerEntity.Property("m_iConnected").OnUpdate(func(val st.PropertyValue) {
-		pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
-		state := val.UInt32()
-
-		isDisconnection := state == 8
-		if isDisconnection {
-			pl.IsConnected = false
-
-			p.gameEventHandler.dispatch(events.PlayerDisconnected{
-				Player: pl,
-			})
-
-			return
-		}
-
-		if state != 0 {
-			pl.IsConnected = false
-
-			return
-		}
-
-		p.connectPlayerIfConnected(pl, controllerEntity)
+	controllerEntity.Property("m_iConnected").OnUpdate(func(st.PropertyValue) {
+		p.markPlayerControllerDirty(controllerEntity, true)
 	})
 
 	controllerEntity.Property("m_iTeamNum").OnUpdate(func(val st.PropertyValue) {
@@ -601,6 +712,11 @@ func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 		pl := currentPlayer()
 		pl.IsConnected = false
 
+		if d := p.dirtyControllers[controllerEntity.ID()]; d != nil && d.entity == controllerEntity {
+			delete(p.dirtyControllers, controllerEntity.ID())
+		}
+
+		delete(p.provisionalNames, pl)
 		delete(p.gameState.playersByEntityID, controllerEntity.ID())
 		delete(p.gameState.playerControllerEntities, controllerEntity.ID())
 		delete(p.gameState.playersByUserID, pl.UserID)
