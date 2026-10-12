@@ -33,18 +33,20 @@ type Player struct {
 	IsUnknown           bool   // Used to identify unknown/broken players. see https://github.com/markus-wa/demoinfocs-golang/issues/162
 	ButtonsPressedState uint64 // Pressed buttons state represented as an uint64. You can use IsPressingButton(buttonMask) to check for specific buttons.
 
-	// positionHistory holds the pawn position at the end of the last two parsed frames with distinct ticks
-	// ([0] = most recent). Used by Velocity() to derive the velocity when m_vecVelocity isn't networked.
+	// positionHistory holds the pawn position after the last two entity snapshots ([0] = most recent).
+	// Used by Velocity() to derive the velocity when m_vecVelocity isn't networked.
 	positionHistory [2]positionSample
 	// trackingPosition is set once the parser records this player's position at the end of every frame,
 	// see startPositionTracking().
 	trackingPosition bool
+	// recordedTick is the SnapshotTick() recordFramePosition() last ran in full for, -1 to force the next run.
+	recordedTick int
 }
 
 // positionSample is a pawn position recorded at the end of a frame.
 type positionSample struct {
 	pos         r3.Vector
-	tick        int
+	tick        int // server tick of the entity snapshot, see demoInfoProvider.SnapshotTick()
 	pawnID      int
 	interpFrame any // m_ubInterpolationFrame, changes when the pawn is teleported
 	valid       bool
@@ -53,11 +55,20 @@ type positionSample struct {
 // isPawnAlive returns whether the pawn's m_lifeState is LIFE_ALIVE.
 func isPawnAlive(pawnEntity st.Entity) bool {
 	v, ok := pawnEntity.PropertyValue("m_lifeState")
-	if !ok || v.Any == nil {
+	if !ok {
 		return true
 	}
 
-	return v.UInt64() == 0
+	switch lifeState := v.Any.(type) {
+	case uint64:
+		return lifeState == 0
+	case uint32:
+		return lifeState == 0
+	case int32:
+		return lifeState == 0
+	default:
+		return true
+	}
 }
 
 // interpolationFrame returns the pawn's m_ubInterpolationFrame value (nil if unavailable).
@@ -456,21 +467,22 @@ func (p *Player) ViewDirectionY() float32 {
 // Velocity returns the player's velocity in game units per second.
 //
 // The velocity is read from the pawn's m_vecVelocity property when it is networked, which is the case
-// for demos recorded since the CS2 "AnimGraph 2" update (28/07/2025, network protocol 14089) - GOTV
-// and POV alike. Older demos declare the property but don't populate it - except for the recording
-// player of POV demos, whose networked value is used. For everybody else on those demos, the velocity
-// is derived from the position delta between the current position and the position at the end of an
-// earlier frame, divided by the in-game time elapsed between the two (see TickRate()).
+// for GOTV demos recorded since the CS2 "AnimGraph 2" update (28/07/2025, network protocol 14089),
+// and as far as known for POV demos too. Older demos declare the property but don't populate it - except
+// for the recording player of POV demos, whose networked value is used. For everybody else on those
+// demos, the velocity is derived from the position delta between the current position and the position
+// at the end of an earlier frame, divided by the in-game time elapsed between the two (see TickRate()).
 //
 // Positions are only recorded for players Velocity() has been called for, so the fallback costs nothing
-// unless it's used. The first call per player therefore returns a zero vector, and the parser dispatches
-// a ParserWarn (WarnTypeVelocityTrackingStartedLazily) the first time this happens.
-// Set ParserConfig.VelocityFromPositionDelta to record all players from the start instead
-// (costs roughly 30% parsing time on those demos).
+// unless it's used. Calls during the first frame a player is tracked therefore return a zero vector, and
+// the parser dispatches a ParserWarn (WarnTypeVelocityTrackingStartedLazily) the first time this happens.
+// Set ParserConfig.EagerVelocityTracking to record all players from the start instead.
 //
 // The fallback:
 //   - returns a zero vector on the first frame after a player (re-)spawned, while dead, and on the
 //     frame a pawn was teleported (m_ubInterpolationFrame changed, or a delta above sv_maxvelocity);
+//   - measures the elapsed time in server ticks of the entity snapshots, and keeps the last value during
+//     frames without one (e.g. the user command frames of POV demos);
 //   - it lags the networked value by up to one frame and is noisier, since it is a finite difference
 //     over the frame interval (e.g. 3 ticks on older GOTV demos).
 func (p *Player) Velocity() r3.Vector {
@@ -481,7 +493,7 @@ func (p *Player) Velocity() r3.Vector {
 
 	if !p.isVelocityNetworked(pawnEntity) {
 		// not lazy if the config flag is set but tracking stopped (e.g. the player re-connected)
-		p.startPositionTracking(!p.demoInfoProvider.VelocityFromPositionDelta())
+		p.startPositionTracking(!p.demoInfoProvider.EagerVelocityTracking())
 
 		return p.positionDeltaVelocity(pawnEntity)
 	}
@@ -523,16 +535,21 @@ func (p *Player) isRecordingPlayer() bool {
 }
 
 // positionDeltaVelocity derives the velocity from the position history recorded by recordFramePosition().
+//
+// Time is measured in server ticks of entity snapshots (see demoInfoProvider.SnapshotTick()), not in-game
+// ticks: on POV demos the latter advance in frames without a snapshot and jitter against the snapshots,
+// which made the velocity alternate between the real value and zero and produced spikes.
 func (p *Player) positionDeltaVelocity(pawnEntity st.Entity) r3.Vector {
 	tickRate := p.demoInfoProvider.TickRate()
 	if tickRate <= 0 {
 		return r3.Vector{}
 	}
 
-	tick := p.demoInfoProvider.IngameTick()
+	tick := p.demoInfoProvider.SnapshotTick()
 
-	// Use the most recent sample from a tick before the current one.
-	// If the current frame didn't advance the tick, that is the second most recent one.
+	// Use the most recent sample from a snapshot before the current one.
+	// If there was no new snapshot since the last sample (e.g. a user command frame of a POV demo),
+	// that is the second most recent one - so the last velocity is kept.
 	ref := p.positionHistory[0]
 	if ref.tick >= tick {
 		ref = p.positionHistory[1]
@@ -566,6 +583,7 @@ func (p *Player) startPositionTracking(lazy bool) {
 	}
 
 	p.trackingPosition = true
+	p.recordedTick = -1
 	p.demoInfoProvider.TrackFramePosition(p.recordFramePosition, lazy)
 }
 
@@ -573,6 +591,15 @@ func (p *Player) startPositionTracking(lazy bool) {
 // Returns false once the player's controller entity is gone (disconnect) and recording should stop -
 // a reconnect creates a new Player.
 func (p *Player) recordFramePosition() (keep bool) {
+	// Entities (including the controller and pawn) only change with an entity snapshot,
+	// skip frames without one (e.g. the user command frames of POV demos).
+	tick := p.demoInfoProvider.SnapshotTick()
+	if tick == p.recordedTick {
+		return true
+	}
+
+	p.recordedTick = tick
+
 	if p.Entity == nil || p.demoInfoProvider.FindEntityByHandle(uint64(p.Entity.ID())) != p.Entity {
 		p.positionHistory = [2]positionSample{}
 		p.trackingPosition = false
@@ -591,7 +618,7 @@ func (p *Player) recordFramePosition() (keep bool) {
 
 	sample := positionSample{
 		pos:         pawnEntity.Position(),
-		tick:        p.demoInfoProvider.IngameTick(),
+		tick:        tick,
 		pawnID:      pawnEntity.ID(),
 		interpFrame: interpolationFrame(pawnEntity),
 		valid:       true,
@@ -600,8 +627,6 @@ func (p *Player) recordFramePosition() (keep bool) {
 	last := p.positionHistory[0]
 
 	switch {
-	case last.valid && last.pawnID == sample.pawnID && sample.tick == last.tick:
-		p.positionHistory[0] = sample
 	case last.valid && last.pawnID == sample.pawnID && sample.tick > last.tick:
 		p.positionHistory = [2]positionSample{sample, last}
 	default:
@@ -867,8 +892,11 @@ type demoInfoProvider interface {
 	FindEntityByHandle(handle uint64) st.Entity
 	NetworkProtocol() int     // demo network protocol (patch version), 0 if unknown, used for Player.Velocity()
 	RecordingPlayerSlot() int // player slot of the POV demo's recording player, -1 for GOTV demos
-	// VelocityFromPositionDelta returns whether ParserConfig.VelocityFromPositionDelta is set.
-	VelocityFromPositionDelta() bool
+	// EagerVelocityTracking returns whether ParserConfig.EagerVelocityTracking is set.
+	EagerVelocityTracking() bool
+	// SnapshotTick returns the server tick of the last entity snapshot (svc_PacketEntities), -1 if none yet.
+	// Unlike IngameTick() it only advances with entity data, used for Player.Velocity().
+	SnapshotTick() int
 	// TrackFramePosition registers a function the parser calls at the end of every frame (after FrameDone),
 	// until it returns false.
 	// lazy is true if tracking was started by a Velocity() call rather than by the config.
@@ -884,10 +912,10 @@ func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 		demoInfoProvider: demoInfoProvider,
 	}
 
-	// ParserConfig.VelocityFromPositionDelta: record positions from the start on demos that don't network
+	// ParserConfig.EagerVelocityTracking: record positions from the start on demos that don't network
 	// the velocity, instead of lazily on the first Velocity() call.
 	// An unknown protocol (0) means a live broadcast, where the velocity is networked in practice.
-	if demoInfoProvider != nil && demoInfoProvider.VelocityFromPositionDelta() &&
+	if demoInfoProvider != nil && demoInfoProvider.EagerVelocityTracking() &&
 		demoInfoProvider.NetworkProtocol() > 0 && demoInfoProvider.NetworkProtocol() < constants.NetworkProtocolAnimGraph2 {
 		pl.startPositionTracking(false)
 	}

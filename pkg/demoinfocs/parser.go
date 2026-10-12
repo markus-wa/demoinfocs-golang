@@ -120,7 +120,8 @@ type parser struct {
 	 */
 	recordingPlayerSlot           int
 	disableMimicSource1GameEvents bool
-	velocityFromPositionDelta     bool
+	eagerVelocityTracking         bool
+	snapshotTick                  int           // server tick of the last svc_PacketEntities, see Player.Velocity()
 	framePositionRecorders        []func() bool // see Player.Velocity()
 	lazyVelocityTrackingWarned    bool
 
@@ -590,16 +591,17 @@ type ParserConfig struct {
 	// UserCmdParsingButtonsOnly, including when ParserConfig is created as a zero value.
 	UserCmdParsing UserCmdParsingMode
 
-	// VelocityFromPositionDelta makes the parser record every player's position from the start on demos
-	// that don't network the player velocity (recorded before the CS2 "AnimGraph 2" update, network
-	// protocol < 14089), so Player.Velocity() can derive it from the position delta for every player
-	// from the first frame on.
+	// EagerVelocityTracking makes the parser record every player's position from the start on demos that
+	// don't network the player velocity (recorded before the CS2 "AnimGraph 2" update, network protocol
+	// < 14089).
 	//
-	// Without it, positions are only recorded for players Player.Velocity() has been called for, starting
-	// with that call (which returns a zero vector), and a ParserWarn (WarnTypeVelocityTrackingStartedLazily)
-	// is dispatched once. Recording all players costs roughly 30% parsing time on those demos.
+	// On those demos Player.Velocity() always derives the velocity from position deltas. Without this flag,
+	// positions are only recorded for players Player.Velocity() has been called for, starting with that
+	// call (calls during that frame return a zero vector), and a ParserWarn
+	// (WarnTypeVelocityTrackingStartedLazily) is dispatched once. With it, the velocity is available for
+	// every player from their first frame on, at the cost of recording positions for all players.
 	// It has no effect (and no cost) on newer demos, where the velocity is networked. False by default.
-	VelocityFromPositionDelta bool
+	EagerVelocityTracking bool
 }
 
 // DefaultParserConfig is the default Parser configuration used by NewParser().
@@ -638,8 +640,9 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1
 	p.recordingPlayerSlot = -1
+	p.snapshotTick = -1
 	p.disableMimicSource1GameEvents = config.DisableMimicSource1Events
-	p.velocityFromPositionDelta = config.VelocityFromPositionDelta
+	p.eagerVelocityTracking = config.EagerVelocityTracking
 	p.source2FallbackGameEventListBin = config.Source2FallbackGameEventListBin
 	p.ignorePacketEntitiesPanic = config.IgnorePacketEntitiesPanic
 	p.decryptionKey = config.NetMessageDecryptionKey
@@ -697,8 +700,12 @@ func (p demoInfoProvider) TickRate() float64 {
 	return p.parser.TickRate()
 }
 
-func (p demoInfoProvider) VelocityFromPositionDelta() bool {
-	return p.parser.velocityFromPositionDelta
+func (p demoInfoProvider) EagerVelocityTracking() bool {
+	return p.parser.eagerVelocityTracking
+}
+
+func (p demoInfoProvider) SnapshotTick() int {
+	return p.parser.snapshotTick
 }
 
 func (p demoInfoProvider) TrackFramePosition(record func() bool, lazy bool) {
@@ -709,8 +716,8 @@ func (p demoInfoProvider) TrackFramePosition(record func() bool, lazy bool) {
 
 		p.parser.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: "Player.Velocity() called on a demo without networked player velocity; deriving it from position " +
-				"deltas from now on - the first call per player returns a zero vector. " +
-				"Set ParserConfig.VelocityFromPositionDelta to record all players from the start.",
+				"deltas from now on - calls during a player's first tracked frame return a zero vector. " +
+				"Set ParserConfig.EagerVelocityTracking to record all players from the start.",
 			Type: events.WarnTypeVelocityTrackingStartedLazily,
 		})
 	}

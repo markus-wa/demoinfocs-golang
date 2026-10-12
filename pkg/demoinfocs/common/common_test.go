@@ -185,6 +185,7 @@ type demoInfoProviderMock struct {
 	equipment        *Equipment
 	networkProtocol  int
 	velocityFallback bool
+	snapshotTick     int
 	tracked          *[]trackedRecorder
 	pov              bool // recordingSlot is only used if set, so the zero value is a GOTV demo
 	recordingSlot    int
@@ -195,8 +196,12 @@ type trackedRecorder struct {
 	lazy   bool
 }
 
-func (p demoInfoProviderMock) VelocityFromPositionDelta() bool {
+func (p demoInfoProviderMock) EagerVelocityTracking() bool {
 	return p.velocityFallback
+}
+
+func (p demoInfoProviderMock) SnapshotTick() int {
+	return p.snapshotTick
 }
 
 func (p demoInfoProviderMock) RecordingPlayerSlot() int {

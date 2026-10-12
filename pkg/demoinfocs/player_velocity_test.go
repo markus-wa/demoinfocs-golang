@@ -5,6 +5,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
 
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
@@ -12,7 +13,7 @@ import (
 )
 
 // s2.dem is a GOTV demo recorded before the AnimGraph 2 update, m_vecVelocity isn't networked,
-// so with ParserConfig.VelocityFromPositionDelta Player.Velocity() falls back to the position delta
+// so with ParserConfig.EagerVelocityTracking Player.Velocity() falls back to the position delta
 // between frames (3 ticks apart).
 func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 	t.Parallel()
@@ -25,19 +26,45 @@ func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 	defer mustClose(t, f)
 
 	cfg := demoinfocs.DefaultParserConfig
-	cfg.VelocityFromPositionDelta = true
+	cfg.EagerVelocityTracking = true
 	p := demoinfocs.NewParserWithConfig(f, cfg)
 
-	var speeds []float64
+	type sample struct {
+		pos  r3.Vector
+		tick int
+	}
+
+	var (
+		speeds []float64
+		ratios []float64 // derived speed / speed from the raw position delta between frames
+		last   = map[int]sample{}
+	)
 
 	p.RegisterEventHandler(func(events.FrameDone) {
+		tick := p.GameState().IngameTick()
+
 		for _, pl := range p.GameState().Participants().Playing() {
 			if !pl.IsAlive() {
+				delete(last, pl.EntityID)
+
 				continue
 			}
 
 			v := pl.Velocity()
-			speeds = append(speeds, math.Hypot(v.X, v.Y))
+			speed := math.Hypot(v.X, v.Y)
+			speeds = append(speeds, speed)
+
+			pos := pl.Position()
+			if prev, ok := last[pl.EntityID]; ok && tick > prev.tick {
+				delta := pos.Sub(prev.pos)
+				rawSpeed := math.Hypot(delta.X, delta.Y) / (float64(tick-prev.tick) / p.TickRate())
+
+				if speed > 100 && rawSpeed > 100 {
+					ratios = append(ratios, speed/rawSpeed)
+				}
+			}
+
+			last[pl.EntityID] = sample{pos: pos, tick: tick}
 		}
 	})
 
@@ -57,13 +84,18 @@ func TestPlayerVelocity_PositionDeltaFallback(t *testing.T) {
 	maxSpeed := speeds[len(speeds)-1]
 	p99 := speeds[len(speeds)*99/100]
 
-	t.Logf("samples=%d moving=%d p99=%.1f max=%.1f", len(speeds), moving, p99, maxSpeed)
+	slices.Sort(ratios)
+	ratioP50 := ratios[len(ratios)/2]
+
+	t.Logf("samples=%d moving=%d p99=%.1f max=%.1f ratio to raw delta p50=%.3f", len(speeds), moving, p99, maxSpeed, ratioP50)
 
 	// players run at most at 250 u/s (knife) - no teleport spikes
 	assert.Less(t, maxSpeed, 350.0)
 	assert.Less(t, p99, 260.0)
 	// a good share of alive player-frames is moving
 	assert.Greater(t, float64(moving)/float64(len(speeds)), 0.3)
+	// GOTV demos have a snapshot every frame, so the derived velocity matches the frame-to-frame position delta
+	assert.InDelta(t, 1.0, ratioP50, 0.02)
 }
 
 // Without the config flag, positions are recorded lazily once Velocity() is called for a player.

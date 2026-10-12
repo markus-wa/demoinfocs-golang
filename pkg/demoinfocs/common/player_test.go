@@ -423,11 +423,19 @@ func (f *velocityFixture) update() {
 	f.provider.entitiesByHandle[1] = pawn
 }
 
-// frame simulates a parsed frame at the given tick with the given pawn position
+// frame simulates a parsed frame with an entity snapshot at the given (server) tick with the given pawn position
 // and returns the velocity as seen during that frame (e.g. by a FrameDone handler).
 func (f *velocityFixture) frame(tick int, pos r3.Vector) r3.Vector {
-	f.provider.ingameTick = tick
+	f.provider.snapshotTick = tick
 	f.pos = pos
+
+	return f.frameNoSnapshot(tick)
+}
+
+// frameNoSnapshot simulates a parsed frame without an entity snapshot (e.g. a user command frame of a POV demo),
+// which may still advance the in-game tick.
+func (f *velocityFixture) frameNoSnapshot(ingameTick int) r3.Vector {
+	f.provider.ingameTick = ingameTick
 	f.update()
 
 	v := f.pl.Velocity()
@@ -489,7 +497,7 @@ func TestPlayer_Velocity_Networked_NoTracking(t *testing.T) {
 	assert.Empty(t, *f.provider.tracked)
 }
 
-// ParserConfig.VelocityFromPositionDelta registers players at creation (not lazily), only on older demos.
+// ParserConfig.EagerVelocityTracking registers players at creation (not lazily), only on older demos.
 func TestNewPlayer_EagerPositionTracking(t *testing.T) {
 	cases := []struct {
 		name     string
@@ -527,6 +535,54 @@ func TestPlayer_Velocity_PositionDelta_FrameWithoutTickAdvance(t *testing.T) {
 	// same tick again, delta must be computed against the last frame of an earlier tick, not divided by zero
 	assertVectorInDelta(t, r3.Vector{X: 128}, f.frame(101, r3.Vector{X: 2}))
 	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(102, r3.Vector{X: 3}))
+}
+
+// POV demos have user command frames that advance the in-game tick without an entity snapshot,
+// and the in-game tick jitters against the snapshots' server ticks. Time is measured in server ticks.
+func TestPlayer_Velocity_PositionDelta_FrameWithoutSnapshot(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	f.frame(100, r3.Vector{})
+	assertVectorInDelta(t, r3.Vector{X: 128}, f.frame(101, r3.Vector{X: 2}))
+
+	// in-game tick advanced, but no snapshot - keep the last velocity instead of reporting a standstill
+	assertVectorInDelta(t, r3.Vector{X: 128}, f.frameNoSnapshot(102))
+	assertVectorInDelta(t, r3.Vector{X: 128}, f.frameNoSnapshot(103))
+
+	// the next snapshot, one server tick later - regardless of the in-game tick
+	f.provider.snapshotTick = 102
+	f.pos = r3.Vector{X: 5}
+	assertVectorInDelta(t, r3.Vector{X: 192}, f.frameNoSnapshot(103))
+	assertVectorInDelta(t, r3.Vector{X: 192}, f.frameNoSnapshot(103))
+
+	// the next snapshot doesn't update the pawn - standing still
+	assert.Equal(t, r3.Vector{}, f.frame(103, r3.Vector{X: 5}))
+	assert.Equal(t, r3.Vector{}, f.frameNoSnapshot(104))
+}
+
+// The recorder skips the (relatively expensive) position lookup in frames without an entity snapshot.
+func TestPlayer_RecordFramePosition_SkipsFramesWithoutSnapshot(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	f.frame(100, r3.Vector{})
+	f.frame(101, r3.Vector{X: 1})
+
+	history := f.pl.positionHistory
+
+	f.pos = r3.Vector{X: 1000} // must not be looked up
+	f.frameNoSnapshot(102)
+	f.frameNoSnapshot(103)
+
+	assert.Equal(t, history, f.pl.positionHistory)
+}
+
+func TestIsPawnAlive_LifeStateTypes(t *testing.T) {
+	assert.True(t, isPawnAlive(entityWithProperty("m_lifeState", st.PropertyValue{Any: uint64(0)})))
+	assert.False(t, isPawnAlive(entityWithProperty("m_lifeState", st.PropertyValue{Any: uint64(2)})))
+	assert.False(t, isPawnAlive(entityWithProperty("m_lifeState", st.PropertyValue{Any: int32(2)})))
+	assert.False(t, isPawnAlive(entityWithProperty("m_lifeState", st.PropertyValue{Any: uint32(2)})))
+	assert.True(t, isPawnAlive(entityWithProperty("m_lifeState", st.PropertyValue{})))
+	assert.True(t, isPawnAlive(entityWithProperty("m_lifeState", st.PropertyValue{Any: "unexpected"})))
 }
 
 func TestPlayer_Velocity_PositionDelta_Teleport(t *testing.T) {
@@ -684,7 +740,7 @@ func TestPlayer_Velocity_PositionDelta_ControllerDestroyed(t *testing.T) {
 	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(104, r3.Vector{X: 4}))
 }
 
-// With ParserConfig.VelocityFromPositionDelta a re-registration isn't lazy (no warning).
+// With ParserConfig.EagerVelocityTracking a re-registration isn't lazy (no warning).
 func TestPlayer_Velocity_PositionDelta_ReRegistrationWithFlag(t *testing.T) {
 	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
 	f.provider.velocityFallback = true

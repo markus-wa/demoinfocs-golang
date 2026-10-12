@@ -127,6 +127,8 @@ func (p *parser) parseHeader() error {
 				return
 			}
 
+			p.snapshotTick = int(m.GetServerTick()) // see Player.Velocity()
+
 			_ = p.stParser.OnPacketEntities(m)
 		})
 
@@ -499,7 +501,7 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 
 	// Record positions after FrameDone so that handlers see the velocity relative to the previous frame.
 	// Used by Player.Velocity() when m_vecVelocity isn't networked (demos before the AnimGraph 2 update).
-	// Players only get registered once Velocity() is called for them (or with ParserConfig.VelocityFromPositionDelta).
+	// Players only get registered once Velocity() is called for them (or with ParserConfig.EagerVelocityTracking).
 	// Recorders of players whose controller is gone return false and are dropped.
 	p.framePositionRecorders = slices.DeleteFunc(p.framePositionRecorders, func(record func() bool) bool {
 		return !record()

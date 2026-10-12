@@ -85,8 +85,12 @@ func (p demoInfoProviderMock) NetworkProtocol() int {
 	return 0
 }
 
-func (p demoInfoProviderMock) VelocityFromPositionDelta() bool {
+func (p demoInfoProviderMock) EagerVelocityTracking() bool {
 	return false
+}
+
+func (p demoInfoProviderMock) SnapshotTick() int {
+	return -1
 }
 
 func (p demoInfoProviderMock) RecordingPlayerSlot() int {
