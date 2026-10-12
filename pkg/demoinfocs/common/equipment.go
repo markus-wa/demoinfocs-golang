@@ -356,7 +356,8 @@ func (e *Equipment) AmmoInMagazine() int {
 			return -1
 		}
 
-		return int(ammo.UInt32() - 1)
+		// the field decoder already removes the +1 offset Valve encodes m_iClip1 with
+		return int(ammo.UInt32())
 	}
 }
 
