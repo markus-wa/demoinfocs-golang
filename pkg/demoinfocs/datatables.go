@@ -788,6 +788,8 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 
 	proj := common.NewGrenadeProjectile(p.nextUniqueID())
 	proj.Entity = entity
+	projUID := common.GenerateUniqueID2(proj.UniqueID(), p.gameState.ingameTick, entity)
+	proj.SetUniqueID2(projUID)
 	p.gameState.grenadeProjectiles[entityID] = proj
 
 	ownerEntVal := entity.PropertyValueMust("m_hOwnerEntity")
@@ -851,6 +853,10 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 		if proj.Thrower != nil {
 			wepCopy.Owner = proj.Thrower
 		}
+
+		projUID := common.GenerateUniqueID2(proj.UniqueID(), p.gameState.ingameTick, entity)
+		wepCopy.SetUniqueID2(projUID)
+		proj.SetUniqueID2(projUID)
 
 		proj.WeaponInstance = &wepCopy
 
@@ -923,21 +929,25 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 	})
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
-	entity.Property("m_hThrower").OnUpdate(func(val st.PropertyValue) {
-		if val.Any == nil {
-			return
-		}
+	if throwerProp := entity.Property("m_hThrower"); throwerProp != nil {
+		throwerProp.OnUpdate(func(val st.PropertyValue) {
+			if val.Any == nil {
+				return
+			}
 
-		proj.Thrower = p.demoInfoProvider.FindPlayerByPawnHandle(val.Handle())
-	})
+			proj.Thrower = p.demoInfoProvider.FindPlayerByPawnHandle(val.Handle())
+		})
+	}
 
-	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
-		if val.Any == nil {
-			return
-		}
+	if ownerProp := entity.Property("m_hOwnerEntity"); ownerProp != nil {
+		ownerProp.OnUpdate(func(val st.PropertyValue) {
+			if val.Any == nil {
+				return
+			}
 
-		proj.Owner = p.gameState.Participants().FindByPawnHandle(val.Handle())
-	})
+			proj.Owner = p.gameState.Participants().FindByPawnHandle(val.Handle())
+		})
+	}
 
 	// Some demos don't have this property as it seems
 	// So we need to check for nil and can't send out bounce events if it's missing
@@ -1023,7 +1033,7 @@ func (p *parser) bindWeapon(entity st.Entity) {
 	}
 
 	equipment, exists := p.gameState.weapons[entityID]
-	if !exists {
+	if !exists || (equipment.Entity != nil && equipment.Entity.SerialNum() != entity.SerialNum()) {
 		equipment = common.NewEquipment(wepType, p.nextUniqueID())
 		p.gameState.weapons[entityID] = equipment
 	} else {

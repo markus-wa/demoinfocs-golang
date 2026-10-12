@@ -1177,7 +1177,7 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 		}
 
 		if len(grenades) > 0 {
-			return grenades[len(grenades)-1]
+			return grenades[0]
 		}
 
 		// The player might be controlling a bot, in such case the thrown grenade is stored in the bot's state.
@@ -1209,7 +1209,7 @@ func (geh gameEventHandler) deleteThrownGrenade(p *common.Player, wepType common
 	}
 
 	// Delete the first grenade thrown by the player and this grenade type.
-	playerGrenades[wepType] = grenades[:len(grenades)-1]
+	playerGrenades[wepType] = grenades[1:]
 	if len(playerGrenades[wepType]) == 0 {
 		delete(playerGrenades, wepType)
 	}

@@ -48,6 +48,53 @@ func TestEquipment_UniqueID(t *testing.T) {
 	assert.NotEqual(t, NewEquipment(EqAK47, 1).UniqueID2(), NewEquipment(EqAK47, 2).UniqueID2(), "UniqueIDs of different equipment instances should be different")
 }
 
+func TestEquipment_UniqueID2_EntityHandle(t *testing.T) {
+	ent1 := entityWithID(42)
+	ent1.On("SerialNum").Return(1)
+
+	ent2 := entityWithID(42)
+	ent2.On("SerialNum").Return(2)
+
+	wep1 := NewEquipment(EqAK47, 1)
+	wep1.Entity = ent1
+
+	wep2 := NewEquipment(EqAK47, 1)
+	wep2.Entity = ent2
+
+	assert.NotEqual(t, wep1.UniqueID2(), wep2.UniqueID2(), "equipment with different entity serials should have different UniqueID2")
+}
+
+func TestGenerateUniqueID2(t *testing.T) {
+	ent1 := entityWithID(10)
+	ent1.On("SerialNum").Return(1)
+
+	ent2 := entityWithID(10)
+	ent2.On("SerialNum").Return(2)
+
+	// Different instance serial
+	uid1 := GenerateUniqueID2(1, 100, ent1)
+	uid2 := GenerateUniqueID2(2, 100, ent1)
+	assert.NotEqual(t, uid1, uid2, "different instance serials should produce different ULIDs")
+
+	// Different creation tick
+	uid3 := GenerateUniqueID2(1, 200, ent1)
+	assert.NotEqual(t, uid1, uid3, "different creation ticks should produce different ULIDs")
+
+	// Different entity serial
+	uid4 := GenerateUniqueID2(1, 100, ent2)
+	assert.NotEqual(t, uid1, uid4, "different entity serials should produce different ULIDs")
+
+	// Nil entity
+	uidNil := GenerateUniqueID2(1, 100, nil)
+	assert.NotEqual(t, uid1, uidNil, "nil entity should produce different ULID than non-nil entity")
+
+	// EntityHandle calculation
+	handle := EntityHandle(ent1)
+	expectedHandle := uint32(10) | (uint32(1) << 14)
+	assert.Equal(t, expectedHandle, handle, "EntityHandle should correctly pack entity ID and serial")
+	assert.Equal(t, uint32(0), EntityHandle(nil), "EntityHandle of nil should be 0")
+}
+
 func TestEquipment_AmmoInMagazine(t *testing.T) {
 	wep := &Equipment{
 		Type:   EqAK47,

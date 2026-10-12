@@ -35,12 +35,24 @@ func (e *Entity) ServerClass() st.ServerClass {
 
 // ID is a mock-implementation of Entity.ID().
 func (e *Entity) ID() int {
-	return e.Called().Int(0)
+	for _, c := range e.ExpectedCalls {
+		if c.Method == "ID" {
+			return e.Called().Int(0)
+		}
+	}
+
+	return 0
 }
 
 // SerialNum is a mock-implementation of Entity.SerialNum().
 func (e *Entity) SerialNum() int {
-	return e.Called().Int(0)
+	for _, c := range e.ExpectedCalls {
+		if c.Method == "SerialNum" {
+			return e.Called().Int(0)
+		}
+	}
+
+	return 0
 }
 
 // Properties is a mock-implementation of Entity.Properties().
@@ -105,5 +117,5 @@ func (e *Entity) Destroy() {
 
 // OnCreateFinished is a mock-implementation of Entity.OnCreateFinished().
 func (e *Entity) OnCreateFinished(delegate func()) {
-	e.Called()
+	e.Called(delegate)
 }

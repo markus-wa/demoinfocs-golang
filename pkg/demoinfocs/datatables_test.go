@@ -246,3 +246,113 @@ func TestBindBomb_BombExplode(t *testing.T) {
 		assert.Equal(t, 1, explosions)
 	})
 }
+
+// TestUniqueID2 verifies that successive projectiles from the same player have distinct UniqueID2s
+// and that UniqueID2 incorporates entity handle, creation tick, and instance serial.
+// See https://github.com/markus-wa/demoinfocs-golang/issues/601
+func TestUniqueID2(t *testing.T) {
+	t.Run("successive projectiles of the same player have distinct UniqueID2", func(t *testing.T) {
+		p := newParser()
+		p.equipmentTypePerModel = make(map[uint64]common.EquipmentType)
+
+		pawnEntity := new(stfake.Entity)
+		pawnEntity.On("ID").Return(10)
+		pawnEntity.On("SerialNum").Return(1)
+		p.gameState.entities[10] = pawnEntity
+
+		ctrlEntity := new(stfake.Entity)
+		ctrlEntity.On("ID").Return(1)
+		ctrlEntity.On("PropertyValue", "m_hPawn").Return(st.PropertyValue{Any: uint64(10 | (1 << 14))}, true)
+		ctrlEntity.On("PropertyValue", "m_hPlayerPawn").Return(st.PropertyValue{Any: uint64(10 | (1 << 14))}, true)
+
+		player := common.NewPlayer(p.demoInfoProvider)
+		player.UserID = 1
+		player.SteamID64 = 76561198000000001
+		player.Entity = ctrlEntity
+		p.gameState.playersByUserID[1] = player
+
+		// Player carries a flashbang in inventory
+		flashWep := common.NewEquipment(common.EqFlash, p.nextUniqueID())
+		flashWepEntity := new(stfake.Entity)
+		flashWepEntity.On("ID").Return(30)
+		flashWepEntity.On("SerialNum").Return(1)
+		flashWep.Entity = flashWepEntity
+		flashWep.Owner = player
+		player.Inventory = map[int]*common.Equipment{30: flashWep}
+
+		fakeProjectile := func(id, serial int, tick int) (*stfake.Entity, func()) {
+			entity := new(stfake.Entity)
+			entity.On("ID").Return(id)
+			entity.On("SerialNum").Return(serial)
+
+			pawnHandle := uint64(10) | (uint64(1) << 14)
+			entity.On("PropertyValueMust", "m_hOwnerEntity").Return(st.PropertyValue{Any: pawnHandle})
+			entity.On("PropertyValueMust", "CBodyComponent.m_hModel").Return(st.PropertyValue{Any: uint64(9999)})
+
+			sc := serverClassStub{name: "CFlashbangProjectile"}
+			entity.On("ServerClass").Return(sc)
+
+			var onCreateFinished func()
+			entity.On("OnCreateFinished", mock.Anything).Run(func(args mock.Arguments) {
+				onCreateFinished = args.Get(0).(func())
+			})
+
+			entity.On("OnDestroy", mock.Anything).Return()
+			entity.On("Property", "m_hThrower").Return(nil)
+			entity.On("Property", "m_hOwnerEntity").Return(nil)
+			entity.On("Property", "m_nBounces").Return(nil)
+			entity.On("Position").Return(r3.Vector{})
+
+			return entity, func() {
+				p.gameState.ingameTick = tick
+				if onCreateFinished != nil {
+					onCreateFinished()
+				}
+			}
+		}
+
+		var throws []events.GrenadeProjectileThrow
+		p.RegisterEventHandler(func(e events.GrenadeProjectileThrow) {
+			throws = append(throws, e)
+		})
+
+		// Throw flash 1
+		p.gameState.ingameTick = 100
+		projEntity1, finish1 := fakeProjectile(101, 1, 100)
+		p.bindGrenadeProjectiles(projEntity1)
+		finish1()
+
+		// Throw flash 2 (same player, same inventory item slot)
+		p.gameState.ingameTick = 120
+		projEntity2, finish2 := fakeProjectile(102, 2, 120)
+		p.bindGrenadeProjectiles(projEntity2)
+		finish2()
+
+		assert.Len(t, throws, 2, "expected 2 GrenadeProjectileThrow events")
+
+		proj1 := throws[0].Projectile
+		proj2 := throws[1].Projectile
+
+		assert.NotNil(t, proj1)
+		assert.NotNil(t, proj2)
+		assert.NotNil(t, proj1.WeaponInstance)
+		assert.NotNil(t, proj2.WeaponInstance)
+
+		// Distinct projectile UniqueID
+		assert.NotEqual(t, proj1.UniqueID(), proj2.UniqueID(), "projectile UniqueID should be distinct")
+
+		// Distinct WeaponInstance UniqueID2
+		assert.NotEqual(t, proj1.WeaponInstance.UniqueID2(), proj2.WeaponInstance.UniqueID2(),
+			"WeaponInstance.UniqueID2 should be distinct across successive throws")
+
+		// Distinct GrenadeProjectile UniqueID2
+		assert.NotEqual(t, proj1.UniqueID2(), proj2.UniqueID2(),
+			"Projectile.UniqueID2 should be distinct across successive throws")
+
+		// Projectile and WeaponInstance UniqueID2 match for the same grenade
+		assert.Equal(t, proj1.WeaponInstance.UniqueID2(), proj1.UniqueID2(),
+			"proj1.UniqueID2() and proj1.WeaponInstance.UniqueID2() should match")
+		assert.Equal(t, proj2.WeaponInstance.UniqueID2(), proj2.UniqueID2(),
+			"proj2.UniqueID2() and proj2.WeaponInstance.UniqueID2() should match")
+	})
+}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/oklog/ulid/v2"
 
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
@@ -348,7 +349,19 @@ func (e *Equipment) Class() EquipmentClass {
 // The id is unique within the Parser instance that created the equipment; ids from different
 // Parser instances may collide, so don't key data across demos by it.
 func (e *Equipment) UniqueID2() ulid.ULID {
-	return e.uniqueID2
+	uid := e.uniqueID2
+	if e.Entity != nil && binary.BigEndian.Uint32(uid[12:16]) == 0 {
+		binary.BigEndian.PutUint32(uid[12:16], EntityHandle(e.Entity))
+	}
+
+	return uid
+}
+
+// SetUniqueID2 sets the UniqueID2 of the equipment instance.
+//
+// Intended for internal use only.
+func (e *Equipment) SetUniqueID2(id ulid.ULID) {
+	e.uniqueID2 = id
 }
 
 // AmmoInMagazine returns the ammo left in the magazine.
@@ -471,6 +484,29 @@ func NewEquipment(wep EquipmentType, id int64) *Equipment {
 	binary.BigEndian.PutUint64(uid[:8], uint64(id))
 
 	return &Equipment{Type: wep, uniqueID2: uid}
+}
+
+// EntityHandle packs an entity's index and serial number into a 32-bit Source 2 handle.
+func EntityHandle(entity st.Entity) uint32 {
+	if entity == nil {
+		return 0
+	}
+
+	return (uint32(entity.ID()) & constants.EntityHandleIndexMaskSource2) |
+		(uint32(entity.SerialNum()) << constants.MaxEdictBitsSource2)
+}
+
+// GenerateUniqueID2 constructs a deterministic ULID from the parser's monotonic instance serial,
+// creation tick, and entity handle (index and serial number).
+//
+// Intended for internal use only.
+func GenerateUniqueID2(instanceSerial int64, creationTick int, entity st.Entity) ulid.ULID {
+	var uid ulid.ULID
+	binary.BigEndian.PutUint64(uid[:8], uint64(instanceSerial))
+	binary.BigEndian.PutUint32(uid[8:12], uint32(creationTick))
+	binary.BigEndian.PutUint32(uid[12:16], EntityHandle(entity))
+
+	return uid
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{

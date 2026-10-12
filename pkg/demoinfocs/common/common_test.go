@@ -15,6 +15,62 @@ func TestGrenadeProjectileUniqueID(t *testing.T) {
 	assert.NotEqual(t, NewGrenadeProjectile(1).UniqueID(), NewGrenadeProjectile(2).UniqueID(), "UniqueIDs of different grenade projectiles should be different")
 }
 
+func TestGrenadeProjectileUniqueID2(t *testing.T) {
+	proj1 := NewGrenadeProjectile(1)
+	proj2 := NewGrenadeProjectile(2)
+
+	assert.NotEqual(t, proj1.UniqueID2(), proj2.UniqueID2(), "UniqueIDs of different grenade projectiles should be different")
+
+	// WeaponInstance delegation
+	wep := NewEquipment(EqFlash, 5)
+	proj1.WeaponInstance = wep
+	assert.Equal(t, wep.UniqueID2(), proj1.UniqueID2(), "Projectile UniqueID2 should delegate to WeaponInstance when present")
+
+	// Entity handle integration
+	ent1 := new(stfake.Entity)
+	ent1.On("ID").Return(100)
+	ent1.On("SerialNum").Return(1)
+
+	ent2 := new(stfake.Entity)
+	ent2.On("ID").Return(100)
+	ent2.On("SerialNum").Return(2)
+
+	pA := NewGrenadeProjectile(1)
+	pA.Entity = ent1
+
+	pB := NewGrenadeProjectile(1)
+	pB.Entity = ent2
+
+	assert.NotEqual(t, pA.UniqueID2(), pB.UniqueID2(), "projectiles with different entity serials should have different UniqueID2")
+}
+
+func TestUniqueID2_RoundResetEntityRecreation(t *testing.T) {
+	// Simulate round 1 entity allocation
+	round1Entity := new(stfake.Entity)
+	round1Entity.On("ID").Return(42)
+	round1Entity.On("SerialNum").Return(1)
+
+	// Simulate round 2 entity recreation (same index 42, but incremented serial)
+	round2Entity := new(stfake.Entity)
+	round2Entity.On("ID").Return(42)
+	round2Entity.On("SerialNum").Return(2)
+
+	// Even if parser instanceSerial is identical, different serial and creation tick produce distinct UniqueID2
+	uidRound1 := GenerateUniqueID2(10, 1000, round1Entity)
+	uidRound2 := GenerateUniqueID2(10, 2000, round2Entity)
+
+	assert.NotEqual(t, uidRound1, uidRound2, "recreated entity with new serial in subsequent round must produce distinct UniqueID2")
+
+	// Equipment UniqueID2 across round entity reallocation
+	eq1 := NewEquipment(EqFlash, 5)
+	eq1.Entity = round1Entity
+
+	eq2 := NewEquipment(EqFlash, 5)
+	eq2.Entity = round2Entity
+
+	assert.NotEqual(t, eq1.UniqueID2(), eq2.UniqueID2(), "equipment with recreated entity across rounds must produce distinct UniqueID2")
+}
+
 func TestGrenadeProjectile_Velocity(t *testing.T) {
 	expected := r3.Vector{
 		X: 1,

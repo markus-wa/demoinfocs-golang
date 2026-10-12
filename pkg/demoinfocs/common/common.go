@@ -2,12 +2,14 @@
 package common
 
 import (
+	"encoding/binary"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/golang/geo/r3"
+	"github.com/oklog/ulid/v2"
 
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
@@ -34,7 +36,8 @@ type GrenadeProjectile struct {
 	Trajectory []TrajectoryEntry // List of all known locations and the point in time of the grenade up to the current point
 
 	// uniqueID is used to distinguish different grenades (which potentially have the same, reused entityID) from each other.
-	uniqueID int64
+	uniqueID  int64
+	uniqueID2 ulid.ULID
 }
 
 // Position returns the current position of the grenade projectile in world coordinates.
@@ -83,6 +86,31 @@ func (g *GrenadeProjectile) UniqueID() int64 {
 	return g.uniqueID
 }
 
+// UniqueID2 returns the unique ULID of the grenade projectile that can be sorted efficiently.
+func (g *GrenadeProjectile) UniqueID2() ulid.ULID {
+	if g.WeaponInstance != nil && g.WeaponInstance.UniqueID2() != (ulid.ULID{}) {
+		return g.WeaponInstance.UniqueID2()
+	}
+
+	if g.uniqueID2 != (ulid.ULID{}) {
+		uid := g.uniqueID2
+		if g.Entity != nil && binary.BigEndian.Uint32(uid[12:16]) == 0 {
+			binary.BigEndian.PutUint32(uid[12:16], EntityHandle(g.Entity))
+		}
+
+		return uid
+	}
+
+	return GenerateUniqueID2(g.uniqueID, 0, g.Entity)
+}
+
+// SetUniqueID2 sets the UniqueID2 of the grenade projectile.
+//
+// Intended for internal use only.
+func (g *GrenadeProjectile) SetUniqueID2(id ulid.ULID) {
+	g.uniqueID2 = id
+}
+
 // NewGrenadeProjectile creates a grenade projectile and sets the Unique-ID.
 //
 // The id must come from the creating Parser's unique-id source so that it is unique within that
@@ -90,7 +118,10 @@ func (g *GrenadeProjectile) UniqueID() int64 {
 //
 // Intended for internal use only.
 func NewGrenadeProjectile(id int64) *GrenadeProjectile {
-	return &GrenadeProjectile{uniqueID: id}
+	var uid ulid.ULID
+	binary.BigEndian.PutUint64(uid[:8], uint64(id))
+
+	return &GrenadeProjectile{uniqueID: id, uniqueID2: uid}
 }
 
 // Bomb tracks the bomb's position, and the player carrying it, if any.
