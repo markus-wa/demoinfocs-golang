@@ -21,10 +21,8 @@ require (
 	github.com/markus-wa/ice-cipher-go v1.0.0 // indirect
 	github.com/markus-wa/quickhull-go/v2 v2.2.0 // indirect
 	github.com/oklog/ulid/v2 v2.1.1 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63 // indirect
 	golang.org/x/image v0.45.0 // indirect
 )
 
