@@ -477,9 +477,6 @@ func (p *parser) handlePacketEntities(m *msg.CSVCMsg_PacketEntities) {
 	// DEM_FullPacket, which repeat the last server tick) - position recording skips repeated ticks.
 	if m.ServerTick != nil {
 		p.snapshotTick = int(m.GetServerTick())
-	} else {
-		// not seen in practice - fall back to the in-game tick rather than freezing the clock
-		p.snapshotTick = p.gameState.ingameTick
 	}
 
 	p.processingSnapshot = true

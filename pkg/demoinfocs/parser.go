@@ -598,10 +598,11 @@ type ParserConfig struct {
 	//
 	// On those demos Player.Velocity() derives the velocity from position deltas for everybody but the
 	// recording player of POV demos, whose velocity is networked. Without this flag, positions are only
-	// recorded for players Player.Velocity() has been called for, starting with that call (calls until the
-	// next entity snapshot return a zero vector), and a ParserWarn (WarnTypeVelocityTrackingStartedLazily)
-	// is dispatched once. With it, the velocity is available for
-	// every player from their first frame on, at the cost of recording positions for all players.
+	// recorded for players Player.Velocity() has been called for, starting with that call (calls return a
+	// zero vector until the entity snapshot after it has been applied), and a ParserWarn
+	// (WarnTypeVelocityTrackingStartedLazily) is dispatched once. With it, the velocity is available for every
+	// player once their second entity snapshot has been applied, at the cost of recording positions for all
+	// players.
 	// It has no effect (and no cost) on newer demos, where the velocity is networked. False by default.
 	EagerVelocityTracking bool
 }
@@ -722,7 +723,7 @@ func (p demoInfoProvider) TrackFramePosition(record func() bool, lazy bool) {
 
 		p.parser.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: "Player.Velocity() called on a demo without networked player velocity; deriving it from position " +
-				"deltas from now on - calls until the next entity snapshot return a zero vector for a newly tracked player. " +
+				"deltas from now on - it's zero for a newly tracked player until the next entity snapshot has been applied. " +
 				"Set ParserConfig.EagerVelocityTracking to record all players from the start.",
 			Type: events.WarnTypeVelocityTrackingStartedLazily,
 		})
@@ -752,6 +753,10 @@ func (p demoInfoProvider) FindPlayerByPawnHandle(handle uint64) *common.Player {
 
 func (p demoInfoProvider) FindEntityByHandle(handle uint64) st.Entity {
 	return p.parser.gameState.EntityByHandle(handle)
+}
+
+func (p demoInfoProvider) FindEntityByID(id int) st.Entity {
+	return p.parser.gameState.entities[id]
 }
 
 func (p demoInfoProvider) FindWeaponByEntityID(entityID int) *common.Equipment {

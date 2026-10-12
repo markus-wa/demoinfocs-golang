@@ -231,6 +231,11 @@ func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
 	return p.entitiesByHandle[handle]
 }
 
+// FindEntityByID uses entitiesByHandle as well, handles of the fake entities have serial 0.
+func (p demoInfoProviderMock) FindEntityByID(id int) st.Entity {
+	return p.entitiesByHandle[uint64(id)]
+}
+
 func (p demoInfoProviderMock) TickRate() float64 {
 	return p.tickRate
 }

@@ -468,24 +468,28 @@ func (p *Player) ViewDirectionY() float32 {
 //
 // The velocity is read from the pawn's m_vecVelocity property when it is networked, which is the case
 // for GOTV demos recorded since the CS2 "AnimGraph 2" update (28/07/2025, network protocol 14089),
-// and as far as known for POV demos too. Older demos declare the property but don't populate it - except
-// for the recording player of POV demos, whose networked value is used. For everybody else on those
-// demos, the velocity is derived from the position delta between two entity snapshots, divided by the
-// server time elapsed between them (server ticks, see TickRate()).
+// and as far as known for POV demos too. On older demos the property isn't populated on GOTV demos, and
+// holds stale values for everybody but the recording player on POV demos - only the recording player's
+// networked value is used there. For everybody else on those demos, the velocity is derived from the
+// position delta between two entity snapshots, divided by the server time elapsed between them (server
+// ticks, see TickRate()).
 //
 // Positions are only recorded for players Velocity() has been called for, so the fallback costs nothing
-// unless it's used. Calls before the next entity snapshot after the first call for a player therefore
-// return a zero vector, and the parser dispatches a ParserWarn (WarnTypeVelocityTrackingStartedLazily)
+// unless it's used. Calls for a player therefore return a zero vector until the entity snapshot after the
+// first call has been applied, and the parser dispatches a ParserWarn (WarnTypeVelocityTrackingStartedLazily)
 // the first time this happens. Set ParserConfig.EagerVelocityTracking to record all players from the start
 // instead. On those demos Velocity() thus registers the player with the parser - like the parser itself,
 // it must not be called concurrently with parsing (e.g. from another goroutine).
 //
 // The fallback:
-//   - returns a zero vector until the next entity snapshot after a player (re-)spawned, while dead, and
-//     when a pawn was teleported (m_ubInterpolationFrame changed, or a delta above sv_maxvelocity);
+//   - returns a zero vector until the next entity snapshot has been applied after a player (re-)spawned,
+//     while dead, and when a pawn was teleported (m_ubInterpolationFrame changed, or a delta above
+//     sv_maxvelocity);
 //   - keeps the last value during frames without an entity snapshot (e.g. the user command frames of POV
 //     demos), and returns the value of the previous snapshot while one is applied (e.g. in WeaponFire
-//     handlers), since the pawn's position may not be updated yet at that point;
+//     handlers) - for every player, since a pawn's position may or may not be updated yet at that point.
+//     Values there lag by one snapshot (e.g. a median of ~5 u/s on POV and ~20 u/s on older GOTV demos
+//     at WeaponFire) instead of reading as a standstill;
 //   - lags the networked value by up to one snapshot and is noisier, since it is a finite difference over
 //     the snapshot interval (e.g. 3 ticks on older GOTV demos) - e.g. Z briefly spikes when a pawn steps up
 //     stairs or lands.
@@ -517,9 +521,10 @@ func (p *Player) Velocity() r3.Vector {
 //
 // The decision is made per demo (network protocol) and per pawn (property presence) - never on the
 // value itself - so the source doesn't flip between frames for a player legitimately standing still.
-// Before AnimGraph 2 the property is either never populated (GOTV) or only for the recording player,
-// with stale values for everybody else (POV), so it's ignored for everybody but the recording player.
-// An unknown network protocol (0) is decided by property presence alone.
+// Before AnimGraph 2 the property is either never populated (GOTV) or holds stale values for everybody but
+// the recording player (POV), so it's ignored for everybody but the recording player.
+// An unknown network protocol (0, i.e. no file header with a patch version parsed yet) is decided by
+// property presence alone.
 func (p *Player) isVelocityNetworked(pawnEntity st.Entity) bool {
 	protocol := p.demoInfoProvider.NetworkProtocol()
 	if protocol > 0 && protocol < constants.NetworkProtocolAnimGraph2 && !p.isRecordingPlayer() {
@@ -580,7 +585,9 @@ func (p *Player) velocitySince(ref positionSample, pos r3.Vector, tick int, pawn
 	dt := float64(tick-ref.tick) / tickRate
 	v := pos.Sub(ref.pos).Mul(1 / dt)
 
-	if math.Abs(v.X) > constants.MaxVelocity || math.Abs(v.Y) > constants.MaxVelocity || math.Abs(v.Z) > constants.MaxVelocity {
+	const maxVelocity = constants.DefaultMaxVelocity
+
+	if math.Abs(v.X) > maxVelocity || math.Abs(v.Y) > maxVelocity || math.Abs(v.Z) > maxVelocity {
 		// physically impossible, must be a teleport that wasn't flagged as such
 		return r3.Vector{}
 	}
@@ -613,7 +620,7 @@ func (p *Player) recordFramePosition() (keep bool) {
 
 	p.recordedTick = tick
 
-	if p.Entity == nil || p.demoInfoProvider.FindEntityByHandle(uint64(p.Entity.ID())) != p.Entity {
+	if p.Entity == nil || p.demoInfoProvider.FindEntityByID(p.Entity.ID()) != p.Entity {
 		p.positionHistory = [2]positionSample{}
 		p.trackingPosition = false
 
@@ -903,6 +910,7 @@ type demoInfoProvider interface {
 	FindPlayerByPawnHandle(handle uint64) *Player
 	FindWeaponByEntityID(id int) *Equipment
 	FindEntityByHandle(handle uint64) st.Entity
+	FindEntityByID(id int) st.Entity
 	NetworkProtocol() int     // demo network protocol (patch version), 0 if unknown, used for Player.Velocity()
 	RecordingPlayerSlot() int // player slot of the POV demo's recording player, -1 for GOTV demos
 	// EagerVelocityTracking returns whether ParserConfig.EagerVelocityTracking is set.
@@ -930,7 +938,8 @@ func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 
 	// ParserConfig.EagerVelocityTracking: record positions from the start on demos that don't network
 	// the velocity, instead of lazily on the first Velocity() call.
-	// An unknown protocol (0) means a live broadcast, where the velocity is networked in practice.
+	// Not with an unknown protocol (0, i.e. no file header with a patch version parsed yet) - Velocity() still
+	// falls back lazily then if the velocity isn't networked.
 	if demoInfoProvider != nil && demoInfoProvider.EagerVelocityTracking() &&
 		demoInfoProvider.NetworkProtocol() > 0 && demoInfoProvider.NetworkProtocol() < constants.NetworkProtocolAnimGraph2 {
 		pl.startPositionTracking(false)

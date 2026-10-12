@@ -61,6 +61,10 @@ func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
 	panic("implement me")
 }
 
+func (p demoInfoProviderMock) FindEntityByID(id int) st.Entity {
+	panic("implement me")
+}
+
 func (p demoInfoProviderMock) IngameTick() int {
 	return 0
 }
