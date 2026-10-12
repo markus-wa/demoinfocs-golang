@@ -1275,8 +1275,8 @@ func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType 
 //
 // The weapon's OriginalString is set to the raw event weapon name (rawName),
 // which may be empty (e.g. for grenade projectiles).
-// The id is used for the new instance's UniqueID2 (see parser.nextUniqueID).
-func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawName string, id int64) *common.Equipment {
+// The id is used for the new instance's UniqueID (see parser.nextUniqueID).
+func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawName string, id common.UniqueID) *common.Equipment {
 	if player != nil {
 		alternateWepType := common.EquipmentAlternative(wepType)
 		for _, wep := range player.Weapons() {

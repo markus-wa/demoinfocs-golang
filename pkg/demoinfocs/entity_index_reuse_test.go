@@ -75,6 +75,6 @@ func testEntityIndexReuseNewEquipment(t *testing.T, demPath string) {
 	assert.NotEmpty(t, equipmentByEntity)
 
 	for w, entities := range entitiesByEquipment {
-		assert.Len(t, entities, 1, "%s (%s) is shared by multiple weapon entities: %v", w, w.UniqueID2(), entities)
+		assert.Len(t, entities, 1, "%s (%s) is shared by multiple weapon entities: %v", w, w.UniqueID(), entities)
 	}
 }

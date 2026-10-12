@@ -19,7 +19,7 @@ type Inferno struct {
 	Entity st.Entity
 
 	// uniqueID is used to distinguish different infernos (which potentially have the same, reused entityID) from each other.
-	uniqueID         int64
+	uniqueID         UniqueID
 	demoInfoProvider demoInfoProvider
 	thrower          *Player
 }
@@ -37,13 +37,8 @@ type Fires struct {
 	s []Fire
 }
 
-// UniqueID returns the unique id of the inferno.
-// The id is generated internally by this library and can be used to differentiate infernos from
-// each other. This is needed because demo-files reuse entity ids.
-//
-// The id is unique within the Parser instance that created the inferno; ids from different Parser
-// instances may collide, so don't key data across demos by it.
-func (inf *Inferno) UniqueID() int64 {
+// UniqueID returns the unique id of the inferno, see [UniqueID] for its guarantees.
+func (inf *Inferno) UniqueID() UniqueID {
 	return inf.uniqueID
 }
 
@@ -213,7 +208,7 @@ func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 // parse and reproducible across parses of the same demo.
 //
 // Intended for internal use only.
-func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity, thrower *Player, id int64) *Inferno {
+func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity, thrower *Player, id UniqueID) *Inferno {
 	return &Inferno{
 		Entity:           entity,
 		uniqueID:         id,

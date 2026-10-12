@@ -14,7 +14,7 @@ This will create a JPEG with grenade trajectories of the first five rounds. The 
 
 ## Tracking individual grenades
 
-`GrenadeProjectile.UniqueID()` identifies an individual thrown grenade, whereas `Equipment.UniqueID2()` identifies the weapon it was thrown from (several throws can share it).
+`GrenadeProjectile.UniqueID()` identifies an individual thrown grenade, whereas `Equipment.UniqueID()` identifies the weapon it was thrown from (several throws can share it).
 Grenade events like `HeExplode`, `FlashExplode` or `SmokeStart` reference the projectile they're about via `GrenadeEvent.Projectile`, so you can link a throw to its effect:
 
 ```go
@@ -25,7 +25,7 @@ p.RegisterEventHandler(func(e events.GrenadeProjectileThrow) {
 p.RegisterEventHandler(func(e events.GrenadeEventIf) {
 	// nil if the projectile couldn't be resolved, see GrenadeEvent.Projectile
 	if proj := e.Base().Projectile; proj != nil {
-		fmt.Printf("%T %d\n", e, proj.UniqueID())
+		fmt.Printf("%T %s\n", e, proj.UniqueID())
 	}
 })
 ```
