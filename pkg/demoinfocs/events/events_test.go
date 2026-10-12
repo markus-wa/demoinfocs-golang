@@ -89,4 +89,8 @@ func (p demoInfoProviderMock) VelocityFromPositionDelta() bool {
 	return false
 }
 
-func (p demoInfoProviderMock) TrackFramePosition(func(), bool) {}
+func (p demoInfoProviderMock) RecordingPlayerSlot() int {
+	return -1
+}
+
+func (p demoInfoProviderMock) TrackFramePosition(func() bool, bool) {}

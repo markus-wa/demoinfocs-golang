@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"slices"
 	"sync"
 	"time"
 
@@ -499,9 +500,10 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 	// Record positions after FrameDone so that handlers see the velocity relative to the previous frame.
 	// Used by Player.Velocity() when m_vecVelocity isn't networked (demos before the AnimGraph 2 update).
 	// Players only get registered once Velocity() is called for them (or with ParserConfig.VelocityFromPositionDelta).
-	for _, record := range p.framePositionRecorders {
-		record()
-	}
+	// Recorders of players whose controller is gone return false and are dropped.
+	p.framePositionRecorders = slices.DeleteFunc(p.framePositionRecorders, func(record func() bool) bool {
+		return !record()
+	})
 }
 
 // CS2 demos playback info are available in the CDemoFileInfo message that should be parsed at the end of the demo.

@@ -457,10 +457,10 @@ func (p *Player) ViewDirectionY() float32 {
 //
 // The velocity is read from the pawn's m_vecVelocity property when it is networked, which is the case
 // for demos recorded since the CS2 "AnimGraph 2" update (28/07/2025, network protocol 14089) - GOTV
-// and POV alike. Older demos declare the property but don't populate it (or, on POV demos, only for
-// the recording player). For those, the velocity is derived from the position delta between the
-// current position and the position at the end of an earlier frame, divided by the in-game time
-// elapsed between the two (see TickRate()).
+// and POV alike. Older demos declare the property but don't populate it - except for the recording
+// player of POV demos, whose networked value is used. For everybody else on those demos, the velocity
+// is derived from the position delta between the current position and the position at the end of an
+// earlier frame, divided by the in-game time elapsed between the two (see TickRate()).
 //
 // Positions are only recorded for players Velocity() has been called for, so the fallback costs nothing
 // unless it's used. The first call per player therefore returns a zero vector, and the parser dispatches
@@ -480,7 +480,8 @@ func (p *Player) Velocity() r3.Vector {
 	}
 
 	if !p.isVelocityNetworked(pawnEntity) {
-		p.startPositionTracking(true)
+		// not lazy if the config flag is set but tracking stopped (e.g. the player re-connected)
+		p.startPositionTracking(!p.demoInfoProvider.VelocityFromPositionDelta())
 
 		return p.positionDeltaVelocity(pawnEntity)
 	}
@@ -501,9 +502,11 @@ func (p *Player) Velocity() r3.Vector {
 // The decision is made per demo (network protocol) and per pawn (property presence) - never on the
 // value itself - so the source doesn't flip between frames for a player legitimately standing still.
 // Before AnimGraph 2 the property is either never populated (GOTV) or only for the recording player,
-// with stale values for everybody else (POV), so it's ignored entirely.
+// with stale values for everybody else (POV), so it's ignored for everybody but the recording player.
+// An unknown network protocol (0) is decided by property presence alone.
 func (p *Player) isVelocityNetworked(pawnEntity st.Entity) bool {
-	if p.demoInfoProvider.NetworkProtocol() < constants.NetworkProtocolAnimGraph2 {
+	protocol := p.demoInfoProvider.NetworkProtocol()
+	if protocol > 0 && protocol < constants.NetworkProtocolAnimGraph2 && !p.isRecordingPlayer() {
 		return false
 	}
 
@@ -512,7 +515,14 @@ func (p *Player) isVelocityNetworked(pawnEntity st.Entity) bool {
 	return ok
 }
 
-// positionDeltaVelocity derives the velocity from the position history recorded by RecordFramePosition().
+// isRecordingPlayer returns whether the player recorded the (POV) demo.
+func (p *Player) isRecordingPlayer() bool {
+	slot := p.demoInfoProvider.RecordingPlayerSlot()
+
+	return slot >= 0 && p.EntityID-1 == slot
+}
+
+// positionDeltaVelocity derives the velocity from the position history recorded by recordFramePosition().
 func (p *Player) positionDeltaVelocity(pawnEntity st.Entity) r3.Vector {
 	tickRate := p.demoInfoProvider.TickRate()
 	if tickRate <= 0 {
@@ -560,14 +570,23 @@ func (p *Player) startPositionTracking(lazy bool) {
 }
 
 // recordFramePosition records the pawn position at the end of a frame.
-func (p *Player) recordFramePosition() {
+// Returns false once the player's controller entity is gone (disconnect) and recording should stop -
+// a reconnect creates a new Player.
+func (p *Player) recordFramePosition() (keep bool) {
+	if p.Entity == nil || p.demoInfoProvider.FindEntityByHandle(uint64(p.Entity.ID())) != p.Entity {
+		p.positionHistory = [2]positionSample{}
+		p.trackingPosition = false
+
+		return false
+	}
+
 	pawnEntity := p.PlayerPawnEntity()
 
 	// The position lookup is relatively expensive, skip it when the networked velocity is available anyway.
 	if pawnEntity == nil || !isPawnAlive(pawnEntity) || p.isVelocityNetworked(pawnEntity) {
 		p.positionHistory = [2]positionSample{}
 
-		return
+		return true
 	}
 
 	sample := positionSample{
@@ -589,6 +608,8 @@ func (p *Player) recordFramePosition() {
 		// first sample, new pawn or tick went backwards
 		p.positionHistory = [2]positionSample{sample}
 	}
+
+	return true
 }
 
 // Position returns the in-game coordinates.
@@ -844,12 +865,14 @@ type demoInfoProvider interface {
 	FindPlayerByPawnHandle(handle uint64) *Player
 	FindWeaponByEntityID(id int) *Equipment
 	FindEntityByHandle(handle uint64) st.Entity
-	NetworkProtocol() int // demo network protocol (patch version), used for Player.Velocity()
+	NetworkProtocol() int     // demo network protocol (patch version), 0 if unknown, used for Player.Velocity()
+	RecordingPlayerSlot() int // player slot of the POV demo's recording player, -1 for GOTV demos
 	// VelocityFromPositionDelta returns whether ParserConfig.VelocityFromPositionDelta is set.
 	VelocityFromPositionDelta() bool
-	// TrackFramePosition registers a function the parser calls at the end of every frame (after FrameDone).
+	// TrackFramePosition registers a function the parser calls at the end of every frame (after FrameDone),
+	// until it returns false.
 	// lazy is true if tracking was started by a Velocity() call rather than by the config.
-	TrackFramePosition(record func(), lazy bool)
+	TrackFramePosition(record func() (keep bool), lazy bool)
 }
 
 // NewPlayer creates a *Player with an initialized equipment map.
@@ -863,8 +886,9 @@ func NewPlayer(demoInfoProvider demoInfoProvider) *Player {
 
 	// ParserConfig.VelocityFromPositionDelta: record positions from the start on demos that don't network
 	// the velocity, instead of lazily on the first Velocity() call.
+	// An unknown protocol (0) means a live broadcast, where the velocity is networked in practice.
 	if demoInfoProvider != nil && demoInfoProvider.VelocityFromPositionDelta() &&
-		demoInfoProvider.NetworkProtocol() < constants.NetworkProtocolAnimGraph2 {
+		demoInfoProvider.NetworkProtocol() > 0 && demoInfoProvider.NetworkProtocol() < constants.NetworkProtocolAnimGraph2 {
 		pl.startPositionTracking(false)
 	}
 

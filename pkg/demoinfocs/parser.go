@@ -121,7 +121,7 @@ type parser struct {
 	recordingPlayerSlot           int
 	disableMimicSource1GameEvents bool
 	velocityFromPositionDelta     bool
-	framePositionRecorders        []func() // see Player.Velocity()
+	framePositionRecorders        []func() bool // see Player.Velocity()
 	lazyVelocityTrackingWarned    bool
 
 	// Additional fields, mainly caching & tracking things
@@ -701,7 +701,7 @@ func (p demoInfoProvider) VelocityFromPositionDelta() bool {
 	return p.parser.velocityFromPositionDelta
 }
 
-func (p demoInfoProvider) TrackFramePosition(record func(), lazy bool) {
+func (p demoInfoProvider) TrackFramePosition(record func() bool, lazy bool) {
 	p.parser.framePositionRecorders = append(p.parser.framePositionRecorders, record)
 
 	if lazy && !p.parser.lazyVelocityTrackingWarned {
@@ -716,12 +716,17 @@ func (p demoInfoProvider) TrackFramePosition(record func(), lazy bool) {
 	}
 }
 
+// NetworkProtocol returns the demo's network protocol (patch version), 0 if not (yet) known.
 func (p demoInfoProvider) NetworkProtocol() int {
 	if p.parser.header == nil {
 		return 0
 	}
 
 	return p.parser.header.NetworkProtocol
+}
+
+func (p demoInfoProvider) RecordingPlayerSlot() int {
+	return p.parser.recordingPlayerSlot
 }
 
 func (p demoInfoProvider) FindPlayerByHandle(handle uint64) *common.Player {

@@ -1,6 +1,7 @@
 package common
 
 import (
+	"slices"
 	"testing"
 	"time"
 
@@ -345,6 +346,8 @@ type velocityFixture struct {
 	velocity *r3.Vector // networked m_vecVelocity, nil = declared but not populated (pre AnimGraph 2)
 }
 
+const velocityFixtureControllerID = 2 // pawn handle is 1
+
 func newVelocityFixture(networkProtocol int) *velocityFixture {
 	h := uint64(1)
 	f := &velocityFixture{
@@ -358,11 +361,21 @@ func newVelocityFixture(networkProtocol int) *velocityFixture {
 		health: 100,
 	}
 
+	controller := entityWithProperties([]fakeProp{
+		{propName: "m_hPawn", value: st.PropertyValue{Any: h}},
+		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: h}},
+	})
+	controller.ExpectedCalls = slices.DeleteFunc(controller.ExpectedCalls, func(c *mock.Call) bool {
+		return c.Method == "ID"
+	})
+	controller.On("ID").Return(velocityFixtureControllerID)
+
+	// the controller must be found by its handle, otherwise the recorder stops (disconnect)
+	f.provider.entitiesByHandle[velocityFixtureControllerID] = controller
+
 	f.pl = &Player{
-		Entity: entityWithProperties([]fakeProp{
-			{propName: "m_hPawn", value: st.PropertyValue{Any: h}},
-			{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: h}},
-		}),
+		Entity:           controller,
+		EntityID:         velocityFixtureControllerID,
 		demoInfoProvider: f.provider,
 	}
 
@@ -419,10 +432,10 @@ func (f *velocityFixture) frame(tick int, pos r3.Vector) r3.Vector {
 
 	v := f.pl.Velocity()
 
-	// end of frame: the parser runs the registered position recorders
-	for _, r := range *f.provider.tracked {
-		r.record()
-	}
+	// end of frame: the parser runs the registered position recorders, dropping those that return false
+	*f.provider.tracked = slices.DeleteFunc(*f.provider.tracked, func(r trackedRecorder) bool {
+		return !r.record()
+	})
 
 	return v
 }
@@ -487,6 +500,7 @@ func TestNewPlayer_EagerPositionTracking(t *testing.T) {
 		{"flag on, old demo", constants.NetworkProtocolAnimGraph2 - 1, true, true},
 		{"flag on, new demo", constants.NetworkProtocolAnimGraph2, true, false},
 		{"flag off, old demo", constants.NetworkProtocolAnimGraph2 - 1, false, false},
+		{"flag on, unknown protocol", 0, true, false},
 	}
 
 	for _, c := range cases {
@@ -607,6 +621,77 @@ func TestPlayer_Velocity_BeforeAnimGraph2_IgnoresNetworkedValue(t *testing.T) {
 
 	f.frame(100, r3.Vector{})
 	assertVectorInDelta(t, r3.Vector{Y: 64}, f.frame(101, r3.Vector{Y: 1}))
+}
+
+// On POV demos before AnimGraph 2 the recording player's networked velocity is exact and used as-is,
+// without recording positions.
+func TestPlayer_Velocity_BeforeAnimGraph2_RecordingPlayer(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+	f.provider.pov = true
+	f.provider.recordingSlot = velocityFixtureControllerID - 1
+	f.velocity = &r3.Vector{X: 250, Y: -10}
+
+	assertVectorInDelta(t, r3.Vector{X: 250, Y: -10}, f.frame(100, r3.Vector{}))
+	assertVectorInDelta(t, r3.Vector{X: 250, Y: -10}, f.frame(101, r3.Vector{Y: 1}))
+	assert.Empty(t, *f.provider.tracked)
+}
+
+// Other players on the same POV demo hold stale values and use the position delta.
+func TestPlayer_Velocity_BeforeAnimGraph2_NonRecordingPlayer(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+	f.provider.pov = true
+	f.provider.recordingSlot = velocityFixtureControllerID // a different slot
+	f.velocity = &r3.Vector{X: 999}
+
+	f.frame(100, r3.Vector{})
+	assertVectorInDelta(t, r3.Vector{Y: 64}, f.frame(101, r3.Vector{Y: 1}))
+}
+
+// An unknown network protocol (0, e.g. no file header yet) is decided by property presence alone.
+func TestPlayer_Velocity_UnknownProtocol(t *testing.T) {
+	f := newVelocityFixture(0)
+	f.velocity = &r3.Vector{X: 250}
+
+	assertVectorInDelta(t, r3.Vector{X: 250}, f.frame(100, r3.Vector{}))
+	assert.Empty(t, *f.provider.tracked)
+
+	f.velocity = nil
+	f.frame(101, r3.Vector{})
+	assertVectorInDelta(t, r3.Vector{Y: 64}, f.frame(102, r3.Vector{Y: 1}))
+}
+
+// Once the controller entity is gone (disconnect), the recorder is dropped and the history cleared.
+// A later Velocity() call registers again.
+func TestPlayer_Velocity_PositionDelta_ControllerDestroyed(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+
+	f.frame(100, r3.Vector{})
+	f.frame(101, r3.Vector{X: 1})
+	require.Len(t, *f.provider.tracked, 1)
+
+	controller := f.provider.entitiesByHandle[velocityFixtureControllerID]
+	delete(f.provider.entitiesByHandle, velocityFixtureControllerID)
+
+	f.frame(102, r3.Vector{X: 2})
+	assert.Empty(t, *f.provider.tracked, "recorder dropped")
+	assert.False(t, f.pl.trackingPosition)
+	assert.Equal(t, [2]positionSample{}, f.pl.positionHistory)
+
+	f.provider.entitiesByHandle[velocityFixtureControllerID] = controller
+
+	assert.Equal(t, r3.Vector{}, f.frame(103, r3.Vector{X: 3}))
+	require.Len(t, *f.provider.tracked, 1, "registered again")
+	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(104, r3.Vector{X: 4}))
+}
+
+// With ParserConfig.VelocityFromPositionDelta a re-registration isn't lazy (no warning).
+func TestPlayer_Velocity_PositionDelta_ReRegistrationWithFlag(t *testing.T) {
+	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
+	f.provider.velocityFallback = true
+
+	f.frame(100, r3.Vector{})
+	require.Len(t, *f.provider.tracked, 1)
+	assert.False(t, (*f.provider.tracked)[0].lazy)
 }
 
 // Demos that don't network pawn velocity (e.g. before AnimGraph 2 update) must
