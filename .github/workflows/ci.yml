@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [master, 'v[0-9]*'] # master + release/backport branches (v5, ...)
+    branches: [main, 'v[0-9]*'] # main + release/backport branches (v5, ...)
     tags: ['v*']
   pull_request:
 
