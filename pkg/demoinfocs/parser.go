@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -11,13 +12,14 @@ import (
 
 	"github.com/golang/geo/r3"
 	dp "github.com/markus-wa/godispatch"
-	"google.golang.org/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/cstv"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
@@ -72,7 +74,7 @@ func (h *header) FrameTime() time.Duration {
 
 /*
 Parser can parse a CS2 demo.
-Creating a new instance is done via NewParser() or NewParserWithConfig().
+Creating a new instance is done via NewParser().
 
 Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo
 (the demo header is parsed automatically when parsing starts).
@@ -87,20 +89,21 @@ Example (without error handling):
 	p.RegisterEventHandler(func(e events.BombExplode) {
 		fmt.Printf("%c site went BOOM!\n", e.Site)
 	})
-	p.ParseToEnd()
+	p.ParseToEnd(context.Background())
 
 Prints out '{A/B} site went BOOM!' when a bomb explodes.
 */
 type parser struct {
 	// Important fields
 
-	config                          ParserConfig
+	config                          config.Config
+	ctx                             context.Context // context of the running ParseToEnd() call, nil if it can't be cancelled; see aborted()
 	bitReader                       *bit.BitReader
 	stParser                        sendTableParser
-	additionalNetMessageCreators    map[int]NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
-	msgQueue                        chan any                  // Queue of net-messages
-	msgDispatcher                   *dp.Dispatcher            // Net-message dispatcher
-	decryptionKey                   []byte                    // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
+	additionalNetMessageCreators    map[int]config.NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
+	msgQueue                        chan any                         // Queue of net-messages
+	msgDispatcher                   *dp.Dispatcher                   // Net-message dispatcher
+	decryptionKey                   []byte                           // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
 	gameEventHandler                gameEventHandler
 	eventDispatcher                 *dp.Dispatcher
 	currentFrame                    int     // Demo-frame, not ingame-tick
@@ -158,11 +161,6 @@ type parser struct {
 func (p *parser) nextUniqueID() common.UniqueID {
 	return common.UniqueID(atomic.AddUint64(&p.lastUniqueID, 1))
 }
-
-// NetMessageCreator creates additional net-messages to be dispatched to net-message handlers.
-//
-// See also: ParserConfig.AdditionalNetMessageCreators & Parser.RegisterNetMessageHandler()
-type NetMessageCreator func() proto.Message
 
 type bombsite struct {
 	index  int
@@ -351,10 +349,11 @@ func (p *parser) error() error {
 	return err
 }
 
-// aborted reports whether a fatal error has been recorded. Message handlers
-// no-op once it is set, so the queued backlog drains without further decoding.
+// aborted reports whether a fatal error has been recorded or the context passed to
+// ParseToEnd() is done. Message handlers no-op once it is set, so the queued
+// backlog drains without further decoding.
 func (p *parser) aborted() bool {
-	return p.error() != nil
+	return p.error() != nil || (p.ctx != nil && p.ctx.Err() != nil)
 }
 
 func (p *parser) setError(err error) {
@@ -374,7 +373,7 @@ func (p *parser) setError(err error) {
 
 	p.errLock.Unlock()
 
-	// A fatal error stops all further handler work (mirrors Cancel()):
+	// A fatal error (or cancellation, see ParseToEnd()) stops all further handler work:
 	// the message queue may already hold a large backlog that would otherwise
 	// still be delivered to handlers, including user-registered ones.
 	p.unregisterAllHandlers()
@@ -399,80 +398,45 @@ func (p *parser) poolBitReader(r *bit.BitReader) {
 	}
 }
 
-// NewParser creates a new Parser with the default configuration.
-// The demostream io.Reader (e.g. os.File or bytes.Reader) must provide demo data in the '.DEM' format.
+// NewParser creates a new Parser.
+// The options are applied on top of the default configuration, see the option package.
 //
-// See also: NewParserWithConfig() & DefaultParserConfig
-func NewParser(demostream io.Reader) Parser {
-	return NewParserWithConfig(demostream, DefaultParserConfig)
-}
-
-type DemoFormat byte
-
-const (
-	DemoFormatFile DemoFormat = iota
-	DemoFormatCSTVBroadcast
-)
-
-// NewCSTVBroadcastParser creates a new Parser for a live CSTV broadcast.
-// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+// The demostream io.Reader (e.g. os.File or bytes.Reader) must provide demo data in the '.DEM' format,
+// unless it's a *cstv.Reader: then the Parser reads the live CSTV broadcast frame format.
+// Only a *cstv.Reader passed directly is detected, not one wrapped in another reader (e.g. bufio.Reader).
 //
-// See also: NewParserWithConfig() & DefaultParserConfig
-func NewCSTVBroadcastParser(baseURL string) (Parser, error) {
-	return NewCSTVBroadcastParserWithConfig(baseURL, DefaultParserConfig)
-}
-
-// NewCSTVBroadcastParserWithConfig creates a new Parser for a live CSTV broadcast with a custom configuration.
-// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
+// Example for a live CSTV broadcast:
 //
-// See also: NewParserWithConfig() & DefaultParserConfig
-func NewCSTVBroadcastParserWithConfig(baseURL string, config ParserConfig) (Parser, error) {
-	r, err := cstv.NewReader(baseURL, config.CSTVTimeout)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create CSTV reader: %w", err)
+//	r, err := cstv.NewReader(ctx, "http://localhost:8080/s85568392932860274t1733091777")
+//	if err != nil {
+//		return err
+//	}
+//
+//	p := demoinfocs.NewParser(r)
+//	defer p.Close()
+//
+//	err = p.ParseToEnd(ctx)
+//
+// See also: ParseFile()
+func NewParser(demostream io.Reader, opts ...option.Option) Parser {
+	cfg := config.New(opts)
+
+	if _, ok := demostream.(*cstv.Reader); ok {
+		cfg.Format = config.FormatCSTVBroadcast
 	}
 
-	config.Format = DemoFormatCSTVBroadcast
-
-	return NewParserWithConfig(r, config), nil
+	return newParserFromConfig(demostream, cfg)
 }
 
+// ParserCallback configures a Parser (e.g. registers handlers) before ParseFile() parses the demo.
 type ParserCallback func(Parser) error
 
-// ParseWithConfig parses a demo from the given io.Reader with a custom configuration.
-// The handler is called with the Parser instance.
+// ParseFile parses a demo file at the given path.
+// The handler is called with the Parser instance before parsing starts.
+// The options are applied on top of the default configuration, see the option package.
 //
-// Returns an error if the parser encounters an error.
-func ParseWithConfig(r io.Reader, config ParserConfig, configure ParserCallback) error {
-	p := NewParserWithConfig(r, config)
-	defer p.Close()
-
-	err := configure(p)
-	if err != nil {
-		return fmt.Errorf("failed to configure parser: %w", err)
-	}
-
-	err = p.ParseToEnd()
-	if err != nil {
-		return fmt.Errorf("failed to parse demo: %w", err)
-	}
-
-	return nil
-}
-
-// Parse parses a demo from the given io.Reader.
-// The handler is called with the Parser instance.
-//
-// Returns an error if the parser encounters an error.
-func Parse(r io.Reader, configure ParserCallback) error {
-	return ParseWithConfig(r, DefaultParserConfig, configure)
-}
-
-// ParseFileWithConfig parses a demo file at the given path with a custom configuration.
-// The handler is called with the Parser instance.
-//
-// Returns an error if the file can't be opened or if the parser encounters an error.
-func ParseFileWithConfig(path string, config ParserConfig, configure ParserCallback) error {
+// Returns an error if the file can't be opened, if the parser encounters an error or ctx is done before the end of the demo.
+func ParseFile(ctx context.Context, path string, configure ParserCallback, opts ...option.Option) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
@@ -480,28 +444,7 @@ func ParseFileWithConfig(path string, config ParserConfig, configure ParserCallb
 
 	defer f.Close()
 
-	return ParseWithConfig(f, config, configure)
-}
-
-// ParseFile parses a demo file at the given path.
-// The handler is called with the Parser instance.
-//
-// Returns an error if the file can't be opened or if the parser encounters an error.
-func ParseFile(path string, configure ParserCallback) error {
-	return ParseFileWithConfig(path, DefaultParserConfig, configure)
-}
-
-// ParseCSTVBroadcastWithConfig parses a live CSTV broadcast from the given base URL with a custom configuration.
-// The handler is called with the Parser instance.
-// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
-// Returns an error if the CSTV reader can't be created or if the parser encounters an error.
-// Note that the CSTV broadcast is a live stream and will not end until the broadcast ends.
-func ParseCSTVBroadcastWithConfig(baseURL string, config ParserConfig, configure ParserCallback) error {
-	p, err := NewCSTVBroadcastParserWithConfig(baseURL, config)
-	if err != nil {
-		return fmt.Errorf("failed to create CSTV broadcast parser: %w", err)
-	}
-
+	p := NewParser(f, opts...)
 	defer p.Close()
 
 	err = configure(p)
@@ -509,122 +452,21 @@ func ParseCSTVBroadcastWithConfig(baseURL string, config ParserConfig, configure
 		return fmt.Errorf("failed to configure parser: %w", err)
 	}
 
-	err = p.ParseToEnd()
+	err = p.ParseToEnd(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to parse CSTV broadcast: %w", err)
+		return fmt.Errorf("failed to parse demo: %w", err)
 	}
 
 	return nil
 }
 
-// ParseCSTVBroadcast parses a live CSTV broadcast from the given base URL.
-// The handler is called with the Parser instance.
-// The baseURL is the base URL of the CSTV broadcast, e.g. "http://localhost:8080/s85568392932860274t1733091777".
-// Returns an error if the CSTV reader can't be created or if the parser encounters an error.
-// Note that the CSTV broadcast is a live stream and will not end until the broadcast ends.
-func ParseCSTVBroadcast(baseURL string, configure ParserCallback) error {
-	return ParseCSTVBroadcastWithConfig(baseURL, DefaultParserConfig, configure)
-}
-
-// UserCmdParsingMode controls how CSVCMsg_UserCommands messages are handled.
-type UserCmdParsingMode uint8
-
-const (
-	// UserCmdParsingButtonsOnly tracks buttonstate1 for PlayerButtonsStateUpdate events.
-	// It is the default and the zero value so that a zero-value ParserConfig
-	// matches DefaultParserConfig.
-	UserCmdParsingButtonsOnly UserCmdParsingMode = iota
-	// UserCmdParsingFull reconstructs and dispatches complete UserCmd events.
-	UserCmdParsingFull
-	// UserCmdParsingDisabled skips user-command parsing and preserves legacy properties.
-	UserCmdParsingDisabled
-)
-
-// ParserConfig contains the configuration for creating a new Parser.
-type ParserConfig struct {
-	// MsgQueueBufferSize defines the size of the internal net-message queue.
-	// For large demos, fast i/o and slow CPUs higher numbers are suggested and vice versa.
-	// The buffer size can easily be in the hundred-thousands to low millions for the best performance.
-	// A negative value will make the Parser automatically decide the buffer size during parseHeader()
-	// based on the number of ticks in the demo (nubmer of ticks = buffer size);
-	// this is the default behavior for DefaultParserConfig.
-	// Zero enforces sequential parsing.
-	MsgQueueBufferSize int
-
-	// AdditionalNetMessageCreators maps net-message-IDs to creators (instantiators).
-	// The creators should return a new instance of the correct protobuf-message type (from the msg package).
-	// Interesting net-message-IDs can easily be discovered with the build-tag 'debugdemoinfocs'; when looking for 'UnhandledMessage'.
-	// Check out parsing.go to see which net-messages are already being parsed by default.
-	// This is a beta feature and may be changed or replaced without notice.
-	AdditionalNetMessageCreators map[int]NetMessageCreator
-
-	// IgnoreErrBombsiteIndexNotFound tells the parser to not return an error when a bombsite-index from a game-event is not found in the demo.
-	// See https://github.com/markus-wa/demoinfocs-golang/issues/314
-	IgnoreErrBombsiteIndexNotFound bool
-
-	// NetMessageDecryptionKey tells the parser how to decrypt certain encrypted net-messages (e.g. chat messages in Valve matchmaking demos).
-	// See MatchInfoDecryptionKey() on how to retrieve the key from `match730_*.dem.info` files.
-	NetMessageDecryptionKey []byte
-
-	// DisableMimicSource1Events tells the parser to not mimic Source 1 game events for Source 2 demos.
-	// Unfortunately Source 2 demos *may* not contain Source 1 game events, that's why the parser will try to mimic them.
-	// It has an impact only with Source 2 demos and is false by default.
-	DisableMimicSource1Events bool
-
-	// Source2FallbackGameEventListBin is a fallback game event list protobuf message for Source 2 demos.
-	// It's used when the game event list is not found in the demo file.
-	// This can happen due to a CS2 bug with sv_hibernate_when_empty.
-	Source2FallbackGameEventListBin []byte
-
-	// IgnorePacketEntitiesPanic tells the parser to ignore PacketEntities parsing panics.
-	// This is required as a workaround for some POV demos that seem to contain rare PacketEntities parsing issues.
-	IgnorePacketEntitiesPanic bool
-
-	// DemoFormat is the format of the demo file (e.g. ".dem" file or live CSTV broadcast).
-	Format DemoFormat
-
-	// CSTVTimeout is the timeout for CSTV broadcasts.
-	// It's the maximum time to retry for a response from the CSTV server, using an exponential backoff mechanism, starting at 1s.
-	// Only used when Format is DemoFormatCSTVBroadcast.
-	CSTVTimeout time.Duration
-
-	// UserCmdParsing controls CSVCMsg_UserCommands parsing. It defaults to
-	// UserCmdParsingButtonsOnly, including when ParserConfig is created as a zero value.
-	UserCmdParsing UserCmdParsingMode
-
-	// EagerVelocityTracking makes the parser record every player's position from the start on demos that
-	// don't network the player velocity (recorded before the CS2 "AnimGraph 2" update, network protocol
-	// < 14089).
-	//
-	// On those demos Player.Velocity() derives the velocity from position deltas for everybody but the
-	// recording player of POV demos, whose velocity is networked. Without this flag, positions are only
-	// recorded for players Player.Velocity() has been called for, starting with that call (calls return a
-	// zero vector until the entity snapshot after it has been applied), and a ParserWarn
-	// (WarnTypeVelocityTrackingStartedLazily) is dispatched once. With it, the velocity is available for every
-	// player once their second entity snapshot has been applied, at the cost of recording positions for all
-	// players.
-	// It has no effect (and no cost) on newer demos, where the velocity is networked. False by default.
-	EagerVelocityTracking bool
-}
-
-// DefaultParserConfig is the default Parser configuration used by NewParser().
-var DefaultParserConfig = ParserConfig{
-	MsgQueueBufferSize: -1,
-	CSTVTimeout:        10 * time.Second,
-	UserCmdParsing:     UserCmdParsingButtonsOnly,
-}
-
-// NewParserWithConfig returns a new Parser with a custom configuration.
-//
-// See also: NewParser() & ParserConfig
-//
 //nolint:funlen
-func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
+func newParserFromConfig(demostream io.Reader, cfg config.Config) Parser {
 	var p parser
 
 	// Init parser
-	p.config = config
-	if p.config.Format == DemoFormatFile {
+	p.config = cfg
+	if p.config.Format == config.FormatFile {
 		p.bitReader = bit.NewLargeBitReader(demostream)
 	} else {
 		p.bitReader = bit.NewSmallBitReader(demostream)
@@ -641,16 +483,16 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.equipmentTypePerModel = make(map[uint64]common.EquipmentType)
 	p.userCmdStates = make(map[int32]*userCmdPlayerState)
 	p.userCmdButtonStates = make(map[int32]*userCmdButtonPlayerState)
-	p.gameEventHandler = newGameEventHandler(&p, config.IgnoreErrBombsiteIndexNotFound)
+	p.gameEventHandler = newGameEventHandler(&p, cfg.IgnoreErrBombsiteIndexNotFound)
 	p.bombsiteA.index = -1
 	p.bombsiteB.index = -1
 	p.recordingPlayerSlot = -1
 	p.snapshotTick = -1
-	p.disableMimicSource1GameEvents = config.DisableMimicSource1Events
-	p.eagerVelocityTracking = config.EagerVelocityTracking
-	p.source2FallbackGameEventListBin = config.Source2FallbackGameEventListBin
-	p.ignorePacketEntitiesPanic = config.IgnorePacketEntitiesPanic
-	p.decryptionKey = config.NetMessageDecryptionKey
+	p.disableMimicSource1GameEvents = cfg.DisableMimicSource1Events
+	p.eagerVelocityTracking = cfg.EagerVelocityTracking
+	p.source2FallbackGameEventListBin = cfg.Source2FallbackGameEventListBin
+	p.ignorePacketEntitiesPanic = cfg.IgnorePacketEntitiesPanic
+	p.decryptionKey = cfg.NetMessageDecryptionKey
 
 	dispatcherCfg := dp.Config{
 		PanicHandler: func(v any) {
@@ -679,11 +521,11 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
 	p.msgDispatcher.RegisterHandler(p.handleUserCommands)
 
-	if config.MsgQueueBufferSize >= 0 {
-		p.initMsgQueue(config.MsgQueueBufferSize)
+	if cfg.MsgQueueBufferSize >= 0 {
+		p.initMsgQueue(cfg.MsgQueueBufferSize)
 	}
 
-	p.additionalNetMessageCreators = config.AdditionalNetMessageCreators
+	p.additionalNetMessageCreators = cfg.AdditionalNetMessageCreators
 
 	return &p
 }
@@ -726,7 +568,7 @@ func (p demoInfoProvider) TrackFramePosition(record func() bool, lazy bool) {
 		p.parser.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: "Player.Velocity() called on a demo without networked player velocity; deriving it from position " +
 				"deltas from now on - it's zero for a newly tracked player until the next entity snapshot has been applied. " +
-				"Set ParserConfig.EagerVelocityTracking to record all players from the start.",
+				"Use option.EagerVelocityTracking(true) to record all players from the start.",
 			Type: events.WarnTypeVelocityTrackingStartedLazily,
 		})
 	}

@@ -5,6 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/encoding/protowire"
+
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
 )
 
 func TestMergeUserCmdButtonsFullAndDelta(t *testing.T) {
@@ -47,8 +49,8 @@ func TestUserCmdButtonRingRequiresExactCommandNumber(t *testing.T) {
 }
 
 func TestUserCmdParsingModeDefaultsToButtonsOnly(t *testing.T) {
-	var config ParserConfig
-	require.Equal(t, UserCmdParsingButtonsOnly, config.UserCmdParsing)
-	require.Equal(t, UserCmdParsingButtonsOnly, DefaultParserConfig.UserCmdParsing)
+	var cfg config.Config
+	require.Equal(t, config.UserCmdParsingButtonsOnly, cfg.UserCmdParsing)
+	require.Equal(t, config.UserCmdParsingButtonsOnly, config.Default().UserCmdParsing)
 	require.Equal(t, protowire.Type(7), wireTypeReset)
 }

@@ -3,6 +3,7 @@
 package demoinfocs
 
 import (
+	"context"
 	"time"
 
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
@@ -11,7 +12,7 @@ import (
 
 // Parser is an auto-generated interface for Parser, intended to be used when mockability is needed.
 // Parser can parse a CS2 demo.
-// Creating a new instance is done via NewParser() or NewParserWithConfig().
+// Creating a new instance is done via NewParser().
 //
 // Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo
 // (the demo header is parsed automatically when parsing starts).
@@ -26,7 +27,7 @@ import (
 //	p.RegisterEventHandler(func(e events.BombExplode) {
 //		fmt.Printf("%c site went BOOM!\n", e.Site)
 //	})
-//	p.ParseToEnd()
+//	p.ParseToEnd(context.Background())
 //
 // Prints out '{A/B} site went BOOM!' when a bomb explodes.
 type Parser interface {
@@ -106,13 +107,15 @@ type Parser interface {
 	// Returns an error if closing of underlying resources fails.
 	Close() error
 	// ParseToEnd attempts to parse the demo until the end.
-	// Aborts and returns ErrCancelled if Cancel() is called before the end.
+	//
+	// Parsing is aborted when ctx is done (it may be cancelled from a handler or another goroutine):
+	// no further events are dispatched, all handlers are unregistered, net-messages that are already
+	// queued are dropped and context.Cause(ctx) is returned, so errors.Is(err, context.Canceled)
+	// and errors.Is(err, context.DeadlineExceeded) can be used to detect it.
+	// If ctx is already done, ParseToEnd returns right away without parsing anything.
 	//
 	// See also: ParseNextFrame() for other possible errors.
-	ParseToEnd() (err error)
-	// Cancel aborts ParseToEnd() and drains the internal event queues.
-	// No further events will be sent to event or message handlers after this.
-	Cancel()
+	ParseToEnd(ctx context.Context) (err error)
 	/*
 	   ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
 
@@ -120,6 +123,9 @@ type Parser interface {
 
 	   May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
 	   May panic if the demo is corrupt in some way.
+
+	   ParseNextFrame doesn't take a context.Context: callers that need cancellation
+	   should check their context between frames and stop calling ParseNextFrame once it's done.
 
 	   See also: ParseToEnd() for parsing the complete demo in one go (faster).
 	*/

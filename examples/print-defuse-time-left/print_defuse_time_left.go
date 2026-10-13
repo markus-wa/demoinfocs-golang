@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"text/tabwriter"
@@ -94,7 +95,7 @@ func main() {
 	})
 
 	// Parse to end
-	err = p.ParseToEnd()
+	err = p.ParseToEnd(context.Background())
 	checkError(err)
 }
 

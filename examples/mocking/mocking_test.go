@@ -21,7 +21,7 @@ func TestCollectKills(t *testing.T) {
 
 	parser.On("ParseToEnd").Return(nil) // Return no error
 
-	actual, err := collectKills(parser)
+	actual, err := collectKills(t.Context(), parser)
 
 	assert.Nil(t, err)
 	expected := []events.Kill{kill1, kill2, kill3}
@@ -42,7 +42,7 @@ func TestCollectKillsError(t *testing.T) {
 	expectedErr := errors.New("Test error")
 	parser.On("ParseToEnd").Return(expectedErr)
 
-	kills, actualErr := collectKills(parser)
+	kills, actualErr := collectKills(t.Context(), parser)
 
 	assert.Nil(t, kills)
 	assert.Equal(t, expectedErr, actualErr)

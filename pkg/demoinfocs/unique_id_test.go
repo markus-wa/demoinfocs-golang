@@ -31,7 +31,7 @@ func TestUniqueID_Deterministic(t *testing.T) {
 		p.RegisterEventHandler(func(e events.GrenadeProjectileThrow) { ids = append(ids, e.Projectile.UniqueID()) })
 		p.RegisterEventHandler(func(e events.InfernoStart) { ids = append(ids, e.Inferno.UniqueID()) })
 
-		assert.NoError(t, p.ParseToEnd())
+		assert.NoError(t, p.ParseToEnd(t.Context()))
 
 		return ids
 	}

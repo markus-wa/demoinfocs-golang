@@ -113,7 +113,7 @@ func testGrenadeEventProjectile(t *testing.T, demPath string, isPOV bool) {
 	p.RegisterEventHandler(func(e events.InfernoStart) { checkInfernoProjectile(e.Inferno, e.Projectile) })
 	p.RegisterEventHandler(func(e events.InfernoExpired) { checkInfernoProjectile(e.Inferno, e.Projectile) })
 
-	err := p.ParseToEnd()
+	err := p.ParseToEnd(t.Context())
 	assert.NoError(t, err)
 
 	names := []string{"events.HeExplode", "events.FlashExplode", "events.SmokeStart", "events.SmokeExpired", "events.FireGrenadeExpired"}

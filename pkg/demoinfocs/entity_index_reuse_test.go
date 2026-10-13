@@ -71,7 +71,7 @@ func testEntityIndexReuseNewEquipment(t *testing.T, demPath string) {
 		}
 	})
 
-	assert.NoError(t, p.ParseToEnd())
+	assert.NoError(t, p.ParseToEnd(t.Context()))
 	assert.NotEmpty(t, equipmentByEntity)
 
 	for w, entities := range entitiesByEquipment {

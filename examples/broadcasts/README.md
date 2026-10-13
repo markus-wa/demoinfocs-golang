@@ -2,6 +2,23 @@
 
 This example shows how to parse live [CSTV broadcasts](https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Broadcast).
 
+## Usage
+
+A broadcast is read with `cstv.NewReader()`; `demoinfocs.NewParser()` detects the `*cstv.Reader` and parses the broadcast format.
+Pass the reader directly, a wrapped reader (e.g. in a `bufio.Reader`) isn't detected.
+
+```go
+r, err := cstv.NewReader(ctx, "http://localhost:8080/<token>", cstv.WithTimeout(30*time.Second))
+if err != nil {
+	return err
+}
+
+p := demoinfocs.NewParser(r)
+defer p.Close()
+
+err = p.ParseToEnd(ctx)
+```
+
 ## Running the example
 
 1. `node cstv.js`

@@ -5,13 +5,14 @@ import (
 	"encoding/binary"
 	"fmt"
 
+	"github.com/markus-wa/go-unassert"
+	"github.com/markus-wa/ice-cipher-go/pkg/ice"
+	"google.golang.org/protobuf/proto"
+
 	bit "github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
-	"github.com/markus-wa/go-unassert"
-	"github.com/markus-wa/ice-cipher-go/pkg/ice"
-	"google.golang.org/protobuf/proto"
 )
 
 func (p *parser) onEntity(e sendtables.Entity, op sendtables.EntityOp) error {
@@ -206,7 +207,7 @@ func (p *parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.Bit
 // The inner message uses the same framing as CDemoPacket data:
 // a UBitInt message type followed by a varint size and the protobuf bytes.
 //
-// Anything that doesn't decode (most likely a wrong ParserConfig.NetMessageDecryptionKey)
+// Anything that doesn't decode (most likely a wrong option.NetMessageDecryptionKey() key)
 // is reported as a ParserWarn and skipped - it never aborts parsing.
 func (p *parser) handleEncryptedData(m *msg.CSVCMsg_EncryptedData) {
 	br, nBytesWritten, ok := p.decryptNetMessage(m.GetKeyType(), m.GetEncrypted())

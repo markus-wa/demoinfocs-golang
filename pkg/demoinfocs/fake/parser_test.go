@@ -1,6 +1,7 @@
 package fake_test
 
 import (
+	"context"
 	"testing"
 
 	assert "github.com/stretchr/testify/assert"
@@ -55,9 +56,33 @@ func TestParseToEndEvents(t *testing.T) {
 		actual = append(actual, e)
 	})
 
-	err := p.ParseToEnd()
+	err := p.ParseToEnd(t.Context())
 
 	assert.Nil(t, err)
+	assert.Equal(t, expected, actual)
+}
+
+func TestParseToEndCancelled(t *testing.T) {
+	p := fake.NewParser()
+	p.On("ParseToEnd").Return(nil)
+	expected := []any{kill(common.EqAK47)}
+	p.MockEvents(expected...)
+	p.MockEvents(kill(common.EqScout))
+	p.MockEvents(kill(common.EqAUG))
+
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
+	var actual []any
+	p.RegisterEventHandler(func(e events.Kill) {
+		actual = append(actual, e)
+
+		cancel()
+	})
+
+	err := p.ParseToEnd(ctx)
+
+	assert.ErrorIs(t, err, context.Canceled)
 	assert.Equal(t, expected, actual)
 }
 
@@ -102,7 +127,7 @@ func TestParseToEndNetMessages(t *testing.T) {
 		actual = append(actual, message)
 	})
 
-	err := p.ParseToEnd()
+	err := p.ParseToEnd(t.Context())
 
 	assert.Nil(t, err)
 	assert.Equal(t, expected, actual)

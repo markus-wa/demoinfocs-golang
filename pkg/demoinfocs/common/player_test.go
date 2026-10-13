@@ -505,7 +505,7 @@ func TestPlayer_Velocity_Networked_NoTracking(t *testing.T) {
 	assert.Empty(t, *f.provider.tracked)
 }
 
-// ParserConfig.EagerVelocityTracking registers players at creation (not lazily), only on older demos.
+// option.EagerVelocityTracking(true) registers players at creation (not lazily), only on older demos.
 func TestNewPlayer_EagerPositionTracking(t *testing.T) {
 	cases := []struct {
 		name     string
@@ -783,7 +783,7 @@ func TestPlayer_Velocity_PositionDelta_ControllerDestroyed(t *testing.T) {
 	assertVectorInDelta(t, r3.Vector{X: 64}, f.frame(104, r3.Vector{X: 4}))
 }
 
-// With ParserConfig.EagerVelocityTracking a re-registration (after the recorder was dropped) isn't lazy (no warning).
+// With option.EagerVelocityTracking(true) a re-registration (after the recorder was dropped) isn't lazy (no warning).
 func TestPlayer_Velocity_PositionDelta_ReRegistrationWithFlag(t *testing.T) {
 	f := newVelocityFixture(constants.NetworkProtocolAnimGraph2 - 1)
 	f.provider.eagerVelocityTracking = true

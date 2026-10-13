@@ -1,6 +1,7 @@
 package demoinfocs_test
 
 import (
+	"context"
 	"log"
 	"testing"
 
@@ -27,7 +28,7 @@ func ExampleParser() {
 		log.Printf("%s <%v%s%s> %s\n", kill.Killer, kill.Weapon, hs, wallBang, kill.Victim)
 	}
 
-	err := demoinfocs.ParseFile("../../test/cs-demos/s2/s2.dem", func(p demoinfocs.Parser) error {
+	err := demoinfocs.ParseFile(context.Background(), "../../test/cs-demos/s2/s2.dem", func(p demoinfocs.Parser) error {
 		p.RegisterEventHandler(onKill)
 
 		return nil

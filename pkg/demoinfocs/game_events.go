@@ -858,7 +858,7 @@ func (geh gameEventHandler) bombExploded(data map[string]*msg.CMsgSource1LegacyG
 }
 
 // ErrBombsiteIndexNotFound indicates that a game-event occurred that contained an unknown bombsite index.
-// This error can be disabled by setting ParserConfig.IgnoreErrBombsiteIndexNotFound = true.
+// This error can be disabled with option.IgnoreErrBombsiteIndexNotFound(true).
 // See https://github.com/markus-wa/demoinfocs-golang/issues/314
 var ErrBombsiteIndexNotFound = errors.New("bombsite index not found - see https://github.com/markus-wa/demoinfocs-golang/issues/314")
 

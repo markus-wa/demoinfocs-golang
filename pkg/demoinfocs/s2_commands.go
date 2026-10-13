@@ -11,6 +11,7 @@ import (
 
 	"github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
 
@@ -42,7 +43,7 @@ func (p *parser) handleClassInfo(msg *msg.CDemoClassInfo) {
 	p.eventDispatcher.Dispatch(events.DataTablesParsed{})
 }
 
-var netMsgCreators = map[msg.NET_Messages]NetMessageCreator{
+var netMsgCreators = map[msg.NET_Messages]config.NetMessageCreator{
 	msg.NET_Messages_net_NOP:                        func() proto.Message { return &msg.CNETMsg_NOP{} },
 	msg.NET_Messages_net_SplitScreenUser:            func() proto.Message { return &msg.CNETMsg_SplitScreenUser{} },
 	msg.NET_Messages_net_Tick:                       func() proto.Message { return &msg.CNETMsg_Tick{} },
@@ -57,7 +58,7 @@ var netMsgCreators = map[msg.NET_Messages]NetMessageCreator{
 	msg.NET_Messages_net_DebugOverlay:               func() proto.Message { return &msg.CNETMsg_DebugOverlay{} },
 }
 
-var svcMsgCreators = map[msg.SVC_Messages]NetMessageCreator{
+var svcMsgCreators = map[msg.SVC_Messages]config.NetMessageCreator{
 	msg.SVC_Messages_svc_ServerInfo:              func() proto.Message { return &msg.CSVCMsg_ServerInfo{} },
 	msg.SVC_Messages_svc_FlattenedSerializer:     func() proto.Message { return &msg.CSVCMsg_FlattenedSerializer{} },
 	msg.SVC_Messages_svc_ClassInfo:               func() proto.Message { return &msg.CSVCMsg_ClassInfo{} },
@@ -92,7 +93,7 @@ var svcMsgCreators = map[msg.SVC_Messages]NetMessageCreator{
 	msg.SVC_Messages_svc_EncryptedData:           func() proto.Message { return &msg.CSVCMsg_EncryptedData{} },
 }
 
-var usrMsgCreators = map[msg.EBaseUserMessages]NetMessageCreator{
+var usrMsgCreators = map[msg.EBaseUserMessages]config.NetMessageCreator{
 	msg.EBaseUserMessages_UM_AchievementEvent:        func() proto.Message { return &msg.CUserMessageAchievementEvent{} },
 	msg.EBaseUserMessages_UM_CurrentTimescale:        func() proto.Message { return &msg.CUserMessageCurrentTimescale{} },
 	msg.EBaseUserMessages_UM_DesiredTimescale:        func() proto.Message { return &msg.CUserMessageDesiredTimescale{} },
@@ -144,7 +145,7 @@ var usrMsgCreators = map[msg.EBaseUserMessages]NetMessageCreator{
 	msg.EBaseUserMessages_UM_UsageReport:             func() proto.Message { return &msg.CUserMessage_UsageReport{} },
 }
 
-var emCreators = map[msg.EBaseEntityMessages]NetMessageCreator{
+var emCreators = map[msg.EBaseEntityMessages]config.NetMessageCreator{
 	msg.EBaseEntityMessages_EM_PlayJingle:     func() proto.Message { return &msg.CEntityMessagePlayJingle{} },
 	msg.EBaseEntityMessages_EM_ScreenOverlay:  func() proto.Message { return &msg.CEntityMessageScreenOverlay{} },
 	msg.EBaseEntityMessages_EM_PropagateForce: func() proto.Message { return &msg.CEntityMessagePropagateForce{} },
@@ -152,7 +153,7 @@ var emCreators = map[msg.EBaseEntityMessages]NetMessageCreator{
 	msg.EBaseEntityMessages_EM_FixAngle:       func() proto.Message { return &msg.CEntityMessageFixAngle{} },
 }
 
-var gameEventCreators = map[msg.EBaseGameEvents]NetMessageCreator{
+var gameEventCreators = map[msg.EBaseGameEvents]config.NetMessageCreator{
 	msg.EBaseGameEvents_GE_VDebugGameSessionIDEvent:   func() proto.Message { return &msg.CMsgVDebugGameSessionIDEvent{} },
 	msg.EBaseGameEvents_GE_PlaceDecalEvent:            func() proto.Message { return &msg.CMsgPlaceDecalEvent{} },
 	msg.EBaseGameEvents_GE_ClearWorldDecalsEvent:      func() proto.Message { return &msg.CMsgClearWorldDecalsEvent{} },
@@ -170,14 +171,14 @@ var gameEventCreators = map[msg.EBaseGameEvents]NetMessageCreator{
 	msg.EBaseGameEvents_GE_ClothEffectAnimEvent:       func() proto.Message { return &msg.CMsgClothEffectAnimEvent{} },
 }
 
-var csgoGameEventCreators = map[msg.ECsgoGameEvents]NetMessageCreator{
+var csgoGameEventCreators = map[msg.ECsgoGameEvents]config.NetMessageCreator{
 	msg.ECsgoGameEvents_GE_PlayerAnimEventId: func() proto.Message { return &msg.CMsgTEPlayerAnimEvent{} },
 	msg.ECsgoGameEvents_GE_RadioIconEventId:  func() proto.Message { return &msg.CMsgTERadioIcon{} },
 	msg.ECsgoGameEvents_GE_FireBulletsId:     func() proto.Message { return &msg.CMsgTEFireBullets{} },
 	msg.ECsgoGameEvents_GE_PlayerBulletHitId: func() proto.Message { return &msg.CMsgPlayerBulletHit{} },
 }
 
-var csUsrMsgCreators = map[msg.ECstrike15UserMessages]NetMessageCreator{
+var csUsrMsgCreators = map[msg.ECstrike15UserMessages]config.NetMessageCreator{
 	msg.ECstrike15UserMessages_CS_UM_VGUIMenu:                     func() proto.Message { return &msg.CCSUsrMsg_VGUIMenu{} },
 	msg.ECstrike15UserMessages_CS_UM_Geiger:                       func() proto.Message { return &msg.CCSUsrMsg_Geiger{} },
 	msg.ECstrike15UserMessages_CS_UM_Train:                        func() proto.Message { return &msg.CCSUsrMsg_Train{} },
@@ -254,7 +255,7 @@ var csUsrMsgCreators = map[msg.ECstrike15UserMessages]NetMessageCreator{
 	msg.ECstrike15UserMessages_CS_UM_WeaponMagDrop:                func() proto.Message { return &msg.CCSUsrMsg_WeaponMagDrop{} },
 }
 
-var teCreators = map[msg.ETEProtobufIds]NetMessageCreator{
+var teCreators = map[msg.ETEProtobufIds]config.NetMessageCreator{
 	msg.ETEProtobufIds_TE_EffectDispatchId: func() proto.Message { return &msg.CMsgTEEffectDispatch{} },
 	msg.ETEProtobufIds_TE_ArmorRicochetId:  func() proto.Message { return &msg.CMsgTEArmorRicochet{} },
 	msg.ETEProtobufIds_TE_BeamEntPointId:   func() proto.Message { return &msg.CMsgTEBeamEntPoint{} },
@@ -280,7 +281,7 @@ var teCreators = map[msg.ETEProtobufIds]NetMessageCreator{
 	msg.ETEProtobufIds_TE_SmokeId:          func() proto.Message { return &msg.CMsgTESmoke{} },
 }
 
-var bidirectionalMessageCreators = map[msg.Bidirectional_Messages]NetMessageCreator{
+var bidirectionalMessageCreators = map[msg.Bidirectional_Messages]config.NetMessageCreator{
 	msg.Bidirectional_Messages_bi_RebroadcastGameEvent: func() proto.Message { return &msg.CBidirMsg_RebroadcastGameEvent{} },
 	msg.Bidirectional_Messages_bi_RebroadcastSource:    func() proto.Message { return &msg.CBidirMsg_RebroadcastSource{} },
 	msg.Bidirectional_Messages_bi_GameEvent_DEPRECATED: func() proto.Message { return &msg.CBidirMsg_RebroadcastGameEvent{} },
@@ -315,7 +316,7 @@ func (m *pendingMessage) priority() int {
 }
 
 // msgCreatorForType returns the creator for a net-message type, or nil if the type is unknown.
-func msgCreatorForType(t int32) NetMessageCreator {
+func msgCreatorForType(t int32) config.NetMessageCreator {
 	switch {
 	case t < int32(msg.SVC_Messages_svc_ServerInfo):
 		msgCreator := netMsgCreators[msg.NET_Messages(t)]
@@ -448,11 +449,11 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 
 //nolint:gocognit,nestif,funlen
 func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
-	if p.config.UserCmdParsing == UserCmdParsingDisabled {
+	if p.config.UserCmdParsing == config.UserCmdParsingDisabled {
 		return
 	}
 
-	if p.config.UserCmdParsing == UserCmdParsingButtonsOnly {
+	if p.config.UserCmdParsing == config.UserCmdParsingButtonsOnly {
 		p.handleUserCommandButtons(m)
 		return
 	}

@@ -3,7 +3,9 @@ package demoinfocs_test
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/rand"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -26,6 +28,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 )
 
 const (
@@ -60,12 +63,12 @@ func TestDemoInfoCs(t *testing.T) {
 
 	defer mustClose(t, f)
 
-	p := demoinfocs.NewParserWithConfig(f, demoinfocs.ParserConfig{
-		MsgQueueBufferSize: 1000,
-		AdditionalNetMessageCreators: map[int]demoinfocs.NetMessageCreator{
+	p := demoinfocs.NewParser(f,
+		option.MsgQueueBufferSize(1000),
+		option.AdditionalNetMessageCreators(map[int]option.NetMessageCreator{
 			4: func() proto.Message { return new(msg.CNETMsg_Tick) },
-		},
-	})
+		}),
+	)
 
 	var actual bytes.Buffer
 	p.RegisterEventHandler(func(e any) {
@@ -186,7 +189,7 @@ func TestDemoInfoCs(t *testing.T) {
 	}
 
 	t.Log("Parsing to end")
-	err = p.ParseToEnd()
+	err = p.ParseToEnd(t.Context())
 	assertions.NoError(err, "error occurred in ParseToEnd()")
 
 	t.Logf("Took %s\n", time.Since(ts))
@@ -207,10 +210,7 @@ func TestS2(t *testing.T) {
 
 	defer mustClose(t, f)
 
-	cfg := demoinfocs.DefaultParserConfig
-	cfg.MsgQueueBufferSize = 0
-
-	p := demoinfocs.NewParserWithConfig(f, cfg)
+	p := demoinfocs.NewParser(f, option.MsgQueueBufferSize(0))
 
 	if *update {
 		p.RegisterNetMessageHandler(func(gel *msg.CMsgSource1LegacyGameEventList) {
@@ -219,7 +219,7 @@ func TestS2(t *testing.T) {
 	}
 
 	t.Log("Parsing to end")
-	err = p.ParseToEnd()
+	err = p.ParseToEnd(t.Context())
 	assertions.NoError(err, "error occurred in ParseToEnd()")
 }
 
@@ -239,7 +239,7 @@ func TestS2POV(t *testing.T) {
 	p := demoinfocs.NewParser(f)
 
 	t.Log("Parsing to end")
-	err = p.ParseToEnd()
+	err = p.ParseToEnd(t.Context())
 	assertions.NoError(err, "error occurred in ParseToEnd()")
 }
 
@@ -255,23 +255,25 @@ func TestParseToEnd_Cancel(t *testing.T) {
 
 	p := demoinfocs.NewParser(f)
 
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
 	var (
 		tix      = 0
 		maxTicks = 100
 	)
 
-	var handlerID dispatch.HandlerIdentifier
-	handlerID = p.RegisterEventHandler(func(events.FrameDone) {
+	// no UnregisterEventHandler(): cancelling must stop the FrameDone events by itself
+	p.RegisterEventHandler(func(events.FrameDone) {
 		tix++
 		if tix == maxTicks {
-			p.Cancel()
-			p.UnregisterEventHandler(handlerID)
+			cancel()
 		}
 	})
 
-	err := p.ParseToEnd()
-	assert.Equal(t, demoinfocs.ErrCancelled, err, "parsing cancelled but error was not ErrCancelled")
-	assert.True(t, tix == maxTicks, "FrameDone handler was not triggered the correct amount of times")
+	err := p.ParseToEnd(ctx)
+	assert.ErrorIs(t, err, context.Canceled, "parsing cancelled but error was not context.Canceled")
+	assert.Equal(t, maxTicks, tix, "FrameDone handler was not triggered the correct amount of times")
 }
 
 // See https://github.com/markus-wa/demoinfocs-golang/issues/276
@@ -287,18 +289,192 @@ func TestParseToEnd_MultiCancel(t *testing.T) {
 
 	p := demoinfocs.NewParser(f)
 
-	var handlerID dispatch.HandlerIdentifier
-	handlerID = p.RegisterEventHandler(func(events.FrameDone) {
-		p.Cancel()
-		p.Cancel()
-		p.Cancel()
-		p.Cancel()
-		p.Cancel()
-		p.UnregisterEventHandler(handlerID)
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
+	tix := 0
+
+	p.RegisterEventHandler(func(events.FrameDone) {
+		tix++
+
+		cancel()
+		cancel()
+		cancel()
+		cancel()
+		cancel()
 	})
 
-	err := p.ParseToEnd()
-	assert.Equal(t, demoinfocs.ErrCancelled, err, "parsing cancelled but error was not ErrCancelled")
+	err := p.ParseToEnd(ctx)
+	assert.ErrorIs(t, err, context.Canceled, "parsing cancelled but error was not context.Canceled")
+	assert.Equal(t, 1, tix, "FrameDone handler was not triggered the correct amount of times")
+}
+
+func TestParseToEnd_ContextAlreadyDone(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
+	cancelled, cancel := context.WithCancel(t.Context())
+	cancel()
+
+	expired, cancelExpired := context.WithDeadline(t.Context(), time.Now().Add(-time.Second))
+	defer cancelExpired()
+
+	for name, tc := range map[string]struct {
+		ctx context.Context
+		err error
+	}{
+		"cancelled": {ctx: cancelled, err: context.Canceled},
+		"expired":   {ctx: expired, err: context.DeadlineExceeded},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			f := openFile(t, s2DemPath)
+			defer mustClose(t, f)
+
+			p := demoinfocs.NewParser(f)
+
+			var (
+				nEvents int
+				nMsgs   int
+			)
+
+			p.RegisterEventHandler(func(any) { nEvents++ })
+			p.RegisterNetMessageHandler(func(any) { nMsgs++ })
+
+			err := p.ParseToEnd(tc.ctx)
+			assert.ErrorIs(t, err, tc.err)
+			assert.Zero(t, nEvents, "events were dispatched")
+			assert.Zero(t, nMsgs, "net-messages were dispatched")
+		})
+	}
+}
+
+func TestParseToEnd_CancelCause(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
+	f := openFile(t, s2DemPath)
+	defer mustClose(t, f)
+
+	p := demoinfocs.NewParser(f)
+
+	ctx, cancel := context.WithCancelCause(t.Context())
+	defer cancel(nil)
+
+	errStop := errors.New("stop")
+
+	p.RegisterEventHandler(func(events.FrameDone) {
+		cancel(errStop)
+	})
+
+	err := p.ParseToEnd(ctx)
+	assert.ErrorIs(t, err, errStop, "ParseToEnd didn't return the cancel cause")
+}
+
+func TestParseToEnd_CancelFromOtherGoroutine(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
+	f := openFile(t, s2DemPath)
+	defer mustClose(t, f)
+
+	// default config, i.e. with the asynchronous message queue
+	p := demoinfocs.NewParser(f)
+
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
+	var (
+		nEvents     atomic.Int64
+		startCancel = make(chan struct{})
+		once        sync.Once
+	)
+
+	p.RegisterEventHandler(func(any) {
+		nEvents.Add(1)
+	})
+	p.RegisterEventHandler(func(events.FrameDone) {
+		once.Do(func() { close(startCancel) })
+	})
+
+	go func() {
+		<-startCancel
+		cancel()
+	}()
+
+	err := p.ParseToEnd(ctx)
+	assert.ErrorIs(t, err, context.Canceled, "parsing cancelled but error was not context.Canceled")
+
+	n := nEvents.Load()
+
+	time.Sleep(100 * time.Millisecond)
+
+	assert.Equal(t, n, nEvents.Load(), "events were dispatched after ParseToEnd returned")
+}
+
+// readSignaler closes done once all of data has been read.
+type readSignaler struct {
+	r    *bytes.Reader
+	done chan struct{}
+	once sync.Once
+}
+
+func (rs *readSignaler) Read(p []byte) (int, error) {
+	n, err := rs.r.Read(p)
+	if rs.r.Len() == 0 {
+		rs.once.Do(func() { close(rs.done) })
+	}
+
+	return n, err
+}
+
+// A cancellation while the message queue is still being drained (after the frame loop has finished)
+// must be returned, since handlers skip the remaining messages once ctx is done.
+func TestParseToEnd_CancelDuringQueueDrain(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping test")
+	}
+
+	data, err := os.ReadFile(s2DemPath)
+	assert.NoError(t, err, "failed to read demo")
+
+	rs := &readSignaler{r: bytes.NewReader(data), done: make(chan struct{})}
+
+	// large enough for the frame loop to finish while the first handler still blocks
+	p := demoinfocs.NewParser(rs, option.MsgQueueBufferSize(1<<21))
+
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
+	var once sync.Once
+
+	p.RegisterEventHandler(func(events.FrameDone) {
+		once.Do(func() {
+			select {
+			case <-rs.done:
+				// give the frame loop time to return
+				time.Sleep(500 * time.Millisecond)
+			case <-time.After(10 * time.Second):
+			}
+
+			cancel()
+		})
+	})
+
+	err = p.ParseToEnd(ctx)
+	assert.ErrorIs(t, err, context.Canceled, "cancellation during the queue drain was not returned")
 }
 
 func TestInvalidFileType(t *testing.T) {
@@ -315,7 +491,7 @@ func TestInvalidFileType(t *testing.T) {
 	assert.Equal(t, demoinfocs.ErrInvalidFileType, err, msgWrongError)
 
 	p = demoinfocs.NewParser(bytes.NewBuffer(invalidDemoData))
-	err = p.ParseToEnd()
+	err = p.ParseToEnd(t.Context())
 	assert.Equal(t, demoinfocs.ErrInvalidFileType, err, msgWrongError)
 }
 
@@ -351,7 +527,7 @@ func parseDefaultDemo(tb testing.TB) {
 
 	p := demoinfocs.NewParser(f)
 
-	err := p.ParseToEnd()
+	err := p.ParseToEnd(tb.Context())
 	assert.NoError(tb, err, "ParseToEnd() returned an error")
 }
 
@@ -411,7 +587,7 @@ func testDemoSet(t *testing.T, path string) {
 					}
 				})
 
-				err = p.ParseToEnd()
+				err = p.ParseToEnd(t.Context())
 				assert.NoError(t, err, "parsing of '%s/%s' failed", path, name)
 			}()
 		}
@@ -465,7 +641,7 @@ func TestGrenadeProjectileWeaponInstance(t *testing.T) {
 		}
 	})
 
-	assert.NoError(t, p.ParseToEnd())
+	assert.NoError(t, p.ParseToEnd(t.Context()))
 	assert.Positive(t, throwsChecked, "no grenade throws found in %q, the test needs a demo with grenade throws", s2POVDemPath)
 }
 
@@ -505,7 +681,7 @@ func TestPolymorphicGameModeRules(t *testing.T) {
 		}
 	})
 
-	assert.NoError(t, p.ParseToEnd())
+	assert.NoError(t, p.ParseToEnd(t.Context()))
 	assert.True(t, activated, "expected the m_pGameModeRules polymorphic pointer to be activated and readable on the game-rules entity")
 }
 
@@ -582,7 +758,7 @@ func TestPolymorphicGameModeRulesDeathmatch(t *testing.T) {
 		assert.Nil(t, entity.Property(prefix+"m_nHalvesPlayed"), "competitive-only field must not resolve under the deathmatch type")
 	})
 
-	assert.NoError(t, p.ParseToEnd())
+	assert.NoError(t, p.ParseToEnd(t.Context()))
 	assert.True(t, checked, "expected a RoundStart event to be parsed")
 }
 
@@ -619,7 +795,7 @@ func BenchmarkInMemory(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		p := demoinfocs.NewParser(bytes.NewReader(d))
 
-		err = p.ParseToEnd()
+		err = p.ParseToEnd(b.Context())
 		assert.NoError(b, err, "ParseToEnd() returned an error")
 	}
 }
