@@ -77,7 +77,7 @@ var (
 // If not done manually this will be called by Parser.ParseNextFrame() or Parser.ParseToEnd().
 //
 // Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match PBDEMS2.
-func (p *parser) parseHeader() error {
+func (p *Parser) parseHeader() error {
 	var h header
 
 	isCSTVBroadcast := p.config.Format == config.FormatCSTVBroadcast
@@ -159,7 +159,7 @@ func msgQueueSize(ticks int) int {
 // If ctx is already done, ParseToEnd returns right away without parsing anything.
 //
 // See also: ParseNextFrame() for other possible errors.
-func (p *parser) ParseToEnd(ctx context.Context) (err error) {
+func (p *Parser) ParseToEnd(ctx context.Context) (err error) {
 	if ctx.Err() != nil {
 		return context.Cause(ctx)
 	}
@@ -224,7 +224,7 @@ func (p *parser) ParseToEnd(ctx context.Context) (err error) {
 //
 // The returned function must be called before the message queues are synced/removed.
 // It waits for a running abort to finish so no handler is called after ParseToEnd() returns.
-func (p *parser) watchContext(ctx context.Context) (stop func()) {
+func (p *Parser) watchContext(ctx context.Context) (stop func()) {
 	if ctx.Done() == nil {
 		// ctx can never be cancelled (e.g. context.Background())
 		return func() {}
@@ -280,7 +280,7 @@ should check their context between frames and stop calling ParseNextFrame once i
 
 See also: ParseToEnd() for parsing the complete demo in one go (faster).
 */
-func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
+func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
 	defer func() {
 		// Make sure all the messages of the frame are handled
 		p.msgDispatcher.SyncAllQueues()
@@ -338,7 +338,7 @@ var demoCommandMsgsCreators = map[msg.EDemoCommands]config.NetMessageCreator{
 //
 // CSTV broadcasts retain buf in messages (m.Data = buf), so they get a plain,
 // unpooled read with a fresh snappy destination.
-func (p *parser) readFramePayload(size int, msgCompressed, isCSTVBroadcast bool) (buf []byte, bp *[]byte) {
+func (p *Parser) readFramePayload(size int, msgCompressed, isCSTVBroadcast bool) (buf []byte, bp *[]byte) {
 	if isCSTVBroadcast {
 		buf = p.bitReader.ReadBytes(size)
 
@@ -393,7 +393,7 @@ func (p *parser) readFramePayload(size int, msgCompressed, isCSTVBroadcast bool)
 	return buf, nil
 }
 
-func (p *parser) handleSnappyError(err error) {
+func (p *Parser) handleSnappyError(err error) {
 	if errors.Is(err, snappy.ErrCorrupt) {
 		p.eventDispatcher.Dispatch(events.ParserWarn{
 			Message: "compressed message is corrupt",
@@ -406,7 +406,7 @@ func (p *parser) handleSnappyError(err error) {
 }
 
 //nolint:funlen
-func (p *parser) parseFrame() bool {
+func (p *Parser) parseFrame() bool {
 	cmd := msg.EDemoCommands(p.bitReader.ReadVarInt32())
 
 	msgType := cmd & ^msg.EDemoCommands_DEM_IsCompressed
@@ -516,7 +516,7 @@ func (p *parser) parseFrame() bool {
 	return msgType != msg.EDemoCommands_DEM_Stop
 }
 
-func (p *parser) handlePacketEntities(m *msg.CSVCMsg_PacketEntities) {
+func (p *Parser) handlePacketEntities(m *msg.CSVCMsg_PacketEntities) {
 	if p.aborted() {
 		return
 	}
@@ -541,7 +541,7 @@ type frameParsedTokenType struct{}
 
 var frameParsedToken = new(frameParsedTokenType)
 
-func (p *parser) handleFrameParsed(*frameParsedTokenType) {
+func (p *Parser) handleFrameParsed(*frameParsedTokenType) {
 	if p.aborted() {
 		return
 	}
@@ -571,7 +571,7 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 
 // CS2 demos playback info are available in the CDemoFileInfo message that should be parsed at the end of the demo.
 // Demos may not contain it, as a workaround we update values with the last parser information at the end of parsing.
-func (p *parser) ensurePlaybackValuesAreSet() {
+func (p *Parser) ensurePlaybackValuesAreSet() {
 	if p.header.PlaybackTicks == 0 {
 		p.header.PlaybackTicks = p.gameState.ingameTick
 		p.header.PlaybackFrames = p.currentFrame

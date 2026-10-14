@@ -75,7 +75,7 @@ func TestGameState_Participants(t *testing.T) {
 
 func TestParticipants_All(t *testing.T) {
 	pl := newPlayer()
-	ptcps := participants{
+	ptcps := Participants{
 		playersByUserID: map[int]*common.Player{0: pl},
 	}
 
@@ -113,7 +113,7 @@ func TestParticipants_SortedDeterministically(t *testing.T) {
 	bot2.IsConnected = true
 	bot2.Team = common.TeamTerrorists
 
-	ptcps := participants{
+	ptcps := Participants{
 		playersByUserID: map[int]*common.Player{
 			9:  bot,
 			3:  playerWithHighSteamID,
@@ -144,7 +144,7 @@ func TestParticipants_Playing(t *testing.T) {
 	spectator.Team = common.TeamSpectators
 	def := newPlayer()
 
-	ptcps := participants{
+	ptcps := Participants{
 		playersByUserID: map[int]*common.Player{
 			0: terrorist,
 			1: ct,
@@ -171,7 +171,7 @@ func TestParticipants_TeamMembers(t *testing.T) {
 	spectator.Team = common.TeamSpectators
 	def := newPlayer()
 
-	ptcps := participants{
+	ptcps := Participants{
 		playersByUserID: map[int]*common.Player{
 			0: terrorist,
 			1: ct,
@@ -190,7 +190,7 @@ func TestParticipants_FindByHandle(t *testing.T) {
 	pl := newPlayer()
 	pl.Team = common.TeamTerrorists
 
-	ptcps := participants{
+	ptcps := Participants{
 		playersByEntityID: map[int]*common.Player{
 			3000 & constants.EntityHandleIndexMaskSource2: pl,
 		},
@@ -204,7 +204,7 @@ func TestParticipants_FindByHandle(t *testing.T) {
 func TestParticipants_FindByHandle_InvalidEntityHandle(t *testing.T) {
 	pl := newPlayer()
 	pl.Team = common.TeamTerrorists
-	ptcps := participants{
+	ptcps := Participants{
 		playersByEntityID: map[int]*common.Player{
 			constants.InvalidEntityHandleSource2 & constants.EntityHandleIndexMaskSource2: pl,
 		},
@@ -220,7 +220,7 @@ func TestParticipants_Connected_SuppressNoEntity(t *testing.T) {
 	pl2 := common.NewPlayer(nil)
 	pl2.IsConnected = true
 
-	ptcps := participants{
+	ptcps := Participants{
 		playersByUserID: map[int]*common.Player{
 			0: pl,
 			1: pl2,
@@ -237,7 +237,7 @@ func TestParticipants_Connected_SuppressNotConnected(t *testing.T) {
 	pl2 := newPlayer()
 	pl2.IsConnected = false
 
-	ptcps := participants{
+	ptcps := Participants{
 		playersByUserID: map[int]*common.Player{
 			0: pl,
 			1: pl2,
@@ -251,14 +251,14 @@ func TestParticipants_Connected_SuppressNotConnected(t *testing.T) {
 
 func TestGameRules_ConVars(t *testing.T) {
 	cvars := make(map[string]string)
-	gr := gameRules{conVars: cvars}
+	gr := GameRules{conVars: cvars}
 
 	assert.Equal(t, cvars, gr.ConVars())
 }
 
 func TestGameRules_Entity(t *testing.T) {
 	ent := stfake.NewEntityWithProperty("m_iGameMode", st.PropertyValue{Any: 1})
-	gr := gameRules{
+	gr := GameRules{
 		entity: ent,
 	}
 
@@ -266,7 +266,7 @@ func TestGameRules_Entity(t *testing.T) {
 }
 
 func TestGameRules_BombTime(t *testing.T) {
-	gs := gameRules{conVars: map[string]string{"mp_c4timer": "5"}}
+	gs := GameRules{conVars: map[string]string{"mp_c4timer": "5"}}
 
 	bt, err := gs.BombTime()
 
@@ -275,7 +275,7 @@ func TestGameRules_BombTime(t *testing.T) {
 }
 
 func TestGameRules_FreezeTime(t *testing.T) {
-	gs := gameRules{conVars: map[string]string{"mp_freezetime": "5"}}
+	gs := GameRules{conVars: map[string]string{"mp_freezetime": "5"}}
 
 	bt, err := gs.FreezeTime()
 
@@ -288,7 +288,7 @@ func TestGameRules_RoundTime(t *testing.T) {
 	prop.On("Value").Return(st.PropertyValue{Any: int32(115)})
 	ent := new(stfake.Entity)
 	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(prop)
-	gr := gameRules{entity: ent}
+	gr := GameRules{entity: ent}
 
 	rt, err := gr.RoundTime()
 
@@ -297,7 +297,7 @@ func TestGameRules_RoundTime(t *testing.T) {
 }
 
 func TestGameRules(t *testing.T) {
-	gr := gameRules{
+	gr := GameRules{
 		conVars: map[string]string{},
 	}
 
@@ -312,14 +312,14 @@ func TestGameRules(t *testing.T) {
 
 	ent := new(stfake.Entity)
 	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(nil)
-	gr = gameRules{entity: ent}
+	gr = GameRules{entity: ent}
 
 	_, err = gr.RoundTime()
 	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
 }
 
 func TestGameRules_IsFreezetimePeriod(t *testing.T) {
-	gs := gameState{isFreezetime: true}
+	gs := GameState{isFreezetime: true}
 
 	assert.Equal(t, true, gs.IsFreezetimePeriod())
 }
@@ -331,7 +331,7 @@ func newPlayer() *common.Player {
 
 func newPlayerWithEntityID(id int) *common.Player {
 	pl := common.NewPlayer(demoInfoProvider{
-		parser: &parser{header: &header{Filestamp: "HL2DEMO"}},
+		parser: &Parser{header: &header{Filestamp: "HL2DEMO"}},
 	})
 	pl.Entity = fakePlayerEntity(id)
 	pl.IsConnected = true
@@ -350,7 +350,7 @@ func TestGameState_Hostages(t *testing.T) {
 	hostageA := common.NewHostage(nil, new(stfake.Entity))
 	hostageB := common.NewHostage(nil, new(stfake.Entity))
 	hostages := map[int]*common.Hostage{0: hostageA, 1: hostageB}
-	gs := gameState{hostages: hostages}
+	gs := GameState{hostages: hostages}
 
 	expectedHostages := []*common.Hostage{hostageA, hostageB}
 	assert.Equal(t, expectedHostages, gs.Hostages())

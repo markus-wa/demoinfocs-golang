@@ -19,7 +19,7 @@ import (
 // cs-demos submodule and is skipped if the submodule isn't initialized.
 const brokenDemPath = csDemosPath + "/s2/broken_1.dem"
 
-func openBrokenDem(t *testing.T) demoinfocs.Parser {
+func openBrokenDem(t *testing.T) *demoinfocs.Parser {
 	t.Helper()
 
 	if _, err := os.Stat(brokenDemPath); err != nil {

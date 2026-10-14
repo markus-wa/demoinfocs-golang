@@ -18,7 +18,7 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
-func (p *parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
+func (p *Parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
 	if p.aborted() {
 		return
 	}
@@ -29,7 +29,7 @@ func (p *parser) handleGameEventList(gel *msg.CMsgSource1LegacyGameEventList) {
 	}
 }
 
-func (p *parser) handleGameEvent(ge *msg.CMsgSource1LegacyGameEvent) {
+func (p *Parser) handleGameEvent(ge *msg.CMsgSource1LegacyGameEvent) {
 	if p.aborted() {
 		return
 	}
@@ -86,7 +86,7 @@ type victimTickHealthDamage struct {
 }
 
 type gameEventHandler struct {
-	parser                      *parser
+	parser                      *Parser
 	gameEventNameToHandler      map[string]gameEventHandlerFunc
 	frameToBombExploded         map[int]bool
 	userIDToFallDamageFrame     map[int32]int
@@ -99,7 +99,7 @@ func (geh gameEventHandler) dispatch(event any) {
 	geh.parser.eventDispatcher.Dispatch(event)
 }
 
-func (geh gameEventHandler) gameState() *gameState {
+func (geh gameEventHandler) gameState() *GameState {
 	return geh.parser.gameState
 }
 
@@ -127,7 +127,7 @@ func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
 
 type gameEventHandlerFunc func(map[string]*msg.CMsgSource1LegacyGameEventKeyT)
 
-func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameEventHandler {
+func newGameEventHandler(parser *Parser, ignoreBombsiteIndexNotFound bool) gameEventHandler {
 	geh := gameEventHandler{
 		parser:                      parser,
 		frameToBombExploded:         make(map[int]bool),
@@ -1316,7 +1316,7 @@ func guidToSteamID64(guid string) (uint64, error) {
 	return common.ConvertSteamID32To64(steamID32), nil
 }
 
-func (p *parser) dispatchMatchStartedEventIfNecessary() {
+func (p *Parser) dispatchMatchStartedEventIfNecessary() {
 	if p.gameState.lastMatchStartedChangedEvent != nil {
 		p.gameState.isMatchStarted = p.gameState.lastMatchStartedChangedEvent.NewIsStarted
 		p.gameEventHandler.dispatch(*p.gameState.lastMatchStartedChangedEvent)
@@ -1331,7 +1331,7 @@ func (p *parser) dispatchMatchStartedEventIfNecessary() {
 // 4. FreezetimeEnd
 // 5. RoundEnd
 // 6. MatchStartedChanged
-func (p *parser) processRoundProgressEvents() {
+func (p *Parser) processRoundProgressEvents() {
 	if p.gameState.lastRoundStartEvent != nil {
 		p.dispatchMatchStartedEventIfNecessary()
 		p.gameEventHandler.dispatch(*p.gameState.lastRoundStartEvent)
@@ -1351,7 +1351,7 @@ func (p *parser) processRoundProgressEvents() {
 	p.dispatchMatchStartedEventIfNecessary()
 }
 
-func (p *parser) processFlyingFlashbangs() {
+func (p *Parser) processFlyingFlashbangs() {
 	victims := p.gameState.flashedEntitiesThisFrame
 	p.gameState.flashedEntitiesThisFrame = nil
 
@@ -1427,7 +1427,7 @@ func nearestDetonatedFlashbang(flashbangs []*FlyingFlashbang, player *common.Pla
 // - Bomb props used to detect bomb events are updated after the prop m_eRoundWinReason used to detect round end events
 //
 // This makes sure game events are dispatched in a more expected order.
-func (p *parser) processFrameGameEvents() {
+func (p *Parser) processFrameGameEvents() {
 	if !p.disableMimicSource1GameEvents {
 		p.processFlyingFlashbangs()
 		p.processRoundProgressEvents()
@@ -1448,7 +1448,7 @@ func (p *parser) processFrameGameEvents() {
 //
 // Not gated on DisableMimicSource1Events: InfernoFireOut is not a source1-mimic event, it's new
 // functionality driven by entity state.
-func (p *parser) processInfernoFireOut() {
+func (p *Parser) processInfernoFireOut() {
 	// Iterate in a stable entity-ID order rather than Go's randomised map order, so that when two
 	// infernos flame out on the same frame their InfernoFireOut events dispatch deterministically.
 	ids := make([]int, 0, len(p.gameState.infernos))

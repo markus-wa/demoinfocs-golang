@@ -64,8 +64,6 @@ linters:
           - goconst
     paths:
       - msg
-      - parser_interface.go
-      - game_state_interface.go
 
 formatters:
   enable:

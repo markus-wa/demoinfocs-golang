@@ -21,8 +21,8 @@ func (DevNullReader) Read(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func newParser() *parser {
-	p := NewParser(new(DevNullReader)).(*parser)
+func newParser() *Parser {
+	p := NewParser(new(DevNullReader))
 	p.header = &header{}
 
 	return p
@@ -158,7 +158,7 @@ func (p fakeSendTableParser) ServerClasses() st.ServerClasses {
 	return p.serverClasses
 }
 
-func newBombTestParser() (*parser, fakeServerClasses) {
+func newBombTestParser() (*Parser, fakeServerClasses) {
 	p := newParser()
 	serverClasses := make(fakeServerClasses)
 	p.stParser = fakeSendTableParser{serverClasses: serverClasses}
@@ -277,7 +277,7 @@ func fakeWeaponEntity(serial int, itemIndex uint64) (*stfake.Entity, *func()) {
 // The player's inventory must get the new weapon, not the replaced one (#601).
 // bindFakePawnWeapons binds a fake pawn's weapon slots to the player and returns a function
 // that updates the first slot to the given handle.
-func bindFakePawnWeapons(p *parser, pl *common.Player) (setSlot0 func(handle uint64)) {
+func bindFakePawnWeapons(p *Parser, pl *common.Player) (setSlot0 func(handle uint64)) {
 	var updateSlot0 st.PropertyUpdateHandler
 
 	slot0 := new(stfake.Property)

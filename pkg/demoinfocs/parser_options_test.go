@@ -21,7 +21,7 @@ func TestNewParser_AppliesOptions(t *testing.T) {
 		option.MsgQueueBufferSize(0),
 		option.EagerVelocityTracking(true),
 		option.NetMessageDecryptionKey([]byte("key")),
-	).(*parser)
+	)
 	defer p.Close()
 
 	assert.NotNil(t, p.msgQueue, "sequential parsing should init the queue right away")
@@ -61,12 +61,12 @@ func TestNewParser_DetectsCSTVReader(t *testing.T) {
 	p := NewParser(newCSTVReader(t))
 	defer p.Close()
 
-	assert.Equal(t, config.FormatCSTVBroadcast, p.(*parser).config.Format)
+	assert.Equal(t, config.FormatCSTVBroadcast, p.config.Format)
 
 	// the CSTV path doesn't read a PBDEMS2 filestamp and parses the DEM_Stop frame
 	err := p.ParseToEnd(t.Context())
 	require.NoError(t, err)
-	assert.Equal(t, filestampS2, p.(*parser).header.Filestamp)
+	assert.Equal(t, filestampS2, p.header.Filestamp)
 }
 
 func TestNewParser_WrappedCSTVReaderIsNotDetected(t *testing.T) {
@@ -74,7 +74,7 @@ func TestNewParser_WrappedCSTVReaderIsNotDetected(t *testing.T) {
 	p := NewParser(bufio.NewReader(newCSTVReader(t)))
 	defer p.Close()
 
-	assert.Equal(t, config.FormatFile, p.(*parser).config.Format)
+	assert.Equal(t, config.FormatFile, p.config.Format)
 
 	err := p.ParseToEnd(t.Context())
 	assert.ErrorIs(t, err, ErrInvalidFileType)

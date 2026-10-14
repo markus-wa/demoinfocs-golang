@@ -107,7 +107,7 @@ func (c *fakeController) destroy() {
 
 // createController binds a new controller like an entity packet creating it does: created-handlers,
 // then the initial firing of all update handlers and the update-finished delegates.
-func createController(p *parser, c *fakeController) {
+func createController(p *Parser, c *fakeController) {
 	p.bindNewPlayerController(c)
 
 	for _, name := range controllerFieldOrder {
@@ -142,7 +142,7 @@ type identityEvents struct {
 	stApplied   []events.StringTablePlayerUpdateApplied
 }
 
-func newIdentityTestParser(t *testing.T) (*parser, *identityEvents) {
+func newIdentityTestParser(t *testing.T) (*Parser, *identityEvents) {
 	t.Helper()
 
 	p := newParser()

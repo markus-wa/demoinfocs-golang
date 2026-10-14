@@ -42,7 +42,6 @@ See [broadcast example for live CSTV+ parsing](https://github.com/markus-wa/demo
 - [Development](https://github.com/markus-wa/demoinfocs-golang#development)
   - [Debugging](https://github.com/markus-wa/demoinfocs-golang#debugging)
   - [Testing](https://github.com/markus-wa/demoinfocs-golang#testing)
-  - [Generating Interfaces](https://github.com/markus-wa/demoinfocs-golang#generating-interfaces)
   - [Generating Protobuf Code](https://github.com/markus-wa/demoinfocs-golang#generating-protobuf-code)
   - [Git Hooks](https://github.com/markus-wa/demoinfocs-golang#git-hooks)
 - [Acknowledgements](https://github.com/markus-wa/demoinfocs-golang#acknowledgements)
@@ -279,14 +278,6 @@ To update it you can run the following command:
 
 Please don't update the `.golden` file if you are not sure it's required. Maybe the failing CI is just pointing out a regression.
 
-### Generating Interfaces
-
-We generate interfaces such as `GameState` from structs to make it easier to keep docs in synch over structs and interfaces.
-For this we use [@vburenin](https://github.com/vburenin)'s [`ifacemaker`](https://github.com/vburenin/ifacemaker) tool.
-
-You can download the latest version [here](https://github.com/vburenin/ifacemaker/releases).
-After adding it to your `PATH` you can use `scripts/generate-interfaces.sh` to update interfaces.
-
 ### Generating Protobuf Code
 
 Should you need to re-generate the protobuf generated code in the `msg` package, you will need the following tools:
@@ -306,7 +297,6 @@ To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, y
     scripts/git-hooks/link-git-hooks.sh
 
 #### `pre-commit`:
-- check if [interfaces have been updated](#generating-interfaces)
 - build the code
 - run unit tests
 

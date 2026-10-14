@@ -17,7 +17,7 @@ import (
 )
 
 // Bind the attributes of the various entities to our structs on the parser
-func (p *parser) bindEntities() {
+func (p *Parser) bindEntities() {
 	p.bindTeamStates()
 	p.bindBombSites()
 	p.bindPlayers()
@@ -28,7 +28,7 @@ func (p *parser) bindEntities() {
 }
 
 //nolint:gocognit,gocyclo,funlen
-func (p *parser) bindBomb() {
+func (p *Parser) bindBomb() {
 	bomb := &p.gameState.bomb
 
 	// Track bomb when it is dropped on the ground or being held by a player
@@ -279,7 +279,7 @@ func (p *parser) bindBomb() {
 	})
 }
 
-func (p *parser) bindTeamStates() {
+func (p *Parser) bindTeamStates() {
 	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity st.Entity) {
 		teamVal := entity.PropertyValueMust("m_szTeamname")
 		team := teamVal.String()
@@ -338,7 +338,7 @@ func (p *parser) bindTeamStates() {
 	})
 }
 
-func (p *parser) bindBombSites() {
+func (p *Parser) bindBombSites() {
 	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(playerResource st.Entity) {
 		playerResource.BindProperty("m_bombsiteCenterA", &p.bombsiteA.center, st.ValTypeVector)
 		playerResource.BindProperty("m_bombsiteCenterB", &p.bombsiteB.center, st.ValTypeVector)
@@ -362,7 +362,7 @@ func (p *parser) bindBombSites() {
 	p.stParser.ServerClasses().FindByName("CBaseTrigger").OnEntityCreated(onBombTargetEntityCreated)
 }
 
-func (p *parser) bindPlayers() {
+func (p *Parser) bindPlayers() {
 	p.stParser.ServerClasses().FindByName("CCSPlayerController").OnEntityCreated(func(player st.Entity) {
 		p.bindNewPlayerController(player)
 	})
@@ -402,7 +402,7 @@ func playerUserID(rp *common.PlayerInfo) int {
 // Controller prop updates call this once all of the controller's updates in an entity packet are applied
 // (see bindNewPlayerController), so it always sees the controller's complete state - never a half-applied
 // take-over.
-func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entity) *common.Player {
+func (p *Parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entity) *common.Player {
 	controllerEntityID := controllerEntity.ID()
 	p.gameState.playerControllerEntities[controllerEntityID] = controllerEntity
 
@@ -468,7 +468,7 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 }
 
 // rawPlayerForController returns the raw player info (userinfo string table) of a controller, if any.
-func (p *parser) rawPlayerForController(controllerEntity st.Entity, isBot bool) *common.PlayerInfo {
+func (p *Parser) rawPlayerForController(controllerEntity st.Entity, isBot bool) *common.PlayerInfo {
 	controllerEntityID := controllerEntity.ID()
 
 	// In regular demos player slots map to controller entities 1:1 (slot N is entity N+1),
@@ -498,7 +498,7 @@ func (p *parser) rawPlayerForController(controllerEntity st.Entity, isBot bool) 
 	return rp
 }
 
-func (p *parser) newPlayerFromController(controllerEntity st.Entity, steamID uint64, name string, provisional bool) *common.Player {
+func (p *Parser) newPlayerFromController(controllerEntity st.Entity, steamID uint64, name string, provisional bool) *common.Player {
 	player := common.NewPlayer(p.demoInfoProvider)
 	player.SteamID64 = steamID
 	player.Name = name
@@ -518,7 +518,7 @@ func (p *parser) newPlayerFromController(controllerEntity st.Entity, steamID uin
 }
 
 // takeOverInPlace hands a controller that was taken over in place from the previous to the new occupant.
-func (p *parser) takeOverInPlace(previous, player *common.Player, controllerEntity st.Entity) {
+func (p *Parser) takeOverInPlace(previous, player *common.Player, controllerEntity st.Entity) {
 	// the pawn's weapons now belong to the new occupant (see bindPlayerWeapons)
 	player.Inventory, previous.Inventory = previous.Inventory, make(map[int]*common.Equipment)
 
@@ -552,7 +552,7 @@ func isSteamIDPlaceholderName(name string, steamID uint64) bool {
 
 // unbindReplacedPlayer detaches a player from a controller that was taken over in place by a different
 // person, so the stale *Player neither stays connected nor reads the new occupant's entity data.
-func (p *parser) unbindReplacedPlayer(player *common.Player) {
+func (p *Parser) unbindReplacedPlayer(player *common.Player) {
 	player.Entity = nil // EntityID is kept for reference
 
 	if !player.IsConnected {
@@ -574,7 +574,7 @@ type dirtyPlayerController struct {
 	connectionChanged bool
 }
 
-func (p *parser) markPlayerControllerDirty(controllerEntity st.Entity) *dirtyPlayerController {
+func (p *Parser) markPlayerControllerDirty(controllerEntity st.Entity) *dirtyPlayerController {
 	d := p.dirtyControllers[controllerEntity.ID()]
 	if d == nil || d.entity != controllerEntity {
 		d = &dirtyPlayerController{entity: controllerEntity}
@@ -587,7 +587,7 @@ func (p *parser) markPlayerControllerDirty(controllerEntity st.Entity) *dirtyPla
 // flushPlayerControllerUpdates applies all pending controller identity & connection changes.
 // Controllers are normally flushed one by one once their own updates are applied (see
 // bindNewPlayerController); this is the backstop at the end of each entity packet.
-func (p *parser) flushPlayerControllerUpdates() {
+func (p *Parser) flushPlayerControllerUpdates() {
 	if len(p.dirtyControllers) == 0 {
 		return
 	}
@@ -598,7 +598,7 @@ func (p *parser) flushPlayerControllerUpdates() {
 }
 
 // flushPlayerController applies the pending identity & connection changes of one controller.
-func (p *parser) flushPlayerController(controllerEntityID int) {
+func (p *Parser) flushPlayerController(controllerEntityID int) {
 	d := p.dirtyControllers[controllerEntityID]
 	if d == nil {
 		return
@@ -618,7 +618,7 @@ func (p *parser) flushPlayerController(controllerEntityID int) {
 	}
 }
 
-func (p *parser) applyControllerConnectionState(pl *common.Player, controllerEntity st.Entity) {
+func (p *Parser) applyControllerConnectionState(pl *common.Player, controllerEntity st.Entity) {
 	state := controllerEntity.PropertyValueMust("m_iConnected").UInt32()
 
 	isDisconnection := state == 8
@@ -643,7 +643,7 @@ func (p *parser) applyControllerConnectionState(pl *common.Player, controllerEnt
 
 // connectPlayerIfConnected marks a player as connected and dispatches PlayerConnect / BotConnect
 // if the controller's m_iConnected state says it's connected and the player wasn't before.
-func (p *parser) connectPlayerIfConnected(player *common.Player, controllerEntity st.Entity) {
+func (p *Parser) connectPlayerIfConnected(player *common.Player, controllerEntity st.Entity) {
 	state, ok := controllerEntity.PropertyValue("m_iConnected")
 	if !ok || player.IsConnected || state.UInt32() != 0 {
 		return
@@ -663,7 +663,7 @@ func (p *parser) connectPlayerIfConnected(player *common.Player, controllerEntit
 //
 // provisional means the name isn't the controller's real name yet (userinfo fallback or SteamID
 // placeholder): it never replaces a real name, and replacing it isn't a name change.
-func (p *parser) setPlayerName(player *common.Player, name string, isBot, provisional bool) {
+func (p *Parser) setPlayerName(player *common.Player, name string, isBot, provisional bool) {
 	_, wasProvisional := p.provisionalNames[player]
 	if !provisional {
 		delete(p.provisionalNames, player)
@@ -700,7 +700,7 @@ func (p *parser) setPlayerName(player *common.Player, name string, isBot, provis
 
 // matchRawPlayerToController returns the raw player info at the given slot if it belongs to
 // the given controller entity: humans by XUID, bots by name (both from controller props).
-func (p *parser) matchRawPlayerToController(slot int, isBot bool, controllerEntity st.Entity) *common.PlayerInfo {
+func (p *Parser) matchRawPlayerToController(slot int, isBot bool, controllerEntity st.Entity) *common.PlayerInfo {
 	r := p.rawPlayers[slot]
 	if r == nil {
 		return nil
@@ -717,7 +717,7 @@ func (p *parser) matchRawPlayerToController(slot int, isBot bool, controllerEnti
 	return nil
 }
 
-func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
+func (p *Parser) bindNewPlayerController(controllerEntity st.Entity) {
 	pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
 	// the player bound to this controller may be replaced if a different person takes over the slot
@@ -770,7 +770,7 @@ func (p *parser) bindNewPlayerController(controllerEntity st.Entity) {
 }
 
 //nolint:funlen
-func (p *parser) bindNewPlayerPawn(pawnEntity st.Entity) {
+func (p *Parser) bindNewPlayerPawn(pawnEntity st.Entity) {
 	var prevControllerHandle uint64
 
 	getPlayerFromPawnEntity := func(pawnEntity st.Entity) *common.Player {
@@ -885,7 +885,7 @@ func (p *parser) bindNewPlayerPawn(pawnEntity st.Entity) {
 }
 
 //nolint:funlen
-func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, currentPlayer func() *common.Player) {
+func (p *Parser) bindPlayerWeapons(pawnEntity st.Entity, currentPlayer func() *common.Player) {
 	const inventoryCapacity = 64
 
 	inventorySize := 64
@@ -984,7 +984,7 @@ func (p *parser) bindPlayerWeapons(pawnEntity st.Entity, currentPlayer func() *c
 	}
 }
 
-func (p *parser) bindWeapons() {
+func (p *Parser) bindWeapons() {
 	for _, sc := range p.stParser.ServerClasses().All() {
 		hasIndexProp := false
 		hasClipProp := false
@@ -1042,7 +1042,7 @@ func equipmentTypeFromProjectileClass(className string) common.EquipmentType {
 }
 
 //nolint:funlen,gocognit
-func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
+func (p *Parser) bindGrenadeProjectiles(entity st.Entity) {
 	entityID := entity.ID()
 
 	proj := common.NewGrenadeProjectile(p.nextUniqueID())
@@ -1227,7 +1227,7 @@ func (p *parser) bindGrenadeProjectiles(entity st.Entity) {
 }
 
 // Separate function because we also use it in round_officially_ended (issue #42)
-func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
+func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 	// If the grenade projectile entity is destroyed AFTER round_officially_ended
 	// we already executed this code when we received that event.
 	if _, exists := p.gameState.grenadeProjectiles[proj.Entity.ID()]; !exists {
@@ -1279,7 +1279,7 @@ func (p *parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 // A link is only made if exactly one counterpart from the same owner is pending in the current frame,
 // otherwise (e.g. the projectile was extinguished by a smoke and never spawned an inferno, or the
 // inferno entity was re-created after leaving the PVS in a POV demo) the inferno stays unlinked.
-func (p *parser) linkInfernoProjectile(link pendingInfernoLink) {
+func (p *Parser) linkInfernoProjectile(link pendingInfernoLink) {
 	gs := p.gameState
 	kept := gs.pendingInfernoLinks[:0]
 	match := -1
@@ -1320,7 +1320,7 @@ func (p *parser) linkInfernoProjectile(link pendingInfernoLink) {
 }
 
 //nolint:funlen
-func (p *parser) bindWeapon(entity st.Entity) {
+func (p *Parser) bindWeapon(entity st.Entity) {
 	entityID := entity.ID()
 	itemIndexVal := entity.PropertyValueMust("m_iItemDefinitionIndex")
 
@@ -1445,7 +1445,7 @@ func (p *parser) bindWeapon(entity st.Entity) {
 	})
 }
 
-func (p *parser) bindNewInferno(entity st.Entity) {
+func (p *Parser) bindNewInferno(entity st.Entity) {
 	ownerEntVal := entity.PropertyValueMust("m_hOwnerEntity")
 
 	if ownerEntVal.Any == nil {
@@ -1481,7 +1481,7 @@ func (p *parser) bindNewInferno(entity st.Entity) {
 }
 
 // Separate function because we also use it in round_officially_ended (issue #42)
-func (p *parser) infernoExpired(inf *common.Inferno) {
+func (p *Parser) infernoExpired(inf *common.Inferno) {
 	// If the inferno entity is destroyed AFTER round_officially_ended
 	// we already executed this code when we received that event.
 	if _, exists := p.gameState.infernos[inf.Entity.ID()]; !exists {
@@ -1507,7 +1507,7 @@ func (p *parser) infernoExpired(inf *common.Inferno) {
 }
 
 //nolint:funlen,gocognit,gocyclo
-func (p *parser) bindGameRules() {
+func (p *Parser) bindGameRules() {
 	gameRules := p.ServerClasses().FindByName("CCSGameRulesProxy")
 	gameRules.OnEntityCreated(func(entity st.Entity) {
 		grPrefix := func(s string) string {
@@ -1746,7 +1746,7 @@ func (p *parser) bindGameRules() {
 	})
 }
 
-func (p *parser) bindHostages() {
+func (p *Parser) bindHostages() {
 	p.stParser.ServerClasses().FindByName("CHostage").OnEntityCreated(func(entity st.Entity) {
 		entityID := entity.ID()
 		p.gameState.hostages[entityID] = common.NewHostage(p.demoInfoProvider, entity)
@@ -1772,7 +1772,7 @@ func getDistanceBetweenVectors(vectorA r3.Vector, vectorB r3.Vector) float64 {
 	return math.Sqrt((vectorA.X-vectorB.X)*(vectorA.X-vectorB.X) + (vectorA.Y-vectorB.Y)*(vectorA.Y-vectorB.Y) + (vectorA.Z-vectorB.Z)*(vectorA.Z-vectorB.Z))
 }
 
-func (p *parser) getClosestBombsiteFromPosition(position r3.Vector) events.Bombsite {
+func (p *Parser) getClosestBombsiteFromPosition(position r3.Vector) events.Bombsite {
 	distanceFromBombsiteA := getDistanceBetweenVectors(position, p.bombsiteA.center)
 	distanceFromBombsiteB := getDistanceBetweenVectors(position, p.bombsiteB.center)
 
