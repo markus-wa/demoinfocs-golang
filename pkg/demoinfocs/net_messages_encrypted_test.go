@@ -120,7 +120,7 @@ func parseEncrypted(t *testing.T, parserKey []byte, data *msg.CSVCMsg_EncryptedD
 
 	assert.NotPanics(t, func() { p.handleEncryptedData(data) })
 
-	res.err = p.error()
+	res.err = p.abort.error()
 
 	return res
 }

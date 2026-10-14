@@ -22,6 +22,10 @@ var (
 
 	// ErrDecodeFailed signals that some data of the demo couldn't be decoded, see DecodeError.
 	ErrDecodeFailed = errors.New("failed to decode demo data (ErrDecodeFailed)")
+
+	// ErrParserStopped is returned by ParseToEnd() / ParseNextFrame() when they are called again after
+	// a handler panicked (see PanicError), the parser can't continue after that.
+	ErrParserStopped = errors.New("parser stopped after a handler panicked (ErrParserStopped)")
 )
 
 // DecodeError is returned by ParseToEnd() / ParseNextFrame() if some data of the demo couldn't be decoded.
@@ -59,12 +63,20 @@ func (e *DecodeError) Unwrap() error {
 }
 
 // newDecodeError converts a library failure into a *DecodeError.
-func newDecodeError(f *panics.Failure, frame int) *DecodeError {
-	return &DecodeError{
+// If err is a *panics.Failure, its cause and stack are used, otherwise err is the cause.
+func newDecodeError(err error, frame int) *DecodeError {
+	de := &DecodeError{
 		Frame: frame,
-		Cause: f.Cause,
-		Stack: f.Stack,
+		Cause: err,
 	}
+
+	var f *panics.Failure
+	if errors.As(err, &f) {
+		de.Cause = f.Cause
+		de.Stack = f.Stack
+	}
+
+	return de
 }
 
 // PanicError is the value ParseToEnd() and ParseNextFrame() panic with when a handler panicked

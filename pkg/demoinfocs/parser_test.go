@@ -154,7 +154,7 @@ func TestParser_SetError(t *testing.T) {
 	p := new(Parser)
 	p.setError(err)
 
-	assert.Same(t, err, p.error())
+	assert.Same(t, err, p.abort.error())
 }
 
 func TestParser_SetError_Multiple(t *testing.T) {
@@ -164,7 +164,7 @@ func TestParser_SetError_Multiple(t *testing.T) {
 	p.setError(err)
 	p.setError(errors.New("second error"))
 
-	assert.Same(t, err, p.error())
+	assert.Same(t, err, p.abort.error())
 }
 
 func TestParser_Close(t *testing.T) {
@@ -197,6 +197,7 @@ func TestParser_SetError_UnregistersHandlers(t *testing.T) {
 
 	p.msgDispatcher = new(dispatch.Dispatcher)
 	p.eventDispatcher = new(dispatch.Dispatcher)
+	p.abort.onStop = p.unregisterAllHandlers
 
 	var msgCalls int32
 	p.msgDispatcher.RegisterHandler(func(any) {

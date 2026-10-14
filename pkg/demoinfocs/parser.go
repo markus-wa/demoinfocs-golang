@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -92,9 +91,8 @@ type Parser struct {
 	// Important fields
 
 	config                          config.Config
-	ctx                             context.Context // context of the running ParseToEnd() call, nil if it can't be cancelled; see aborted()
-	demostream                      io.Reader       // the stream passed to NewParser(), opened lazily, see ensureOpen()
-	bitReader                       *bit.BitReader  // nil until the demo stream is opened, see ensureOpen()
+	demostream                      io.Reader      // the stream passed to NewParser(), opened lazily, see ensureOpen()
+	bitReader                       *bit.BitReader // nil until the demo stream is opened, see ensureOpen()
 	stParser                        *st.Parser
 	additionalNetMessageCreators    map[int]config.NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                        chan any                         // Queue of net-messages
@@ -107,10 +105,7 @@ type Parser struct {
 	header                          *header // Pointer so we can check for nil
 	gameState                       *GameState
 	demoInfoProvider                demoInfoProvider // Provides demo infos to other packages that the core package depends on
-	err                             error            // The first error of the message-handling goroutine, see setError()
-	cancelErr                       error            // The cause of the cancellation of ctx, see setCancelled()
-	panicErr                        *PanicError      // The first panic of a handler, see setPanic()
-	errLock                         sync.Mutex       // Guards err, cancelErr & panicErr, which are set by the parsing & handling go-routines
+	abort                           abortState       // Why parsing stops (errors, cancellation, handler panics), see aborted()
 	done                            bool             // Set once parsing has finished (successfully or not), see finishParsing()
 	doneErr                         error            // The result of parsing once done is set
 	source2FallbackGameEventListBin []byte           // sv_hibernate_when_empty bug workaround
@@ -369,103 +364,16 @@ func (p *Parser) ensureOpen() {
 	}
 }
 
-func (p *Parser) error() error {
-	p.errLock.Lock()
-	err := p.err
-	p.errLock.Unlock()
-
-	return err
-}
-
-// aborted reports whether a fatal error or a handler panic has been recorded or the context passed to
-// ParseToEnd() is done. Message handlers no-op once it is set, so the queued
-// backlog drains without further decoding.
+// aborted reports whether parsing is being aborted: a fatal error or a handler panic has been recorded
+// or the context passed to ParseToEnd() is done, see abortState.
+// Message handlers no-op once it is set, so the queued backlog drains without further decoding.
 func (p *Parser) aborted() bool {
-	p.errLock.Lock()
-	aborted := p.err != nil || p.cancelErr != nil || p.panicErr != nil
-	p.errLock.Unlock()
-
-	return aborted || (p.ctx != nil && p.ctx.Err() != nil)
+	return p.abort.aborted()
 }
 
-// setError records a fatal error, the first one wins.
-// It stops all handlers, see unregisterAllHandlers().
+// setError records a fatal error, see abortState.setError().
 func (p *Parser) setError(err error) {
-	if err == nil {
-		return
-	}
-
-	p.errLock.Lock()
-
-	if p.err != nil {
-		p.errLock.Unlock()
-
-		return
-	}
-
-	p.err = err
-
-	p.errLock.Unlock()
-
-	p.unregisterAllHandlers()
-}
-
-// setCancelled records the cause of the cancellation of the context passed to ParseToEnd(), the first one wins.
-// It stops all handlers, see unregisterAllHandlers().
-func (p *Parser) setCancelled(cause error) {
-	p.errLock.Lock()
-
-	if p.cancelErr != nil {
-		p.errLock.Unlock()
-
-		return
-	}
-
-	p.cancelErr = cause
-
-	p.errLock.Unlock()
-
-	p.unregisterAllHandlers()
-}
-
-func (p *Parser) cancelled() error {
-	p.errLock.Lock()
-	err := p.cancelErr
-	p.errLock.Unlock()
-
-	return err
-}
-
-// setPanic records the panic of a handler, which is re-panicked by ParseToEnd() / ParseNextFrame().
-// Only the first panic is kept, later ones (e.g. of other handlers while the queue is drained) are dropped.
-// It stops all handlers, see unregisterAllHandlers(), and makes aborted() true so parsing stops after the current frame.
-//
-// It doesn't format or otherwise use c.Value, so it can't panic itself.
-func (p *Parser) setPanic(c *panics.Captured) {
-	p.errLock.Lock()
-
-	if p.panicErr != nil {
-		p.errLock.Unlock()
-
-		return
-	}
-
-	p.panicErr = &PanicError{
-		Value: c.Value,
-		Stack: c.Stack,
-	}
-
-	p.errLock.Unlock()
-
-	p.unregisterAllHandlers()
-}
-
-func (p *Parser) handlerPanic() *PanicError {
-	p.errLock.Lock()
-	pe := p.panicErr
-	p.errLock.Unlock()
-
-	return pe
+	p.abort.setError(err)
 }
 
 // handlePanic is the PanicHandler of the message dispatcher, it's called on the message-handling goroutine.
@@ -473,12 +381,12 @@ func (p *Parser) handlerPanic() *PanicError {
 // It must never panic, otherwise the message-handling goroutine dies and parsing deadlocks.
 func (p *Parser) handlePanic(r any) {
 	if classifyPanic(r) == panics.KindUser {
-		p.setPanic(panics.Capture(r))
+		p.abort.setPanic(panics.Capture(r))
 
 		return
 	}
 
-	p.setError(newDecodeError(panics.NewFailure(r), p.currentFrame))
+	p.abort.setError(newDecodeError(panics.NewFailure(r), p.currentFrame))
 }
 
 func (p *Parser) unregisterAllHandlers() {
@@ -599,6 +507,7 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
 	// or ParseToEnd() / ParseNextFrame() on the parsing goroutine).
 	p.msgDispatcher = dp.NewDispatcherWithConfig(dp.Config{PanicHandler: p.handlePanic})
 	p.eventDispatcher = new(dp.Dispatcher)
+	p.abort.onStop = p.unregisterAllHandlers
 
 	// Created up front so ServerClasses() values obtained before the header is parsed stay live.
 	p.stParser = st.NewParser()
