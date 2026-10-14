@@ -98,14 +98,14 @@ func (p *Parser) parseHeader() error {
 
 		// Error returns were already discarded by the dispatcher before these
 		// wrappers existed; the wrappers only add the aborted() short-circuit.
-		p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_ServerInfo) {
+		registerInternal(p, func(m *msg.CSVCMsg_ServerInfo) {
 			if p.aborted() {
 				return
 			}
 
 			_ = p.stParser.OnServerInfo(m)
 		})
-		p.RegisterNetMessageHandler(p.handlePacketEntities)
+		registerInternal(p, p.handlePacketEntities)
 
 	default:
 		return ErrInvalidFileType
