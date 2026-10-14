@@ -151,18 +151,14 @@ func (p *Parser) parseStringTable(
 	}
 
 	// The items parsed before a failure are still applied.
+	var failure error
+
 	defer func() {
-		r := recover()
-		if r == nil {
+		if failure == nil {
 			return
 		}
 
-		// e.g. a ParserWarn handler, see poolBitReader()
-		if classifyPanic(r) == panics.KindUser {
-			panic(panics.Capture(r))
-		}
-
-		err := newDecodeError(panics.NewFailure(r), p.currentFrame)
+		err := newDecodeError(failure, p.currentFrame)
 
 		p.eventDispatcher.Dispatch(events.ParserWarn{
 			Type:    events.WarnTypeStringTableParsingFailure,
@@ -170,6 +166,9 @@ func (p *Parser) parseStringTable(
 			Err:     err,
 		})
 	}()
+
+	// Runs before the warning above. Handler panics (e.g. of a ParserWarn handler, see poolBitReader()) propagate.
+	defer panics.RecoverDecode(&failure)
 
 	// Create a reader for the buffer
 	r := bit.NewSmallBitReader(bytes.NewReader(buf))

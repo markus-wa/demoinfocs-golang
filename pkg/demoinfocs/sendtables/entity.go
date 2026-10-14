@@ -719,26 +719,16 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 
 // OnPacketEntities parses a CSVCMsg_PacketEntities message, applying its entity updates.
 //
-// If decoding fails (e.g. corrupt data or a missing property, see PropertyNotFoundError), the error is returned
-// as a *panics.Failure. Panics of user callbacks (see panics.Classify()) are re-panicked as *panics.Captured.
+// It returns an error if the message couldn't be decoded (e.g. corrupt data or a missing property,
+// see PropertyNotFoundError). Panics of user callbacks (e.g. OnEntityCreated handlers) propagate,
+// also if they are a PropertyNotFoundError of the callback's own lookups.
 // The entities may be partially updated in both cases.
 //
 // Used internally by package demoinfocs; not covered by API stability guarantees.
 //
 //nolint:gocognit,funlen
 func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
-	defer func() {
-		r := recover()
-		if r == nil {
-			return
-		}
-
-		if panics.Classify[*PropertyNotFoundError](r) == panics.KindUser {
-			panic(panics.Capture(r))
-		}
-
-		err = panics.NewFailure(r)
-	}()
+	defer panics.RecoverDecode(&err)
 
 	r := newReader(m.GetEntityData())
 	defer r.release()

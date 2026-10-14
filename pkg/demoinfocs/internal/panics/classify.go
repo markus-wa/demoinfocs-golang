@@ -74,11 +74,16 @@ type Failure struct {
 }
 
 // NewFailure converts the recovered panic value r into a *Failure.
+// If r already is a *Failure (e.g. re-panicked after a RecoverDecode boundary), it's returned as is.
 //
 // It must be called from the deferred function that recovered r, otherwise the stack trace doesn't
 // contain the panicking frames.
 func NewFailure(r any) *Failure {
 	v := Innermost(r)
+
+	if f, ok := v.(*Failure); ok {
+		return f
+	}
 
 	cause, ok := v.(error)
 	if !ok {
@@ -102,4 +107,25 @@ func (f *Failure) Error() string {
 // Unwrap returns the cause.
 func (f *Failure) Unwrap() error {
 	return f.Cause
+}
+
+// RecoverDecode is the recover boundary of a decoding step that returns its failures as an error
+// instead of panicking. It must be deferred directly: defer panics.RecoverDecode(&err),
+// recover() doesn't work from a nested function call.
+//
+//   - Tagged panics (user code, see IsTagged) keep propagating, re-panicked with Capture(r).
+//     This includes tagged panics whose innermost value is a decoding failure (e.g. a missing property, see Classify):
+//     only the parser's top-level boundary decides what they are, a decoding step must never skip them.
+//   - Any other panic is stored in *errp as a *Failure.
+func RecoverDecode(errp *error) {
+	r := recover()
+	if r == nil {
+		return
+	}
+
+	if IsTagged(r) {
+		panic(Capture(r))
+	}
+
+	*errp = NewFailure(r)
 }

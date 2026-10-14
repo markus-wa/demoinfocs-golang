@@ -117,3 +117,50 @@ func TestNewFailure_RuntimeErrorHasStack(t *testing.T) {
 	require.NotNil(t, f)
 	assert.Contains(t, string(f.Stack), "indexOutOfRange")
 }
+
+func TestNewFailure_KeepsFailure(t *testing.T) {
+	f := NewFailure(errors.New("boom"))
+
+	assert.Same(t, f, NewFailure(f))
+}
+
+func recoverDecode(f func()) (err error) {
+	defer RecoverDecode(&err)
+
+	f()
+
+	return nil
+}
+
+func TestRecoverDecode(t *testing.T) {
+	assert.NoError(t, recoverDecode(func() {}))
+
+	t.Run("untagged", func(t *testing.T) {
+		for _, v := range []any{"boom", errors.New("boom"), io.EOF, new(testDecodeFailure)} {
+			err := recoverDecode(func() { panic(v) })
+
+			var f *Failure
+			require.ErrorAs(t, err, &f)
+			assert.Equal(t, fmt.Sprint(v), f.Cause.Error())
+		}
+	})
+
+	t.Run("runtime error has stack", func(t *testing.T) {
+		var f *Failure
+		require.ErrorAs(t, recoverDecode(indexOutOfRange), &f)
+		assert.Contains(t, string(f.Stack), "indexOutOfRange")
+	})
+
+	// Tagged panics propagate, also if they are decoding failures: only the top level classifies them.
+	t.Run("tagged", func(t *testing.T) {
+		decodeFailure := new(testDecodeFailure)
+
+		for _, v := range []any{Capture("boom"), consumerCodePanic("boom"), Capture(decodeFailure), consumerCodePanic(decodeFailure)} {
+			r := recoverFrom(func() { _ = recoverDecode(func() { panic(v) }) })
+
+			c, ok := r.(*Captured)
+			require.True(t, ok, "expected *Captured, got %T", r)
+			assert.Equal(t, Innermost(v), c.Value)
+		}
+	})
+}

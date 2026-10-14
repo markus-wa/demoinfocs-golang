@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"sync"
@@ -79,12 +80,13 @@ func assertHandlerPanic(t *testing.T, p *demoinfocs.Parser, parse func(), value 
 
 	assert.NoError(t, p.Close())
 
+	// only ErrParserStopped, not the panic value
 	err := p.ParseToEnd(t.Context())
-	assert.Error(t, err, "ParseToEnd() after a panic must return an error")
+	assert.Same(t, demoinfocs.ErrParserStopped, err, "ParseToEnd() after a panic must return ErrParserStopped")
 
 	more, err := p.ParseNextFrame()
 	assert.False(t, more)
-	assert.Error(t, err, "ParseNextFrame() after a panic must return an error")
+	assert.Same(t, demoinfocs.ErrParserStopped, err, "ParseNextFrame() after a panic must return ErrParserStopped")
 }
 
 func newS2Parser(t *testing.T, opts ...option.Option) *demoinfocs.Parser {
@@ -441,20 +443,33 @@ func TestPropertyNotFoundInHandler(t *testing.T) {
 		assertPropertyNotFound(t, p.ParseToEnd(t.Context()))
 	})
 
-	t.Run("entity handler", func(t *testing.T) {
-		t.Parallel()
+	// Also with IgnorePacketEntitiesPanic: the option only skips decoding failures of the parser itself,
+	// a missing property in user code stops parsing.
+	for _, ignore := range []bool{false, true} {
+		t.Run(fmt.Sprintf("entity handler, IgnorePacketEntitiesPanic=%v", ignore), func(t *testing.T) {
+			t.Parallel()
 
-		p := newS2Parser(t)
-		defer p.Close()
+			p := newS2Parser(t, option.IgnorePacketEntitiesPanic(ignore))
+			defer p.Close()
 
-		p.RegisterEventHandler(func(events.DataTablesParsed) {
-			p.ServerClasses().FindByName("CCSPlayerPawn").OnEntityCreated(func(e *st.Entity) {
-				e.PropertyValueMust("m_doesNotExist")
+			var packetEntitiesWarns atomic.Int64
+
+			p.RegisterEventHandler(func(w events.ParserWarn) {
+				if w.Type == events.WarnTypePacketEntitiesPanic {
+					packetEntitiesWarns.Add(1)
+				}
 			})
-		})
 
-		assertPropertyNotFound(t, p.ParseToEnd(t.Context()))
-	})
+			p.RegisterEventHandler(func(events.DataTablesParsed) {
+				p.ServerClasses().FindByName("CCSPlayerPawn").OnEntityCreated(func(e *st.Entity) {
+					e.PropertyValueMust("m_doesNotExist")
+				})
+			})
+
+			assertPropertyNotFound(t, p.ParseToEnd(t.Context()))
+			assert.Zero(t, packetEntitiesWarns.Load())
+		})
+	}
 }
 
 // corruptPacketEntities replaces the entity data of the nth delta CSVCMsg_PacketEntities with garbage.
