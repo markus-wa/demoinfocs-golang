@@ -15,7 +15,7 @@ func TestServerClasses_ZeroValue(t *testing.T) {
 }
 
 func TestServerClasses_ReflectsClassesAddedLater(t *testing.T) {
-	p := NewParser(nil)
+	p := NewParser()
 	sc := p.ServerClasses()
 
 	assert.Nil(t, sc.All())
@@ -30,7 +30,7 @@ func TestServerClasses_ReflectsClassesAddedLater(t *testing.T) {
 }
 
 func TestServerClasses_AllAndStringSortedByID(t *testing.T) {
-	p := NewParser(nil)
+	p := NewParser()
 
 	for _, c := range []*ServerClass{
 		newSyntheticClass(7, "CSeven"),

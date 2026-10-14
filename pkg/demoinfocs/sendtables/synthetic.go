@@ -44,7 +44,7 @@ func newSyntheticClass(id int32, name string) *ServerClass {
 }
 
 func newSyntheticParser(classes []string) *Parser {
-	p := NewParser(nil)
+	p := NewParser()
 
 	for i, name := range classes {
 		if p.classesByName[name] != nil {

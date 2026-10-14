@@ -671,7 +671,7 @@ const (
 	WarnTypeUnknownEquipmentIndex
 	WarnTypeMissingItemDefinitionIndex
 	WarnTypeStringTableParsingFailure // Should happen only with CS2 POV demos
-	WarnTypePacketEntitiesPanic
+	WarnTypePacketEntitiesPanic       // A PacketEntities net-message couldn't be decoded and was skipped, see option.IgnorePacketEntitiesPanic()
 	WarnTypeUnknownProtobufMessage
 	// WarnTypeUserCommandDeltaDecodeFailed occurs when a delta-encoded user command (CMsgServerUserCmd.delta_data) can't be decoded.
 	WarnTypeUserCommandDeltaDecodeFailed
@@ -705,6 +705,7 @@ const WarnTypeUnknownDemoCommandMessageType = WarnUnknownDemoCommandMessageType
 type ParserWarn struct {
 	Message string
 	Type    WarnType
+	Err     error // The underlying error, if any (e.g. a *demoinfocs.DecodeError for WarnTypePacketEntitiesPanic)
 }
 
 // GenericGameEvent signals any game-event.

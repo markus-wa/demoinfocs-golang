@@ -12,6 +12,8 @@ import (
 
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
 )
 
 func TestParser_CurrentFrame(t *testing.T) {
@@ -77,16 +79,48 @@ func TestParser_Progress_NoHeader(t *testing.T) {
 	assert.Zero(t, (&Parser{header: &header{}}).Progress())
 }
 
-func TestRecoverFromUnexpectedEOF(t *testing.T) {
-	assert.Nil(t, recoverFromUnexpectedEOF(nil))
-	assert.ErrorIs(t, recoverFromUnexpectedEOF(io.ErrUnexpectedEOF), ErrUnexpectedEndOfDemo)
-	assert.ErrorIs(t, recoverFromUnexpectedEOF(io.EOF), ErrUnexpectedEndOfDemo)
-	assert.EqualError(t, recoverFromUnexpectedEOF(io.EOF), "unexpected EOF: "+ErrUnexpectedEndOfDemo.Error())
+func finishParsingWith(t *testing.T, r any) (err error) {
+	t.Helper()
 
-	assert.Panics(t, func() {
-		r := recoverFromUnexpectedEOF(errors.New("test"))
-		assert.Failf(t, "expected panic, got recovery", "recovered value = '%v'", r)
-	})
+	p := NewParser(bytes.NewReader(nil))
+	t.Cleanup(func() { _ = p.Close() })
+
+	return p.finishParsing(r, nil, true, func() {})
+}
+
+func TestFinishParsing_EndOfDemo(t *testing.T) {
+	assert.NoError(t, finishParsingWith(t, nil))
+
+	for _, r := range []any{io.EOF, io.ErrUnexpectedEOF} {
+		err := finishParsingWith(t, r)
+		assert.ErrorIs(t, err, ErrUnexpectedEndOfDemo)
+		assert.ErrorIs(t, err, io.ErrUnexpectedEOF)
+		assert.EqualError(t, err, "unexpected EOF: "+ErrUnexpectedEndOfDemo.Error())
+	}
+}
+
+func TestFinishParsing_DecodeError(t *testing.T) {
+	cause := errors.New("test")
+
+	err := finishParsingWith(t, cause)
+	assert.ErrorIs(t, err, ErrDecodeFailed)
+	assert.ErrorIs(t, err, cause)
+	assert.NotErrorIs(t, err, ErrUnexpectedEndOfDemo)
+
+	var de *DecodeError
+	assert.ErrorAs(t, err, &de)
+	assert.Zero(t, de.Frame)
+	assert.Nil(t, de.Stack)
+
+	// a wrapped EOF (e.g. of a nested reader) isn't the end of the demo
+	assert.ErrorIs(t, finishParsingWith(t, fmt.Errorf("nested: %w", io.EOF)), ErrDecodeFailed)
+}
+
+func TestFinishParsing_ReadError(t *testing.T) {
+	err := finishParsingWith(t, &panics.ReadError{Err: io.ErrClosedPipe})
+	assert.ErrorIs(t, err, io.ErrClosedPipe)
+	assert.NotErrorIs(t, err, ErrDecodeFailed)
+	assert.EqualError(t, err, "reading demo: "+io.ErrClosedPipe.Error())
 }
 
 type consumerCodePanicMock struct {
@@ -101,11 +135,17 @@ func (ucp consumerCodePanicMock) Value() any {
 	return ucp.value
 }
 
-func TestRecoverFromPanic_ConsumerCodePanic(t *testing.T) {
-	assert.PanicsWithValue(t, 1, func() {
-		err := recoverFromUnexpectedEOF(consumerCodePanicMock{value: 1})
-		assert.Nil(t, err)
-	})
+func TestFinishParsing_ConsumerCodePanic(t *testing.T) {
+	defer func() {
+		pe, ok := recover().(*PanicError)
+		if assert.True(t, ok, "expected *PanicError") {
+			assert.Equal(t, 1, pe.Value)
+		}
+	}()
+
+	_ = finishParsingWith(t, consumerCodePanicMock{value: 1})
+
+	assert.Fail(t, "expected panic")
 }
 
 func TestParser_SetError(t *testing.T) {
