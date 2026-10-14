@@ -284,7 +284,7 @@ Parameter handler has to be of type any because Go generics only work on functio
 Returns an identifier with which the handler can be removed via UnregisterEventHandler().
 */
 func (p *Parser) RegisterEventHandler(handler any) dp.HandlerIdentifier {
-	return p.eventDispatcher.RegisterHandler(handler)
+	return p.eventDispatcher.RegisterHandler(handler) //nolint:forbidigo // public API, registers user handlers
 }
 
 // UnregisterEventHandler removes a game event handler via identifier.
@@ -306,7 +306,7 @@ Returns an identifier with which the handler can be removed via UnregisterNetMes
 See also: RegisterEventHandler()
 */
 func (p *Parser) RegisterNetMessageHandler(handler any) dp.HandlerIdentifier {
-	return p.msgDispatcher.RegisterHandler(handler)
+	return p.msgDispatcher.RegisterHandler(handler) //nolint:forbidigo // public API, registers user handlers
 }
 
 // UnregisterNetMessageHandler removes a net-message handler via identifier.
