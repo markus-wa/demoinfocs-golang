@@ -1,4 +1,4 @@
-package sendtablescs2
+package sendtables
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stbridge"
-	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
 // Synthetic entities are real *Entity values whose class has a flat serializer of simple fields,
@@ -39,14 +38,14 @@ var syntheticPositionProps = []string{propCellX, propCellY, propCellZ, propVecX,
 
 type syntheticInfo struct {
 	parser *Parser
-	class  *class // the parser's class, whose created-handlers fire on creation; nil without parser
+	class  *ServerClass // the parser's class, whose created-handlers fire on creation; nil without parser
 }
 
 // syntheticInfos maps a synthetic *Entity to its *syntheticInfo.
 var syntheticInfos sync.Map
 
-func newSyntheticClass(id int32, name string) *class {
-	return &class{
+func newSyntheticClass(id int32, name string) *ServerClass {
+	return &ServerClass{
 		classId:     id,
 		name:        name,
 		serializer:  newSerializer(name, 0),
@@ -110,7 +109,7 @@ func newSyntheticEntity(p *Parser, className string, id, serial int, names []str
 	return e
 }
 
-func (c *class) addSyntheticField(name string) {
+func (c *ServerClass) addSyntheticField(name string) {
 	if c.serializer.fieldIndexes[name] != nil {
 		_panicf("synthetic entity: property %q declared twice", name)
 	}
@@ -132,7 +131,7 @@ func syntheticInfoOf(e *Entity) *syntheticInfo {
 	return info.(*syntheticInfo)
 }
 
-func (info *syntheticInfo) fireEntityHandlers(e *Entity, op st.EntityOp) {
+func (info *syntheticInfo) fireEntityHandlers(e *Entity, op EntityOp) {
 	if info.parser == nil {
 		return
 	}
@@ -161,7 +160,7 @@ func syntheticCreate(e *Entity) {
 		f()
 	}
 
-	info.fireEntityHandlers(e, st.EntityOpCreated|st.EntityOpEntered)
+	info.fireEntityHandlers(e, EntityOpCreated|EntityOpEntered)
 
 	e.fireInitialUpdateHandlers()
 	e.fireUpdateFinished()
@@ -195,11 +194,11 @@ func syntheticSet(e *Entity, names []string, values []any, fire, finish bool) {
 		return a.index - b.index
 	})
 
-	op := st.EntityOpUpdated
+	op := EntityOpUpdated
 
 	if finish && !e.active {
 		e.active = true
-		op |= st.EntityOpEntered
+		op |= EntityOpEntered
 	}
 
 	fp := newFieldPath()
@@ -229,5 +228,5 @@ func syntheticDestroy(e *Entity) {
 	}
 
 	e.Destroy()
-	syntheticInfoOf(e).fireEntityHandlers(e, st.EntityOpLeft|st.EntityOpDeleted)
+	syntheticInfoOf(e).fireEntityHandlers(e, EntityOpLeft|EntityOpDeleted)
 }

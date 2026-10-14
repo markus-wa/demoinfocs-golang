@@ -2,7 +2,7 @@ package common
 
 import st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 
-func getInt(entity st.Entity, propName string) int {
+func getInt(entity *st.Entity, propName string) int {
 	if entity == nil {
 		return 0
 	}
@@ -10,7 +10,7 @@ func getInt(entity st.Entity, propName string) int {
 	return entity.PropertyValueMust(propName).Int()
 }
 
-func getUInt64(entity st.Entity, propName string) uint64 {
+func getUInt64(entity *st.Entity, propName string) uint64 {
 	if entity == nil {
 		return 0
 	}
@@ -18,7 +18,7 @@ func getUInt64(entity st.Entity, propName string) uint64 {
 	return entity.PropertyValueMust(propName).UInt64()
 }
 
-func getFloat(entity st.Entity, propName string) float32 {
+func getFloat(entity *st.Entity, propName string) float32 {
 	if entity == nil {
 		return 0
 	}
@@ -26,7 +26,7 @@ func getFloat(entity st.Entity, propName string) float32 {
 	return entity.PropertyValueMust(propName).Float()
 }
 
-func getFloatIfExists(entity st.Entity, propName string) (float32, bool) {
+func getFloatIfExists(entity *st.Entity, propName string) (float32, bool) {
 	if entity == nil {
 		return 0, false
 	}
@@ -44,7 +44,7 @@ func getFloatIfExists(entity st.Entity, propName string) (float32, bool) {
 	return floatVal, true
 }
 
-func getString(entity st.Entity, propName string) string {
+func getString(entity *st.Entity, propName string) string {
 	if entity == nil {
 		return ""
 	}
@@ -52,7 +52,7 @@ func getString(entity st.Entity, propName string) string {
 	return entity.PropertyValueMust(propName).String()
 }
 
-func getBool(entity st.Entity, propName string) bool {
+func getBool(entity *st.Entity, propName string) bool {
 	if entity == nil {
 		return false
 	}

@@ -1,11 +1,8 @@
-// Package sendtablescs2 implements the CS2 send-tables (FlattenedSerializer) parser.
-package sendtablescs2
+package sendtables
 
 import (
 	"fmt"
 	"strings"
-
-	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
 // fpNameTreeCache is kept as fallback for rare deep/large field paths.
@@ -14,12 +11,13 @@ type fpNameTreeCache struct {
 	name string
 }
 
-type class struct {
+// ServerClass stores meta information about Entity types (e.g. players, teams etc.).
+type ServerClass struct {
 	classId         int32 //nolint:revive
 	name            string
 	serializer      *serializer
 	polyCount       int // size of the per-entity polySerializers slice needed by entities of this class; 0 if no polymorphic pointer fields are reachable
-	createdHandlers []st.EntityCreatedHandler
+	createdHandlers []EntityCreatedHandler
 	fpNameCache     *fpNameTreeCache
 	// fpFlatCache provides O(1) lookup for the common case: depth ≤ 3 and
 	// all path components ≤ 16383. Paths outside this range fall back to
@@ -28,23 +26,28 @@ type class struct {
 	fpFlatCache map[uint64]string
 }
 
-func (c *class) ID() int {
+// ID returns the server-class's ID.
+func (c *ServerClass) ID() int {
 	return int(c.classId)
 }
 
-func (c *class) Name() string {
+// Name returns the server-class's name.
+func (c *ServerClass) Name() string {
 	return c.name
 }
 
-func (c *class) PropertyEntries() []string {
+// PropertyEntries returns the names of all property-entries on this server-class.
+func (c *ServerClass) PropertyEntries() []string {
 	return c.collectFieldsEntries(c.serializer.fields, "")
 }
 
-func (c *class) OnEntityCreated(handler st.EntityCreatedHandler) {
+// OnEntityCreated registers a function to be called when a new entity is created from this server-class.
+func (c *ServerClass) OnEntityCreated(handler EntityCreatedHandler) {
 	c.createdHandlers = append(c.createdHandlers, handler)
 }
 
-func (c *class) String() string {
+// String returns a human readable representation of the server-class and its fields.
+func (c *ServerClass) String() string {
 	props := make([]string, 0, len(c.serializer.fields))
 
 	for _, f := range c.serializer.fields {
@@ -54,7 +57,7 @@ func (c *class) String() string {
 	return fmt.Sprintf("%d %s\n %s", c.classId, c.name, strings.Join(props, "\n "))
 }
 
-func (c *class) collectFieldsEntries(fields []*field, prefix string) []string {
+func (c *ServerClass) collectFieldsEntries(fields []*field, prefix string) []string {
 	paths := make([]string, 0)
 
 	for _, field := range fields {
@@ -77,7 +80,7 @@ func (c *class) collectFieldsEntries(fields []*field, prefix string) []string {
 // collectPolyFieldEntries enumerates the property entries of every serializer a
 // polymorphic pointer field could activate, deduplicated. The active type varies
 // per entity, so all alternatives must be listed.
-func (c *class) collectPolyFieldEntries(f *field, prefix string) []string {
+func (c *ServerClass) collectPolyFieldEntries(f *field, prefix string) []string {
 	paths := make([]string, 0)
 	seen := make(map[string]bool)
 
@@ -122,7 +125,7 @@ func fpFlatKey(fp *fieldPath) (uint64, bool) {
 }
 
 //nolint:nestif
-func (c *class) getNameForFieldPath(fp *fieldPath, ps []*serializer) string {
+func (c *ServerClass) getNameForFieldPath(fp *fieldPath, ps []*serializer) string {
 	if ps == nil {
 		// No polymorphic fields: use the shared class-level caches.
 		if key, ok := fpFlatKey(fp); ok {
@@ -176,10 +179,10 @@ func (c *class) getNameForFieldPath(fp *fieldPath, ps []*serializer) string {
 	return strings.Join(c.serializer.getNameForFieldPath(fp, 0, ps), ".")
 }
 
-func (c *class) getFieldPathForName(fp *fieldPath, name string, ps []*serializer) bool {
+func (c *ServerClass) getFieldPathForName(fp *fieldPath, name string, ps []*serializer) bool {
 	return c.serializer.getFieldPathForName(fp, name, ps)
 }
 
-func (c *class) getFieldPaths(fp *fieldPath, state *fieldState, ps []*serializer) []*fieldPath {
+func (c *ServerClass) getFieldPaths(fp *fieldPath, state *fieldState, ps []*serializer) []*fieldPath {
 	return c.serializer.getFieldPaths(fp, state, ps)
 }

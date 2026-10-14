@@ -1,4 +1,4 @@
-package sendtablescs2
+package sendtables
 
 type fieldState struct {
 	state []any
@@ -49,6 +49,7 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 	if fp.last == 0 { //nolint:nestif
 		z := fp.path[0]
 		validateFieldIndex(z, fp)
+
 		if y := len(s.state); y <= z {
 			if z+2 > cap(s.state) {
 				newSlice := make([]any, z+1, max(z+2, y*2))

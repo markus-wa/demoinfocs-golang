@@ -1,4 +1,4 @@
-package sendtablescs2
+package sendtables
 
 import (
 	"strings"
@@ -53,6 +53,7 @@ func (s *serializer) getFieldPathForName(fp *fieldPath, name string, ps []*seria
 			last := fp.last
 			fp.path[fp.last] = fi.index
 			fp.last++
+
 			if fi.field.getFieldPathForName(fp, name[dotIndex+1:], ps) {
 				return true
 			}

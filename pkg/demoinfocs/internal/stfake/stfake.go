@@ -17,7 +17,6 @@ import (
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stbridge"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
-	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/sendtablescs2"
 )
 
 // Prop is one or more property values, see P and Pos.
@@ -39,7 +38,7 @@ func P(name string, value any) Prop {
 }
 
 const (
-	cellWidth = 1 << 9 // see sendtablescs2.coordFromCell()
+	cellWidth = 1 << 9 // see sendtables.coordFromCell()
 	maxCoord  = 16384
 )
 
@@ -77,7 +76,7 @@ func flatten(props []Prop) (names []string, values []any) {
 type Spec struct {
 	// Parser is optional. If set, Class must be one of its server-classes; creating the entity fires the
 	// class's created-handlers and the parser's entity handlers (Parser.OnEntity).
-	Parser *sendtablescs2.Parser
+	Parser *st.Parser
 	// Class is the name of the entity's server-class.
 	Class  string
 	ID     int
@@ -88,21 +87,21 @@ type Spec struct {
 }
 
 // NewParser returns a send-tables parser that knows server-classes with the given names, and nothing else.
-func NewParser(classes ...string) *sendtablescs2.Parser {
-	return stbridge.NewParser(classes).(*sendtablescs2.Parser)
+func NewParser(classes ...string) *st.Parser {
+	return stbridge.NewParser(classes).(*st.Parser)
 }
 
 // New returns a new synthetic entity.
 //
 // The entity isn't created yet - its handlers don't fire until Create is called.
-func New(spec Spec) *sendtablescs2.Entity {
+func New(spec Spec) *st.Entity {
 	names, values := flatten(spec.Props)
 
-	return stbridge.NewEntity(spec.Parser, spec.Class, spec.ID, spec.Serial, names, values).(*sendtablescs2.Entity)
+	return stbridge.NewEntity(spec.Parser, spec.Class, spec.ID, spec.Serial, names, values).(*st.Entity)
 }
 
 // NewEntity returns a new synthetic entity with the given ID and properties, without parser & server-class.
-func NewEntity(id int, props ...Prop) *sendtablescs2.Entity {
+func NewEntity(id int, props ...Prop) *st.Entity {
 	return New(Spec{ID: id, Props: props})
 }
 
@@ -110,13 +109,13 @@ func NewEntity(id int, props ...Prop) *sendtablescs2.Entity {
 // the server-class's created-handlers, OnCreateFinished delegates, the parser's entity handlers
 // (Created|Entered), all update handlers with the current values (in registration order)
 // and finally the OnUpdateFinished delegates.
-func Create(e *sendtablescs2.Entity) {
+func Create(e *st.Entity) {
 	stbridge.Create(e)
 }
 
 // Set sets the given property values without firing any handlers.
 // Setting a property that wasn't declared panics.
-func Set(e *sendtablescs2.Entity, props ...Prop) {
+func Set(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
 	stbridge.Set(e, names, values, false, false)
 }
@@ -126,20 +125,20 @@ func Set(e *sendtablescs2.Entity, props ...Prop) {
 // (declaration) order regardless of the order given. Then the OnUpdateFinished delegates
 // and the parser's entity handlers (Updated) fire.
 // Setting a property that wasn't declared panics.
-func Update(e *sendtablescs2.Entity, props ...Prop) {
+func Update(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
 	stbridge.Set(e, names, values, true, true)
 }
 
 // UpdateUnfinished is like Update, but stops after the update handlers fired:
 // neither the OnUpdateFinished delegates nor the parser's entity handlers are called.
-func UpdateUnfinished(e *sendtablescs2.Entity, props ...Prop) {
+func UpdateUnfinished(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
 	stbridge.Set(e, names, values, true, false)
 }
 
 // Destroy deletes the entity like an entity packet does: the OnDestroy delegates fire,
 // then the parser's entity handlers (Left|Deleted). Destroying an entity again does nothing.
-func Destroy(e *sendtablescs2.Entity) {
+func Destroy(e *st.Entity) {
 	stbridge.Destroy(e)
 }

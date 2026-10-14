@@ -14,8 +14,6 @@ import (
 func TestNewEntity_Properties(t *testing.T) {
 	e := stfake.NewEntity(7, stfake.P("m_iHealth", int32(100)), stfake.P("m_pWeaponServices.m_hActiveWeapon", uint64(3)), stfake.P("m_unset", nil))
 
-	var _ st.Entity = e
-
 	assert.Equal(t, 7, e.ID())
 	assert.Equal(t, 0, e.SerialNum())
 
@@ -203,13 +201,13 @@ func TestCreate_Order(t *testing.T) {
 
 	var log []string
 
-	p.OnEntity(func(e st.Entity, op st.EntityOp) error {
+	p.OnEntity(func(e *st.Entity, op st.EntityOp) error {
 		log = append(log, "entity handler "+op.String())
 
 		return nil
 	})
 
-	sc.OnEntityCreated(func(e st.Entity) {
+	sc.OnEntityCreated(func(e *st.Entity) {
 		log = append(log, "created")
 
 		assert.Equal(t, "CBar", e.ServerClass().Name())

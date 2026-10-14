@@ -1486,7 +1486,7 @@ func (p *Parser) processInfernoFireOut() {
 // Cheaper than Inferno.Fires().Active() because it reads only the m_bFireIsBurning flags and
 // stops at the first burning one, instead of also reading every fire's position and building
 // the full Fire slice.
-func infernoHasBurningFire(entity st.Entity) bool {
+func infernoHasBurningFire(entity *st.Entity) bool {
 	nFires := entity.PropertyValueMust("m_fireCount").Int()
 
 	for i := 0; i < nFires; i++ {

@@ -1,4 +1,4 @@
-package sendtablescs2
+package sendtables
 
 type fieldPatch struct {
 	patch func(f *field)

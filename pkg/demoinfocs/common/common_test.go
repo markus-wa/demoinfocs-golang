@@ -8,7 +8,6 @@ import (
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stfake"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
-	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/sendtablescs2"
 )
 
 func TestGrenadeProjectileUniqueID(t *testing.T) {
@@ -181,7 +180,7 @@ type demoInfoProviderMock struct {
 	tickRate              float64
 	ingameTick            int
 	playersByHandle       map[uint64]*Player
-	entitiesByHandle      map[uint64]st.Entity
+	entitiesByHandle      map[uint64]*st.Entity
 	equipment             *Equipment
 	networkProtocol       int
 	eagerVelocityTracking bool
@@ -227,12 +226,12 @@ func (p demoInfoProviderMock) NetworkProtocol() int {
 	return p.networkProtocol
 }
 
-func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
+func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) *st.Entity {
 	return p.entitiesByHandle[handle]
 }
 
 // FindEntityByID uses entitiesByHandle as well, handles of the fake entities have serial 0.
-func (p demoInfoProviderMock) FindEntityByID(id int) st.Entity {
+func (p demoInfoProviderMock) FindEntityByID(id int) *st.Entity {
 	return p.entitiesByHandle[uint64(id)]
 }
 
@@ -263,16 +262,16 @@ func mockDemoInfoProvider(tickRate float64, tick int) demoInfoProvider {
 	}
 }
 
-func entityWithID(id int) *sendtablescs2.Entity {
+func entityWithID(id int) *st.Entity {
 	return stfake.NewEntity(id)
 }
 
-func entityWithProperty(propName string, value st.PropertyValue) *sendtablescs2.Entity {
+func entityWithProperty(propName string, value st.PropertyValue) *st.Entity {
 	return stfake.NewEntity(1, stfake.P(propName, value))
 }
 
 // entityWithProperties returns an entity that has the given properties, except for the ones marked isNil.
-func entityWithProperties(properties []fakeProp) *sendtablescs2.Entity {
+func entityWithProperties(properties []fakeProp) *st.Entity {
 	props := make([]stfake.Prop, 0, len(properties))
 
 	for _, prop := range properties {
@@ -287,6 +286,6 @@ func entityWithProperties(properties []fakeProp) *sendtablescs2.Entity {
 }
 
 // entityWithoutProperty returns an entity that doesn't have the given property (nor any other).
-func entityWithoutProperty(string) *sendtablescs2.Entity {
+func entityWithoutProperty(string) *st.Entity {
 	return stfake.NewEntity(1)
 }

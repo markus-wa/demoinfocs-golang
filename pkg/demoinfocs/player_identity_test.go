@@ -10,7 +10,7 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stfake"
-	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/sendtablescs2"
+	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
 // controllerFieldOrder is the field-path order of the controller props used here - the order in which
@@ -20,7 +20,7 @@ var controllerFieldOrder = []string{"m_iTeamNum", "m_iConnected", "m_iszPlayerNa
 // newFakeController returns a new CCSPlayerController entity (not created yet, see stfake.Create).
 // Updates (stfake.Update) apply its props in controllerFieldOrder, then fire its update-finished delegates.
 // The parser's end-of-packet backstop is deliberately not called, so the tests depend on the per-entity flush.
-func newFakeController(p *Parser, id int, steamID uint64, name string) *sendtablescs2.Entity {
+func newFakeController(p *Parser, id int, steamID uint64, name string) *st.Entity {
 	values := map[string]any{
 		"m_steamID":       steamID,
 		"m_iszPlayerName": name,
@@ -34,7 +34,7 @@ func newFakeController(p *Parser, id int, steamID uint64, name string) *sendtabl
 	}
 
 	return stfake.New(stfake.Spec{
-		Parser: p.stParser.(*sendtablescs2.Parser),
+		Parser: p.stParser,
 		Class:  "CCSPlayerController",
 		ID:     id,
 		Props:  props,

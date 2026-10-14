@@ -1,4 +1,4 @@
-package sendtablescs2
+package sendtables
 
 import (
 	"container/heap"

@@ -12,7 +12,6 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stfake"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
-	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/sendtablescs2"
 )
 
 func TestPlayerActiveWeapon(t *testing.T) {
@@ -341,8 +340,8 @@ type velocityFixture struct {
 	pl       *Player
 	provider *demoInfoProviderMock
 	pawnID   int
-	pawn     *sendtablescs2.Entity // re-used across frames while pawnID doesn't change, set to nil to re-create the pawn
-	pawnOfID int                   // pawnID the pawn entity was created for
+	pawn     *st.Entity // re-used across frames while pawnID doesn't change, set to nil to re-create the pawn
+	pawnOfID int        // pawnID the pawn entity was created for
 	pos      r3.Vector
 	interp   uint64
 	health   int32
@@ -358,7 +357,7 @@ func newVelocityFixture(networkProtocol int) *velocityFixture {
 			tickRate:         64,
 			networkProtocol:  networkProtocol,
 			tracked:          &[]trackedRecorder{},
-			entitiesByHandle: map[uint64]st.Entity{},
+			entitiesByHandle: map[uint64]*st.Entity{},
 		},
 		pawnID: 1,
 		health: 100,
@@ -1006,7 +1005,7 @@ func TestPlayer_ViewmodelOffset(t *testing.T) {
 
 	pl := &Player{Entity: controllerEntity}
 	pl.demoInfoProvider = demoInfoProviderMock{
-		entitiesByHandle: map[uint64]st.Entity{
+		entitiesByHandle: map[uint64]*st.Entity{
 			1: pawnEntity,
 		},
 	}
@@ -1026,7 +1025,7 @@ func TestPlayer_ViewmodelFOV(t *testing.T) {
 
 	pl := &Player{Entity: controllerEntity}
 	pl.demoInfoProvider = demoInfoProviderMock{
-		entitiesByHandle: map[uint64]st.Entity{
+		entitiesByHandle: map[uint64]*st.Entity{
 			1: pawnEntity,
 		},
 	}
@@ -1051,7 +1050,7 @@ func playerWithPawnProperties(props []fakeProp) *Player {
 			{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: h}},
 		}),
 		demoInfoProvider: demoInfoProviderMock{
-			entitiesByHandle: map[uint64]st.Entity{
+			entitiesByHandle: map[uint64]*st.Entity{
 				h: entityWithProperties(props),
 			},
 		},
@@ -1076,7 +1075,7 @@ func playerWithPawnPositionAndProperties(pos r3.Vector, props []fakeProp) *Playe
 			{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: h}},
 		}),
 		demoInfoProvider: demoInfoProviderMock{
-			entitiesByHandle: map[uint64]st.Entity{
+			entitiesByHandle: map[uint64]*st.Entity{
 				h: pawnEntity,
 			},
 		},

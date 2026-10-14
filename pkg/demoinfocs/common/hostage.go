@@ -25,7 +25,7 @@ const (
 
 // Hostage represents a hostage.
 type Hostage struct {
-	Entity           st.Entity
+	Entity           *st.Entity
 	demoInfoProvider demoInfoProvider
 }
 
@@ -63,7 +63,7 @@ func (hostage *Hostage) Leader() *Player {
 }
 
 // NewHostage creates a hostage.
-func NewHostage(demoInfoProvider demoInfoProvider, entity st.Entity) *Hostage {
+func NewHostage(demoInfoProvider demoInfoProvider, entity *st.Entity) *Hostage {
 	return &Hostage{
 		demoInfoProvider: demoInfoProvider,
 		Entity:           entity,

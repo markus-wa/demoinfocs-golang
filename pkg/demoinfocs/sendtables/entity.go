@@ -1,4 +1,4 @@
-package sendtablescs2
+package sendtables
 
 import (
 	"fmt"
@@ -8,14 +8,13 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
-// Entity represents a single game entity in the replay
+// Entity stores an entity in the game (e.g. players etc.) with its properties.
 type Entity struct {
 	index  int32
 	serial int32
-	class  *class
+	class  *ServerClass
 	active bool
 	// replaced is set if the entity was destroyed because a new entity was created at its index, see Replaced().
 	replaced bool
@@ -31,31 +30,31 @@ type Entity struct {
 	onCreateFinished []func()
 	onUpdateFinished []func()
 	onDestroy        []func()
-	updateHandlers   map[string][]st.PropertyUpdateHandler
+	updateHandlers   map[string][]PropertyUpdateHandler
 	// handlerLog preserves the global registration order of update handlers.
 	// updateHandlers remains the name-keyed index for lookup; this log is the
 	// single source of truth for dispatch ordering (handlersByFP rebuilds and
 	// the initial entity-creation dispatch). Handlers are never unregistered,
 	// so the log is append-only and never stale.
 	handlerLog   []handlerRegistration
-	handlersByFP map[uint64][]st.PropertyUpdateHandler
+	handlersByFP map[uint64][]PropertyUpdateHandler
 	hasHandlers  bool // cached: len(updateHandlers) > 0
-	propCache    map[string]st.Property
+	propCache    map[string]*Property
 }
 
 // handlerRegistration records a single update-handler registration so that
 // dispatch order can follow registration order instead of map-iteration order.
 type handlerRegistration struct {
 	name    string
-	handler st.PropertyUpdateHandler
+	handler PropertyUpdateHandler
 }
 
-// ServerClass returns the server class of the entity.
-func (e *Entity) ServerClass() st.ServerClass {
+// ServerClass returns the entity's server-class.
+func (e *Entity) ServerClass() *ServerClass {
 	return e.class
 }
 
-// ID returns the entity's index in the entity list.
+// ID returns the entity's ID (its index in the entity list).
 func (e *Entity) ID() int {
 	return int(e.index)
 }
@@ -66,7 +65,7 @@ func (e *Entity) SerialNum() int {
 }
 
 // Properties returns all properties of the entity.
-func (e *Entity) Properties() (out []st.Property) {
+func (e *Entity) Properties() (out []*Property) {
 	for _, fp := range e.class.getFieldPaths(newFieldPath(), e.state, e.polySerializers) {
 		prop := e.Property(e.class.getNameForFieldPath(fp, e.polySerializers))
 		if prop == nil {
@@ -79,16 +78,20 @@ func (e *Entity) Properties() (out []st.Property) {
 	return
 }
 
-type property struct {
+// Property is a property of an Entity and allows registering handlers
+// that are triggered on updates of the property.
+type Property struct {
 	entity *Entity
 	name   string
 }
 
-func (p property) Name() string {
+// Name returns the property's name.
+func (p *Property) Name() string {
 	return p.name
 }
 
-func (p property) Value() st.PropertyValue {
+// Value returns the current value of the property.
+func (p *Property) Value() PropertyValue {
 	v := p.entity.Get(p.name)
 
 	fs, ok := v.(*fieldState)
@@ -96,12 +99,17 @@ func (p property) Value() st.PropertyValue {
 		v = fs.state
 	}
 
-	return st.PropertyValue{
+	return PropertyValue{
 		Any: v,
 	}
 }
 
-func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
+// OnUpdate registers a handler for updates of the property's value.
+//
+// Handlers registered before the entity is fully created (e.g. in a ServerClass.OnEntityCreated() handler)
+// are called once with the initial value after the creation; handlers registered later are only
+// called on subsequent updates.
+func (p *Property) OnUpdate(handler PropertyUpdateHandler) {
 	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], handler)
 	p.entity.handlerLog = append(p.entity.handlerLog, handlerRegistration{name: p.name, handler: handler})
 	p.entity.addHandlerByFP(p.name, handler)
@@ -110,7 +118,7 @@ func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
 
 // addHandlerByFP registers handler in the fast field-path-keyed lookup table.
 // Called alongside every updateHandlers insertion so the two maps stay in sync.
-func (e *Entity) addHandlerByFP(name string, handler st.PropertyUpdateHandler) {
+func (e *Entity) addHandlerByFP(name string, handler PropertyUpdateHandler) {
 	fp := newFieldPath()
 	defer fp.release()
 
@@ -124,7 +132,7 @@ func (e *Entity) addHandlerByFP(name string, handler st.PropertyUpdateHandler) {
 	}
 
 	if e.handlersByFP == nil {
-		e.handlersByFP = make(map[uint64][]st.PropertyUpdateHandler)
+		e.handlersByFP = make(map[uint64][]PropertyUpdateHandler)
 	}
 
 	e.handlersByFP[key] = append(e.handlersByFP[key], handler)
@@ -174,7 +182,7 @@ func (e *Entity) rebuildHandlersByFP() {
 		return
 	}
 
-	e.handlersByFP = make(map[uint64][]st.PropertyUpdateHandler, len(e.updateHandlers))
+	e.handlersByFP = make(map[uint64][]PropertyUpdateHandler, len(e.updateHandlers))
 
 	for _, r := range e.handlerLog {
 		e.addHandlerByFP(r.name, r.handler)
@@ -192,47 +200,59 @@ func (e *Entity) fireInitialUpdateHandlers() {
 	}
 }
 
-type bindFactory func(variable any) st.PropertyUpdateHandler
+type bindFactory func(variable any) PropertyUpdateHandler
 
-var bindFactoryByType = map[st.PropertyValueType]bindFactory{
-	st.ValTypeVector: func(variable any) st.PropertyUpdateHandler {
-		return func(v st.PropertyValue) {
+var bindFactoryByType = map[PropertyValueType]bindFactory{
+	ValTypeVector: func(variable any) PropertyUpdateHandler {
+		return func(v PropertyValue) {
 			*variable.(*r3.Vector) = v.R3Vec()
 		}
 	},
-	st.ValTypeInt: func(variable any) st.PropertyUpdateHandler {
-		return func(v st.PropertyValue) {
+	ValTypeInt: func(variable any) PropertyUpdateHandler {
+		return func(v PropertyValue) {
 			*variable.(*int) = v.Int()
 		}
 	},
-	st.ValTypeArray: func(variable any) st.PropertyUpdateHandler {
-		return func(v st.PropertyValue) {
+	ValTypeArray: func(variable any) PropertyUpdateHandler {
+		return func(v PropertyValue) {
 			*variable.(*[]any) = v.Array()
 		}
 	},
-	st.ValTypeString: func(variable any) st.PropertyUpdateHandler {
-		return func(v st.PropertyValue) {
+	ValTypeString: func(variable any) PropertyUpdateHandler {
+		return func(v PropertyValue) {
 			*variable.(*string) = v.String()
 		}
 	},
-	st.ValTypeBoolInt: func(variable any) st.PropertyUpdateHandler {
-		return func(v st.PropertyValue) {
+	ValTypeBoolInt: func(variable any) PropertyUpdateHandler {
+		return func(v PropertyValue) {
 			*variable.(*bool) = v.BoolVal()
 		}
 	},
-	st.ValTypeFloat32: func(variable any) st.PropertyUpdateHandler {
-		return func(v st.PropertyValue) {
+	ValTypeFloat32: func(variable any) PropertyUpdateHandler {
+		return func(v PropertyValue) {
 			*variable.(*float32) = v.Float()
 		}
 	},
-	st.ValTypeFloat64: func(variable any) st.PropertyUpdateHandler {
-		return func(v st.PropertyValue) {
+	ValTypeFloat64: func(variable any) PropertyUpdateHandler {
+		return func(v PropertyValue) {
 			*variable.(*float64) = float64(v.Float())
 		}
 	},
 }
 
-func (p property) Bind(variable any, t st.PropertyValueType) {
+/*
+Bind binds a property's value to a pointer.
+
+Example:
+
+	var i int
+	property.Bind(&i, ValTypeInt)
+
+This will bind the property's value to i so every time it's updated i is updated as well.
+
+The valueType indicates which field of the PropertyValue to use for the binding.
+*/
+func (p *Property) Bind(variable any, t PropertyValueType) {
 	h := bindFactoryByType[t](variable)
 	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], h)
 	p.entity.handlerLog = append(p.entity.handlerLog, handlerRegistration{name: p.name, handler: h})
@@ -240,8 +260,10 @@ func (p property) Bind(variable any, t st.PropertyValueType) {
 	p.entity.hasHandlers = true
 }
 
-// Property returns the named property of the entity, or nil if not found.
-func (e *Entity) Property(name string) st.Property {
+// Property finds a property on the entity by name.
+//
+// Returns nil if the property wasn't found.
+func (e *Entity) Property(name string) *Property {
 	if prop := e.propCache[name]; prop != nil {
 		return prop
 	}
@@ -275,24 +297,29 @@ func (e *Entity) Property(name string) st.Property {
 		return nil
 	}
 
-	e.propCache[name] = property{
+	prop := &Property{
 		entity: e,
 		name:   name,
 	}
+	e.propCache[name] = prop
 
-	return e.propCache[name]
+	return prop
 }
 
-// BindProperty binds a property to a variable for automatic updates.
-func (e *Entity) BindProperty(prop string, variable any, t st.PropertyValueType) {
+// BindProperty combines Property() & Property.Bind() into one.
+// Essentially binds a property's value to a pointer.
+// See the docs of the two individual functions for more info.
+func (e *Entity) BindProperty(prop string, variable any, t PropertyValueType) {
 	e.Property(prop).Bind(variable, t)
 }
 
-// PropertyValue returns the value of the named property and whether it exists.
-func (e *Entity) PropertyValue(name string) (st.PropertyValue, bool) {
+// PropertyValue finds a property on the entity by name and returns its value.
+//
+// Returns false as second value if the property was not found.
+func (e *Entity) PropertyValue(name string) (PropertyValue, bool) {
 	prop := e.Property(name)
 	if prop == nil {
-		return st.PropertyValue{}, false
+		return PropertyValue{}, false
 	}
 
 	v := prop.Value()
@@ -300,8 +327,10 @@ func (e *Entity) PropertyValue(name string) (st.PropertyValue, bool) {
 	return v, true
 }
 
-// PropertyValueMust returns the value of the named property, panicking if not found.
-func (e *Entity) PropertyValueMust(name string) st.PropertyValue {
+// PropertyValueMust finds a property on the entity by name and returns its value.
+//
+// Panics if the property was not found.
+func (e *Entity) PropertyValueMust(name string) PropertyValue {
 	val, ok := e.PropertyValue(name)
 	if !ok {
 		panic(fmt.Sprintf("property '%s' not found", name))
@@ -331,7 +360,7 @@ func coordFromCell(cell uint64, offset float32) float64 {
 	return cellCoord + float64(offset)
 }
 
-// Position returns the entity's world position.
+// Position returns the entity's position in world coordinates.
 func (e *Entity) Position() r3.Vector {
 	cellXVal := e.Property(propCellX).Value()
 	cellYVal := e.Property(propCellY).Value()
@@ -358,10 +387,13 @@ func (e *Entity) Position() r3.Vector {
 	}
 }
 
-// OnPositionUpdate registers a handler that is called whenever the entity's position changes.
+// OnPositionUpdate registers a handler for the entity's position update.
+// The handler is called with the new position every time a position-relevant property is updated.
+//
+// See also Position()
 func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 	pos := new(r3.Vector)
-	firePosUpdate := func(st.PropertyValue) {
+	firePosUpdate := func(PropertyValue) {
 		newPos := e.Position()
 		if *pos != newPos {
 			h(newPos)
@@ -377,7 +409,7 @@ func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 	e.Property(propVecZ).OnUpdate(firePosUpdate)
 }
 
-// OnDestroy registers a handler that is called when the entity is destroyed.
+// OnDestroy registers a function to be called on the entity's destruction.
 func (e *Entity) OnDestroy(delegate func()) {
 	e.onDestroy = append(e.onDestroy, delegate)
 }
@@ -390,7 +422,9 @@ func (e *Entity) Replaced() bool {
 	return e.replaced
 }
 
-// Destroy marks the entity as inactive and fires all OnDestroy handlers.
+// Destroy marks the entity as inactive and triggers all via OnDestroy() registered functions.
+//
+// Intended for internal use only.
 func (e *Entity) Destroy() {
 	e.active = false
 
@@ -399,12 +433,21 @@ func (e *Entity) Destroy() {
 	}
 }
 
-// OnUpdateFinished registers a function that is called once all property updates of the entity in an
-// entity packet have been applied and their update handlers fired - including the initial firing of
-// all update handlers after the entity was created.
+// OnUpdateFinished registers a function to be called once all property updates of the entity
+// in an entity packet have been applied and their update handlers fired.
 //
-// Update handlers fire per property in field-path order while the entity's data is read, so a handler
-// can see some of the packet's updates of the entity but not others. Use this to act on a consistent state.
+// Update handlers fire per property in field-path order while the entity's data is read, so a
+// handler can see some of the packet's updates of the entity but not others yet.
+// Use this to act on the entity's consistent state.
+//
+// For updated entities it is called right after the entity's data is read - before entities
+// later in the packet are read and before the parser's entity handlers run for this entity.
+// For created entities it is called after the initial firing of all update handlers, which
+// happens after the parser's entity handlers. It isn't called when an entity leaves the PVS
+// or is deleted, for skipped updates, or if the packet fails to parse.
+//
+// The parser of package demoinfocs applies player controllers' changes (e.g. Player.Name, SteamID64, Team, IsConnected)
+// here too, so inside a controller's own update handlers the bound Player isn't updated yet.
 func (e *Entity) OnUpdateFinished(delegate func()) {
 	e.onUpdateFinished = append(e.onUpdateFinished, delegate)
 }
@@ -415,13 +458,14 @@ func (e *Entity) fireUpdateFinished() {
 	}
 }
 
-// OnCreateFinished registers a handler that is called after entity creation is complete.
+// OnCreateFinished registers a function to be called once the entity is fully created -
+// i.e. once all property updates have been sent out.
 func (e *Entity) OnCreateFinished(delegate func()) {
 	e.onCreateFinished = append(e.onCreateFinished, delegate)
 }
 
 // newEntity returns a new entity for the given index, serial and class
-func newEntity(index, serial int32, class *class) *Entity {
+func newEntity(index, serial int32, class *ServerClass) *Entity {
 	// Only allocate the per-entity polySerializers slice for classes that can
 	// reach polymorphic pointer fields. A nil slice keeps entities of all other
 	// classes on the shared fast paths (cached field-name checks and the
@@ -442,8 +486,8 @@ func newEntity(index, serial int32, class *class) *Entity {
 		polySerializers:  polySerializers,
 		onCreateFinished: nil,
 		onDestroy:        nil,
-		updateHandlers:   make(map[string][]st.PropertyUpdateHandler),
-		propCache:        map[string]st.Property{},
+		updateHandlers:   make(map[string][]PropertyUpdateHandler),
+		propCache:        map[string]*Property{},
 	}
 }
 
@@ -689,7 +733,7 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 	if e.handlersByFP != nil {
 		if key, ok := fpFlatKey(fp); ok {
 			for _, h := range e.handlersByFP[key] {
-				h(st.PropertyValue{Any: val})
+				h(PropertyValue{Any: val})
 			}
 
 			return
@@ -698,7 +742,7 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 	// Fallback: deep/large path — look up by name
 	name := e.class.getNameForFieldPath(fp, e.polySerializers)
 	for _, h := range e.updateHandlers[name] {
-		h(st.PropertyValue{Any: val})
+		h(PropertyValue{Any: val})
 	}
 }
 
@@ -741,7 +785,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 	for ; updates > 0; updates-- {
 		var (
 			e  *Entity
-			op st.EntityOp
+			op EntityOp
 		)
 
 		next := index + int32(r.readUBitVar()) + 1
@@ -769,7 +813,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 					old.replaced = true
 					old.Destroy()
 
-					p.tuplesCache = append(p.tuplesCache, tuple{old, st.EntityOpLeft | st.EntityOpDeleted})
+					p.tuplesCache = append(p.tuplesCache, tuple{old, EntityOpLeft | EntityOpDeleted})
 				}
 
 				e = newEntity(index, serial, class)
@@ -796,7 +840,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 					f()
 				}
 
-				op = st.EntityOpCreated | st.EntityOpEntered
+				op = EntityOpCreated | EntityOpEntered
 			} else {
 				if m.GetHasPvsVisBitsDeprecated() > 0 && r.readBits(2)&0x01 != 0 {
 					continue
@@ -807,11 +851,11 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 					_panicf("unable to find existing entity %d", index)
 				}
 
-				op = st.EntityOpUpdated
+				op = EntityOpUpdated
 
 				if !e.active {
 					e.active = true
-					op |= st.EntityOpEntered
+					op |= EntityOpEntered
 				}
 
 				e.readFields(r, &p.pathCache)
@@ -827,9 +871,9 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 				continue // entity has already been destroyed
 			}
 
-			op = st.EntityOpLeft
+			op = EntityOpLeft
 			if cmd&0x02 != 0 {
-				op |= st.EntityOpDeleted
+				op |= EntityOpDeleted
 
 				e.Destroy()
 			}
@@ -847,7 +891,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 			}
 		}
 
-		if t.op&st.EntityOpCreated != 0 {
+		if t.op&EntityOpCreated != 0 {
 			e.fireInitialUpdateHandlers()
 			e.fireUpdateFinished()
 		}
@@ -863,6 +907,6 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 
 // OnEntity registers an EntityHandler that will be called when an entity
 // is created, updated, deleted, etc.
-func (p *Parser) OnEntity(h st.EntityHandler) {
+func (p *Parser) OnEntity(h EntityHandler) {
 	p.entityHandlers = append(p.entityHandlers, h)
 }

@@ -28,12 +28,12 @@ func TestEntityOnUpdateFinished(t *testing.T) {
 
 	var (
 		created, finishedAfterUpdate int
-		pending                      = make(map[st.Entity]bool)
-		finished                     = make(map[st.Entity]int)
+		pending                      = make(map[*st.Entity]bool)
+		finished                     = make(map[*st.Entity]int)
 	)
 
 	p.RegisterEventHandler(func(events.DataTablesParsed) {
-		p.ServerClasses().FindByName("CCSPlayerController").OnEntityCreated(func(e st.Entity) {
+		p.ServerClasses().FindByName("CCSPlayerController").OnEntityCreated(func(e *st.Entity) {
 			created++
 
 			for _, prop := range []string{"m_iTeamNum", "m_iConnected", "m_iszPlayerName", "m_steamID"} {

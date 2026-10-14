@@ -1,4 +1,4 @@
-package sendtablescs2
+package sendtables
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 
 	bit "github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -52,7 +51,7 @@ var itemCounts = map[string]int{
 
 type tuple struct {
 	ent *Entity
-	op  st.EntityOp
+	op  EntityOp
 }
 
 // Parser parses CS2 send tables (FlattenedSerializer + PacketEntities).
@@ -60,11 +59,11 @@ type Parser struct {
 	serializers                 map[string]*serializer
 	classIdSize                 uint32 //nolint:revive
 	classBaselines              map[int32][]byte
-	classesById                 map[int32]*class //nolint:revive
-	classesByName               map[string]*class
+	classesById                 map[int32]*ServerClass //nolint:revive
+	classesByName               map[string]*ServerClass
 	entityFullPackets           int
 	entities                    map[int32]*Entity
-	entityHandlers              []st.EntityHandler
+	entityHandlers              []EntityHandler
 	pathCache                   []*fieldPath
 	tuplesCache                 []tuple
 	packetEntitiesPanicWarnFunc func(error)
@@ -76,33 +75,36 @@ type Parser struct {
 	polyMaxCache map[*serializer]int
 }
 
-func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity {
+func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]*Entity, slot int) *Entity {
 	panic("implement me")
 }
 
-type serverClasses Parser
+// ServerClasses is a searchable list of ServerClasses.
+type ServerClasses struct {
+	p *Parser
+}
 
-func (sc *serverClasses) All() (res []st.ServerClass) {
-	for _, c := range sc.classesById {
+// All returns all server-classes, in no particular order.
+func (sc ServerClasses) All() []*ServerClass {
+	res := make([]*ServerClass, 0, len(sc.p.classesById))
+
+	for _, c := range sc.p.classesById {
 		res = append(res, c)
 	}
 
-	return
+	return res
 }
 
-func (sc *serverClasses) FindByName(name string) st.ServerClass {
-	class := sc.classesByName[name]
-	if class == nil {
-		return nil
-	}
-
-	return sc.classesByName[name]
+// FindByName returns the server-class with the given name, or nil if there is none.
+func (sc ServerClasses) FindByName(name string) *ServerClass {
+	return sc.p.classesByName[name]
 }
 
-func (sc *serverClasses) String() string {
-	names := make([]string, 0, len(sc.classesById))
+// String returns the names of all server-classes, one per line.
+func (sc ServerClasses) String() string {
+	names := make([]string, 0, len(sc.p.classesById))
 
-	for _, c := range sc.classesById {
+	for _, c := range sc.p.classesById {
 		names = append(names, c.name)
 	}
 
@@ -110,8 +112,8 @@ func (sc *serverClasses) String() string {
 }
 
 // ServerClasses returns a ServerClasses view of all known classes.
-func (p *Parser) ServerClasses() st.ServerClasses {
-	return (*serverClasses)(p)
+func (p *Parser) ServerClasses() ServerClasses {
+	return ServerClasses{p: p}
 }
 
 // NewParser creates a new CS2 send-tables parser.
@@ -119,8 +121,8 @@ func NewParser(packetEntitiesPanicWarnFunc func(error)) *Parser {
 	return &Parser{
 		serializers:                 make(map[string]*serializer),
 		classBaselines:              make(map[int32][]byte),
-		classesById:                 make(map[int32]*class),
-		classesByName:               make(map[string]*class),
+		classesById:                 make(map[int32]*ServerClass),
+		classesByName:               make(map[string]*ServerClass),
 		entities:                    make(map[int32]*Entity),
 		polyMaxCache:                make(map[*serializer]int),
 		packetEntitiesPanicWarnFunc: packetEntitiesPanicWarnFunc,
@@ -152,7 +154,7 @@ func (p *Parser) OnDemoClassInfo(m *msg.CDemoClassInfo) error {
 			}
 		}
 
-		class := &class{
+		class := &ServerClass{
 			classId:     classId,
 			name:        networkName,
 			serializer:  p.serializers[networkName],
@@ -242,6 +244,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 							field.polySerializerID = p.nextPolyID
 							p.nextPolyID++
 						}
+
 						field.setModel(fieldModelFixedTable)
 					} else {
 						field.setModel(fieldModelVariableTable)

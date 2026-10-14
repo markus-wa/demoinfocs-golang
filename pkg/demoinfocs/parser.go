@@ -23,17 +23,6 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
-type sendTableParser interface {
-	ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity
-	ServerClasses() st.ServerClasses
-	ParsePacket(b []byte) error
-	SetInstanceBaseline(classID int, data []byte)
-	OnDemoClassInfo(m *msg.CDemoClassInfo) error
-	OnServerInfo(m *msg.CSVCMsg_ServerInfo) error
-	OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error
-	OnEntity(h st.EntityHandler)
-}
-
 // header contains information from a demo's header.
 type header struct {
 	Filestamp       string        // aka. File-type, must be HL2DEMO
@@ -101,7 +90,7 @@ type Parser struct {
 	config                          config.Config
 	ctx                             context.Context // context of the running ParseToEnd() call, nil if it can't be cancelled; see aborted()
 	bitReader                       *bit.BitReader
-	stParser                        sendTableParser
+	stParser                        *st.Parser
 	additionalNetMessageCreators    map[int]config.NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                        chan any                         // Queue of net-messages
 	msgDispatcher                   *dp.Dispatcher                   // Net-message dispatcher
@@ -133,7 +122,7 @@ type Parser struct {
 
 	bombsiteA             bombsite
 	bombsiteB             bombsite
-	equipmentMapping      map[st.ServerClass]common.EquipmentType                  // Maps server classes to equipment-types
+	equipmentMapping      map[*st.ServerClass]common.EquipmentType                 // Maps server classes to equipment-types
 	rawPlayers            map[int]*common.PlayerInfo                               // Maps entity IDs to 'raw' player info
 	dirtyControllers      map[int]*dirtyPlayerController                           // Player controllers whose identity / connection state changed in the current entity packet
 	provisionalNames      map[*common.Player]struct{}                              // Players whose name isn't from the controller yet (userinfo fallback or SteamID placeholder)
@@ -474,7 +463,7 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
 		p.bitReader = bit.NewSmallBitReader(demostream)
 	}
 
-	p.equipmentMapping = make(map[st.ServerClass]common.EquipmentType)
+	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.dirtyControllers = make(map[int]*dirtyPlayerController)
 	p.provisionalNames = make(map[*common.Player]struct{})
@@ -597,11 +586,11 @@ func (p demoInfoProvider) FindPlayerByPawnHandle(handle uint64) *common.Player {
 	return p.parser.gameState.Participants().FindByPawnHandle(handle)
 }
 
-func (p demoInfoProvider) FindEntityByHandle(handle uint64) st.Entity {
+func (p demoInfoProvider) FindEntityByHandle(handle uint64) *st.Entity {
 	return p.parser.gameState.EntityByHandle(handle)
 }
 
-func (p demoInfoProvider) FindEntityByID(id int) st.Entity {
+func (p demoInfoProvider) FindEntityByID(id int) *st.Entity {
 	return p.parser.gameState.entities[id]
 }
 

@@ -16,7 +16,7 @@ import (
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
-	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/sendtablescs2"
+	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 )
@@ -108,7 +108,7 @@ func (p *Parser) parseHeader() error {
 			}
 		}
 
-		p.stParser = sendtablescs2.NewParser(warnFunc)
+		p.stParser = st.NewParser(warnFunc)
 
 		p.stParser.OnEntity(p.onEntity)
 

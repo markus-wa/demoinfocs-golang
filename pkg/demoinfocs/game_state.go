@@ -25,7 +25,7 @@ type GameState struct {
 	playersByUserID              map[int]*common.Player    // Maps user-IDs to players
 	playersByEntityID            map[int]*common.Player    // Maps entity-IDs to players
 	playersBySteamID32           map[uint32]*common.Player // Maps 32-bit-steam-IDs to players
-	playerControllerEntities     map[int]st.Entity
+	playerControllerEntities     map[int]*st.Entity
 	grenadeProjectiles           map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos                     map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	infernoFireStates            map[int]*infernoFireState         // Maps inferno entity-IDs to their burning state, for InfernoFireOut.
@@ -33,7 +33,7 @@ type GameState struct {
 	pendingInfernoLinks          []pendingInfernoLink              // Fire-grenade projectiles destroyed / infernos created that are still waiting for their counterpart. Entries from earlier frames are pruned on the next link attempt.
 	weapons                      map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
 	hostages                     map[int]*common.Hostage           // Maps entity-IDs to hostages.
-	entities                     map[int]st.Entity                 // Maps entity IDs to entities
+	entities                     map[int]*st.Entity                // Maps entity IDs to entities
 	bomb                         common.Bomb
 	totalRoundsPlayed            int
 	gamePhase                    common.GamePhase
@@ -211,7 +211,7 @@ func (gs *GameState) Weapons() map[int]*common.Equipment {
 
 // Entities returns all currently existing entities.
 // (Almost?) everything in the game is an entity, such as weapons, players, fire etc.
-func (gs *GameState) Entities() map[int]st.Entity {
+func (gs *GameState) Entities() map[int]*st.Entity {
 	return gs.entities
 }
 
@@ -251,11 +251,9 @@ func (gs *GameState) OvertimeCount() int {
 }
 
 // isEntityReplaced returns true if the entity was destroyed because a new entity was created at its index,
-// rather than being deleted (see sendtablescs2.Entity.Replaced()).
-func isEntityReplaced(entity st.Entity) bool {
-	replaceable, ok := entity.(interface{ Replaced() bool })
-
-	return ok && replaceable.Replaced()
+// rather than being deleted (see sendtables.Entity.Replaced()).
+func isEntityReplaced(entity *st.Entity) bool {
+	return entity != nil && entity.Replaced()
 }
 
 func entityIDFromHandle(handle uint64) int {
@@ -268,7 +266,7 @@ func entityIDFromHandle(handle uint64) int {
 
 // EntityByHandle returns the entity corresponding to the given handle.
 // Returns nil if the handle is invalid.
-func (gs *GameState) EntityByHandle(handle uint64) st.Entity {
+func (gs *GameState) EntityByHandle(handle uint64) *st.Entity {
 	return gs.entities[entityIDFromHandle(handle)]
 }
 
@@ -304,7 +302,7 @@ func (gs *GameState) lastKnownGrenadeWeapon(pl *common.Player, wepType common.Eq
 
 func newGameState(demoInfo demoInfoProvider) *GameState {
 	gs := &GameState{
-		playerControllerEntities: make(map[int]st.Entity),
+		playerControllerEntities: make(map[int]*st.Entity),
 		playersByEntityID:        make(map[int]*common.Player),
 		playersByUserID:          make(map[int]*common.Player),
 		playersBySteamID32:       make(map[uint32]*common.Player),
@@ -314,7 +312,7 @@ func newGameState(demoInfo demoInfoProvider) *GameState {
 		infernoProjectiles:       make(map[int]*common.GrenadeProjectile),
 		weapons:                  make(map[int]*common.Equipment),
 		hostages:                 make(map[int]*common.Hostage),
-		entities:                 make(map[int]st.Entity),
+		entities:                 make(map[int]*st.Entity),
 		thrownGrenades:           make(map[*common.Player]map[common.EquipmentType][]*common.Equipment),
 		lastKnownGrenadeWeapons:  make(map[*common.Player]map[common.EquipmentType]*common.Equipment),
 		flyingFlashbangs:         make([]*FlyingFlashbang, 0),
@@ -340,7 +338,7 @@ func newGameState(demoInfo demoInfoProvider) *GameState {
 // See GameState.Rules()
 type GameRules struct {
 	conVars map[string]string
-	entity  st.Entity
+	entity  *st.Entity
 }
 
 var ErrFailedToRetrieveGameRule = errors.New("failed to retrieve GameRule value, it's recommended to have a fallback to a default value for this scenario")
@@ -390,7 +388,7 @@ func (gr GameRules) ConVars() map[string]string {
 }
 
 // Entity returns the game's CCSGameRulesProxy entity.
-func (gr GameRules) Entity() st.Entity {
+func (gr GameRules) Entity() *st.Entity {
 	return gr.entity
 }
 

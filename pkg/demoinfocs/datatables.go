@@ -33,7 +33,7 @@ func (p *Parser) bindBomb() {
 
 	// Track bomb when it is dropped on the ground or being held by a player
 	scC4 := p.stParser.ServerClasses().FindByName("CC4")
-	scC4.OnEntityCreated(func(bombEntity st.Entity) {
+	scC4.OnEntityCreated(func(bombEntity *st.Entity) {
 		bombEntity.OnPositionUpdate(func(pos r3.Vector) {
 			bomb.LastOnGroundPosition = pos
 		})
@@ -122,7 +122,7 @@ func (p *Parser) bindBomb() {
 
 	// Track bomb when it has been planted
 	scPlantedC4 := p.stParser.ServerClasses().FindByName("CPlantedC4")
-	scPlantedC4.OnEntityCreated(func(bombEntity st.Entity) {
+	scPlantedC4.OnEntityCreated(func(bombEntity *st.Entity) {
 		// Player can't hold the bomb when it has been planted
 		p.gameState.bomb.Carrier = nil
 		p.gameState.currentPlanter = nil
@@ -280,7 +280,7 @@ func (p *Parser) bindBomb() {
 }
 
 func (p *Parser) bindTeamStates() {
-	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity st.Entity) {
+	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity *st.Entity) {
 		teamVal := entity.PropertyValueMust("m_szTeamname")
 		team := teamVal.String()
 
@@ -305,7 +305,7 @@ func (p *Parser) bindTeamStates() {
 
 			// Register updates
 			var (
-				scoreProp st.Property
+				scoreProp *st.Property
 				score     int
 
 				clanName string
@@ -339,12 +339,12 @@ func (p *Parser) bindTeamStates() {
 }
 
 func (p *Parser) bindBombSites() {
-	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(playerResource st.Entity) {
+	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(playerResource *st.Entity) {
 		playerResource.BindProperty("m_bombsiteCenterA", &p.bombsiteA.center, st.ValTypeVector)
 		playerResource.BindProperty("m_bombsiteCenterB", &p.bombsiteB.center, st.ValTypeVector)
 	})
 
-	onBombTargetEntityCreated := func(target st.Entity) {
+	onBombTargetEntityCreated := func(target *st.Entity) {
 		t := new(boundingBoxInformation)
 		p.triggers[target.ID()] = t
 
@@ -363,10 +363,10 @@ func (p *Parser) bindBombSites() {
 }
 
 func (p *Parser) bindPlayers() {
-	p.stParser.ServerClasses().FindByName("CCSPlayerController").OnEntityCreated(func(player st.Entity) {
+	p.stParser.ServerClasses().FindByName("CCSPlayerController").OnEntityCreated(func(player *st.Entity) {
 		p.bindNewPlayerController(player)
 	})
-	p.stParser.ServerClasses().FindByName("CCSPlayerPawn").OnEntityCreated(func(player st.Entity) {
+	p.stParser.ServerClasses().FindByName("CCSPlayerPawn").OnEntityCreated(func(player *st.Entity) {
 		p.bindNewPlayerPawn(player)
 	})
 }
@@ -402,7 +402,7 @@ func playerUserID(rp *common.PlayerInfo) int {
 // Controller prop updates call this once all of the controller's updates in an entity packet are applied
 // (see bindNewPlayerController), so it always sees the controller's complete state - never a half-applied
 // take-over.
-func (p *Parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entity) *common.Player {
+func (p *Parser) getOrCreatePlayerFromControllerEntity(controllerEntity *st.Entity) *common.Player {
 	controllerEntityID := controllerEntity.ID()
 	p.gameState.playerControllerEntities[controllerEntityID] = controllerEntity
 
@@ -468,7 +468,7 @@ func (p *Parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 }
 
 // rawPlayerForController returns the raw player info (userinfo string table) of a controller, if any.
-func (p *Parser) rawPlayerForController(controllerEntity st.Entity, isBot bool) *common.PlayerInfo {
+func (p *Parser) rawPlayerForController(controllerEntity *st.Entity, isBot bool) *common.PlayerInfo {
 	controllerEntityID := controllerEntity.ID()
 
 	// In regular demos player slots map to controller entities 1:1 (slot N is entity N+1),
@@ -498,7 +498,7 @@ func (p *Parser) rawPlayerForController(controllerEntity st.Entity, isBot bool) 
 	return rp
 }
 
-func (p *Parser) newPlayerFromController(controllerEntity st.Entity, steamID uint64, name string, provisional bool) *common.Player {
+func (p *Parser) newPlayerFromController(controllerEntity *st.Entity, steamID uint64, name string, provisional bool) *common.Player {
 	player := common.NewPlayer(p.demoInfoProvider)
 	player.SteamID64 = steamID
 	player.Name = name
@@ -518,7 +518,7 @@ func (p *Parser) newPlayerFromController(controllerEntity st.Entity, steamID uin
 }
 
 // takeOverInPlace hands a controller that was taken over in place from the previous to the new occupant.
-func (p *Parser) takeOverInPlace(previous, player *common.Player, controllerEntity st.Entity) {
+func (p *Parser) takeOverInPlace(previous, player *common.Player, controllerEntity *st.Entity) {
 	// the pawn's weapons now belong to the new occupant (see bindPlayerWeapons)
 	player.Inventory, previous.Inventory = previous.Inventory, make(map[int]*common.Equipment)
 
@@ -569,12 +569,12 @@ func (p *Parser) unbindReplacedPlayer(player *common.Player) {
 // dirtyPlayerController is a player controller whose identity, team or connection state changed
 // in the entity packet currently being applied.
 type dirtyPlayerController struct {
-	entity            st.Entity
+	entity            *st.Entity
 	teamChanged       bool
 	connectionChanged bool
 }
 
-func (p *Parser) markPlayerControllerDirty(controllerEntity st.Entity) *dirtyPlayerController {
+func (p *Parser) markPlayerControllerDirty(controllerEntity *st.Entity) *dirtyPlayerController {
 	d := p.dirtyControllers[controllerEntity.ID()]
 	if d == nil || d.entity != controllerEntity {
 		d = &dirtyPlayerController{entity: controllerEntity}
@@ -618,7 +618,7 @@ func (p *Parser) flushPlayerController(controllerEntityID int) {
 	}
 }
 
-func (p *Parser) applyControllerConnectionState(pl *common.Player, controllerEntity st.Entity) {
+func (p *Parser) applyControllerConnectionState(pl *common.Player, controllerEntity *st.Entity) {
 	state := controllerEntity.PropertyValueMust("m_iConnected").UInt32()
 
 	isDisconnection := state == 8
@@ -643,7 +643,7 @@ func (p *Parser) applyControllerConnectionState(pl *common.Player, controllerEnt
 
 // connectPlayerIfConnected marks a player as connected and dispatches PlayerConnect / BotConnect
 // if the controller's m_iConnected state says it's connected and the player wasn't before.
-func (p *Parser) connectPlayerIfConnected(player *common.Player, controllerEntity st.Entity) {
+func (p *Parser) connectPlayerIfConnected(player *common.Player, controllerEntity *st.Entity) {
 	state, ok := controllerEntity.PropertyValue("m_iConnected")
 	if !ok || player.IsConnected || state.UInt32() != 0 {
 		return
@@ -700,7 +700,7 @@ func (p *Parser) setPlayerName(player *common.Player, name string, isBot, provis
 
 // matchRawPlayerToController returns the raw player info at the given slot if it belongs to
 // the given controller entity: humans by XUID, bots by name (both from controller props).
-func (p *Parser) matchRawPlayerToController(slot int, isBot bool, controllerEntity st.Entity) *common.PlayerInfo {
+func (p *Parser) matchRawPlayerToController(slot int, isBot bool, controllerEntity *st.Entity) *common.PlayerInfo {
 	r := p.rawPlayers[slot]
 	if r == nil {
 		return nil
@@ -717,7 +717,7 @@ func (p *Parser) matchRawPlayerToController(slot int, isBot bool, controllerEnti
 	return nil
 }
 
-func (p *Parser) bindNewPlayerController(controllerEntity st.Entity) {
+func (p *Parser) bindNewPlayerController(controllerEntity *st.Entity) {
 	pl := p.getOrCreatePlayerFromControllerEntity(controllerEntity)
 
 	// the player bound to this controller may be replaced if a different person takes over the slot
@@ -770,10 +770,10 @@ func (p *Parser) bindNewPlayerController(controllerEntity st.Entity) {
 }
 
 //nolint:funlen
-func (p *Parser) bindNewPlayerPawn(pawnEntity st.Entity) {
+func (p *Parser) bindNewPlayerPawn(pawnEntity *st.Entity) {
 	var prevControllerHandle uint64
 
-	getPlayerFromPawnEntity := func(pawnEntity st.Entity) *common.Player {
+	getPlayerFromPawnEntity := func(pawnEntity *st.Entity) *common.Player {
 		controllerProp, hasProp := pawnEntity.PropertyValue("m_hController")
 		if !hasProp {
 			return nil
@@ -885,7 +885,7 @@ func (p *Parser) bindNewPlayerPawn(pawnEntity st.Entity) {
 }
 
 //nolint:funlen
-func (p *Parser) bindPlayerWeapons(pawnEntity st.Entity, currentPlayer func() *common.Player) {
+func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *common.Player) {
 	const inventoryCapacity = 64
 
 	inventorySize := 64
@@ -902,7 +902,7 @@ func (p *Parser) bindPlayerWeapons(pawnEntity st.Entity, currentPlayer func() *c
 		entityID := handle & constants.EntityHandleIndexMaskSource2
 		wep := p.gameState.weapons[int(entityID)]
 
-		// If the index is re-used for a new weapon (see sendtablescs2.Entity.Replaced()), the map may still hold the
+		// If the index is re-used for a new weapon (see sendtables.Entity.Replaced()), the map may still hold the
 		// previous weapon when the pawn gets the new one before the new weapon entity is created in the same packet.
 		// The other way around (new weapon created first) the pawn may still reference the previous serial in
 		// slots that haven't been updated yet, so only a newer serial makes the entry stale.
@@ -1042,7 +1042,7 @@ func equipmentTypeFromProjectileClass(className string) common.EquipmentType {
 }
 
 //nolint:funlen,gocognit
-func (p *Parser) bindGrenadeProjectiles(entity st.Entity) {
+func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	entityID := entity.ID()
 
 	proj := common.NewGrenadeProjectile(p.nextUniqueID())
@@ -1320,7 +1320,7 @@ func (p *Parser) linkInfernoProjectile(link pendingInfernoLink) {
 }
 
 //nolint:funlen
-func (p *Parser) bindWeapon(entity st.Entity) {
+func (p *Parser) bindWeapon(entity *st.Entity) {
 	entityID := entity.ID()
 	itemIndexVal := entity.PropertyValueMust("m_iItemDefinitionIndex")
 
@@ -1445,7 +1445,7 @@ func (p *Parser) bindWeapon(entity st.Entity) {
 	})
 }
 
-func (p *Parser) bindNewInferno(entity st.Entity) {
+func (p *Parser) bindNewInferno(entity *st.Entity) {
 	ownerEntVal := entity.PropertyValueMust("m_hOwnerEntity")
 
 	if ownerEntVal.Any == nil {
@@ -1509,7 +1509,7 @@ func (p *Parser) infernoExpired(inf *common.Inferno) {
 //nolint:funlen,gocognit,gocyclo
 func (p *Parser) bindGameRules() {
 	gameRules := p.ServerClasses().FindByName("CCSGameRulesProxy")
-	gameRules.OnEntityCreated(func(entity st.Entity) {
+	gameRules.OnEntityCreated(func(entity *st.Entity) {
 		grPrefix := func(s string) string {
 			return fmt.Sprintf("%s.%s", gameRulesPrefixS2, s)
 		}
@@ -1747,7 +1747,7 @@ func (p *Parser) bindGameRules() {
 }
 
 func (p *Parser) bindHostages() {
-	p.stParser.ServerClasses().FindByName("CHostage").OnEntityCreated(func(entity st.Entity) {
+	p.stParser.ServerClasses().FindByName("CHostage").OnEntityCreated(func(entity *st.Entity) {
 		entityID := entity.ID()
 		p.gameState.hostages[entityID] = common.NewHostage(p.demoInfoProvider, entity)
 

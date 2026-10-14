@@ -1,4 +1,4 @@
-package sendtablescs2
+package sendtables
 
 import (
 	"encoding/binary"
@@ -9,7 +9,6 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
 // polyTestSchema builds a small polymorphic schema:
@@ -47,12 +46,12 @@ func polyTestSchema(t *testing.T) (*serializer, *serializer, *serializer) {
 }
 
 // polyTestClass wraps the mini schema in a class so entities can be created.
-func polyTestClass(t *testing.T) (*class, *serializer, *serializer) {
+func polyTestClass(t *testing.T) (*ServerClass, *serializer, *serializer) {
 	t.Helper()
 
 	ent, modeA, modeB := polyTestSchema(t)
 
-	return &class{
+	return &ServerClass{
 		name:        "CEnt",
 		serializer:  ent,
 		polyCount:   1,
@@ -165,7 +164,7 @@ func TestPolyTypeSwitchInvalidatesCaches(t *testing.T) {
 	e.polySerializers[0] = modeA
 
 	var aFired, bFired bool
-	e.Property("m_pMode.m_aField").OnUpdate(func(st.PropertyValue) {
+	e.Property("m_pMode.m_aField").OnUpdate(func(PropertyValue) {
 		aFired = true
 	})
 
@@ -181,7 +180,7 @@ func TestPolyTypeSwitchInvalidatesCaches(t *testing.T) {
 
 	// Bind a handler for the new type's sub-field; this is only possible after
 	// activation, mirroring real usage.
-	e.Property("m_pMode.m_bField").OnUpdate(func(st.PropertyValue) {
+	e.Property("m_pMode.m_bField").OnUpdate(func(PropertyValue) {
 		bFired = true
 	})
 
@@ -255,10 +254,10 @@ func TestPolyHandlerOrderRegistrationStable(t *testing.T) {
 	var fired []string
 
 	// Registration order is alias-then-aField; both resolve to the same path.
-	e.Property("m_pMode.m_alias").OnUpdate(func(st.PropertyValue) {
+	e.Property("m_pMode.m_alias").OnUpdate(func(PropertyValue) {
 		fired = append(fired, "alias")
 	})
-	e.Property("m_pMode.m_aField").OnUpdate(func(st.PropertyValue) {
+	e.Property("m_pMode.m_aField").OnUpdate(func(PropertyValue) {
 		fired = append(fired, "aField")
 	})
 
@@ -298,10 +297,10 @@ func TestInitialHandlerDispatchOrder(t *testing.T) {
 
 	// Register on two different names in a known order that is the reverse of
 	// name-sorted order ("m_iHealth" < "m_pMode.m_aField").
-	e.Property("m_pMode.m_aField").OnUpdate(func(st.PropertyValue) {
+	e.Property("m_pMode.m_aField").OnUpdate(func(PropertyValue) {
 		fired = append(fired, "aField")
 	})
-	e.Property("m_iHealth").OnUpdate(func(st.PropertyValue) {
+	e.Property("m_iHealth").OnUpdate(func(PropertyValue) {
 		fired = append(fired, "health")
 	})
 

@@ -20,7 +20,7 @@ type Player struct {
 	Name                string             // In-game name as enforced by the server & shown on the scoreboard (the player controller's m_iszPlayerName). May differ from the Steam name in PlayerInfo / PlayerConnect, e.g. on FACEIT.
 	Inventory           map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
 	EntityID            int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
-	Entity              st.Entity          // May be nil between player-death and re-spawn
+	Entity              *st.Entity         // May be nil between player-death and re-spawn
 	FlashDuration       float32            // Effective blindness duration from the flashbang currently affecting the player (seconds). The engine's flash-affected window (e.g. for assist attribution) runs ~1.4x longer; there is no continuous remaining-intensity netprop.
 	FlashTick           int                // In-game tick at which the player was last flashed
 	TeamState           *TeamState         // When keeping the reference make sure you notice when the player changes teams
@@ -47,14 +47,14 @@ type Player struct {
 // positionSample is a pawn position recorded at the end of a frame.
 type positionSample struct {
 	pos         r3.Vector
-	tick        int       // server tick of the entity snapshot, see demoInfoProvider.SnapshotTick()
-	pawn        st.Entity // compared by identity: a pawn re-created in the same slot is a new entity
-	interpFrame any       // m_ubInterpolationFrame, changes when the pawn is teleported
+	tick        int        // server tick of the entity snapshot, see demoInfoProvider.SnapshotTick()
+	pawn        *st.Entity // compared by identity: a pawn re-created in the same slot is a new entity
+	interpFrame any        // m_ubInterpolationFrame, changes when the pawn is teleported
 	valid       bool
 }
 
 // isPawnAlive returns whether the pawn's m_lifeState is LIFE_ALIVE.
-func isPawnAlive(pawnEntity st.Entity) bool {
+func isPawnAlive(pawnEntity *st.Entity) bool {
 	v, ok := pawnEntity.PropertyValue("m_lifeState")
 	if !ok {
 		return true
@@ -74,7 +74,7 @@ func isPawnAlive(pawnEntity st.Entity) bool {
 
 // interpolationFrame returns the pawn's m_ubInterpolationFrame value (nil if unavailable).
 // The engine changes it whenever an entity is teleported, so that clients don't interpolate.
-func interpolationFrame(pawnEntity st.Entity) any {
+func interpolationFrame(pawnEntity *st.Entity) any {
 	v, ok := pawnEntity.PropertyValue("m_ubInterpolationFrame")
 	if !ok {
 		return nil
@@ -83,7 +83,7 @@ func interpolationFrame(pawnEntity st.Entity) any {
 	return v.Any
 }
 
-func (p *Player) PlayerPawnEntity() st.Entity {
+func (p *Player) PlayerPawnEntity() *st.Entity {
 	if p == nil || p.Entity == nil {
 		return nil
 	}
@@ -261,7 +261,7 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 	clientSlot := other.EntityID - 1
 	bit := uint(clientSlot)
 
-	var mask st.Property
+	var mask *st.Property
 
 	if bit < 32 {
 		mask = pawnEntity.Property("m_bSpottedByMask.0000")
@@ -527,7 +527,7 @@ func (p *Player) Velocity() r3.Vector {
 // the recording player (POV), so it's ignored for everybody but the recording player.
 // An unknown network protocol (0, i.e. no file header with a patch version parsed yet) is decided by
 // property presence alone.
-func (p *Player) isVelocityNetworked(pawnEntity st.Entity) bool {
+func (p *Player) isVelocityNetworked(pawnEntity *st.Entity) bool {
 	protocol := p.demoInfoProvider.NetworkProtocol()
 	if protocol > 0 && protocol < constants.NetworkProtocolAnimGraph2 && !p.isRecordingPlayer() {
 		return false
@@ -554,7 +554,7 @@ const maxVelocity = 3500
 // Time is measured in server ticks of entity snapshots (see demoInfoProvider.SnapshotTick()), not in-game
 // ticks: on POV demos the latter advance in frames without a snapshot and jitter against the snapshots,
 // which made the velocity alternate between the real value and zero and produced spikes.
-func (p *Player) positionDeltaVelocity(pawnEntity st.Entity) r3.Vector {
+func (p *Player) positionDeltaVelocity(pawnEntity *st.Entity) r3.Vector {
 	last, prev := p.positionHistory[0], p.positionHistory[1]
 	tick := p.demoInfoProvider.SnapshotTick()
 
@@ -576,7 +576,7 @@ func (p *Player) positionDeltaVelocity(pawnEntity st.Entity) r3.Vector {
 
 // velocitySince returns the average velocity from the reference sample to the given position and tick
 // of the same pawn, or a zero vector if they can't be compared.
-func (p *Player) velocitySince(ref positionSample, pos r3.Vector, tick int, pawnEntity st.Entity) r3.Vector {
+func (p *Player) velocitySince(ref positionSample, pos r3.Vector, tick int, pawnEntity *st.Entity) r3.Vector {
 	tickRate := p.demoInfoProvider.TickRate()
 
 	if tickRate <= 0 || !ref.valid || ref.tick >= tick || ref.pawn != pawnEntity {
@@ -695,7 +695,7 @@ func (p *Player) PositionEyes() (r3.Vector, bool) {
 	return pos.Add(offset), true
 }
 
-func getViewOffsetComponent(pawnEntity st.Entity, component string) (float32, bool) {
+func getViewOffsetComponent(pawnEntity *st.Entity, component string) (float32, bool) {
 	if v, ok := getFloatIfExists(pawnEntity, "m_vecViewOffset."+component); ok {
 		return v, true
 	}
@@ -703,7 +703,7 @@ func getViewOffsetComponent(pawnEntity st.Entity, component string) (float32, bo
 	return getFloatIfExists(pawnEntity, component)
 }
 
-func (p *Player) eyePositionOffset(pawnEntity st.Entity) (r3.Vector, bool) {
+func (p *Player) eyePositionOffset(pawnEntity *st.Entity) (r3.Vector, bool) {
 	x, ok := getViewOffsetComponent(pawnEntity, "m_vecX")
 	if !ok {
 		return r3.Vector{}, false
@@ -913,8 +913,8 @@ type demoInfoProvider interface {
 	FindPlayerByHandle(handle uint64) *Player
 	FindPlayerByPawnHandle(handle uint64) *Player
 	FindWeaponByEntityID(id int) *Equipment
-	FindEntityByHandle(handle uint64) st.Entity
-	FindEntityByID(id int) st.Entity
+	FindEntityByHandle(handle uint64) *st.Entity
+	FindEntityByID(id int) *st.Entity
 	NetworkProtocol() int     // demo network protocol (patch version), 0 if unknown, used for Player.Velocity()
 	RecordingPlayerSlot() int // player slot of the POV demo's recording player, -1 for GOTV demos
 	// EagerVelocityTracking returns whether option.EagerVelocityTracking(true) is set.

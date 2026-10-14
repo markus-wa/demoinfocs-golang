@@ -12,7 +12,6 @@ import (
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stfake"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
-	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/sendtablescs2"
 )
 
 type DevNullReader struct {
@@ -29,7 +28,7 @@ func newParser() *Parser {
 	return p
 }
 
-func fakePlayerEntity(id int) *sendtablescs2.Entity {
+func fakePlayerEntity(id int) *st.Entity {
 	return stfake.NewEntity(id)
 }
 
@@ -57,7 +56,7 @@ func TestParser_GetClosestBombsiteFromPosition(t *testing.T) {
 func TestBindBomb_NilEntityChecks(t *testing.T) {
 	t.Run("nil pawn entity should not panic", func(t *testing.T) {
 		p := newParser()
-		p.gameState.entities = make(map[int]st.Entity)
+		p.gameState.entities = make(map[int]*st.Entity)
 
 		// Simulate the scenario where pawnEntity lookup returns nil
 		// entityIDFromHandle with a valid handle but no entity in the map
@@ -71,7 +70,7 @@ func TestBindBomb_NilEntityChecks(t *testing.T) {
 
 	t.Run("nil controller entity should not panic", func(t *testing.T) {
 		p := newParser()
-		p.gameState.entities = make(map[int]st.Entity)
+		p.gameState.entities = make(map[int]*st.Entity)
 
 		// Add pawn entity but not controller entity
 		ctlHandle := uint64(0x12345678) // Some handle value
@@ -86,7 +85,7 @@ func TestBindBomb_NilEntityChecks(t *testing.T) {
 
 	t.Run("nil player should not panic", func(t *testing.T) {
 		p := newParser()
-		p.gameState.entities = make(map[int]st.Entity)
+		p.gameState.entities = make(map[int]*st.Entity)
 		p.gameState.playersByEntityID = make(map[int]*common.Player)
 
 		// Add pawn entity and controller entity but not player
@@ -103,7 +102,7 @@ func TestBindBomb_NilEntityChecks(t *testing.T) {
 	})
 }
 
-func newBombTestParser() (*Parser, *sendtablescs2.Parser) {
+func newBombTestParser() (*Parser, *st.Parser) {
 	p := newParser()
 	stParser := stfake.NewParser("CC4", "CPlantedC4")
 	p.stParser = stParser
@@ -114,7 +113,7 @@ func newBombTestParser() (*Parser, *sendtablescs2.Parser) {
 
 // createFakePlantedC4 creates a planted bomb entity and returns a function to update its properties.
 // Properties not listed in props are missing from the entity, the listed ones have no value yet.
-func createFakePlantedC4(stParser *sendtablescs2.Parser, props ...string) func(name string, val any) {
+func createFakePlantedC4(stParser *st.Parser, props ...string) func(name string, val any) {
 	entityProps := make([]stfake.Prop, 0, 2+len(props))
 	entityProps = append(entityProps, stfake.P("m_hOwnerEntity", nil), stfake.P("m_nBombSite", nil))
 
@@ -189,7 +188,7 @@ func TestBindBomb_BombExplode(t *testing.T) {
 const testWeaponEntityID = 300
 
 // fakeWeaponEntity creates a weapon entity for bindWeapon.
-func fakeWeaponEntity(serial int, itemIndex uint64) *sendtablescs2.Entity {
+func fakeWeaponEntity(serial int, itemIndex uint64) *st.Entity {
 	return stfake.New(stfake.Spec{
 		ID:     testWeaponEntityID,
 		Serial: serial,

@@ -15,7 +15,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
-func (p *Parser) onEntity(e sendtables.Entity, op sendtables.EntityOp) error {
+func (p *Parser) onEntity(e *sendtables.Entity, op sendtables.EntityOp) error {
 	if op&sendtables.EntityOpCreated > 0 {
 		p.gameState.entities[e.ID()] = e
 	} else if op&sendtables.EntityOpDeleted > 0 {
