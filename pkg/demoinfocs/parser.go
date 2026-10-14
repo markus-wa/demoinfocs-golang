@@ -23,19 +23,6 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
-//go:generate ifacemaker -f parser.go -f parsing.go -s parser -i Parser -p demoinfocs -D -y "Parser is an auto-generated interface for Parser, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o parser_interface.go
-
-type sendTableParser interface {
-	ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity
-	ServerClasses() st.ServerClasses
-	ParsePacket(b []byte) error
-	SetInstanceBaseline(classID int, data []byte)
-	OnDemoClassInfo(m *msg.CDemoClassInfo) error
-	OnServerInfo(m *msg.CSVCMsg_ServerInfo) error
-	OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error
-	OnEntity(h st.EntityHandler)
-}
-
 // header contains information from a demo's header.
 type header struct {
 	Filestamp       string        // aka. File-type, must be HL2DEMO
@@ -74,7 +61,7 @@ func (h *header) FrameTime() time.Duration {
 
 /*
 Parser can parse a CS2 demo.
-Creating a new instance is done via NewParser().
+A Parser must be created with NewParser(); the zero value is not usable.
 
 Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo
 (the demo header is parsed automatically when parsing starts).
@@ -84,7 +71,7 @@ Use Parser.RegisterEventHandler() to receive notifications about events.
 Example (without error handling):
 
 	f, _ := os.Open("/path/to/demo.dem")
-	p := dem.NewParser(f)
+	p := demoinfocs.NewParser(f)
 	defer p.Close()
 	p.RegisterEventHandler(func(e events.BombExplode) {
 		fmt.Printf("%c site went BOOM!\n", e.Site)
@@ -92,14 +79,18 @@ Example (without error handling):
 	p.ParseToEnd(context.Background())
 
 Prints out '{A/B} site went BOOM!' when a bomb explodes.
+
+Code that depends on a Parser can be unit-tested by declaring a small interface with just the
+methods it uses (e.g. RegisterEventHandler and ParseToEnd) and passing a fake in tests,
+see examples/mocking.
 */
-type parser struct {
+type Parser struct {
 	// Important fields
 
 	config                          config.Config
 	ctx                             context.Context // context of the running ParseToEnd() call, nil if it can't be cancelled; see aborted()
 	bitReader                       *bit.BitReader
-	stParser                        sendTableParser
+	stParser                        *st.Parser
 	additionalNetMessageCreators    map[int]config.NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                        chan any                         // Queue of net-messages
 	msgDispatcher                   *dp.Dispatcher                   // Net-message dispatcher
@@ -109,7 +100,7 @@ type parser struct {
 	currentFrame                    int     // Demo-frame, not ingame-tick
 	tickInterval                    float32 // Duration between ticks in seconds
 	header                          *header // Pointer so we can check for nil
-	gameState                       *gameState
+	gameState                       *GameState
 	demoInfoProvider                demoInfoProvider // Provides demo infos to other packages that the core package depends on
 	err                             error            // Contains a error that occurred during parsing if any
 	errLock                         sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
@@ -131,7 +122,6 @@ type parser struct {
 
 	bombsiteA             bombsite
 	bombsiteB             bombsite
-	equipmentMapping      map[st.ServerClass]common.EquipmentType                  // Maps server classes to equipment-types
 	rawPlayers            map[int]*common.PlayerInfo                               // Maps entity IDs to 'raw' player info
 	dirtyControllers      map[int]*dirtyPlayerController                           // Player controllers whose identity / connection state changed in the current entity packet
 	provisionalNames      map[*common.Player]struct{}                              // Players whose name isn't from the controller yet (userinfo fallback or SteamID placeholder)
@@ -158,7 +148,7 @@ type parser struct {
 //
 // All construction happens on the message-handling goroutine, but the atomic keeps it
 // race-detector-clean if that ever changes.
-func (p *parser) nextUniqueID() common.UniqueID {
+func (p *Parser) nextUniqueID() common.UniqueID {
 	return common.UniqueID(atomic.AddUint64(&p.lastUniqueID, 1))
 }
 
@@ -180,24 +170,25 @@ func (bbi boundingBoxInformation) contains(point r3.Vector) bool {
 
 // ServerClasses returns the server-classes of this demo.
 // These are available after events.DataTablesParsed has been fired.
-func (p *parser) ServerClasses() st.ServerClasses {
+// Before that it is empty, but a value obtained early still reflects classes that are registered later.
+func (p *Parser) ServerClasses() st.ServerClasses {
 	return p.stParser.ServerClasses()
 }
 
 // GameState returns the current game-state.
 // It contains most of the relevant information about the game such as players, teams, scores, grenades etc.
-func (p *parser) GameState() GameState {
+func (p *Parser) GameState() *GameState {
 	return p.gameState
 }
 
 // CurrentFrame return the number of the current frame, aka. 'demo-tick' (Since demos often have a different tick-rate than the game).
 // Starts with frame 0, should go up to header.PlaybackFrames but might not be the case (usually it's just close to it).
-func (p *parser) CurrentFrame() int {
+func (p *Parser) CurrentFrame() int {
 	return p.currentFrame
 }
 
 // CurrentTime returns the time elapsed since the start of the demo
-func (p *parser) CurrentTime() time.Duration {
+func (p *Parser) CurrentTime() time.Duration {
 	return time.Duration(float32(p.gameState.ingameTick) * p.tickInterval * float32(time.Second))
 }
 
@@ -205,7 +196,7 @@ func (p *parser) CurrentTime() time.Duration {
 //
 // Returns tick rate based on CSVCMsg_ServerInfo if possible.
 // Otherwise returns tick rate based on demo header or -1 if the header info isn't available.
-func (p *parser) TickRate() float64 {
+func (p *Parser) TickRate() float64 {
 	if p.tickInterval != 0 {
 		return 1.0 / float64(p.tickInterval)
 	}
@@ -229,7 +220,7 @@ func legacyTickRate(h header) float64 {
 //
 // Returns tick time based on CSVCMsg_ServerInfo if possible.
 // Otherwise returns tick time based on demo header or -1 if the header info isn't available.
-func (p *parser) TickTime() time.Duration {
+func (p *Parser) TickTime() time.Duration {
 	if p.tickInterval != 0 {
 		return time.Duration(float32(time.Second) * p.tickInterval)
 	}
@@ -254,7 +245,7 @@ func legayTickTime(h header) time.Duration {
 //
 // Might not be 100% correct since it's just based on the reported tick count of the header.
 // May always return 0 if the demo header is corrupt.
-func (p *parser) Progress() float32 {
+func (p *Parser) Progress() float32 {
 	if p.header == nil || p.header.PlaybackFrames == 0 {
 		return 0
 	}
@@ -268,7 +259,7 @@ func (p *parser) Progress() float32 {
 // been parsed - typically at the very end of ParseToEnd - and is absent from the pre-parse header,
 // so this returns -1 throughout parsing for those demos. Use it to branch cleanly rather than
 // relying on Progress() (which returns 0 while the total is unknown).
-func (p *parser) FrameCount() int {
+func (p *Parser) FrameCount() int {
 	if p.header == nil || p.header.PlaybackFrames <= 0 {
 		return -1
 	}
@@ -292,14 +283,14 @@ Parameter handler has to be of type any because Go generics only work on functio
 
 Returns an identifier with which the handler can be removed via UnregisterEventHandler().
 */
-func (p *parser) RegisterEventHandler(handler any) dp.HandlerIdentifier {
+func (p *Parser) RegisterEventHandler(handler any) dp.HandlerIdentifier {
 	return p.eventDispatcher.RegisterHandler(handler)
 }
 
 // UnregisterEventHandler removes a game event handler via identifier.
 //
 // The identifier is returned at registration by RegisterEventHandler().
-func (p *parser) UnregisterEventHandler(identifier dp.HandlerIdentifier) {
+func (p *Parser) UnregisterEventHandler(identifier dp.HandlerIdentifier) {
 	p.eventDispatcher.UnregisterHandler(identifier)
 }
 
@@ -314,21 +305,21 @@ Returns an identifier with which the handler can be removed via UnregisterNetMes
 
 See also: RegisterEventHandler()
 */
-func (p *parser) RegisterNetMessageHandler(handler any) dp.HandlerIdentifier {
+func (p *Parser) RegisterNetMessageHandler(handler any) dp.HandlerIdentifier {
 	return p.msgDispatcher.RegisterHandler(handler)
 }
 
 // UnregisterNetMessageHandler removes a net-message handler via identifier.
 //
 // The identifier is returned at registration by RegisterNetMessageHandler().
-func (p *parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
+func (p *Parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 	p.msgDispatcher.UnregisterHandler(identifier)
 }
 
 // Close closes any open resources used by the Parser (go routines, file handles).
 // This must be called before discarding the Parser to avoid memory leaks.
 // Returns an error if closing of underlying resources fails.
-func (p *parser) Close() error {
+func (p *Parser) Close() error {
 	p.msgDispatcher.RemoveAllQueues()
 
 	if p.bitReader != nil {
@@ -341,7 +332,7 @@ func (p *parser) Close() error {
 	return nil
 }
 
-func (p *parser) error() error {
+func (p *Parser) error() error {
 	p.errLock.Lock()
 	err := p.err
 	p.errLock.Unlock()
@@ -352,11 +343,11 @@ func (p *parser) error() error {
 // aborted reports whether a fatal error has been recorded or the context passed to
 // ParseToEnd() is done. Message handlers no-op once it is set, so the queued
 // backlog drains without further decoding.
-func (p *parser) aborted() bool {
+func (p *Parser) aborted() bool {
 	return p.error() != nil || (p.ctx != nil && p.ctx.Err() != nil)
 }
 
-func (p *parser) setError(err error) {
+func (p *Parser) setError(err error) {
 	if err == nil {
 		return
 	}
@@ -379,7 +370,7 @@ func (p *parser) setError(err error) {
 	p.unregisterAllHandlers()
 }
 
-func (p *parser) unregisterAllHandlers() {
+func (p *Parser) unregisterAllHandlers() {
 	if p.msgDispatcher != nil {
 		p.msgDispatcher.UnregisterAllHandlers()
 	}
@@ -389,7 +380,7 @@ func (p *parser) unregisterAllHandlers() {
 	}
 }
 
-func (p *parser) poolBitReader(r *bit.BitReader) {
+func (p *Parser) poolBitReader(r *bit.BitReader) {
 	err := r.Pool()
 	if err != nil {
 		p.eventDispatcher.Dispatch(events.ParserWarn{
@@ -418,7 +409,7 @@ func (p *parser) poolBitReader(r *bit.BitReader) {
 //	err = p.ParseToEnd(ctx)
 //
 // See also: ParseFile()
-func NewParser(demostream io.Reader, opts ...option.Option) Parser {
+func NewParser(demostream io.Reader, opts ...option.Option) *Parser {
 	cfg := config.New(opts)
 
 	if _, ok := demostream.(*cstv.Reader); ok {
@@ -429,7 +420,7 @@ func NewParser(demostream io.Reader, opts ...option.Option) Parser {
 }
 
 // ParserCallback configures a Parser (e.g. registers handlers) before ParseFile() parses the demo.
-type ParserCallback func(Parser) error
+type ParserCallback func(*Parser) error
 
 // ParseFile parses a demo file at the given path.
 // The handler is called with the Parser instance before parsing starts.
@@ -461,8 +452,8 @@ func ParseFile(ctx context.Context, path string, configure ParserCallback, opts 
 }
 
 //nolint:funlen
-func newParserFromConfig(demostream io.Reader, cfg config.Config) Parser {
-	var p parser
+func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
+	var p Parser
 
 	// Init parser
 	p.config = cfg
@@ -472,7 +463,6 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) Parser {
 		p.bitReader = bit.NewSmallBitReader(demostream)
 	}
 
-	p.equipmentMapping = make(map[st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.dirtyControllers = make(map[int]*dirtyPlayerController)
 	p.provisionalNames = make(map[*common.Player]struct{})
@@ -502,6 +492,21 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) Parser {
 	p.msgDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 	p.eventDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 
+	// Created up front so ServerClasses() values obtained before the header is parsed stay live.
+	var stWarnFunc func(error)
+
+	if p.ignorePacketEntitiesPanic {
+		stWarnFunc = func(err error) {
+			p.eventDispatcher.Dispatch(events.ParserWarn{
+				Type:    events.WarnTypePacketEntitiesPanic,
+				Message: fmt.Sprintf("encountered PacketEntities panic: %v", err),
+			})
+		}
+	}
+
+	p.stParser = st.NewParser(stWarnFunc)
+	p.stParser.OnEntity(p.onEntity)
+
 	p.msgDispatcher.RegisterHandler(p.handleGameEventList)
 	p.msgDispatcher.RegisterHandler(p.handleGameEvent)
 	p.msgDispatcher.RegisterHandler(p.handleServerInfo)
@@ -530,13 +535,13 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) Parser {
 	return &p
 }
 
-func (p *parser) initMsgQueue(buf int) {
+func (p *Parser) initMsgQueue(buf int) {
 	p.msgQueue = make(chan any, buf)
 	p.msgDispatcher.AddQueues(p.msgQueue)
 }
 
 type demoInfoProvider struct {
-	parser *parser
+	parser *Parser
 }
 
 func (p demoInfoProvider) IngameTick() int {
@@ -595,11 +600,11 @@ func (p demoInfoProvider) FindPlayerByPawnHandle(handle uint64) *common.Player {
 	return p.parser.gameState.Participants().FindByPawnHandle(handle)
 }
 
-func (p demoInfoProvider) FindEntityByHandle(handle uint64) st.Entity {
+func (p demoInfoProvider) FindEntityByHandle(handle uint64) *st.Entity {
 	return p.parser.gameState.EntityByHandle(handle)
 }
 
-func (p demoInfoProvider) FindEntityByID(id int) st.Entity {
+func (p demoInfoProvider) FindEntityByID(id int) *st.Entity {
 	return p.parser.gameState.entities[id]
 }
 

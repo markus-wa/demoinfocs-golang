@@ -59,7 +59,7 @@ func TestPlayerVelocity_POV(t *testing.T) {
 
 	defer f.Close()
 
-	p := NewParser(f).(*parser)
+	p := NewParser(f)
 
 	var (
 		recordingSlot              = -1

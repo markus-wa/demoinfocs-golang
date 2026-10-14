@@ -128,7 +128,7 @@ func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
 }
 
 //nolint:gocognit,nestif,funlen
-func (p *parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
+func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 	p.hasUserCmdMessages = true
 
 	for _, cmd := range m.Commands {

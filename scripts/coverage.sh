@@ -5,8 +5,8 @@ set -e
 scripts_dir=$(dirname "$0")
 $scripts_dir/download-test-data.sh s2.7z deathmatch.7z
 
-# don't cover mocks and generated protobuf code
-coverpkg_ignore='/(fake|msg)'
+# don't cover test helpers and generated protobuf code
+coverpkg_ignore='/(msg|internal/stfake|internal/stbridge)'
 coverpkg=$(go list ./... | grep -v -E ${coverpkg_ignore} | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/')
 
 # -timeout 30m because the CI is slow

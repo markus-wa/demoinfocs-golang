@@ -13,19 +13,19 @@ import (
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
-//go:generate ifacemaker -f game_state.go -s gameState -i GameState -p demoinfocs -D -y "GameState is an auto-generated interface for gameState." -c "DO NOT EDIT: Auto generated" -o game_state_interface.go
-//go:generate ifacemaker -f game_state.go -s participants -i Participants -p demoinfocs -D -y "Participants is an auto-generated interface for participants." -c "DO NOT EDIT: Auto generated" -o participants_interface.go
-//go:generate ifacemaker -f game_state.go -s gameRules -i GameRules -p demoinfocs -D -y "GameRules is an auto-generated interface for gameRules." -c "DO NOT EDIT: Auto generated" -o game_rules_interface.go
-
-// gameState contains all game-state relevant information.
-type gameState struct {
+// GameState contains all game-state relevant information, such as players, teams, scores, grenades and entities.
+//
+// It is obtained via Parser.GameState() and is updated in place while the demo is parsed,
+// so it always reflects the state at the parser's current position. The zero value is not usable.
+// It must not be modified by users and is not safe for concurrent use with parsing.
+type GameState struct {
 	ingameTick                   int
 	tState                       common.TeamState
 	ctState                      common.TeamState
 	playersByUserID              map[int]*common.Player    // Maps user-IDs to players
 	playersByEntityID            map[int]*common.Player    // Maps entity-IDs to players
 	playersBySteamID32           map[uint32]*common.Player // Maps 32-bit-steam-IDs to players
-	playerControllerEntities     map[int]st.Entity
+	playerControllerEntities     map[int]*st.Entity
 	grenadeProjectiles           map[int]*common.GrenadeProjectile // Maps entity-IDs to active nade-projectiles. That's grenades that have been thrown, but have not yet detonated.
 	infernos                     map[int]*common.Inferno           // Maps entity-IDs to active infernos.
 	infernoFireStates            map[int]*infernoFireState         // Maps inferno entity-IDs to their burning state, for InfernoFireOut.
@@ -33,7 +33,7 @@ type gameState struct {
 	pendingInfernoLinks          []pendingInfernoLink              // Fire-grenade projectiles destroyed / infernos created that are still waiting for their counterpart. Entries from earlier frames are pruned on the next link attempt.
 	weapons                      map[int]*common.Equipment         // Maps entity IDs to weapons. Used to remember what a weapon is (p250 / cz etc.)
 	hostages                     map[int]*common.Hostage           // Maps entity-IDs to hostages.
-	entities                     map[int]st.Entity                 // Maps entity IDs to entities
+	entities                     map[int]*st.Entity                // Maps entity IDs to entities
 	bomb                         common.Bomb
 	totalRoundsPlayed            int
 	gamePhase                    common.GamePhase
@@ -46,7 +46,7 @@ type gameState struct {
 	currentPlanter               *common.Player                                                  // Player currently planting the bomb, if any
 	thrownGrenades               map[*common.Player]map[common.EquipmentType][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
 	lastKnownGrenadeWeapons      map[*common.Player]map[common.EquipmentType]*common.Equipment   // Last-known grenade weapon per player & type, see updateLastKnownGrenadeWeapons
-	rules                        gameRules
+	rules                        GameRules
 	demoInfo                     demoInfoProvider
 	lastRoundStartEvent          *events.RoundStart             // Used to dispatch this event after a possible MatchStartedChanged event
 	lastFreezeTimeChangedEvent   *events.RoundFreezetimeChanged // Used to dispatch this event after a possible RoundStart event
@@ -106,12 +106,12 @@ type lastFlash struct {
 
 type ingameTickNumber int
 
-func (gs *gameState) handleIngameTickNumber(n ingameTickNumber) {
+func (gs *GameState) handleIngameTickNumber(n ingameTickNumber) {
 	gs.ingameTick = int(n)
 	debugIngameTick(gs.ingameTick)
 }
 
-func (gs *gameState) indexPlayerBySteamID(pl *common.Player) {
+func (gs *GameState) indexPlayerBySteamID(pl *common.Player) {
 	if !pl.IsBot && pl.SteamID64 > 0 {
 		gs.playersBySteamID32[common.ConvertSteamID64To32(pl.SteamID64)] = pl
 	}
@@ -120,7 +120,7 @@ func (gs *gameState) indexPlayerBySteamID(pl *common.Player) {
 // IngameTick returns the latest actual tick number of the server during the game.
 //
 // Watch out, I've seen this return wonky negative numbers at the start of demos.
-func (gs gameState) IngameTick() int {
+func (gs *GameState) IngameTick() int {
 	return gs.ingameTick
 }
 
@@ -128,7 +128,7 @@ func (gs gameState) IngameTick() int {
 // Returns nil if team != TeamTerrorists && team != TeamCounterTerrorists.
 //
 // Make sure to handle swapping sides properly if you keep the reference.
-func (gs *gameState) Team(team common.Team) *common.TeamState {
+func (gs *GameState) Team(team common.Team) *common.TeamState {
 	switch team { //nolint:exhaustive
 	case common.TeamTerrorists:
 		return &gs.tState
@@ -142,21 +142,21 @@ func (gs *gameState) Team(team common.Team) *common.TeamState {
 // TeamCounterTerrorists returns the TeamState of the CT team.
 //
 // Make sure to handle swapping sides properly if you keep the reference.
-func (gs *gameState) TeamCounterTerrorists() *common.TeamState {
+func (gs *GameState) TeamCounterTerrorists() *common.TeamState {
 	return &gs.ctState
 }
 
 // TeamTerrorists returns the TeamState of the T team.
 //
 // Make sure to handle swapping sides properly if you keep the reference.
-func (gs *gameState) TeamTerrorists() *common.TeamState {
+func (gs *GameState) TeamTerrorists() *common.TeamState {
 	return &gs.tState
 }
 
 // Participants returns a struct with all currently connected players & spectators and utility functions.
 // The struct contains references to the original maps so it's always up-to-date.
-func (gs gameState) Participants() Participants {
-	return participants{
+func (gs *GameState) Participants() Participants {
+	return Participants{
 		playersByEntityID: gs.playersByEntityID,
 		playersByUserID:   gs.playersByUserID,
 	}
@@ -165,18 +165,21 @@ func (gs gameState) Participants() Participants {
 // participantsRaw returns the internal user-ID-keyed player map for direct
 // iteration by parser internals that neither need snapshot semantics nor a
 // deterministic order. Not part of the public API.
-func (gs gameState) participantsRaw() map[int]*common.Player {
+func (gs *GameState) participantsRaw() map[int]*common.Player {
 	return gs.playersByUserID
 }
 
 // Rules returns the GameRules for the current match.
 // Contains information like freeze time duration etc.
-func (gs gameState) Rules() GameRules {
-	return gs.rules
+//
+// The result is live: it reflects later changes (e.g. ConVars and the CCSGameRulesProxy entity
+// returned by Entity(), which only exists once its entity was created), so it may be kept around.
+func (gs *GameState) Rules() *GameRules {
+	return &gs.rules
 }
 
 // Hostages returns all current hostages.
-func (gs gameState) Hostages() []*common.Hostage {
+func (gs *GameState) Hostages() []*common.Hostage {
 	hostages := make([]*common.Hostage, 0, len(gs.hostages))
 	for _, hostage := range gs.hostages {
 		hostages = append(hostages, hostage)
@@ -192,7 +195,7 @@ func (gs gameState) Hostages() []*common.Hostage {
 //
 // Note: this is a map, so ranging it yields a non-deterministic order. For reproducible output sort
 // the values by entity-ID or GrenadeProjectile.UniqueID() (which is itself deterministic, see common.UniqueID) first.
-func (gs gameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
+func (gs *GameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 	return gs.grenadeProjectiles
 }
 
@@ -200,62 +203,60 @@ func (gs gameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 //
 // Note: this is a map, so ranging it yields a non-deterministic order. For reproducible output sort
 // the values by entity-ID or Inferno.UniqueID() (which is itself deterministic, see common.UniqueID) first.
-func (gs gameState) Infernos() map[int]*common.Inferno {
+func (gs *GameState) Infernos() map[int]*common.Inferno {
 	return gs.infernos
 }
 
 // Weapons returns a map from entity-IDs to all weapons currently in the game.
-func (gs gameState) Weapons() map[int]*common.Equipment {
+func (gs *GameState) Weapons() map[int]*common.Equipment {
 	return gs.weapons
 }
 
 // Entities returns all currently existing entities.
 // (Almost?) everything in the game is an entity, such as weapons, players, fire etc.
-func (gs gameState) Entities() map[int]st.Entity {
+func (gs *GameState) Entities() map[int]*st.Entity {
 	return gs.entities
 }
 
 // Bomb returns the current bomb state.
-func (gs gameState) Bomb() *common.Bomb {
+func (gs *GameState) Bomb() *common.Bomb {
 	return &gs.bomb
 }
 
 // TotalRoundsPlayed returns the amount of total rounds played according to CCSGameRulesProxy.
-func (gs gameState) TotalRoundsPlayed() int {
+func (gs *GameState) TotalRoundsPlayed() int {
 	return gs.totalRoundsPlayed
 }
 
 // GamePhase returns the game phase of the current game state. See common/gamerules.go for more.
-func (gs gameState) GamePhase() common.GamePhase {
+func (gs *GameState) GamePhase() common.GamePhase {
 	return gs.gamePhase
 }
 
 // IsWarmupPeriod returns whether the game is currently in warmup period according to CCSGameRulesProxy.
-func (gs gameState) IsWarmupPeriod() bool {
+func (gs *GameState) IsWarmupPeriod() bool {
 	return gs.isWarmupPeriod
 }
 
 // IsFreezetimePeriod returns whether the game is currently in freezetime period according to CCSGameRulesProxy.
-func (gs gameState) IsFreezetimePeriod() bool {
+func (gs *GameState) IsFreezetimePeriod() bool {
 	return gs.isFreezetime
 }
 
 // IsMatchStarted returns whether the match has started according to CCSGameRulesProxy.
-func (gs gameState) IsMatchStarted() bool {
+func (gs *GameState) IsMatchStarted() bool {
 	return gs.isMatchStarted
 }
 
 // OvertimeCount returns the number of overtime according to CCSGameRulesProxy.
-func (gs gameState) OvertimeCount() int {
+func (gs *GameState) OvertimeCount() int {
 	return gs.overtimeCount
 }
 
 // isEntityReplaced returns true if the entity was destroyed because a new entity was created at its index,
-// rather than being deleted (see sendtablescs2.Entity.Replaced()).
-func isEntityReplaced(entity st.Entity) bool {
-	replaceable, ok := entity.(interface{ Replaced() bool })
-
-	return ok && replaceable.Replaced()
+// rather than being deleted (see sendtables.Entity.Replaced()).
+func isEntityReplaced(entity *st.Entity) bool {
+	return entity != nil && entity.Replaced()
 }
 
 func entityIDFromHandle(handle uint64) int {
@@ -268,7 +269,7 @@ func entityIDFromHandle(handle uint64) int {
 
 // EntityByHandle returns the entity corresponding to the given handle.
 // Returns nil if the handle is invalid.
-func (gs gameState) EntityByHandle(handle uint64) st.Entity {
+func (gs *GameState) EntityByHandle(handle uint64) *st.Entity {
 	return gs.entities[entityIDFromHandle(handle)]
 }
 
@@ -280,7 +281,7 @@ func (gs gameState) EntityByHandle(handle uint64) st.Entity {
 //
 // Entries are only ever overwritten, never deleted: a weapon disappearing from the inventory
 // is exactly the case this cache exists for.
-func (gs *gameState) updateLastKnownGrenadeWeapons(pl *common.Player) {
+func (gs *GameState) updateLastKnownGrenadeWeapons(pl *common.Player) {
 	for _, wep := range pl.Inventory {
 		if wep.Class() != common.EqClassGrenade {
 			continue
@@ -298,13 +299,13 @@ func (gs *gameState) updateLastKnownGrenadeWeapons(pl *common.Player) {
 
 // lastKnownGrenadeWeapon returns the last weapon of the given grenade type that was seen
 // in the player's inventory, or nil if none was seen.
-func (gs *gameState) lastKnownGrenadeWeapon(pl *common.Player, wepType common.EquipmentType) *common.Equipment {
+func (gs *GameState) lastKnownGrenadeWeapon(pl *common.Player, wepType common.EquipmentType) *common.Equipment {
 	return gs.lastKnownGrenadeWeapons[pl][wepType]
 }
 
-func newGameState(demoInfo demoInfoProvider) *gameState {
-	gs := &gameState{
-		playerControllerEntities: make(map[int]st.Entity),
+func newGameState(demoInfo demoInfoProvider) *GameState {
+	gs := &GameState{
+		playerControllerEntities: make(map[int]*st.Entity),
 		playersByEntityID:        make(map[int]*common.Player),
 		playersByUserID:          make(map[int]*common.Player),
 		playersBySteamID32:       make(map[uint32]*common.Player),
@@ -314,14 +315,14 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 		infernoProjectiles:       make(map[int]*common.GrenadeProjectile),
 		weapons:                  make(map[int]*common.Equipment),
 		hostages:                 make(map[int]*common.Hostage),
-		entities:                 make(map[int]st.Entity),
+		entities:                 make(map[int]*st.Entity),
 		thrownGrenades:           make(map[*common.Player]map[common.EquipmentType][]*common.Equipment),
 		lastKnownGrenadeWeapons:  make(map[*common.Player]map[common.EquipmentType]*common.Equipment),
 		flyingFlashbangs:         make([]*FlyingFlashbang, 0),
 		lastFlash: lastFlash{
 			projectileByPlayer: make(map[*common.Player]*common.GrenadeProjectile),
 		},
-		rules: gameRules{
+		rules: GameRules{
 			conVars: make(map[string]string),
 		},
 		demoInfo: demoInfo,
@@ -335,16 +336,19 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 	return gs
 }
 
-type gameRules struct {
+// GameRules provides information about the rules of the current match, such as round, freeze and bomb time.
+//
+// It's obtained from GameState.Rules() and is always up-to-date; the zero value is not usable.
+type GameRules struct {
 	conVars map[string]string
-	entity  st.Entity
+	entity  *st.Entity
 }
 
 var ErrFailedToRetrieveGameRule = errors.New("failed to retrieve GameRule value, it's recommended to have a fallback to a default value for this scenario")
 
 // RoundTime returns how long rounds in the current match last for (excluding freeze time).
 // May return error if m_pGameRules.m_iRoundTime is not set.
-func (gr gameRules) RoundTime() (time.Duration, error) {
+func (gr *GameRules) RoundTime() (time.Duration, error) {
 	if gr.entity == nil {
 		return 0, ErrFailedToRetrieveGameRule
 	}
@@ -359,7 +363,7 @@ func (gr gameRules) RoundTime() (time.Duration, error) {
 
 // FreezeTime returns how long freeze time lasts for in the current match (mp_freezetime).
 // May return error if mp_freezetime cannot be converted to a time duration.
-func (gr gameRules) FreezeTime() (time.Duration, error) {
+func (gr *GameRules) FreezeTime() (time.Duration, error) {
 	t, err := strconv.Atoi(gr.conVars["mp_freezetime"])
 	if err != nil {
 		return 0, ErrFailedToRetrieveGameRule
@@ -368,9 +372,9 @@ func (gr gameRules) FreezeTime() (time.Duration, error) {
 	return time.Duration(t) * time.Second, nil
 }
 
-// BombTime returns how long freeze time lasts for in the current match (mp_freezetime).
+// BombTime returns how long it takes for a planted bomb to explode in the current match (mp_c4timer).
 // May return error if mp_c4timer cannot be converted to a time duration.
-func (gr gameRules) BombTime() (time.Duration, error) {
+func (gr *GameRules) BombTime() (time.Duration, error) {
 	t, err := strconv.Atoi(gr.conVars["mp_c4timer"])
 	if err != nil {
 		return 0, ErrFailedToRetrieveGameRule
@@ -382,20 +386,21 @@ func (gr gameRules) BombTime() (time.Duration, error) {
 // ConVars returns a map of CVar keys and values.
 // Not all values might be set.
 // See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
-func (gr gameRules) ConVars() map[string]string {
+func (gr *GameRules) ConVars() map[string]string {
 	return gr.conVars
 }
 
 // Entity returns the game's CCSGameRulesProxy entity.
-func (gr gameRules) Entity() st.Entity {
+func (gr *GameRules) Entity() *st.Entity {
 	return gr.entity
 }
 
-// participants provides helper functions on top of the currently connected players.
+// Participants provides helper functions on top of the currently connected players.
 // E.g. ByUserID(), ByEntityID(), TeamMembers(), etc.
 //
-// See GameState.Participants()
-type participants struct {
+// It's obtained from GameState.Participants() and holds references to the parser's internal player maps,
+// so it's always up-to-date. The zero value has no participants.
+type Participants struct {
 	playersByUserID   map[int]*common.Player // Maps user-IDs to players
 	playersByEntityID map[int]*common.Player // Maps entity-IDs to players
 }
@@ -403,7 +408,7 @@ type participants struct {
 // ByUserID returns all currently connected players in a map where the key is the user-ID.
 // The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
 // Includes spectators.
-func (ptcp participants) ByUserID() map[int]*common.Player {
+func (ptcp Participants) ByUserID() map[int]*common.Player {
 	res := make(map[int]*common.Player)
 
 	for k, v := range ptcp.playersByUserID {
@@ -420,7 +425,7 @@ func (ptcp participants) ByUserID() map[int]*common.Player {
 // ByEntityID returns all currently connected players in a map where the key is the entity-ID.
 // The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
 // Includes spectators.
-func (ptcp participants) ByEntityID() map[int]*common.Player {
+func (ptcp Participants) ByEntityID() map[int]*common.Player {
 	res := make(map[int]*common.Player)
 	for k, v := range ptcp.playersByEntityID {
 		res[k] = v
@@ -433,7 +438,7 @@ func (ptcp participants) ByEntityID() map[int]*common.Player {
 // in a map where the key is the user-ID.
 // The returned map is a snapshot and is not updated on changes (not a reference to the actual, underlying map).
 // Includes spectators.
-func (ptcp participants) AllByUserID() map[int]*common.Player {
+func (ptcp Participants) AllByUserID() map[int]*common.Player {
 	res := make(map[int]*common.Player)
 	for k, v := range ptcp.playersByUserID {
 		res[k] = v
@@ -444,7 +449,7 @@ func (ptcp participants) AllByUserID() map[int]*common.Player {
 
 // All returns all currently known players & spectators, including disconnected ones, of the demo.
 // The returned slice is a snapshot and is not updated on changes.
-func (ptcp participants) All() []*common.Player {
+func (ptcp Participants) All() []*common.Player {
 	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
 	for _, p := range ptcp.playersByUserID {
 		res = append(res, p)
@@ -471,7 +476,7 @@ func sortPlayers(players []*common.Player) {
 
 // Connected returns all currently connected players & spectators.
 // The returned slice is a snapshot and is not updated on changes.
-func (ptcp participants) Connected() []*common.Player {
+func (ptcp Participants) Connected() []*common.Player {
 	res, original := ptcp.initializeSliceFromByUserID()
 	for _, p := range original {
 		res = append(res, p)
@@ -484,7 +489,7 @@ func (ptcp participants) Connected() []*common.Player {
 
 // Playing returns all players that aren't spectating or unassigned.
 // The returned slice is a snapshot and is not updated on changes.
-func (ptcp participants) Playing() []*common.Player {
+func (ptcp Participants) Playing() []*common.Player {
 	res, original := ptcp.initializeSliceFromByUserID()
 	for _, p := range original {
 		if p.Team != common.TeamSpectators && p.Team != common.TeamUnassigned {
@@ -499,7 +504,7 @@ func (ptcp participants) Playing() []*common.Player {
 
 // TeamMembers returns all players belonging to the requested team at this time.
 // The returned slice is a snapshot and is not updated on changes.
-func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
+func (ptcp Participants) TeamMembers(team common.Team) []*common.Player {
 	res, original := ptcp.initializeSliceFromByUserID()
 	for _, p := range original {
 		if p.Team == team {
@@ -516,7 +521,7 @@ func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
 // This works only for Source 2 demos.
 //
 // Returns nil if not found.
-func (ptcp participants) FindByPawnHandle(handle uint64) *common.Player {
+func (ptcp Participants) FindByPawnHandle(handle uint64) *common.Player {
 	entityID := entityIDFromHandle(handle)
 
 	for _, player := range ptcp.All() {
@@ -538,11 +543,11 @@ func (ptcp participants) FindByPawnHandle(handle uint64) *common.Player {
 // The entity-handle is often used in entity-properties when referencing other entities such as a weapon's owner.
 //
 // Returns nil if not found or if handle == invalidEntityHandle (used when referencing no entity).
-func (ptcp participants) FindByHandle64(handle uint64) *common.Player {
+func (ptcp Participants) FindByHandle64(handle uint64) *common.Player {
 	return ptcp.playersByEntityID[entityIDFromHandle(handle)]
 }
 
-func (ptcp participants) initializeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {
+func (ptcp Participants) initializeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {
 	byUserID := ptcp.ByUserID()
 	return make([]*common.Player, 0, len(byUserID)), byUserID
 }
@@ -550,7 +555,7 @@ func (ptcp participants) initializeSliceFromByUserID() ([]*common.Player, map[in
 // SpottersOf returns a list of all players who have spotted the passed player.
 // This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
 // May not behave as expected with multiple spotters.
-func (ptcp participants) SpottersOf(spotted *common.Player) (spotters []*common.Player) {
+func (ptcp Participants) SpottersOf(spotted *common.Player) (spotters []*common.Player) {
 	for _, other := range ptcp.playersByUserID {
 		if spotted.IsSpottedBy(other) {
 			spotters = append(spotters, other)
@@ -563,7 +568,7 @@ func (ptcp participants) SpottersOf(spotted *common.Player) (spotters []*common.
 // SpottedBy returns a list of all players that the passed player has spotted.
 // This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
 // May not behave as expected with multiple spotters.
-func (ptcp participants) SpottedBy(spotter *common.Player) (spotted []*common.Player) {
+func (ptcp Participants) SpottedBy(spotter *common.Player) (spotted []*common.Player) {
 	for _, other := range ptcp.playersByUserID {
 		if other.Entity != nil && other.IsSpottedBy(spotter) {
 			spotted = append(spotted, other)

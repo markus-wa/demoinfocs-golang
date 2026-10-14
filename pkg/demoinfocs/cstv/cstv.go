@@ -35,6 +35,8 @@ var ErrUnexpectedStatus = errors.New("unexpected HTTP status")
 //
 // It stores the context.Context passed to NewReader() because io.Reader.Read() can't take one:
 // the context is used for all HTTP requests and backoff waits made while reading.
+//
+// A Reader must be created with NewReader(); the zero value is not usable.
 type Reader struct {
 	ctx     context.Context
 	client  *http.Client

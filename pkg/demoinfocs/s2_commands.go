@@ -15,7 +15,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
 
-func (p *parser) handleSendTables(msg *msg.CDemoSendTables) {
+func (p *Parser) handleSendTables(msg *msg.CDemoSendTables) {
 	if p.aborted() {
 		return
 	}
@@ -26,7 +26,7 @@ func (p *parser) handleSendTables(msg *msg.CDemoSendTables) {
 	}
 }
 
-func (p *parser) handleClassInfo(msg *msg.CDemoClassInfo) {
+func (p *Parser) handleClassInfo(msg *msg.CDemoClassInfo) {
 	if p.aborted() {
 		return
 	}
@@ -346,7 +346,7 @@ func msgCreatorForType(t int32) config.NetMessageCreator {
 }
 
 //nolint:funlen
-func (p *parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
+func (p *Parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
 	b := pack.GetData()
 
 	if len(b) == 0 {
@@ -412,7 +412,7 @@ func (p *parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
 	}
 }
 
-func (p *parser) handleFileInfo(msg *msg.CDemoFileInfo) {
+func (p *Parser) handleFileInfo(msg *msg.CDemoFileInfo) {
 	if p.aborted() {
 		return
 	}
@@ -448,7 +448,7 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 }
 
 //nolint:gocognit,nestif,funlen
-func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
+func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 	if p.config.UserCmdParsing == config.UserCmdParsingDisabled {
 		return
 	}
@@ -574,7 +574,7 @@ func (p *parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 	}
 }
 
-func (p *parser) handleDemoFileHeader(msg *msg.CDemoFileHeader) {
+func (p *Parser) handleDemoFileHeader(msg *msg.CDemoFileHeader) {
 	if p.aborted() {
 		return
 	}

@@ -42,7 +42,6 @@ See [broadcast example for live CSTV+ parsing](https://github.com/markus-wa/demo
 - [Development](https://github.com/markus-wa/demoinfocs-golang#development)
   - [Debugging](https://github.com/markus-wa/demoinfocs-golang#debugging)
   - [Testing](https://github.com/markus-wa/demoinfocs-golang#testing)
-  - [Generating Interfaces](https://github.com/markus-wa/demoinfocs-golang#generating-interfaces)
   - [Generating Protobuf Code](https://github.com/markus-wa/demoinfocs-golang#generating-protobuf-code)
   - [Git Hooks](https://github.com/markus-wa/demoinfocs-golang#git-hooks)
 - [Acknowledgements](https://github.com/markus-wa/demoinfocs-golang#acknowledgements)
@@ -81,10 +80,11 @@ Check out the [godoc of the `events` package]([https://godoc.org/github.com/mark
 package main
 
 import (
+	"context"
 	"log"
 
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
-	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
+	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 )
 
 func onKill(kill events.Kill) {
@@ -102,7 +102,7 @@ func onKill(kill events.Kill) {
 }
 
 func main() {
-	err := demoinfocs.ParseFile("/path/to/demo.dem", func(p demoinfocs.Parser) error {
+	err := demoinfocs.ParseFile(context.Background(), "/path/to/demo.dem", func(p *demoinfocs.Parser) error {
 		p.RegisterEventHandler(onKill)
 
 		return nil
@@ -143,7 +143,7 @@ The full API documentation is available here on [pkg.go.dev](https://pkg.go.dev/
 * Game events (kills, shots, round starts/ends, footsteps etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events?tab=doc) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/print-events)
 * Tracking of game-state (players, teams, grenades, ConVars etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs?tab=doc#GameState)
 * Grenade projectiles / trajectories - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs?tab=doc#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/nade-trajectories)
-* Access to entities, server-classes & data-tables - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables?tab=doc#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/entities)
+* Access to entities, server-classes & data-tables - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables?tab=doc#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/entities)
 * Access to all net-messages - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs?tab=doc#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/net-messages)
 * Chat & console messages <sup id="achat1">1</sup> - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events?tab=doc#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/print-events)
 * Matchmaking ranks (official MM demos only) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events?tab=doc#RankUpdate)
@@ -279,14 +279,6 @@ To update it you can run the following command:
 
 Please don't update the `.golden` file if you are not sure it's required. Maybe the failing CI is just pointing out a regression.
 
-### Generating Interfaces
-
-We generate interfaces such as `GameState` from structs to make it easier to keep docs in synch over structs and interfaces.
-For this we use [@vburenin](https://github.com/vburenin)'s [`ifacemaker`](https://github.com/vburenin/ifacemaker) tool.
-
-You can download the latest version [here](https://github.com/vburenin/ifacemaker/releases).
-After adding it to your `PATH` you can use `scripts/generate-interfaces.sh` to update interfaces.
-
 ### Generating Protobuf Code
 
 Should you need to re-generate the protobuf generated code in the `msg` package, you will need the following tools:
@@ -306,7 +298,6 @@ To install some (optional, but quite handy) `pre-commit` and `pre-push` hooks, y
     scripts/git-hooks/link-git-hooks.sh
 
 #### `pre-commit`:
-- check if [interfaces have been updated](#generating-interfaces)
 - build the code
 - run unit tests
 

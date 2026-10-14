@@ -26,7 +26,7 @@ const (
 // GrenadeProjectile is a grenade thrown intentionally by a player. It is used to track grenade projectile
 // positions between the time at which they are thrown and until they detonate.
 type GrenadeProjectile struct {
-	Entity         st.Entity
+	Entity         *st.Entity
 	WeaponInstance *Equipment
 	Thrower        *Player // Always seems to be the same as Owner, even if the grenade was picked up
 	Owner          *Player // Always seems to be the same as Thrower, even if the grenade was picked up
@@ -42,7 +42,7 @@ func (g *GrenadeProjectile) Position() r3.Vector {
 	return g.Entity.Position()
 }
 
-func getVelocityComponent(entity st.Entity, component string) (float32, bool) {
+func getVelocityComponent(entity *st.Entity, component string) (float32, bool) {
 	if v, ok := getFloatIfExists(entity, "m_vecVelocity."+component); ok {
 		return v, true
 	}
@@ -116,7 +116,7 @@ type TeamState struct {
 	membersCallback  func(Team) []*Player
 	demoInfoProvider demoInfoProvider
 
-	Entity st.Entity
+	Entity *st.Entity
 
 	// Terrorist TeamState for CTs, CT TeamState for Terrorists
 	Opponent *TeamState

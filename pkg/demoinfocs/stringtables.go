@@ -26,7 +26,7 @@ const (
 // updatePlayerFromRawIfExists applies raw player info (userinfo string table) to the player bound to
 // the slot's controller, if the info belongs to it. Raw info only maps the player to its user-ID -
 // name and SteamID64 come from the controller (see getOrCreatePlayerFromControllerEntity).
-func (p *parser) updatePlayerFromRawIfExists(index int) {
+func (p *Parser) updatePlayerFromRawIfExists(index int) {
 	pl := p.gameState.playersByEntityID[index+1]
 	if pl == nil || pl.Entity == nil {
 		return
@@ -49,7 +49,7 @@ func (p *parser) updatePlayerFromRawIfExists(index int) {
 // setRawPlayer stores raw player info for a slot (or a legacy user-ID, see playerConnect) and
 // dispatches PlayerInfo - only if the info actually changed, as the GOTV proxy & periodic
 // CDemoStringTables dumps re-send identical info.
-func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
+func (p *Parser) setRawPlayer(index int, player common.PlayerInfo) {
 	existing := p.rawPlayers[index]
 
 	if player.UserID == math.MaxUint16 && existing != nil {
@@ -70,7 +70,7 @@ func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
 	})
 }
 
-func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
+func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 	if p.aborted() {
 		return
 	}
@@ -106,7 +106,7 @@ func (p *parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 	}
 }
 
-func (p *parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	if p.aborted() {
 		return
 	}
@@ -143,7 +143,7 @@ const (
 // Parse a string table data blob, returning a list of item updates.
 //
 //nolint:funlen,gocognit
-func (p *parser) parseStringTable(
+func (p *Parser) parseStringTable(
 	buf []byte,
 	numUpdates int32,
 	name string,
@@ -279,7 +279,7 @@ func (p *parser) parseStringTable(
 
 var instanceBaselineKeyRegex = regexp.MustCompile(`^\d+:\d+$`)
 
-func (p *parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	if tab.GetName() == stNameModelPreCache {
 		for i := len(p.modelPreCache); i < int(tab.GetNumEntries()); i++ {
 			p.modelPreCache = append(p.modelPreCache, "")
@@ -332,7 +332,7 @@ var modelPreCacheSubstringToEq = map[string]common.EquipmentType{
 	// @micvbang TODO: add all other weapons too.
 }
 
-func (p *parser) processModelPreCacheUpdate() {
+func (p *Parser) processModelPreCacheUpdate() {
 	for i, name := range p.modelPreCache {
 		for eqName, eq := range modelPreCacheSubstringToEq {
 			if strings.Contains(name, eqName) {
@@ -346,7 +346,7 @@ func (p *parser) processModelPreCacheUpdate() {
 // These appear to be periodic state dumps and appear every 1800 outer ticks.
 // XXX TODO: decide if we want to at all integrate these updates,
 // or trust create/update entirely. Let's ignore them for now.
-func (p *parser) handleStringTables(msg *msg.CDemoStringTables) {
+func (p *Parser) handleStringTables(msg *msg.CDemoStringTables) {
 	if p.aborted() {
 		return
 	}
@@ -386,7 +386,7 @@ func (p *parser) handleStringTables(msg *msg.CDemoStringTables) {
 // when parsing broadcasts from mid-match, see #655). Stale entries - the GOTV proxy keeps the
 // pre-reconnect info for re-used slots (#692) - can't affect players' names or SteamIDs, as those
 // come from the player controller.
-func (p *parser) parseUserInfo(data []byte, playerIndex int) {
+func (p *Parser) parseUserInfo(data []byte, playerIndex int) {
 	var userInfo msg.CMsgPlayerInfo
 
 	err := proto.Unmarshal(data, &userInfo)

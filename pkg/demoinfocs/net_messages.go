@@ -15,7 +15,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
-func (p *parser) onEntity(e sendtables.Entity, op sendtables.EntityOp) error {
+func (p *Parser) onEntity(e *sendtables.Entity, op sendtables.EntityOp) error {
 	if op&sendtables.EntityOpCreated > 0 {
 		p.gameState.entities[e.ID()] = e
 	} else if op&sendtables.EntityOpDeleted > 0 {
@@ -25,7 +25,7 @@ func (p *parser) onEntity(e sendtables.Entity, op sendtables.EntityOp) error {
 	return nil
 }
 
-func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
+func (p *Parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 	if p.aborted() {
 		return
 	}
@@ -41,7 +41,7 @@ func (p *parser) handleSetConVar(setConVar *msg.CNETMsg_SetConVar) {
 	})
 }
 
-func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
+func (p *Parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
 	if p.aborted() {
 		return
 	}
@@ -55,7 +55,7 @@ func (p *parser) handleServerInfo(srvInfo *msg.CSVCMsg_ServerInfo) {
 	})
 }
 
-func (p *parser) handleMessageSayText(msg *msg.CUserMessageSayText) {
+func (p *Parser) handleMessageSayText(msg *msg.CUserMessageSayText) {
 	if p.aborted() {
 		return
 	}
@@ -68,7 +68,7 @@ func (p *parser) handleMessageSayText(msg *msg.CUserMessageSayText) {
 	})
 }
 
-func (p *parser) handleMessageSayText2(msg *msg.CUserMessageSayText2) {
+func (p *Parser) handleMessageSayText2(msg *msg.CUserMessageSayText2) {
 	if p.aborted() {
 		return
 	}
@@ -110,7 +110,7 @@ func (p *parser) handleMessageSayText2(msg *msg.CUserMessageSayText2) {
 	}
 }
 
-func (p *parser) handleServerRankUpdate(msg *msg.CCSUsrMsg_ServerRankUpdate) {
+func (p *Parser) handleServerRankUpdate(msg *msg.CCSUsrMsg_ServerRankUpdate) {
 	if p.aborted() {
 		return
 	}
@@ -146,7 +146,7 @@ const encryptedNetMessageKeyType = 2
 // payload bytes. ok is false if the message could not be decrypted, in which
 // case a ParserWarn has been dispatched and the reader is nil.
 // The caller is responsible for pooling the returned reader.
-func (p *parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.BitReader, nBytesWritten int, ok bool) {
+func (p *Parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.BitReader, nBytesWritten int, ok bool) {
 	if keyType != encryptedNetMessageKeyType {
 		return nil, 0, false
 	}
@@ -209,7 +209,7 @@ func (p *parser) decryptNetMessage(keyType int32, encrypted []byte) (br *bit.Bit
 //
 // Anything that doesn't decode (most likely a wrong option.NetMessageDecryptionKey() key)
 // is reported as a ParserWarn and skipped - it never aborts parsing.
-func (p *parser) handleEncryptedData(m *msg.CSVCMsg_EncryptedData) {
+func (p *Parser) handleEncryptedData(m *msg.CSVCMsg_EncryptedData) {
 	br, nBytesWritten, ok := p.decryptNetMessage(m.GetKeyType(), m.GetEncrypted())
 	if !ok {
 		return
@@ -270,7 +270,7 @@ func readEncryptedInnerHeader(br *bit.BitReader, totalBits int) (t int32, size i
 	return t, size, true
 }
 
-func (p *parser) warnCantReadEncryptedNetMessage(message string) {
+func (p *Parser) warnCantReadEncryptedNetMessage(message string) {
 	p.eventDispatcher.Dispatch(events.ParserWarn{
 		Message: message,
 		Type:    events.WarnTypeCantReadEncryptedNetMessage,

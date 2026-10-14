@@ -11,18 +11,17 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stfake"
 	msg "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/fake"
 )
 
 // See #90
 func TestRoundEnd_LoserState_Score(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	p.disableMimicSource1GameEvents = true
 
-	p.gameState.tState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{Any: 1})
-	p.gameState.ctState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{Any: 2})
+	p.gameState.tState.Entity = stfake.NewEntity(1, stfake.P("m_scoreTotal", int32(1)))
+	p.gameState.ctState.Entity = stfake.NewEntity(2, stfake.P("m_scoreTotal", int32(2)))
 	eventOccurred := 0
 
 	p.RegisterEventHandler(func(e events.RoundEnd) {
@@ -108,7 +107,7 @@ func TestGetPlayerWeapon_OriginalString_NonKnife(t *testing.T) {
 }
 
 func TestAddThrownGrenade_NilPlayer(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
 
 	assert.Empty(t, p.gameState.thrownGrenades)
@@ -119,7 +118,7 @@ func TestAddThrownGrenade_NilPlayer(t *testing.T) {
 }
 
 func TestAddThrownGrenade(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
 
@@ -133,7 +132,7 @@ func TestAddThrownGrenade(t *testing.T) {
 }
 
 func TestGetThrownGrenade_NilPlayer(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
 
 	wep := p.gameEventHandler.getThrownGrenade(nil, he.Type)
@@ -142,7 +141,7 @@ func TestGetThrownGrenade_NilPlayer(t *testing.T) {
 }
 
 func TestGetThrownGrenade_NotFound(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 
 	he := common.NewEquipment(common.EqSmoke, common.UniqueID(1))
@@ -153,7 +152,7 @@ func TestGetThrownGrenade_NotFound(t *testing.T) {
 }
 
 func TestGetThrownGrenade_Found(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
 
@@ -167,7 +166,7 @@ func TestGetThrownGrenade_Found(t *testing.T) {
 // TestGetThrownGrenade_CircularControlledBot verifies that getThrownGrenade doesn't
 // infinitely recurse when ControlledBot() creates a circular reference between two players (see #620).
 func TestGetThrownGrenade_CircularControlledBot(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	provider := demoInfoProvider{parser: p}
 
 	playerA := common.NewPlayer(provider)
@@ -182,8 +181,8 @@ func TestGetThrownGrenade_CircularControlledBot(t *testing.T) {
 	// Create circular bot references: playerA.ControlledBot() returns playerB and vice versa.
 	// ControlledBot() reads "m_hOriginalControllerOfCurrentPawn" from the entity and calls
 	// FindPlayerByHandle. entityIDFromHandle(2) == 2, entityIDFromHandle(1) == 1.
-	playerA.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(2)})
-	playerB.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(1)})
+	playerA.Entity = stfake.NewEntity(1, stfake.P("m_hOriginalControllerOfCurrentPawn", uint64(2)))
+	playerB.Entity = stfake.NewEntity(2, stfake.P("m_hOriginalControllerOfCurrentPawn", uint64(1)))
 
 	smoke := common.NewEquipment(common.EqSmoke, common.UniqueID(1))
 	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
@@ -204,7 +203,7 @@ func TestGetThrownGrenade_CircularControlledBot(t *testing.T) {
 }
 
 func TestDeleteThrownGrenade_NilPlayer(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
 
 	// Do nothing, we just keep sure it doesn't crash
@@ -212,7 +211,7 @@ func TestDeleteThrownGrenade_NilPlayer(t *testing.T) {
 }
 
 func TestDeleteThrownGrenade_NotFound(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
 
@@ -228,7 +227,7 @@ func TestDeleteThrownGrenade_NotFound(t *testing.T) {
 }
 
 func TestDeleteThrownGrenade_Found(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
 
@@ -246,7 +245,7 @@ func TestDeleteThrownGrenade_Found(t *testing.T) {
 // Without a known grenade the most recently thrown one of the type is resolved and deleted - grenades that
 // already detonated may still be in the list (e.g. an HE projectile lingers after the explosion).
 func TestThrownGrenade_MostRecentFirst(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	he1 := common.NewEquipment(common.EqHE, common.UniqueID(1))
 	he2 := common.NewEquipment(common.EqHE, common.UniqueID(2))
@@ -263,7 +262,7 @@ func TestThrownGrenade_MostRecentFirst(t *testing.T) {
 
 // A known grenade is removed exactly, regardless of its position in the list.
 func TestRemoveThrownGrenade(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	smoke1 := common.NewEquipment(common.EqSmoke, common.UniqueID(1))
 	smoke2 := common.NewEquipment(common.EqSmoke, common.UniqueID(2))
@@ -291,7 +290,7 @@ func TestRemoveThrownGrenade(t *testing.T) {
 // The grenade is removed even if it was stored for a different player than the one an event reports
 // (e.g. the projectile's thrower changed or the event has no thrower).
 func TestRemoveThrownGrenade_StoredForOtherPlayer(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	thrower := &common.Player{Name: "thrower"}
 	other := &common.Player{Name: "other"}
 	smokeOther := common.NewEquipment(common.EqSmoke, common.UniqueID(1))
@@ -308,7 +307,7 @@ func TestRemoveThrownGrenade_StoredForOtherPlayer(t *testing.T) {
 
 // An expired inferno removes the grenade of the projectile it's linked to, even without a known thrower.
 func TestInfernoExpired_RemovesLinkedProjectilesGrenade(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	molotov1 := common.NewEquipment(common.EqMolotov, common.UniqueID(1))
 	molotov2 := common.NewEquipment(common.EqMolotov, common.UniqueID(2))
@@ -318,8 +317,7 @@ func TestInfernoExpired_RemovesLinkedProjectilesGrenade(t *testing.T) {
 
 	const infernoID = 77
 
-	infEntity := new(stfake.Entity)
-	infEntity.On("ID").Return(infernoID)
+	infEntity := stfake.NewEntity(infernoID)
 
 	inf := common.NewInferno(p.demoInfoProvider, infEntity, nil, common.UniqueID(3))
 	p.gameState.infernos[infernoID] = inf
@@ -340,7 +338,7 @@ func TestInfernoExpired_RemovesLinkedProjectilesGrenade(t *testing.T) {
 
 // Grenades thrown while controlling a bot are stored for the bot and deleted from there.
 func TestDeleteThrownGrenade_ControlledBot(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	provider := demoInfoProvider{parser: p}
 
 	human := common.NewPlayer(provider)
@@ -349,8 +347,8 @@ func TestDeleteThrownGrenade_ControlledBot(t *testing.T) {
 	bot.SteamID64 = 0
 
 	p.gameState.playersByEntityID[2] = bot
-	human.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(2)})
-	bot.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(constants.InvalidEntityHandleSource2)})
+	human.Entity = stfake.NewEntity(1, stfake.P("m_hOriginalControllerOfCurrentPawn", uint64(2)))
+	bot.Entity = stfake.NewEntity(2, stfake.P("m_hOriginalControllerOfCurrentPawn", uint64(constants.InvalidEntityHandleSource2)))
 
 	smoke := common.NewEquipment(common.EqSmoke, common.UniqueID(1))
 	p.gameEventHandler.addThrownGrenade(bot, smoke)
@@ -364,7 +362,7 @@ func TestDeleteThrownGrenade_ControlledBot(t *testing.T) {
 
 // Molotovs may be reported as incendiaries and vice versa (e.g. by InfernoExpired), deleting must handle that too.
 func TestDeleteThrownGrenade_MolotovReportedAsIncendiary(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	molotov := common.NewEquipment(common.EqMolotov, common.UniqueID(1))
 
@@ -375,7 +373,7 @@ func TestDeleteThrownGrenade_MolotovReportedAsIncendiary(t *testing.T) {
 }
 
 func TestGetEquipmentInstance_NotGrenade(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 
 	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqAK47, "")
@@ -384,7 +382,7 @@ func TestGetEquipmentInstance_NotGrenade(t *testing.T) {
 }
 
 func TestGetEquipmentInstance_Grenade_NotThrown(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 
 	wep := p.gameEventHandler.getEquipmentInstance(pl, common.EqSmoke, "")
@@ -393,7 +391,7 @@ func TestGetEquipmentInstance_Grenade_NotThrown(t *testing.T) {
 }
 
 func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
 
@@ -404,7 +402,7 @@ func TestGetEquipmentInstance_Grenade_Thrown(t *testing.T) {
 }
 
 func TestAttackerWeaponType_UnknownStaysUnknownWithoutContext(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	p.currentFrame = 24
 
 	wepType := p.gameEventHandler.attackerWeaponType(common.EqUnknown, 123)
@@ -413,7 +411,7 @@ func TestAttackerWeaponType_UnknownStaysUnknownWithoutContext(t *testing.T) {
 }
 
 func TestAttackerWeaponType_FallDamageWins(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	p.currentFrame = 36
 	p.gameEventHandler.userIDToFallDamageFrame[123] = p.currentFrame
 
@@ -423,7 +421,7 @@ func TestAttackerWeaponType_FallDamageWins(t *testing.T) {
 }
 
 func TestAttackerWeaponType_RoundEndReasonTargetBombedWins(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	p.currentFrame = 48
 	p.gameEventHandler.frameToRoundEndReason[p.currentFrame] = events.RoundEndReasonTargetBombed
 
@@ -433,7 +431,7 @@ func TestAttackerWeaponType_RoundEndReasonTargetBombedWins(t *testing.T) {
 }
 
 func TestPlayerHurt_UnknownWeaponDefaultsToWorld(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	p.currentFrame = 60
 
 	var got []events.PlayerHurt
@@ -449,7 +447,7 @@ func TestPlayerHurt_UnknownWeaponDefaultsToWorld(t *testing.T) {
 }
 
 func TestPlayerHurt_UnknownWeaponUsesBombWhenBombExplodedThisFrame(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	p.currentFrame = 72
 	p.gameEventHandler.frameToBombExploded[p.currentFrame] = true
 
@@ -466,7 +464,7 @@ func TestPlayerHurt_UnknownWeaponUsesBombWhenBombExplodedThisFrame(t *testing.T)
 }
 
 func TestPlayerHurt_KnownWeaponDispatchesImmediately(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	p.currentFrame = 84
 
 	var got []events.PlayerHurt
@@ -482,14 +480,15 @@ func TestPlayerHurt_KnownWeaponDispatchesImmediately(t *testing.T) {
 }
 
 // newPlayerWithPawnHealth registers a victim whose pawn reports the given (start-of-tick) health.
-func newPlayerWithPawnHealth(p *parser, userID int, health int) *common.Player {
+func newPlayerWithPawnHealth(p *Parser, userID int, health int) *common.Player {
 	const pawnHandle = 7
 
-	controller := new(stfake.Entity)
-	controller.On("PropertyValue", "m_hPawn").Return(st.PropertyValue{Any: uint64(pawnHandle)}, true)
-	controller.On("PropertyValue", "m_hPlayerPawn").Return(st.PropertyValue{Any: uint64(pawnHandle)}, true)
+	controller := stfake.NewEntity(1,
+		stfake.P("m_hPawn", uint64(pawnHandle)),
+		stfake.P("m_hPlayerPawn", uint64(pawnHandle)),
+	)
 
-	p.gameState.entities[pawnHandle] = stfake.NewEntityWithProperty("m_iHealth", st.PropertyValue{Any: int32(health)})
+	p.gameState.entities[pawnHandle] = stfake.NewEntity(pawnHandle, stfake.P("m_iHealth", int32(health)))
 
 	victim := common.NewPlayer(demoInfoProvider{parser: p})
 	victim.Entity = controller
@@ -500,7 +499,7 @@ func newPlayerWithPawnHealth(p *parser, userID int, health int) *common.Player {
 }
 
 func TestPlayerHurt_HealthDamageTakenIsHealthDrop(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	p.gameState.ingameTick = 5000
 
 	victim := newPlayerWithPawnHealth(p, 42, 100)
@@ -524,7 +523,7 @@ func TestPlayerHurt_HealthDamageTakenIsHealthDrop(t *testing.T) {
 }
 
 func TestPlayerHurt_SameTickHitsMeasuredFromPriorHitHealth(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	p.currentFrame = 100
 	p.gameState.ingameTick = 5000
 
@@ -593,17 +592,17 @@ func TestGetCommunityId(t *testing.T) {
 }
 
 func TestEntityKilled_DispatchesOtherDeathForNonPlayerEntity(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 
-	killed := new(stfake.Entity)
-	killed.On("ID").Return(5)
-	killed.On("ServerClass").Return(serverClassStub{name: "CDynamicProp"})
-	killed.On("Position").Return(r3.Vector{X: 1, Y: 2, Z: 3})
+	killed := stfake.New(stfake.Spec{
+		Class: "CDynamicProp",
+		ID:    5,
+		Props: []stfake.Prop{stfake.Pos(r3.Vector{X: 1, Y: 2, Z: 3})},
+	})
 
 	p.gameState.entities[5] = killed
 
-	inflictor := new(stfake.Entity)
-	inflictor.On("ServerClass").Return(serverClassStub{name: "CInferno"})
+	inflictor := stfake.New(stfake.Spec{Class: "CInferno", ID: 12})
 
 	p.gameState.entities[12] = inflictor
 
@@ -626,11 +625,10 @@ func TestEntityKilled_DispatchesOtherDeathForNonPlayerEntity(t *testing.T) {
 }
 
 func TestEntityKilled_SkipsPlayerPawns(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 
 	for _, className := range []string{"CCSPlayerPawn", "CCSPlayerPawnBase"} {
-		killed := new(stfake.Entity)
-		killed.On("ServerClass").Return(serverClassStub{name: className})
+		killed := stfake.New(stfake.Spec{Class: className, ID: 5})
 
 		p.gameState.entities[5] = killed
 
@@ -650,7 +648,7 @@ func TestEntityKilled_SkipsPlayerPawns(t *testing.T) {
 }
 
 func TestEntityKilled_UnknownEntityIsSkipped(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 
 	var got []events.OtherDeath
 	p.RegisterEventHandler(func(e events.OtherDeath) {
@@ -664,15 +662,6 @@ func TestEntityKilled_UnknownEntityIsSkipped(t *testing.T) {
 	})
 
 	assert.Empty(t, got)
-}
-
-type serverClassStub struct {
-	st.ServerClass
-	name string
-}
-
-func (s serverClassStub) Name() string {
-	return s.name
 }
 
 func TestGetCommunityId_BOT(t *testing.T) {

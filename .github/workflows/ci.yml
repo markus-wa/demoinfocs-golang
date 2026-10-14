@@ -51,18 +51,12 @@ jobs:
           # install 7zip for decompressing test demos
           sudo apt-get install -y p7zip-full
 
-          # Install interface generator
-          go install github.com/vburenin/ifacemaker@v1.2.1
-
           # Fetch refs for linter
           git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
           git fetch
 
       - name: Build
         run: scripts/build.sh
-
-      - name: Check Generated Code
-        run: scripts/check-interfaces-generated.sh
 
       - name: Lint Changed Code
         run: scripts/lint-changes.sh

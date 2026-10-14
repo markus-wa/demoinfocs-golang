@@ -57,7 +57,7 @@ func main() {
 	checkError(err)
 }
 
-func registerHandlers(p demoinfocs.Parser) {
+func registerHandlers(p *demoinfocs.Parser) {
 	p.RegisterNetMessageHandler(func(m *msg.CDemoFileHeader) {
 		fmt.Println("Map:", m.GetMapName())
 	})

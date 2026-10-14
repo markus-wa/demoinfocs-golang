@@ -314,7 +314,7 @@ type Equipment struct {
 	// For the WeaponInstance of a thrown grenade this may be an entity that was just
 	// destroyed: CS2 removes the weapon from the thrower's inventory before the projectile
 	// entity is fully created, in which case the last known entity is used.
-	Entity st.Entity
+	Entity *st.Entity
 	Owner  *Player // The player carrying the equipment, not necessarily the buyer.
 	// Holds the original string of the weapon / equipment.
 	// E.g. the raw weapon name as provided by game events like 'knife_karambit' or 'ak47'.

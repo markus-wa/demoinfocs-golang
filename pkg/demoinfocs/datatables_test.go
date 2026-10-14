@@ -1,17 +1,17 @@
 package demoinfocs
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stfake"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/fake"
 )
 
 type DevNullReader struct {
@@ -21,18 +21,15 @@ func (DevNullReader) Read(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func newParser() *parser {
-	p := NewParser(new(DevNullReader)).(*parser)
+func newParser() *Parser {
+	p := NewParser(new(DevNullReader))
 	p.header = &header{}
 
 	return p
 }
 
-func fakePlayerEntity(id int) *stfake.Entity {
-	entity := new(stfake.Entity)
-	configurePlayerEntityMock(id, entity)
-
-	return entity
+func fakePlayerEntity(id int) *st.Entity {
+	return stfake.NewEntity(id)
 }
 
 func TestParser_GetClosestBombsiteFromPosition(t *testing.T) {
@@ -53,31 +50,13 @@ func TestParser_GetClosestBombsiteFromPosition(t *testing.T) {
 	assert.Equal(t, events.BombsiteB, site)
 }
 
-func configurePlayerEntityMock(id int, entity *stfake.Entity) {
-	entity.On("ID").Return(id)
-
-	var destroyCallback func()
-	entity.On("OnDestroy", mock.Anything).Run(func(args mock.Arguments) {
-		destroyCallback = args.Get(0).(func())
-	})
-
-	entity.On("OnPositionUpdate", mock.Anything).Return()
-	prop := new(stfake.Property)
-	prop.On("OnUpdate", mock.Anything).Return()
-	entity.On("Property", mock.Anything).Return(prop)
-	entity.On("BindProperty", mock.Anything, mock.Anything, mock.Anything)
-	entity.On("Destroy").Run(func(mock.Arguments) {
-		destroyCallback()
-	})
-}
-
 // TestBindBomb_NilEntityChecks tests that bindBomb handles nil entities gracefully
 // when processing m_bStartedArming updates. This prevents nil pointer dereference
 // panics that can occur when pawn or controller entities are not yet created.
 func TestBindBomb_NilEntityChecks(t *testing.T) {
 	t.Run("nil pawn entity should not panic", func(t *testing.T) {
 		p := newParser()
-		p.gameState.entities = make(map[int]st.Entity)
+		p.gameState.entities = make(map[int]*st.Entity)
 
 		// Simulate the scenario where pawnEntity lookup returns nil
 		// entityIDFromHandle with a valid handle but no entity in the map
@@ -91,12 +70,11 @@ func TestBindBomb_NilEntityChecks(t *testing.T) {
 
 	t.Run("nil controller entity should not panic", func(t *testing.T) {
 		p := newParser()
-		p.gameState.entities = make(map[int]st.Entity)
+		p.gameState.entities = make(map[int]*st.Entity)
 
 		// Add pawn entity but not controller entity
-		pawnEntity := new(stfake.Entity)
 		ctlHandle := uint64(0x12345678) // Some handle value
-		pawnEntity.On("PropertyValueMust", "m_hController").Return(st.PropertyValue{Any: ctlHandle})
+		pawnEntity := stfake.NewEntity(10, stfake.P("m_hController", ctlHandle))
 		p.gameState.entities[10] = pawnEntity
 
 		// Controller entity lookup should return nil
@@ -107,17 +85,15 @@ func TestBindBomb_NilEntityChecks(t *testing.T) {
 
 	t.Run("nil player should not panic", func(t *testing.T) {
 		p := newParser()
-		p.gameState.entities = make(map[int]st.Entity)
+		p.gameState.entities = make(map[int]*st.Entity)
 		p.gameState.playersByEntityID = make(map[int]*common.Player)
 
 		// Add pawn entity and controller entity but not player
-		pawnEntity := new(stfake.Entity)
 		ctlHandle := uint64(0x00000014) // Handle that maps to entity ID 20
-		pawnEntity.On("PropertyValueMust", "m_hController").Return(st.PropertyValue{Any: ctlHandle})
+		pawnEntity := stfake.NewEntity(10, stfake.P("m_hController", ctlHandle))
 		p.gameState.entities[10] = pawnEntity
 
-		ctlEntity := new(stfake.Entity)
-		ctlEntity.On("ID").Return(20)
+		ctlEntity := stfake.NewEntity(20)
 		p.gameState.entities[20] = ctlEntity
 
 		// Player lookup should return nil
@@ -126,87 +102,47 @@ func TestBindBomb_NilEntityChecks(t *testing.T) {
 	})
 }
 
-type fakeServerClass struct {
-	st.ServerClass
-	onCreated []st.EntityCreatedHandler
-}
-
-func (sc *fakeServerClass) OnEntityCreated(handler st.EntityCreatedHandler) {
-	sc.onCreated = append(sc.onCreated, handler)
-}
-
-type fakeServerClasses map[string]*fakeServerClass
-
-func (scs fakeServerClasses) All() []st.ServerClass {
-	return nil
-}
-
-func (scs fakeServerClasses) FindByName(name string) st.ServerClass {
-	if scs[name] == nil {
-		scs[name] = new(fakeServerClass)
-	}
-
-	return scs[name]
-}
-
-type fakeSendTableParser struct {
-	sendTableParser
-	serverClasses fakeServerClasses
-}
-
-func (p fakeSendTableParser) ServerClasses() st.ServerClasses {
-	return p.serverClasses
-}
-
-func newBombTestParser() (*parser, fakeServerClasses) {
+func newBombTestParser() (*Parser, *st.Parser) {
 	p := newParser()
-	serverClasses := make(fakeServerClasses)
-	p.stParser = fakeSendTableParser{serverClasses: serverClasses}
+	stParser := stfake.NewParser("CC4", "CPlantedC4")
+	p.stParser = stParser
 	p.bindBomb()
 
-	return p, serverClasses
+	return p, stParser
 }
 
 // createFakePlantedC4 creates a planted bomb entity and returns a function to update its properties.
-// Properties not listed in props are missing from the entity.
-func createFakePlantedC4(serverClasses fakeServerClasses, props ...string) func(name string, val any) {
-	handlers := make(map[string]st.PropertyUpdateHandler)
-
-	entity := new(stfake.Entity)
-	entity.On("Position").Return(r3.Vector{})
-	entity.On("PropertyValueMust", "m_hOwnerEntity").Return(st.PropertyValue{})
-	entity.On("PropertyValueMust", "m_nBombSite").Return(st.PropertyValue{})
-	entity.On("OnDestroy", mock.Anything)
+// Properties not listed in props are missing from the entity, the listed ones have no value yet.
+func createFakePlantedC4(stParser *st.Parser, props ...string) func(name string, val any) {
+	entityProps := make([]stfake.Prop, 0, 2+len(props))
+	entityProps = append(entityProps, stfake.P("m_hOwnerEntity", nil), stfake.P("m_nBombSite", nil))
 
 	for _, name := range props {
-		prop := new(stfake.Property)
-		prop.On("OnUpdate", mock.Anything).Run(func(args mock.Arguments) {
-			handlers[name] = args.Get(0).(st.PropertyUpdateHandler)
-		})
-		entity.On("Property", name).Return(prop)
+		entityProps = append(entityProps, stfake.P(name, nil))
 	}
 
-	entity.On("Property", mock.Anything).Return(nil)
+	entity := stfake.New(stfake.Spec{
+		Parser: stParser,
+		Class:  "CPlantedC4",
+		ID:     100,
+		Props:  entityProps,
+	})
 
-	for _, h := range serverClasses["CPlantedC4"].onCreated {
-		h(entity)
-	}
+	stfake.Create(entity)
 
 	return func(name string, val any) {
-		if h := handlers[name]; h != nil {
-			h(st.PropertyValue{Any: val})
-		}
+		stfake.Update(entity, stfake.P(name, val))
 	}
 }
 
 func TestBindBomb_BombExplode(t *testing.T) {
 	t.Run("bomb stopped ticking without exploding", func(t *testing.T) {
-		p, serverClasses := newBombTestParser()
+		p, stParser := newBombTestParser()
 
 		var explosions int
 		p.RegisterEventHandler(func(events.BombExplode) { explosions++ })
 
-		update := createFakePlantedC4(serverClasses, "m_bBombTicking", "m_bHasExploded", "m_hBombDefuser", "m_bBombDefused")
+		update := createFakePlantedC4(stParser, "m_bBombTicking", "m_bHasExploded", "m_hBombDefuser", "m_bBombDefused")
 
 		update("m_bBombTicking", false)
 		update("m_bHasExploded", false)
@@ -216,13 +152,13 @@ func TestBindBomb_BombExplode(t *testing.T) {
 	})
 
 	t.Run("bomb exploded", func(t *testing.T) {
-		p, serverClasses := newBombTestParser()
+		p, stParser := newBombTestParser()
 		p.currentFrame = 42
 
 		var explosions int
 		p.RegisterEventHandler(func(events.BombExplode) { explosions++ })
 
-		update := createFakePlantedC4(serverClasses, "m_bBombTicking", "m_bHasExploded", "m_hBombDefuser", "m_bBombDefused")
+		update := createFakePlantedC4(stParser, "m_bBombTicking", "m_bHasExploded", "m_hBombDefuser", "m_bBombDefused")
 
 		update("m_bHasExploded", false)
 		update("m_bBombTicking", false)
@@ -234,12 +170,12 @@ func TestBindBomb_BombExplode(t *testing.T) {
 	})
 
 	t.Run("fallback to m_bBombTicking without m_bHasExploded", func(t *testing.T) {
-		p, serverClasses := newBombTestParser()
+		p, stParser := newBombTestParser()
 
 		var explosions int
 		p.RegisterEventHandler(func(events.BombExplode) { explosions++ })
 
-		update := createFakePlantedC4(serverClasses, "m_bBombTicking", "m_hBombDefuser", "m_bBombDefused")
+		update := createFakePlantedC4(stParser, "m_bBombTicking", "m_hBombDefuser", "m_bBombDefused")
 
 		update("m_bBombTicking", true)
 		update("m_bBombTicking", false)
@@ -251,25 +187,19 @@ func TestBindBomb_BombExplode(t *testing.T) {
 // testWeaponEntityID is the entity-ID of the weapons created by fakeWeaponEntity.
 const testWeaponEntityID = 300
 
-// fakeWeaponEntity creates a weapon entity for bindWeapon and returns its OnDestroy delegate (once bound).
-func fakeWeaponEntity(serial int, itemIndex uint64) (*stfake.Entity, *func()) {
-	entity := new(stfake.Entity)
-	entity.On("ID").Return(testWeaponEntityID)
-	entity.On("SerialNum").Return(serial)
-	entity.On("PropertyValueMust", "m_iItemDefinitionIndex").Return(st.PropertyValue{Any: itemIndex})
-	entity.On("PropertyValueMust", "CBodyComponent.m_hModel").Return(st.PropertyValue{Any: uint64(1)})
-	entity.On("PropertyValueMust", "m_hOwnerEntity").Return(st.PropertyValue{Any: uint64(constants.InvalidEntityHandleSource2)})
-
-	prop := new(stfake.Property)
-	prop.On("OnUpdate", mock.Anything)
-	entity.On("Property", mock.Anything).Return(prop)
-
-	onDestroy := new(func())
-	entity.On("OnDestroy", mock.Anything).Run(func(args mock.Arguments) {
-		*onDestroy = args.Get(0).(func())
+// fakeWeaponEntity creates a weapon entity for bindWeapon.
+func fakeWeaponEntity(serial int, itemIndex uint64) *st.Entity {
+	return stfake.New(stfake.Spec{
+		ID:     testWeaponEntityID,
+		Serial: serial,
+		Props: []stfake.Prop{
+			stfake.P("m_iItemDefinitionIndex", itemIndex),
+			stfake.P("CBodyComponent.m_hModel", uint64(1)),
+			stfake.P("m_hOwnerEntity", uint64(constants.InvalidEntityHandleSource2)),
+			stfake.P("m_fLastShotTime", nil),
+			stfake.P("m_iClip1", nil),
+		},
 	})
-
-	return entity, onDestroy
 }
 
 // The server may create a new weapon entity at the index of one it never deleted, and assign it to a player
@@ -277,29 +207,23 @@ func fakeWeaponEntity(serial int, itemIndex uint64) (*stfake.Entity, *func()) {
 // The player's inventory must get the new weapon, not the replaced one (#601).
 // bindFakePawnWeapons binds a fake pawn's weapon slots to the player and returns a function
 // that updates the first slot to the given handle.
-func bindFakePawnWeapons(p *parser, pl *common.Player) (setSlot0 func(handle uint64)) {
-	var updateSlot0 st.PropertyUpdateHandler
+func bindFakePawnWeapons(p *Parser, pl *common.Player) (setSlot0 func(handle uint64)) {
+	const slots = 64
 
-	slot0 := new(stfake.Property)
-	slot0.On("OnUpdate", mock.Anything).Run(func(args mock.Arguments) {
-		updateSlot0 = args.Get(0).(st.PropertyUpdateHandler)
-	})
-	slot0Value := slot0.On("Value").Return(st.PropertyValue{})
+	props := make([]stfake.Prop, 0, 1+slots)
+	props = append(props, stfake.P(playerWeaponPrefixS2, nil))
 
-	emptySlot := new(stfake.Property)
-	emptySlot.On("OnUpdate", mock.Anything)
-	emptySlot.On("Value").Return(st.PropertyValue{})
+	for i := range slots {
+		props = append(props, stfake.P(fmt.Sprintf("%s.%04d", playerWeaponPrefixS2, i), nil))
+	}
 
-	pawn := new(stfake.Entity)
-	pawn.On("Property", playerWeaponPrefixS2+".0000").Return(slot0)
-	pawn.On("Property", mock.Anything).Return(emptySlot)
+	pawn := stfake.NewEntity(1, props...)
 
 	pl.Inventory = map[int]*common.Equipment{}
 	p.bindPlayerWeapons(pawn, func() *common.Player { return pl })
 
 	return func(handle uint64) {
-		slot0Value.ReturnArguments = mock.Arguments{st.PropertyValue{Any: handle}}
-		updateSlot0(st.PropertyValue{Any: handle})
+		stfake.Update(pawn, stfake.P(playerWeaponPrefixS2+".0000", handle))
 	}
 }
 
@@ -313,7 +237,7 @@ func weaponHandle(serial int) uint64 {
 func TestBindPlayerWeapons_WeaponAssignedBeforeReplacingEntityIsCreated(t *testing.T) {
 	p := newParser()
 
-	oldEntity, destroyOld := fakeWeaponEntity(1, 1) // Desert Eagle
+	oldEntity := fakeWeaponEntity(1, 1) // Desert Eagle
 	p.bindWeapon(oldEntity)
 	oldWeapon := p.gameState.weapons[testWeaponEntityID]
 
@@ -324,9 +248,9 @@ func TestBindPlayerWeapons_WeaponAssignedBeforeReplacingEntityIsCreated(t *testi
 	setSlot0(weaponHandle(2))
 
 	// 2. the old entity is destroyed (replaced) and 3. the new one is created
-	(*destroyOld)()
+	stfake.Destroy(oldEntity)
 
-	newEntity, _ := fakeWeaponEntity(2, 61) // USP-S
+	newEntity := fakeWeaponEntity(2, 61) // USP-S
 	p.bindWeapon(newEntity)
 
 	wep := pl.Inventory[testWeaponEntityID]
@@ -342,7 +266,7 @@ func TestBindPlayerWeapons_WeaponAssignedBeforeReplacingEntityIsCreated(t *testi
 func TestBindPlayerWeapons_ReplacingEntityCreatedBeforeInventoryUpdate(t *testing.T) {
 	p := newParser()
 
-	oldEntity, destroyOld := fakeWeaponEntity(1, 1) // Desert Eagle
+	oldEntity := fakeWeaponEntity(1, 1) // Desert Eagle
 	p.bindWeapon(oldEntity)
 
 	pl := common.NewPlayer(p.demoInfoProvider)
@@ -350,9 +274,9 @@ func TestBindPlayerWeapons_ReplacingEntityCreatedBeforeInventoryUpdate(t *testin
 	setSlot0(weaponHandle(1))
 
 	// 1. the old entity is destroyed (replaced) and the new one is created
-	(*destroyOld)()
+	stfake.Destroy(oldEntity)
 
-	newEntity, _ := fakeWeaponEntity(2, 61) // USP-S
+	newEntity := fakeWeaponEntity(2, 61) // USP-S
 	p.bindWeapon(newEntity)
 	newWeapon := p.gameState.weapons[testWeaponEntityID]
 
@@ -368,4 +292,41 @@ func TestBindPlayerWeapons_ReplacingEntityCreatedBeforeInventoryUpdate(t *testin
 	assert.Same(t, newWeapon, pl.Inventory[testWeaponEntityID])
 	assert.Same(t, newEntity, newWeapon.Entity)
 	assert.Equal(t, common.EqUSP, newWeapon.Type)
+}
+
+func TestBindGameRules_RulesAreLive(t *testing.T) {
+	p := newParser()
+	stParser := stfake.NewParser("CCSGameRulesProxy")
+	p.stParser = stParser
+	p.bindGameRules()
+
+	rules := p.GameState().Rules()
+	assert.Nil(t, rules.Entity())
+
+	gr := func(name string, val any) stfake.Prop {
+		return stfake.P(gameRulesPrefixS2+"."+name, val)
+	}
+
+	entity := stfake.New(stfake.Spec{
+		Parser: stParser,
+		Class:  "CCSGameRulesProxy",
+		ID:     10,
+		Props: []stfake.Prop{
+			gr("m_iRoundTime", int32(115)),
+			gr("m_bMapHasRescueZone", false),
+			gr("m_bMapHasBombTarget", true),
+			gr("m_bFreezePeriod", false),
+			gr("m_gamePhase", int32(0)),
+			gr("m_totalRoundsPlayed", int32(0)),
+			gr("m_bWarmupPeriod", false),
+			gr("m_bHasMatchStarted", false),
+			gr("m_nOvertimePlaying", int32(0)),
+			gr("m_eRoundWinReason", int32(0)),
+		},
+	})
+
+	stfake.Create(entity)
+
+	assert.Same(t, entity, rules.Entity())
+	assert.Same(t, rules, p.GameState().Rules())
 }

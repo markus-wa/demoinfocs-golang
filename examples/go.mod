@@ -8,6 +8,7 @@ require (
 	github.com/llgcode/draw2d v0.0.0-20230723155556-e595d7c7e75e
 	github.com/markus-wa/demoinfocs-golang/v6 v6.0.0
 	github.com/markus-wa/go-heatmap/v2 v2.0.0
+	github.com/markus-wa/godispatch v1.4.1
 	github.com/stretchr/testify v1.12.1
 	google.golang.org/protobuf v1.36.12
 )
@@ -17,10 +18,8 @@ require (
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/markus-wa/go-unassert v0.1.3 // indirect
 	github.com/markus-wa/gobitread v0.2.5 // indirect
-	github.com/markus-wa/godispatch v1.4.1 // indirect
 	github.com/markus-wa/ice-cipher-go v1.0.0 // indirect
 	github.com/markus-wa/quickhull-go/v2 v2.2.0 // indirect
-	github.com/stretchr/objx v0.5.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/image v0.45.0 // indirect
 )

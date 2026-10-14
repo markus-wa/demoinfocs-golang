@@ -16,7 +16,7 @@ import (
 //
 // See also: Inferno.Active() and Fire.IsBurning
 type Inferno struct {
-	Entity st.Entity
+	Entity *st.Entity
 
 	// uniqueID is used to distinguish different infernos (which potentially have the same, reused entityID) from each other.
 	uniqueID         UniqueID
@@ -208,7 +208,7 @@ func convexHull(pointCloud []r3.Vector) quickhull.ConvexHull {
 // parse and reproducible across parses of the same demo.
 //
 // Intended for internal use only.
-func NewInferno(demoInfoProvider demoInfoProvider, entity st.Entity, thrower *Player, id UniqueID) *Inferno {
+func NewInferno(demoInfoProvider demoInfoProvider, entity *st.Entity, thrower *Player, id UniqueID) *Inferno {
 	return &Inferno{
 		Entity:           entity,
 		uniqueID:         id,

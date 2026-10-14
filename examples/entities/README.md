@@ -812,7 +812,7 @@ This example prints the life-cycle of all AWPs during the game - i.e. who picked
 
 ```go
 p.RegisterEventHandler(func(events.DataTablesParsed) {
-	p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent st.Entity) {
+	p.ServerClasses().FindByName("CWeaponAWP").OnEntityCreated(func(ent *st.Entity) {
 		ent.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
 			x := p.GameState().Participants().FindByHandle64(uint64(val.Int()))
 			if x != nil {

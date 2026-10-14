@@ -1,5 +1,7 @@
-// Package sendtables contains code related to decoding sendtables.
-// Mostly used internally but can be interesting for direct access to server-classes and entities.
+// Package sendtables decodes CS2 send-tables (flattened serializers) and packet entities.
+//
+// The decoding is mostly used internally by package demoinfocs, but the package is also interesting
+// for direct access to server-classes (ServerClass), entities (Entity) and their properties (Property).
 package sendtables
 
 import (
@@ -89,7 +91,7 @@ func (v PropertyValue) String() string {
 	return fmt.Sprint(v.Any)
 }
 
-// BoolVal returns true if IntVal > 0.
+// BoolVal returns the value as a bool.
 func (v PropertyValue) BoolVal() bool {
 	return v.Any.(bool)
 }
@@ -97,19 +99,8 @@ func (v PropertyValue) BoolVal() bool {
 // PropertyUpdateHandler is the interface for handlers that are interested in property changes.
 type PropertyUpdateHandler func(PropertyValue)
 
-type PropertyEntry struct {
-	Name    string
-	IsArray bool
-}
-
 // EntityCreatedHandler is the interface for handlers that are interested in EntityCreatedEvents.
-type EntityCreatedHandler func(Entity)
-
-// ServerClasses is a searchable list of ServerClasses.
-type ServerClasses interface {
-	All() []ServerClass
-	FindByName(name string) ServerClass
-}
+type EntityCreatedHandler func(*Entity)
 
 // EntityOp is a bitmask representing the type of operation performed on an Entity
 type EntityOp int
@@ -150,4 +141,4 @@ func (o EntityOp) String() string {
 }
 
 // EntityHandler is a function that receives Entity updates
-type EntityHandler func(Entity, EntityOp) error
+type EntityHandler func(*Entity, EntityOp) error

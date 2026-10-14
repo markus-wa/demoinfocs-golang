@@ -33,7 +33,7 @@ func newTestProjectile(id uint64, thrower *common.Player, wep *common.Equipment)
 // Two smokes thrown by the same player are in the air - the event must use the weapon of the
 // projectile it refers to, not the player's last thrown smoke.
 func TestNadeEvent_ResolvesProjectileByEntityID(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{Name: "thrower"}
 
 	smoke1 := common.NewEquipment(common.EqSmoke, common.UniqueID(1))
@@ -61,7 +61,7 @@ func TestNadeEvent_ResolvesProjectileByEntityID(t *testing.T) {
 }
 
 func TestNadeEvent_UnknownProjectile_FallsBackToThrownGrenade(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 
 	var got []events.HeExplode
 	p.RegisterEventHandler(func(e events.HeExplode) {
@@ -77,7 +77,7 @@ func TestNadeEvent_UnknownProjectile_FallsBackToThrownGrenade(t *testing.T) {
 }
 
 func TestNadeEvent_ProjectileWithoutWeaponInstance_FallsBack(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
 	p.gameEventHandler.addThrownGrenade(pl, he)
@@ -153,7 +153,7 @@ func TestLinkInfernoProjectile(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			p := NewParser(rand.Reader).(*parser)
+			p := NewParser(rand.Reader)
 			proj := newTestProjectile(1, nil, common.NewEquipment(common.EqMolotov, common.UniqueID(1)))
 			other := newTestProjectile(2, nil, common.NewEquipment(common.EqMolotov, common.UniqueID(2)))
 
@@ -172,7 +172,7 @@ func TestLinkInfernoProjectile(t *testing.T) {
 }
 
 func TestFireGrenadeEvents_UseLinkedProjectile(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	molotov := common.NewEquipment(common.EqMolotov, common.UniqueID(1))
 	proj := newTestProjectile(1, pl, molotov)
@@ -208,7 +208,7 @@ func TestFireGrenadeEvents_UseLinkedProjectile(t *testing.T) {
 
 // The entity-ID of an event may have been re-used by a different grenade - don't attribute the event to it.
 func TestNadeEvent_ProjectileOfDifferentType_Ignored(t *testing.T) {
-	p := NewParser(rand.Reader).(*parser)
+	p := NewParser(rand.Reader)
 	pl := &common.Player{}
 	p.gameState.grenadeProjectiles[42] = newTestProjectile(1, pl, common.NewEquipment(common.EqSmoke, common.UniqueID(1)))
 
