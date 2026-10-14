@@ -344,7 +344,9 @@ type GameRules struct {
 	entity  *st.Entity
 }
 
-var ErrFailedToRetrieveGameRule = errors.New("failed to retrieve GameRule value, it's recommended to have a fallback to a default value for this scenario")
+// ErrFailedToRetrieveGameRule is returned by GameRules methods if the value isn't available (yet).
+// It's recommended to have a fallback to a default value for this scenario.
+var ErrFailedToRetrieveGameRule = errors.New("failed to retrieve GameRule value")
 
 // RoundTime returns how long rounds in the current match last for (excluding freeze time).
 // May return error if m_pGameRules.m_iRoundTime is not set.

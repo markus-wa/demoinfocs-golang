@@ -721,7 +721,7 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CMsgSource1Legacy
 
 		pl.XUID, err = guidToSteamID64(pl.GUID)
 		if err != nil {
-			geh.parser.setError(fmt.Errorf("failed to parse player XUID: %v", err.Error()))
+			geh.parser.setError(fmt.Errorf("failed to parse player XUID: %w", err))
 		}
 	}
 
@@ -860,7 +860,7 @@ func (geh gameEventHandler) bombExploded(data map[string]*msg.CMsgSource1LegacyG
 // ErrBombsiteIndexNotFound indicates that a game-event occurred that contained an unknown bombsite index.
 // This error can be disabled with option.IgnoreErrBombsiteIndexNotFound(true).
 // See https://github.com/markus-wa/demoinfocs-golang/issues/314
-var ErrBombsiteIndexNotFound = errors.New("bombsite index not found - see https://github.com/markus-wa/demoinfocs-golang/issues/314")
+var ErrBombsiteIndexNotFound = errors.New("bombsite index not found")
 
 func (geh gameEventHandler) bombEvent(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) (events.BombEvent, error) {
 	bombEvent := events.BombEvent{Player: geh.playerByUserID32(data["userid"].GetValShort())}
