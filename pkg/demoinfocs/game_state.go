@@ -260,18 +260,18 @@ type gameRules struct {
 var ErrFailedToRetrieveGameRule = errors.New("failed to retrieve GameRule value, it's recommended to have a fallback to a default value for this scenario")
 
 // RoundTime returns how long rounds in the current match last for (excluding freeze time).
-// May return error if cs_gamerules_data.m_iRoundTime is not set.
+// May return error if m_pGameRules.m_iRoundTime is not set.
 func (gr gameRules) RoundTime() (time.Duration, error) {
 	if gr.entity == nil {
 		return 0, ErrFailedToRetrieveGameRule
 	}
 
-	prop := gr.entity.Property("cs_gamerules_data.m_iRoundTime")
+	prop := gr.entity.Property(gameRulesPrefixS2 + ".m_iRoundTime")
 	if prop == nil {
 		return 0, ErrFailedToRetrieveGameRule
 	}
 
-	return time.Duration(prop.Value().Int()) * time.Second, nil // FIXME: test
+	return time.Duration(prop.Value().Int()) * time.Second, nil
 }
 
 // FreezeTime returns how long freeze time lasts for in the current match (mp_freezetime).

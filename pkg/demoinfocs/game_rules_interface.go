@@ -11,7 +11,7 @@ import (
 // GameRules is an auto-generated interface for gameRules.
 type GameRules interface {
 	// RoundTime returns how long rounds in the current match last for (excluding freeze time).
-	// May return error if cs_gamerules_data.m_iRoundTime is not set.
+	// May return error if m_pGameRules.m_iRoundTime is not set.
 	RoundTime() (time.Duration, error)
 	// FreezeTime returns how long freeze time lasts for in the current match (mp_freezetime).
 	// May return error if mp_freezetime cannot be converted to a time duration.
