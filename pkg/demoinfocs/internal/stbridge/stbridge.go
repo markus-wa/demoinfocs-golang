@@ -10,17 +10,21 @@ var (
 	NewParser func(classes []string) any
 
 	// NewEntity returns a new synthetic *Entity that declares exactly the given properties, in that (field-path) order.
-	// parser may be a nil *Parser; if it's not, class must be one of its server-classes.
+	// parser is a *Parser and may be nil; if it's not, class must be one of its server-classes.
+	// The entity doesn't keep a reference to the parser, pass the same one to Create, Set and Destroy.
 	NewEntity func(parser any, class string, id, serial int, names []string, values []any) any
 
 	// Create fires everything an entity packet fires when it creates the entity.
-	Create func(entity any)
+	// parser is the entity's *Parser (may be nil).
+	Create func(entity, parser any)
 
 	// Set sets the given property values of the entity, in field-path order.
 	// If fire is set, each property's update handlers fire right after it's set.
 	// If finish is set as well, the entity's update is finished like at the end of an entity packet.
-	Set func(entity any, names []string, values []any, fire, finish bool)
+	// parser is the entity's *Parser (may be nil).
+	Set func(entity, parser any, names []string, values []any, fire, finish bool)
 
 	// Destroy deletes the entity like an entity packet does.
-	Destroy func(entity any)
+	// parser is the entity's *Parser (may be nil).
+	Destroy func(entity, parser any)
 )

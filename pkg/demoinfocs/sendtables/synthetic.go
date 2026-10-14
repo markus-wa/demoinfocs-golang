@@ -3,7 +3,6 @@ package sendtables
 import (
 	"fmt"
 	"slices"
-	"sync"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stbridge"
 )
@@ -11,38 +10,28 @@ import (
 // Synthetic entities are real *Entity values whose class has a flat serializer of simple fields,
 // each named with the full (dotted) property name. Names resolve through the exact-name lookup of
 // serializer.getFieldPathForName, so all Entity methods work unchanged.
-// They are only used by tests, via internal/stfake.
+// They are only used by tests, via internal/stfake, which also keeps track of each entity's parser.
 
 func init() {
 	stbridge.NewParser = func(classes []string) any {
 		return newSyntheticParser(classes)
 	}
 	stbridge.NewEntity = func(parser any, class string, id, serial int, names []string, values []any) any {
-		p, _ := parser.(*Parser)
-
-		return newSyntheticEntity(p, class, id, serial, names, values)
+		return newSyntheticEntity(parser.(*Parser), class, id, serial, names, values)
 	}
-	stbridge.Create = func(entity any) {
-		syntheticCreate(entity.(*Entity))
+	stbridge.Create = func(entity, parser any) {
+		syntheticCreate(entity.(*Entity), parser.(*Parser))
 	}
-	stbridge.Set = func(entity any, names []string, values []any, fire, finish bool) {
-		syntheticSet(entity.(*Entity), names, values, fire, finish)
+	stbridge.Set = func(entity, parser any, names []string, values []any, fire, finish bool) {
+		syntheticSet(entity.(*Entity), parser.(*Parser), names, values, fire, finish)
 	}
-	stbridge.Destroy = func(entity any) {
-		syntheticDestroy(entity.(*Entity))
+	stbridge.Destroy = func(entity, parser any) {
+		syntheticDestroy(entity.(*Entity), parser.(*Parser))
 	}
 }
 
 // syntheticPositionProps are declared by every synthetic entity, Position() needs them.
 var syntheticPositionProps = []string{propCellX, propCellY, propCellZ, propVecX, propVecY, propVecZ}
-
-type syntheticInfo struct {
-	parser *Parser
-	class  *ServerClass // the parser's class, whose created-handlers fire on creation; nil without parser
-}
-
-// syntheticInfos maps a synthetic *Entity to its *syntheticInfo.
-var syntheticInfos sync.Map
 
 func newSyntheticClass(id int32, name string) *ServerClass {
 	return &ServerClass{
@@ -70,24 +59,20 @@ func newSyntheticParser(classes []string) *Parser {
 	return p
 }
 
+// newSyntheticEntity returns a new synthetic entity. p may be nil.
 func newSyntheticEntity(p *Parser, className string, id, serial int, names []string, values []any) *Entity {
-	if len(names) != len(values) {
-		_panicf("synthetic entity: %d property names but %d values", len(names), len(values))
-	}
-
-	info := &syntheticInfo{parser: p}
 	classID := int32(-1)
 
 	if p != nil {
-		info.class = p.classesByName[className]
-		if info.class == nil {
+		registered := p.classesByName[className]
+		if registered == nil {
 			_panicf("synthetic entity: unknown server-class %q", className)
 		}
 
-		classID = info.class.classId
+		classID = registered.classId
 	}
 
-	// Each entity gets its own class: all props must be declared before the first lookup,
+	// Each entity gets its own copy of the class: all props must be declared before the first lookup,
 	// lookups cache negative results (serializer.fieldNameChecks, Entity.fpNoop).
 	c := newSyntheticClass(classID, className)
 
@@ -103,8 +88,7 @@ func newSyntheticEntity(p *Parser, className string, id, serial int, names []str
 
 	e := newEntity(int32(id), int32(serial), c)
 
-	syntheticSet(e, names, values, false, false)
-	syntheticInfos.Store(e, info)
+	syntheticSet(e, nil, names, values, false, false)
 
 	return e
 }
@@ -122,21 +106,12 @@ func (c *ServerClass) addSyntheticField(name string) {
 	})
 }
 
-func syntheticInfoOf(e *Entity) *syntheticInfo {
-	info, ok := syntheticInfos.Load(e)
-	if !ok {
-		panic(fmt.Sprintf("entity %d is not a synthetic entity", e.index))
-	}
-
-	return info.(*syntheticInfo)
-}
-
-func (info *syntheticInfo) fireEntityHandlers(e *Entity, op EntityOp) {
-	if info.parser == nil {
+func fireSyntheticEntityHandlers(p *Parser, e *Entity, op EntityOp) {
+	if p == nil {
 		return
 	}
 
-	for _, h := range info.parser.entityHandlers {
+	for _, h := range p.entityHandlers {
 		if err := h(e, op); err != nil {
 			panic(fmt.Sprintf("entity handler returned an error for entity %d (%v): %v", e.index, op, err))
 		}
@@ -144,12 +119,11 @@ func (info *syntheticInfo) fireEntityHandlers(e *Entity, op EntityOp) {
 }
 
 // syntheticCreate mirrors Parser.OnPacketEntities for a newly created entity.
-func syntheticCreate(e *Entity) {
-	info := syntheticInfoOf(e)
-
+// The created-handlers of p's class (if p isn't nil) fire, not those of the entity's own class copy.
+func syntheticCreate(e *Entity, p *Parser) {
 	createdHandlers := e.class.createdHandlers
-	if info.class != nil {
-		createdHandlers = info.class.createdHandlers
+	if p != nil {
+		createdHandlers = p.classesByName[e.class.name].createdHandlers
 	}
 
 	for _, h := range createdHandlers {
@@ -160,7 +134,7 @@ func syntheticCreate(e *Entity) {
 		f()
 	}
 
-	info.fireEntityHandlers(e, EntityOpCreated|EntityOpEntered)
+	fireSyntheticEntityHandlers(p, e, EntityOpCreated|EntityOpEntered)
 
 	e.fireInitialUpdateHandlers()
 	e.fireUpdateFinished()
@@ -168,7 +142,7 @@ func syntheticCreate(e *Entity) {
 
 // syntheticSet sets the given values in field-path order, like Entity.readFields does.
 // With finish, it mirrors Parser.OnPacketEntities for an updated entity.
-func syntheticSet(e *Entity, names []string, values []any, fire, finish bool) {
+func syntheticSet(e *Entity, p *Parser, names []string, values []any, fire, finish bool) {
 	if len(names) != len(values) {
 		_panicf("synthetic entity: %d property names but %d values", len(names), len(values))
 	}
@@ -218,15 +192,15 @@ func syntheticSet(e *Entity, names []string, values []any, fire, finish bool) {
 	}
 
 	e.fireUpdateFinished()
-	syntheticInfoOf(e).fireEntityHandlers(e, op)
+	fireSyntheticEntityHandlers(p, e, op)
 }
 
 // syntheticDestroy mirrors Parser.OnPacketEntities for a deleted entity.
-func syntheticDestroy(e *Entity) {
+func syntheticDestroy(e *Entity, p *Parser) {
 	if !e.active {
 		return // entity has already been destroyed
 	}
 
 	e.destroy()
-	syntheticInfoOf(e).fireEntityHandlers(e, EntityOpLeft|EntityOpDeleted)
+	fireSyntheticEntityHandlers(p, e, EntityOpLeft|EntityOpDeleted)
 }

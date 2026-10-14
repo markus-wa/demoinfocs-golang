@@ -8,10 +8,20 @@
 //
 // Every entity additionally declares the CBodyComponent cell & offset properties used by
 // Entity.Position() (unset, i.e. position (0,0,0), unless Pos is given).
+//
+// Each synthetic entity has its own copy of its server-class, declaring exactly that entity's
+// properties. So e.ServerClass() is never the *ServerClass registered with the Spec's Parser, but its
+// Name() and ID() match. A per-parser class with the union of all its entities' properties isn't
+// used: entities of the same class would get each other's properties, and the class caches
+// negative property lookups, so properties declared after the first lookup wouldn't be found.
+// Handlers registered on the parser's class (OnEntityCreated) fire on Create; handlers registered
+// on e.ServerClass() only do if the entity has no Parser.
 package stfake
 
 import (
+	"fmt"
 	"math"
+	"sync"
 
 	"github.com/golang/geo/r3"
 
@@ -86,6 +96,18 @@ type Spec struct {
 	Props []Prop
 }
 
+// parsers maps each synthetic *st.Entity to its Spec.Parser (may be nil).
+var parsers sync.Map
+
+func parserOf(e *st.Entity) *st.Parser {
+	p, ok := parsers.Load(e)
+	if !ok {
+		panic(fmt.Sprintf("entity %d is not a synthetic entity", e.ID()))
+	}
+
+	return p.(*st.Parser)
+}
+
 // NewParser returns a send-tables parser that knows server-classes with the given names, and nothing else.
 func NewParser(classes ...string) *st.Parser {
 	return stbridge.NewParser(classes).(*st.Parser)
@@ -97,7 +119,10 @@ func NewParser(classes ...string) *st.Parser {
 func New(spec Spec) *st.Entity {
 	names, values := flatten(spec.Props)
 
-	return stbridge.NewEntity(spec.Parser, spec.Class, spec.ID, spec.Serial, names, values).(*st.Entity)
+	e := stbridge.NewEntity(spec.Parser, spec.Class, spec.ID, spec.Serial, names, values).(*st.Entity)
+	parsers.Store(e, spec.Parser)
+
+	return e
 }
 
 // NewEntity returns a new synthetic entity with the given ID and properties, without parser & server-class.
@@ -110,14 +135,14 @@ func NewEntity(id int, props ...Prop) *st.Entity {
 // (Created|Entered), all update handlers with the current values (in registration order)
 // and finally the OnUpdateFinished delegates.
 func Create(e *st.Entity) {
-	stbridge.Create(e)
+	stbridge.Create(e, parserOf(e))
 }
 
 // Set sets the given property values without firing any handlers.
 // Setting a property that wasn't declared panics.
 func Set(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
-	stbridge.Set(e, names, values, false, false)
+	stbridge.Set(e, parserOf(e), names, values, false, false)
 }
 
 // Update applies the given property values like one entity packet updating the entity does:
@@ -127,18 +152,18 @@ func Set(e *st.Entity, props ...Prop) {
 // Setting a property that wasn't declared panics.
 func Update(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
-	stbridge.Set(e, names, values, true, true)
+	stbridge.Set(e, parserOf(e), names, values, true, true)
 }
 
 // UpdateUnfinished is like Update, but stops after the update handlers fired:
 // neither the OnUpdateFinished delegates nor the parser's entity handlers are called.
 func UpdateUnfinished(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
-	stbridge.Set(e, names, values, true, false)
+	stbridge.Set(e, parserOf(e), names, values, true, false)
 }
 
 // Destroy deletes the entity like an entity packet does: the OnDestroy delegates fire,
 // then the parser's entity handlers (Left|Deleted). Destroying an entity again does nothing.
 func Destroy(e *st.Entity) {
-	stbridge.Destroy(e)
+	stbridge.Destroy(e, parserOf(e))
 }
