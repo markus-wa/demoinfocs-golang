@@ -8,8 +8,7 @@ import (
 
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
-	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/fake"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stfake"
 )
 
 func TestNewGameState(t *testing.T) {
@@ -257,7 +256,7 @@ func TestGameRules_ConVars(t *testing.T) {
 }
 
 func TestGameRules_Entity(t *testing.T) {
-	ent := stfake.NewEntityWithProperty("m_iGameMode", st.PropertyValue{Any: 1})
+	ent := stfake.NewEntity(1, stfake.P("m_iGameMode", 1))
 	gr := GameRules{
 		entity: ent,
 	}
@@ -284,10 +283,7 @@ func TestGameRules_FreezeTime(t *testing.T) {
 }
 
 func TestGameRules_RoundTime(t *testing.T) {
-	prop := new(stfake.Property)
-	prop.On("Value").Return(st.PropertyValue{Any: int32(115)})
-	ent := new(stfake.Entity)
-	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(prop)
+	ent := stfake.NewEntity(1, stfake.P("cs_gamerules_data.m_iRoundTime", int32(115)))
 	gr := GameRules{entity: ent}
 
 	rt, err := gr.RoundTime()
@@ -310,8 +306,7 @@ func TestGameRules(t *testing.T) {
 	_, err = gr.FreezeTime()
 	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
 
-	ent := new(stfake.Entity)
-	ent.On("Property", "cs_gamerules_data.m_iRoundTime").Return(nil)
+	ent := stfake.NewEntity(1) // no cs_gamerules_data.m_iRoundTime
 	gr = GameRules{entity: ent}
 
 	_, err = gr.RoundTime()
@@ -341,17 +336,18 @@ func newPlayerWithEntityID(id int) *common.Player {
 
 func newDisconnectedPlayer() *common.Player {
 	pl := common.NewPlayer(nil)
-	pl.Entity = new(stfake.Entity)
+	pl.Entity = stfake.NewEntity(1)
 
 	return pl
 }
 
 func TestGameState_Hostages(t *testing.T) {
-	hostageA := common.NewHostage(nil, new(stfake.Entity))
-	hostageB := common.NewHostage(nil, new(stfake.Entity))
+	hostageA := common.NewHostage(nil, stfake.NewEntity(1))
+	hostageB := common.NewHostage(nil, stfake.NewEntity(2))
 	hostages := map[int]*common.Hostage{0: hostageA, 1: hostageB}
 	gs := GameState{hostages: hostages}
 
+	// Hostages() ranges over a map, the order is undefined
 	expectedHostages := []*common.Hostage{hostageA, hostageB}
-	assert.Equal(t, expectedHostages, gs.Hostages())
+	assert.ElementsMatch(t, expectedHostages, gs.Hostages())
 }

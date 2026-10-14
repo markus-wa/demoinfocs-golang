@@ -68,14 +68,9 @@ func TestEquipment_AmmoInMagazine_Empty(t *testing.T) {
 }
 
 func TestEquipment_AmmoInMagazine_NotFound(t *testing.T) {
-	entity := entityWithID(1)
-	entity.On("PropertyValue", "m_iClip1").Return(st.PropertyValue{
-		Any: uint32(0),
-	}, false)
-
 	wep := &Equipment{
 		Type:   EqAK47,
-		Entity: entity,
+		Entity: entityWithoutProperty("m_iClip1"),
 	}
 
 	assert.Equal(t, -1, wep.AmmoInMagazine())

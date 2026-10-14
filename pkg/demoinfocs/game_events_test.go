@@ -11,9 +11,8 @@ import (
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stfake"
 	msg "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/fake"
 )
 
 // See #90
@@ -21,8 +20,8 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 	p := NewParser(rand.Reader)
 	p.disableMimicSource1GameEvents = true
 
-	p.gameState.tState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{Any: 1})
-	p.gameState.ctState.Entity = stfake.NewEntityWithProperty("m_scoreTotal", st.PropertyValue{Any: 2})
+	p.gameState.tState.Entity = stfake.NewEntity(1, stfake.P("m_scoreTotal", 1))
+	p.gameState.ctState.Entity = stfake.NewEntity(2, stfake.P("m_scoreTotal", 2))
 	eventOccurred := 0
 
 	p.RegisterEventHandler(func(e events.RoundEnd) {
@@ -182,8 +181,8 @@ func TestGetThrownGrenade_CircularControlledBot(t *testing.T) {
 	// Create circular bot references: playerA.ControlledBot() returns playerB and vice versa.
 	// ControlledBot() reads "m_hOriginalControllerOfCurrentPawn" from the entity and calls
 	// FindPlayerByHandle. entityIDFromHandle(2) == 2, entityIDFromHandle(1) == 1.
-	playerA.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(2)})
-	playerB.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(1)})
+	playerA.Entity = stfake.NewEntity(1, stfake.P("m_hOriginalControllerOfCurrentPawn", uint64(2)))
+	playerB.Entity = stfake.NewEntity(2, stfake.P("m_hOriginalControllerOfCurrentPawn", uint64(1)))
 
 	smoke := common.NewEquipment(common.EqSmoke, common.UniqueID(1))
 	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
@@ -318,8 +317,7 @@ func TestInfernoExpired_RemovesLinkedProjectilesGrenade(t *testing.T) {
 
 	const infernoID = 77
 
-	infEntity := new(stfake.Entity)
-	infEntity.On("ID").Return(infernoID)
+	infEntity := stfake.NewEntity(infernoID)
 
 	inf := common.NewInferno(p.demoInfoProvider, infEntity, nil, common.UniqueID(3))
 	p.gameState.infernos[infernoID] = inf
@@ -349,8 +347,8 @@ func TestDeleteThrownGrenade_ControlledBot(t *testing.T) {
 	bot.SteamID64 = 0
 
 	p.gameState.playersByEntityID[2] = bot
-	human.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(2)})
-	bot.Entity = stfake.NewEntityWithProperty("m_hOriginalControllerOfCurrentPawn", st.PropertyValue{Any: uint64(constants.InvalidEntityHandleSource2)})
+	human.Entity = stfake.NewEntity(1, stfake.P("m_hOriginalControllerOfCurrentPawn", uint64(2)))
+	bot.Entity = stfake.NewEntity(2, stfake.P("m_hOriginalControllerOfCurrentPawn", uint64(constants.InvalidEntityHandleSource2)))
 
 	smoke := common.NewEquipment(common.EqSmoke, common.UniqueID(1))
 	p.gameEventHandler.addThrownGrenade(bot, smoke)
@@ -485,11 +483,12 @@ func TestPlayerHurt_KnownWeaponDispatchesImmediately(t *testing.T) {
 func newPlayerWithPawnHealth(p *Parser, userID int, health int) *common.Player {
 	const pawnHandle = 7
 
-	controller := new(stfake.Entity)
-	controller.On("PropertyValue", "m_hPawn").Return(st.PropertyValue{Any: uint64(pawnHandle)}, true)
-	controller.On("PropertyValue", "m_hPlayerPawn").Return(st.PropertyValue{Any: uint64(pawnHandle)}, true)
+	controller := stfake.NewEntity(1,
+		stfake.P("m_hPawn", uint64(pawnHandle)),
+		stfake.P("m_hPlayerPawn", uint64(pawnHandle)),
+	)
 
-	p.gameState.entities[pawnHandle] = stfake.NewEntityWithProperty("m_iHealth", st.PropertyValue{Any: int32(health)})
+	p.gameState.entities[pawnHandle] = stfake.NewEntity(pawnHandle, stfake.P("m_iHealth", int32(health)))
 
 	victim := common.NewPlayer(demoInfoProvider{parser: p})
 	victim.Entity = controller
@@ -595,15 +594,15 @@ func TestGetCommunityId(t *testing.T) {
 func TestEntityKilled_DispatchesOtherDeathForNonPlayerEntity(t *testing.T) {
 	p := NewParser(rand.Reader)
 
-	killed := new(stfake.Entity)
-	killed.On("ID").Return(5)
-	killed.On("ServerClass").Return(serverClassStub{name: "CDynamicProp"})
-	killed.On("Position").Return(r3.Vector{X: 1, Y: 2, Z: 3})
+	killed := stfake.New(stfake.Spec{
+		Class: "CDynamicProp",
+		ID:    5,
+		Props: []stfake.Prop{stfake.Pos(r3.Vector{X: 1, Y: 2, Z: 3})},
+	})
 
 	p.gameState.entities[5] = killed
 
-	inflictor := new(stfake.Entity)
-	inflictor.On("ServerClass").Return(serverClassStub{name: "CInferno"})
+	inflictor := stfake.New(stfake.Spec{Class: "CInferno", ID: 12})
 
 	p.gameState.entities[12] = inflictor
 
@@ -629,8 +628,7 @@ func TestEntityKilled_SkipsPlayerPawns(t *testing.T) {
 	p := NewParser(rand.Reader)
 
 	for _, className := range []string{"CCSPlayerPawn", "CCSPlayerPawnBase"} {
-		killed := new(stfake.Entity)
-		killed.On("ServerClass").Return(serverClassStub{name: className})
+		killed := stfake.New(stfake.Spec{Class: className, ID: 5})
 
 		p.gameState.entities[5] = killed
 
@@ -664,15 +662,6 @@ func TestEntityKilled_UnknownEntityIsSkipped(t *testing.T) {
 	})
 
 	assert.Empty(t, got)
-}
-
-type serverClassStub struct {
-	st.ServerClass
-	name string
-}
-
-func (s serverClassStub) Name() string {
-	return s.name
 }
 
 func TestGetCommunityId_BOT(t *testing.T) {

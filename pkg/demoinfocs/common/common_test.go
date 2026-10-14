@@ -5,10 +5,10 @@ import (
 
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stfake"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/fake"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/sendtablescs2"
 )
 
 func TestGrenadeProjectileUniqueID(t *testing.T) {
@@ -263,57 +263,30 @@ func mockDemoInfoProvider(tickRate float64, tick int) demoInfoProvider {
 	}
 }
 
-//nolint:unparam
-func entityWithID(id int) *stfake.Entity {
-	entity := new(stfake.Entity)
-	entity.On("ID").Return(id)
-
-	return entity
+func entityWithID(id int) *sendtablescs2.Entity {
+	return stfake.NewEntity(id)
 }
 
-func entityWithProperty(propName string, value st.PropertyValue) *stfake.Entity {
-	entity := entityWithID(1)
-
-	prop := new(stfake.Property)
-	prop.On("Value").Return(value)
-
-	entity.On("Property", propName).Return(prop)
-	entity.On("PropertyValue", propName).Return(value, true)
-	entity.On("PropertyValueMust", propName).Return(value)
-
-	return entity
+func entityWithProperty(propName string, value st.PropertyValue) *sendtablescs2.Entity {
+	return stfake.NewEntity(1, stfake.P(propName, value))
 }
 
-func entityWithProperties(properties []fakeProp) *stfake.Entity {
-	entity := entityWithID(1)
+// entityWithProperties returns an entity that has the given properties, except for the ones marked isNil.
+func entityWithProperties(properties []fakeProp) *sendtablescs2.Entity {
+	props := make([]stfake.Prop, 0, len(properties))
 
 	for _, prop := range properties {
 		if prop.isNil {
-			entity.On("Property", prop.propName).Return(nil)
-
 			continue
 		}
 
-		property := new(stfake.Property)
-		property.On("Value").Return(prop.value)
-
-		entity.On("Property", prop.propName).Return(property)
-		entity.On("PropertyValue", prop.propName).Return(prop.value, true)
-		entity.On("PropertyValueMust", prop.propName).Return(prop.value)
+		props = append(props, stfake.P(prop.propName, prop.value))
 	}
 
-	entity.On("Property", mock.Anything).Return(nil)
-	entity.On("PropertyValue", mock.Anything).Return(st.PropertyValue{}, false)
-
-	return entity
+	return stfake.NewEntity(1, props...)
 }
 
-func entityWithoutProperty(propName string) *stfake.Entity {
-	entity := entityWithID(1)
-
-	entity.On("Property", propName).Return(nil)
-	entity.On("PropertyValue", propName).Return(st.PropertyValue{}, false)
-	entity.On("PropertyValueMust", propName).Panic("property not found")
-
-	return entity
+// entityWithoutProperty returns an entity that doesn't have the given property (nor any other).
+func entityWithoutProperty(string) *sendtablescs2.Entity {
+	return stfake.NewEntity(1)
 }

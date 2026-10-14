@@ -7,12 +7,12 @@ import (
 
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stfake"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
-	stfake "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/fake"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables/sendtablescs2"
 )
 
 func TestPlayerActiveWeapon(t *testing.T) {
@@ -341,8 +341,8 @@ type velocityFixture struct {
 	pl       *Player
 	provider *demoInfoProviderMock
 	pawnID   int
-	pawn     *stfake.Entity // re-used across frames while pawnID doesn't change, set to nil to re-create the pawn
-	pawnOfID int            // pawnID the pawn entity was created for
+	pawn     *sendtablescs2.Entity // re-used across frames while pawnID doesn't change, set to nil to re-create the pawn
+	pawnOfID int                   // pawnID the pawn entity was created for
 	pos      r3.Vector
 	interp   uint64
 	health   int32
@@ -364,14 +364,10 @@ func newVelocityFixture(networkProtocol int) *velocityFixture {
 		health: 100,
 	}
 
-	controller := entityWithProperties([]fakeProp{
-		{propName: "m_hPawn", value: st.PropertyValue{Any: h}},
-		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: h}},
-	})
-	controller.ExpectedCalls = slices.DeleteFunc(controller.ExpectedCalls, func(c *mock.Call) bool {
-		return c.Method == "ID"
-	})
-	controller.On("ID").Return(velocityFixtureControllerID)
+	controller := stfake.NewEntity(velocityFixtureControllerID,
+		stfake.P("m_hPawn", h),
+		stfake.P("m_hPlayerPawn", h),
+	)
 
 	// the controller must be found by its entity ID, otherwise the recorder stops (disconnect)
 	f.provider.entitiesByHandle[velocityFixtureControllerID] = controller
@@ -389,46 +385,36 @@ func newVelocityFixture(networkProtocol int) *velocityFixture {
 
 // update rebuilds the fake pawn from the fixture's current state.
 func (f *velocityFixture) update() {
-	props := []fakeProp{
-		{propName: "m_iHealth", value: st.PropertyValue{Any: f.health}},
-		{propName: "m_lifeState", value: st.PropertyValue{Any: uint64(map[bool]int{true: 0, false: 2}[f.health > 0])}},
-		{propName: "m_ubInterpolationFrame", value: st.PropertyValue{Any: f.interp}},
+	props := []stfake.Prop{
+		stfake.Pos(f.pos),
+		stfake.P("m_iHealth", f.health),
+		stfake.P("m_lifeState", uint64(map[bool]int{true: 0, false: 2}[f.health > 0])),
+		stfake.P("m_ubInterpolationFrame", f.interp),
 	}
 
 	if f.velocity != nil {
 		props = append(props,
-			fakeProp{propName: "m_vecVelocity.m_vecX", value: st.PropertyValue{Any: float32(f.velocity.X)}},
-			fakeProp{propName: "m_vecVelocity.m_vecY", value: st.PropertyValue{Any: float32(f.velocity.Y)}},
-			fakeProp{propName: "m_vecVelocity.m_vecZ", value: st.PropertyValue{Any: float32(f.velocity.Z)}},
+			stfake.P("m_vecVelocity.m_vecX", float32(f.velocity.X)),
+			stfake.P("m_vecVelocity.m_vecY", float32(f.velocity.Y)),
+			stfake.P("m_vecVelocity.m_vecZ", float32(f.velocity.Z)),
 		)
 	} else {
 		// pre AnimGraph 2 demos declare the property, but it's never populated
 		props = append(props,
-			fakeProp{propName: "m_vecVelocity.m_vecX", value: st.PropertyValue{}},
-			fakeProp{propName: "m_vecVelocity.m_vecY", value: st.PropertyValue{}},
-			fakeProp{propName: "m_vecVelocity.m_vecZ", value: st.PropertyValue{}},
+			stfake.P("m_vecVelocity.m_vecX", nil),
+			stfake.P("m_vecVelocity.m_vecY", nil),
+			stfake.P("m_vecVelocity.m_vecZ", nil),
 		)
 	}
 
 	if f.pawn == nil || f.pawnOfID != f.pawnID {
-		f.pawn = new(stfake.Entity)
+		f.pawn = stfake.NewEntity(f.pawnID, props...)
 		f.pawnOfID = f.pawnID
+	} else {
+		stfake.Set(f.pawn, props...)
 	}
 
-	pawn := f.pawn
-	pawn.ExpectedCalls = nil
-
-	pawn.On("ID").Return(f.pawnID)
-	pawn.On("Position").Return(f.pos)
-
-	for _, prop := range props {
-		pawn.On("PropertyValue", prop.propName).Return(prop.value, true)
-		pawn.On("PropertyValueMust", prop.propName).Return(prop.value)
-	}
-
-	pawn.On("PropertyValue", mock.Anything).Return(st.PropertyValue{}, false)
-
-	f.provider.entitiesByHandle[1] = pawn
+	f.provider.entitiesByHandle[1] = f.pawn
 }
 
 // frame simulates a parsed frame with an entity snapshot at the given (server) tick with the given pawn position
@@ -1082,7 +1068,7 @@ func playerWithPawnProperty(propName string, value st.PropertyValue) *Player {
 func playerWithPawnPositionAndProperties(pos r3.Vector, props []fakeProp) *Player {
 	h := uint64(1)
 	pawnEntity := entityWithProperties(props)
-	pawnEntity.On("Position").Return(pos)
+	stfake.Set(pawnEntity, stfake.Pos(pos))
 
 	return &Player{
 		Entity: entityWithProperties([]fakeProp{
