@@ -16,7 +16,6 @@ import (
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
-	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 )
@@ -96,21 +95,6 @@ func (p *Parser) parseHeader() error {
 		if !isCSTVBroadcast {
 			p.bitReader.Skip(8 << 3) // skip 8 bytes
 		}
-
-		var warnFunc func(error)
-
-		if p.ignorePacketEntitiesPanic {
-			warnFunc = func(err error) {
-				p.eventDispatcher.Dispatch(events.ParserWarn{
-					Type:    events.WarnTypePacketEntitiesPanic,
-					Message: fmt.Sprintf("encountered PacketEntities panic: %v", err),
-				})
-			}
-		}
-
-		p.stParser = st.NewParser(warnFunc)
-
-		p.stParser.OnEntity(p.onEntity)
 
 		// Error returns were already discarded by the dispatcher before these
 		// wrappers existed; the wrappers only add the aborted() short-circuit.

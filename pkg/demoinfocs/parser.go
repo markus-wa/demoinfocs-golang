@@ -170,12 +170,8 @@ func (bbi boundingBoxInformation) contains(point r3.Vector) bool {
 
 // ServerClasses returns the server-classes of this demo.
 // These are available after events.DataTablesParsed has been fired.
-// Before the header has been parsed, it returns an empty ServerClasses.
+// Before that it is empty, but a value obtained early still reflects classes that are registered later.
 func (p *Parser) ServerClasses() st.ServerClasses {
-	if p.stParser == nil {
-		return st.ServerClasses{}
-	}
-
 	return p.stParser.ServerClasses()
 }
 
@@ -495,6 +491,21 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
 	}
 	p.msgDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
 	p.eventDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
+
+	// Created up front so ServerClasses() values obtained before the header is parsed stay live.
+	var stWarnFunc func(error)
+
+	if p.ignorePacketEntitiesPanic {
+		stWarnFunc = func(err error) {
+			p.eventDispatcher.Dispatch(events.ParserWarn{
+				Type:    events.WarnTypePacketEntitiesPanic,
+				Message: fmt.Sprintf("encountered PacketEntities panic: %v", err),
+			})
+		}
+	}
+
+	p.stParser = st.NewParser(stWarnFunc)
+	p.stParser.OnEntity(p.onEntity)
 
 	p.msgDispatcher.RegisterHandler(p.handleGameEventList)
 	p.msgDispatcher.RegisterHandler(p.handleGameEvent)
