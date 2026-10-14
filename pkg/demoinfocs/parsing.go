@@ -180,6 +180,8 @@ func (p *Parser) ParseToEnd(ctx context.Context) (err error) {
 		}
 	}()
 
+	p.ensureOpen()
+
 	if p.header == nil {
 		err = p.parseHeader()
 		if err != nil {
@@ -283,6 +285,8 @@ func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
 			err = recoverFromUnexpectedEOF(recover())
 		}
 	}()
+
+	p.ensureOpen()
 
 	if p.header == nil {
 		err = p.parseHeader()

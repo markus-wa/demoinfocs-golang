@@ -89,7 +89,8 @@ type Parser struct {
 
 	config                          config.Config
 	ctx                             context.Context // context of the running ParseToEnd() call, nil if it can't be cancelled; see aborted()
-	bitReader                       *bit.BitReader
+	demostream                      io.Reader       // the stream passed to NewParser(), opened lazily, see ensureOpen()
+	bitReader                       *bit.BitReader  // nil until the demo stream is opened, see ensureOpen()
 	stParser                        *st.Parser
 	additionalNetMessageCreators    map[int]config.NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                        chan any                         // Queue of net-messages
@@ -317,19 +318,47 @@ func (p *Parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 }
 
 // Close closes any open resources used by the Parser (go routines, file handles).
+// If the demo stream passed to NewParser() implements io.Closer, it's closed too.
 // This must be called before discarding the Parser to avoid memory leaks.
 // Returns an error if closing of underlying resources fails.
 func (p *Parser) Close() error {
 	p.msgDispatcher.RemoveAllQueues()
 
 	if p.bitReader != nil {
+		// Doesn't close the demo stream, see demoReader.
 		err := p.bitReader.Close()
 		if err != nil {
 			return fmt.Errorf("failed to close BitReader: %w", err)
 		}
 	}
 
+	if closer, ok := p.demostream.(io.Closer); ok {
+		err := closer.Close()
+		if err != nil {
+			return fmt.Errorf("failed to close demo stream: %w", err)
+		}
+	}
+
 	return nil
+}
+
+// ensureOpen opens the demo stream for reading, unless it's open already.
+// It's called when parsing starts, so NewParser() doesn't read from the stream.
+//
+// May panic (e.g. with io.EOF for an empty stream), so it must be called within
+// the recover scope of ParseToEnd() / ParseNextFrame().
+func (p *Parser) ensureOpen() {
+	if p.bitReader != nil {
+		return
+	}
+
+	r := newDemoReader(p.demostream)
+
+	if p.config.Format == config.FormatFile {
+		p.bitReader = bit.NewLargeBitReader(r)
+	} else {
+		p.bitReader = bit.NewSmallBitReader(r)
+	}
 }
 
 func (p *Parser) error() error {
@@ -395,6 +424,8 @@ func (p *Parser) poolBitReader(r *bit.BitReader) {
 // The demostream io.Reader (e.g. os.File or bytes.Reader) must provide demo data in the '.DEM' format,
 // unless it's a *cstv.Reader: then the Parser reads the live CSTV broadcast frame format.
 // Only a *cstv.Reader passed directly is detected, not one wrapped in another reader (e.g. bufio.Reader).
+// The stream isn't read until parsing starts (see ParseToEnd() and ParseNextFrame()).
+// If it implements io.Closer, Parser.Close() closes it.
 //
 // Example for a live CSTV broadcast:
 //
@@ -457,11 +488,7 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
 
 	// Init parser
 	p.config = cfg
-	if p.config.Format == config.FormatFile {
-		p.bitReader = bit.NewLargeBitReader(demostream)
-	} else {
-		p.bitReader = bit.NewSmallBitReader(demostream)
-	}
+	p.demostream = demostream
 
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.dirtyControllers = make(map[int]*dirtyPlayerController)
