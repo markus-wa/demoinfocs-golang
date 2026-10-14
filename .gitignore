@@ -1,7 +1,6 @@
 # Test binary
 demoinfocs-golang.test
 demoinfocs-golang.test.exe
-.vscode/
 .idea/
 *.log
 log.*

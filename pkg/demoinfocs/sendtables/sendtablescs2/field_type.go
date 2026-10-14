@@ -46,11 +46,14 @@ func (t *fieldType) String() string {
 	if t.genericType != nil {
 		x += "<" + t.genericType.String() + ">"
 	}
+
 	if t.pointer {
 		x += "*"
 	}
+
 	if t.count > 0 {
 		x += "[" + strconv.Itoa(t.count) + "]"
 	}
+
 	return x
 }

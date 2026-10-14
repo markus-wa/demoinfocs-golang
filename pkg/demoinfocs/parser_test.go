@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -134,4 +135,36 @@ func TestParser_Close(t *testing.T) {
 	p.msgDispatcher.SyncAllQueues()
 
 	assert.False(t, called)
+}
+
+// TestParser_SetError_UnregistersHandlers ensures that recording a fatal error
+// stops further handler work, so queued backlog messages are not delivered to
+// user-registered handlers anymore.
+func TestParser_SetError_UnregistersHandlers(t *testing.T) {
+	p := new(parser)
+
+	p.msgDispatcher = new(dispatch.Dispatcher)
+	p.eventDispatcher = new(dispatch.Dispatcher)
+
+	var msgCalls int32
+	p.msgDispatcher.RegisterHandler(func(any) {
+		atomic.AddInt32(&msgCalls, 1)
+	})
+
+	var eventCalls int32
+	p.eventDispatcher.RegisterHandler(func(any) {
+		atomic.AddInt32(&eventCalls, 1)
+	})
+
+	p.setError(errors.New("fatal"))
+
+	q := make(chan any, 1)
+	p.msgDispatcher.AddQueues(q)
+	p.msgDispatcher.Dispatch("msg backlog")
+	p.msgDispatcher.SyncAllQueues()
+
+	p.eventDispatcher.Dispatch("event backlog")
+
+	assert.Zero(t, atomic.LoadInt32(&msgCalls))
+	assert.Zero(t, atomic.LoadInt32(&eventCalls))
 }

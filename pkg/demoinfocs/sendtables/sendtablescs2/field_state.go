@@ -10,6 +10,16 @@ func newFieldState() *fieldState {
 	}
 }
 
+// maxFieldIndex bounds decoded field-path components and variable-collection sizes.
+// Anything larger means a corrupt or desynced bitstream and would allocate GBs in one call.
+const maxFieldIndex = 1 << 20
+
+func validateFieldIndex(z int, fp *fieldPath) {
+	if z < 0 || z > maxFieldIndex {
+		_panicf("field path component %d out of range [0, %d] (path %v): corrupt or desynced demo bitstream", z, maxFieldIndex, fp.path[:fp.last+1])
+	}
+}
+
 func (s *fieldState) get(fp *fieldPath) any {
 	x := s
 	z := 0
@@ -19,12 +29,15 @@ func (s *fieldState) get(fp *fieldPath) any {
 		if len(x.state) < z+1 {
 			return nil
 		}
+
 		if i == fp.last {
 			return x.state[z]
 		}
+
 		if _, ok := x.state[z].(*fieldState); !ok {
 			return nil
 		}
+
 		x = x.state[z].(*fieldState)
 	}
 
@@ -35,6 +48,7 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 	// Fast path for the common single-level case (fp.last == 0)
 	if fp.last == 0 { //nolint:nestif
 		z := fp.path[0]
+		validateFieldIndex(z, fp)
 		if y := len(s.state); y <= z {
 			if z+2 > cap(s.state) {
 				newSlice := make([]any, z+1, max(z+2, y*2))
@@ -44,9 +58,11 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 				s.state = s.state[:z+1]
 			}
 		}
+
 		if _, ok := s.state[z].(*fieldState); !ok {
 			s.state[z] = v
 		}
+
 		return
 	}
 
@@ -55,6 +71,7 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 
 	for i := 0; i <= fp.last; i++ {
 		z = fp.path[i]
+		validateFieldIndex(z, fp)
 
 		if y := len(x.state); y <= z {
 			newCap := max(z+2, y*2)
@@ -72,6 +89,7 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 			if _, ok := x.state[z].(*fieldState); !ok {
 				x.state[z] = v
 			}
+
 			return
 		}
 

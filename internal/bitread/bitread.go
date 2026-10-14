@@ -34,6 +34,7 @@ func (r *BitReader) ReadString() string {
 
 func (r *BitReader) readStringLimited(limit int, endOnNewLine bool) string {
 	const minStringBufferLength = 256
+
 	result := make([]byte, 0, minStringBufferLength)
 
 	for i := 0; i < limit; i++ {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/golang/snappy"
@@ -17,9 +18,46 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 )
 
+// msgBufPool recycles the byte slices that hold frame and embedded-message
+// payloads. proto.Unmarshal always copies bytes fields into the message, so
+// the input buffers are dead once the message is unmarshaled and can be
+// returned to this pool. See parseFrame() and handleDemoPacket().
+var msgBufPool = sync.Pool{
+	New: func() any {
+		b := make([]byte, 0, 1024)
+		return &b
+	},
+}
+
+func getMsgBuf(n int) *[]byte {
+	bp := msgBufPool.Get().(*[]byte)
+	if cap(*bp) < n {
+		*bp = make([]byte, 0, n)
+	}
+
+	*bp = (*bp)[:0]
+
+	return bp
+}
+
+func putMsgBuf(bp *[]byte) {
+	if bp != nil {
+		msgBufPool.Put(bp)
+	}
+}
+
 const (
 	playerWeaponPrefixS2 = "m_pWeaponServices.m_hMyWeapons"
 	gameRulesPrefixS2    = "m_pGameRules"
+)
+
+const (
+	// Filestamps found in the first 8 bytes of demo files, identifying the demo format.
+	filestampS1 = "HL2DEMO"
+	filestampS2 = "PBDEMS2"
+
+	// GUID assigned to bot players.
+	botGUID = "BOT"
 )
 
 // Parsing errors
@@ -35,26 +73,26 @@ var (
 	ErrInvalidFileType = errors.New("invalid File-Type; expecting HL2DEMO in the first 8 bytes (ErrInvalidFileType)")
 )
 
-// parseHeader attempts to parse the header of the demo and returns it.
+// parseHeader attempts to parse the header of the demo and stores it in p.header.
 // If not done manually this will be called by Parser.ParseNextFrame() or Parser.ParseToEnd().
 //
-// Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match HL2DEMO.
-func (p *parser) parseHeader() (header, error) {
+// Returns ErrInvalidFileType if the filestamp (first 8 bytes) doesn't match PBDEMS2.
+func (p *parser) parseHeader() error {
 	var h header
 
 	isCSTVBroadcast := p.config.Format == DemoFormatCSTVBroadcast
 
 	if isCSTVBroadcast {
-		h.Filestamp = "PBDEMS2"
+		h.Filestamp = filestampS2
 	} else {
 		h.Filestamp = p.bitReader.ReadCString(8)
 	}
 
 	switch h.Filestamp {
-	case "HL2DEMO":
-		return h, fmt.Errorf("%w: CS:GO demos are no longer supported, downgrade to v3", ErrInvalidFileType)
+	case filestampS1:
+		return fmt.Errorf("%w: CS:GO demos are no longer supported, downgrade to v3", ErrInvalidFileType)
 
-	case "PBDEMS2":
+	case filestampS2:
 		if !isCSTVBroadcast {
 			p.bitReader.Skip(8 << 3) // skip 8 bytes
 		}
@@ -74,11 +112,25 @@ func (p *parser) parseHeader() (header, error) {
 
 		p.stParser.OnEntity(p.onEntity)
 
-		p.RegisterNetMessageHandler(p.stParser.OnServerInfo)
-		p.RegisterNetMessageHandler(p.stParser.OnPacketEntities)
+		// Error returns were already discarded by the dispatcher before these
+		// wrappers existed; the wrappers only add the aborted() short-circuit.
+		p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_ServerInfo) {
+			if p.aborted() {
+				return
+			}
+
+			_ = p.stParser.OnServerInfo(m)
+		})
+		p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_PacketEntities) {
+			if p.aborted() {
+				return
+			}
+
+			_ = p.stParser.OnPacketEntities(m)
+		})
 
 	default:
-		return h, ErrInvalidFileType
+		return ErrInvalidFileType
 	}
 
 	// Initialize queue if the buffer size wasn't specified, the amount of ticks
@@ -89,7 +141,7 @@ func (p *parser) parseHeader() (header, error) {
 
 	p.header = &h
 
-	return h, nil
+	return nil
 }
 
 func msgQueueSize(ticks int) int {
@@ -134,9 +186,9 @@ func (p *parser) ParseToEnd() (err error) {
 	}()
 
 	if p.header == nil {
-		_, err = p.parseHeader()
+		err = p.parseHeader()
 		if err != nil {
-			return
+			return err
 		}
 	}
 
@@ -146,7 +198,7 @@ func (p *parser) ParseToEnd() (err error) {
 		}
 
 		if err = p.error(); err != nil {
-			return
+			return err
 		}
 	}
 }
@@ -173,8 +225,6 @@ func recoverFromUnexpectedEOF(r any) error {
 // No further events will be sent to event or message handlers after this.
 func (p *parser) Cancel() {
 	p.setError(ErrCancelled)
-	p.eventDispatcher.UnregisterAllHandlers()
-	p.msgDispatcher.UnregisterAllHandlers()
 }
 
 /*
@@ -204,7 +254,7 @@ func (p *parser) ParseNextFrame() (moreFrames bool, err error) {
 	}()
 
 	if p.header == nil {
-		_, err = p.parseHeader()
+		err = p.parseHeader()
 		if err != nil {
 			return
 		}
@@ -236,6 +286,76 @@ var demoCommandMsgsCreators = map[msg.EDemoCommands]NetMessageCreator{
 	msg.EDemoCommands_DEM_Recovery:        func() proto.Message { return &msg.CDemoRecovery{} },
 }
 
+// readFramePayload reads (and, if needed, decompresses) the current frame's payload.
+//
+// Regular demos read into a pooled buffer and reuse the per-parser snappy
+// scratch as the decompression destination; the pool entry is returned so the
+// caller can put it back after proto.Unmarshal (which copies everything it
+// needs). bp is nil whenever buf is not pool-backed.
+//
+// CSTV broadcasts retain buf in messages (m.Data = buf), so they get a plain,
+// unpooled read with a fresh snappy destination.
+func (p *parser) readFramePayload(size int, msgCompressed, isCSTVBroadcast bool) (buf []byte, bp *[]byte) {
+	if isCSTVBroadcast {
+		buf = p.bitReader.ReadBytes(size)
+
+		if msgCompressed {
+			var err error
+
+			buf, err = snappy.Decode(nil, buf)
+			if err != nil {
+				p.handleSnappyError(err)
+			}
+		}
+
+		return buf, nil
+	}
+
+	bp = getMsgBuf(size)
+	p.bitReader.ReadBytesInto(bp, size)
+	buf = *bp
+
+	if !msgCompressed {
+		return buf, bp
+	}
+
+	// Reuse the per-parser scratch as the snappy destination: the decoded
+	// payload is dead after the caller's proto.Unmarshal, and frame parsing
+	// is single-threaded.
+	var err error
+
+	buf, err = snappy.Decode(p.snappyScratch, buf)
+
+	// The pooled input is consumed either way; only the decoded scratch
+	// carries data from here on.
+	putMsgBuf(bp)
+
+	if err != nil {
+		buf = nil
+
+		p.handleSnappyError(err)
+
+		return buf, nil
+	}
+
+	p.snappyScratch = buf[:0]
+
+	return buf, nil
+}
+
+func (p *parser) handleSnappyError(err error) {
+	if errors.Is(err, snappy.ErrCorrupt) {
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: "compressed message is corrupt",
+		})
+
+		return
+	}
+
+	panic(err)
+}
+
+//nolint:funlen
 func (p *parser) parseFrame() bool {
 	cmd := msg.EDemoCommands(p.bitReader.ReadVarInt32())
 
@@ -256,6 +376,7 @@ func (p *parser) parseFrame() bool {
 
 		if cmd == msg.EDemoCommands_DEM_Stop {
 			p.msgQueue <- ingameTickNumber(int32(tick))
+
 			p.msgQueue <- frameParsedToken
 
 			return false
@@ -272,7 +393,9 @@ func (p *parser) parseFrame() bool {
 
 		if msgType == msg.EDemoCommands_DEM_Stop {
 			p.msgQueue <- ingameTickNumber(int32(tick))
+
 			p.msgQueue <- frameParsedToken
+
 			return false
 		}
 
@@ -292,22 +415,7 @@ func (p *parser) parseFrame() bool {
 		return true
 	}
 
-	buf := p.bitReader.ReadBytes(int(size))
-
-	if msgCompressed {
-		var err error
-
-		buf, err = snappy.Decode(nil, buf)
-		if err != nil {
-			if errors.Is(err, snappy.ErrCorrupt) {
-				p.eventDispatcher.Dispatch(events.ParserWarn{
-					Message: "compressed message is corrupt",
-				})
-			} else {
-				panic(err)
-			}
-		}
-	}
+	buf, bp := p.readFramePayload(int(size), msgCompressed, isCSTVBroadcast)
 
 	m := msgCreator()
 
@@ -334,19 +442,21 @@ func (p *parser) parseFrame() bool {
 		if err != nil {
 			panic(err) // FIXME: avoid panic
 		}
+
+		putMsgBuf(bp)
 	}
 
 	p.msgQueue <- m
 
 	switch m := m.(type) {
 	case *msg.CDemoPacket:
-		p.handleDemoPacket(m)
+		p.handleDemoPacket(m, false)
 
 	case *msg.CDemoFullPacket:
 		p.msgQueue <- m.StringTable
 
 		if m.Packet.GetData() != nil {
-			p.handleDemoPacket(m.Packet)
+			p.handleDemoPacket(m.Packet, true)
 		}
 	}
 
@@ -361,6 +471,10 @@ type frameParsedTokenType struct{}
 var frameParsedToken = new(frameParsedTokenType)
 
 func (p *parser) handleFrameParsed(*frameParsedTokenType) {
+	if p.aborted() {
+		return
+	}
+
 	p.processFrameGameEvents()
 
 	p.currentFrame++

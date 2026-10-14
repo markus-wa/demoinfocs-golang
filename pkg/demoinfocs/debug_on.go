@@ -24,7 +24,7 @@ const (
 var (
 	debugGameEvents    = yes
 	debugServerClasses = no
-	debugIngameTicks = no
+	debugIngameTicks   = no
 )
 
 func debugGameEvent(d *msg.CMsgSource1LegacyGameEventListDescriptorT, ge *msg.CMsgSource1LegacyGameEvent) {

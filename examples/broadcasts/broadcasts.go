@@ -42,6 +42,7 @@ func main() {
 		if e.IsHeadshot {
 			hs = " (HS)"
 		}
+
 		var wallBang string
 		if e.PenetratedObjects > 0 {
 			wallBang = " (WB)"
@@ -53,7 +54,8 @@ func main() {
 	// Register handler on round end to figure out who won
 	p.RegisterEventHandler(func(e events.RoundEnd) {
 		gs := p.GameState()
-		switch e.Winner {
+
+		switch e.Winner { //nolint:exhaustive
 		case common.TeamTerrorists:
 			// Winner's score + 1 because it hasn't actually been updated yet
 			fmt.Printf("Round finished: winnerSide=T  ; score=%d:%d\n", gs.TeamTerrorists().Score(), gs.TeamCounterTerrorists().Score())
@@ -84,7 +86,7 @@ func formatPlayer(p *common.Player) string {
 		return "?"
 	}
 
-	switch p.Team {
+	switch p.Team { //nolint:exhaustive
 	case common.TeamTerrorists:
 		return "[T]" + p.Name
 	case common.TeamCounterTerrorists:

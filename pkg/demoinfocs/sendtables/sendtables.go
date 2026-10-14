@@ -43,6 +43,7 @@ func (v PropertyValue) R3VecOrNil() *r3.Vector {
 	if v.Any == nil {
 		return nil
 	}
+
 	switch fs := v.Any.(type) {
 	case [3]float32:
 		return &r3.Vector{X: float64(fs[0]), Y: float64(fs[1]), Z: float64(fs[2])}
