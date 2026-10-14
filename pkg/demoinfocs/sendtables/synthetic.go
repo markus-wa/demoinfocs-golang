@@ -168,9 +168,11 @@ func syntheticSet(e *Entity, p *Parser, names []string, values []any, fire, fini
 		return a.index - b.index
 	})
 
+	// Like Parser.OnPacketEntities, an update re-activates a destroyed entity before its fields are read,
+	// also without finish (so Destroy works again afterwards). Only finish fires the entity handlers (Entered).
 	op := EntityOpUpdated
 
-	if finish && !e.active {
+	if !e.active {
 		e.active = true
 		op |= EntityOpEntered
 	}

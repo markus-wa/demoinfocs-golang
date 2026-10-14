@@ -279,3 +279,55 @@ func TestServerClass_PropertyEntries(t *testing.T) {
 	assert.Equal(t, "CFoo", e.ServerClass().Name())
 	assert.Contains(t, e.ServerClass().PropertyEntries(), "m_a")
 }
+
+func TestDestroy_AfterUpdateUnfinished(t *testing.T) {
+	p := stfake.NewParser("CFoo")
+
+	var log []string
+
+	p.OnEntity(func(e *st.Entity, op st.EntityOp) error {
+		log = append(log, "entity handler "+op.String())
+
+		return nil
+	})
+
+	e := stfake.New(stfake.Spec{Parser: p, Class: "CFoo", ID: 1, Props: []stfake.Prop{stfake.P("m_a", int32(0))}})
+	e.OnDestroy(func() { log = append(log, "destroyed") })
+
+	stfake.Create(e)
+	stfake.Destroy(e)
+	stfake.UpdateUnfinished(e, stfake.P("m_a", int32(1)))
+	stfake.Destroy(e)
+
+	assert.Equal(t, []string{
+		"entity handler Created+Entered",
+		"destroyed", "entity handler Deleted+Left",
+		"destroyed", "entity handler Deleted+Left",
+	}, log)
+
+	log = nil
+
+	stfake.Update(e, stfake.P("m_a", int32(2)))
+
+	assert.Equal(t, []string{"entity handler Updated+Entered"}, log)
+}
+
+func TestWithoutParser_AllFuncs(t *testing.T) {
+	e := stfake.NewEntity(1, stfake.P("m_a", int32(0)))
+
+	destroyed := 0
+
+	e.OnDestroy(func() { destroyed++ })
+
+	stfake.Create(e)
+	stfake.Set(e, stfake.P("m_a", int32(1)))
+	stfake.Update(e, stfake.P("m_a", int32(2)))
+	stfake.UpdateUnfinished(e, stfake.P("m_a", int32(3)))
+	stfake.Destroy(e)
+	stfake.Destroy(e)
+	stfake.UpdateUnfinished(e, stfake.P("m_a", int32(4)))
+	stfake.Destroy(e)
+
+	assert.Equal(t, 4, e.PropertyValueMust("m_a").Int())
+	assert.Equal(t, 2, destroyed)
+}

@@ -19,11 +19,8 @@
 package stfake
 
 import (
-	"fmt"
 	"math"
-	"runtime"
 	"sync"
-	"weak"
 
 	"github.com/golang/geo/r3"
 
@@ -98,17 +95,17 @@ type Spec struct {
 	Props []Prop
 }
 
-// parsers maps each synthetic *st.Entity (weakly referenced) to its Spec.Parser (may be nil).
-// An entry is removed once its entity has been garbage collected, see New.
-var parsers sync.Map // weak.Pointer[st.Entity] -> *st.Parser
+// parsers maps each synthetic *st.Entity that has a Spec.Parser to that parser.
+// Entities without a parser have no entry. Entries are never removed, so parser-bound entities
+// live as long as the test binary - acceptable for tests.
+var parsers sync.Map // *st.Entity -> *st.Parser
 
+// parserOf returns e's Spec.Parser, nil if it has none.
 func parserOf(e *st.Entity) *st.Parser {
-	p, ok := parsers.Load(weak.Make(e))
-	if !ok {
-		panic(fmt.Sprintf("entity %d is not a synthetic entity", e.ID()))
-	}
+	p, _ := parsers.Load(e)
+	parser, _ := p.(*st.Parser)
 
-	return p.(*st.Parser)
+	return parser
 }
 
 // NewParser returns a send-tables parser that knows server-classes with the given names, and nothing else.
@@ -123,9 +120,9 @@ func New(spec Spec) *st.Entity {
 	names, values := flatten(spec.Props)
 
 	e := stbridge.NewEntity(spec.Parser, spec.Class, spec.ID, spec.Serial, names, values).(*st.Entity)
-	key := weak.Make(e)
-	parsers.Store(key, spec.Parser)
-	runtime.AddCleanup(e, func(key weak.Pointer[st.Entity]) { parsers.Delete(key) }, key)
+	if spec.Parser != nil {
+		parsers.Store(e, spec.Parser)
+	}
 
 	return e
 }
@@ -144,6 +141,7 @@ func Create(e *st.Entity) {
 }
 
 // Set sets the given property values without firing any handlers.
+// Like an update, it re-activates a destroyed entity (without firing anything).
 // Setting a property that wasn't declared panics.
 func Set(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
@@ -153,7 +151,7 @@ func Set(e *st.Entity, props ...Prop) {
 // Update applies the given property values like one entity packet updating the entity does:
 // each property is set and its update handlers fire before the next one is set, in field-path
 // (declaration) order regardless of the order given. Then the OnUpdateFinished delegates
-// and the parser's entity handlers (Updated) fire.
+// and the parser's entity handlers (Updated, plus Entered if the entity had been destroyed) fire.
 // Setting a property that wasn't declared panics.
 func Update(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
@@ -168,7 +166,8 @@ func UpdateUnfinished(e *st.Entity, props ...Prop) {
 }
 
 // Destroy deletes the entity like an entity packet does: the OnDestroy delegates fire,
-// then the parser's entity handlers (Left|Deleted). Destroying an entity again does nothing.
+// then the parser's entity handlers (Left|Deleted). Destroying an entity again does nothing,
+// unless it was re-activated by Set, Update or UpdateUnfinished in between.
 func Destroy(e *st.Entity) {
 	stbridge.Destroy(e, parserOf(e))
 }

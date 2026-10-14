@@ -1,8 +1,10 @@
 package sendtables
 
 import (
+	"cmp"
 	"fmt"
 	"math"
+	"slices"
 	"strings"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
@@ -88,7 +90,7 @@ type ServerClasses struct {
 	byName map[string]*ServerClass
 }
 
-// All returns all server-classes, in no particular order.
+// All returns all server-classes, sorted by ID.
 // It returns nil if there are none.
 func (sc ServerClasses) All() []*ServerClass {
 	if len(sc.byID) == 0 {
@@ -101,6 +103,10 @@ func (sc ServerClasses) All() []*ServerClass {
 		res = append(res, c)
 	}
 
+	slices.SortFunc(res, func(a, b *ServerClass) int {
+		return cmp.Compare(a.classId, b.classId)
+	})
+
 	return res
 }
 
@@ -109,11 +115,12 @@ func (sc ServerClasses) FindByName(name string) *ServerClass {
 	return sc.byName[name]
 }
 
-// String returns the names of all server-classes, one per line.
+// String returns the names of all server-classes, one per line, sorted by ID.
 func (sc ServerClasses) String() string {
-	names := make([]string, 0, len(sc.byID))
+	all := sc.All()
+	names := make([]string, 0, len(all))
 
-	for _, c := range sc.byID {
+	for _, c := range all {
 		names = append(names, c.name)
 	}
 

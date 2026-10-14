@@ -170,7 +170,12 @@ func (bbi boundingBoxInformation) contains(point r3.Vector) bool {
 
 // ServerClasses returns the server-classes of this demo.
 // These are available after events.DataTablesParsed has been fired.
+// Before the header has been parsed, it returns an empty ServerClasses.
 func (p *Parser) ServerClasses() st.ServerClasses {
+	if p.stParser == nil {
+		return st.ServerClasses{}
+	}
+
 	return p.stParser.ServerClasses()
 }
 

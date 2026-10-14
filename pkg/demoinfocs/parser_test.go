@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -15,6 +16,16 @@ import (
 
 func TestParser_CurrentFrame(t *testing.T) {
 	assert.Equal(t, 1, (&Parser{currentFrame: 1}).CurrentFrame())
+}
+
+func TestParser_ServerClasses_BeforeParsing(t *testing.T) {
+	p := NewParser(bytes.NewReader(make([]byte, 1024)))
+	defer p.Close()
+
+	assert.NotPanics(t, func() {
+		assert.Nil(t, p.ServerClasses().All())
+		assert.Nil(t, p.ServerClasses().FindByName("x"))
+	})
 }
 
 func TestParser_GameState(t *testing.T) {
