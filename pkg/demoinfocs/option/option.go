@@ -101,9 +101,11 @@ func Source2FallbackGameEventListBin(bin []byte) Option {
 	}
 }
 
-// IgnorePacketEntitiesPanic tells the parser to ignore PacketEntities parsing panics.
+// IgnorePacketEntitiesPanic tells the parser to skip PacketEntities net-messages that can't be decoded
+// instead of failing with a demoinfocs.DecodeError.
 // This is required as a workaround for some POV demos that seem to contain rare PacketEntities parsing issues.
-// The ignored panics are reported as ParserWarn events (WarnTypePacketEntitiesPanic).
+// The skipped messages are reported as ParserWarn events (WarnTypePacketEntitiesPanic) with the DecodeError in Err.
+// Panics of handlers (e.g. entity callbacks) aren't ignored, see demoinfocs.PanicError.
 func IgnorePacketEntitiesPanic(ignore bool) Option {
 	return func(c *config.Config) {
 		c.IgnorePacketEntitiesPanic = ignore

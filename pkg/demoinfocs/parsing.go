@@ -4,14 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"math"
 	"slices"
 	"sync"
 	"time"
 
 	"github.com/golang/snappy"
-	dispatch "github.com/markus-wa/godispatch"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
@@ -61,16 +59,6 @@ const (
 
 	// GUID assigned to bot players.
 	botGUID = "BOT"
-)
-
-// Parsing errors
-var (
-	// ErrUnexpectedEndOfDemo signals that the demo is incomplete / corrupt -
-	// these demos may still be useful, check how far the parser got.
-	ErrUnexpectedEndOfDemo = errors.New("demo stream ended unexpectedly (ErrUnexpectedEndOfDemo)")
-
-	// ErrInvalidFileType signals that the input isn't a valid CS2 demo.
-	ErrInvalidFileType = errors.New("invalid File-Type; expecting PBDEMS2 in the first 8 bytes (ErrInvalidFileType)")
 )
 
 // parseHeader attempts to parse the header of the demo and stores it in p.header.
@@ -142,9 +130,35 @@ func msgQueueSize(ticks int) int {
 // queued are dropped and context.Cause(ctx) is returned, so errors.Is(err, context.Canceled)
 // and errors.Is(err, context.DeadlineExceeded) can be used to detect it.
 // If ctx is already done, ParseToEnd returns right away without parsing anything.
+// To stop parsing from a handler, cancel ctx (e.g. via context.WithCancelCause()) - don't panic.
 //
-// See also: ParseNextFrame() for other possible errors.
+// Returned errors:
+//   - ErrUnexpectedEndOfDemo (also matches io.ErrUnexpectedEOF) if the demo is truncated.
+//     All net-messages read up to that point are still handled.
+//   - a *DecodeError (matches ErrDecodeFailed) if some data couldn't be decoded,
+//     because it's corrupt or uses a schema / format this version doesn't support.
+//   - ErrInvalidFileType if the stream doesn't contain a CS2 demo.
+//   - errors returned by the demo stream (wrapped).
+//   - context.Cause(ctx), see above.
+//
+// If several of these happen, the one of the earliest frame of the demo is returned: e.g. a decoding failure
+// of a frame that was read before the demo turned out to be truncated takes precedence over ErrUnexpectedEndOfDemo.
+// Between a cancellation and an error, the one that happened first is returned (e.g. a cancellation after the
+// demo turned out to be truncated doesn't replace ErrUnexpectedEndOfDemo, and vice versa).
+// The events dispatched before an error are valid.
+//
+// If a handler panics, parsing stops and ParseToEnd panics with a *PanicError on the calling goroutine,
+// which contains the original panic value and stack trace. This takes precedence over any error.
+// Close() can still be called afterwards.
+//
+// ParseToEnd can't be resumed after it returned (or panicked):
+// further calls (to ParseToEnd() or ParseNextFrame()) return the same error, nil after success,
+// or ErrParserStopped after a handler panic.
 func (p *Parser) ParseToEnd(ctx context.Context) (err error) {
+	if p.done {
+		return p.doneErr
+	}
+
 	if ctx.Err() != nil {
 		return context.Cause(ctx)
 	}
@@ -152,29 +166,7 @@ func (p *Parser) ParseToEnd(ctx context.Context) (err error) {
 	stopWatchingContext := p.watchContext(ctx)
 
 	defer func() {
-		// Make sure all the messages of the demo are handled
-		p.msgDispatcher.SyncAllQueues()
-
-		// Only stop watching ctx after the queues are drained: handlers skip messages once ctx is done
-		// (see aborted()), so a cancellation during the drain must still be returned.
-		stopWatchingContext()
-
-		p.msgDispatcher.RemoveAllQueues()
-
-		// Close msgQueue
-		if p.msgQueue != nil {
-			close(p.msgQueue)
-		}
-
-		if err == nil {
-			err = recoverFromUnexpectedEOF(recover())
-		}
-
-		// any errors that happened during SyncAllQueues()
-		if err == nil {
-			err = p.error()
-		}
-
+		err = p.finishParsing(recover(), err, true, stopWatchingContext)
 		if err == nil {
 			p.ensurePlaybackValuesAreSet()
 		}
@@ -189,27 +181,25 @@ func (p *Parser) ParseToEnd(ctx context.Context) (err error) {
 		}
 	}
 
+	// Errors of the message-handling goroutine and the cancellation of ctx are collected by finishParsing().
 	for {
-		if !p.parseFrame() {
-			return p.error()
-		}
-
-		if err = p.error(); err != nil {
+		more, err := p.parseFrame()
+		if err != nil {
 			return err
 		}
 
-		if ctx.Err() != nil {
-			return context.Cause(ctx)
+		if !more || p.aborted() {
+			return nil
 		}
 	}
 }
 
-// watchContext aborts parsing via setError() once ctx is done, which also stops
+// watchContext aborts parsing via abortState.setCancelled() once ctx is done, which also stops
 // all handlers and drains the queued backlog without dispatching it.
-// Until setError() has run (context.AfterFunc() runs it on a separate goroutine),
+// Until setCancelled() has run (context.AfterFunc() runs it on a separate goroutine),
 // aborted() checks ctx directly so cancelling from within a handler takes effect immediately.
 //
-// The returned function must be called before the message queues are synced/removed.
+// The returned function must be called before the message queues are removed.
 // It waits for a running abort to finish so no handler is called after ParseToEnd() returns.
 func (p *Parser) watchContext(ctx context.Context) (stop func()) {
 	if ctx.Done() == nil {
@@ -217,12 +207,12 @@ func (p *Parser) watchContext(ctx context.Context) (stop func()) {
 		return func() {}
 	}
 
-	p.ctx = ctx
+	p.abort.ctx = ctx
 
 	aborted := make(chan struct{})
 
 	stopAfterFunc := context.AfterFunc(ctx, func() {
-		p.setError(context.Cause(ctx))
+		p.abort.setCancelled(context.Cause(ctx))
 		close(aborted)
 	})
 
@@ -231,29 +221,97 @@ func (p *Parser) watchContext(ctx context.Context) (stop func()) {
 			<-aborted
 		} else if ctx.Err() != nil {
 			// ctx was cancelled but the AfterFunc hasn't been started yet
-			p.setError(context.Cause(ctx))
+			p.abort.setCancelled(context.Cause(ctx))
 		}
 	}
 }
 
-func recoverFromUnexpectedEOF(r any) error {
-	if r == nil {
+// finishParsing ends a ParseToEnd() / ParseNextFrame() call, it must be deferred by them.
+//
+// r is the value recovered from the parsing goroutine (nil if it didn't panic), readerErr the error it returned.
+// If last is set (or there's an error), the parser is done: the message queue is closed and further
+// ParseToEnd() / ParseNextFrame() calls return the resulting error.
+//
+// A handler panic is re-panicked as *PanicError, otherwise the error that takes precedence is returned,
+// see abortState.
+//
+// stopWatchingContext is the function returned by watchContext().
+func (p *Parser) finishParsing(r any, readerErr error, last bool, stopWatchingContext func()) error {
+	if r != nil {
+		readerErr = p.readerFailure(r)
+	}
+
+	// Recorded before the queue is drained (so a cancellation of ctx during the drain doesn't replace it),
+	// but without stopping the handlers: all the messages that were read are still handled,
+	// also if the demo is truncated or corrupt. Their errors take precedence, see abortState.
+	p.abort.setReaderError(readerErr)
+
+	// After a handler panic the handlers are unregistered already (see abortState.setPanic()),
+	// so this just empties the queue.
+	p.msgDispatcher.SyncAllQueues()
+
+	// Only stop watching ctx after the queue is drained: handlers skip messages once ctx is done
+	// (see aborted()), so a cancellation during the drain must still be recorded.
+	stopWatchingContext()
+
+	pe, err := p.abort.result()
+	if pe != nil {
+		p.markDone(ErrParserStopped)
+
+		panic(pe)
+	}
+
+	if err == nil {
+		if last {
+			p.markDone(nil)
+		}
+
 		return nil
 	}
 
-	if r == io.ErrUnexpectedEOF || r == io.EOF {
-		return fmt.Errorf("unexpected EOF: %w", ErrUnexpectedEndOfDemo)
+	// stops the handlers, if the error didn't already (errors of the parsing goroutine don't)
+	p.abort.stop()
+	p.markDone(err)
+
+	return err
+}
+
+// readerFailure converts the panic r of the parsing goroutine into an error.
+// A handler panic (e.g. of a ParserWarn handler, called on the parsing goroutine) is recorded instead, nil is returned.
+func (p *Parser) readerFailure(r any) error {
+	switch classifyPanic(r) {
+	case panics.KindUser:
+		p.abort.setPanic(panics.Capture(r))
+
+		return nil
+
+	case panics.KindEndOfDemo:
+		// Only the main demo stream panics with a bare io.EOF / io.ErrUnexpectedEOF here,
+		// nested readers have their own boundaries (see handleDemoPacket()).
+		return errUnexpectedEndOfDemo
+
+	case panics.KindRead:
+		return fmt.Errorf("reading demo: %w", r.(*panics.ReadError).Err) //nolint:forcetypeassert // see Classify()
+
+	case panics.KindDecode:
 	}
 
-	switch err := r.(type) {
-	case dispatch.ConsumerCodePanic:
-		panic(err.Value())
+	return newDecodeError(panics.NewFailure(r), p.readerFrame)
+}
 
-	case *panics.Captured:
-		panic(err.Value)
+// markDone marks the parser as done, further ParseToEnd() / ParseNextFrame() calls return err.
+func (p *Parser) markDone(err error) {
+	p.closeMsgQueue()
 
-	default:
-		panic(err)
+	p.done = true
+	p.doneErr = err
+}
+
+func (p *Parser) closeMsgQueue() {
+	p.msgDispatcher.RemoveAllQueues()
+
+	if p.msgQueue != nil {
+		close(p.msgQueue)
 	}
 }
 
@@ -261,9 +319,13 @@ func recoverFromUnexpectedEOF(r any) error {
 ParseNextFrame attempts to parse the next frame / demo-tick (not ingame tick).
 
 Returns true unless the demo command 'stop' or an error was encountered.
+The returned errors are the same as for ParseToEnd() (except for the cancellation):
+e.g. ErrUnexpectedEndOfDemo for truncated demos and a *DecodeError if some data couldn't be decoded.
 
-May return ErrUnexpectedEndOfDemo for incomplete / corrupt demos.
-May panic if the demo is corrupt in some way.
+If a handler panics, ParseNextFrame panics with a *PanicError, see ParseToEnd().
+
+Once ParseNextFrame returned false (or panicked), further calls return the same error, nil after the end of the demo,
+or ErrParserStopped after a handler panic.
 
 ParseNextFrame doesn't take a context.Context: callers that need cancellation
 should check their context between frames and stop calling ParseNextFrame once it's done.
@@ -271,18 +333,19 @@ should check their context between frames and stop calling ParseNextFrame once i
 See also: ParseToEnd() for parsing the complete demo in one go (faster).
 */
 func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
-	defer func() {
-		// Make sure all the messages of the frame are handled
-		p.msgDispatcher.SyncAllQueues()
+	if p.done {
+		return false, p.doneErr
+	}
 
-		// Close msgQueue (only if we are done)
-		if p.msgQueue != nil && !moreFrames {
-			p.msgDispatcher.RemoveAllQueues()
-			close(p.msgQueue)
+	defer func() {
+		r := recover()
+		if r != nil {
+			moreFrames = false
 		}
 
-		if err == nil {
-			err = recoverFromUnexpectedEOF(recover())
+		err = p.finishParsing(r, err, !moreFrames, func() {})
+		if err != nil {
+			moreFrames = false
 		}
 	}()
 
@@ -291,13 +354,11 @@ func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
 	if p.header == nil {
 		err = p.parseHeader()
 		if err != nil {
-			return
+			return false, err
 		}
 	}
 
-	moreFrames = p.parseFrame()
-
-	return moreFrames, p.error()
+	return p.parseFrame()
 }
 
 var demoCommandMsgsCreators = map[msg.EDemoCommands]config.NetMessageCreator{
@@ -397,8 +458,19 @@ func (p *Parser) handleSnappyError(err error) {
 	panic(err)
 }
 
+// queueFrameParsed queues the end of the current frame. readerFrame counts the frames like currentFrame
+// (see handleFrameParsed()), but on the parsing goroutine.
+func (p *Parser) queueFrameParsed() {
+	p.msgQueue <- frameParsedToken
+
+	p.readerFrame++
+}
+
+// parseFrame reads the next frame and queues its messages.
+// It returns false after the last frame, failures to decode the frame are returned as *DecodeError.
+//
 //nolint:funlen
-func (p *Parser) parseFrame() bool {
+func (p *Parser) parseFrame() (bool, error) {
 	cmd := msg.EDemoCommands(p.bitReader.ReadVarInt32())
 
 	msgType := cmd & ^msg.EDemoCommands_DEM_IsCompressed
@@ -419,9 +491,9 @@ func (p *Parser) parseFrame() bool {
 		if cmd == msg.EDemoCommands_DEM_Stop {
 			p.msgQueue <- ingameTickNumber(int32(tick))
 
-			p.msgQueue <- frameParsedToken
+			p.queueFrameParsed()
 
-			return false
+			return false, nil
 		}
 
 		size = uint32(p.bitReader.ReadInt(32))
@@ -436,9 +508,9 @@ func (p *Parser) parseFrame() bool {
 		if msgType == msg.EDemoCommands_DEM_Stop {
 			p.msgQueue <- ingameTickNumber(int32(tick))
 
-			p.msgQueue <- frameParsedToken
+			p.queueFrameParsed()
 
-			return false
+			return false, nil
 		}
 
 		size = p.bitReader.ReadVarInt32()
@@ -454,7 +526,7 @@ func (p *Parser) parseFrame() bool {
 		})
 		p.bitReader.Skip(int(size) << 3)
 
-		return true
+		return true, nil
 	}
 
 	buf, bp := p.readFramePayload(int(size), msgCompressed, isCSTVBroadcast)
@@ -476,36 +548,43 @@ func (p *Parser) parseFrame() bool {
 		default:
 			err := proto.Unmarshal(buf, m)
 			if err != nil {
-				panic(err) // FIXME: avoid panic
+				return false, newDecodeError(err, p.readerFrame)
 			}
 		}
 	} else {
 		err := proto.Unmarshal(buf, m)
-		if err != nil {
-			panic(err) // FIXME: avoid panic
-		}
 
 		putMsgBuf(bp)
+
+		if err != nil {
+			return false, newDecodeError(err, p.readerFrame)
+		}
 	}
 
 	p.msgQueue <- m
 
+	var err error
+
 	switch m := m.(type) {
 	case *msg.CDemoPacket:
-		p.handleDemoPacket(m, false)
+		err = p.handleDemoPacket(m, false)
 
 	case *msg.CDemoFullPacket:
 		p.msgQueue <- m.StringTable
 
 		if m.Packet.GetData() != nil {
-			p.handleDemoPacket(m.Packet, true)
+			err = p.handleDemoPacket(m.Packet, true)
 		}
 	}
 
-	// Queue up some post processing
-	p.msgQueue <- frameParsedToken
+	if err != nil {
+		return false, newDecodeError(err, p.readerFrame)
+	}
 
-	return msgType != msg.EDemoCommands_DEM_Stop
+	// Queue up some post processing
+	p.queueFrameParsed()
+
+	return msgType != msg.EDemoCommands_DEM_Stop, nil
 }
 
 func (p *Parser) handlePacketEntities(m *msg.CSVCMsg_PacketEntities) {
@@ -521,7 +600,24 @@ func (p *Parser) handlePacketEntities(m *msg.CSVCMsg_PacketEntities) {
 
 	p.processingSnapshot = true
 
-	_ = p.stParser.OnPacketEntities(m)
+	err := p.stParser.OnPacketEntities(m)
+	if err != nil {
+		de := newDecodeError(err, p.currentFrame)
+
+		if !p.ignorePacketEntitiesPanic {
+			p.processingSnapshot = false
+
+			p.setError(de)
+
+			return
+		}
+
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Message: fmt.Sprintf("encountered PacketEntities panic: %v", err),
+			Type:    events.WarnTypePacketEntitiesPanic,
+			Err:     de,
+		})
+	}
 
 	// backstop for controller identity & connection changes not applied per entity yet
 	p.flushPlayerControllerUpdates()

@@ -3,13 +3,13 @@ package demoinfocs
 import (
 	"bytes"
 	"errors"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
+	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
 type internalHandlerTestMsg struct{}
@@ -22,136 +22,118 @@ func newInternalHandlerTestParser(t *testing.T) *Parser {
 	p := NewParser(bytes.NewReader(make([]byte, 1024)))
 	t.Cleanup(func() { _ = p.Close() })
 
+	p.initMsgQueue(1)
+
 	return p
 }
 
-// registerWrapped registers h like RegisterNetMessageHandler does (= how internal handlers were registered before registerInternal).
-func registerWrapped[T any](p *Parser, h func(T)) {
-	p.msgDispatcher.RegisterHandler(h)
-}
-
-// queuedPanicError dispatches a message that makes a handler panic via the message queue (= the message-handling goroutine)
-// and returns the resulting parser error (set by the dispatcher's PanicHandler).
-func queuedPanicError(t *testing.T, register func(p *Parser, h func(*internalHandlerTestMsg)), panicValue any) error {
-	t.Helper()
-
-	p := newInternalHandlerTestParser(t)
-	p.initMsgQueue(1)
-
-	register(p, func(*internalHandlerTestMsg) {
-		panic(panicValue)
-	})
-
-	laterHandlerCalled := false
-
-	register(p, func(*internalHandlerTestMsg) {
-		laterHandlerCalled = true
-	})
-
+// dispatchQueued dispatches a message via the message queue (= the message-handling goroutine, like during parsing).
+func dispatchQueued(p *Parser) {
 	p.msgQueue <- &internalHandlerTestMsg{}
 
 	p.msgDispatcher.SyncAllQueues()
-
-	assert.False(t, laterHandlerCalled, "handlers after the panicking one must not be called")
-
-	return p.error()
 }
 
-func errorMessage(t *testing.T, err error) string {
-	t.Helper()
-
-	require.Error(t, err)
-
-	msg, _, found := strings.Cut(err.Error(), "\nstacktrace:\n")
-	require.True(t, found, "error should contain a stack trace: %q", err.Error())
-
-	return msg
-}
-
-// Internal handlers no longer have their panics wrapped in a dispatch.ConsumerCodePanic,
-// the resulting parser error must stay the same.
-func TestRegisterInternal_PanicSetsSameError(t *testing.T) {
-	for _, v := range []any{"boom", errors.New("boom error"), 42} {
-		wrapped := errorMessage(t, queuedPanicError(t, registerWrapped[*internalHandlerTestMsg], v))
-		internal := errorMessage(t, queuedPanicError(t, registerInternal[*internalHandlerTestMsg], v))
-
-		assert.Equal(t, wrapped, internal)
-	}
-
-	assert.Equal(t, "boom", errorMessage(t, queuedPanicError(t, registerInternal[*internalHandlerTestMsg], "boom")))
-}
-
-// A user event handler panicking inside an internal net-message handler.
-func TestRegisterInternal_NestedUserPanicSetsSameError(t *testing.T) {
-	nested := func(register func(p *Parser, h func(*internalHandlerTestMsg))) error {
+// A panic of an internal handler is a decoding failure, the handlers after it aren't called.
+func TestRegisterInternal_PanicIsDecodeError(t *testing.T) {
+	for _, v := range []any{"boom", errors.New("boom"), 42} {
 		p := newInternalHandlerTestParser(t)
-		p.initMsgQueue(1)
+		p.currentFrame = 7
 
-		p.RegisterEventHandler(func(internalHandlerTestEvent) {
-			panic("user boom")
+		registerInternal(p, func(*internalHandlerTestMsg) {
+			panic(v)
 		})
 
-		register(p, func(*internalHandlerTestMsg) {
-			p.eventDispatcher.Dispatch(internalHandlerTestEvent{})
+		laterHandlerCalled := false
+
+		registerInternal(p, func(*internalHandlerTestMsg) {
+			laterHandlerCalled = true
 		})
 
-		p.msgQueue <- &internalHandlerTestMsg{}
+		dispatchQueued(p)
 
-		p.msgDispatcher.SyncAllQueues()
+		assert.False(t, laterHandlerCalled, "handlers after the panicking one must not be called")
+		assert.Nil(t, panicOf(&p.abort))
 
-		return p.error()
+		var de *DecodeError
+		require.ErrorAs(t, errorOf(&p.abort), &de)
+		assert.ErrorIs(t, de, ErrDecodeFailed)
+		assert.Equal(t, 7, de.Frame)
+		assert.NotNil(t, de.Cause)
 	}
-
-	wrapped := errorMessage(t, nested(registerWrapped[*internalHandlerTestMsg]))
-	internal := errorMessage(t, nested(registerInternal[*internalHandlerTestMsg]))
-
-	assert.Equal(t, "user boom", internal)
-	assert.Equal(t, wrapped, internal)
 }
 
-// Net-messages dispatched synchronously on the reader goroutine (e.g. from handleDemoPacket):
-// recoverFromUnexpectedEOF() must re-panic with the same raw value as before.
-func TestRegisterInternal_ReaderSidePanicSameValue(t *testing.T) {
-	recovered := func(register func(p *Parser, h func(*internalHandlerTestMsg))) (r any) {
-		p := newInternalHandlerTestParser(t)
+// A user event handler panicking inside an internal net-message handler is a handler panic.
+func TestRegisterInternal_NestedUserPanic(t *testing.T) {
+	p := newInternalHandlerTestParser(t)
 
-		register(p, func(*internalHandlerTestMsg) {
-			panic("boom")
-		})
+	p.RegisterEventHandler(func(internalHandlerTestEvent) {
+		panic("user boom")
+	})
 
-		defer func() {
-			r = recover()
-		}()
+	registerInternal(p, func(*internalHandlerTestMsg) {
+		p.eventDispatcher.Dispatch(internalHandlerTestEvent{})
+	})
 
-		p.msgDispatcher.Dispatch(&internalHandlerTestMsg{})
+	dispatchQueued(p)
 
-		return nil
-	}
-
-	for _, register := range []func(p *Parser, h func(*internalHandlerTestMsg)){
-		registerWrapped[*internalHandlerTestMsg],
-		registerInternal[*internalHandlerTestMsg],
-	} {
-		r := recovered(register)
-		require.NotNil(t, r)
-
-		assert.PanicsWithValue(t, "boom", func() {
-			_ = recoverFromUnexpectedEOF(r)
-		})
-	}
+	pe := panicOf(&p.abort)
+	require.NotNil(t, pe)
+	assert.Equal(t, "user boom", pe.Value)
+	assert.Contains(t, string(pe.Stack), "TestRegisterInternal_NestedUserPanic")
+	assert.NoError(t, errorOf(&p.abort))
+	assert.True(t, p.aborted())
 }
 
 // A user send-table callback (tagged as *panics.Captured) panicking inside an internal net-message handler
-// must result in the same error as the untagged panic value.
-func TestCapturedPanicSetsSameError(t *testing.T) {
-	for _, v := range []any{"boom", errors.New("boom error"), 42} {
-		raw := errorMessage(t, queuedPanicError(t, registerInternal[*internalHandlerTestMsg], v))
-		captured := errorMessage(t, queuedPanicError(t, registerInternal[*internalHandlerTestMsg], panics.Capture(v)))
+// is a handler panic, the originally captured stack is kept.
+func TestRegisterInternal_CapturedPanic(t *testing.T) {
+	p := newInternalHandlerTestParser(t)
 
-		assert.Equal(t, raw, captured)
-	}
+	c := panics.Capture("boom")
 
-	assert.PanicsWithValue(t, "boom", func() {
-		_ = recoverFromUnexpectedEOF(panics.Capture("boom"))
+	registerInternal(p, func(*internalHandlerTestMsg) {
+		panic(c)
 	})
+
+	dispatchQueued(p)
+
+	pe := panicOf(&p.abort)
+	require.NotNil(t, pe)
+	assert.Equal(t, "boom", pe.Value)
+	assert.Equal(t, c.Stack, pe.Stack)
+}
+
+// A missing property is a decoding failure, also when a user handler looked it up.
+func TestRegisterInternal_PropertyNotFoundInUserHandler(t *testing.T) {
+	p := newInternalHandlerTestParser(t)
+
+	pnf := &st.PropertyNotFoundError{Name: "m_x"}
+
+	p.RegisterEventHandler(func(internalHandlerTestEvent) {
+		panic(pnf)
+	})
+
+	registerInternal(p, func(*internalHandlerTestMsg) {
+		p.eventDispatcher.Dispatch(internalHandlerTestEvent{})
+	})
+
+	dispatchQueued(p)
+
+	assert.Nil(t, panicOf(&p.abort))
+	assert.ErrorIs(t, errorOf(&p.abort), ErrDecodeFailed)
+
+	var err *st.PropertyNotFoundError
+	require.ErrorAs(t, errorOf(&p.abort), &err)
+	assert.Same(t, pnf, err)
+}
+
+// Only the first handler panic is kept.
+func TestSetPanic_FirstWins(t *testing.T) {
+	p := newInternalHandlerTestParser(t)
+
+	p.abort.setPanic(panics.Capture("first"))
+	p.abort.setPanic(panics.Capture("second"))
+
+	assert.Equal(t, "first", panicOf(&p.abort).Value)
 }

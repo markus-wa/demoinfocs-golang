@@ -253,7 +253,8 @@ func (p *Parser) handleEncryptedData(m *msg.CSVCMsg_EncryptedData) {
 // the remaining bits - both happen when the payload was decrypted with the wrong key.
 func readEncryptedInnerHeader(br *bit.BitReader, totalBits int) (t int32, size int, ok bool) {
 	defer func() {
-		// the bit reader panics when reading past the end of its underlying reader
+		// The bit reader panics when reading past the end of its underlying reader.
+		// Recovering everything is fine here: br only reads the in-memory payload and no user code is called.
 		if recover() != nil {
 			ok = false
 		}

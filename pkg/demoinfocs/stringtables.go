@@ -14,6 +14,7 @@ import (
 	bit "github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
 
@@ -75,10 +76,6 @@ func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 		return
 	}
 
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
-
 	if len(p.stringTables) <= int(tab.GetTableId()) {
 		return // FIXME: We never got a proper CreateStringTable for this table ...
 	}
@@ -110,10 +107,6 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	if p.aborted() {
 		return
 	}
-
-	defer func() {
-		p.setError(recoverFromUnexpectedEOF(recover()))
-	}()
 
 	switch tab.GetName() {
 	case stNameUserInfo:
@@ -157,15 +150,25 @@ func (p *Parser) parseStringTable(
 		return items
 	}
 
+	// The items parsed before a failure are still applied.
+	var failure error
+
 	defer func() {
-		err := recover()
-		if err != nil {
-			p.eventDispatcher.Dispatch(events.ParserWarn{
-				Type:    events.WarnTypeStringTableParsingFailure,
-				Message: "failed to parse stringtable properly",
-			})
+		if failure == nil {
+			return
 		}
+
+		err := newDecodeError(failure, p.currentFrame)
+
+		p.eventDispatcher.Dispatch(events.ParserWarn{
+			Type:    events.WarnTypeStringTableParsingFailure,
+			Message: fmt.Sprintf("failed to parse stringtable %q properly: %v", name, err.Cause),
+			Err:     err,
+		})
 	}()
+
+	// Runs before the warning above. Handler panics (e.g. of a ParserWarn handler, see poolBitReader()) propagate.
+	defer panics.RecoverDecode(&failure)
 
 	// Create a reader for the buffer
 	r := bit.NewSmallBitReader(bytes.NewReader(buf))

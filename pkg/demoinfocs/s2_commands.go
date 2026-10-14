@@ -12,6 +12,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
 
@@ -345,12 +346,21 @@ func msgCreatorForType(t int32) config.NetMessageCreator {
 	}
 }
 
+// handleDemoPacket queues the net-messages of a demo packet, it's called on the parsing goroutine.
+//
+// It has its own recover boundary because it reads pack.Data with a nested bit reader:
+// if that runs out of data (corrupt sizes), it panics with io.EOF / io.ErrUnexpectedEOF, which must not be
+// mistaken for the end of the demo stream. Such failures are returned as error, handler panics
+// (e.g. of a ParserWarn handler) propagate.
+//
 //nolint:funlen
-func (p *Parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
+func (p *Parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) (err error) {
+	defer panics.RecoverDecode(&err)
+
 	b := pack.GetData()
 
 	if len(b) == 0 {
-		return
+		return nil
 	}
 
 	r := bitread.NewSmallBitReader(bytes.NewReader(b))
@@ -405,11 +415,13 @@ func (p *Parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
 
 		err := proto.Unmarshal(m.buf, msg)
 		if err != nil {
-			panic(err) // FIXME: avoid panic
+			return err
 		}
 
 		p.msgQueue <- msg
 	}
+
+	return nil
 }
 
 func (p *Parser) handleFileInfo(msg *msg.CDemoFileInfo) {

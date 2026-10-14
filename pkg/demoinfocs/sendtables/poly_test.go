@@ -418,7 +418,7 @@ func TestMaxPolyIDCycleDoesNotCacheUnderstated(t *testing.T) {
 func TestParsePacketBackPatchesPolyCount(t *testing.T) {
 	t.Parallel()
 
-	p := NewParser(nil)
+	p := NewParser()
 
 	err := p.OnDemoClassInfo(&msg.CDemoClassInfo{
 		Classes: []*msg.CDemoClassInfoClassT{

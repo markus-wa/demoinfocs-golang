@@ -13,10 +13,9 @@ import (
 //   - io.ErrUnexpectedEOF, also wrapped (e.g. by compress/gzip for truncated input), becomes a bare io.ErrUnexpectedEOF,
 //     so the demo still counts as truncated (ErrUnexpectedEndOfDemo).
 //   - Any other error becomes a *panics.ReadError.
-//     The bit reader panics with it. It isn't treated differently from other panics yet, it's re-panicked
-//     by ParseToEnd() / ParseNextFrame() (before, the stream's error was re-panicked as is).
+//     The bit reader panics with it, ParseToEnd() / ParseNextFrame() return the stream's error (wrapped).
 //
-// Panics of the stream itself are tagged as user-code panics.
+// Panics of the stream itself are tagged as user-code panics, ParseToEnd() / ParseNextFrame() re-panic them as *PanicError.
 //
 // It deliberately doesn't implement io.Closer, otherwise the bit reader would close the stream.
 // Parser.Close() closes it instead.

@@ -2,7 +2,6 @@ package sendtables
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/golang/geo/r3"
@@ -352,6 +351,10 @@ func (e *Entity) PropertyValue(name string) (PropertyValue, bool) {
 // PropertyValueMust finds a property on the entity by name and returns its value.
 //
 // Panics with a *PropertyNotFoundError if the property was not found.
+// When this happens during parsing (also in a handler), parsing stops and demoinfocs.Parser.ParseToEnd()
+// returns a demoinfocs.DecodeError with the *PropertyNotFoundError as cause, since a missing property means
+// the demo's schema differs from what the code expects (e.g. after a game update).
+// Use PropertyValue() for properties that may be missing.
 func (e *Entity) PropertyValueMust(name string) PropertyValue {
 	val, ok := e.PropertyValue(name)
 	if !ok {
@@ -363,6 +366,7 @@ func (e *Entity) PropertyValueMust(name string) PropertyValue {
 
 // PropertyNotFoundError is the panic value of Entity.PropertyValueMust() if the entity has no property with the given name.
 // This usually means the demo's schema differs from what the caller expects (e.g. after a game update).
+// It's returned by demoinfocs.Parser.ParseToEnd() as the cause of a demoinfocs.DecodeError (see errors.As()).
 type PropertyNotFoundError struct {
 	Name        string // Name of the property
 	EntityID    int    // ID of the entity, see Entity.ID()
@@ -711,20 +715,16 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 
 // OnPacketEntities parses a CSVCMsg_PacketEntities message, applying its entity updates.
 //
+// It returns an error if the message couldn't be decoded (e.g. corrupt data or a missing property,
+// see PropertyNotFoundError). Panics of user callbacks (e.g. OnEntityCreated handlers) propagate,
+// also if they are a PropertyNotFoundError of the callback's own lookups.
+// The entities may be partially updated in both cases.
+//
 // Used internally by package demoinfocs; not covered by API stability guarantees.
 //
 //nolint:gocognit,funlen
-func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
-	defer func() {
-		if p.packetEntitiesPanicWarnFunc == nil {
-			return
-		}
-
-		r := recover()
-		if r != nil {
-			fmt.Fprintf(os.Stderr, "error in OnPacketEntities: %v\n", r)
-		}
-	}()
+func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
+	defer panics.RecoverDecode(&err)
 
 	r := newReader(m.GetEntityData())
 	defer r.release()
