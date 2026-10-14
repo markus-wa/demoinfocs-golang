@@ -351,14 +351,40 @@ func (e *Entity) PropertyValue(name string) (PropertyValue, bool) {
 
 // PropertyValueMust finds a property on the entity by name and returns its value.
 //
-// Panics if the property was not found.
+// Panics with a *PropertyNotFoundError if the property was not found.
 func (e *Entity) PropertyValueMust(name string) PropertyValue {
 	val, ok := e.PropertyValue(name)
 	if !ok {
-		panic(fmt.Sprintf("property '%s' not found", name))
+		panic(newPropertyNotFoundError(e, name))
 	}
 
 	return val
+}
+
+// PropertyNotFoundError is the panic value of Entity.PropertyValueMust() if the entity has no property with the given name.
+// This usually means the demo's schema differs from what the caller expects (e.g. after a game update).
+type PropertyNotFoundError struct {
+	Name        string // Name of the property
+	EntityID    int    // ID of the entity, see Entity.ID()
+	ServerClass string // Name of the entity's server-class, see ServerClass.Name()
+}
+
+func newPropertyNotFoundError(e *Entity, name string) *PropertyNotFoundError {
+	err := &PropertyNotFoundError{
+		Name:     name,
+		EntityID: int(e.index),
+	}
+
+	if e.class != nil {
+		err.ServerClass = e.class.name
+	}
+
+	return err
+}
+
+// Error implements error.
+func (e *PropertyNotFoundError) Error() string {
+	return fmt.Sprintf("property '%s' not found on entity %d (server-class %q)", e.Name, e.EntityID, e.ServerClass)
 }
 
 const (
