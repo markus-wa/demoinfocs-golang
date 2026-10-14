@@ -15,6 +15,7 @@ linters:
     - dupl
     - errcheck
     - exhaustive
+    - forbidigo
     - funlen
     - gocognit
     - goconst
@@ -39,6 +40,21 @@ linters:
     - whitespace
     - wsl_v5
   settings:
+    forbidigo:
+      analyze-types: true
+      forbid:
+        # Handlers registered through these are user code: their panics are tagged as user-code panics
+        # (see pkg/demoinfocs/internal/panics). The parser registers its own handlers via the helpers in
+        # pkg/demoinfocs/internal_handlers.go (registerInternal, st* helpers).
+        - pattern: ^dispatch\.Dispatcher\.RegisterHandler$
+          pkg: ^github\.com/markus-wa/godispatch$
+          msg: handlers registered this way are treated as user code, use registerInternal() for the parser's own net-message handlers
+        - pattern: ^demoinfocs\.Parser\.Register(NetMessage|Event)Handler$
+          pkg: ^github\.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs$
+          msg: public API for user handlers, use registerInternal() for the parser's own handlers
+        - pattern: ^sendtables\.(Property\.OnUpdate|Entity\.(BindProperty|OnDestroy|OnCreateFinished|OnUpdateFinished|OnPositionUpdate)|ServerClass\.OnEntityCreated)$
+          pkg: ^github\.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables$
+          msg: public API for user callbacks, use the st* helpers of package demoinfocs for the parser's own callbacks
     gosec:
       excludes:
         # Integer conversion overflows are intentional bit reinterpretations all over the lib code.
@@ -55,6 +71,13 @@ linters:
       - linters:
           - revive
         text: "^unused-parameter:"
+      # The forbidigo rules only apply to the library code itself (see linters.settings.forbidigo).
+      - path-except: ^pkg/demoinfocs/
+        linters:
+          - forbidigo
+      - path: (_test\.go$|^pkg/demoinfocs/sendtables/)
+        linters:
+          - forbidigo
       # Exclude some linters from running on tests files.
       - path: _test\.go
         linters:

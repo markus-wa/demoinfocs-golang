@@ -89,7 +89,8 @@ type Parser struct {
 
 	config                          config.Config
 	ctx                             context.Context // context of the running ParseToEnd() call, nil if it can't be cancelled; see aborted()
-	bitReader                       *bit.BitReader
+	demostream                      io.Reader       // the stream passed to NewParser(), opened lazily, see ensureOpen()
+	bitReader                       *bit.BitReader  // nil until the demo stream is opened, see ensureOpen()
 	stParser                        *st.Parser
 	additionalNetMessageCreators    map[int]config.NetMessageCreator // Map of net-message-IDs to NetMessageCreators (for parsing custom net-messages)
 	msgQueue                        chan any                         // Queue of net-messages
@@ -284,7 +285,7 @@ Parameter handler has to be of type any because Go generics only work on functio
 Returns an identifier with which the handler can be removed via UnregisterEventHandler().
 */
 func (p *Parser) RegisterEventHandler(handler any) dp.HandlerIdentifier {
-	return p.eventDispatcher.RegisterHandler(handler)
+	return p.eventDispatcher.RegisterHandler(handler) //nolint:forbidigo // public API, registers user handlers
 }
 
 // UnregisterEventHandler removes a game event handler via identifier.
@@ -306,7 +307,7 @@ Returns an identifier with which the handler can be removed via UnregisterNetMes
 See also: RegisterEventHandler()
 */
 func (p *Parser) RegisterNetMessageHandler(handler any) dp.HandlerIdentifier {
-	return p.msgDispatcher.RegisterHandler(handler)
+	return p.msgDispatcher.RegisterHandler(handler) //nolint:forbidigo // public API, registers user handlers
 }
 
 // UnregisterNetMessageHandler removes a net-message handler via identifier.
@@ -317,19 +318,47 @@ func (p *Parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 }
 
 // Close closes any open resources used by the Parser (go routines, file handles).
+// If the demo stream passed to NewParser() implements io.Closer, it's closed too.
 // This must be called before discarding the Parser to avoid memory leaks.
 // Returns an error if closing of underlying resources fails.
 func (p *Parser) Close() error {
 	p.msgDispatcher.RemoveAllQueues()
 
 	if p.bitReader != nil {
+		// Doesn't close the demo stream, see demoReader.
 		err := p.bitReader.Close()
 		if err != nil {
 			return fmt.Errorf("failed to close BitReader: %w", err)
 		}
 	}
 
+	if closer, ok := p.demostream.(io.Closer); ok {
+		err := closer.Close()
+		if err != nil {
+			return fmt.Errorf("failed to close demo stream: %w", err)
+		}
+	}
+
 	return nil
+}
+
+// ensureOpen opens the demo stream for reading, unless it's open already.
+// It's called when parsing starts, so NewParser() doesn't read from the stream.
+//
+// May panic (e.g. with io.EOF for an empty stream), so it must be called within
+// the recover scope of ParseToEnd() / ParseNextFrame().
+func (p *Parser) ensureOpen() {
+	if p.bitReader != nil {
+		return
+	}
+
+	r := newDemoReader(p.demostream)
+
+	if p.config.Format == config.FormatFile {
+		p.bitReader = bit.NewLargeBitReader(r)
+	} else {
+		p.bitReader = bit.NewSmallBitReader(r)
+	}
 }
 
 func (p *Parser) error() error {
@@ -395,6 +424,8 @@ func (p *Parser) poolBitReader(r *bit.BitReader) {
 // The demostream io.Reader (e.g. os.File or bytes.Reader) must provide demo data in the '.DEM' format,
 // unless it's a *cstv.Reader: then the Parser reads the live CSTV broadcast frame format.
 // Only a *cstv.Reader passed directly is detected, not one wrapped in another reader (e.g. bufio.Reader).
+// The stream isn't read until parsing starts (see ParseToEnd() and ParseNextFrame()).
+// If it implements io.Closer, Parser.Close() closes it.
 //
 // Example for a live CSTV broadcast:
 //
@@ -457,11 +488,7 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
 
 	// Init parser
 	p.config = cfg
-	if p.config.Format == config.FormatFile {
-		p.bitReader = bit.NewLargeBitReader(demostream)
-	} else {
-		p.bitReader = bit.NewSmallBitReader(demostream)
-	}
+	p.demostream = demostream
 
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.dirtyControllers = make(map[int]*dirtyPlayerController)
@@ -507,24 +534,24 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
 	p.stParser = st.NewParser(stWarnFunc)
 	p.stParser.OnEntity(p.onEntity)
 
-	p.msgDispatcher.RegisterHandler(p.handleGameEventList)
-	p.msgDispatcher.RegisterHandler(p.handleGameEvent)
-	p.msgDispatcher.RegisterHandler(p.handleServerInfo)
-	p.msgDispatcher.RegisterHandler(p.handleCreateStringTable)
-	p.msgDispatcher.RegisterHandler(p.handleUpdateStringTable)
-	p.msgDispatcher.RegisterHandler(p.handleSetConVar)
-	p.msgDispatcher.RegisterHandler(p.handleServerRankUpdate)
-	p.msgDispatcher.RegisterHandler(p.handleMessageSayText)
-	p.msgDispatcher.RegisterHandler(p.handleMessageSayText2)
-	p.msgDispatcher.RegisterHandler(p.handleEncryptedData)
-	p.msgDispatcher.RegisterHandler(p.handleSendTables)
-	p.msgDispatcher.RegisterHandler(p.handleFileInfo)
-	p.msgDispatcher.RegisterHandler(p.handleDemoFileHeader)
-	p.msgDispatcher.RegisterHandler(p.handleClassInfo)
-	p.msgDispatcher.RegisterHandler(p.handleStringTables)
-	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
-	p.msgDispatcher.RegisterHandler(p.gameState.handleIngameTickNumber)
-	p.msgDispatcher.RegisterHandler(p.handleUserCommands)
+	registerInternal(&p, p.handleGameEventList)
+	registerInternal(&p, p.handleGameEvent)
+	registerInternal(&p, p.handleServerInfo)
+	registerInternal(&p, p.handleCreateStringTable)
+	registerInternal(&p, p.handleUpdateStringTable)
+	registerInternal(&p, p.handleSetConVar)
+	registerInternal(&p, p.handleServerRankUpdate)
+	registerInternal(&p, p.handleMessageSayText)
+	registerInternal(&p, p.handleMessageSayText2)
+	registerInternal(&p, p.handleEncryptedData)
+	registerInternal(&p, p.handleSendTables)
+	registerInternal(&p, p.handleFileInfo)
+	registerInternal(&p, p.handleDemoFileHeader)
+	registerInternal(&p, p.handleClassInfo)
+	registerInternal(&p, p.handleStringTables)
+	registerInternal(&p, p.handleFrameParsed)
+	registerInternal(&p, p.gameState.handleIngameTickNumber)
+	registerInternal(&p, p.handleUserCommands)
 
 	if cfg.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(cfg.MsgQueueBufferSize)

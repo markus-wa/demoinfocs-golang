@@ -15,6 +15,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
@@ -98,14 +99,14 @@ func (p *Parser) parseHeader() error {
 
 		// Error returns were already discarded by the dispatcher before these
 		// wrappers existed; the wrappers only add the aborted() short-circuit.
-		p.RegisterNetMessageHandler(func(m *msg.CSVCMsg_ServerInfo) {
+		registerInternal(p, func(m *msg.CSVCMsg_ServerInfo) {
 			if p.aborted() {
 				return
 			}
 
 			_ = p.stParser.OnServerInfo(m)
 		})
-		p.RegisterNetMessageHandler(p.handlePacketEntities)
+		registerInternal(p, p.handlePacketEntities)
 
 	default:
 		return ErrInvalidFileType
@@ -179,6 +180,8 @@ func (p *Parser) ParseToEnd(ctx context.Context) (err error) {
 		}
 	}()
 
+	p.ensureOpen()
+
 	if p.header == nil {
 		err = p.parseHeader()
 		if err != nil {
@@ -246,6 +249,9 @@ func recoverFromUnexpectedEOF(r any) error {
 	case dispatch.ConsumerCodePanic:
 		panic(err.Value())
 
+	case *panics.Captured:
+		panic(err.Value)
+
 	default:
 		panic(err)
 	}
@@ -279,6 +285,8 @@ func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
 			err = recoverFromUnexpectedEOF(recover())
 		}
 	}()
+
+	p.ensureOpen()
 
 	if p.header == nil {
 		err = p.parseHeader()
