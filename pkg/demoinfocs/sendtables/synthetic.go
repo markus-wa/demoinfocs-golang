@@ -227,6 +227,6 @@ func syntheticDestroy(e *Entity) {
 		return // entity has already been destroyed
 	}
 
-	e.Destroy()
+	e.destroy()
 	syntheticInfoOf(e).fireEntityHandlers(e, EntityOpLeft|EntityOpDeleted)
 }

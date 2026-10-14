@@ -91,7 +91,7 @@ func (v PropertyValue) String() string {
 	return fmt.Sprint(v.Any)
 }
 
-// BoolVal returns true if IntVal > 0.
+// BoolVal returns the value as a bool.
 func (v PropertyValue) BoolVal() bool {
 	return v.Any.(bool)
 }

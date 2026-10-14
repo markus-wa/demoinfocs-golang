@@ -279,7 +279,7 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 	// so we need to do it here for those that weren't.
 	//
 	// We're not deleting them from entitites though as that's supposed to be as close to the actual demo data as possible.
-	// We're also not using Entity.Destroy() because it would - in some cases - be called twice on the same entity
+	// We're also not destroying the entities (firing their OnDestroy handlers) because it would - in some cases - happen twice for the same entity
 	// and it's supposed to be called when the demo actually says so (same case as with gameState.entities).
 	for _, proj := range geh.gameState().grenadeProjectiles {
 		geh.parser.nadeProjectileDestroyed(proj)

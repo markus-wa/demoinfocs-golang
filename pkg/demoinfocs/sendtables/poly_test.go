@@ -572,14 +572,14 @@ func TestPolyStateSlotSemantics(t *testing.T) {
 	modePath.path[0] = 1 // m_pMode
 	e.state.set(modePath, true)
 
-	val := e.Get("m_pMode")
+	val := e.get("m_pMode")
 	require.NotNil(t, val)
 	assert.Equal(t, true, val) // bool while no sub-fields
 
 	// Writing a sub-field replaces the bool with a *fieldState.
 	e.state.set(polySubPath(), int32(5))
 
-	val = e.Get("m_pMode")
+	val = e.get("m_pMode")
 	require.NotNil(t, val)
 	_, isFS := val.(*fieldState)
 	assert.True(t, isFS, "expected *fieldState, got %T", val)

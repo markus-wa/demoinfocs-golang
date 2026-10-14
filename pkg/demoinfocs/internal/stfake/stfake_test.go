@@ -19,7 +19,7 @@ func TestNewEntity_Properties(t *testing.T) {
 
 	assert.Equal(t, 100, e.PropertyValueMust("m_iHealth").Int())
 	assert.Equal(t, uint64(3), e.Property("m_pWeaponServices.m_hActiveWeapon").Value().Handle())
-	assert.Equal(t, int32(100), e.Get("m_iHealth"))
+	assert.Equal(t, int32(100), e.PropertyValueMust("m_iHealth").Any)
 
 	v, ok := e.PropertyValue("m_unset")
 	assert.True(t, ok)

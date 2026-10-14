@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/golang/geo/r3"
-	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
 
@@ -92,7 +91,7 @@ func (p *Property) Name() string {
 
 // Value returns the current value of the property.
 func (p *Property) Value() PropertyValue {
-	v := p.entity.Get(p.name)
+	v := p.entity.get(p.name)
 
 	fs, ok := v.(*fieldState)
 	if ok {
@@ -422,10 +421,8 @@ func (e *Entity) Replaced() bool {
 	return e.replaced
 }
 
-// Destroy marks the entity as inactive and triggers all via OnDestroy() registered functions.
-//
-// Intended for internal use only.
-func (e *Entity) Destroy() {
+// destroy marks the entity as inactive and triggers all via OnDestroy() registered functions.
+func (e *Entity) destroy() {
 	e.active = false
 
 	for _, delegate := range e.onDestroy {
@@ -503,18 +500,8 @@ func (e *Entity) String() string {
 	return fmt.Sprintf("%d <%s>\n %s", e.index, e.class.name, strings.Join(props, "\n "))
 }
 
-// Map returns a map of current entity state as key-value pairs
-func (e *Entity) Map() map[string]any {
-	values := make(map[string]any)
-	for _, fp := range e.class.getFieldPaths(newFieldPath(), e.state, e.polySerializers) {
-		values[e.class.getNameForFieldPath(fp, e.polySerializers)] = e.state.get(fp)
-	}
-
-	return values
-}
-
-// Get returns the current value of the Entity state for the given key
-func (e *Entity) Get(name string) any {
+// get returns the current value of the Entity state for the given key
+func (e *Entity) get(name string) any {
 	if fp, ok := e.fpCache[name]; ok {
 		return e.state.get(fp)
 	}
@@ -535,113 +522,6 @@ func (e *Entity) Get(name string) any {
 	e.fpCache[name] = fp
 
 	return e.state.get(fp)
-}
-
-// Exists returns true if the given key exists in the Entity state
-func (e *Entity) Exists(name string) bool {
-	return e.Get(name) != nil
-}
-
-// GetInt32 gets given key as an int32
-func (e *Entity) GetInt32(name string) (int32, bool) {
-	x, ok := e.Get(name).(int32)
-	return x, ok
-}
-
-// GetUint32 gets given key as a uint32
-func (e *Entity) GetUint32(name string) (uint32, bool) {
-	if v := e.Get(name); v != nil {
-		switch x := v.(type) {
-		case uint32:
-			return x, true
-		case uint64:
-			return uint32(x), true
-		}
-	}
-
-	return 0, false
-}
-
-// GetUint64 gets given key as a uint64
-func (e *Entity) GetUint64(name string) (uint64, bool) {
-	x, ok := e.Get(name).(uint64)
-	return x, ok
-}
-
-// GetFloat32 gets given key as an float32
-func (e *Entity) GetFloat32(name string) (float32, bool) {
-	x, ok := e.Get(name).(float32)
-	return x, ok
-}
-
-// GetString gets given key as a string
-func (e *Entity) GetString(name string) (string, bool) {
-	x, ok := e.Get(name).(string)
-	return x, ok
-}
-
-// GetBool gets given key as a bool
-func (e *Entity) GetBool(name string) (bool, bool) {
-	x, ok := e.Get(name).(bool)
-	return x, ok
-}
-
-// GetSerial return the serial of the class associated with this Entity
-func (e *Entity) GetSerial() int32 {
-	return e.serial
-}
-
-// GetClassId returns the id of the class associated with this Entity
-func (e *Entity) GetClassId() int32 { //nolint:revive
-	return e.class.classId
-}
-
-// GetClassName returns the name of the class associated with this Entity
-func (e *Entity) GetClassName() string {
-	return e.class.name
-}
-
-// GetIndex returns the index of this Entity
-func (e *Entity) GetIndex() int32 {
-	return e.index
-}
-
-// FindEntity finds a given Entity by index
-func (p *Parser) FindEntity(index int32) *Entity {
-	return p.entities[index]
-}
-
-func handle2idx(handle uint64) int32 {
-	return int32(handle & constants.EntityHandleIndexMaskSource2)
-}
-
-func serialForHandle(handle uint64) int32 {
-	return int32(handle >> constants.MaxEdictBitsSource2)
-}
-
-// FindEntityByHandle finds a given Entity by handle
-func (p *Parser) FindEntityByHandle(handle uint64) *Entity {
-	idx := handle2idx(handle)
-
-	e := p.FindEntity(idx)
-	if e != nil && e.GetSerial() != serialForHandle(handle) {
-		return nil
-	}
-
-	return e
-}
-
-// FilterEntity finds entities by callback
-func (p *Parser) FilterEntity(fb func(*Entity) bool) []*Entity {
-	entities := make([]*Entity, 0)
-
-	for _, et := range p.entities {
-		if fb(et) {
-			entities = append(entities, et)
-		}
-	}
-
-	return entities
 }
 
 //nolint:gocognit,funlen
@@ -746,7 +626,9 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 	}
 }
 
-// OnPacketEntities is an internal callback for OnCSVCMsg_PacketEntities.
+// OnPacketEntities parses a CSVCMsg_PacketEntities message, applying its entity updates.
+//
+// Used internally by package demoinfocs; not covered by API stability guarantees.
 //
 //nolint:gocognit,funlen
 func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
@@ -811,7 +693,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 				// The same serial means the same entity is re-created, e.g. when it re-enters the PVS on POV demos.
 				if old := p.entities[index]; old != nil && old.active && old.serial != serial {
 					old.replaced = true
-					old.Destroy()
+					old.destroy()
 
 					p.tuplesCache = append(p.tuplesCache, tuple{old, EntityOpLeft | EntityOpDeleted})
 				}
@@ -875,7 +757,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 			if cmd&0x02 != 0 {
 				op |= EntityOpDeleted
 
-				e.Destroy()
+				e.destroy()
 			}
 		}
 
@@ -907,6 +789,8 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 
 // OnEntity registers an EntityHandler that will be called when an entity
 // is created, updated, deleted, etc.
+//
+// Used internally by package demoinfocs; not covered by API stability guarantees.
 func (p *Parser) OnEntity(h EntityHandler) {
 	p.entityHandlers = append(p.entityHandlers, h)
 }

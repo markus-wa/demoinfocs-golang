@@ -5,7 +5,6 @@ import (
 	"math"
 	"strings"
 
-	bit "github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 	"google.golang.org/protobuf/proto"
 )
@@ -55,6 +54,9 @@ type tuple struct {
 }
 
 // Parser parses CS2 send tables (FlattenedSerializer + PacketEntities).
+//
+// Parser and its methods are used internally by package demoinfocs and are not covered by API stability guarantees,
+// except for ServerClasses(). Use demoinfocs.Parser.ServerClasses() and the GameState's entities instead.
 type Parser struct {
 	serializers                 map[string]*serializer
 	classIdSize                 uint32 //nolint:revive
@@ -73,10 +75,6 @@ type Parser struct {
 	// polyMaxCache memoizes, per serializer, the highest polySerializerID
 	// reachable from it. Used to size per-class polySerializers slices.
 	polyMaxCache map[*serializer]int
-}
-
-func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]*Entity, slot int) *Entity {
-	panic("implement me")
 }
 
 // ServerClasses is a searchable list of ServerClasses.
@@ -117,6 +115,8 @@ func (p *Parser) ServerClasses() ServerClasses {
 }
 
 // NewParser creates a new CS2 send-tables parser.
+//
+// Used internally by package demoinfocs; not covered by API stability guarantees.
 func NewParser(packetEntitiesPanicWarnFunc func(error)) *Parser {
 	return &Parser{
 		serializers:                 make(map[string]*serializer),
@@ -129,7 +129,9 @@ func NewParser(packetEntitiesPanicWarnFunc func(error)) *Parser {
 	}
 }
 
-// OnServerInfo is an internal callback for OnCSVCMsg_ServerInfo.
+// OnServerInfo processes a CSVCMsg_ServerInfo message.
+//
+// Used internally by package demoinfocs; not covered by API stability guarantees.
 func (p *Parser) OnServerInfo(m *msg.CSVCMsg_ServerInfo) error {
 	// This may be needed to parse PacketEntities.
 	p.classIdSize = uint32(math.Log(float64(m.GetMaxClasses()))/math.Log(2)) + 1
@@ -137,7 +139,9 @@ func (p *Parser) OnServerInfo(m *msg.CSVCMsg_ServerInfo) error {
 	return nil
 }
 
-// OnDemoClassInfo is an internal callback for CDemoClassInfo messages.
+// OnDemoClassInfo processes a CDemoClassInfo message, registering the server-classes.
+//
+// Used internally by package demoinfocs; not covered by API stability guarantees.
 func (p *Parser) OnDemoClassInfo(m *msg.CDemoClassInfo) error {
 	for _, c := range m.GetClasses() {
 		classId := c.GetClassId() //nolint:revive
@@ -171,7 +175,7 @@ func (p *Parser) OnDemoClassInfo(m *msg.CDemoClassInfo) error {
 
 // SetInstanceBaseline sets the raw instance-baseline data for a serverclass by ID.
 //
-// Intended for internal use only.
+// Used internally by package demoinfocs; not covered by API stability guarantees.
 func (p *Parser) SetInstanceBaseline(scID int, data []byte) {
 	if scID < 0 || scID > math.MaxInt32 {
 		panic(fmt.Sprintf("scID %d is out of bounds", scID))
@@ -181,6 +185,8 @@ func (p *Parser) SetInstanceBaseline(scID int, data []byte) {
 }
 
 // ParsePacket parses a FlattenedSerializer packet, building the serializer/field model.
+//
+// Used internally by package demoinfocs; not covered by API stability guarantees.
 //
 //nolint:gocognit,funlen
 func (p *Parser) ParsePacket(b []byte) error {
