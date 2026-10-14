@@ -8,7 +8,7 @@ require (
 	github.com/llgcode/draw2d v0.0.0-20230723155556-e595d7c7e75e
 	github.com/markus-wa/demoinfocs-golang/v6 v6.0.0
 	github.com/markus-wa/go-heatmap/v2 v2.0.0
-	github.com/markus-wa/godispatch v1.4.1
+	github.com/markus-wa/godispatch v1.5.1
 	github.com/stretchr/testify v1.12.1
 	google.golang.org/protobuf v1.36.12
 )
