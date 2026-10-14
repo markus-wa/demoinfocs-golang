@@ -283,7 +283,7 @@ func TestGameRules_FreezeTime(t *testing.T) {
 }
 
 func TestGameRules_RoundTime(t *testing.T) {
-	ent := stfake.NewEntity(1, stfake.P("cs_gamerules_data.m_iRoundTime", int32(115)))
+	ent := stfake.NewEntity(1, stfake.P("m_pGameRules.m_iRoundTime", int32(115)))
 	gr := GameRules{entity: ent}
 
 	rt, err := gr.RoundTime()
@@ -306,7 +306,7 @@ func TestGameRules(t *testing.T) {
 	_, err = gr.FreezeTime()
 	assert.Equal(t, ErrFailedToRetrieveGameRule, err)
 
-	ent := stfake.NewEntity(1) // no cs_gamerules_data.m_iRoundTime
+	ent := stfake.NewEntity(1) // no m_pGameRules.m_iRoundTime
 	gr = GameRules{entity: ent}
 
 	_, err = gr.RoundTime()
