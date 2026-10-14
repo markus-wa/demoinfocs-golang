@@ -15,6 +15,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
@@ -245,6 +246,9 @@ func recoverFromUnexpectedEOF(r any) error {
 	switch err := r.(type) {
 	case dispatch.ConsumerCodePanic:
 		panic(err.Value())
+
+	case *panics.Captured:
+		panic(err.Value)
 
 	default:
 		panic(err)

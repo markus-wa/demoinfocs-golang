@@ -33,12 +33,12 @@ func (p *Parser) bindBomb() {
 
 	// Track bomb when it is dropped on the ground or being held by a player
 	scC4 := p.stParser.ServerClasses().FindByName("CC4")
-	scC4.OnEntityCreated(func(bombEntity *st.Entity) {
-		bombEntity.OnPositionUpdate(func(pos r3.Vector) {
+	stOnEntityCreated(scC4, func(bombEntity *st.Entity) {
+		stOnPositionUpdate(bombEntity, func(pos r3.Vector) {
 			bomb.LastOnGroundPosition = pos
 		})
 
-		bombEntity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(bombEntity.Property("m_hOwnerEntity"), func(val st.PropertyValue) {
 			carrier := p.gameState.Participants().FindByPawnHandle(val.Handle())
 			if !p.disableMimicSource1GameEvents {
 				if carrier != nil {
@@ -57,7 +57,7 @@ func (p *Parser) bindBomb() {
 		})
 
 		// Updated when a player starts/stops planting the bomb
-		bombEntity.Property("m_bStartedArming").OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(bombEntity.Property("m_bStartedArming"), func(val st.PropertyValue) {
 			if val.BoolVal() { //nolint:nestif
 				planterHandle := bombEntity.PropertyValueMust("m_hOwnerEntity").Handle()
 
@@ -109,7 +109,7 @@ func (p *Parser) bindBomb() {
 			}
 		})
 
-		bombEntity.OnDestroy(func() {
+		stOnDestroy(bombEntity, func() {
 			// the bomb was re-created (e.g. round restart) while it was being planted
 			if isEntityReplaced(bombEntity) && p.gameState.currentPlanter != nil && p.gameState.currentPlanter.IsPlanting {
 				p.gameState.currentPlanter.IsPlanting = false
@@ -122,7 +122,7 @@ func (p *Parser) bindBomb() {
 
 	// Track bomb when it has been planted
 	scPlantedC4 := p.stParser.ServerClasses().FindByName("CPlantedC4")
-	scPlantedC4.OnEntityCreated(func(bombEntity *st.Entity) {
+	stOnEntityCreated(scPlantedC4, func(bombEntity *st.Entity) {
 		// Player can't hold the bomb when it has been planted
 		p.gameState.bomb.Carrier = nil
 		p.gameState.currentPlanter = nil
@@ -184,7 +184,7 @@ func (p *Parser) bindBomb() {
 			// the server may stop the bomb without detonating it (e.g. at half-time or map end).
 			hasExploded := false
 
-			hasExplodedProp.OnUpdate(func(val st.PropertyValue) {
+			stOnUpdate(hasExplodedProp, func(val st.PropertyValue) {
 				if val.Any == nil || !val.BoolVal() || hasExploded {
 					return
 				}
@@ -196,7 +196,7 @@ func (p *Parser) bindBomb() {
 		} else {
 			// Fallback for demos without m_bHasExploded.
 			// Set to true when the bomb has been planted and to false when it has been defused or has exploded.
-			bombEntity.Property("m_bBombTicking").OnUpdate(func(val st.PropertyValue) {
+			stOnUpdate(bombEntity.Property("m_bBombTicking"), func(val st.PropertyValue) {
 				if val.Any == nil || val.BoolVal() {
 					return
 				}
@@ -214,7 +214,7 @@ func (p *Parser) bindBomb() {
 		}
 
 		// Updated when a player starts/stops defusing the bomb
-		bombEntity.Property("m_hBombDefuser").OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(bombEntity.Property("m_hBombDefuser"), func(val st.PropertyValue) {
 			if val.Any == nil {
 				return
 			}
@@ -256,7 +256,7 @@ func (p *Parser) bindBomb() {
 		})
 
 		// Updated when the bomb has been planted and defused.
-		bombEntity.Property("m_bBombDefused").OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(bombEntity.Property("m_bBombDefused"), func(val st.PropertyValue) {
 			if val.Any == nil {
 				return
 			}
@@ -273,14 +273,14 @@ func (p *Parser) bindBomb() {
 			}
 		})
 
-		bombEntity.OnDestroy(func() {
+		stOnDestroy(bombEntity, func() {
 			p.gameState.currentDefuser = nil
 		})
 	})
 }
 
 func (p *Parser) bindTeamStates() {
-	p.stParser.ServerClasses().FindByName("CCSTeam").OnEntityCreated(func(entity *st.Entity) {
+	stOnEntityCreated(p.stParser.ServerClasses().FindByName("CCSTeam"), func(entity *st.Entity) {
 		teamVal := entity.PropertyValueMust("m_szTeamname")
 		team := teamVal.String()
 
@@ -313,7 +313,7 @@ func (p *Parser) bindTeamStates() {
 
 			scoreProp = entity.Property("m_iScore")
 
-			scoreProp.OnUpdate(func(val st.PropertyValue) {
+			stOnUpdate(scoreProp, func(val st.PropertyValue) {
 				oldScore := score
 				score = val.Int()
 
@@ -324,7 +324,7 @@ func (p *Parser) bindTeamStates() {
 				})
 			})
 
-			entity.Property("m_szClanTeamname").OnUpdate(func(val st.PropertyValue) {
+			stOnUpdate(entity.Property("m_szClanTeamname"), func(val st.PropertyValue) {
 				oldClanName := clanName
 				clanName = val.Str()
 
@@ -339,34 +339,34 @@ func (p *Parser) bindTeamStates() {
 }
 
 func (p *Parser) bindBombSites() {
-	p.stParser.ServerClasses().FindByName("CCSPlayerResource").OnEntityCreated(func(playerResource *st.Entity) {
-		playerResource.BindProperty("m_bombsiteCenterA", &p.bombsiteA.center, st.ValTypeVector)
-		playerResource.BindProperty("m_bombsiteCenterB", &p.bombsiteB.center, st.ValTypeVector)
+	stOnEntityCreated(p.stParser.ServerClasses().FindByName("CCSPlayerResource"), func(playerResource *st.Entity) {
+		stBindProperty(playerResource, "m_bombsiteCenterA", &p.bombsiteA.center, st.ValTypeVector)
+		stBindProperty(playerResource, "m_bombsiteCenterB", &p.bombsiteB.center, st.ValTypeVector)
 	})
 
 	onBombTargetEntityCreated := func(target *st.Entity) {
 		t := new(boundingBoxInformation)
 		p.triggers[target.ID()] = t
 
-		target.BindProperty("m_vecMins", &t.min, st.ValTypeVector)
-		target.BindProperty("m_vecMaxs", &t.max, st.ValTypeVector)
+		stBindProperty(target, "m_vecMins", &t.min, st.ValTypeVector)
+		stBindProperty(target, "m_vecMaxs", &t.max, st.ValTypeVector)
 	}
 
 	// CBombTarget is not available with CS2 demos created in the early days of the limited test.
 	bombTargetClass := p.stParser.ServerClasses().FindByName("CBombTarget")
 	if bombTargetClass != nil {
-		bombTargetClass.OnEntityCreated(onBombTargetEntityCreated)
+		stOnEntityCreated(bombTargetClass, onBombTargetEntityCreated)
 		return
 	}
 
-	p.stParser.ServerClasses().FindByName("CBaseTrigger").OnEntityCreated(onBombTargetEntityCreated)
+	stOnEntityCreated(p.stParser.ServerClasses().FindByName("CBaseTrigger"), onBombTargetEntityCreated)
 }
 
 func (p *Parser) bindPlayers() {
-	p.stParser.ServerClasses().FindByName("CCSPlayerController").OnEntityCreated(func(player *st.Entity) {
+	stOnEntityCreated(p.stParser.ServerClasses().FindByName("CCSPlayerController"), func(player *st.Entity) {
 		p.bindNewPlayerController(player)
 	})
-	p.stParser.ServerClasses().FindByName("CCSPlayerPawn").OnEntityCreated(func(player *st.Entity) {
+	stOnEntityCreated(p.stParser.ServerClasses().FindByName("CCSPlayerPawn"), func(player *st.Entity) {
 		p.bindNewPlayerPawn(player)
 	})
 }
@@ -735,7 +735,7 @@ func (p *Parser) bindNewPlayerController(controllerEntity *st.Entity) {
 	// person takes over a slot - e.g. renaming the previous occupant to the new name or changing its team.
 	// The handlers only mark the controller dirty; the changes are applied once all of the controller's
 	// updates in the packet are.
-	controllerEntity.OnUpdateFinished(func() {
+	stOnUpdateFinished(controllerEntity, func() {
 		p.flushPlayerController(controllerEntity.ID())
 	})
 
@@ -743,18 +743,18 @@ func (p *Parser) bindNewPlayerController(controllerEntity *st.Entity) {
 		p.markPlayerControllerDirty(controllerEntity)
 	}
 
-	controllerEntity.Property("m_iszPlayerName").OnUpdate(syncIdentity)
-	controllerEntity.Property("m_steamID").OnUpdate(syncIdentity)
+	stOnUpdate(controllerEntity.Property("m_iszPlayerName"), syncIdentity)
+	stOnUpdate(controllerEntity.Property("m_steamID"), syncIdentity)
 
-	controllerEntity.Property("m_iConnected").OnUpdate(func(st.PropertyValue) {
+	stOnUpdate(controllerEntity.Property("m_iConnected"), func(st.PropertyValue) {
 		p.markPlayerControllerDirty(controllerEntity).connectionChanged = true
 	})
 
-	controllerEntity.Property("m_iTeamNum").OnUpdate(func(st.PropertyValue) {
+	stOnUpdate(controllerEntity.Property("m_iTeamNum"), func(st.PropertyValue) {
 		p.markPlayerControllerDirty(controllerEntity).teamChanged = true
 	})
 
-	controllerEntity.OnDestroy(func() {
+	stOnDestroy(controllerEntity, func() {
 		pl := currentPlayer()
 		pl.IsConnected = false
 
@@ -782,7 +782,7 @@ func (p *Parser) bindNewPlayerPawn(pawnEntity *st.Entity) {
 		return p.gameState.Participants().FindByHandle64(controllerProp.Handle())
 	}
 
-	pawnEntity.Property("m_hController").OnUpdate(func(controllerHandleVal st.PropertyValue) {
+	stOnUpdate(pawnEntity.Property("m_hController"), func(controllerHandleVal st.PropertyValue) {
 		controllerHandle := controllerHandleVal.Handle()
 		if controllerHandle == constants.InvalidEntityHandleSource2 || controllerHandle == prevControllerHandle {
 			return
@@ -805,7 +805,7 @@ func (p *Parser) bindNewPlayerPawn(pawnEntity *st.Entity) {
 		})
 	})
 
-	pawnEntity.Property("m_flFlashDuration").OnUpdate(func(val st.PropertyValue) {
+	stOnUpdate(pawnEntity.Property("m_flFlashDuration"), func(val st.PropertyValue) {
 		pl := getPlayerFromPawnEntity(pawnEntity)
 		if pl == nil {
 			return
@@ -828,7 +828,7 @@ func (p *Parser) bindNewPlayerPawn(pawnEntity *st.Entity) {
 		}
 	})
 
-	pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon").OnUpdate(func(val st.PropertyValue) {
+	stOnUpdate(pawnEntity.Property("m_pWeaponServices.m_hActiveWeapon"), func(val st.PropertyValue) {
 		pl := getPlayerFromPawnEntity(pawnEntity)
 		if pl == nil {
 			return
@@ -837,7 +837,7 @@ func (p *Parser) bindNewPlayerPawn(pawnEntity *st.Entity) {
 		pl.IsReloading = false
 	})
 
-	pawnEntity.Property("m_bIsDefusing").OnUpdate(func(val st.PropertyValue) {
+	stOnUpdate(pawnEntity.Property("m_bIsDefusing"), func(val st.PropertyValue) {
 		pl := getPlayerFromPawnEntity(pawnEntity)
 		if pl == nil {
 			return
@@ -857,8 +857,8 @@ func (p *Parser) bindNewPlayerPawn(pawnEntity *st.Entity) {
 			p.eventDispatcher.Dispatch(events.PlayerSpottersChanged{Spotted: pl})
 		}
 
-		spottedByMaskProp.OnUpdate(spottersChanged)
-		pawnEntity.Property("m_bSpottedByMask.0001").OnUpdate(spottersChanged)
+		stOnUpdate(spottedByMaskProp, spottersChanged)
+		stOnUpdate(pawnEntity.Property("m_bSpottedByMask.0001"), spottersChanged)
 	}
 
 	// Legacy fallback for demos that don't contain CSVCMsg_UserCommands messages.
@@ -867,7 +867,7 @@ func (p *Parser) bindNewPlayerPawn(pawnEntity *st.Entity) {
 	// instead. When both are present, the user command messages take precedence.
 	buttonDownMaskProp := pawnEntity.Property("m_pMovementServices.m_nButtonDownMaskPrev")
 	if !p.hasUserCmdMessages && buttonDownMaskProp != nil {
-		buttonDownMaskProp.OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(buttonDownMaskProp, func(val st.PropertyValue) {
 			pl := getPlayerFromPawnEntity(pawnEntity)
 			if pl == nil {
 				return
@@ -940,7 +940,7 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 		p.gameState.updateLastKnownGrenadeWeapons(pl)
 	}
 
-	pawnEntity.Property(playerWeaponPrefixS2).OnUpdate(func(pv st.PropertyValue) {
+	stOnUpdate(pawnEntity.Property(playerWeaponPrefixS2), func(pv st.PropertyValue) {
 		inventorySize = len(pv.Array())
 
 		setPlayerInventory()
@@ -980,7 +980,7 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 
 		property := pawnEntity.Property(playerWeaponPrefixS2 + fmt.Sprintf(".%04d", i))
 		updateWeapon(property.Value())
-		property.OnUpdate(updateWeapon)
+		stOnUpdate(property, updateWeapon)
 	}
 }
 
@@ -1007,15 +1007,15 @@ func (p *Parser) bindWeapons() {
 		isEquipmentClass := hasClipProp && hasIndexProp
 
 		if isEquipmentClass {
-			sc.OnEntityCreated(p.bindWeapon)
+			stOnEntityCreated(sc, p.bindWeapon)
 		}
 
 		if hasThrower {
-			sc.OnEntityCreated(p.bindGrenadeProjectiles)
+			stOnEntityCreated(sc, p.bindGrenadeProjectiles)
 		}
 	}
 
-	p.stParser.ServerClasses().FindByName("CInferno").OnEntityCreated(p.bindNewInferno)
+	stOnEntityCreated(p.stParser.ServerClasses().FindByName("CInferno"), p.bindNewInferno)
 }
 
 // bindGrenadeProjectiles keeps track of the location of live grenades (parser.gameState.grenadeProjectiles), actively thrown by players.
@@ -1058,7 +1058,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 
 	var wep common.EquipmentType
 
-	entity.OnCreateFinished(func() { //nolint:wsl
+	stOnCreateFinished(entity, func() { //nolint:wsl
 		modelVal := entity.PropertyValueMust("CBodyComponent.m_hModel")
 
 		if modelVal.Any != nil {
@@ -1146,7 +1146,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 		})
 	})
 
-	entity.OnDestroy(func() {
+	stOnDestroy(entity, func() {
 		proj.Trajectory = append(proj.Trajectory, common.TrajectoryEntry{
 			Tick:     p.gameState.ingameTick,
 			Position: proj.Position(),
@@ -1184,7 +1184,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	})
 
 	// @micvbang: not quite sure what the difference between Thrower and Owner is.
-	entity.Property("m_hThrower").OnUpdate(func(val st.PropertyValue) {
+	stOnUpdate(entity.Property("m_hThrower"), func(val st.PropertyValue) {
 		if val.Any == nil {
 			return
 		}
@@ -1192,7 +1192,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 		proj.Thrower = p.demoInfoProvider.FindPlayerByPawnHandle(val.Handle())
 	})
 
-	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+	stOnUpdate(entity.Property("m_hOwnerEntity"), func(val st.PropertyValue) {
 		if val.Any == nil {
 			return
 		}
@@ -1203,7 +1203,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	// Some demos don't have this property as it seems
 	// So we need to check for nil and can't send out bounce events if it's missing
 	if bounceProp := entity.Property("m_nBounces"); bounceProp != nil {
-		bounceProp.OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(bounceProp, func(val st.PropertyValue) {
 			if val.Any == nil {
 				return
 			}
@@ -1368,7 +1368,7 @@ func (p *Parser) bindWeapon(entity *st.Entity) {
 		lastMoneyIncreased  bool
 	)
 
-	entity.Property("m_hOwnerEntity").OnUpdate(func(val st.PropertyValue) {
+	stOnUpdate(entity.Property("m_hOwnerEntity"), func(val st.PropertyValue) {
 		if val.Any == nil {
 			return
 		}
@@ -1381,7 +1381,7 @@ func (p *Parser) bindWeapon(entity *st.Entity) {
 
 		oldOwnerMoney = owner.Money()
 
-		owner.Entity.Property("m_pInGameMoneyServices.m_iAccount").OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(owner.Entity.Property("m_pInGameMoneyServices.m_iAccount"), func(val st.PropertyValue) {
 			lastMoneyUpdateTick = p.gameState.ingameTick
 			currentMoney := owner.Money()
 			lastMoneyIncreased = currentMoney > oldOwnerMoney
@@ -1389,7 +1389,7 @@ func (p *Parser) bindWeapon(entity *st.Entity) {
 		})
 	})
 
-	entity.OnDestroy(func() {
+	stOnDestroy(entity, func() {
 		owner := p.GameState().Participants().FindByPawnHandle(entity.PropertyValueMust("m_hOwnerEntity").Handle())
 		// replaced weapons (e.g. round restart / backup restore) weren't refunded, even though the money may have changed
 		if owner != nil && !isEntityReplaced(entity) && owner.IsInBuyZone() &&
@@ -1412,7 +1412,7 @@ func (p *Parser) bindWeapon(entity *st.Entity) {
 	// Detect weapon firing, we don't use m_iClip1 because it would not work with weapons such as the knife (no ammo).
 	// WeaponFire events for grenades are dispatched when the grenade's projectile is created.
 	if equipment.Class() != common.EqClassGrenade && !p.disableMimicSource1GameEvents {
-		entity.Property("m_fLastShotTime").OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(entity.Property("m_fLastShotTime"), func(val st.PropertyValue) {
 			if val.Any == nil {
 				return
 			}
@@ -1438,7 +1438,7 @@ func (p *Parser) bindWeapon(entity *st.Entity) {
 		})
 	}
 
-	entity.Property("m_iClip1").OnUpdate(func(val st.PropertyValue) {
+	stOnUpdate(entity.Property("m_iClip1"), func(val st.PropertyValue) {
 		if equipment.Owner != nil {
 			equipment.Owner.IsReloading = false
 		}
@@ -1465,7 +1465,7 @@ func (p *Parser) bindNewInferno(entity *st.Entity) {
 		infernoEntityID: entity.ID(),
 	})
 
-	entity.OnCreateFinished(func() {
+	stOnCreateFinished(entity, func() {
 		// at the end of the frame - the projectile may be destroyed later in the same frame (see linkInfernoProjectile)
 		p.delayedEventHandlers = append(p.delayedEventHandlers, func() {
 			p.eventDispatcher.Dispatch(events.InfernoStart{
@@ -1475,7 +1475,7 @@ func (p *Parser) bindNewInferno(entity *st.Entity) {
 		})
 	})
 
-	entity.OnDestroy(func() {
+	stOnDestroy(entity, func() {
 		p.infernoExpired(inf)
 	})
 }
@@ -1509,7 +1509,7 @@ func (p *Parser) infernoExpired(inf *common.Inferno) {
 //nolint:funlen,gocognit,gocyclo
 func (p *Parser) bindGameRules() {
 	gameRules := p.ServerClasses().FindByName("CCSGameRulesProxy")
-	gameRules.OnEntityCreated(func(entity *st.Entity) {
+	stOnEntityCreated(gameRules, func(entity *st.Entity) {
 		grPrefix := func(s string) string {
 			return fmt.Sprintf("%s.%s", gameRulesPrefixS2, s)
 		}
@@ -1549,11 +1549,11 @@ func (p *Parser) bindGameRules() {
 			}
 		}
 
-		entity.Property(grPrefix("m_iRoundTime")).OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(entity.Property(grPrefix("m_iRoundTime")), func(val st.PropertyValue) {
 			roundTime = val.Int()
 		})
 
-		entity.Property(grPrefix("m_bFreezePeriod")).OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(entity.Property(grPrefix("m_bFreezePeriod")), func(val st.PropertyValue) {
 			newIsFreezetime := val.BoolVal()
 			freezetimeEvent := events.RoundFreezetimeChanged{
 				OldIsFreezetime: p.gameState.isFreezetime,
@@ -1569,7 +1569,7 @@ func (p *Parser) bindGameRules() {
 			p.gameState.isFreezetime = newIsFreezetime
 		})
 
-		entity.Property(grPrefix("m_gamePhase")).OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(entity.Property(grPrefix("m_gamePhase")), func(val st.PropertyValue) {
 			oldGamePhase := p.gameState.gamePhase
 			p.gameState.gamePhase = common.GamePhase(val.Int())
 
@@ -1586,8 +1586,8 @@ func (p *Parser) bindGameRules() {
 			}
 		})
 
-		entity.BindProperty(grPrefix("m_totalRoundsPlayed"), &p.gameState.totalRoundsPlayed, st.ValTypeInt)
-		entity.Property(grPrefix("m_bWarmupPeriod")).OnUpdate(func(val st.PropertyValue) {
+		stBindProperty(entity, grPrefix("m_totalRoundsPlayed"), &p.gameState.totalRoundsPlayed, st.ValTypeInt)
+		stOnUpdate(entity.Property(grPrefix("m_bWarmupPeriod")), func(val st.PropertyValue) {
 			oldIsWarmupPeriod := p.gameState.isWarmupPeriod
 			p.gameState.isWarmupPeriod = val.BoolVal()
 
@@ -1597,7 +1597,7 @@ func (p *Parser) bindGameRules() {
 			})
 		})
 
-		entity.Property(grPrefix("m_bHasMatchStarted")).OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(entity.Property(grPrefix("m_bHasMatchStarted")), func(val st.PropertyValue) {
 			oldMatchStarted := p.gameState.isMatchStarted
 			newMatchStarted := val.BoolVal()
 
@@ -1622,7 +1622,7 @@ func (p *Parser) bindGameRules() {
 		})
 
 		// Incremented at the beginning of a new overtime.
-		entity.Property(grPrefix("m_nOvertimePlaying")).OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(entity.Property(grPrefix("m_nOvertimePlaying")), func(val st.PropertyValue) {
 			overtimeCount := val.Int()
 			p.eventDispatcher.Dispatch(events.OvertimeNumberChanged{
 				OldCount: p.gameState.overtimeCount,
@@ -1634,7 +1634,7 @@ func (p *Parser) bindGameRules() {
 		firstUpdateOccurred := false
 		// Updated when a round ends or starts.
 		// The value 0 means there is no result yet and the round is in progress.
-		entity.Property(grPrefix("m_eRoundWinReason")).OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(entity.Property(grPrefix("m_eRoundWinReason")), func(val st.PropertyValue) {
 			// Ignore the first update that contains initial CCSGameRulesProxy class values.
 			if !firstUpdateOccurred {
 				firstUpdateOccurred = true
@@ -1747,17 +1747,17 @@ func (p *Parser) bindGameRules() {
 }
 
 func (p *Parser) bindHostages() {
-	p.stParser.ServerClasses().FindByName("CHostage").OnEntityCreated(func(entity *st.Entity) {
+	stOnEntityCreated(p.stParser.ServerClasses().FindByName("CHostage"), func(entity *st.Entity) {
 		entityID := entity.ID()
 		p.gameState.hostages[entityID] = common.NewHostage(p.demoInfoProvider, entity)
 
-		entity.OnDestroy(func() {
+		stOnDestroy(entity, func() {
 			delete(p.gameState.hostages, entityID)
 		})
 
 		var state common.HostageState
 
-		entity.Property("m_nHostageState").OnUpdate(func(val st.PropertyValue) {
+		stOnUpdate(entity.Property("m_nHostageState"), func(val st.PropertyValue) {
 			oldState := state
 
 			state = common.HostageState(val.Int())

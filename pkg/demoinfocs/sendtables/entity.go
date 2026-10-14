@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/golang/geo/r3"
+
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
 
@@ -114,6 +116,20 @@ func (p *Property) Value() PropertyValue {
 // are called once with the initial value after the creation; handlers registered later are only
 // called on subsequent updates.
 func (p *Property) OnUpdate(handler PropertyUpdateHandler) {
+	p.onUpdate(guardUpdateHandler(handler))
+}
+
+// guardUpdateHandler tags the panics of a user's update handler as user-code panics.
+func guardUpdateHandler(handler PropertyUpdateHandler) PropertyUpdateHandler {
+	return func(v PropertyValue) {
+		defer panics.GuardUser()
+
+		handler(v)
+	}
+}
+
+// onUpdate is OnUpdate without tagging the handler's panics as user-code panics.
+func (p *Property) onUpdate(handler PropertyUpdateHandler) {
 	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], handler)
 	p.entity.handlerLog = append(p.entity.handlerLog, handlerRegistration{name: p.name, handler: handler})
 	p.entity.addHandlerByFP(p.name, handler)
@@ -257,11 +273,8 @@ This will bind the property's value to i so every time it's updated i is updated
 The valueType indicates which field of the PropertyValue to use for the binding.
 */
 func (p *Property) Bind(variable any, t PropertyValueType) {
-	h := bindFactoryByType[t](variable)
-	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], h)
-	p.entity.handlerLog = append(p.entity.handlerLog, handlerRegistration{name: p.name, handler: h})
-	p.entity.addHandlerByFP(p.name, h)
-	p.entity.hasHandlers = true
+	// The bound handler is library code, its panics aren't tagged as user-code panics.
+	p.onUpdate(bindFactoryByType[t](variable))
 }
 
 // Property finds a property on the entity by name.
@@ -314,6 +327,11 @@ func (e *Entity) Property(name string) *Property {
 // Essentially binds a property's value to a pointer.
 // See the docs of the two individual functions for more info.
 func (e *Entity) BindProperty(prop string, variable any, t PropertyValueType) {
+	e.Property(prop).onUpdate(guardUpdateHandler(bindFactoryByType[t](variable)))
+}
+
+// bindProperty is BindProperty without tagging the binding's panics as user-code panics.
+func (e *Entity) bindProperty(prop string, variable any, t PropertyValueType) {
 	e.Property(prop).Bind(variable, t)
 }
 
@@ -396,6 +414,16 @@ func (e *Entity) Position() r3.Vector {
 //
 // See also Position()
 func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
+	// Only the user's handler is guarded, firing it is library code.
+	e.onPositionUpdate(func(pos r3.Vector) {
+		defer panics.GuardUser()
+
+		h(pos)
+	})
+}
+
+// onPositionUpdate is OnPositionUpdate without tagging the handler's panics as user-code panics.
+func (e *Entity) onPositionUpdate(h func(pos r3.Vector)) {
 	pos := new(r3.Vector)
 	firePosUpdate := func(PropertyValue) {
 		newPos := e.Position()
@@ -405,16 +433,30 @@ func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 		}
 	}
 
-	e.Property(propCellX).OnUpdate(firePosUpdate)
-	e.Property(propCellY).OnUpdate(firePosUpdate)
-	e.Property(propCellZ).OnUpdate(firePosUpdate)
-	e.Property(propVecX).OnUpdate(firePosUpdate)
-	e.Property(propVecY).OnUpdate(firePosUpdate)
-	e.Property(propVecZ).OnUpdate(firePosUpdate)
+	e.Property(propCellX).onUpdate(firePosUpdate)
+	e.Property(propCellY).onUpdate(firePosUpdate)
+	e.Property(propCellZ).onUpdate(firePosUpdate)
+	e.Property(propVecX).onUpdate(firePosUpdate)
+	e.Property(propVecY).onUpdate(firePosUpdate)
+	e.Property(propVecZ).onUpdate(firePosUpdate)
 }
 
 // OnDestroy registers a function to be called on the entity's destruction.
 func (e *Entity) OnDestroy(delegate func()) {
+	e.addOnDestroy(guardDelegate(delegate))
+}
+
+// guardDelegate tags the panics of a user's delegate as user-code panics.
+func guardDelegate(delegate func()) func() {
+	return func() {
+		defer panics.GuardUser()
+
+		delegate()
+	}
+}
+
+// addOnDestroy is OnDestroy without tagging the delegate's panics as user-code panics.
+func (e *Entity) addOnDestroy(delegate func()) {
 	e.onDestroy = append(e.onDestroy, delegate)
 }
 
@@ -451,6 +493,11 @@ func (e *Entity) destroy() {
 // The parser of package demoinfocs applies player controllers' changes (e.g. Player.Name, SteamID64, Team, IsConnected)
 // here too, so inside a controller's own update handlers the bound Player isn't updated yet.
 func (e *Entity) OnUpdateFinished(delegate func()) {
+	e.addOnUpdateFinished(guardDelegate(delegate))
+}
+
+// addOnUpdateFinished is OnUpdateFinished without tagging the delegate's panics as user-code panics.
+func (e *Entity) addOnUpdateFinished(delegate func()) {
 	e.onUpdateFinished = append(e.onUpdateFinished, delegate)
 }
 
@@ -463,6 +510,11 @@ func (e *Entity) fireUpdateFinished() {
 // OnCreateFinished registers a function to be called once the entity is fully created -
 // i.e. once all property updates have been sent out.
 func (e *Entity) OnCreateFinished(delegate func()) {
+	e.addOnCreateFinished(guardDelegate(delegate))
+}
+
+// addOnCreateFinished is OnCreateFinished without tagging the delegate's panics as user-code panics.
+func (e *Entity) addOnCreateFinished(delegate func()) {
 	e.onCreateFinished = append(e.onCreateFinished, delegate)
 }
 

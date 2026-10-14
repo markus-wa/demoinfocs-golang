@@ -8,6 +8,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
 )
 
 type internalHandlerTestMsg struct{}
@@ -137,4 +139,19 @@ func TestRegisterInternal_ReaderSidePanicSameValue(t *testing.T) {
 			_ = recoverFromUnexpectedEOF(r)
 		})
 	}
+}
+
+// A user send-table callback (tagged as *panics.Captured) panicking inside an internal net-message handler
+// must result in the same error as the untagged panic value.
+func TestCapturedPanicSetsSameError(t *testing.T) {
+	for _, v := range []any{"boom", errors.New("boom error"), 42} {
+		raw := errorMessage(t, queuedPanicError(t, registerInternal[*internalHandlerTestMsg], v))
+		captured := errorMessage(t, queuedPanicError(t, registerInternal[*internalHandlerTestMsg], panics.Capture(v)))
+
+		assert.Equal(t, raw, captured)
+	}
+
+	assert.PanicsWithValue(t, "boom", func() {
+		_ = recoverFromUnexpectedEOF(panics.Capture("boom"))
+	})
 }
