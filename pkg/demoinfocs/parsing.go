@@ -339,22 +339,11 @@ func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
 
 	defer func() {
 		r := recover()
-
-		if r == nil && err == nil && moreFrames {
-			// Fast path: nothing failed while reading the frame, only its messages have to be handled.
-			p.msgDispatcher.SyncAllQueues()
-
-			// The handlers are only stopped by an error or a handler panic (ParseNextFrame has no ctx).
-			if !p.aborted() {
-				return
-			}
-		}
-
 		if r != nil {
 			moreFrames = false
 		}
 
-		err = p.finishParsing(r, err, !moreFrames, noop)
+		err = p.finishParsing(r, err, !moreFrames, func() {})
 		if err != nil {
 			moreFrames = false
 		}
@@ -371,8 +360,6 @@ func (p *Parser) ParseNextFrame() (moreFrames bool, err error) {
 
 	return p.parseFrame()
 }
-
-func noop() {}
 
 var demoCommandMsgsCreators = map[msg.EDemoCommands]config.NetMessageCreator{
 	msg.EDemoCommands_DEM_Stop:            func() proto.Message { return &msg.CDemoStop{} },
