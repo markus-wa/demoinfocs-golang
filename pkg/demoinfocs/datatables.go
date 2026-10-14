@@ -1319,7 +1319,7 @@ func (p *Parser) linkInfernoProjectile(link pendingInfernoLink) {
 	}
 }
 
-//nolint:funlen
+//nolint:funlen,gocognit
 func (p *Parser) bindWeapon(entity *st.Entity) {
 	entityID := entity.ID()
 	itemIndexVal := entity.PropertyValueMust("m_iItemDefinitionIndex")

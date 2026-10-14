@@ -293,3 +293,40 @@ func TestBindPlayerWeapons_ReplacingEntityCreatedBeforeInventoryUpdate(t *testin
 	assert.Same(t, newEntity, newWeapon.Entity)
 	assert.Equal(t, common.EqUSP, newWeapon.Type)
 }
+
+func TestBindGameRules_RulesAreLive(t *testing.T) {
+	p := newParser()
+	stParser := stfake.NewParser("CCSGameRulesProxy")
+	p.stParser = stParser
+	p.bindGameRules()
+
+	rules := p.GameState().Rules()
+	assert.Nil(t, rules.Entity())
+
+	gr := func(name string, val any) stfake.Prop {
+		return stfake.P(gameRulesPrefixS2+"."+name, val)
+	}
+
+	entity := stfake.New(stfake.Spec{
+		Parser: stParser,
+		Class:  "CCSGameRulesProxy",
+		ID:     10,
+		Props: []stfake.Prop{
+			gr("m_iRoundTime", int32(115)),
+			gr("m_bMapHasRescueZone", false),
+			gr("m_bMapHasBombTarget", true),
+			gr("m_bFreezePeriod", false),
+			gr("m_gamePhase", int32(0)),
+			gr("m_totalRoundsPlayed", int32(0)),
+			gr("m_bWarmupPeriod", false),
+			gr("m_bHasMatchStarted", false),
+			gr("m_nOvertimePlaying", int32(0)),
+			gr("m_eRoundWinReason", int32(0)),
+		},
+	})
+
+	stfake.Create(entity)
+
+	assert.Same(t, entity, rules.Entity())
+	assert.Same(t, rules, p.GameState().Rules())
+}

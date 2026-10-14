@@ -80,10 +80,11 @@ Check out the [godoc of the `events` package]([https://godoc.org/github.com/mark
 package main
 
 import (
+	"context"
 	"log"
 
-	demoinfocs "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
-	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
+	demoinfocs "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
+	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 )
 
 func onKill(kill events.Kill) {
@@ -101,7 +102,7 @@ func onKill(kill events.Kill) {
 }
 
 func main() {
-	err := demoinfocs.ParseFile("/path/to/demo.dem", func(p demoinfocs.Parser) error {
+	err := demoinfocs.ParseFile(context.Background(), "/path/to/demo.dem", func(p *demoinfocs.Parser) error {
 		p.RegisterEventHandler(onKill)
 
 		return nil

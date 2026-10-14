@@ -20,8 +20,8 @@ func TestRoundEnd_LoserState_Score(t *testing.T) {
 	p := NewParser(rand.Reader)
 	p.disableMimicSource1GameEvents = true
 
-	p.gameState.tState.Entity = stfake.NewEntity(1, stfake.P("m_scoreTotal", 1))
-	p.gameState.ctState.Entity = stfake.NewEntity(2, stfake.P("m_scoreTotal", 2))
+	p.gameState.tState.Entity = stfake.NewEntity(1, stfake.P("m_scoreTotal", int32(1)))
+	p.gameState.ctState.Entity = stfake.NewEntity(2, stfake.P("m_scoreTotal", int32(2)))
 	eventOccurred := 0
 
 	p.RegisterEventHandler(func(e events.RoundEnd) {

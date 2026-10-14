@@ -256,7 +256,7 @@ func TestGameRules_ConVars(t *testing.T) {
 }
 
 func TestGameRules_Entity(t *testing.T) {
-	ent := stfake.NewEntity(1, stfake.P("m_iGameMode", 1))
+	ent := stfake.NewEntity(1, stfake.P("m_iGameMode", int32(1)))
 	gr := GameRules{
 		entity: ent,
 	}

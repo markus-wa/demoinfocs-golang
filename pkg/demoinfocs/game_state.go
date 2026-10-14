@@ -171,8 +171,11 @@ func (gs *GameState) participantsRaw() map[int]*common.Player {
 
 // Rules returns the GameRules for the current match.
 // Contains information like freeze time duration etc.
-func (gs *GameState) Rules() GameRules {
-	return gs.rules
+//
+// The result is live: it reflects later changes (e.g. ConVars and the CCSGameRulesProxy entity
+// returned by Entity(), which only exists once its entity was created), so it may be kept around.
+func (gs *GameState) Rules() *GameRules {
+	return &gs.rules
 }
 
 // Hostages returns all current hostages.
@@ -335,7 +338,7 @@ func newGameState(demoInfo demoInfoProvider) *GameState {
 
 // GameRules provides information about the rules of the current match, such as round, freeze and bomb time.
 //
-// See GameState.Rules()
+// It's always up-to-date. See GameState.Rules()
 type GameRules struct {
 	conVars map[string]string
 	entity  *st.Entity
@@ -345,7 +348,7 @@ var ErrFailedToRetrieveGameRule = errors.New("failed to retrieve GameRule value,
 
 // RoundTime returns how long rounds in the current match last for (excluding freeze time).
 // May return error if cs_gamerules_data.m_iRoundTime is not set.
-func (gr GameRules) RoundTime() (time.Duration, error) {
+func (gr *GameRules) RoundTime() (time.Duration, error) {
 	if gr.entity == nil {
 		return 0, ErrFailedToRetrieveGameRule
 	}
@@ -360,7 +363,7 @@ func (gr GameRules) RoundTime() (time.Duration, error) {
 
 // FreezeTime returns how long freeze time lasts for in the current match (mp_freezetime).
 // May return error if mp_freezetime cannot be converted to a time duration.
-func (gr GameRules) FreezeTime() (time.Duration, error) {
+func (gr *GameRules) FreezeTime() (time.Duration, error) {
 	t, err := strconv.Atoi(gr.conVars["mp_freezetime"])
 	if err != nil {
 		return 0, ErrFailedToRetrieveGameRule
@@ -371,7 +374,7 @@ func (gr GameRules) FreezeTime() (time.Duration, error) {
 
 // BombTime returns how long it takes for a planted bomb to explode in the current match (mp_c4timer).
 // May return error if mp_c4timer cannot be converted to a time duration.
-func (gr GameRules) BombTime() (time.Duration, error) {
+func (gr *GameRules) BombTime() (time.Duration, error) {
 	t, err := strconv.Atoi(gr.conVars["mp_c4timer"])
 	if err != nil {
 		return 0, ErrFailedToRetrieveGameRule
@@ -383,12 +386,12 @@ func (gr GameRules) BombTime() (time.Duration, error) {
 // ConVars returns a map of CVar keys and values.
 // Not all values might be set.
 // See also: https://developer.valvesoftware.com/wiki/List_of_CS:GO_Cvars.
-func (gr GameRules) ConVars() map[string]string {
+func (gr *GameRules) ConVars() map[string]string {
 	return gr.conVars
 }
 
 // Entity returns the game's CCSGameRulesProxy entity.
-func (gr GameRules) Entity() *st.Entity {
+func (gr *GameRules) Entity() *st.Entity {
 	return gr.entity
 }
 

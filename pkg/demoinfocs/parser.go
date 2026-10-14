@@ -122,7 +122,6 @@ type Parser struct {
 
 	bombsiteA             bombsite
 	bombsiteB             bombsite
-	equipmentMapping      map[*st.ServerClass]common.EquipmentType                 // Maps server classes to equipment-types
 	rawPlayers            map[int]*common.PlayerInfo                               // Maps entity IDs to 'raw' player info
 	dirtyControllers      map[int]*dirtyPlayerController                           // Player controllers whose identity / connection state changed in the current entity packet
 	provisionalNames      map[*common.Player]struct{}                              // Players whose name isn't from the controller yet (userinfo fallback or SteamID placeholder)
@@ -463,7 +462,6 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
 		p.bitReader = bit.NewSmallBitReader(demostream)
 	}
 
-	p.equipmentMapping = make(map[*st.ServerClass]common.EquipmentType)
 	p.rawPlayers = make(map[int]*common.PlayerInfo)
 	p.dirtyControllers = make(map[int]*dirtyPlayerController)
 	p.provisionalNames = make(map[*common.Player]struct{})
