@@ -62,17 +62,16 @@ type tuple struct {
 //
 // A Parser must be created with NewParser; the zero value is not usable.
 type Parser struct {
-	serializers                 map[string]*serializer
-	classIdSize                 uint32 //nolint:revive
-	classBaselines              map[int32][]byte
-	classesById                 map[int32]*ServerClass //nolint:revive
-	classesByName               map[string]*ServerClass
-	entityFullPackets           int
-	entities                    map[int32]*Entity
-	entityHandlers              []EntityHandler
-	pathCache                   []*fieldPath
-	tuplesCache                 []tuple
-	packetEntitiesPanicWarnFunc func(error)
+	serializers       map[string]*serializer
+	classIdSize       uint32 //nolint:revive
+	classBaselines    map[int32][]byte
+	classesById       map[int32]*ServerClass //nolint:revive
+	classesByName     map[string]*ServerClass
+	entityFullPackets int
+	entities          map[int32]*Entity
+	entityHandlers    []EntityHandler
+	pathCache         []*fieldPath
+	tuplesCache       []tuple
 	// nextPolyID is a global counter for assigning unique polySerializerIDs to
 	// polymorphic fixed-table fields as they are encountered during ParsePacket.
 	nextPolyID int
@@ -137,15 +136,14 @@ func (p *Parser) ServerClasses() ServerClasses {
 // NewParser creates a new CS2 send-tables parser.
 //
 // Used internally by package demoinfocs; not covered by API stability guarantees.
-func NewParser(packetEntitiesPanicWarnFunc func(error)) *Parser {
+func NewParser() *Parser {
 	return &Parser{
-		serializers:                 make(map[string]*serializer),
-		classBaselines:              make(map[int32][]byte),
-		classesById:                 make(map[int32]*ServerClass),
-		classesByName:               make(map[string]*ServerClass),
-		entities:                    make(map[int32]*Entity),
-		polyMaxCache:                make(map[*serializer]int),
-		packetEntitiesPanicWarnFunc: packetEntitiesPanicWarnFunc,
+		serializers:    make(map[string]*serializer),
+		classBaselines: make(map[int32][]byte),
+		classesById:    make(map[int32]*ServerClass),
+		classesByName:  make(map[string]*ServerClass),
+		entities:       make(map[int32]*Entity),
+		polyMaxCache:   make(map[*serializer]int),
 	}
 }
 

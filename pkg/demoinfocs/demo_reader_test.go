@@ -212,24 +212,29 @@ func TestNewParser_DoesntReadTheStream(t *testing.T) {
 	assert.NoError(t, p.Close())
 }
 
-// Not treated differently yet (see demoReader): the bit reader's panic is re-panicked.
-func TestParseToEnd_ReadErrorPanics(t *testing.T) {
+func TestParseToEnd_ReadError(t *testing.T) {
 	p := NewParser(iotest.ErrReader(io.ErrClosedPipe))
 	defer p.Close()
 
-	r := func() (r any) {
-		defer func() {
-			r = recover()
-		}()
+	err := p.ParseToEnd(t.Context())
+	assert.ErrorIs(t, err, io.ErrClosedPipe)
+	assert.NotErrorIs(t, err, ErrUnexpectedEndOfDemo)
+	assert.NotErrorIs(t, err, ErrDecodeFailed)
+}
 
-		_ = p.ParseToEnd(t.Context())
+// A panic of the demo stream is a user-code panic.
+func TestParseToEnd_StreamPanic(t *testing.T) {
+	p := NewParser(panickingReader{})
+	defer p.Close()
 
-		return nil
+	defer func() {
+		pe, ok := recover().(*PanicError)
+		require.True(t, ok, "expected *PanicError")
+		assert.Equal(t, "boom", pe.Value)
+		assert.Contains(t, string(pe.Stack), "panickingReader")
 	}()
 
-	err, ok := r.(error)
-	require.True(t, ok, "expected an error, got %T", r)
-	assert.ErrorIs(t, err, io.ErrClosedPipe)
+	_ = p.ParseToEnd(t.Context())
 }
 
 func TestParser_Close_ClosesDemoStream(t *testing.T) {

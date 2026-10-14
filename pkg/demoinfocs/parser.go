@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"runtime/debug"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -19,6 +18,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/cstv"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
@@ -81,6 +81,10 @@ Example (without error handling):
 
 Prints out '{A/B} site went BOOM!' when a bomb explodes.
 
+Errors of the parser itself (e.g. truncated or corrupt demos) are returned by ParseToEnd() and ParseNextFrame().
+Panics of handlers are re-panicked on the calling goroutine as *PanicError, see ParseToEnd().
+To stop parsing from a handler, cancel the context passed to ParseToEnd() - don't panic.
+
 Code that depends on a Parser can be unit-tested by declaring a small interface with just the
 methods it uses (e.g. RegisterEventHandler and ParseToEnd) and passing a fake in tests,
 see examples/mocking.
@@ -104,10 +108,14 @@ type Parser struct {
 	header                          *header // Pointer so we can check for nil
 	gameState                       *GameState
 	demoInfoProvider                demoInfoProvider // Provides demo infos to other packages that the core package depends on
-	err                             error            // Contains a error that occurred during parsing if any
-	errLock                         sync.Mutex       // Used to sync up error mutations between parsing & handling go-routines
+	err                             error            // The first error of the message-handling goroutine, see setError()
+	cancelErr                       error            // The cause of the cancellation of ctx, see setCancelled()
+	panicErr                        *PanicError      // The first panic of a handler, see setPanic()
+	errLock                         sync.Mutex       // Guards err, cancelErr & panicErr, which are set by the parsing & handling go-routines
+	done                            bool             // Set once parsing has finished (successfully or not), see finishParsing()
+	doneErr                         error            // The result of parsing once done is set
 	source2FallbackGameEventListBin []byte           // sv_hibernate_when_empty bug workaround
-	ignorePacketEntitiesPanic       bool             // Used to ignore PacketEntities parsing panics (some POV demos seem to have broken rare broken PacketEntities)
+	ignorePacketEntitiesPanic       bool             // Report PacketEntities decoding failures as ParserWarn instead of failing (some POV demos have rare broken PacketEntities)
 	/**
 	 * Set to the client slot of the recording player.
 	 * Always -1 for GOTV demos.
@@ -372,13 +380,19 @@ func (p *Parser) error() error {
 	return err
 }
 
-// aborted reports whether a fatal error has been recorded or the context passed to
+// aborted reports whether a fatal error or a handler panic has been recorded or the context passed to
 // ParseToEnd() is done. Message handlers no-op once it is set, so the queued
 // backlog drains without further decoding.
 func (p *Parser) aborted() bool {
-	return p.error() != nil || (p.ctx != nil && p.ctx.Err() != nil)
+	p.errLock.Lock()
+	aborted := p.err != nil || p.cancelErr != nil || p.panicErr != nil
+	p.errLock.Unlock()
+
+	return aborted || (p.ctx != nil && p.ctx.Err() != nil)
 }
 
+// setError records a fatal error, the first one wins.
+// It stops all handlers, see unregisterAllHandlers().
 func (p *Parser) setError(err error) {
 	if err == nil {
 		return
@@ -396,10 +410,78 @@ func (p *Parser) setError(err error) {
 
 	p.errLock.Unlock()
 
-	// A fatal error (or cancellation, see ParseToEnd()) stops all further handler work:
-	// the message queue may already hold a large backlog that would otherwise
-	// still be delivered to handlers, including user-registered ones.
 	p.unregisterAllHandlers()
+}
+
+// setCancelled records the cause of the cancellation of the context passed to ParseToEnd(), the first one wins.
+// It stops all handlers, see unregisterAllHandlers().
+func (p *Parser) setCancelled(cause error) {
+	p.errLock.Lock()
+
+	if p.cancelErr != nil {
+		p.errLock.Unlock()
+
+		return
+	}
+
+	p.cancelErr = cause
+
+	p.errLock.Unlock()
+
+	p.unregisterAllHandlers()
+}
+
+func (p *Parser) cancelled() error {
+	p.errLock.Lock()
+	err := p.cancelErr
+	p.errLock.Unlock()
+
+	return err
+}
+
+// setPanic records the panic of a handler, which is re-panicked by ParseToEnd() / ParseNextFrame().
+// Only the first panic is kept, later ones (e.g. of other handlers while the queue is drained) are dropped.
+// It stops all handlers, see unregisterAllHandlers(), and makes aborted() true so parsing stops after the current frame.
+//
+// It doesn't format or otherwise use c.Value, so it can't panic itself.
+func (p *Parser) setPanic(c *panics.Captured) {
+	p.errLock.Lock()
+
+	if p.panicErr != nil {
+		p.errLock.Unlock()
+
+		return
+	}
+
+	p.panicErr = &PanicError{
+		Value: c.Value,
+		Stack: c.Stack,
+	}
+
+	p.errLock.Unlock()
+
+	p.unregisterAllHandlers()
+}
+
+func (p *Parser) handlerPanic() *PanicError {
+	p.errLock.Lock()
+	pe := p.panicErr
+	p.errLock.Unlock()
+
+	return pe
+}
+
+// handlePanic is the PanicHandler of the message dispatcher, it's called on the message-handling goroutine.
+// Handler panics are recorded via setPanic(), anything else is a decoding failure.
+// It must never panic, otherwise the message-handling goroutine dies and parsing deadlocks.
+func (p *Parser) handlePanic(r any) {
+	if classifyPanic(r) == panics.KindUser {
+		p.setPanic(panics.Capture(r))
+
+		return
+	}
+
+	p.setError(newDecodeError(panics.NewFailure(r), p.currentFrame))
 }
 
 func (p *Parser) unregisterAllHandlers() {
@@ -461,6 +543,7 @@ type ParserCallback func(*Parser) error
 // The options are applied on top of the default configuration, see the option package.
 //
 // Returns an error if the file can't be opened, if the parser encounters an error or ctx is done before the end of the demo.
+// Panics with a *PanicError if a handler panics, see Parser.ParseToEnd().
 func ParseFile(ctx context.Context, path string, configure ParserCallback, opts ...option.Option) error {
 	f, err := os.Open(path)
 	if err != nil {
@@ -514,27 +597,14 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
 	p.ignorePacketEntitiesPanic = cfg.IgnorePacketEntitiesPanic
 	p.decryptionKey = cfg.NetMessageDecryptionKey
 
-	dispatcherCfg := dp.Config{
-		PanicHandler: func(v any) {
-			p.setError(fmt.Errorf("%v\nstacktrace:\n%s", v, debug.Stack()))
-		},
-	}
-	p.msgDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
-	p.eventDispatcher = dp.NewDispatcherWithConfig(dispatcherCfg)
+	// Only the message dispatcher has a queue, events are dispatched synchronously
+	// (their handlers' panics reach the PanicHandler through the net-message handler that dispatched them,
+	// or ParseToEnd() / ParseNextFrame() on the parsing goroutine).
+	p.msgDispatcher = dp.NewDispatcherWithConfig(dp.Config{PanicHandler: p.handlePanic})
+	p.eventDispatcher = new(dp.Dispatcher)
 
 	// Created up front so ServerClasses() values obtained before the header is parsed stay live.
-	var stWarnFunc func(error)
-
-	if p.ignorePacketEntitiesPanic {
-		stWarnFunc = func(err error) {
-			p.eventDispatcher.Dispatch(events.ParserWarn{
-				Type:    events.WarnTypePacketEntitiesPanic,
-				Message: fmt.Sprintf("encountered PacketEntities panic: %v", err),
-			})
-		}
-	}
-
-	p.stParser = st.NewParser(stWarnFunc)
+	p.stParser = st.NewParser()
 	p.stParser.OnEntity(p.onEntity)
 
 	registerInternal(&p, p.handleGameEventList)

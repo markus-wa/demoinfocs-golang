@@ -34,6 +34,7 @@ See [broadcast example for live CSTV+ parsing](https://github.com/markus-wa/demo
 - [Quickstart Guide](https://github.com/markus-wa/demoinfocs-golang#quickstart-guide)
   - [Example](https://github.com/markus-wa/demoinfocs-golang#example)
   - [More Examples](https://github.com/markus-wa/demoinfocs-golang#more-examples)
+  - [Error Handling](https://github.com/markus-wa/demoinfocs-golang#error-handling)
   - [Documentation](https://github.com/markus-wa/demoinfocs-golang#documentation)
 - [Features](https://github.com/markus-wa/demoinfocs-golang#features)
 - [Performance / Benchmarks](https://github.com/markus-wa/demoinfocs-golang#performance--benchmarks)
@@ -133,6 +134,31 @@ keev <AWP (HS) (WB)> to1nou
 Check out the [examples](examples) folder for more examples, like [how to generate heatmaps](examples/heatmap) like this one:
 
 <img alt="sample heatmap" src="https://raw.githubusercontent.com/markus-wa/demoinfocs-golang/main/examples/heatmap/heatmap.jpg" width="50%">
+
+### Error Handling
+
+`ParseToEnd()` and `ParseNextFrame()` return the parser's own errors:
+
+- `ErrUnexpectedEndOfDemo` (also matches `io.ErrUnexpectedEOF`): the demo is truncated. Everything up to that point has been parsed and dispatched.
+- `ErrDecodeFailed` / `*DecodeError`: some data couldn't be decoded, either because it's corrupt or because this version doesn't support the demo's schema / format (e.g. a `*sendtables.PropertyNotFoundError` after a game update). Events dispatched before the error are valid.
+- Errors of the demo stream (e.g. the `io.Reader` you passed in), wrapped.
+- `context.Cause(ctx)` if the context passed to `ParseToEnd()` is done.
+
+If a handler panics, parsing stops and `ParseToEnd()` / `ParseNextFrame()` panic with a `*PanicError` on the calling goroutine.
+It contains the original panic value (`errors.Is()` / `errors.As()` work if it's an error) and the stack trace of the handler.
+
+To stop parsing from a handler, cancel the context instead of panicking:
+
+```go
+ctx, cancel := context.WithCancelCause(context.Background())
+defer cancel(nil)
+
+p.RegisterEventHandler(func(e events.RoundEnd) {
+	cancel(errEnoughRounds)
+})
+
+err := p.ParseToEnd(ctx) // errors.Is(err, errEnoughRounds)
+```
 
 ### Documentation
 
