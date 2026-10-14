@@ -12,6 +12,9 @@ type fpNameTreeCache struct {
 }
 
 // ServerClass stores meta information about Entity types (e.g. players, teams etc.).
+//
+// ServerClasses are obtained from ServerClasses (see demoinfocs.Parser.ServerClasses()) and Entity.ServerClass();
+// the zero value is not usable.
 type ServerClass struct {
 	classId         int32 //nolint:revive
 	name            string

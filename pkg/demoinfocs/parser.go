@@ -61,7 +61,7 @@ func (h *header) FrameTime() time.Duration {
 
 /*
 Parser can parse a CS2 demo.
-Creating a new instance is done via NewParser().
+A Parser must be created with NewParser(); the zero value is not usable.
 
 Parser.ParseNextFrame() and Parser.ParseToEnd() can be used to parse the demo
 (the demo header is parsed automatically when parsing starts).

@@ -16,7 +16,7 @@ import (
 // GameState contains all game-state relevant information, such as players, teams, scores, grenades and entities.
 //
 // It is obtained via Parser.GameState() and is updated in place while the demo is parsed,
-// so it always reflects the state at the parser's current position.
+// so it always reflects the state at the parser's current position. The zero value is not usable.
 // It must not be modified by users and is not safe for concurrent use with parsing.
 type GameState struct {
 	ingameTick                   int
@@ -338,7 +338,7 @@ func newGameState(demoInfo demoInfoProvider) *GameState {
 
 // GameRules provides information about the rules of the current match, such as round, freeze and bomb time.
 //
-// It's always up-to-date. See GameState.Rules()
+// It's obtained from GameState.Rules() and is always up-to-date; the zero value is not usable.
 type GameRules struct {
 	conVars map[string]string
 	entity  *st.Entity
@@ -398,8 +398,8 @@ func (gr *GameRules) Entity() *st.Entity {
 // Participants provides helper functions on top of the currently connected players.
 // E.g. ByUserID(), ByEntityID(), TeamMembers(), etc.
 //
-// It holds references to the parser's internal player maps, so it's always up-to-date.
-// See GameState.Participants()
+// It's obtained from GameState.Participants() and holds references to the parser's internal player maps,
+// so it's always up-to-date. The zero value has no participants.
 type Participants struct {
 	playersByUserID   map[int]*common.Player // Maps user-IDs to players
 	playersByEntityID map[int]*common.Player // Maps entity-IDs to players

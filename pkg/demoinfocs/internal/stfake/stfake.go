@@ -21,7 +21,9 @@ package stfake
 import (
 	"fmt"
 	"math"
+	"runtime"
 	"sync"
+	"weak"
 
 	"github.com/golang/geo/r3"
 
@@ -96,11 +98,12 @@ type Spec struct {
 	Props []Prop
 }
 
-// parsers maps each synthetic *st.Entity to its Spec.Parser (may be nil).
-var parsers sync.Map
+// parsers maps each synthetic *st.Entity (weakly referenced) to its Spec.Parser (may be nil).
+// An entry is removed once its entity has been garbage collected, see New.
+var parsers sync.Map // weak.Pointer[st.Entity] -> *st.Parser
 
 func parserOf(e *st.Entity) *st.Parser {
-	p, ok := parsers.Load(e)
+	p, ok := parsers.Load(weak.Make(e))
 	if !ok {
 		panic(fmt.Sprintf("entity %d is not a synthetic entity", e.ID()))
 	}
@@ -120,7 +123,9 @@ func New(spec Spec) *st.Entity {
 	names, values := flatten(spec.Props)
 
 	e := stbridge.NewEntity(spec.Parser, spec.Class, spec.ID, spec.Serial, names, values).(*st.Entity)
-	parsers.Store(e, spec.Parser)
+	key := weak.Make(e)
+	parsers.Store(key, spec.Parser)
+	runtime.AddCleanup(e, func(key weak.Pointer[st.Entity]) { parsers.Delete(key) }, key)
 
 	return e
 }

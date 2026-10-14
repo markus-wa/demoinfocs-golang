@@ -270,6 +270,10 @@ func (p *Player) IsSpottedBy(other *Player) bool {
 		mask = pawnEntity.Property("m_bSpottedByMask.0001")
 	}
 
+	if mask == nil {
+		return false
+	}
+
 	return (mask.Value().UInt64() & (1 << bit)) != 0
 }
 

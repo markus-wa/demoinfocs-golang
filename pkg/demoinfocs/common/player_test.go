@@ -171,6 +171,22 @@ func TestPlayer_IsSpottedBy_HasSpotted_BitOver32(t *testing.T) {
 	assert.True(t, other.HasSpotted(pl))
 }
 
+func TestPlayer_IsSpottedBy_MaskPropertyMissing(t *testing.T) {
+	// the pawn only has the mask for client slots 0-31
+	pl := playerWithPawnProperties([]fakeProp{
+		{propName: "m_bSpottedByMask.0000", value: st.PropertyValue{Any: uint64(1)}},
+	})
+	pl.EntityID = 1
+
+	other := newPlayer(0)
+	other.EntityID = 33
+
+	assert.NotPanics(t, func() {
+		assert.False(t, pl.IsSpottedBy(other))
+		assert.False(t, other.HasSpotted(pl))
+	})
+}
+
 func TestPlayer_IsSpottedBy_EntityNull(t *testing.T) {
 	pl := new(Player)
 	pl.EntityID = 1

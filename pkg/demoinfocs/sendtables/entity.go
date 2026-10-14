@@ -10,6 +10,9 @@ import (
 )
 
 // Entity stores an entity in the game (e.g. players etc.) with its properties.
+//
+// Entities are created by the parser, see demoinfocs.GameState.Entities() and ServerClass.OnEntityCreated();
+// the zero value is not usable.
 type Entity struct {
 	index  int32
 	serial int32
@@ -79,6 +82,8 @@ func (e *Entity) Properties() (out []*Property) {
 
 // Property is a property of an Entity and allows registering handlers
 // that are triggered on updates of the property.
+//
+// Properties are obtained from Entity.Property() and Entity.Properties(); the zero value is not usable.
 type Property struct {
 	entity *Entity
 	name   string

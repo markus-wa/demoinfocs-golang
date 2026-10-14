@@ -99,11 +99,6 @@ func (v PropertyValue) BoolVal() bool {
 // PropertyUpdateHandler is the interface for handlers that are interested in property changes.
 type PropertyUpdateHandler func(PropertyValue)
 
-type PropertyEntry struct {
-	Name    string
-	IsArray bool
-}
-
 // EntityCreatedHandler is the interface for handlers that are interested in EntityCreatedEvents.
 type EntityCreatedHandler func(*Entity)
 

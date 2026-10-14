@@ -57,6 +57,8 @@ type tuple struct {
 //
 // Parser and its methods are used internally by package demoinfocs and are not covered by API stability guarantees,
 // except for ServerClasses(). Use demoinfocs.Parser.ServerClasses() and the GameState's entities instead.
+//
+// A Parser must be created with NewParser; the zero value is not usable.
 type Parser struct {
 	serializers                 map[string]*serializer
 	classIdSize                 uint32 //nolint:revive
@@ -78,15 +80,24 @@ type Parser struct {
 }
 
 // ServerClasses is a searchable list of ServerClasses.
+//
+// It's obtained from Parser.ServerClasses() and reflects classes that are added later on.
+// The zero value is an empty list.
 type ServerClasses struct {
-	p *Parser
+	byID   map[int32]*ServerClass
+	byName map[string]*ServerClass
 }
 
 // All returns all server-classes, in no particular order.
+// It returns nil if there are none.
 func (sc ServerClasses) All() []*ServerClass {
-	res := make([]*ServerClass, 0, len(sc.p.classesById))
+	if len(sc.byID) == 0 {
+		return nil
+	}
 
-	for _, c := range sc.p.classesById {
+	res := make([]*ServerClass, 0, len(sc.byID))
+
+	for _, c := range sc.byID {
 		res = append(res, c)
 	}
 
@@ -95,14 +106,14 @@ func (sc ServerClasses) All() []*ServerClass {
 
 // FindByName returns the server-class with the given name, or nil if there is none.
 func (sc ServerClasses) FindByName(name string) *ServerClass {
-	return sc.p.classesByName[name]
+	return sc.byName[name]
 }
 
 // String returns the names of all server-classes, one per line.
 func (sc ServerClasses) String() string {
-	names := make([]string, 0, len(sc.p.classesById))
+	names := make([]string, 0, len(sc.byID))
 
-	for _, c := range sc.p.classesById {
+	for _, c := range sc.byID {
 		names = append(names, c.name)
 	}
 
@@ -110,8 +121,10 @@ func (sc ServerClasses) String() string {
 }
 
 // ServerClasses returns a ServerClasses view of all known classes.
+// The view shares the parser's class maps, so classes added later on are included.
+// This relies on classesById and classesByName never being reassigned after NewParser.
 func (p *Parser) ServerClasses() ServerClasses {
-	return ServerClasses{p: p}
+	return ServerClasses{byID: p.classesById, byName: p.classesByName}
 }
 
 // NewParser creates a new CS2 send-tables parser.
