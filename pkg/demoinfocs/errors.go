@@ -38,7 +38,7 @@ var (
 type DecodeError struct {
 	Frame int    // the demo frame being decoded, see Parser.CurrentFrame()
 	Cause error  // what went wrong
-	Stack []byte // stack trace of the failure, only set if Cause is a runtime.Error (e.g. index out of range)
+	Stack []byte // stack trace of the failure, only set if Cause is a runtime.Error (e.g. index out of range) or came from a handler
 }
 
 // Error implements error.

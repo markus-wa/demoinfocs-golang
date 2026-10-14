@@ -1,6 +1,7 @@
 package panics
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"runtime"
@@ -70,33 +71,49 @@ func Innermost(r any) any {
 // Failure is a recovered panic of the library itself, as an error (see NewFailure).
 type Failure struct {
 	Cause error  // the innermost panic value, converted to an error if it isn't one
-	Stack []byte // stack trace of the panic, only set if Cause is a runtime.Error (e.g. index out of range)
+	Stack []byte // stack trace of the panic, see NewFailure
 }
 
 // NewFailure converts the recovered panic value r into a *Failure.
-// If r already is a *Failure (e.g. re-panicked after a RecoverDecode boundary), it's returned as is.
+//
+// The stack trace is kept if r is tagged as user code (see IsTagged, e.g. a decoding failure of the user's own
+// lookup, see Classify) or a runtime.Error (e.g. index out of range), the stack of a *Captured value is preferred.
+//
+// If the innermost value is (or wraps) io.EOF / io.ErrUnexpectedEOF, e.g. because a nested reader ran out of data,
+// the cause doesn't match them (errors.Is()) anymore: only the end of the demo stream is an unexpected EOF.
 //
 // It must be called from the deferred function that recovered r, otherwise the stack trace doesn't
 // contain the panicking frames.
 func NewFailure(r any) *Failure {
 	v := Innermost(r)
 
-	if f, ok := v.(*Failure); ok {
-		return f
-	}
-
 	cause, ok := v.(error)
 	if !ok {
 		cause = fmt.Errorf("%v", v) //nolint:err113 // the panic value isn't an error
+	} else if errors.Is(cause, io.EOF) || errors.Is(cause, io.ErrUnexpectedEOF) {
+		cause = &endOfDataError{msg: cause.Error()}
 	}
 
 	f := &Failure{Cause: cause}
 
-	if _, ok := v.(runtime.Error); ok {
+	if IsTagged(r) {
+		f.Stack = Capture(r).Stack
+	} else if _, ok := v.(runtime.Error); ok {
 		f.Stack = debug.Stack()
 	}
 
 	return f
+}
+
+// endOfDataError is the cause of a Failure for io.EOF / io.ErrUnexpectedEOF, see NewFailure.
+// It deliberately doesn't unwrap to them.
+type endOfDataError struct {
+	msg string
+}
+
+// Error implements error.
+func (e *endOfDataError) Error() string {
+	return "unexpected end of data: " + e.msg
 }
 
 // Error implements error.

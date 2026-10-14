@@ -804,6 +804,32 @@ func BenchmarkInMemory(b *testing.B) {
 	}
 }
 
+func BenchmarkParseNextFrame(b *testing.B) {
+	d, err := os.ReadFile(s2DemPath)
+	if err != nil {
+		b.Fatalf("failed to read file %q: %v", s2DemPath, err)
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		p := demoinfocs.NewParser(bytes.NewReader(d))
+
+		for {
+			more, err := p.ParseNextFrame()
+			if err != nil {
+				b.Fatalf("ParseNextFrame() returned an error: %v", err)
+			}
+
+			if !more {
+				break
+			}
+		}
+
+		mustClose(b, p)
+	}
+}
+
 func BenchmarkConcurrent(b *testing.B) {
 	b.Logf("Running concurrency benchmark with %d demos\n", *concurrentDemos)
 

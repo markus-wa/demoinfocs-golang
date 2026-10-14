@@ -118,10 +118,31 @@ func TestNewFailure_RuntimeErrorHasStack(t *testing.T) {
 	assert.Contains(t, string(f.Stack), "indexOutOfRange")
 }
 
-func TestNewFailure_KeepsFailure(t *testing.T) {
-	f := NewFailure(errors.New("boom"))
+// Only the end of the demo stream is an unexpected EOF, see Classify().
+func TestNewFailure_EOFIsNotUnwrapped(t *testing.T) {
+	for _, v := range []any{io.EOF, io.ErrUnexpectedEOF, fmt.Errorf("x: %w", io.EOF)} {
+		f := NewFailure(v)
 
-	assert.Same(t, f, NewFailure(f))
+		assert.NotErrorIs(t, f, io.EOF)
+		assert.NotErrorIs(t, f, io.ErrUnexpectedEOF)
+		assert.Equal(t, "unexpected end of data: "+fmt.Sprint(v), f.Error())
+	}
+}
+
+// The stack of a tagged panic is kept, also if it's a decoding failure (see Classify()).
+func TestNewFailure_TaggedHasStack(t *testing.T) {
+	decodeFailure := new(testDecodeFailure)
+
+	c := Capture(decodeFailure)
+	f := NewFailure(c)
+
+	assert.Same(t, error(decodeFailure), f.Cause)
+	assert.Equal(t, c.Stack, f.Stack)
+
+	f = NewFailure(consumerCodePanic(decodeFailure))
+
+	assert.Same(t, error(decodeFailure), f.Cause)
+	assert.NotEmpty(t, f.Stack)
 }
 
 func recoverDecode(f func()) (err error) {
@@ -141,7 +162,7 @@ func TestRecoverDecode(t *testing.T) {
 
 			var f *Failure
 			require.ErrorAs(t, err, &f)
-			assert.Equal(t, fmt.Sprint(v), f.Cause.Error())
+			assert.Contains(t, f.Cause.Error(), fmt.Sprint(v))
 		}
 	})
 

@@ -101,6 +101,7 @@ type Parser struct {
 	gameEventHandler                gameEventHandler
 	eventDispatcher                 *dp.Dispatcher
 	currentFrame                    int     // Demo-frame, not ingame-tick
+	readerFrame                     int     // Like currentFrame, but counted on the parsing goroutine, see queueFrameParsed()
 	tickInterval                    float32 // Duration between ticks in seconds
 	header                          *header // Pointer so we can check for nil
 	gameState                       *GameState
