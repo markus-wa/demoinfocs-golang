@@ -424,9 +424,12 @@ func TestPropertyNotFoundInHandler(t *testing.T) {
 			assert.Equal(t, "m_doesNotExist", pnf.Name)
 		}
 
+		// the stack of the panic in the handler is kept
 		var de *demoinfocs.DecodeError
 		if assert.ErrorAs(t, err, &de) {
 			assert.Positive(t, de.Frame)
+			assert.Contains(t, string(de.Stack), "TestPropertyNotFoundInHandler.func")
+			assert.Contains(t, string(de.Stack), "PropertyValueMust")
 		}
 	}
 

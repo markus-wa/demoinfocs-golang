@@ -154,7 +154,7 @@ func TestParser_SetError(t *testing.T) {
 	p := new(Parser)
 	p.setError(err)
 
-	assert.Same(t, err, p.abort.error())
+	assert.Same(t, err, errorOf(&p.abort))
 }
 
 func TestParser_SetError_Multiple(t *testing.T) {
@@ -164,7 +164,7 @@ func TestParser_SetError_Multiple(t *testing.T) {
 	p.setError(err)
 	p.setError(errors.New("second error"))
 
-	assert.Same(t, err, p.abort.error())
+	assert.Same(t, err, errorOf(&p.abort))
 }
 
 func TestParser_Close(t *testing.T) {

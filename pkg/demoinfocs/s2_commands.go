@@ -346,14 +346,6 @@ func msgCreatorForType(t int32) config.NetMessageCreator {
 	}
 }
 
-// mustHandleDemoPacket calls handleDemoPacket() and panics with its error, so finishParsing() returns it as a *DecodeError.
-func (p *Parser) mustHandleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
-	err := p.handleDemoPacket(pack, isFullPacket)
-	if err != nil {
-		panic(err)
-	}
-}
-
 // handleDemoPacket queues the net-messages of a demo packet, it's called on the parsing goroutine.
 //
 // It has its own recover boundary because it reads pack.Data with a nested bit reader:

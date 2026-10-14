@@ -24,38 +24,85 @@ func newTestAbortState() (*abortState, *int) {
 	return &abortState{onStop: func() { stops++ }}, &stops
 }
 
-func TestAbortState_FirstErrorWins(t *testing.T) {
-	errFirst := errors.New("first")
-	errSecond := errors.New("second")
+// errorOf returns the error of a.result().
+func errorOf(a *abortState) error {
+	_, err := a.result()
 
-	t.Run("error before cancellation", func(t *testing.T) {
-		a, stops := newTestAbortState()
+	return err
+}
 
-		a.setError(errFirst)
-		a.setCancelled(errSecond)
+// panicOf returns the handler panic of a.result().
+func panicOf(a *abortState) *PanicError {
+	pe, _ := a.result()
 
-		assert.Same(t, errFirst, a.error())
-		assert.True(t, a.aborted())
-		assert.Equal(t, 1, *stops)
-	})
+	return pe
+}
 
-	t.Run("cancellation before error", func(t *testing.T) {
-		a, _ := newTestAbortState()
+func TestAbortState_Precedence(t *testing.T) {
+	errQueue := errors.New("queue")
+	errQueue2 := errors.New("queue 2")
+	errCancel := errors.New("cancel")
+	errReader := errors.New("reader")
 
-		a.setCancelled(errFirst)
-		a.setError(errSecond)
+	tests := []struct {
+		name   string
+		record func(a *abortState)
+		want   error
+	}{
+		{"error before cancellation", func(a *abortState) {
+			a.setError(errQueue)
+			a.setCancelled(errCancel)
+		}, errQueue},
+		{"cancellation before error", func(a *abortState) {
+			a.setCancelled(errCancel)
+			a.setError(errQueue)
+		}, errCancel},
+		{"first error wins", func(a *abortState) {
+			a.setError(errQueue)
+			a.setError(errQueue2)
+		}, errQueue},
+		{"reader error before cancellation", func(a *abortState) {
+			a.setReaderError(errReader)
+			a.setCancelled(errCancel)
+		}, errReader},
+		{"cancellation before reader error", func(a *abortState) {
+			a.setCancelled(errCancel)
+			a.setReaderError(errReader)
+		}, errCancel},
+		// the error of the message-handling goroutine comes from an earlier frame
+		{"reader error before error", func(a *abortState) {
+			a.setReaderError(errReader)
+			a.setError(errQueue)
+		}, errQueue},
+		{"error before reader error", func(a *abortState) {
+			a.setError(errQueue)
+			a.setReaderError(errReader)
+		}, errQueue},
+		{"reader error, error, cancellation", func(a *abortState) {
+			a.setReaderError(errReader)
+			a.setError(errQueue)
+			a.setCancelled(errCancel)
+		}, errQueue},
+		{"reader error, cancellation, error", func(a *abortState) {
+			a.setReaderError(errReader)
+			a.setCancelled(errCancel)
+			a.setError(errQueue)
+		}, errReader},
+		{"first reader error wins", func(a *abortState) {
+			a.setReaderError(errReader)
+			a.setReaderError(errQueue)
+		}, errReader},
+	}
 
-		assert.Same(t, errFirst, a.error())
-	})
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			a, _ := newTestAbortState()
 
-	t.Run("reader error before cancellation", func(t *testing.T) {
-		a, _ := newTestAbortState()
+			tc.record(a)
 
-		a.setReaderError(errFirst)
-		a.setCancelled(errSecond)
-
-		assert.Same(t, errFirst, a.error())
-	})
+			assert.Same(t, tc.want, errorOf(a))
+		})
+	}
 
 	t.Run("nil is ignored", func(t *testing.T) {
 		a, stops := newTestAbortState()
@@ -63,9 +110,19 @@ func TestAbortState_FirstErrorWins(t *testing.T) {
 		a.setError(nil)
 		a.setReaderError(nil)
 
-		assert.NoError(t, a.error())
+		assert.NoError(t, errorOf(a))
 		assert.False(t, a.aborted())
 		assert.Zero(t, *stops)
+	})
+
+	t.Run("errors stop once", func(t *testing.T) {
+		a, stops := newTestAbortState()
+
+		a.setError(errQueue)
+		a.setCancelled(errCancel)
+
+		assert.True(t, a.aborted())
+		assert.Equal(t, 1, *stops)
 	})
 }
 
@@ -84,7 +141,7 @@ func TestAbortState_CancelledContextIsFirst(t *testing.T) {
 
 		record(a, errors.New("decode"))
 
-		assert.Same(t, errStop, a.error())
+		assert.Same(t, errStop, errorOf(a))
 	}
 }
 
@@ -156,14 +213,7 @@ func TestCorruptDemoPacket(t *testing.T) {
 		p := NewParser(bytes.NewReader(data))
 		defer p.Close()
 
-		err := p.ParseToEnd(t.Context())
-		assert.ErrorIs(t, err, ErrDecodeFailed)
-		assert.NotErrorIs(t, err, ErrUnexpectedEndOfDemo)
-
-		var de *DecodeError
-		if assert.ErrorAs(t, err, &de) {
-			assert.Equal(t, 1, de.Frame)
-		}
+		assertCorruptDemoPacket(t, p.ParseToEnd(t.Context()))
 	})
 
 	t.Run("ParseNextFrame", func(t *testing.T) {
@@ -176,14 +226,60 @@ func TestCorruptDemoPacket(t *testing.T) {
 
 		more, err = p.ParseNextFrame()
 		assert.False(t, more)
-		assert.ErrorIs(t, err, ErrDecodeFailed)
-		assert.NotErrorIs(t, err, ErrUnexpectedEndOfDemo)
+		assertCorruptDemoPacket(t, err)
 	})
 }
 
+func assertCorruptDemoPacket(t *testing.T, err error) {
+	t.Helper()
+
+	assert.ErrorIs(t, err, ErrDecodeFailed)
+	assert.NotErrorIs(t, err, ErrUnexpectedEndOfDemo)
+	assert.NotErrorIs(t, err, io.ErrUnexpectedEOF)
+	assert.NotErrorIs(t, err, io.EOF)
+	assert.Contains(t, err.Error(), "unexpected end of data")
+
+	var de *DecodeError
+	if assert.ErrorAs(t, err, &de) {
+		assert.Equal(t, 1, de.Frame)
+	}
+}
+
+// An error of a frame that's still queued when the demo turns out to be truncated takes precedence.
+func TestPrecedence_QueuedDecodeErrorOverTruncation(t *testing.T) {
+	p := NewParser(bytes.NewReader(handmadeDemo(demoPacketFrame(t, nil))))
+	defer p.Close()
+
+	// Called on the message-handling goroutine for the first frame,
+	// it blocks until the parsing goroutine recorded the end of the demo.
+	registerInternal(p, func(*msg.CDemoPacket) {
+		deadline := time.Now().Add(10 * time.Second)
+
+		for errorOf(&p.abort) == nil && time.Now().Before(deadline) {
+			time.Sleep(time.Millisecond)
+		}
+
+		panic("corrupt")
+	})
+
+	err := p.ParseToEnd(t.Context())
+	assert.ErrorIs(t, err, ErrDecodeFailed)
+	assert.NotErrorIs(t, err, ErrUnexpectedEndOfDemo)
+	assert.NotErrorIs(t, err, io.ErrUnexpectedEOF)
+	assert.EqualError(t, errors.Unwrap(err), "corrupt")
+
+	var de *DecodeError
+	if assert.ErrorAs(t, err, &de) {
+		assert.Zero(t, de.Frame)
+	}
+}
+
 // A cancellation of ctx while the queue is drained after a decoding failure doesn't replace the error.
+// The error has the number of the frame that failed, also though the frames before it weren't all handled.
 func TestPrecedence_DecodeErrorOverLaterCancel(t *testing.T) {
-	p := NewParser(bytes.NewReader(handmadeDemo(demoPacketFrame(t, nil), demoPacketFrame(t, corruptPacketData))))
+	empty := demoPacketFrame(t, nil)
+
+	p := NewParser(bytes.NewReader(handmadeDemo(empty, empty, empty, demoPacketFrame(t, corruptPacketData))))
 	defer p.Close()
 
 	ctx, cancel := context.WithCancelCause(t.Context())
@@ -192,11 +288,11 @@ func TestPrecedence_DecodeErrorOverLaterCancel(t *testing.T) {
 	errStop := errors.New("stop")
 
 	// Called on the message-handling goroutine for the first frame,
-	// it blocks until the parsing goroutine recorded the error of the second frame and is draining the queue.
+	// it blocks until the parsing goroutine recorded the error of the last frame and is draining the queue.
 	p.RegisterEventHandler(func(events.FrameDone) {
 		deadline := time.Now().Add(10 * time.Second)
 
-		for p.abort.error() == nil && time.Now().Before(deadline) {
+		for errorOf(&p.abort) == nil && time.Now().Before(deadline) {
 			time.Sleep(time.Millisecond)
 		}
 
@@ -206,4 +302,11 @@ func TestPrecedence_DecodeErrorOverLaterCancel(t *testing.T) {
 	err := p.ParseToEnd(ctx)
 	assert.ErrorIs(t, err, ErrDecodeFailed)
 	assert.NotErrorIs(t, err, errStop)
+
+	var de *DecodeError
+	if assert.ErrorAs(t, err, &de) {
+		assert.Equal(t, 3, de.Frame)
+	}
+
+	assert.Less(t, p.CurrentFrame(), 3, "the drain must have been cut short")
 }

@@ -53,10 +53,10 @@ func TestRegisterInternal_PanicIsDecodeError(t *testing.T) {
 		dispatchQueued(p)
 
 		assert.False(t, laterHandlerCalled, "handlers after the panicking one must not be called")
-		assert.Nil(t, p.abort.handlerPanic())
+		assert.Nil(t, panicOf(&p.abort))
 
 		var de *DecodeError
-		require.ErrorAs(t, p.abort.error(), &de)
+		require.ErrorAs(t, errorOf(&p.abort), &de)
 		assert.ErrorIs(t, de, ErrDecodeFailed)
 		assert.Equal(t, 7, de.Frame)
 		assert.NotNil(t, de.Cause)
@@ -77,11 +77,11 @@ func TestRegisterInternal_NestedUserPanic(t *testing.T) {
 
 	dispatchQueued(p)
 
-	pe := p.abort.handlerPanic()
+	pe := panicOf(&p.abort)
 	require.NotNil(t, pe)
 	assert.Equal(t, "user boom", pe.Value)
 	assert.Contains(t, string(pe.Stack), "TestRegisterInternal_NestedUserPanic")
-	assert.NoError(t, p.abort.error())
+	assert.NoError(t, errorOf(&p.abort))
 	assert.True(t, p.aborted())
 }
 
@@ -98,7 +98,7 @@ func TestRegisterInternal_CapturedPanic(t *testing.T) {
 
 	dispatchQueued(p)
 
-	pe := p.abort.handlerPanic()
+	pe := panicOf(&p.abort)
 	require.NotNil(t, pe)
 	assert.Equal(t, "boom", pe.Value)
 	assert.Equal(t, c.Stack, pe.Stack)
@@ -120,11 +120,11 @@ func TestRegisterInternal_PropertyNotFoundInUserHandler(t *testing.T) {
 
 	dispatchQueued(p)
 
-	assert.Nil(t, p.abort.handlerPanic())
-	assert.ErrorIs(t, p.abort.error(), ErrDecodeFailed)
+	assert.Nil(t, panicOf(&p.abort))
+	assert.ErrorIs(t, errorOf(&p.abort), ErrDecodeFailed)
 
 	var err *st.PropertyNotFoundError
-	require.ErrorAs(t, p.abort.error(), &err)
+	require.ErrorAs(t, errorOf(&p.abort), &err)
 	assert.Same(t, pnf, err)
 }
 
@@ -135,5 +135,5 @@ func TestSetPanic_FirstWins(t *testing.T) {
 	p.abort.setPanic(panics.Capture("first"))
 	p.abort.setPanic(panics.Capture("second"))
 
-	assert.Equal(t, "first", p.abort.handlerPanic().Value)
+	assert.Equal(t, "first", panicOf(&p.abort).Value)
 }
