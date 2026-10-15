@@ -188,7 +188,7 @@ func handmadeDemo(frames ...[]byte) []byte {
 }
 
 // demoPacketFrame returns a DEM_Packet frame with the given packet data.
-func demoPacketFrame(t *testing.T, data []byte) []byte {
+func demoPacketFrame(t testing.TB, data []byte) []byte {
 	t.Helper()
 
 	payload, err := proto.Marshal(&msg.CDemoPacket{Data: data})
