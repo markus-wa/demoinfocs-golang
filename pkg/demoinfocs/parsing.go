@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"slices"
 	"sync"
 	"time"
 
-	"github.com/golang/snappy"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
@@ -42,7 +42,8 @@ func getMsgBuf(n int) *[]byte {
 }
 
 func putMsgBuf(bp *[]byte) {
-	if bp != nil {
+	// Large buffers (from rare large payloads) aren't kept, so they don't stay allocated.
+	if bp != nil && cap(*bp) <= maxPooledBuffer {
 		msgBufPool.Put(bp)
 	}
 }
@@ -382,7 +383,7 @@ var demoCommandMsgsCreators = map[msg.EDemoCommands]config.NetMessageCreator{
 	msg.EDemoCommands_DEM_Recovery:        func() proto.Message { return &msg.CDemoRecovery{} },
 }
 
-// readFramePayload reads (and, if needed, decompresses) the current frame's payload.
+// readFramePayload reads (and, if needed, decompresses) the current frame's payload of the given size.
 //
 // Regular demos read into a pooled buffer and reuse the per-parser snappy
 // scratch as the decompression destination; the pool entry is returned so the
@@ -391,71 +392,107 @@ var demoCommandMsgsCreators = map[msg.EDemoCommands]config.NetMessageCreator{
 //
 // CSTV broadcasts retain buf in messages (m.Data = buf), so they get a plain,
 // unpooled read with a fresh snappy destination.
-func (p *Parser) readFramePayload(size int, msgCompressed, isCSTVBroadcast bool) (buf []byte, bp *[]byte) {
+//
+// A payload that's larger than the limit for msgType (see framePayloadLimit()) isn't read, errFrameTooLarge is returned.
+// A compressed payload that can't be decompressed is consumed from the demo stream, an error is returned
+// (the caller decides what to do, see parseFrame()).
+// If the demo ends within the payload, it panics with io.ErrUnexpectedEOF (truncated demo).
+func (p *Parser) readFramePayload(msgType msg.EDemoCommands, size uint32, msgCompressed, isCSTVBroadcast bool) (buf []byte, bp *[]byte, err error) {
+	limit := framePayloadLimit(msgType)
+	if uint64(size) > limit {
+		return nil, nil, fmt.Errorf("%w: %v payload of %d bytes exceeds the limit of %d bytes", errFrameTooLarge, msgType, size, limit)
+	}
+
+	n := int(size)
+
 	if isCSTVBroadcast {
-		buf = p.bitReader.ReadBytes(size)
+		buf = make([]byte, 0, min(n, maxPreallocatedPayload))
+		p.readPayloadInto(&buf, n)
 
 		if msgCompressed {
-			var err error
-
-			buf, err = snappy.Decode(nil, buf)
+			buf, err = decodeSnappy(nil, buf, limit)
 			if err != nil {
-				p.handleSnappyError(err)
+				return nil, nil, err
 			}
 		}
 
-		return buf, nil
+		return buf, nil, nil
 	}
 
-	bp = getMsgBuf(size)
-	p.bitReader.ReadBytesInto(bp, size)
+	bp = getMsgBuf(min(n, maxPreallocatedPayload))
+	p.readPayloadInto(bp, n)
 	buf = *bp
 
 	if !msgCompressed {
-		return buf, bp
+		return buf, bp, nil
 	}
 
 	// Reuse the per-parser scratch as the snappy destination: the decoded
 	// payload is dead after the caller's proto.Unmarshal, and frame parsing
 	// is single-threaded.
-	// snappy.Decode only keeps dst when len(dst) >= decoded length, so grow
-	// the scratch's length (capacity permitting) instead of passing a
-	// zero-length slice — otherwise every call allocates a fresh buffer.
-	var err error
-
-	if dLen, _ := snappy.DecodedLen(buf); dLen <= cap(p.snappyScratch) {
-		p.snappyScratch = p.snappyScratch[:dLen]
-	}
-
-	buf, err = snappy.Decode(p.snappyScratch, buf)
+	buf, err = decodeSnappy(p.snappyScratch, buf, limit)
 
 	// The pooled input is consumed either way; only the decoded scratch
 	// carries data from here on.
 	putMsgBuf(bp)
 
 	if err != nil {
-		buf = nil
-
-		p.handleSnappyError(err)
-
-		return buf, nil
+		return nil, nil, err
 	}
 
-	p.snappyScratch = buf[:0]
+	// Large scratches (from rare large payloads) aren't kept, so they don't stay allocated.
+	if cap(buf) <= maxPooledBuffer {
+		p.snappyScratch = buf[:0]
+	} else {
+		p.snappyScratch = nil
+	}
 
-	return buf, nil
+	return buf, nil, nil
 }
 
-func (p *Parser) handleSnappyError(err error) {
-	if errors.Is(err, snappy.ErrCorrupt) {
-		p.eventDispatcher.Dispatch(events.ParserWarn{
-			Message: "compressed message is corrupt",
-		})
+// readPayloadInto appends n bytes of the demo stream to buf.
+// It panics with io.ErrUnexpectedEOF if the stream ends before (the demo is truncated):
+// the bit reader returns the bytes up to the end of the stream without an error.
+func (p *Parser) readPayloadInto(buf *[]byte, n int) {
+	start := len(*buf)
 
+	p.bitReader.ReadBytesInto(buf, n)
+
+	if len(*buf)-start < n {
+		panic(io.ErrUnexpectedEOF)
+	}
+}
+
+// skipPayload skips the current frame's payload of the given size.
+func (p *Parser) skipPayload(size uint32) {
+	// in steps, so the number of bits doesn't overflow int on 32-bit platforms
+	const maxStep = 1 << 28 // bytes
+
+	for remaining := uint64(size); remaining > 0; {
+		step := min(remaining, maxStep)
+
+		p.bitReader.Skip(int(step) << 3)
+
+		remaining -= step
+	}
+}
+
+// brokenFullPacket is queued instead of a DEM_FullPacket frame that couldn't be decoded, see parseFrame().
+// The ParserWarn is dispatched when it's handled (on the message-handling goroutine), in order with the other events.
+type brokenFullPacket struct {
+	err *DecodeError
+}
+
+func (p *Parser) handleBrokenFullPacket(b *brokenFullPacket) {
+	if p.aborted() {
 		return
 	}
 
-	panic(err)
+	p.eventDispatcher.Dispatch(events.ParserWarn{
+		Message: fmt.Sprintf("skipped broken DEM_FullPacket: %v", b.err.Cause),
+		Type:    events.WarnTypeBrokenFullPacket,
+		Err:     b.err,
+	})
 }
 
 // queueFrameParsed queues the end of the current frame. readerFrame counts the frames like currentFrame
@@ -524,17 +561,60 @@ func (p *Parser) parseFrame() (bool, error) {
 			Message: fmt.Sprintf("skipping unknown demo commands message type with value %d", msgType),
 			Type:    events.WarnTypeUnknownDemoCommandMessageType,
 		})
-		p.bitReader.Skip(int(size) << 3)
+		p.skipPayload(size)
 
 		return true, nil
 	}
 
-	buf, bp := p.readFramePayload(int(size), msgCompressed, isCSTVBroadcast)
+	m, nested, err := p.decodeFrame(msgCreator(), size, msgType, msgCompressed, isCSTVBroadcast)
+	if err != nil {
+		// Some Valve matchmaking demos (~10% in 2023) contain a broken DEM_FullPacket, which the game skips as well (#409).
+		// Full packets are snapshots of the state that's also sent with the regular packets, so they can be skipped.
+		// The frame is still counted (see queueFrameParsed()), so CurrentFrame() stays the same for all later frames.
+		// A frame that's too large wasn't read, parsing can't continue after it.
+		if msgType != msg.EDemoCommands_DEM_FullPacket || errors.Is(err, errFrameTooLarge) {
+			return false, newDecodeError(err, p.readerFrame)
+		}
 
-	m := msgCreator()
+		p.msgQueue <- &brokenFullPacket{err: newDecodeError(err, p.readerFrame)}
 
-	if m == nil {
-		panic(fmt.Sprintf("Unknown demo command: %d", msgType))
+		p.queueFrameParsed()
+
+		return true, nil
+	}
+
+	p.msgQueue <- m
+
+	if m, ok := m.(*msg.CDemoFullPacket); ok {
+		p.msgQueue <- m.StringTable
+	}
+
+	for _, nm := range nested {
+		p.msgQueue <- nm
+	}
+
+	// Drop the references, the slice is reused for the next packet.
+	clear(nested)
+
+	// Queue up some post processing
+	p.queueFrameParsed()
+
+	return msgType != msg.EDemoCommands_DEM_Stop, nil
+}
+
+// decodeFrame reads and decodes the current frame's payload into m.
+// For (full) packets, the embedded net-messages are decoded as well and returned as nested,
+// so nothing is queued for a frame that can't be decoded completely.
+// nested is only valid until the next call.
+func (p *Parser) decodeFrame(
+	m proto.Message,
+	size uint32,
+	msgType msg.EDemoCommands,
+	msgCompressed, isCSTVBroadcast bool,
+) (_ proto.Message, nested []proto.Message, err error) {
+	buf, bp, err := p.readFramePayload(msgType, size, msgCompressed, isCSTVBroadcast)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	if isCSTVBroadcast {
@@ -543,48 +623,40 @@ func (p *Parser) parseFrame() (bool, error) {
 			m.Data = buf
 
 		case *msg.CDemoSpawnGroups:
+			if len(buf) == 0 {
+				return nil, nil, errors.New("empty DEM_SpawnGroups payload") //nolint:err113 // only used as cause of a DecodeError
+			}
+
 			m.Msgs = [][]byte{buf[1:]} // TODO: index might be a varint, also we should collect all entries into one msg
 
 		default:
-			err := proto.Unmarshal(buf, m)
-			if err != nil {
-				return false, newDecodeError(err, p.readerFrame)
-			}
+			err = proto.Unmarshal(buf, m)
 		}
 	} else {
-		err := proto.Unmarshal(buf, m)
+		err = proto.Unmarshal(buf, m)
 
 		putMsgBuf(bp)
-
-		if err != nil {
-			return false, newDecodeError(err, p.readerFrame)
-		}
 	}
 
-	p.msgQueue <- m
-
-	var err error
+	if err != nil {
+		return nil, nil, err
+	}
 
 	switch m := m.(type) {
 	case *msg.CDemoPacket:
-		err = p.handleDemoPacket(m, false)
+		nested, err = p.decodeDemoPacket(m, false)
 
 	case *msg.CDemoFullPacket:
-		p.msgQueue <- m.StringTable
-
 		if m.Packet.GetData() != nil {
-			err = p.handleDemoPacket(m.Packet, true)
+			nested, err = p.decodeDemoPacket(m.Packet, true)
 		}
 	}
 
 	if err != nil {
-		return false, newDecodeError(err, p.readerFrame)
+		return nil, nil, err
 	}
 
-	// Queue up some post processing
-	p.queueFrameParsed()
-
-	return msgType != msg.EDemoCommands_DEM_Stop, nil
+	return m, nested, nil
 }
 
 func (p *Parser) handlePacketEntities(m *msg.CSVCMsg_PacketEntities) {
