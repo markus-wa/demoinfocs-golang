@@ -82,6 +82,10 @@ type Parser struct {
 	entityBudget entityBudget
 }
 
+// maxPolymorphicFields bounds the number of polymorphic pointer fields of a schema (see Parser.nextPolyID).
+// Real demos have one (m_pGameRules.m_pGameModeRules).
+const maxPolymorphicFields = 64
+
 // ServerClasses is a searchable list of ServerClasses.
 //
 // It's obtained from Parser.ServerClasses() and reflects classes that are added later on.
@@ -266,6 +270,12 @@ func (p *Parser) ParsePacket(b []byte) error {
 				if field.serializer != nil || len(field.polyTypes) > 0 { //nolint:gocritic
 					if field.fieldType.pointer || pointerTypes[field.fieldType.baseType] || len(field.polyTypes) > 0 {
 						if len(field.polyTypes) > 0 {
+							// Every entity of a class with polymorphic fields allocates a slot for each ID,
+							// so a corrupt schema with lots of them would allocate a lot per entity.
+							if p.nextPolyID >= maxPolymorphicFields {
+								_panicf("more than %d polymorphic fields: corrupt schema", maxPolymorphicFields)
+							}
+
 							// Assign a unique per-entity slot BEFORE calling setModel,
 							// so the closure in setModel captures the correct ID.
 							field.polySerializerID = p.nextPolyID
