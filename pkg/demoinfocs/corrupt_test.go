@@ -19,6 +19,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/fuzzcheck"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
@@ -226,6 +227,7 @@ func TestOversizeFrame(t *testing.T) {
 		{"compressed packet", msg.EDemoCommands_DEM_Packet | msg.EDemoCommands_DEM_IsCompressed, maxFramePayload + 1},
 		{"animation data", msg.EDemoCommands_DEM_AnimationData, maxAnimationDataPayload + 1},
 		{"max uint32", msg.EDemoCommands_DEM_Packet, 1<<32 - 1},
+		{"full packet", msg.EDemoCommands_DEM_FullPacket, maxFramePayload + 1}, // not skipped, the payload isn't read
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			demo := handmadeDemo(fileHeaderFrame(t), frameHeader(tc.cmd, 0, tc.size), make([]byte, 64))
@@ -235,6 +237,7 @@ func TestOversizeFrame(t *testing.T) {
 			allocated := fuzzcheck.AllocatedBytes(func() { _, err = parse(t, demo) })
 
 			assertDecodeError(t, err, fmt.Sprintf("payload of %d bytes exceeds the limit", tc.size))
+			assert.ErrorIs(t, err, errFrameTooLarge)
 			assert.Less(t, allocated, uint64(4<<20))
 		})
 	}
@@ -739,4 +742,71 @@ func FuzzParse(f *testing.F) {
 	}
 
 	f.Fuzz(checkParse)
+}
+
+// cstvFrame returns a frame in the CSTV broadcast format, with the given size and payload.
+func cstvFrame(cmd msg.EDemoCommands, size uint32, payload []byte) []byte {
+	b := binary.AppendUvarint(nil, uint64(cmd))
+	b = binary.LittleEndian.AppendUint32(b, 1) // tick
+	b = append(b, 0)                           // skipped
+	b = binary.LittleEndian.AppendUint32(b, size)
+
+	return append(b, payload...)
+}
+
+func parseCSTV(t *testing.T, frames ...[]byte) error {
+	t.Helper()
+
+	cfg := config.New[option.Option](nil)
+	cfg.Format = config.FormatCSTVBroadcast
+
+	p := newParserFromConfig(bytes.NewReader(bytes.Join(frames, nil)), cfg)
+	defer p.Close()
+
+	return p.ParseToEnd(t.Context())
+}
+
+// Not parallel, see fuzzcheck.AllocatedBytes().
+//
+//nolint:paralleltest
+func TestCSTV_Corrupt(t *testing.T) {
+	t.Run("oversize frame", func(t *testing.T) {
+		var err error
+
+		allocated := fuzzcheck.AllocatedBytes(func() {
+			err = parseCSTV(t, cstvFrame(msg.EDemoCommands_DEM_Packet, maxFramePayload+1, make([]byte, 64)))
+		})
+
+		require.ErrorIs(t, err, ErrDecodeFailed)
+		assert.Contains(t, err.Error(), "payload of 16777217 bytes exceeds the limit")
+		assert.Less(t, allocated, uint64(4<<20))
+	})
+
+	t.Run("truncated", func(t *testing.T) {
+		var err error
+
+		allocated := fuzzcheck.AllocatedBytes(func() {
+			err = parseCSTV(t, cstvFrame(msg.EDemoCommands_DEM_Packet, maxFramePayload, make([]byte, 64)))
+		})
+
+		assertTruncated(t, err)
+		assert.Less(t, allocated, uint64(4<<20))
+	})
+
+	t.Run("empty spawn groups", func(t *testing.T) {
+		err := parseCSTV(t, cstvFrame(msg.EDemoCommands_DEM_SpawnGroups, 0, nil), cstvFrame(msg.EDemoCommands_DEM_Stop, 0, nil))
+
+		require.ErrorIs(t, err, ErrDecodeFailed)
+		assert.Contains(t, err.Error(), "empty DEM_SpawnGroups payload")
+	})
+
+	t.Run("snappy bomb", func(t *testing.T) {
+		payload := binary.AppendUvarint(nil, maxFramePayload)
+		payload = append(payload, make([]byte, 100)...)
+
+		err := parseCSTV(t, cstvFrame(msg.EDemoCommands_DEM_Packet|msg.EDemoCommands_DEM_IsCompressed, uint32(len(payload)), payload))
+
+		require.ErrorIs(t, err, ErrDecodeFailed)
+		assert.ErrorIs(t, err, errSnappyLimit)
+	})
 }
