@@ -468,13 +468,19 @@ func (p *Parser) readPayloadInto(buf *[]byte, n int) {
 
 // skipPayload skips the current frame's payload of the given size.
 func (p *Parser) skipPayload(size uint32) {
-	// in steps, so the number of bits doesn't overflow int on 32-bit platforms
-	const maxStep = 1 << 28 // bytes
+	skipBitsInSteps(size, p.bitReader.Skip)
+}
 
-	for remaining := uint64(size); remaining > 0; {
-		step := min(remaining, maxStep)
+// maxSkipStep is the most bytes skipBitsInSteps() skips at once: its number of bits (1<<30) fits into a 32-bit int.
+const maxSkipStep = 1 << 27
 
-		p.bitReader.Skip(int(step) << 3)
+// skipBitsInSteps calls skipBits with the number of bits of size bytes,
+// in steps so the number of bits doesn't overflow int on 32-bit platforms.
+func skipBitsInSteps(size uint32, skipBits func(bits int)) {
+	for remaining := size; remaining > 0; {
+		step := min(remaining, maxSkipStep)
+
+		skipBits(int(step) * 8)
 
 		remaining -= step
 	}
@@ -574,9 +580,13 @@ func (p *Parser) parseFrame() (bool, error) {
 		// Some Valve matchmaking demos (~10% in 2023) contain a broken DEM_FullPacket, which the game skips as well (#409).
 		// Full packets are snapshots of the state that's also sent with the regular packets, so they can be skipped.
 		// The frame is still counted (see queueFrameParsed()), so CurrentFrame() stays the same for all later frames.
-		// A frame that's too large wasn't read, parsing can't continue after it.
-		if msgType != msg.EDemoCommands_DEM_FullPacket || errors.Is(err, errFrameTooLarge) {
+		if msgType != msg.EDemoCommands_DEM_FullPacket {
 			return false, newDecodeError(err, p.readerFrame)
+		}
+
+		// The payload of a frame that's too large wasn't read.
+		if errors.Is(err, errFrameTooLarge) {
+			p.skipPayload(size)
 		}
 
 		p.msgQueue <- &brokenFullPacket{err: newDecodeError(err, p.readerFrame)}
