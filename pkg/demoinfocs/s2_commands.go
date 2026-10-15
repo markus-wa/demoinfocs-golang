@@ -346,6 +346,17 @@ func msgCreatorForType(t int32) config.NetMessageCreator {
 	}
 }
 
+// remainingBits returns the number of bits r has left to read of a buffer with totalBits bits.
+// It's 0 if r read past the end already.
+func remainingBits(r *bitread.BitReader, totalBits uint64) uint64 {
+	pos := uint64(r.ActualPosition())
+	if pos > totalBits {
+		return 0
+	}
+
+	return totalBits - pos
+}
+
 // decodeDemoPacket decodes the net-messages of a demo packet, it's called on the parsing goroutine.
 // They're returned in the order they must be queued in. The slice is reused, it's only valid until the next call.
 // Nothing is returned if the packet can't be decoded completely, so the caller can skip it as a whole.
@@ -382,13 +393,13 @@ func (p *Parser) decodeDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) (msg
 	r := bitread.NewSmallBitReader(bytes.NewReader(b))
 	totalBits := uint64(len(b)) << 3
 
-	// The bit reader panics when it reads past the end of b, so the position never exceeds totalBits.
-	for totalBits-uint64(r.ActualPosition()) > 7 {
+	for uint64(r.ActualPosition())+7 < totalBits {
 		t := int32(r.ReadUBitInt())
 		size := r.ReadVarInt32()
 
 		// Checked before allocating, so a corrupt size can't make it allocate more than the packet's size.
-		if remainingBits := totalBits - uint64(r.ActualPosition()); uint64(size)<<3 > remainingBits {
+		// The bit reader doesn't always panic right away when it reads past the end of b, the position can exceed totalBits.
+		if remainingBits := remainingBits(r, totalBits); uint64(size)<<3 > remainingBits {
 			return nil, fmt.Errorf("size %d of net-message of type %d exceeds the remaining %d bytes of the packet", size, t, remainingBits>>3) //nolint:err113 // only used as cause of a DecodeError
 		}
 
