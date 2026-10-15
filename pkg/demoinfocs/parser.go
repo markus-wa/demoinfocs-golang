@@ -132,10 +132,8 @@ type Parser struct {
 	rawPlayers            map[int]*common.PlayerInfo                               // Maps entity IDs to 'raw' player info
 	dirtyControllers      map[int]*dirtyPlayerController                           // Player controllers whose identity / connection state changed in the current entity packet
 	provisionalNames      map[*common.Player]struct{}                              // Players whose name isn't from the controller yet (userinfo fallback or SteamID placeholder)
-	modelPreCache         []string                                                 // Used to find out whether a weapon is a p250 or cz for example (same id) for Source 1 demos only
 	triggers              map[int]*boundingBoxInformation                          // Maps entity IDs to triggers (used for bombsites)
 	gameEventDescs        map[int32]*msg.CMsgSource1LegacyGameEventListDescriptorT // Maps game-event IDs to descriptors
-	grenadeModelIndices   map[int]common.EquipmentType                             // Used to map model indices to grenades (used for grenade projectiles)
 	equipmentTypePerModel map[uint64]common.EquipmentType                          // Used to retrieve the EquipmentType of grenade projectiles based on models value. Source 2 only.
 	stringTables          []*msg.CSVCMsg_CreateStringTable                         // Contains all created sendtables, needed when updating them
 	delayedEventHandlers  []func()                                                 // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
@@ -493,7 +491,6 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
 	p.triggers = make(map[int]*boundingBoxInformation)
 	p.demoInfoProvider = demoInfoProvider{parser: &p}
 	p.gameState = newGameState(p.demoInfoProvider)
-	p.grenadeModelIndices = make(map[int]common.EquipmentType)
 	p.equipmentTypePerModel = make(map[uint64]common.EquipmentType)
 	p.userCmdStates = make(map[int32]*userCmdPlayerState)
 	p.userCmdButtonStates = make(map[int32]*userCmdButtonPlayerState)
