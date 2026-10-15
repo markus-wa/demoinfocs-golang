@@ -4,15 +4,21 @@ type fieldState struct {
 	state []any
 }
 
+// newFieldStateSlots is the number of slots newFieldState() allocates.
+const newFieldStateSlots = 16
+
 func newFieldState() *fieldState {
 	return &fieldState{
-		state: make([]any, 8, 16),
+		state: make([]any, 8, newFieldStateSlots),
 	}
 }
 
-// maxFieldIndex bounds decoded field-path components and variable-collection sizes.
-// Anything larger means a corrupt or desynced bitstream and would allocate GBs in one call.
-const maxFieldIndex = 1 << 20
+// maxFieldIndex bounds decoded field-path components and variable-collection sizes,
+// so a single update allocates at most 1 MiB of state (see also entityBudget).
+// Anything larger means a corrupt or desynced bitstream.
+// The largest index / size across 50 real demos is ~3k (CSmokeGrenadeProjectile.m_VoxelFrameData),
+// the limit leaves room for larger voxel data.
+const maxFieldIndex = 1 << 16
 
 func validateFieldIndex(z int, fp *fieldPath) {
 	if z < 0 || z > maxFieldIndex {
@@ -44,7 +50,9 @@ func (s *fieldState) get(fp *fieldPath) any {
 	return nil
 }
 
-func (s *fieldState) set(fp *fieldPath, v any) {
+// set sets the value at fp.
+// It returns the number of slots it allocated (incl. nested field states), see entityBudget.
+func (s *fieldState) set(fp *fieldPath, v any) (allocated int) {
 	// Fast path for the common single-level case (fp.last == 0)
 	if fp.last == 0 { //nolint:nestif
 		z := fp.path[0]
@@ -55,6 +63,7 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 				newSlice := make([]any, z+1, max(z+2, y*2))
 				copy(newSlice, s.state)
 				s.state = newSlice
+				allocated = cap(newSlice)
 			} else {
 				s.state = s.state[:z+1]
 			}
@@ -64,7 +73,7 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 			s.state[z] = v
 		}
 
-		return
+		return allocated
 	}
 
 	x := s
@@ -80,6 +89,7 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 				newSlice := make([]any, z+1, newCap)
 				copy(newSlice, x.state)
 				x.state = newSlice
+				allocated += newCap
 			} else {
 				// Re-slice to update the length without allocating new memory
 				x.state = x.state[:z+1]
@@ -91,15 +101,18 @@ func (s *fieldState) set(fp *fieldPath, v any) {
 				x.state[z] = v
 			}
 
-			return
+			return allocated
 		}
 
 		if _, ok := x.state[z].(*fieldState); !ok {
 			x.state[z] = newFieldState()
+			allocated += newFieldStateSlots
 		}
 
 		x = x.state[z].(*fieldState)
 	}
+
+	return allocated
 }
 
 func max(a, b int) int { //nolint:revive

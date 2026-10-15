@@ -164,7 +164,7 @@ func (f *field) getNameForFieldPath(fp *fieldPath, pos int, ps []*serializer) []
 	case fieldModelFixedTable:
 		if fp.last >= pos {
 			ser := f.serializer
-			if f.polySerializerID >= 0 && ps != nil {
+			if f.polySerializerID >= 0 && f.polySerializerID < len(ps) {
 				ser = ps[f.polySerializerID]
 			}
 
@@ -205,7 +205,7 @@ func (f *field) getDecoderAndCollection(fp *fieldPath, pos int, ps []*serializer
 		}
 
 		ser := f.serializer
-		if f.polySerializerID >= 0 && ps != nil {
+		if f.polySerializerID >= 0 && f.polySerializerID < len(ps) {
 			ser = ps[f.polySerializerID]
 		}
 
@@ -260,7 +260,7 @@ func (f *field) getFieldPathForName(fp *fieldPath, name string, ps []*serializer
 
 	case fieldModelFixedTable:
 		ser := f.serializer
-		if f.polySerializerID >= 0 && ps != nil {
+		if f.polySerializerID >= 0 && f.polySerializerID < len(ps) {
 			ser = ps[f.polySerializerID]
 		}
 
@@ -311,7 +311,7 @@ func (f *field) getFieldPaths(fp *fieldPath, state *fieldState, ps []*serializer
 	case fieldModelFixedTable:
 		if sub, ok := stateAtField(state, fp); ok {
 			ser := f.serializer
-			if f.polySerializerID >= 0 && ps != nil {
+			if f.polySerializerID >= 0 && f.polySerializerID < len(ps) {
 				ser = ps[f.polySerializerID]
 			}
 

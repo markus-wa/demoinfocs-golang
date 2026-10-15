@@ -29,6 +29,8 @@ type Entity struct {
 	// pointer is inactive. This slice is per-entity so that two entities of the
 	// same class can hold different active types simultaneously.
 	polySerializers []*serializer
+	// budgetSlots are the live slots charged for the entity, see entityBudget.
+	budgetSlots int64
 
 	onCreateFinished []func()
 	onUpdateFinished []func()
@@ -612,7 +614,11 @@ func (e *Entity) get(name string) any {
 }
 
 //nolint:gocognit,funlen
-func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
+func (e *Entity) readFields(r *reader, paths *[]*fieldPath, budget *entityBudget) {
+	if len(e.polySerializers) < e.class.polyCount {
+		e.growPolySerializers(budget)
+	}
+
 	n := readFieldPaths(r, paths)
 
 	for _, fp := range (*paths)[:n] {
@@ -652,14 +658,18 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 
 			if fs == nil {
 				// First update: allocate once and store the pointer.
-				// Use 2× initial capacity so small incremental growths don't reallocate.
-				initCap := newLen * 2
+				initCap := newLen
 				if initCap < 8 {
 					initCap = 8
 				}
 
+				budget.spendState(e, int(initCap), fp)
+
 				fs = &fieldState{state: make([]any, newLen, initCap)}
-				e.state.set(fp, fs)
+
+				if n := e.state.set(fp, fs); n > 0 {
+					budget.spendState(e, n, fp)
+				}
 			} else {
 				// Subsequent updates: resize the existing slice in place.
 				curLen := uint64(len(fs.state))
@@ -676,6 +686,8 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 							newCap = newLen
 						}
 
+						budget.spendState(e, int(newCap), fp)
+
 						newState := make([]any, newLen, newCap)
 						copy(newState, fs.state)
 						fs.state = newState
@@ -684,14 +696,24 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 			}
 
 			val = fs.state
-		} else {
-			e.state.set(fp, val)
+		} else if n := e.state.set(fp, val); n > 0 {
+			budget.spendState(e, n, fp)
 		}
 
 		if e.hasHandlers {
 			e.dispatchUpdate(fp, val)
 		}
 	}
+}
+
+// growPolySerializers grows e.polySerializers to the polyCount of its class,
+// which grows if the class's serializer is replaced by one with more polymorphic fields (see Parser.ParsePacket()).
+func (e *Entity) growPolySerializers(budget *entityBudget) {
+	if exceeded := budget.spendSlots(e, polySerializersSlots(e.class.polyCount)); exceeded != "" {
+		_panicf("entities exceed the budget of %s per byte of entity data (class %d): corrupt demo", exceeded, e.class.classId)
+	}
+
+	e.polySerializers = append(e.polySerializers, make([]*serializer, e.class.polyCount-len(e.polySerializers))...)
 }
 
 // dispatchUpdate fires any registered update handlers for the given field path.
@@ -710,6 +732,119 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 	name := e.class.getNameForFieldPath(fp, e.polySerializers)
 	for _, h := range e.updateHandlers[name] {
 		h(PropertyValue{Any: val})
+	}
+}
+
+// entityBudget bounds entity decoding relative to the size of the entity data read so far
+// (the bytes of the PacketEntities messages, see credit()),
+// so a few bits of corrupt or crafted entity data can't make the parser allocate GBs or run for minutes.
+// It has two parts, each bounded by base + perByte * (entity data bytes):
+//
+//   - live: the memory of the entities in Parser.entities, in state slots (16 bytes):
+//     their state (see fieldState.set()), plus entityFixedSlots and the polySerializers of each entity.
+//     It's refunded when an entity is dropped from Parser.entities (a new entity is created at its index),
+//     so entity churn doesn't add up over long demos. Destroyed entities keep their state and stay in
+//     Parser.entities until their index is reused, so they're still charged.
+//   - work: what was decoded and allocated in total, never refunded - the instance baselines (in bytes)
+//     and the allocated slots (same as live). It bounds the CPU time: re-creating an entity at the same index
+//     costs a few bytes of entity data, but can decode a large baseline and allocate a lot of state each time.
+//
+// The limits are far above what real demos need, see the constants.
+type entityBudget struct {
+	liveSlots      int64
+	allocatedSlots int64
+	baselineBytes  int64
+
+	maxLiveSlots      int64
+	maxAllocatedSlots int64
+	maxBaselineBytes  int64
+}
+
+// The limits, measured across 50 real demos (2023-2026, incl. POV, deathmatch and long matches) at every point of the parse.
+// The ratios peak at the first entity message (the full snapshot of ~6 KB of entity data), the base covers that:
+//   - live: at most 714,702 slots (~11 MiB, 6381816.dem), at most 11.0 slots per byte (2.1 after 256 KB of entity data).
+//   - allocated: at most 11.0 slots per byte (2.8 after 256 KB), 16.6M slots in total (6381816.dem).
+//   - baselines: at most 6.3 bytes per byte (1.4 after 256 KB), 8.7 MB in total.
+//
+// With these constants, every demo stays at least 10.9x (live), 18.9x (allocated) and 33.5x (baselines)
+// below the limit at every point of the parse.
+const (
+	entityBudgetBaseLiveSlots         = 1 << 20 // 16 MiB
+	entityBudgetLiveSlotsPerByte      = 64
+	entityBudgetBaseAllocatedSlots    = 1 << 20 // 16 MiB
+	entityBudgetAllocatedSlotsPerByte = 128
+	entityBudgetBaseBaselineBytes     = 4 << 20
+	entityBudgetBaselineBytesPerByte  = 64
+
+	// entityFixedSlots is charged for each entity (the Entity, its initial state and maps), in state slots.
+	entityFixedSlots = 64
+)
+
+func newEntityBudget() entityBudget {
+	return entityBudget{
+		maxLiveSlots:      entityBudgetBaseLiveSlots,
+		maxAllocatedSlots: entityBudgetBaseAllocatedSlots,
+		maxBaselineBytes:  entityBudgetBaseBaselineBytes,
+	}
+}
+
+// credit adds the budget for n bytes of entity data.
+func (b *entityBudget) credit(n int) {
+	b.maxLiveSlots += int64(n) * entityBudgetLiveSlotsPerByte
+	b.maxAllocatedSlots += int64(n) * entityBudgetAllocatedSlotsPerByte
+	b.maxBaselineBytes += int64(n) * entityBudgetBaselineBytesPerByte
+}
+
+// spendState records that n state slots were allocated (or are about to be) for e's update at fp.
+func (b *entityBudget) spendState(e *Entity, n int, fp *fieldPath) {
+	if exceeded := b.spendSlots(e, n); exceeded != "" {
+		_panicf("entity state exceeds the budget of %s per byte of entity data (path %v): corrupt or desynced demo bitstream",
+			exceeded, fp.path[:fp.last+1])
+	}
+}
+
+// spendEntity records the allocation of the entity e (see entityFixedSlots), incl. its polySerializers of the given length.
+func (b *entityBudget) spendEntity(e *Entity, polySerializers int) {
+	if exceeded := b.spendSlots(e, entityFixedSlots+polySerializersSlots(polySerializers)); exceeded != "" {
+		_panicf("entities exceed the budget of %s per byte of entity data (class %d): corrupt demo", exceeded, e.class.classId)
+	}
+}
+
+// polySerializersSlots returns the size of a polySerializers slice of length n in state slots (rounded up).
+func polySerializersSlots(n int) int {
+	return (n + 1) / 2
+}
+
+// spendSlots charges n slots to e (live) and to the allocated slots.
+// It returns which of them exceeds the budget, or "".
+func (b *entityBudget) spendSlots(e *Entity, n int) (exceeded string) {
+	e.budgetSlots += int64(n)
+	b.liveSlots += int64(n)
+	b.allocatedSlots += int64(n)
+
+	switch {
+	case b.liveSlots > b.maxLiveSlots:
+		return "live slots"
+	case b.allocatedSlots > b.maxAllocatedSlots:
+		return "allocated slots"
+	}
+
+	return ""
+}
+
+// refund releases the live slots of e, which was dropped from Parser.entities.
+func (b *entityBudget) refund(e *Entity) {
+	b.liveSlots -= e.budgetSlots
+	e.budgetSlots = 0
+}
+
+// spendBaseline records that a baseline of n bytes is decoded.
+func (b *entityBudget) spendBaseline(n int, classID int32) {
+	b.baselineBytes += int64(n)
+
+	if b.baselineBytes > b.maxBaselineBytes {
+		_panicf("decoded instance baselines exceed the budget of %d bytes per byte of entity data (class %d): corrupt demo",
+			entityBudgetBaselineBytesPerByte, classID)
 	}
 }
 
@@ -745,6 +880,9 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 		p.entityFullPackets++
 	}
 
+	// After the early return above, so data that's ignored doesn't add to the budget.
+	p.entityBudget.credit(len(m.GetEntityData()))
+
 	p.tuplesCache = p.tuplesCache[:0]
 
 	for ; updates > 0; updates-- {
@@ -774,26 +912,34 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 				// destroy it so its OnDestroy handlers run and consumers don't keep using state bound to it
 				// (e.g. a weapon's unique id, #601).
 				// The same serial means the same entity is re-created, e.g. when it re-enters the PVS on POV demos.
-				if old := p.entities[index]; old != nil && old.active && old.serial != serial {
-					old.replaced = true
-					old.destroy()
+				if old := p.entities[index]; old != nil {
+					if old.active && old.serial != serial {
+						old.replaced = true
+						old.destroy()
 
-					p.tuplesCache = append(p.tuplesCache, tuple{old, EntityOpLeft | EntityOpDeleted})
+						p.tuplesCache = append(p.tuplesCache, tuple{old, EntityOpLeft | EntityOpDeleted})
+					}
+
+					p.entityBudget.refund(old)
 				}
 
 				e = newEntity(index, serial, class)
 				p.entities[index] = e
 
+				p.entityBudget.spendEntity(e, len(e.polySerializers))
+
 				baseline := p.classBaselines[classID]
 
 				if baseline != nil {
 					// POV demos are missing some baselines?
+					p.entityBudget.spendBaseline(len(baseline), classID)
+
 					br := newReader(baseline)
-					e.readFields(br, &p.pathCache)
+					e.readFields(br, &p.pathCache, &p.entityBudget)
 					br.release()
 				}
 
-				e.readFields(r, &p.pathCache)
+				e.readFields(r, &p.pathCache, &p.entityBudget)
 
 				// Fire created-handlers so update-handlers can be registered
 				for _, h := range class.createdHandlers {
@@ -823,7 +969,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 					op |= EntityOpEntered
 				}
 
-				e.readFields(r, &p.pathCache)
+				e.readFields(r, &p.pathCache, &p.entityBudget)
 				e.fireUpdateFinished()
 			}
 		} else {

@@ -72,13 +72,23 @@ type Parser struct {
 	entityHandlers    []EntityHandler
 	pathCache         []*fieldPath
 	tuplesCache       []tuple
-	// nextPolyID is a global counter for assigning unique polySerializerIDs to
-	// polymorphic fixed-table fields as they are encountered during ParsePacket.
+	// nextPolyID assigns unique polySerializerIDs to the polymorphic fixed-table fields
+	// of a schema as they are encountered during ParsePacket.
+	// It restarts at 0 for each schema (DEM_SendTables carries the complete schema), so a schema that's
+	// sent again gets the same IDs and neither the IDs nor the per-entity polySerializers slices grow.
 	nextPolyID int
 	// polyMaxCache memoizes, per serializer, the highest polySerializerID
 	// reachable from it. Used to size per-class polySerializers slices.
+	// It's cleared for each schema, so it doesn't keep the serializers of previous ones.
 	polyMaxCache map[*serializer]int
+	// entityBudget bounds the work of decoding entities, see entityBudget.
+	entityBudget entityBudget
 }
+
+// maxPolymorphicFields bounds the number of polymorphic pointer fields of a schema (see Parser.nextPolyID),
+// and thereby the size of an entity's polySerializers slice.
+// Real demos have one (m_pGameRules.m_pGameModeRules).
+const maxPolymorphicFields = 64
 
 // ServerClasses is a searchable list of ServerClasses.
 //
@@ -144,6 +154,7 @@ func NewParser() *Parser {
 		classesByName:  make(map[string]*ServerClass),
 		entities:       make(map[int32]*Entity),
 		polyMaxCache:   make(map[*serializer]int),
+		entityBudget:   newEntityBudget(),
 	}
 }
 
@@ -217,6 +228,10 @@ func (p *Parser) ParsePacket(b []byte) error {
 		return err
 	}
 
+	// The IDs are per schema, see Parser.nextPolyID.
+	p.nextPolyID = 0
+	clear(p.polyMaxCache)
+
 	fields := map[int32]*field{}
 	fieldTypes := map[string]*fieldType{}
 
@@ -263,6 +278,12 @@ func (p *Parser) ParsePacket(b []byte) error {
 				if field.serializer != nil || len(field.polyTypes) > 0 { //nolint:gocritic
 					if field.fieldType.pointer || pointerTypes[field.fieldType.baseType] || len(field.polyTypes) > 0 {
 						if len(field.polyTypes) > 0 {
+							// Every entity of a class with polymorphic fields allocates a slot for each ID,
+							// so a corrupt schema with lots of them would allocate a lot per entity.
+							if p.nextPolyID >= maxPolymorphicFields {
+								_panicf("more than %d polymorphic fields: corrupt schema", maxPolymorphicFields)
+							}
+
 							// Assign a unique per-entity slot BEFORE calling setModel,
 							// so the closure in setModel captures the correct ID.
 							field.polySerializerID = p.nextPolyID
@@ -298,10 +319,7 @@ func (p *Parser) ParsePacket(b []byte) error {
 			// safe to back-patch both the serializer and the poly slot count for
 			// classes whose CDemoClassInfo arrived before this FSV packet.
 			c.serializer = serializer
-
-			if maxID := serializer.maxPolyID(p.polyMaxCache); maxID >= 0 {
-				c.polyCount = maxID + 1
-			}
+			c.polyCount = serializer.maxPolyID(p.polyMaxCache) + 1 // 0 if none
 		}
 	}
 

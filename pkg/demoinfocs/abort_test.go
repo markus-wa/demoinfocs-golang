@@ -188,7 +188,7 @@ func handmadeDemo(frames ...[]byte) []byte {
 }
 
 // demoPacketFrame returns a DEM_Packet frame with the given packet data.
-func demoPacketFrame(t *testing.T, data []byte) []byte {
+func demoPacketFrame(t testing.TB, data []byte) []byte {
 	t.Helper()
 
 	payload, err := proto.Marshal(&msg.CDemoPacket{Data: data})
@@ -202,10 +202,9 @@ func demoPacketFrame(t *testing.T, data []byte) []byte {
 }
 
 // corruptPacketData is packet data with a message (type 0) whose size (16 bytes) runs past the end of the data.
-// The nested bit reader runs out of data while reading it.
 var corruptPacketData = []byte{0x00, 0x04, 0x00}
 
-// A nested reader running out of data is a decoding failure, not the end of the demo.
+// A corrupt nested message size is a decoding failure, not the end of the demo.
 func TestCorruptDemoPacket(t *testing.T) {
 	data := handmadeDemo(demoPacketFrame(t, nil), demoPacketFrame(t, corruptPacketData))
 
@@ -237,7 +236,7 @@ func assertCorruptDemoPacket(t *testing.T, err error) {
 	assert.NotErrorIs(t, err, ErrUnexpectedEndOfDemo)
 	assert.NotErrorIs(t, err, io.ErrUnexpectedEOF)
 	assert.NotErrorIs(t, err, io.EOF)
-	assert.Contains(t, err.Error(), "unexpected end of data")
+	assert.Contains(t, err.Error(), "size 16 of net-message of type 0 exceeds the remaining 1 bytes of the packet")
 
 	var de *DecodeError
 	if assert.ErrorAs(t, err, &de) {

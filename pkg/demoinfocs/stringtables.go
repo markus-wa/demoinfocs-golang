@@ -6,9 +6,7 @@ import (
 	"math"
 	"regexp"
 	"strconv"
-	"strings"
 
-	"github.com/golang/snappy"
 	"google.golang.org/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
@@ -21,7 +19,6 @@ import (
 const (
 	stNameInstanceBaseline = "instancebaseline"
 	stNameUserInfo         = "userinfo"
-	stNameModelPreCache    = "modelprecache"
 )
 
 // updatePlayerFromRawIfExists applies raw player info (userinfo string table) to the player bound to
@@ -76,16 +73,19 @@ func (p *Parser) handleUpdateStringTable(tab *msg.CSVCMsg_UpdateStringTable) {
 		return
 	}
 
-	if len(p.stringTables) <= int(tab.GetTableId()) {
+	tableID := tab.GetTableId()
+	if tableID < 0 {
+		panic(fmt.Errorf("invalid string table ID %d", tableID)) //nolint:err113 // only used as cause of a DecodeError
+	}
+
+	if len(p.stringTables) <= int(tableID) {
 		return // FIXME: We never got a proper CreateStringTable for this table ...
 	}
 
-	cTab := p.stringTables[tab.GetTableId()]
+	cTab := p.stringTables[tableID]
 
 	switch cTab.GetName() {
 	case stNameUserInfo:
-		fallthrough
-	case stNameModelPreCache:
 		fallthrough
 	case stNameInstanceBaseline:
 		// Only handle updates for the above types
@@ -111,8 +111,6 @@ func (p *Parser) handleCreateStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	switch tab.GetName() {
 	case stNameUserInfo:
 		fallthrough
-	case stNameModelPreCache:
-		fallthrough
 	case stNameInstanceBaseline:
 		p.processStringTable(tab)
 	}
@@ -134,8 +132,10 @@ const (
 )
 
 // Parse a string table data blob, returning a list of item updates.
+// Only the items that processStringTable() uses are returned (see stringTableItemUsed()),
+// so the memory needed for the items is bounded by the number of bytes they consist of.
 //
-//nolint:funlen,gocognit
+//nolint:funlen,gocognit,cyclop
 func (p *Parser) parseStringTable(
 	buf []byte,
 	numUpdates int32,
@@ -172,6 +172,7 @@ func (p *Parser) parseStringTable(
 
 	// Create a reader for the buffer
 	r := bit.NewSmallBitReader(bytes.NewReader(buf))
+	totalBits := uint64(len(buf)) << 3
 
 	// Start with an index of -1.
 	// If the first item is at index 0 it will use a incr operation.
@@ -247,6 +248,10 @@ func (p *Parser) parseStringTable(
 			isCompressed := false
 
 			if userDataFixed {
+				if userDataSize < 0 {
+					panic(fmt.Errorf("invalid user data size %d", userDataSize)) //nolint:err113 // only used as cause of a DecodeError
+				}
+
 				bitSize = uint(userDataSize)
 			} else {
 				if (flags & 0x1) != 0 {
@@ -260,19 +265,26 @@ func (p *Parser) parseStringTable(
 				}
 			}
 
+			// Checked before allocating, so a corrupt size can't make it allocate more than the table's size.
+			if remainingBits := remainingBits(r, totalBits); uint64(bitSize) > remainingBits {
+				panic(fmt.Errorf("size of %d bits of stringtable item exceeds the remaining %d bits", bitSize, remainingBits)) //nolint:err113 // only used as cause of a DecodeError
+			}
+
 			value = r.ReadBits(int(bitSize))
 
 			if isCompressed {
-				tmp, err := snappy.Decode(nil, value)
+				tmp, err := decodeSnappy(nil, value, maxFramePayload)
 				if err != nil {
-					panic(fmt.Sprintf("unable to decode snappy compressed stringtable item (%s, %d, %s): %s", name, index, key, err))
+					panic(fmt.Errorf("unable to decode snappy compressed stringtable item (%s, %d, %s): %w", name, index, key, err))
 				}
 
 				value = tmp
 			}
 		}
 
-		items = append(items, &stringTableItem{index, key, value})
+		if stringTableItemUsed(name, key, value) {
+			items = append(items, &stringTableItem{index, key, value})
+		}
 	}
 
 	p.poolBitReader(r)
@@ -282,17 +294,24 @@ func (p *Parser) parseStringTable(
 
 var instanceBaselineKeyRegex = regexp.MustCompile(`^\d+:\d+$`)
 
-func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
-	if tab.GetName() == stNameModelPreCache {
-		for i := len(p.modelPreCache); i < int(tab.GetNumEntries()); i++ {
-			p.modelPreCache = append(p.modelPreCache, "")
-		}
+// stringTableItemUsed reports whether processStringTable() uses an item of the table with the given name.
+func stringTableItemUsed(tableName, key string, value []byte) bool {
+	switch tableName {
+	case stNameInstanceBaseline:
+		return key != "" && !instanceBaselineKeyRegex.MatchString(key)
+
+	case stNameUserInfo:
+		// parseUserInfo() ignores empty info
+		return len(value) > 0
 	}
 
-	if tab.GetDataCompressed() {
-		tmp := make([]byte, tab.GetUncompressedSize())
+	return true
+}
 
-		b, err := snappy.Decode(tmp, tab.StringData)
+func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
+	if tab.GetDataCompressed() {
+		// The size is taken from the compressed data, UncompressedSize isn't needed.
+		b, err := decodeSnappy(nil, tab.StringData, maxFramePayload)
 		if err != nil {
 			panic(err)
 		}
@@ -305,10 +324,6 @@ func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 	for _, item := range items {
 		switch tab.GetName() {
 		case stNameInstanceBaseline:
-			if item.Key == "" || instanceBaselineKeyRegex.MatchString(item.Key) {
-				continue
-			}
-
 			classID, err := strconv.Atoi(item.Key)
 			if err != nil {
 				panic(fmt.Errorf("failed to parse serverClassID: %w", err))
@@ -317,30 +332,6 @@ func (p *Parser) processStringTable(tab *msg.CSVCMsg_CreateStringTable) {
 			p.stParser.SetInstanceBaseline(classID, item.Value)
 		case stNameUserInfo:
 			p.parseUserInfo(item.Value, int(item.Index))
-		}
-	}
-
-	if tab.GetName() == stNameModelPreCache {
-		p.processModelPreCacheUpdate()
-	}
-}
-
-var modelPreCacheSubstringToEq = map[string]common.EquipmentType{
-	"flashbang":         common.EqFlash,
-	"fraggrenade":       common.EqHE,
-	"smokegrenade":      common.EqSmoke,
-	"molotov":           common.EqMolotov,
-	"incendiarygrenade": common.EqIncendiary,
-	"decoy":             common.EqDecoy,
-	// @micvbang TODO: add all other weapons too.
-}
-
-func (p *Parser) processModelPreCacheUpdate() {
-	for i, name := range p.modelPreCache {
-		for eqName, eq := range modelPreCacheSubstringToEq {
-			if strings.Contains(name, eqName) {
-				p.grenadeModelIndices[i] = eq
-			}
 		}
 	}
 }
