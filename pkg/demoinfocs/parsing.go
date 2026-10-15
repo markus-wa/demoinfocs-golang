@@ -138,6 +138,9 @@ func msgQueueSize(ticks int) int {
 //     All net-messages read up to that point are still handled.
 //   - a *DecodeError (matches ErrDecodeFailed) if some data couldn't be decoded,
 //     because it's corrupt or uses a schema / format this version doesn't support.
+//     Sizes read from the demo are limited (e.g. frames to 16 MiB, far above what real demos use),
+//     larger ones are a DecodeError too.
+//     Broken DEM_FullPacket frames are skipped with a ParserWarn instead, see events.WarnTypeBrokenFullPacket.
 //   - ErrInvalidFileType if the stream doesn't contain a CS2 demo.
 //   - errors returned by the demo stream (wrapped).
 //   - context.Cause(ctx), see above.
