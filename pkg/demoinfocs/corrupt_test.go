@@ -8,12 +8,10 @@ import (
 	"fmt"
 	"io"
 	"runtime"
-	"runtime/metrics"
 	"strconv"
 	"strings"
 	"testing"
 	"testing/iotest"
-	"time"
 
 	"github.com/golang/snappy"
 	"github.com/stretchr/testify/assert"
@@ -21,6 +19,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/fuzzcheck"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
@@ -152,21 +151,6 @@ func netTick(t testing.TB, tick uint32) nestedMessage {
 	return nested(t, int32(msg.NET_Messages_net_Tick), &msg.CNETMsg_Tick{Tick: proto.Uint32(tick)})
 }
 
-// allocatedBytes returns the number of bytes f allocated on the heap (of all goroutines, so tests using it
-// mustn't run in parallel). testing.AllocsPerRun() counts allocations, not bytes.
-func allocatedBytes(f func()) uint64 {
-	sample := []metrics.Sample{{Name: "/gc/heap/allocs:bytes"}}
-
-	metrics.Read(sample)
-	before := sample[0].Value.Uint64()
-
-	f()
-
-	metrics.Read(sample)
-
-	return sample[0].Value.Uint64() - before
-}
-
 // parse parses the demo with ParseToEnd(), it returns the number of FrameDone events and the error.
 func parse(t testing.TB, demo []byte) (frames int, err error) {
 	t.Helper()
@@ -229,7 +213,7 @@ func assertTruncated(t *testing.T, err error) {
 }
 
 // The limits are checked before anything is allocated.
-// Not parallel, see allocatedBytes().
+// Not parallel, see fuzzcheck.AllocatedBytes().
 //
 //nolint:paralleltest
 func TestOversizeFrame(t *testing.T) {
@@ -248,7 +232,7 @@ func TestOversizeFrame(t *testing.T) {
 
 			var err error
 
-			allocated := allocatedBytes(func() { _, err = parse(t, demo) })
+			allocated := fuzzcheck.AllocatedBytes(func() { _, err = parse(t, demo) })
 
 			assertDecodeError(t, err, fmt.Sprintf("payload of %d bytes exceeds the limit", tc.size))
 			assert.Less(t, allocated, uint64(4<<20))
@@ -257,7 +241,7 @@ func TestOversizeFrame(t *testing.T) {
 }
 
 // A payload that's larger than the rest of the demo is a truncated demo, it doesn't allocate its size up front.
-// Not parallel, see allocatedBytes().
+// Not parallel, see fuzzcheck.AllocatedBytes().
 //
 //nolint:paralleltest
 func TestTruncatedPayload(t *testing.T) {
@@ -275,7 +259,7 @@ func TestTruncatedPayload(t *testing.T) {
 				frames int
 			)
 
-			allocated := allocatedBytes(func() { frames, err = parse(t, demo) })
+			allocated := fuzzcheck.AllocatedBytes(func() { frames, err = parse(t, demo) })
 
 			assertTruncated(t, err)
 			assert.Equal(t, 1, frames, "the frames before must be handled")
@@ -284,7 +268,7 @@ func TestTruncatedPayload(t *testing.T) {
 	}
 }
 
-// Not parallel, see allocatedBytes().
+// Not parallel, see fuzzcheck.AllocatedBytes().
 //
 //nolint:paralleltest
 func TestSnappyBomb(t *testing.T) {
@@ -304,7 +288,7 @@ func TestSnappyBomb(t *testing.T) {
 
 			var err error
 
-			allocated := allocatedBytes(func() { _, err = parse(t, demo) })
+			allocated := fuzzcheck.AllocatedBytes(func() { _, err = parse(t, demo) })
 
 			assertDecodeError(t, err, "")
 			assert.True(t, errors.Is(err, errSnappyLimit) || errors.Is(err, snappy.ErrTooLarge), err)
@@ -313,7 +297,7 @@ func TestSnappyBomb(t *testing.T) {
 	}
 }
 
-// Not parallel, see allocatedBytes().
+// Not parallel, see fuzzcheck.AllocatedBytes().
 //
 //nolint:paralleltest
 func TestOversizeNestedMessage(t *testing.T) {
@@ -323,7 +307,7 @@ func TestOversizeNestedMessage(t *testing.T) {
 
 	var err error
 
-	allocated := allocatedBytes(func() { _, err = parse(t, demo) })
+	allocated := fuzzcheck.AllocatedBytes(func() { _, err = parse(t, demo) })
 
 	assertDecodeError(t, err, "size 1073741824 of net-message of type 4 exceeds the remaining 3 bytes of the packet")
 	assert.Less(t, allocated, uint64(4<<20))
@@ -509,7 +493,7 @@ func TestBrokenFullPacket_Race(t *testing.T) {
 }
 
 // A string table with huge sizes fails without allocating them.
-// Not parallel, see allocatedBytes().
+// Not parallel, see fuzzcheck.AllocatedBytes().
 //
 //nolint:paralleltest
 func TestStringTableHugeSizes(t *testing.T) {
@@ -527,7 +511,7 @@ func TestStringTableHugeSizes(t *testing.T) {
 
 		var err error
 
-		allocated := allocatedBytes(func() { _, err = parse(t, demo) })
+		allocated := fuzzcheck.AllocatedBytes(func() { _, err = parse(t, demo) })
 
 		require.ErrorIs(t, err, ErrDecodeFailed)
 		assert.ErrorIs(t, err, errSnappyLimit)
@@ -565,7 +549,7 @@ func TestStringTableHugeSizes(t *testing.T) {
 
 			var items []*stringTableItem
 
-			allocated := allocatedBytes(func() {
+			allocated := fuzzcheck.AllocatedBytes(func() {
 				items = p.parseStringTable(w.buf, 1<<30, stNameUserInfo, tc.userDataFixed, tc.userDataSize, 0, tc.variantBitCount)
 			})
 
@@ -588,7 +572,7 @@ func TestStringTableHugeSizes(t *testing.T) {
 
 		var items []*stringTableItem
 
-		allocated := allocatedBytes(func() {
+		allocated := fuzzcheck.AllocatedBytes(func() {
 			items = p.parseStringTable(buf, 1<<30, stNameUserInfo, false, 0, 0, false)
 		})
 
@@ -673,46 +657,15 @@ func stringTableData(entries ...stringTableTestEntry) []byte {
 	return append(w.buf, make([]byte, 16)...) // the bit reader reads ahead
 }
 
-// fuzzAllocBudget is the number of bytes parsing input may allocate (see allocatedBytes()):
-// the per-message limits, plus a bounded amount per input byte.
-func fuzzAllocBudget(input []byte) uint64 {
-	return 64<<20 + 1024*uint64(len(input))
-}
-
-// fuzzTimeout is how long parsing an input may take before the watchdog of checkParse() fails.
-const fuzzTimeout = 5 * time.Second
-
-// startWatchdog panics (crashing the fuzz worker, so the fuzzer records the input) with the stacks
-// of all goroutines if stop isn't called within timeout: the fuzzer doesn't detect hangs itself.
-func startWatchdog(name string, timeout time.Duration) (stop func()) {
-	done := make(chan struct{})
-
-	go func() {
-		select {
-		case <-done:
-		case <-time.After(timeout):
-			buf := make([]byte, 1<<22)
-			buf = buf[:runtime.Stack(buf, true)]
-
-			panic(fmt.Sprintf("%s didn't finish within %v (hang?), goroutines:\n%s", name, timeout, buf))
-		}
-	}()
-
-	return func() { close(done) }
-}
-
 // checkParse parses data, it fails if parsing fails with an unexpected error, a panic, takes too long
-// or allocates too much memory.
-// It must not run in parallel with other tests, see allocatedBytes().
+// or allocates too much memory, see fuzzcheck.Run().
+// It must not run in parallel with other tests, see fuzzcheck.AllocatedBytes().
 func checkParse(t *testing.T, data []byte) {
 	t.Helper()
 
-	stop := startWatchdog("parsing", fuzzTimeout)
-	defer stop()
-
 	var err error
 
-	allocated := allocatedBytes(func() {
+	fuzzcheck.Run(t, len(data), func() {
 		ctx, cancel := context.WithCancel(t.Context())
 		defer cancel()
 
@@ -744,10 +697,6 @@ func checkParse(t *testing.T, data []byte) {
 
 	if err != nil && !errors.Is(err, ErrUnexpectedEndOfDemo) && !errors.Is(err, ErrDecodeFailed) && !errors.Is(err, ErrInvalidFileType) {
 		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if budget := fuzzAllocBudget(data); allocated > budget {
-		t.Fatalf("allocated %d bytes for %d input bytes, more than the budget of %d bytes (err: %v)", allocated, len(data), budget, err)
 	}
 }
 
@@ -783,7 +732,7 @@ func registerFuzzHandlers(p *Parser) {
 //
 //	go test -tags unassert_panic -run '^$' -fuzz '^FuzzParse$' -fuzztime 15m ./pkg/demoinfocs
 //
-// Not parallel, see allocatedBytes().
+// Not parallel, see fuzzcheck.AllocatedBytes().
 func FuzzParse(f *testing.F) {
 	for _, seed := range fuzzSeeds(f) {
 		f.Add(seed)
