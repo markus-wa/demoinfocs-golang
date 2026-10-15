@@ -449,9 +449,9 @@ func (p *Parser) handleFileInfo(msg *msg.CDemoFileInfo) {
 		return
 	}
 
-	p.header.PlaybackTicks = int(*msg.PlaybackTicks)
-	p.header.PlaybackFrames = int(*msg.PlaybackFrames)
-	p.header.PlaybackTime = time.Duration(*msg.PlaybackTime) * time.Second
+	p.header.PlaybackTicks = int(msg.GetPlaybackTicks())
+	p.header.PlaybackFrames = int(msg.GetPlaybackFrames())
+	p.header.PlaybackTime = time.Duration(msg.GetPlaybackTime()) * time.Second
 }
 
 //go:embed event-list-dump/*.bin
