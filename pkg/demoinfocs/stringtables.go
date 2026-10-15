@@ -266,8 +266,7 @@ func (p *Parser) parseStringTable(
 			}
 
 			// Checked before allocating, so a corrupt size can't make it allocate more than the table's size.
-			// The bit reader never reads past the end of buf, so the position doesn't exceed totalBits.
-			if remainingBits := totalBits - uint64(r.ActualPosition()); uint64(bitSize) > remainingBits {
+			if remainingBits := remainingBits(r, totalBits); uint64(bitSize) > remainingBits {
 				panic(fmt.Errorf("size of %d bits of stringtable item exceeds the remaining %d bits", bitSize, remainingBits)) //nolint:err113 // only used as cause of a DecodeError
 			}
 

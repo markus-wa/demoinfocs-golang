@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("PBDEMS2\x00!29Y\x00+B$\a\xd7\xd7\xd7\xd72\x06\x1a\x04\n 2\xff\x00x")
