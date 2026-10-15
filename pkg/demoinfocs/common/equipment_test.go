@@ -52,10 +52,29 @@ func TestEquipment_UniqueID(t *testing.T) {
 func TestEquipment_AmmoInMagazine(t *testing.T) {
 	wep := &Equipment{
 		Type:   EqAK47,
-		Entity: entityWithProperty("m_iClip1", st.PropertyValue{IntVal: 31, Any: uint32(30)}),
+		Entity: entityWithProperty("m_iClip1", st.PropertyValue{Any: uint32(30)}),
 	}
 
-	// returned value should be minus 1, m_iClip1 is always 1 more than the actual number of bullets
+	// the field decoder already removed the +1 offset of m_iClip1, the value is the number of bullets
+	assert.Equal(t, 30, wep.AmmoInMagazine())
+}
+
+func TestEquipment_AmmoInMagazine_Empty(t *testing.T) {
+	wep := &Equipment{
+		Type:   EqAK47,
+		Entity: entityWithProperty("m_iClip1", st.PropertyValue{Any: uint32(0)}),
+	}
+
+	assert.Equal(t, 0, wep.AmmoInMagazine())
+}
+
+func TestEquipment_AmmoInMagazine_Source1(t *testing.T) {
+	wep := &Equipment{
+		Type:   EqAK47,
+		Entity: entityWithProperty("m_iClip1", st.PropertyValue{IntVal: 31, Any: 31}),
+	}
+
+	// returned value should be minus 1, m_iClip1 is always 1 more than the actual number of bullets in Source 1
 	assert.Equal(t, 30, wep.AmmoInMagazine())
 }
 
@@ -68,7 +87,6 @@ func TestEquipment_AmmoInMagazine_NotFound(t *testing.T) {
 		Entity: entity,
 	}
 
-	// returned value should be minus 1, m_iClip1 is always 1 more than the actual number of bullets
 	assert.Equal(t, -1, wep.AmmoInMagazine())
 }
 
