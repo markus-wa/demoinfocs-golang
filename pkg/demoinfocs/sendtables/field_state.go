@@ -51,7 +51,7 @@ func (s *fieldState) get(fp *fieldPath) any {
 }
 
 // set sets the value at fp.
-// It returns the number of slots it allocated (incl. nested field states), see stateBudget.
+// It returns the number of slots it allocated (incl. nested field states), see entityBudget.
 func (s *fieldState) set(fp *fieldPath, v any) (allocated int) {
 	// Fast path for the common single-level case (fp.last == 0)
 	if fp.last == 0 { //nolint:nestif

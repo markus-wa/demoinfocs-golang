@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -227,7 +229,6 @@ func TestOversizeFrame(t *testing.T) {
 		{"compressed packet", msg.EDemoCommands_DEM_Packet | msg.EDemoCommands_DEM_IsCompressed, maxFramePayload + 1},
 		{"animation data", msg.EDemoCommands_DEM_AnimationData, maxAnimationDataPayload + 1},
 		{"max uint32", msg.EDemoCommands_DEM_Packet, 1<<32 - 1},
-		{"full packet", msg.EDemoCommands_DEM_FullPacket, maxFramePayload + 1}, // not skipped, the payload isn't read
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			demo := handmadeDemo(fileHeaderFrame(t), frameHeader(tc.cmd, 0, tc.size), make([]byte, 64))
@@ -240,6 +241,74 @@ func TestOversizeFrame(t *testing.T) {
 			assert.ErrorIs(t, err, errFrameTooLarge)
 			assert.Less(t, allocated, uint64(4<<20))
 		})
+	}
+}
+
+// A DEM_FullPacket that's too large is skipped like other broken full packets (see TestBrokenFullPacket),
+// without reading its payload into memory.
+// Not parallel, see fuzzcheck.AllocatedBytes().
+//
+//nolint:paralleltest
+func TestOversizeFullPacket(t *testing.T) {
+	demo := func(fullPacket ...[]byte) []byte {
+		frames := slices.Concat([][]byte{fileHeaderFrame(t), packetFrame(t, 1, netTick(t, 1))}, fullPacket,
+			[][]byte{packetFrame(t, 3, netTick(t, 3)), stopFrame()})
+
+		return handmadeDemo(frames...)
+	}
+
+	want := parseRecorded(t, demo(fullPacketFrame(t, 2, netTick(t, 2))))
+	require.NoError(t, want.err)
+
+	for _, cmd := range []msg.EDemoCommands{
+		msg.EDemoCommands_DEM_FullPacket,
+		msg.EDemoCommands_DEM_FullPacket | msg.EDemoCommands_DEM_IsCompressed,
+	} {
+		t.Run(fmt.Sprint("compressed=", cmd != msg.EDemoCommands_DEM_FullPacket), func(t *testing.T) {
+			oversize := demo(frameHeader(cmd, 2, maxFramePayload+1), make([]byte, maxFramePayload+1))
+
+			var got parseRecord
+
+			allocated := fuzzcheck.AllocatedBytes(func() { got = parseRecorded(t, oversize) })
+
+			require.NoError(t, got.err)
+			assert.Equal(t, want.frames, got.frames, "FrameDone count")
+			assert.Equal(t, want.currentFrame, got.currentFrame, "CurrentFrame()")
+			assert.Equal(t, want.ticks, got.ticks, "ticks")
+			assert.Zero(t, got.fullPacketsSeen)
+			assert.Less(t, allocated, uint64(4<<20))
+
+			require.Len(t, got.warns, 1)
+			assert.EqualValues(t, events.WarnTypeBrokenFullPacket, got.warns[0].Type)
+			assert.ErrorIs(t, got.warns[0].Err, errFrameTooLarge)
+			assert.Equal(t, []int{2}, got.warnFrames)
+		})
+	}
+
+	t.Run("truncated", func(t *testing.T) {
+		truncated := handmadeDemo(fileHeaderFrame(t), frameHeader(msg.EDemoCommands_DEM_FullPacket, 2, maxFramePayload+1), make([]byte, 100))
+
+		_, err := parse(t, truncated)
+		assertTruncated(t, err)
+	})
+}
+
+// skipBitsInSteps must not overflow int on 32-bit platforms (GOARCH=386), not even for the largest size.
+func TestSkipBitsInSteps(t *testing.T) {
+	t.Parallel()
+
+	for _, size := range []uint32{0, 1, maxSkipStep, maxSkipStep + 1, 1<<31 + 5, math.MaxUint32} {
+		var total uint64
+
+		skipBitsInSteps(size, func(bits int) {
+			assert.Positive(t, bits)
+			assert.LessOrEqual(t, bits, math.MaxInt32)
+			assert.Zero(t, bits%8)
+
+			total += uint64(bits)
+		})
+
+		assert.Equal(t, uint64(size)*8, total, "size %d", size)
 	}
 }
 

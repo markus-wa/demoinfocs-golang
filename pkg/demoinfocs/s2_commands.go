@@ -391,6 +391,8 @@ func (p *Parser) decodeDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) (msg
 	}()
 
 	r := bitread.NewSmallBitReader(bytes.NewReader(b))
+	defer p.poolBitReader(r)
+
 	totalBits := uint64(len(b)) << 3
 
 	for uint64(r.ActualPosition())+7 < totalBits {
@@ -414,8 +416,6 @@ func (p *Parser) decodeDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) (msg
 
 		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, *bp})
 	}
-
-	p.poolBitReader(r)
 
 	slices.SortStableFunc(p.pendingMessagesCache, func(a, b pendingMessage) int {
 		return a.priority() - b.priority()
