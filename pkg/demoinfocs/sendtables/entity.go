@@ -612,7 +612,7 @@ func (e *Entity) get(name string) any {
 }
 
 //nolint:gocognit,funlen
-func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
+func (e *Entity) readFields(r *reader, paths *[]*fieldPath, budget *entityBudget) {
 	n := readFieldPaths(r, paths)
 
 	for _, fp := range (*paths)[:n] {
@@ -652,14 +652,15 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 
 			if fs == nil {
 				// First update: allocate once and store the pointer.
-				// Use 2× initial capacity so small incremental growths don't reallocate.
-				initCap := newLen * 2
+				initCap := newLen
 				if initCap < 8 {
 					initCap = 8
 				}
 
+				budget.spendState(int(initCap), fp)
+
 				fs = &fieldState{state: make([]any, newLen, initCap)}
-				e.state.set(fp, fs)
+				budget.spendState(e.state.set(fp, fs), fp)
 			} else {
 				// Subsequent updates: resize the existing slice in place.
 				curLen := uint64(len(fs.state))
@@ -676,6 +677,8 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 							newCap = newLen
 						}
 
+						budget.spendState(int(newCap), fp)
+
 						newState := make([]any, newLen, newCap)
 						copy(newState, fs.state)
 						fs.state = newState
@@ -685,7 +688,7 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 
 			val = fs.state
 		} else {
-			e.state.set(fp, val)
+			budget.spendState(e.state.set(fp, val), fp)
 		}
 
 		if e.hasHandlers {
@@ -713,6 +716,65 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 	}
 }
 
+// entityBudget bounds the work of decoding entities relative to the size of the entity data,
+// so a few bits of corrupt entity data can't make the parser allocate GBs or run for minutes.
+// It's a budget per parse, it grows with each PacketEntities message (see credit()), and limits:
+//   - stateSlots: the entity state (field state slots, 16 bytes each) that is allocated.
+//   - baselineBytes: the instance baselines that are decoded when entities are created.
+//     A small entity creation can decode a large baseline.
+//
+// Across 50 real demos, both never exceeded 16 per byte of entity data at any point of the demo
+// (on average ~9 slots / ~6 baseline bytes per byte), the largest message needed ~420k slots.
+type entityBudget struct {
+	stateSlots    int // remaining
+	baselineBytes int // remaining
+}
+
+const (
+	entityBudgetBaseStateSlots       = 1 << 19 // 8 MiB
+	entityBudgetStateSlotsPerByte    = 32
+	entityBudgetBaseBaselineBytes    = 4 << 20
+	entityBudgetBaselineBytesPerByte = 64
+
+	// entityBudgetMax bounds the remaining budget, so it doesn't overflow on 32-bit platforms.
+	entityBudgetMax = 1 << 28
+)
+
+func newEntityBudget() entityBudget {
+	return entityBudget{
+		stateSlots:    entityBudgetBaseStateSlots,
+		baselineBytes: entityBudgetBaseBaselineBytes,
+	}
+}
+
+// credit adds the budget for n bytes of entity data.
+func (b *entityBudget) credit(n int) {
+	n = min(n, entityBudgetMax/entityBudgetBaselineBytesPerByte)
+
+	b.stateSlots = min(b.stateSlots+n*entityBudgetStateSlotsPerByte, entityBudgetMax)
+	b.baselineBytes = min(b.baselineBytes+n*entityBudgetBaselineBytesPerByte, entityBudgetMax)
+}
+
+// spendState records that n state slots were allocated (or are about to be) for the update at fp.
+func (b *entityBudget) spendState(n int, fp *fieldPath) {
+	b.stateSlots -= n
+
+	if b.stateSlots < 0 {
+		_panicf("entity state exceeds the budget of %d slots per byte of entity data (path %v): corrupt or desynced demo bitstream",
+			entityBudgetStateSlotsPerByte, fp.path[:fp.last+1])
+	}
+}
+
+// spendBaseline records that a baseline of n bytes is decoded.
+func (b *entityBudget) spendBaseline(n int, classID int32) {
+	b.baselineBytes -= n
+
+	if b.baselineBytes < 0 {
+		_panicf("decoded instance baselines exceed the budget of %d bytes per byte of entity data (class %d): corrupt demo",
+			entityBudgetBaselineBytesPerByte, classID)
+	}
+}
+
 // OnPacketEntities parses a CSVCMsg_PacketEntities message, applying its entity updates.
 //
 // It returns an error if the message couldn't be decoded (e.g. corrupt data or a missing property,
@@ -728,6 +790,8 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 
 	r := newReader(m.GetEntityData())
 	defer r.release()
+
+	p.entityBudget.credit(len(m.GetEntityData()))
 
 	var (
 		index   = int32(-1)
@@ -788,12 +852,14 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 
 				if baseline != nil {
 					// POV demos are missing some baselines?
+					p.entityBudget.spendBaseline(len(baseline), classID)
+
 					br := newReader(baseline)
-					e.readFields(br, &p.pathCache)
+					e.readFields(br, &p.pathCache, &p.entityBudget)
 					br.release()
 				}
 
-				e.readFields(r, &p.pathCache)
+				e.readFields(r, &p.pathCache, &p.entityBudget)
 
 				// Fire created-handlers so update-handlers can be registered
 				for _, h := range class.createdHandlers {
@@ -823,7 +889,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 					op |= EntityOpEntered
 				}
 
-				e.readFields(r, &p.pathCache)
+				e.readFields(r, &p.pathCache, &p.entityBudget)
 				e.fireUpdateFinished()
 			}
 		} else {

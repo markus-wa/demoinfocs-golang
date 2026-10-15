@@ -78,6 +78,8 @@ type Parser struct {
 	// polyMaxCache memoizes, per serializer, the highest polySerializerID
 	// reachable from it. Used to size per-class polySerializers slices.
 	polyMaxCache map[*serializer]int
+	// entityBudget bounds the work of decoding entities, see entityBudget.
+	entityBudget entityBudget
 }
 
 // ServerClasses is a searchable list of ServerClasses.
@@ -144,6 +146,7 @@ func NewParser() *Parser {
 		classesByName:  make(map[string]*ServerClass),
 		entities:       make(map[int32]*Entity),
 		polyMaxCache:   make(map[*serializer]int),
+		entityBudget:   newEntityBudget(),
 	}
 }
 
