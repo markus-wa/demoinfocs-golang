@@ -2,9 +2,9 @@
 
 set -e
 
-# default reference/baseline is master
+# default reference/baseline is main
 if [[ "$base_rev" == "" ]]; then
-	base_rev='origin/master'
+	base_rev='origin/main'
 fi
 
 echo "Linting changes between/since $base_rev"

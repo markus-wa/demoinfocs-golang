@@ -1,5 +1,5 @@
 // Package fake provides basic mocks for Parser, GameState and Participants.
-// See examples/mocking (https://github.com/markus-wa/demoinfocs-golang/tree/master/examples/mocking).
+// See examples/mocking (https://github.com/markus-wa/demoinfocs-golang/tree/v4/examples/mocking).
 package fake
 
 import (

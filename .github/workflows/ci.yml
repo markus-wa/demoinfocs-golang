@@ -58,6 +58,9 @@ jobs:
 
       - name: Lint Changed Code
         run: scripts/lint-changes.sh
+        env:
+          # lint against the PR's base branch, otherwise lint-changes.sh defaults to origin/main (v6)
+          base_rev: origin/${{ github.base_ref || 'v4' }}
 
       - name: Race Tests
         run: scripts/race-tests.sh
