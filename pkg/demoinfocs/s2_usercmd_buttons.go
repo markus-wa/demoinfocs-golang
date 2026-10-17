@@ -1,9 +1,9 @@
 package demoinfocs
 
 import (
+	"errors"
 	"fmt"
 
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/encoding/protowire"
 
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
@@ -64,7 +64,7 @@ func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
 	for len(data) > 0 {
 		num, typ, tagLen := protowire.ConsumeTag(data)
 		if tagLen < 0 {
-			return errors.Wrap(protowire.ParseError(tagLen), "failed to read user command button tag")
+			return fmt.Errorf("failed to read user command button tag: %w", protowire.ParseError(tagLen))
 		}
 
 		if num == 0 {
@@ -84,7 +84,7 @@ func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
 		if num != target {
 			valueLen := protowire.ConsumeFieldValue(num, typ, data[tagLen:])
 			if valueLen < 0 {
-				return errors.Wrap(protowire.ParseError(valueLen), "failed to skip user command field")
+				return fmt.Errorf("failed to skip user command field: %w", protowire.ParseError(valueLen))
 			}
 
 			data = data[tagLen+valueLen:]
@@ -99,7 +99,7 @@ func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
 
 			value, valueLen := protowire.ConsumeVarint(data[tagLen:])
 			if valueLen < 0 {
-				return errors.Wrap(protowire.ParseError(valueLen), "failed to read buttonstate1")
+				return fmt.Errorf("failed to read buttonstate1: %w", protowire.ParseError(valueLen))
 			}
 
 			*buttons = value
@@ -114,7 +114,7 @@ func mergeUserCmdButtons(data []byte, level int, buttons *uint64) error {
 
 		value, valueLen := protowire.ConsumeBytes(data[tagLen:])
 		if valueLen < 0 {
-			return errors.Wrap(protowire.ParseError(valueLen), "failed to read user command button message")
+			return fmt.Errorf("failed to read user command button message: %w", protowire.ParseError(valueLen))
 		}
 
 		if err := mergeUserCmdButtons(value, level+1, buttons); err != nil {

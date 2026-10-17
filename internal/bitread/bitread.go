@@ -4,12 +4,12 @@
 package bitread
 
 import (
+	"fmt"
 	"io"
 	"math"
 	"sync"
 
 	bitread "github.com/markus-wa/gobitread"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -123,7 +123,7 @@ var bitReaderPool = sync.Pool{
 func (r *BitReader) Pool() error {
 	err := r.Close()
 	if err != nil {
-		return errors.Wrap(err, "failed to close BitReader before pooling")
+		return fmt.Errorf("failed to close BitReader before pooling: %w", err)
 	}
 
 	if len(*r.buffer) == smallBuffer {

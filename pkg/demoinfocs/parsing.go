@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -11,7 +12,6 @@ import (
 	"github.com/golang/snappy"
 	"github.com/markus-wa/go-unassert"
 	dispatch "github.com/markus-wa/godispatch"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
@@ -208,7 +208,7 @@ func recoverFromUnexpectedEOF(r any) error {
 	}
 
 	if r == io.ErrUnexpectedEOF || r == io.EOF {
-		return errors.Wrap(ErrUnexpectedEndOfDemo, "unexpected EOF")
+		return fmt.Errorf("unexpected EOF: %w", ErrUnexpectedEndOfDemo)
 	}
 
 	switch err := r.(type) {
@@ -599,7 +599,7 @@ func (p *parser) parsePacket() {
 		err := proto.Unmarshal(*b, m)
 		if err != nil {
 			// TODO: Don't crash here, happens with demos that work in gotv
-			p.setError(errors.Wrapf(err, "failed to unmarshal cmd %d", cmd))
+			p.setError(fmt.Errorf("failed to unmarshal cmd %d: %w", cmd, err))
 
 			return
 		}

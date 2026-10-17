@@ -7,7 +7,6 @@ import (
 	"slices"
 	"time"
 
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
@@ -18,7 +17,7 @@ import (
 func (p *parser) handleSendTables(msg *msgs2.CDemoSendTables) {
 	err := p.stParser.ParsePacket(msg.Data)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to unmarshal flattened serializer"))
+		panic(fmt.Errorf("failed to unmarshal flattened serializer: %w", err))
 	}
 }
 

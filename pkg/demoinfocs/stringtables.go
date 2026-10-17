@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/golang/snappy"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
@@ -119,7 +118,7 @@ func (p *parser) parseSingleStringTable(name string) {
 
 				playerIndex, err := strconv.Atoi(stringName)
 				if err != nil {
-					panic(errors.Wrap(err, "couldn't parse playerIndex from string"))
+					panic(fmt.Errorf("couldn't parse playerIndex from string: %w", err))
 				}
 
 				p.setRawPlayer(playerIndex, player)
@@ -127,7 +126,7 @@ func (p *parser) parseSingleStringTable(name string) {
 			case stNameInstanceBaseline:
 				classID, err := strconv.Atoi(stringName)
 				if err != nil {
-					panic(errors.Wrap(err, "couldn't parse serverClassID from string"))
+					panic(fmt.Errorf("couldn't parse serverClassID from string: %w", err))
 				}
 
 				p.stParser.SetInstanceBaseline(classID, data)
@@ -313,7 +312,7 @@ func (p *parser) processStringTableS1(tab createStringTable, br *bit.BitReader) 
 		case stNameInstanceBaseline:
 			classID, err := strconv.Atoi(entry)
 			if err != nil {
-				panic(errors.Wrap(err, "failed to parse serverClassID"))
+				panic(fmt.Errorf("failed to parse serverClassID: %w", err))
 			}
 
 			p.stParser.SetInstanceBaseline(classID, userdata)
@@ -486,7 +485,7 @@ func (p *parser) processStringTableS2(tab createStringTable) {
 
 			classID, err := strconv.Atoi(item.Key)
 			if err != nil {
-				panic(errors.Wrap(err, "failed to parse serverClassID"))
+				panic(fmt.Errorf("failed to parse serverClassID: %w", err))
 			}
 
 			p.stParser.SetInstanceBaseline(classID, item.Value)
@@ -602,7 +601,7 @@ func (p *parser) handleStringTables(msg *msgs2.CDemoStringTables) {
 
 				classID, err := strconv.Atoi(key)
 				if err != nil {
-					panic(errors.Wrap(err, "failed to parse serverClassID"))
+					panic(fmt.Errorf("failed to parse serverClassID: %w", err))
 				}
 
 				p.stParser.SetInstanceBaseline(classID, item.GetData())
@@ -611,7 +610,7 @@ func (p *parser) handleStringTables(msg *msgs2.CDemoStringTables) {
 			for _, item := range tab.GetItems() {
 				playerIndex, err := strconv.Atoi(item.GetStr())
 				if err != nil {
-					panic(errors.Wrap(err, "failed to parse playerIndex"))
+					panic(fmt.Errorf("failed to parse playerIndex: %w", err))
 				}
 
 				p.parseUserInfo(item.GetData(), playerIndex)
@@ -659,7 +658,7 @@ func (p *parser) parseUserInfo(data []byte, playerIndex int) {
 
 	err := proto.Unmarshal(data, &userInfo)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to parse CMsgPlayerInfo msg"))
+		panic(fmt.Errorf("failed to parse CMsgPlayerInfo msg: %w", err))
 	}
 
 	xuid := userInfo.GetXuid() // TODO: what to do with userInfo.GetSteamid()? (seems to be the same, but maybe not in China?)
