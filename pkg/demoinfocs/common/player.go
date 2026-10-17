@@ -18,7 +18,7 @@ type Player struct {
 	SteamID64             uint64             // 64-bit representation of the user's Steam ID. See https://developer.valvesoftware.com/wiki/SteamID
 	LastAlivePosition     r3.Vector          // Deprecated: will be removed in v5 due to performance concerns, track this yourself.
 	UserID                int                // Mostly used in game-events to address this player
-	Name                  string             // Steam / in-game user name
+	Name                  string             // In-game name. CS2: as enforced by the server & shown on the scoreboard (the player controller's m_iszPlayerName), may differ from the Steam name in PlayerInfo / PlayerConnect, e.g. on FACEIT.
 	Inventory             map[int]*Equipment // All weapons / equipment the player is currently carrying. See also Weapons().
 	AmmoLeft              [32]int            // Ammo left for special weapons (e.g. grenades), index corresponds Equipment.AmmoType
 	EntityID              int                // Usually the same as Entity.ID() but may be different between player death and re-spawn.
