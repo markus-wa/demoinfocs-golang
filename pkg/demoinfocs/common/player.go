@@ -1,12 +1,12 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"time"
 
 	"github.com/golang/geo/r3"
-	"github.com/pkg/errors"
 
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/constants"
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
@@ -1041,12 +1041,12 @@ func (p *Player) ColorOrErr() (Color, error) {
 
 	resourceEnt := p.resourceEntity()
 	if resourceEnt == nil {
-		return Grey, errors.Wrap(ErrDataNotAvailable, "player resource entity is nil")
+		return Grey, fmt.Errorf("player resource entity is nil: %w", ErrDataNotAvailable)
 	}
 
 	colorVal, ok := resourceEnt.PropertyValue("m_iCompTeammateColor." + p.entityIDStr())
 	if !ok {
-		return Grey, errors.Wrap(ErrNotSupportedByDemo, "failed to get player color from resource entity")
+		return Grey, fmt.Errorf("failed to get player color from resource entity: %w", ErrNotSupportedByDemo)
 	}
 
 	return Color(colorVal.IntVal), nil

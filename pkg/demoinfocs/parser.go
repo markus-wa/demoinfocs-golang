@@ -10,7 +10,6 @@ import (
 
 	"github.com/golang/geo/r3"
 	dp "github.com/markus-wa/godispatch"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v4/internal/bitread"
@@ -316,7 +315,7 @@ func (p *parser) Close() error {
 	if p.bitReader != nil {
 		err := p.bitReader.Close()
 		if err != nil {
-			return errors.Wrap(err, "failed to close BitReader")
+			return fmt.Errorf("failed to close BitReader: %w", err)
 		}
 	}
 
