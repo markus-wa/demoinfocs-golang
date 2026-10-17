@@ -29,6 +29,8 @@ func TestEntityIndexReuse_NewEquipment(t *testing.T) {
 		demSetPath + "/2015-08-23-ESLOneCologne2015-fnatic-vs-virtuspro-mirage.dem",
 		// CS:GO, players re-bound to a new entity
 		demSetPath + "/2019-11-XX-esportal.se-warmup-mrec_19_11_22_37_39.dem",
+		// CS:GO, the serial of a replacing weapon entity wraps around
+		demSetPath + "/POV-orbit-skytten-vs-cloud9-gfinity15sm1-nuke.dem",
 	}
 
 	for _, demPath := range demPaths {

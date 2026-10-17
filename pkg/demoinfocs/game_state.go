@@ -262,6 +262,20 @@ func isEntityReplaced(entity st.Entity) bool {
 	return ok && replaceable.Replaced()
 }
 
+// isNewerSerial returns true if the entity serial number a is newer than b.
+// Serial numbers have constants.EntityHandleSerialNumberBits bits (in entity handles) and wrap around,
+// so e.g. 0 is newer than 1023.
+func isNewerSerial(a, b int) bool {
+	const (
+		serialMask = 1<<constants.EntityHandleSerialNumberBits - 1
+		halfRange  = 1 << (constants.EntityHandleSerialNumberBits - 1)
+	)
+
+	diff := (a - b) & serialMask
+
+	return diff != 0 && diff < halfRange
+}
+
 // PlayerResourceEntity returns the game's CCSPlayerResource entity.
 // Contains scoreboard information and more.
 func (gs gameState) PlayerResourceEntity() st.Entity {
