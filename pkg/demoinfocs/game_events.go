@@ -570,10 +570,11 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 			healthBefore = victimDamage.lastHealth
 		}
 
-		healthDamageTaken = healthBefore - health
-
-		if healthDamageTaken < 0 {
-			healthDamageTaken = 0
+		// A hit can't increase the health: the victim's health isn't the one of the hit pawn, e.g. when the
+		// player took control of a bot after dying (player.Health() is the one of the player's own pawn).
+		// Keep dmg_health then.
+		if healthBefore >= health {
+			healthDamageTaken = healthBefore - health
 		}
 
 		if armor == 0 {
