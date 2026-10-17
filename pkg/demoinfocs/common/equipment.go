@@ -1,10 +1,7 @@
 package common
 
 import (
-	"encoding/binary"
 	"strings"
-
-	"github.com/oklog/ulid/v2"
 
 	st "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables"
 )
@@ -327,8 +324,7 @@ type Equipment struct {
 	// (m_iItemDefinitionIndex) via KnifeTypeIndexMapping.
 	OriginalString string
 
-	uniqueID  int64 // Deprecated, use uniqueID2, see UniqueID() for why
-	uniqueID2 ulid.ULID
+	uniqueID UniqueID
 }
 
 // String returns a human readable name for the equipment.
@@ -343,29 +339,15 @@ func (e *Equipment) Class() EquipmentClass {
 	return e.Type.Class()
 }
 
-// UniqueID returns a randomly generated unique id of the equipment element.
-// The unique id is a random int generated internally by this library and can be used to differentiate
-// equipment from each other. This is needed because demo-files reuse entity ids.
+// UniqueID returns the unique id of the equipment element, see [UniqueID] for its guarantees.
 //
-// Deprecated: Use UniqueID2 instead. Since UniqueID is randomly generated, duplicate IDs are possible.
-// See the birthday problem for why repeatedly generating random 64 bit integers is likely to produce a collision.
-func (e *Equipment) UniqueID() int64 {
-	return e.uniqueID
-}
-
-// UniqueID2 returns a unique id of the equipment element that can be sorted efficiently.
-// UniqueID2 is a value generated internally by this library and can be used to differentiate
-// equipment from each other. This is needed because demo-files reuse entity ids.
-// The id is unique within the Parser instance that created the equipment; ids from different
-// Parser instances may collide, so don't key data across demos by it.
-//
-// For grenades, UniqueID2 identifies the weapon entity (the inventory item), not an individual throw:
+// For grenades, UniqueID identifies the weapon entity (the inventory item), not an individual throw:
 // several grenades thrown from the same inventory slot (e.g. two flashbangs)
-// can share the same UniqueID2.
+// can share the same UniqueID.
 // To track individual grenades use GrenadeProjectile.UniqueID() instead, e.g. via GrenadeEvent.Projectile,
 // GrenadeProjectileThrow.Projectile and GrenadeProjectileDestroy.Projectile.
-func (e *Equipment) UniqueID2() ulid.ULID {
-	return e.uniqueID2
+func (e *Equipment) UniqueID() UniqueID {
+	return e.uniqueID
 }
 
 // AmmoInMagazine returns the ammo left in the magazine.
@@ -493,17 +475,12 @@ func (e *Equipment) Silenced() bool {
 
 // NewEquipment creates a new Equipment and sets the UniqueID.
 //
-// The id must come from the creating Parser's unique-id source. It is encoded into the ULID, which
-// keeps UniqueID2 unique within the parse, lexicographically sortable (in creation order) and
-// reproducible across parses of the same demo - unlike ulid.Make(), which embeds wall-clock time
-// plus entropy and changes every parse.
+// The id must come from the creating Parser's unique-id source so that it is unique within that
+// parse and reproducible across parses of the same demo.
 //
 // Intended for internal use only.
-func NewEquipment(wep EquipmentType, id int64) *Equipment {
-	var uid ulid.ULID
-	binary.BigEndian.PutUint64(uid[:8], uint64(id))
-
-	return &Equipment{Type: wep, uniqueID: id, uniqueID2: uid}
+func NewEquipment(wep EquipmentType, id UniqueID) *Equipment {
+	return &Equipment{Type: wep, uniqueID: id}
 }
 
 var equipmentToAlternative = map[EquipmentType]EquipmentType{

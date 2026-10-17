@@ -195,7 +195,7 @@ func (gs gameState) Hostages() []*common.Hostage {
 // i.e. have been thrown but have yet to detonate.
 //
 // Note: this is a map, so ranging it yields a non-deterministic order. For reproducible output sort
-// the values by entity-ID or GrenadeProjectile.UniqueID() (which is itself deterministic) first.
+// the values by entity-ID or GrenadeProjectile.UniqueID() (which is itself deterministic, see common.UniqueID) first.
 func (gs gameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 	return gs.grenadeProjectiles
 }
@@ -203,7 +203,7 @@ func (gs gameState) GrenadeProjectiles() map[int]*common.GrenadeProjectile {
 // Infernos returns a map from entity-IDs to all currently burning infernos (fires from incendiaries and Molotovs).
 //
 // Note: this is a map, so ranging it yields a non-deterministic order. For reproducible output sort
-// the values by entity-ID or Inferno.UniqueID() (which is itself deterministic) first.
+// the values by entity-ID or Inferno.UniqueID() (which is itself deterministic, see common.UniqueID) first.
 func (gs gameState) Infernos() map[int]*common.Inferno {
 	return gs.infernos
 }

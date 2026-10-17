@@ -62,7 +62,7 @@ func main() {
 		mapRadarImg = ex.GetMapRadar(msg.GetMapName())
 	})
 
-	nadeTrajectories := make(map[int64]*nadePath) // Trajectories of all destroyed nades
+	nadeTrajectories := make(map[common.UniqueID]*nadePath) // Trajectories of all destroyed nades
 
 	p.RegisterEventHandler(func(e events.GrenadeProjectileDestroy) {
 		id := e.Projectile.UniqueID()
@@ -104,7 +104,7 @@ func main() {
 				nadeTrajectoriesFirst5Rounds = append(nadeTrajectoriesFirst5Rounds, np)
 			}
 
-			nadeTrajectories = make(map[int64]*nadePath)
+			nadeTrajectories = make(map[common.UniqueID]*nadePath)
 
 			// Copy infernos
 			infernosFirst5Rounds = make([]*common.Inferno, len(infernos))

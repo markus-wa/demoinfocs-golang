@@ -21,8 +21,8 @@ func grenadeEventData(entityID int32) map[string]*msg.CSVCMsg_GameEventKeyT {
 	}
 }
 
-func newTestProjectile(id int64, thrower *common.Player, wep *common.Equipment) *common.GrenadeProjectile {
-	proj := common.NewGrenadeProjectile(id)
+func newTestProjectile(id uint64, thrower *common.Player, wep *common.Equipment) *common.GrenadeProjectile {
+	proj := common.NewGrenadeProjectile(common.UniqueID(id))
 	proj.Thrower = thrower
 	proj.Owner = thrower
 	proj.WeaponInstance = wep
@@ -36,8 +36,8 @@ func TestNadeEvent_ResolvesProjectileByEntityID(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{Name: "thrower"}
 
-	smoke1 := common.NewEquipment(common.EqSmoke, 1)
-	smoke2 := common.NewEquipment(common.EqSmoke, 2)
+	smoke1 := common.NewEquipment(common.EqSmoke, common.UniqueID(1))
+	smoke2 := common.NewEquipment(common.EqSmoke, common.UniqueID(2))
 	p.gameEventHandler.addThrownGrenade(pl, smoke1)
 	p.gameEventHandler.addThrownGrenade(pl, smoke2)
 
@@ -79,7 +79,7 @@ func TestNadeEvent_UnknownProjectile_FallsBackToThrownGrenade(t *testing.T) {
 func TestNadeEvent_ProjectileWithoutWeaponInstance_FallsBack(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	he := common.NewEquipment(common.EqHE, 1)
+	he := common.NewEquipment(common.EqHE, common.UniqueID(1))
 	p.gameEventHandler.addThrownGrenade(pl, he)
 
 	proj := newTestProjectile(10, pl, nil)
@@ -154,8 +154,8 @@ func TestLinkInfernoProjectile(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			p := NewParser(rand.Reader).(*parser)
-			proj := newTestProjectile(1, nil, common.NewEquipment(common.EqMolotov, 1))
-			other := newTestProjectile(2, nil, common.NewEquipment(common.EqMolotov, 2))
+			proj := newTestProjectile(1, nil, common.NewEquipment(common.EqMolotov, common.UniqueID(1)))
+			other := newTestProjectile(2, nil, common.NewEquipment(common.EqMolotov, common.UniqueID(2)))
 
 			for _, link := range tc.links(proj, other) {
 				p.currentFrame = link.frame
@@ -174,14 +174,14 @@ func TestLinkInfernoProjectile(t *testing.T) {
 func TestFireGrenadeEvents_UseLinkedProjectile(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	molotov := common.NewEquipment(common.EqMolotov, 1)
+	molotov := common.NewEquipment(common.EqMolotov, common.UniqueID(1))
 	proj := newTestProjectile(1, pl, molotov)
 
 	const infernoID = 77
 
 	p.gameState.infernoProjectiles[infernoID] = proj
 	// a projectile entity with the inferno's entity-ID must not be used for fire events
-	p.gameState.grenadeProjectiles[infernoID] = newTestProjectile(2, pl, common.NewEquipment(common.EqSmoke, 2))
+	p.gameState.grenadeProjectiles[infernoID] = newTestProjectile(2, pl, common.NewEquipment(common.EqSmoke, common.UniqueID(2)))
 
 	var got []events.GrenadeEventIf
 	p.RegisterEventHandler(func(e events.GrenadeEventIf) {
@@ -210,7 +210,7 @@ func TestFireGrenadeEvents_UseLinkedProjectile(t *testing.T) {
 func TestNadeEvent_ProjectileOfDifferentType_Ignored(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	pl := &common.Player{}
-	p.gameState.grenadeProjectiles[42] = newTestProjectile(1, pl, common.NewEquipment(common.EqSmoke, 1))
+	p.gameState.grenadeProjectiles[42] = newTestProjectile(1, pl, common.NewEquipment(common.EqSmoke, common.UniqueID(1)))
 
 	var got []events.HeExplode
 	p.RegisterEventHandler(func(e events.HeExplode) {

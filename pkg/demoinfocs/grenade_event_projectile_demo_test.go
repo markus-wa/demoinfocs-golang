@@ -42,8 +42,8 @@ func testGrenadeEventProjectile(t *testing.T, demPath string, isPOV bool) {
 	p := demoinfocs.NewParser(f)
 
 	counts := make(map[string]int)
-	projectilesByUniqueID := make(map[int64]*common.GrenadeProjectile)
-	uniqueIDsPerEvent := make(map[string]map[int64]bool)
+	projectilesByUniqueID := make(map[common.UniqueID]*common.GrenadeProjectile)
+	uniqueIDsPerEvent := make(map[string]map[common.UniqueID]bool)
 
 	p.RegisterEventHandler(func(e events.GrenadeEventIf) {
 		base := e.Base()
@@ -87,7 +87,7 @@ func testGrenadeEventProjectile(t *testing.T, demPath string, isPOV bool) {
 		switch e.(type) {
 		case events.HeExplode, events.SmokeStart, events.SmokeExpired:
 			if uniqueIDsPerEvent[name] == nil {
-				uniqueIDsPerEvent[name] = make(map[int64]bool)
+				uniqueIDsPerEvent[name] = make(map[common.UniqueID]bool)
 			}
 
 			assert.False(t, uniqueIDsPerEvent[name][base.Projectile.UniqueID()], "%s dispatched twice for the same projectile", name)
