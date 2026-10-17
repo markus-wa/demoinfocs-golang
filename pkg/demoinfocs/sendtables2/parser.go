@@ -64,7 +64,9 @@ type Parser struct {
 	// baselines ("<classID>:<n>") that alternate_baselines refers to.
 	baselinesByIndex map[int32][]byte
 	// altBaselines maps entity indices to the baselinesByIndex index of the current packet's alternate_baselines.
-	altBaselines                map[int32]int32
+	altBaselines map[int32]int32
+	// entityBaselines are the two entity baseline slots (CSVCMsg_PacketEntities.baseline) by entity index.
+	entityBaselines             [2]map[int32]*entityBaseline
 	classesById                 map[int32]*class //nolint:revive
 	classesByName               map[string]*class
 	entityFullPackets           int
@@ -128,6 +130,7 @@ func NewParser(packetEntitiesPanicWarnFunc func(error)) *Parser {
 		classBaselines:              make(map[int32][]byte),
 		baselinesByIndex:            make(map[int32][]byte),
 		altBaselines:                make(map[int32]int32),
+		entityBaselines:             [2]map[int32]*entityBaseline{{}, {}},
 		classesById:                 make(map[int32]*class),
 		classesByName:               make(map[string]*class),
 		entities:                    make(map[int32]*Entity),

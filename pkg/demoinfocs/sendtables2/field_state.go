@@ -10,6 +10,21 @@ func newFieldState() *fieldState {
 	}
 }
 
+// clone returns a deep copy of the state. Values are immutable, only nested states are copied.
+func (s *fieldState) clone() *fieldState {
+	c := &fieldState{state: make([]any, len(s.state), cap(s.state))}
+
+	for i, v := range s.state {
+		if fs, ok := v.(*fieldState); ok {
+			c.state[i] = fs.clone()
+		} else {
+			c.state[i] = v
+		}
+	}
+
+	return c
+}
+
 func (s *fieldState) get(fp *fieldPath) interface{} {
 	x := s
 
