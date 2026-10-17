@@ -459,3 +459,23 @@ func TestGameState_Hostages(t *testing.T) {
 	expectedHostages := []*common.Hostage{hostageA, hostageB}
 	assert.Equal(t, expectedHostages, gs.Hostages())
 }
+
+func TestIsNewerSerial(t *testing.T) {
+	cases := []struct {
+		a, b     int
+		expected bool
+	}{
+		{2, 1, true},
+		{1, 2, false},
+		{1, 1, false},
+		{0, 1023, true}, // wrapped around
+		{1023, 0, false},
+		{5, 1020, true},
+		{511, 0, true},
+		{512, 0, false}, // more than half the range ahead is considered older
+	}
+
+	for _, c := range cases {
+		assert.Equal(t, c.expected, isNewerSerial(c.a, c.b), "isNewerSerial(%d, %d)", c.a, c.b)
+	}
+}

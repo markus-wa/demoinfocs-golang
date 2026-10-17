@@ -405,35 +405,49 @@ func weaponHandle(serial int) uint64 {
 	return uint64(testWeaponEntityID) | uint64(serial)<<constants.MaxEdictBitsSource2
 }
 
+// replacementSerials are the serials of a replaced weapon entity and of the entity replacing it at the same index.
+// Serials wrap around (see isNewerSerial).
+var replacementSerials = []struct {
+	name     string
+	old, new int
+}{
+	{"incremented", 1, 2},
+	{"wrapped around", 1023, 0},
+}
+
 // The server may create a new weapon entity at the index of one it never deleted, and assign it to a player
 // (m_hMyWeapons, read earlier in the same packet) before it's created.
 // The player's inventory must get the new weapon, not the replaced one (#601).
 func TestBindPlayerWeapons_WeaponAssignedBeforeReplacingEntityIsCreated(t *testing.T) {
-	p := newParser()
-	p.header.Filestamp = filestampS2
+	for _, serials := range replacementSerials {
+		t.Run(serials.name, func(t *testing.T) {
+			p := newParser()
+			p.header.Filestamp = filestampS2
 
-	oldEntity, destroyOld := fakeWeaponEntity(1, 1) // Desert Eagle
-	p.bindWeaponS2(oldEntity)
-	oldWeapon := p.gameState.weapons[testWeaponEntityID]
+			oldEntity, destroyOld := fakeWeaponEntity(serials.old, 1) // Desert Eagle
+			p.bindWeaponS2(oldEntity)
+			oldWeapon := p.gameState.weapons[testWeaponEntityID]
 
-	pl := common.NewPlayer(p.demoInfoProvider)
-	setSlot0 := bindFakePawnWeapons(p, pl)
+			pl := common.NewPlayer(p.demoInfoProvider)
+			setSlot0 := bindFakePawnWeapons(p, pl)
 
-	// 1. the pawn gets the new weapon (serial 2) while the old entity is still at the index
-	setSlot0(weaponHandle(2))
+			// 1. the pawn gets the new weapon while the old entity is still at the index
+			setSlot0(weaponHandle(serials.new))
 
-	// 2. the old entity is destroyed (replaced) and 3. the new one is created
-	(*destroyOld)()
+			// 2. the old entity is destroyed (replaced) and 3. the new one is created
+			(*destroyOld)()
 
-	newEntity, _ := fakeWeaponEntity(2, 61) // USP-S
-	p.bindWeaponS2(newEntity)
+			newEntity, _ := fakeWeaponEntity(serials.new, 61) // USP-S
+			p.bindWeaponS2(newEntity)
 
-	wep := pl.Inventory[testWeaponEntityID]
-	assert.Same(t, p.gameState.weapons[testWeaponEntityID], wep)
-	assert.Equal(t, common.EqUSP, wep.Type)
-	assert.Same(t, newEntity, wep.Entity)
-	assert.NotSame(t, oldWeapon, wep)
-	assert.Equal(t, common.EqDeagle, oldWeapon.Type, "the replaced weapon must not be modified")
+			wep := pl.Inventory[testWeaponEntityID]
+			assert.Same(t, p.gameState.weapons[testWeaponEntityID], wep)
+			assert.Equal(t, common.EqUSP, wep.Type)
+			assert.Same(t, newEntity, wep.Entity)
+			assert.NotSame(t, oldWeapon, wep)
+			assert.Equal(t, common.EqDeagle, oldWeapon.Type, "the replaced weapon must not be modified")
+		})
+	}
 }
 
 // The other way around: the new weapon entity is created before the pawn's slots are updated,
@@ -520,32 +534,36 @@ func weaponHandleS1(serial int) int {
 // CS:GO equivalent of TestBindPlayerWeapons_WeaponAssignedBeforeReplacingEntityIsCreated.
 // Entities are updated in index order, so this happens whenever the player's index is lower than the weapon's.
 func TestBindPlayerWeaponsS1_WeaponAssignedBeforeReplacingEntityIsCreated(t *testing.T) {
-	p := newParser()
-	p.modelPreCache = []string{""} // bindWeapon looks up m_nModelIndex 0
+	for _, serials := range replacementSerials {
+		t.Run(serials.name, func(t *testing.T) {
+			p := newParser()
+			p.modelPreCache = []string{""} // bindWeapon looks up m_nModelIndex 0
 
-	oldEntity, destroyOld := fakeWeaponEntityS1(1)
-	p.bindWeapon(oldEntity, common.EqAK47)
-	oldWeapon := p.gameState.weapons[testWeaponEntityID]
+			oldEntity, destroyOld := fakeWeaponEntityS1(serials.old)
+			p.bindWeapon(oldEntity, common.EqAK47)
+			oldWeapon := p.gameState.weapons[testWeaponEntityID]
 
-	pl := common.NewPlayer(p.demoInfoProvider)
-	setSlot0 := bindFakePlayerWeaponsS1(p, pl)
+			pl := common.NewPlayer(p.demoInfoProvider)
+			setSlot0 := bindFakePlayerWeaponsS1(p, pl)
 
-	// 1. the player gets the new weapon (serial 2) while the old entity is still at the index
-	setSlot0(weaponHandleS1(2))
+			// 1. the player gets the new weapon while the old entity is still at the index
+			setSlot0(weaponHandleS1(serials.new))
 
-	// 2. the old entity is destroyed (replaced) and 3. the new one is created
-	(*destroyOld)()
+			// 2. the old entity is destroyed (replaced) and 3. the new one is created
+			(*destroyOld)()
 
-	newEntity, _ := fakeWeaponEntityS1(2)
-	p.bindWeapon(newEntity, common.EqMolotov)
+			newEntity, _ := fakeWeaponEntityS1(serials.new)
+			p.bindWeapon(newEntity, common.EqMolotov)
 
-	wep := pl.Inventory[testWeaponEntityID]
-	assert.Same(t, p.gameState.weapons[testWeaponEntityID], wep)
-	assert.Equal(t, common.EqMolotov, wep.Type)
-	assert.Same(t, newEntity, wep.Entity)
-	assert.Same(t, pl, wep.Owner)
-	assert.NotSame(t, oldWeapon, wep)
-	assert.Equal(t, common.EqAK47, oldWeapon.Type, "the replaced weapon must not be modified")
+			wep := pl.Inventory[testWeaponEntityID]
+			assert.Same(t, p.gameState.weapons[testWeaponEntityID], wep)
+			assert.Equal(t, common.EqMolotov, wep.Type)
+			assert.Same(t, newEntity, wep.Entity)
+			assert.Same(t, pl, wep.Owner)
+			assert.NotSame(t, oldWeapon, wep)
+			assert.Equal(t, common.EqAK47, oldWeapon.Type, "the replaced weapon must not be modified")
+		})
+	}
 }
 
 // CS:GO equivalent of TestBindPlayerWeapons_ReplacingEntityCreatedBeforeInventoryUpdate.

@@ -1157,7 +1157,7 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 				// weapon whose index is re-used for a new entity (see SendTableParser.ReadEnterPVS) before the
 				// previous weapon is destroyed. Only a newer serial makes the entry stale, see bindPlayerWeaponsS2.
 				handleSerial := val.IntVal >> constants.MaxEdictBits
-				isStale := wep != nil && wep.Entity != nil && handleSerial > wep.Entity.SerialNum()
+				isStale := wep != nil && wep.Entity != nil && isNewerSerial(handleSerial, wep.Entity.SerialNum())
 
 				if wep == nil || isStale {
 					// sometimes a weapon is assigned to a player before the weapon entity is created
@@ -1208,8 +1208,8 @@ func (p *parser) bindPlayerWeaponsS2(pawnEntity st.Entity, currentPlayer func() 
 		// previous weapon when the pawn gets the new one before the new weapon entity is created in the same packet.
 		// The other way around (new weapon created first) the pawn may still reference the previous serial in
 		// slots that haven't been updated yet, so only a newer serial makes the entry stale.
-		handleSerial := handle >> constants.MaxEdictBitsSource2
-		isStale := wep != nil && wep.Entity != nil && handleSerial > uint64(wep.Entity.SerialNum())
+		handleSerial := int(handle >> constants.MaxEdictBitsSource2)
+		isStale := wep != nil && wep.Entity != nil && isNewerSerial(handleSerial, wep.Entity.SerialNum())
 
 		if wep == nil || isStale {
 			// sometimes a weapon is assigned to a player before the weapon entity is created
