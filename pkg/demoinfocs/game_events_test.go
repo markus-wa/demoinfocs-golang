@@ -96,6 +96,58 @@ func TestGetPlayerWeapon_NotFound(t *testing.T) {
 	assert.Equal(t, common.EqM4A1, wep.Type)
 }
 
+// newPlayerWithWeapons returns a CS:GO player holding the given weapons, by entity-ID, with activeID as active weapon.
+func newPlayerWithWeapons(activeID int, weapons map[int]*common.Equipment) *common.Player {
+	p := NewParser(rand.Reader).(*parser)
+	p.header = &common.DemoHeader{Filestamp: filestampS1}
+
+	for entityID, wep := range weapons {
+		entity := new(stfake.Entity)
+		entity.On("ID").Return(entityID)
+		wep.Entity = entity
+		p.gameState.weapons[entityID] = wep
+	}
+
+	playerEntity := new(stfake.Entity)
+	playerEntity.On("PropertyValueMust", "m_hActiveWeapon").Return(st.PropertyValue{IntVal: activeID})
+
+	pl := common.NewPlayer(p.demoInfoProvider)
+	pl.Entity = playerEntity
+	pl.Inventory = weapons
+
+	return pl
+}
+
+// The inventory may briefly hold two weapons of the same type, the active one must be returned.
+func TestGetPlayerWeapon_PrefersActiveWeapon(t *testing.T) {
+	stale := &common.Equipment{Type: common.EqAK47}
+	active := &common.Equipment{Type: common.EqAK47}
+	pl := newPlayerWithWeapons(340, map[int]*common.Equipment{
+		301: stale,
+		340: active,
+	})
+
+	for range 20 {
+		assert.Same(t, active, getPlayerWeapon(pl, common.EqAK47, "ak47", common.UniqueID(1)))
+	}
+}
+
+// Without an active weapon of that type the result must not depend on the map iteration order.
+func TestGetPlayerWeapon_MultipleMatchesIsDeterministic(t *testing.T) {
+	first := &common.Equipment{Type: common.EqAK47}
+	second := &common.Equipment{Type: common.EqAK47}
+	knife := &common.Equipment{Type: common.EqKnife}
+	pl := newPlayerWithWeapons(372, map[int]*common.Equipment{
+		340: second,
+		301: first,
+		372: knife,
+	})
+
+	for range 20 {
+		assert.Same(t, first, getPlayerWeapon(pl, common.EqAK47, "ak47", common.UniqueID(1)))
+	}
+}
+
 func TestGetPlayerWeapon_OriginalString(t *testing.T) {
 	wep := getPlayerWeapon(nil, common.EqKnife, "knife_karambit", common.UniqueID(1))
 
