@@ -208,11 +208,11 @@ type GrenadeEvent struct {
 	// For FireGrenadeStart & FireGrenadeExpired it's always EqIncendiary, see Grenade.Type to tell molotovs and incendiaries apart.
 	GrenadeType common.EquipmentType
 	// Grenade is the weapon that was thrown - a per-throw copy of the inventory item, so it's not the same pointer
-	// as the one in Player.Inventory (but has the same UniqueID2()).
+	// as the one in Player.Inventory (but has the same UniqueID()).
 	// If Projectile is known this is Projectile.WeaponInstance, otherwise it's the last grenade of
 	// GrenadeType thrown by Thrower, which may be wrong if they have multiple of them in flight / active.
 	//
-	// Note that Grenade.UniqueID2() identifies the weapon entity, not the throw - multiple grenades
+	// Note that Grenade.UniqueID() identifies the weapon entity, not the throw - multiple grenades
 	// thrown from the same inventory slot (e.g. two flashbangs) can share it.
 	// Use Projectile.UniqueID() to track an individual grenade.
 	//
