@@ -124,6 +124,10 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 
 		p.RegisterNetMessageHandler(p.stParser.OnServerInfo)
 		p.RegisterNetMessageHandler(p.stParser.OnPacketEntities)
+		// backstop for controller identity & connection changes not applied per entity yet
+		p.RegisterNetMessageHandler(func(*msgs2.CSVCMsg_PacketEntities) {
+			p.flushPlayerControllerUpdates()
+		})
 
 	default:
 		return h, ErrInvalidFileType

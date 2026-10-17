@@ -113,3 +113,8 @@ func (e *Entity) Destroy() {
 func (e *Entity) OnCreateFinished(delegate func()) {
 	e.Called()
 }
+
+// OnUpdateFinished is a mock-implementation of Entity.OnUpdateFinished().
+func (e *Entity) OnUpdateFinished(delegate func()) {
+	e.Called(delegate)
+}
