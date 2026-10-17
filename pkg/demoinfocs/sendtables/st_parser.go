@@ -24,6 +24,94 @@ type SendTableParser struct {
 	currentBaseclasses []*serverClass
 
 	instanceBaselines map[int][]byte // Maps server-class IDs to raw instance baselines, needed for when we don't have the server-class when setting the baseline
+
+	// The two entity baselines (see BeginPacketEntities), by entity-ID.
+	entityBaselines [2]map[int]*entityBaseline
+	packetEntities  packetEntitiesInfo
+}
+
+// entityBaseline is the state of an entity when it entered the PVS in a CSVCMsg_PacketEntities message
+// that updated the baseline.
+type entityBaseline struct {
+	serverClass *serverClass
+	values      []PropertyValue
+}
+
+// packetEntitiesInfo holds the baseline info of the CSVCMsg_PacketEntities message being read.
+type packetEntitiesInfo struct {
+	isDelta        bool
+	baseline       int
+	updateBaseline bool
+}
+
+// BeginPacketEntities must be called before reading the entities of a CSVCMsg_PacketEntities message.
+//
+// The data of entities entering the PVS is a delta from the entity's instance baseline (see SetInstanceBaseline),
+// or, in delta messages, from an entity baseline if the entity entered the PVS in a message that updated the
+// baseline (POV demos).
+// Like the game client (CL_CopyNewEntity) we keep two entity baselines, the message says which one it uses.
+// A message updating the baseline copies it to the other one, along with the entities entering the PVS.
+// Entity baselines are kept when entities are deleted (they're only used for entities of the same server-class),
+// but not by full updates.
+//
+// Intended for internal use only.
+func (p *SendTableParser) BeginPacketEntities(isDelta bool, baseline int, updateBaseline bool) {
+	baseline &= 1
+
+	p.packetEntities = packetEntitiesInfo{
+		isDelta:        isDelta,
+		baseline:       baseline,
+		updateBaseline: updateBaseline,
+	}
+
+	if !isDelta {
+		p.entityBaselines = [2]map[int]*entityBaseline{}
+	}
+
+	if !updateBaseline {
+		return
+	}
+
+	updated := make(map[int]*entityBaseline, len(p.entityBaselines[baseline]))
+	for entityID, b := range p.entityBaselines[baseline] {
+		updated[entityID] = b
+	}
+
+	p.entityBaselines[1-baseline] = updated
+}
+
+// enterPVSBaseline returns the entity baseline the data of the entity entering the PVS is a delta from,
+// or nil if it's the instance baseline.
+func (p *SendTableParser) enterPVSBaseline(sc *serverClass, entityID int) []PropertyValue {
+	if !p.packetEntities.isDelta {
+		return nil
+	}
+
+	b := p.entityBaselines[p.packetEntities.baseline][entityID]
+	if b == nil || b.serverClass != sc {
+		return nil
+	}
+
+	return b.values
+}
+
+// updateEntityBaseline stores the state of the entity that entered the PVS if the message updates the baseline.
+func (p *SendTableParser) updateEntityBaseline(e *entity) {
+	if !p.packetEntities.updateBaseline {
+		return
+	}
+
+	values := make([]PropertyValue, len(e.props))
+	for i := range e.props {
+		values[i] = e.props[i].value
+	}
+
+	updated := &p.entityBaselines[1-p.packetEntities.baseline]
+	if *updated == nil {
+		*updated = make(map[int]*entityBaseline)
+	}
+
+	(*updated)[e.id] = &entityBaseline{serverClass: e.serverClass, values: values}
 }
 
 // the following funcs are S2 only
@@ -392,9 +480,21 @@ func (p *SendTableParser) ReadEnterPVS(r *bit.BitReader, entityID int, existingE
 	serialNum := int(r.ReadInt(constants.EntityHandleSerialNumberBits))
 	existingEntity := existingEntities[entityID]
 
+	sc := p.serverClasses[classID]
+	entityBaseline := p.enterPVSBaseline(sc, entityID)
+
 	if existingEntity != nil && existingEntity.SerialNum() == serialNum {
-		existingEntity.ApplyUpdate(r)
-		return existingEntity
+		e, ok := existingEntity.(*entity)
+		if !ok {
+			existingEntity.ApplyUpdate(r)
+
+			return existingEntity
+		}
+
+		e.applyEnterPVS(r, entityBaseline)
+		p.updateEntityBaseline(e)
+
+		return e
 	}
 
 	// Serial numbers are different, delete the entity
@@ -403,7 +503,10 @@ func (p *SendTableParser) ReadEnterPVS(r *bit.BitReader, entityID int, existingE
 		delete(existingEntities, entityID)
 	}
 
-	return p.serverClasses[classID].newEntity(r, entityID, serialNum, recordingPlayerSlot)
+	e := sc.newEntity(r, entityID, serialNum, recordingPlayerSlot, entityBaseline)
+	p.updateEntityBaseline(e)
+
+	return e
 }
 
 // classBits seems to calculate how many bits must be read for the server-class ID.

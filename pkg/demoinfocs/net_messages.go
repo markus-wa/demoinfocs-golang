@@ -23,6 +23,8 @@ func (p *parser) handlePacketEntitiesS1(pe *msg.CSVCMsg_PacketEntities) {
 
 	r := bit.NewSmallBitReader(bytes.NewReader(pe.EntityData))
 
+	p.stParser.BeginPacketEntities(pe.GetIsDelta(), int(pe.GetBaseline()), pe.GetUpdateBaseline())
+
 	entityIndex := -1
 
 	for i := 0; i < int(pe.GetUpdatedEntries()); i++ {

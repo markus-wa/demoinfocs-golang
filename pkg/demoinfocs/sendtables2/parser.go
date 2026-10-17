@@ -76,6 +76,10 @@ type Parser struct {
 	polyMaxCache map[*serializer]int
 }
 
+func (p *Parser) BeginPacketEntities(isDelta bool, baseline int, updateBaseline bool) {
+	panic("implement me")
+}
+
 func (p *Parser) ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity {
 	panic("implement me")
 }
