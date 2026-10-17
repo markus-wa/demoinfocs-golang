@@ -140,6 +140,76 @@ func (e *entity) ApplyUpdate(reader *bit.BitReader) {
 	updatedPropIndicesPool.Put(updatedPropIndices)
 }
 
+// applyEnterPVS applies the data of the entity re-entering the PVS with the same serial number.
+//
+// Like for a new entity, the data is a delta from a baseline (see SendTableParser.BeginPacketEntities) rather
+// than from the entity's current state: properties that aren't sent have their baseline value.
+// entityBaseline is the entity baseline, or nil for the instance baseline.
+func (e *entity) applyEnterPVS(reader *bit.BitReader, entityBaseline []PropertyValue) {
+	idx := -1
+	newWay := reader.ReadBit()
+	updatedPropIndices := updatedPropIndicesPool.Get().(*[]int)
+
+	for idx = readFieldIndex(reader, idx, newWay); idx != -1; idx = readFieldIndex(reader, idx, newWay) {
+		*updatedPropIndices = append(*updatedPropIndices, idx)
+	}
+
+	for _, idx := range *updatedPropIndices {
+		propDecoder.decodeProp(&e.props[idx], reader)
+	}
+
+	isUpdated := make([]bool, len(e.props))
+	for _, idx := range *updatedPropIndices {
+		isUpdated[idx] = true
+	}
+
+	for idx := range e.props {
+		if isUpdated[idx] {
+			continue
+		}
+
+		var baseline PropertyValue
+		if entityBaseline != nil {
+			baseline = entityBaseline[idx]
+		} else {
+			baseline = e.serverClass.preprocessedBaseline[idx]
+		}
+
+		if !propertyValuesEqual(e.props[idx].value, baseline) {
+			e.props[idx].value = baseline
+			*updatedPropIndices = append(*updatedPropIndices, idx)
+		}
+	}
+
+	// Fire update only after all properties have been updated, see ApplyUpdate
+	for _, idx := range *updatedPropIndices {
+		e.props[idx].firePropertyUpdate()
+	}
+
+	for _, f := range e.onUpdateFinished {
+		f()
+	}
+
+	*updatedPropIndices = (*updatedPropIndices)[:0]
+	updatedPropIndicesPool.Put(updatedPropIndices)
+}
+
+// propertyValuesEqual compares the CS:GO values of two properties.
+func propertyValuesEqual(a, b PropertyValue) bool {
+	if a.IntVal != b.IntVal || a.Int64Val != b.Int64Val || a.FloatVal != b.FloatVal ||
+		a.StringVal != b.StringVal || a.VectorVal != b.VectorVal || len(a.ArrayVal) != len(b.ArrayVal) {
+		return false
+	}
+
+	for i := range a.ArrayVal {
+		if !propertyValuesEqual(a.ArrayVal[i], b.ArrayVal[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func readFieldIndex(reader *bit.BitReader, lastIndex int, newWay bool) int {
 	if newWay && reader.ReadBit() {
 		// NewWay A
@@ -196,6 +266,13 @@ func (e *entity) initializeBaseline(r *bit.BitReader) map[int]PropertyValue {
 func (e *entity) applyBaseline(baseline map[int]PropertyValue) {
 	for idx := range baseline {
 		e.props[idx].value = baseline[idx]
+	}
+}
+
+// applyEntityBaseline sets the property values of an entity baseline of the same server-class.
+func (e *entity) applyEntityBaseline(values []PropertyValue) {
+	for idx := range e.props {
+		e.props[idx].value = values[idx]
 	}
 }
 

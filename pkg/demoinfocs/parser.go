@@ -23,6 +23,7 @@ import (
 //go:generate ifacemaker -f parser.go -f parsing.go -s parser -i Parser -p demoinfocs -D -y "Parser is an auto-generated interface for Parser, intended to be used when mockability is needed." -c "DO NOT EDIT: Auto generated" -o parser_interface.go
 
 type sendTableParser interface {
+	BeginPacketEntities(isDelta bool, baseline int, updateBaseline bool)
 	ReadEnterPVS(r *bit.BitReader, index int, entities map[int]st.Entity, slot int) st.Entity
 	ServerClasses() st.ServerClasses
 	ParsePacket(b []byte) error

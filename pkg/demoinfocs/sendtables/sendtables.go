@@ -126,7 +126,10 @@ func (sc *serverClass) PropertyEntryDefinitions() []PropertyEntry {
 	return res
 }
 
-func (sc *serverClass) newEntity(entityDataReader *bit.BitReader, entityID int, serialNum int, recordingPlayerSlot int) *entity {
+// newEntity creates an entity from the data of an entity entering the PVS.
+// entityBaseline is the entity baseline the data is a delta from (see SendTableParser.BeginPacketEntities),
+// or nil for the instance baseline.
+func (sc *serverClass) newEntity(entityDataReader *bit.BitReader, entityID int, serialNum int, recordingPlayerSlot int, entityBaseline []PropertyValue) *entity {
 	props := make([]property, len(sc.flattenedProps))
 
 	for i := range sc.flattenedProps {
@@ -146,6 +149,10 @@ func (sc *serverClass) newEntity(entityDataReader *bit.BitReader, entityID int, 
 		_ = r.Pool() // no way to report the error here, and pooling failures are non-fatal
 	default:
 		sc.preprocessedBaseline = make(map[int]PropertyValue)
+	}
+
+	if entityBaseline != nil {
+		entity.applyEntityBaseline(entityBaseline)
 	}
 
 	entity.ApplyUpdate(entityDataReader)
