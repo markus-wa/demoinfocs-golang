@@ -2,7 +2,9 @@ package sendtables2
 
 import (
 	"fmt"
+	"maps"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/golang/geo/r3"
@@ -786,6 +788,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 	p.tuplesCache = p.tuplesCache[:0]
 
 	p.setAlternateBaselines(m)
+	p.copyEntityBaselines(m)
 
 	for ; updates > 0; updates-- {
 		var (
@@ -824,16 +827,9 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 				e = newEntity(index, serial, class)
 				p.entities[index] = e
 
-				baseline := p.classBaselines[classID]
-
-				if baseline != nil {
-					// POV demos are missing some baselines?
-					br := newReader(baseline)
-					e.readFields(br, &p.pathCache)
-					br.release()
-				}
-
+				p.readCreateBaseline(e, m)
 				e.readFields(r, &p.pathCache)
+				p.storeEntityBaseline(e, m)
 
 				// Fire created-handlers so update-handlers can be registered
 				for _, h := range class.createdHandlers {
@@ -977,6 +973,62 @@ func (p *Parser) readExplicitDeletions(r *reader) {
 		e.Destroy()
 
 		p.tuplesCache = append(p.tuplesCache, tuple{e, st.EntityOpLeft | st.EntityOpDeleted})
+	}
+}
+
+// entityBaseline is the state of an entity right after it was created by an update_baseline packet (POV demos).
+type entityBaseline struct {
+	class           *class
+	state           *fieldState
+	polySerializers []*serializer
+}
+
+// copyEntityBaselines starts an update of the entity baselines (update_baseline):
+// the other slot becomes a copy of the current one, the entities created by the packet are then stored in it.
+//
+// Baselines are only ever replaced, the engine (engine2.dll CopyEntityBaseline, CopyNewEntity, ProcessBaselineAck)
+// keeps the one of an entity that left the PVS or was deleted.
+func (p *Parser) copyEntityBaselines(m *msgs2.CSVCMsg_PacketEntities) {
+	if !m.GetUpdateBaseline() {
+		return
+	}
+
+	p.entityBaselines[1-m.GetBaseline()&1] = maps.Clone(p.entityBaselines[m.GetBaseline()&1])
+}
+
+// readCreateBaseline sets the state a newly created entity's data is a delta from:
+// the entity baseline at its index if there is one of its class (POV demos), otherwise its class baseline.
+func (p *Parser) readCreateBaseline(e *Entity, m *msgs2.CSVCMsg_PacketEntities) {
+	if m.GetLegacyIsDelta() {
+		if b := p.entityBaselines[m.GetBaseline()&1][e.index]; b != nil && b.class == e.class {
+			e.state = b.state.clone()
+			copy(e.polySerializers, b.polySerializers)
+
+			return
+		}
+	}
+
+	baseline := p.classBaselines[e.class.classID]
+	if baseline == nil {
+		return // POV demos are missing some baselines?
+	}
+
+	r := newReader(baseline)
+	e.readFields(r, &p.pathCache)
+	r.release()
+}
+
+// storeEntityBaseline stores the state of an entity created by an update_baseline packet as the entity baseline
+// at its index in the other slot, see copyEntityBaselines.
+func (p *Parser) storeEntityBaseline(e *Entity, m *msgs2.CSVCMsg_PacketEntities) {
+	if !m.GetUpdateBaseline() {
+		return
+	}
+
+	p.entityBaselines[1-m.GetBaseline()&1][e.index] = &entityBaseline{
+		class:           e.class,
+		state:           e.state.clone(),
+		polySerializers: slices.Clone(e.polySerializers),
 	}
 }
 
