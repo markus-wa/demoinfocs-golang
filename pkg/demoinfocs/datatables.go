@@ -1142,7 +1142,13 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 
 				wep := p.gameState.weapons[entityID]
 
-				if wep == nil {
+				// Entities are updated in index order, so a player whose index is lower than the weapon's gets a
+				// weapon whose index is re-used for a new entity (see SendTableParser.ReadEnterPVS) before the
+				// previous weapon is destroyed. Only a newer serial makes the entry stale, see bindPlayerWeaponsS2.
+				handleSerial := val.IntVal >> constants.MaxEdictBits
+				isStale := wep != nil && wep.Entity != nil && handleSerial > wep.Entity.SerialNum()
+
+				if wep == nil || isStale {
 					// sometimes a weapon is assigned to a player before the weapon entity is created
 					wep = common.NewEquipment(common.EqUnknown, p.nextUniqueID())
 					p.gameState.weapons[entityID] = wep
@@ -1800,7 +1806,10 @@ func (p *parser) bindWeapon(entity st.Entity, wepType common.EquipmentType) {
 	eq.Entity = entity
 
 	entity.OnDestroy(func() {
-		delete(p.gameState.weapons, entityID)
+		// the entry may already belong to the weapon entity replacing this one (see bindPlayerWeapons)
+		if p.gameState.weapons[entityID] == eq {
+			delete(p.gameState.weapons, entityID)
+		}
 	})
 
 	entity.Property("m_iClip1").OnUpdate(func(val st.PropertyValue) {

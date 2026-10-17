@@ -22,7 +22,14 @@ func TestEntityIndexReuse_NewEquipment(t *testing.T) {
 		t.Skip("skipping test")
 	}
 
-	for _, demPath := range []string{s2DemPath, demSetPathS2 + "/1_2v2_6thAug23_64cf951f9b4ce6b86c73b089.dem"} {
+	demPaths := []string{
+		s2DemPath,
+		demSetPathS2 + "/1_2v2_6thAug23_64cf951f9b4ce6b86c73b089.dem",
+		// CS:GO, players with a lower index than the weapon get it before the replaced weapon is destroyed
+		demSetPath + "/2015-08-23-ESLOneCologne2015-fnatic-vs-virtuspro-mirage.dem",
+	}
+
+	for _, demPath := range demPaths {
 		t.Run(filepath.Base(demPath), func(t *testing.T) {
 			t.Parallel()
 
