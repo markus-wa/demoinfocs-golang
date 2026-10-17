@@ -885,6 +885,11 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 		p.tuplesCache = append(p.tuplesCache, tuple{e, op})
 	}
 
+	// Packets with non_transmitted_entities report deletions through it instead (not handled here).
+	if m.GetLegacyIsDelta() && m.NonTransmittedEntities == nil {
+		p.readExplicitDeletions(r)
+	}
+
 	for _, t := range p.tuplesCache {
 		e := t.ent
 
@@ -905,6 +910,38 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 	}
 
 	return nil
+}
+
+// readExplicitDeletions reads the list of deleted entities that follows the entity updates of delta packets
+// in demos without non_transmitted_entities (older demos and POV demos).
+// It contains entities the update headers can't delete, e.g. ones that left the PVS before being deleted.
+//
+// Format (engine2 ReadPacketEntities): UBitVar count, then count UBitVar index deltas starting from index -1.
+func (p *Parser) readExplicitDeletions(r *reader) {
+	// The count takes at least 6 bits, anything shorter is padding
+	if r.remBytes()*8+r.bitCount < 6 {
+		return
+	}
+
+	index := int32(-1)
+
+	for count := r.readUBitVar(); count > 0; count-- {
+		delta := r.readUBitVar()
+		if delta == 0 || int64(index)+int64(delta) >= 1<<constants.MaxEdictBitsSource2 {
+			_panicf("invalid explicit entity deletion: delta %d after index %d", delta, index)
+		}
+
+		index += int32(delta)
+
+		e := p.entities[index]
+		if e == nil || !e.active {
+			continue // usually already deleted by a header in the same packet
+		}
+
+		e.Destroy()
+
+		p.tuplesCache = append(p.tuplesCache, tuple{e, st.EntityOpLeft | st.EntityOpDeleted})
+	}
 }
 
 // OnEntity registers an EntityHandler that will be called when an entity

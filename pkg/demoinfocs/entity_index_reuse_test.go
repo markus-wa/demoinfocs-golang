@@ -23,8 +23,8 @@ func TestEntityIndexReuse_NewEquipment(t *testing.T) {
 	}
 
 	demPaths := []string{
-		s2DemPath,
-		demSetPathS2 + "/1_2v2_6thAug23_64cf951f9b4ce6b86c73b089.dem",
+		// CS2, entities (including weapons) are re-created at their index on round restarts
+		demSetPathS2 + "/arsham_infernocs2_1stSept23.dem",
 		// CS:GO, players with a lower index than the weapon get it before the replaced weapon is destroyed
 		demSetPath + "/2015-08-23-ESLOneCologne2015-fnatic-vs-virtuspro-mirage.dem",
 		// CS:GO, players re-bound to a new entity
