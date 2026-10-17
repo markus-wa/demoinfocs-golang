@@ -267,7 +267,7 @@ func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameE
 		"other_death":                     geh.otherDeath,                        // Other deaths, like chickens.
 		"player_activate":                 nil,                                   // CS2 POV demos
 		"player_blind":                    delay(geh.playerBlind),                // Player got blinded by a flash. Delayed because Player.FlashDuration hasn't been updated yet
-		"player_changename":               nil,                                   // Name change
+		"player_changename":               nil,                                   // Name change - CS2: handled via the controller's m_iszPlayerName (see bindNewPlayerControllerS2), CS:GO: via the userinfo string table
 		"player_chat":                     nil,                                   // CS2 only, not always present and ChatMessage events are already dispatched through CUserMessageSayText2
 		"player_connect":                  geh.playerConnect,                     // Bot connected or player reconnected, players normally come in via string tables & data tables
 		"player_connect_full":             nil,                                   // Connecting finished
@@ -779,6 +779,7 @@ func (geh gameEventHandler) playerConnect(data map[string]*msg.CSVCMsg_GameEvent
 		playerIndex = int(data["index"].GetValByte())
 	}
 
+	// CS2: only used for user-ID mapping & PlayerInfo - Name & SteamID64 come from the player controller.
 	geh.parser.setRawPlayer(playerIndex, pl)
 }
 

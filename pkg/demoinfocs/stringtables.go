@@ -40,9 +40,20 @@ func (p *parser) parseStringTables() {
 	p.bitReader.EndChunk()
 }
 
+// updatePlayerFromRawIfExists applies raw player info (userinfo string table) to the player bound to
+// the slot's entity, if it exists.
+//
+// CS2: raw info only maps the player to its user-ID - name and SteamID64 come from the controller
+// (see getOrCreatePlayerFromControllerEntity).
 func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
 	pl := p.gameState.playersByEntityID[index+1]
 	if pl == nil {
+		return
+	}
+
+	if p.isSource2() {
+		p.updatePlayerFromRawIfExistsS2(index, pl)
+
 		return
 	}
 
@@ -63,6 +74,25 @@ func (p *parser) updatePlayerFromRawIfExists(index int, raw common.PlayerInfo) {
 			NewName: newName,
 		})
 	}
+
+	p.eventDispatcher.Dispatch(events.StringTablePlayerUpdateApplied{
+		Player: pl,
+	})
+}
+
+func (p *parser) updatePlayerFromRawIfExistsS2(index int, pl *common.Player) {
+	if pl.Entity == nil {
+		return
+	}
+
+	// The info may belong to a different person than the one currently bound to the slot's
+	// controller, e.g. the GOTV proxy's state dumps contain the next occupant of a slot before
+	// they connect (or the previous one after a reconnect).
+	if p.matchRawPlayerToController(index, pl.IsBot, pl.Entity) == nil {
+		return
+	}
+
+	pl = p.getOrCreatePlayerFromControllerEntity(pl.Entity)
 
 	p.eventDispatcher.Dispatch(events.StringTablePlayerUpdateApplied{
 		Player: pl,
@@ -123,9 +153,18 @@ func (p *parser) parseSingleStringTable(name string) {
 	}
 }
 
+// setRawPlayer stores raw player info for a slot and dispatches PlayerInfo.
+// CS2: only if the info actually changed, as the GOTV proxy & periodic CDemoStringTables dumps
+// re-send identical info.
 func (p *parser) setRawPlayer(index int, player common.PlayerInfo) {
-	if player.UserID == math.MaxUint16 && p.rawPlayers[index] != nil {
-		player.UserID = p.rawPlayers[index].UserID
+	existing := p.rawPlayers[index]
+
+	if player.UserID == math.MaxUint16 && existing != nil {
+		player.UserID = existing.UserID
+	}
+
+	if p.isSource2() && existing != nil && *existing == player {
+		return
 	}
 
 	p.rawPlayers[index] = &player
@@ -609,6 +648,12 @@ func (p *parser) handleCreateStringTableS1(tab *msg.CSVCMsg_CreateStringTable) {
 	})
 }
 
+// parseUserInfo applies a userinfo string-table entry for the given player slot.
+//
+// Entries are applied even for slots we already have info for (needed to fix up user-ID mappings
+// when parsing broadcasts from mid-match, see #655). Stale entries - the GOTV proxy keeps the
+// pre-reconnect info for re-used slots (#692) - can't affect players' names or SteamIDs, as those
+// come from the player controller.
 func (p *parser) parseUserInfo(data []byte, playerIndex int) {
 	var userInfo msgs2.CMsgPlayerInfo
 
