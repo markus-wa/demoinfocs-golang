@@ -1125,6 +1125,17 @@ func (p *parser) bindPlayerWeapons(playerEntity st.Entity, pl *common.Player) {
 		wepPrefix = "bcc_nonlocaldata." + playerWeaponPrefix
 	}
 
+	// The player may be re-bound to a new entity (e.g. after a reconnect or on round restarts) while keeping its
+	// inventory, the cache below only knows the slots of this entity so weapons of the previous one would be kept forever.
+	// The new entity's slots re-populate the inventory.
+	for _, wep := range pl.Inventory {
+		if wep.Owner == pl {
+			wep.Owner = nil
+		}
+	}
+
+	pl.Inventory = make(map[int]*common.Equipment)
+
 	// Weapons
 	var cache [maxWeapons]int
 	for i := range cache {

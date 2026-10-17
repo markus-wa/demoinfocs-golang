@@ -580,3 +580,26 @@ func TestBindPlayerWeaponsS1_ReplacingEntityCreatedBeforeInventoryUpdate(t *test
 	assert.Same(t, newEntity, newWeapon.Entity)
 	assert.Equal(t, common.EqMolotov, newWeapon.Type)
 }
+
+// A player can be re-bound to a new entity (e.g. after a reconnect), the weapons of the previous entity
+// must not be kept in the inventory as only the new entity's slots are tracked.
+func TestBindPlayerWeaponsS1_PlayerReboundToNewEntity(t *testing.T) {
+	p := newParser()
+	p.modelPreCache = []string{""} // bindWeapon looks up m_nModelIndex 0
+
+	knifeEntity, _ := fakeWeaponEntityS1(1)
+	p.bindWeapon(knifeEntity, common.EqKnife)
+	knife := p.gameState.weapons[testWeaponEntityID]
+
+	pl := common.NewPlayer(p.demoInfoProvider)
+	setSlot0 := bindFakePlayerWeaponsS1(p, pl)
+	setSlot0(weaponHandleS1(1))
+
+	assert.Same(t, knife, pl.Inventory[testWeaponEntityID])
+
+	// the player gets a new entity whose slots don't reference the knife
+	bindFakePlayerWeaponsS1(p, pl)
+
+	assert.Empty(t, pl.Inventory)
+	assert.Nil(t, knife.Owner)
+}
