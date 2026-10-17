@@ -785,6 +785,8 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 
 	p.tuplesCache = p.tuplesCache[:0]
 
+	p.setAlternateBaselines(m)
+
 	for ; updates > 0; updates-- {
 		var (
 			e  *Entity
@@ -861,6 +863,7 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 					op |= st.EntityOpEntered
 				}
 
+				p.readAlternateBaseline(e)
 				e.readFields(r, &p.pathCache)
 				e.fireUpdateFinished()
 			}
@@ -910,6 +913,39 @@ func (p *Parser) OnPacketEntities(m *msgs2.CSVCMsg_PacketEntities) error {
 	}
 
 	return nil
+}
+
+// setAlternateBaselines collects the entities whose updates in this packet are deltas from an instance baseline
+// instead of their current state (sv_enable_alternate_baselines, e.g. in POV demos).
+// The engine only reads them along serialized_entities.
+func (p *Parser) setAlternateBaselines(m *msgs2.CSVCMsg_PacketEntities) {
+	clear(p.altBaselines)
+
+	if m.SerializedEntities == nil {
+		return
+	}
+
+	for _, ab := range m.GetAlternateBaselines() {
+		p.altBaselines[ab.GetEntityIndex()] = ab.GetBaselineIndex()
+	}
+}
+
+// readAlternateBaseline applies the instance baseline an entity update is a delta from, if there is one.
+// Alternate baselines contain every field of the entity, so this overwrites its whole state.
+func (p *Parser) readAlternateBaseline(e *Entity) {
+	baselineIndex, ok := p.altBaselines[e.index]
+	if !ok {
+		return
+	}
+
+	baseline := p.baselinesByIndex[baselineIndex]
+	if baseline == nil {
+		_panicf("missing alternate baseline %d for entity %d", baselineIndex, e.index)
+	}
+
+	r := newReader(baseline)
+	e.readFields(r, &p.pathCache)
+	r.release()
 }
 
 // readExplicitDeletions reads the list of deleted entities that follows the entity updates of delta packets

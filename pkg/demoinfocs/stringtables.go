@@ -18,6 +18,7 @@ import (
 	events "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msg"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/sendtables2"
 )
 
 const (
@@ -473,12 +474,22 @@ func (p *parser) parseStringTable(
 
 var instanceBaselineKeyRegex = regexp.MustCompile(`^\d+:\d+$`)
 
+// setInstanceBaselineByIndex stores an instancebaseline entry by its string table index (CS2 only).
+// Entries without data (e.g. key-only updates) keep their previous data.
+func (p *parser) setInstanceBaselineByIndex(index int, data []byte) {
+	if s2, ok := p.stParser.(*sendtables2.Parser); ok && data != nil {
+		s2.SetInstanceBaselineByIndex(index, data)
+	}
+}
+
 func (p *parser) processStringTableS2(tab createStringTable) {
 	items := p.parseStringTable(tab.StringData, tab.GetNumEntries(), tab.GetName(), tab.GetUserDataFixedSize(), tab.GetUserDataSize(), tab.GetFlags(), tab.GetUsingVarintBitcounts())
 
 	for _, item := range items {
 		switch tab.GetName() {
 		case stNameInstanceBaseline:
+			p.setInstanceBaselineByIndex(int(item.Index), item.Value)
+
 			if item.Key == "" || instanceBaselineKeyRegex.MatchString(item.Key) {
 				continue
 			}
@@ -592,7 +603,9 @@ func (p *parser) processModelPreCacheUpdate() {
 func (p *parser) handleStringTables(msg *msgs2.CDemoStringTables) {
 	for _, tab := range msg.GetTables() {
 		if tab.GetTableName() == stNameInstanceBaseline {
-			for _, item := range tab.GetItems() {
+			for i, item := range tab.GetItems() {
+				p.setInstanceBaselineByIndex(i, item.GetData())
+
 				key := item.GetStr()
 
 				if instanceBaselineKeyRegex.MatchString(key) {

@@ -57,9 +57,14 @@ type tuple struct {
 }
 
 type Parser struct {
-	serializers                 map[string]*serializer
-	classIdSize                 uint32 //nolint:revive
-	classBaselines              map[int32][]byte
+	serializers    map[string]*serializer
+	classIdSize    uint32 //nolint:revive
+	classBaselines map[int32][]byte
+	// baselinesByIndex holds the instancebaseline entries by string table index, including the alternate
+	// baselines ("<classID>:<n>") that alternate_baselines refers to.
+	baselinesByIndex map[int32][]byte
+	// altBaselines maps entity indices to the baselinesByIndex index of the current packet's alternate_baselines.
+	altBaselines                map[int32]int32
 	classesById                 map[int32]*class //nolint:revive
 	classesByName               map[string]*class
 	entityFullPackets           int
@@ -121,6 +126,8 @@ func NewParser(packetEntitiesPanicWarnFunc func(error)) *Parser {
 	return &Parser{
 		serializers:                 make(map[string]*serializer),
 		classBaselines:              make(map[int32][]byte),
+		baselinesByIndex:            make(map[int32][]byte),
+		altBaselines:                make(map[int32]int32),
 		classesById:                 make(map[int32]*class),
 		classesByName:               make(map[string]*class),
 		entities:                    make(map[int32]*Entity),
@@ -177,6 +184,18 @@ func (p *Parser) SetInstanceBaseline(scID int, data []byte) {
 	}
 
 	p.classBaselines[int32(scID)] = data
+}
+
+// SetInstanceBaselineByIndex sets the raw data of the instancebaseline string table entry at the given index.
+// This includes the alternate baselines ("<classID>:<n>" keys) that PacketEntities messages refer to.
+//
+// Intended for internal use only.
+func (p *Parser) SetInstanceBaselineByIndex(index int, data []byte) {
+	if index < 0 || index > math.MaxInt32 {
+		panic(fmt.Sprintf("instance baseline index %d is out of bounds", index))
+	}
+
+	p.baselinesByIndex[int32(index)] = data
 }
 
 //nolint:gocognit,funlen
