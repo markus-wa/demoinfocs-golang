@@ -1352,13 +1352,10 @@ func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType 
 // The id is used for the new instance's UniqueID (see parser.nextUniqueID).
 func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawName string, id common.UniqueID) *common.Equipment {
 	if player != nil {
-		alternateWepType := common.EquipmentAlternative(wepType)
-		for _, wep := range player.Weapons() {
-			if wep.Type == wepType || (alternateWepType != common.EqUnknown && wep.Type == alternateWepType) {
-				wep.OriginalString = rawName
+		if wep := findPlayerWeapon(player, wepType); wep != nil {
+			wep.OriginalString = rawName
 
-				return wep
-			}
+			return wep
 		}
 	}
 
@@ -1366,6 +1363,46 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawNam
 	wep.OriginalString = rawName
 
 	return wep
+}
+
+// findPlayerWeapon returns the weapon of the given type (or its alternative) from the player's inventory, or nil.
+//
+// A player can't hold several weapons of the same type, but the inventory may still briefly reference a destroyed
+// weapon (e.g. a CS2 pawn's m_hMyWeapons keeps the handle of a C4 that was destroyed).
+// The active weapon is preferred as it can't be a destroyed one, otherwise the one with the lowest entity-ID so the
+// result doesn't depend on the map iteration order.
+func findPlayerWeapon(player *common.Player, wepType common.EquipmentType) *common.Equipment {
+	alternateWepType := common.EquipmentAlternative(wepType)
+	matches := func(wep *common.Equipment) bool {
+		return wep.Type == wepType || (alternateWepType != common.EqUnknown && wep.Type == alternateWepType)
+	}
+
+	var (
+		found      *common.Equipment
+		foundID    int
+		matchCount int
+	)
+
+	for entityID, wep := range player.Inventory {
+		if !matches(wep) {
+			continue
+		}
+
+		matchCount++
+
+		if found == nil || entityID < foundID {
+			found, foundID = wep, entityID
+		}
+	}
+
+	if matchCount > 1 {
+		active := player.ActiveWeapon()
+		if active != nil && active.Entity != nil && player.Inventory[active.Entity.ID()] == active && matches(active) {
+			return active
+		}
+	}
+
+	return found
 }
 
 func mapGameEventData(d *msg.CSVCMsg_GameEventListDescriptorT, e *msg.CSVCMsg_GameEvent) map[string]*msg.CSVCMsg_GameEventKeyT {
