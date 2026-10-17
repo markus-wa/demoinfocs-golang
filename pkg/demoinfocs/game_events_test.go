@@ -618,6 +618,29 @@ func TestPlayerHurt_SameTickHitsMeasuredFromPriorHitHealth(t *testing.T) {
 	assert.Equal(t, 35, got[1].HealthDamageTaken)
 }
 
+// A player who took control of a bot after dying is hurt through the bot's pawn, their own pawn's health is 0.
+func TestPlayerHurt_HealthDamageTakenIsDmgHealthIfVictimHealthIsntTheHitPawns(t *testing.T) {
+	p := NewParser(rand.Reader).(*parser)
+	p.gameState.ingameTick = 5000
+
+	victim := newPlayerWithPawnHealth(p, 42, 0)
+
+	var got []events.PlayerHurt
+	p.RegisterEventHandler(func(e events.PlayerHurt) {
+		got = append(got, e)
+	})
+
+	data := playerHurtEventData(int32(victim.UserID), 1, "ak47")
+	data["health"].ValByte = proto.Int32(73)
+	data["armor"].ValByte = proto.Int32(50)
+	data["dmg_health"].ValShort = proto.Int32(27)
+
+	p.gameEventHandler.playerHurt(data)
+
+	assert.Len(t, got, 1)
+	assert.Equal(t, 27, got[0].HealthDamageTaken)
+}
+
 func playerHurtEventData(userID int32, attacker int32, weapon string) map[string]*msg.CSVCMsg_GameEventKeyT {
 	return map[string]*msg.CSVCMsg_GameEventKeyT{
 		"userid": {
