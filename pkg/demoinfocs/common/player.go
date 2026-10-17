@@ -46,6 +46,14 @@ type Player struct {
 	// recordedTick is the SnapshotTick() recordFramePosition() last ran in full for, reset to -1 when tracking
 	// starts so the next snapshot is recorded.
 	recordedTick int
+	// pawnHandles caches the controller's m_hPawn & m_hPlayerPawn for PlayerPawnEntity(), which most CS2 getters
+	// go through: looking both properties up by name on every call was the bulk of their cost.
+	// Only valid while controller is still Entity, a re-created controller invalidates it (see RefreshPawnHandles).
+	pawnHandles struct {
+		controller st.Entity
+		pawn       uint64
+		playerPawn uint64
+	}
 }
 
 // positionSample is a pawn position recorded at the end of a frame.
@@ -87,9 +95,42 @@ func interpolationFrame(pawnEntity st.Entity) any {
 	return v.Any
 }
 
+// RefreshPawnHandles re-reads the controller's pawn handles cached for PlayerPawnEntity().
+// The parser calls it when the player is bound to a controller and whenever the handles change,
+// there is no need to call it yourself.
+func (p *Player) RefreshPawnHandles() {
+	p.pawnHandles.controller = nil
+
+	if p.Entity == nil {
+		return
+	}
+
+	pawn, exists := p.Entity.PropertyValue("m_hPawn")
+	if !exists {
+		return
+	}
+
+	playerPawn, exists := p.Entity.PropertyValue("m_hPlayerPawn")
+	if !exists {
+		return
+	}
+
+	p.pawnHandles.controller = p.Entity
+	p.pawnHandles.pawn = pawn.Handle()
+	p.pawnHandles.playerPawn = playerPawn.Handle()
+}
+
 func (p *Player) PlayerPawnEntity() st.Entity {
 	if p == nil || p.Entity == nil {
 		return nil
+	}
+
+	if p.pawnHandles.controller == p.Entity {
+		if p.pawnHandles.pawn == constants.InvalidEntityHandleSource2 {
+			return nil
+		}
+
+		return p.demoInfoProvider.FindEntityByHandle(p.pawnHandles.playerPawn)
 	}
 
 	pawn, exists := p.Entity.PropertyValue("m_hPawn")

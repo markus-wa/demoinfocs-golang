@@ -1221,3 +1221,57 @@ func TestPlayer_Velocity_PositionDelta_ReRegistrationWithFlag(t *testing.T) {
 	require.Len(t, *f.provider.tracked, 1, "registered again")
 	assert.False(t, (*f.provider.tracked)[0].lazy)
 }
+
+func TestPlayer_PlayerPawnEntity_CachedHandles(t *testing.T) {
+	pawnEntity := new(stfake.Entity)
+	controllerEntity := entityWithProperties([]fakeProp{
+		{propName: "m_hPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
+		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: uint64(1), S2: true}},
+	})
+
+	pl := &Player{Entity: controllerEntity}
+	pl.demoInfoProvider = demoInfoProviderMock{
+		isSource2:        true,
+		entitiesByHandle: map[uint64]st.Entity{1: pawnEntity},
+	}
+
+	// without a refresh the handles are read from the controller
+	assert.Same(t, pawnEntity, pl.PlayerPawnEntity())
+	controllerEntity.AssertNumberOfCalls(t, "PropertyValue", 2)
+
+	pl.RefreshPawnHandles()
+	controllerEntity.AssertNumberOfCalls(t, "PropertyValue", 4)
+
+	// cached handles are used from now on
+	assert.Same(t, pawnEntity, pl.PlayerPawnEntity())
+	assert.Same(t, pawnEntity, pl.PlayerPawnEntity())
+	controllerEntity.AssertNumberOfCalls(t, "PropertyValue", 4)
+
+	// a re-created controller invalidates the cache
+	otherPawnEntity := new(stfake.Entity)
+	pl.Entity = entityWithProperties([]fakeProp{
+		{propName: "m_hPawn", value: st.PropertyValue{Any: uint64(2), S2: true}},
+		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: uint64(2), S2: true}},
+	})
+	pl.demoInfoProvider = demoInfoProviderMock{
+		isSource2:        true,
+		entitiesByHandle: map[uint64]st.Entity{1: pawnEntity, 2: otherPawnEntity},
+	}
+
+	assert.Same(t, otherPawnEntity, pl.PlayerPawnEntity())
+
+	// no pawn while m_hPawn is invalid, e.g. the player is a spectator
+	pl.Entity = entityWithProperties([]fakeProp{
+		{propName: "m_hPawn", value: st.PropertyValue{Any: uint64(constants.InvalidEntityHandleSource2), S2: true}},
+		{propName: "m_hPlayerPawn", value: st.PropertyValue{Any: uint64(2), S2: true}},
+	})
+	pl.RefreshPawnHandles()
+
+	assert.Nil(t, pl.PlayerPawnEntity())
+
+	// a controller that isn't bound to a player
+	pl.Entity = nil
+	pl.RefreshPawnHandles()
+
+	assert.Nil(t, pl.PlayerPawnEntity())
+}

@@ -665,6 +665,7 @@ func (p *parser) getOrCreatePlayerFromControllerEntity(controllerEntity st.Entit
 	player.Entity = controllerEntity
 	player.EntityID = controllerEntityID
 	player.IsBot = isBot
+	player.RefreshPawnHandles()
 
 	p.gameState.playersByEntityID[controllerEntityID] = player
 
@@ -965,6 +966,14 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 	controllerEntity.Property("m_iTeamNum").OnUpdate(func(st.PropertyValue) {
 		p.markPlayerControllerDirty(controllerEntity).teamChanged = true
 	})
+
+	// Keep the cached pawn handles of whoever currently owns the controller up to date, see Player.PlayerPawnEntity.
+	syncPawnHandles := func(st.PropertyValue) {
+		currentPlayer().RefreshPawnHandles()
+	}
+
+	controllerEntity.Property("m_hPawn").OnUpdate(syncPawnHandles)
+	controllerEntity.Property("m_hPlayerPawn").OnUpdate(syncPawnHandles)
 
 	controllerEntity.OnDestroy(func() {
 		pl := currentPlayer()
