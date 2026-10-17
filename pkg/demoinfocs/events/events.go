@@ -690,6 +690,12 @@ const (
 	WarnTypeUserCommandBaselineMismatch
 
 	WarnTypeUnknownGrenadeModel // a grenade projectile's model hash isn't in the item->model map (e.g. a post-patch model variant)
+
+	// WarnTypeVelocityTrackingStartedLazily occurs (once per parse) when Player.Velocity() starts recording
+	// positions for a player on a CS2 demo that doesn't network the player velocity. Velocity() returns a zero
+	// vector for that player until the next entity snapshot has been applied; set
+	// ParserConfig.EagerVelocityTracking to record from the start.
+	WarnTypeVelocityTrackingStartedLazily
 )
 
 // WarnTypeUnknownDemoCommandMessageType occurs when a demo-command message type is unknown - contact a maintainer.

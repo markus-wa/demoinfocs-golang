@@ -54,3 +54,21 @@ func getBool(entity st.Entity, propName string) bool {
 
 	return entity.PropertyValueMust(propName).BoolVal()
 }
+
+func getFloatIfExists(entity st.Entity, propName string) (float32, bool) {
+	if entity == nil {
+		return 0, false
+	}
+
+	value, ok := entity.PropertyValue(propName)
+	if !ok || value.Any == nil {
+		return 0, false
+	}
+
+	floatVal, ok := value.Any.(float32)
+	if !ok {
+		return 0, false
+	}
+
+	return floatVal, true
+}

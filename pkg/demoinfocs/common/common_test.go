@@ -210,14 +210,51 @@ type fakeProp struct {
 }
 
 type demoInfoProviderMock struct {
-	tickRate             float64
-	ingameTick           int
-	playersByHandle      map[uint64]*Player
-	entitiesByHandle     map[uint64]st.Entity
-	playerResourceEntity st.Entity
-	equipment            *Equipment
-	isSource2            bool
-	networkProtocol      int
+	tickRate              float64
+	ingameTick            int
+	playersByHandle       map[uint64]*Player
+	entitiesByHandle      map[uint64]st.Entity
+	playerResourceEntity  st.Entity
+	equipment             *Equipment
+	isSource2             bool
+	networkProtocol       int
+	eagerVelocityTracking bool
+	snapshotTick          int
+	processingSnapshot    bool
+	tracked               *[]trackedRecorder
+	pov                   bool // recordingSlot is only used if set, so the zero value is a GOTV demo
+	recordingSlot         int
+}
+
+type trackedRecorder struct {
+	record func() bool
+	lazy   bool
+}
+
+func (p demoInfoProviderMock) EagerVelocityTracking() bool {
+	return p.eagerVelocityTracking
+}
+
+func (p demoInfoProviderMock) SnapshotTick() int {
+	return p.snapshotTick
+}
+
+func (p demoInfoProviderMock) ProcessingSnapshot() bool {
+	return p.processingSnapshot
+}
+
+func (p demoInfoProviderMock) RecordingPlayerSlot() int {
+	if !p.pov {
+		return -1
+	}
+
+	return p.recordingSlot
+}
+
+func (p demoInfoProviderMock) TrackFramePosition(record func() bool, lazy bool) {
+	if p.tracked != nil {
+		*p.tracked = append(*p.tracked, trackedRecorder{record: record, lazy: lazy})
+	}
 }
 
 func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
@@ -230,6 +267,11 @@ func (p demoInfoProviderMock) NetworkProtocol() int {
 
 func (p demoInfoProviderMock) IsSource2() bool {
 	return p.isSource2
+}
+
+// FindEntityByID uses entitiesByHandle as well, handles of the fake entities have serial 0.
+func (p demoInfoProviderMock) FindEntityByID(id int) st.Entity {
+	return p.entitiesByHandle[uint64(id)]
 }
 
 func (p demoInfoProviderMock) TickRate() float64 {

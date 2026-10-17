@@ -63,6 +63,10 @@ func (p demoInfoProviderMock) FindEntityByHandle(handle uint64) st.Entity {
 	panic("implement me")
 }
 
+func (p demoInfoProviderMock) FindEntityByID(id int) st.Entity {
+	panic("implement me")
+}
+
 func (p demoInfoProviderMock) IngameTick() int {
 	return 0
 }
@@ -94,3 +98,21 @@ func (p demoInfoProviderMock) PlayerResourceEntity() st.Entity {
 func (p demoInfoProviderMock) FindWeaponByEntityID(int) *common.Equipment {
 	return nil
 }
+
+func (p demoInfoProviderMock) EagerVelocityTracking() bool {
+	return false
+}
+
+func (p demoInfoProviderMock) SnapshotTick() int {
+	return -1
+}
+
+func (p demoInfoProviderMock) ProcessingSnapshot() bool {
+	return false
+}
+
+func (p demoInfoProviderMock) RecordingPlayerSlot() int {
+	return -1
+}
+
+func (p demoInfoProviderMock) TrackFramePosition(func() bool, bool) {}
