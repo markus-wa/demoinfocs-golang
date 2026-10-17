@@ -1467,6 +1467,7 @@ func (p *parser) bindGameRules() {
 			return fmt.Sprintf("%s.%s", gameRulesPrefix, s)
 		}
 
+		p.gameState.rules.isSource2 = p.isSource2()
 		p.gameState.rules.entity = entity
 
 		roundTime := entity.PropertyValueMust(grPrefix("m_iRoundTime")).Int()

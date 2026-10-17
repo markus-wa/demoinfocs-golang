@@ -172,9 +172,18 @@ func TestDemoInfoCs(t *testing.T) {
 	})
 
 	// Regression test for grenade projectiles not being deleted at the end of the round (issue #42)
-	p.RegisterEventHandler(func(events.RoundStart) {
+	p.RegisterEventHandler(func(start events.RoundStart) {
 		assertions.Len(p.GameState().GrenadeProjectiles(), 0, "expected 0 GrenadeProjectiles at the start of the round")
 		assertions.Len(p.GameState().Infernos(), 0, "expected 0 Infernos at the start of the round")
+
+		// m_iRoundTime is still the warmup duration (999s) when the first round starts
+		if p.GameState().IsWarmupPeriod() {
+			return
+		}
+
+		roundTime, err := p.GameState().Rules().RoundTime()
+		assertions.NoError(err, "GameRules.RoundTime() returned an error")
+		assertions.Equal(time.Duration(start.TimeLimit)*time.Second, roundTime, "GameRules.RoundTime() doesn't match RoundStart.TimeLimit")
 	})
 
 	// Net-message stuff
@@ -221,6 +230,12 @@ func TestS2(t *testing.T) {
 	cfg.MsgQueueBufferSize = 0
 
 	p := demoinfocs.NewParserWithConfig(f, cfg)
+
+	p.RegisterEventHandler(func(start events.RoundStart) {
+		roundTime, err := p.GameState().Rules().RoundTime()
+		assertions.NoError(err, "GameRules.RoundTime() returned an error")
+		assertions.Equal(time.Duration(start.TimeLimit)*time.Second, roundTime, "GameRules.RoundTime() doesn't match RoundStart.TimeLimit")
+	})
 
 	if *update {
 		p.RegisterNetMessageHandler(func(gel *msgs2.CMsgSource1LegacyGameEventList) {
