@@ -333,25 +333,31 @@ func newGameState(demoInfo demoInfoProvider) *gameState {
 }
 
 type gameRules struct {
-	conVars map[string]string
-	entity  st.Entity
+	conVars   map[string]string
+	entity    st.Entity
+	isSource2 bool
 }
 
 var ErrFailedToRetrieveGameRule = errors.New("failed to retrieve GameRule value, it's recommended to have a fallback to a default value for this scenario")
 
 // RoundTime returns how long rounds in the current match last for (excluding freeze time).
-// May return error if cs_gamerules_data.m_iRoundTime is not set.
+// May return error if m_pGameRules.m_iRoundTime (CS2) / cs_gamerules_data.m_iRoundTime (CS:GO) is not set.
 func (gr gameRules) RoundTime() (time.Duration, error) {
 	if gr.entity == nil {
 		return 0, ErrFailedToRetrieveGameRule
 	}
 
-	prop := gr.entity.Property(gameRulesPrefix + ".m_iRoundTime")
+	prefix := gameRulesPrefix
+	if gr.isSource2 {
+		prefix = gameRulesPrefixS2
+	}
+
+	prop := gr.entity.Property(prefix + ".m_iRoundTime")
 	if prop == nil {
 		return 0, ErrFailedToRetrieveGameRule
 	}
 
-	return time.Duration(prop.Value().IntVal) * time.Second, nil
+	return time.Duration(prop.Value().Int()) * time.Second, nil
 }
 
 // FreezeTime returns how long freeze time lasts for in the current match (mp_freezetime).
