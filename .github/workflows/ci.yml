@@ -71,9 +71,7 @@ jobs:
       # Note: We run ALL tests again to get full coverage
       #       Race tests are too slow and skip the regression set
       - name: All Tests + Coverage
-        run: |
-          scripts/coverage.sh
-          bash <(curl -s https://codecov.io/bash)
+        run: scripts/coverage.sh
 
   test-csda: # Run tests of CS Demo Analyzer
     runs-on: ubuntu-latest
