@@ -469,3 +469,114 @@ func TestBindPlayerWeapons_ReplacingEntityCreatedBeforeInventoryUpdate(t *testin
 	assert.Same(t, newEntity, newWeapon.Entity)
 	assert.Equal(t, common.EqUSP, newWeapon.Type)
 }
+
+// fakeWeaponEntityS1 creates a CS:GO weapon entity for bindWeapon and returns its OnDestroy delegate (once bound).
+func fakeWeaponEntityS1(serial int) (*stfake.Entity, *func()) {
+	entity := new(stfake.Entity)
+	entity.On("ID").Return(testWeaponEntityID)
+	entity.On("SerialNum").Return(serial)
+
+	prop := new(stfake.Property)
+	prop.On("OnUpdate", mock.Anything)
+	prop.On("Value").Return(st.PropertyValue{})
+	entity.On("Property", mock.Anything).Return(prop)
+
+	onDestroy := new(func())
+	entity.On("OnDestroy", mock.Anything).Run(func(args mock.Arguments) {
+		*onDestroy = args.Get(0).(func())
+	})
+
+	return entity, onDestroy
+}
+
+// bindFakePlayerWeaponsS1 binds a fake CS:GO player's weapon slots to the player and returns a function
+// that updates the first slot to the given handle.
+func bindFakePlayerWeaponsS1(p *parser, pl *common.Player) (setSlot0 func(handle int)) {
+	var updateSlot0 st.PropertyUpdateHandler
+
+	slot0 := new(stfake.Property)
+	slot0.On("OnUpdate", mock.Anything).Run(func(args mock.Arguments) {
+		updateSlot0 = args.Get(0).(st.PropertyUpdateHandler)
+	})
+
+	emptySlot := new(stfake.Property)
+	emptySlot.On("OnUpdate", mock.Anything)
+
+	playerEntity := new(stfake.Entity)
+	playerEntity.On("Property", playerWeaponPrefix+".000").Return(slot0)
+	playerEntity.On("Property", mock.Anything).Return(emptySlot)
+
+	p.bindPlayerWeapons(playerEntity, pl)
+
+	return func(handle int) {
+		updateSlot0(st.PropertyValue{IntVal: handle})
+	}
+}
+
+func weaponHandleS1(serial int) int {
+	return testWeaponEntityID | serial<<constants.MaxEdictBits
+}
+
+// CS:GO equivalent of TestBindPlayerWeapons_WeaponAssignedBeforeReplacingEntityIsCreated.
+// Entities are updated in index order, so this happens whenever the player's index is lower than the weapon's.
+func TestBindPlayerWeaponsS1_WeaponAssignedBeforeReplacingEntityIsCreated(t *testing.T) {
+	p := newParser()
+	p.modelPreCache = []string{""} // bindWeapon looks up m_nModelIndex 0
+
+	oldEntity, destroyOld := fakeWeaponEntityS1(1)
+	p.bindWeapon(oldEntity, common.EqAK47)
+	oldWeapon := p.gameState.weapons[testWeaponEntityID]
+
+	pl := common.NewPlayer(p.demoInfoProvider)
+	setSlot0 := bindFakePlayerWeaponsS1(p, pl)
+
+	// 1. the player gets the new weapon (serial 2) while the old entity is still at the index
+	setSlot0(weaponHandleS1(2))
+
+	// 2. the old entity is destroyed (replaced) and 3. the new one is created
+	(*destroyOld)()
+
+	newEntity, _ := fakeWeaponEntityS1(2)
+	p.bindWeapon(newEntity, common.EqMolotov)
+
+	wep := pl.Inventory[testWeaponEntityID]
+	assert.Same(t, p.gameState.weapons[testWeaponEntityID], wep)
+	assert.Equal(t, common.EqMolotov, wep.Type)
+	assert.Same(t, newEntity, wep.Entity)
+	assert.Same(t, pl, wep.Owner)
+	assert.NotSame(t, oldWeapon, wep)
+	assert.Equal(t, common.EqAK47, oldWeapon.Type, "the replaced weapon must not be modified")
+}
+
+// CS:GO equivalent of TestBindPlayerWeapons_ReplacingEntityCreatedBeforeInventoryUpdate.
+func TestBindPlayerWeaponsS1_ReplacingEntityCreatedBeforeInventoryUpdate(t *testing.T) {
+	p := newParser()
+	p.modelPreCache = []string{""} // bindWeapon looks up m_nModelIndex 0
+
+	oldEntity, destroyOld := fakeWeaponEntityS1(1)
+	p.bindWeapon(oldEntity, common.EqAK47)
+
+	pl := common.NewPlayer(p.demoInfoProvider)
+	setSlot0 := bindFakePlayerWeaponsS1(p, pl)
+	setSlot0(weaponHandleS1(1))
+
+	// 1. the old entity is destroyed (replaced) and the new one is created
+	(*destroyOld)()
+
+	newEntity, _ := fakeWeaponEntityS1(2)
+	p.bindWeapon(newEntity, common.EqMolotov)
+	newWeapon := p.gameState.weapons[testWeaponEntityID]
+
+	// 2. the slot is updated while it still has the previous serial
+	setSlot0(weaponHandleS1(1))
+
+	assert.Same(t, newWeapon, p.gameState.weapons[testWeaponEntityID], "the new weapon must not be replaced by a placeholder")
+	assert.Same(t, newWeapon, pl.Inventory[testWeaponEntityID])
+
+	// 3. the slot is updated to the new serial
+	setSlot0(weaponHandleS1(2))
+
+	assert.Same(t, newWeapon, pl.Inventory[testWeaponEntityID])
+	assert.Same(t, newEntity, newWeapon.Entity)
+	assert.Equal(t, common.EqMolotov, newWeapon.Type)
+}
