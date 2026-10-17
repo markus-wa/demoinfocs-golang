@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"slices"
 	"sync"
 	"time"
 
@@ -123,11 +124,7 @@ func (p *parser) ParseHeader() (common.DemoHeader, error) {
 		p.stParser.OnEntity(p.onEntity)
 
 		p.RegisterNetMessageHandler(p.stParser.OnServerInfo)
-		p.RegisterNetMessageHandler(p.stParser.OnPacketEntities)
-		// backstop for controller identity & connection changes not applied per entity yet
-		p.RegisterNetMessageHandler(func(*msgs2.CSVCMsg_PacketEntities) {
-			p.flushPlayerControllerUpdates()
-		})
+		p.RegisterNetMessageHandler(p.handlePacketEntitiesS2)
 
 	default:
 		return h, ErrInvalidFileType
@@ -643,6 +640,31 @@ func (p *parser) handleFrameParsed(*frameParsedTokenType) {
 	if p.isSource2() && p.header.NetworkProtocol < constants.NetworkProtocolAnimGraph2 {
 		p.updatePlayersPreviousFramePosition()
 	}
+
+	// Record positions after FrameDone so that handlers see the velocity relative to the previous frame.
+	// Used by Player.Velocity() when m_vecVelocity isn't networked (CS2 demos before the AnimGraph 2 update).
+	// Players only get registered once Velocity() is called for them (or with ParserConfig.EagerVelocityTracking).
+	// Recorders of players whose controller is gone return false and are dropped.
+	p.framePositionRecorders = slices.DeleteFunc(p.framePositionRecorders, func(record func() bool) bool {
+		return !record()
+	})
+}
+
+func (p *parser) handlePacketEntitiesS2(m *msgs2.CSVCMsg_PacketEntities) {
+	// Used by Player.Velocity(). Also set for snapshots OnPacketEntities() ignores (e.g. the ones of
+	// DEM_FullPacket, which repeat the last server tick) - position recording skips repeated ticks.
+	if m.ServerTick != nil {
+		p.snapshotTick = int(m.GetServerTick())
+	}
+
+	p.processingSnapshot = true
+
+	_ = p.stParser.OnPacketEntities(m)
+
+	// backstop for controller identity & connection changes not applied per entity yet
+	p.flushPlayerControllerUpdates()
+
+	p.processingSnapshot = false
 }
 
 // CS2 demos playback info are available in the CDemoFileInfo message that should be parsed at the end of the demo.
