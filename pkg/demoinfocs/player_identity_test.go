@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,6 +21,7 @@ type fakeController struct {
 	props     map[string]any
 	handlers  map[string][]st.PropertyUpdateHandler
 	onDestroy []func()
+	onUpdated []func()
 }
 
 func newFakeController(id int, steamID uint64, name string) *fakeController {
@@ -57,18 +59,64 @@ func (c *fakeController) OnDestroy(delegate func()) {
 	c.onDestroy = append(c.onDestroy, delegate)
 }
 
-// set updates the given props and then fires their update handlers (in the given order).
-func (c *fakeController) set(kv ...any) {
+func (c *fakeController) OnUpdateFinished(delegate func()) {
+	c.onUpdated = append(c.onUpdated, delegate)
+}
+
+func (c *fakeController) fireUpdateFinished() {
+	for _, f := range c.onUpdated {
+		f()
+	}
+}
+
+// controllerFieldOrder is the field-path order of the controller props used here - the order in which
+// the real entity applies them & fires their update handlers within one entity packet.
+var controllerFieldOrder = []string{"m_iTeamNum", "m_iConnected", "m_iszPlayerName", "m_steamID"}
+
+// update applies one entity packet's worth of prop changes like the real entity does: each prop is set
+// and its handlers fired before the next prop is read (in field-path order, regardless of the order
+// given), then the entity's update-finished delegates fire. The parser's end-of-packet backstop is
+// deliberately not called, so the tests depend on the per-entity flush.
+func (c *fakeController) update(kv ...any) {
+	changed := make(map[string]any, len(kv)/2)
 	for i := 0; i < len(kv); i += 2 {
-		c.props[kv[i].(string)] = kv[i+1]
+		changed[kv[i].(string)] = kv[i+1]
 	}
 
-	for i := 0; i < len(kv); i += 2 {
-		name := kv[i].(string)
+	for _, name := range controllerFieldOrder {
+		v, ok := changed[name]
+		if !ok {
+			continue
+		}
+
+		c.props[name] = v
+
+		for _, h := range c.handlers[name] {
+			h(st.PropertyValue{Any: v})
+		}
+	}
+
+	c.fireUpdateFinished()
+}
+
+func (c *fakeController) destroy() {
+	for _, f := range c.onDestroy {
+		f()
+	}
+}
+
+// createController binds a new controller like an entity packet creating it does: created-handlers,
+// then the initial firing of all update handlers and the update-finished delegates.
+func createController(p *parser, c *fakeController) {
+	p.bindNewPlayerControllerS2(c)
+
+	for _, name := range controllerFieldOrder {
 		for _, h := range c.handlers[name] {
 			h(st.PropertyValue{Any: c.props[name]})
 		}
 	}
+
+	c.fireUpdateFinished()
 }
 
 type fakeControllerProperty struct {
@@ -88,6 +136,8 @@ func (p fakeControllerProperty) OnUpdate(handler st.PropertyUpdateHandler) {
 
 type identityEvents struct {
 	nameChanges []events.PlayerNameChange
+	connects    []events.PlayerConnect
+	disconnects []events.PlayerDisconnected
 	infos       []events.PlayerInfo
 	stApplied   []events.StringTablePlayerUpdateApplied
 }
@@ -100,6 +150,8 @@ func newIdentityTestParser(t *testing.T) (*parser, *identityEvents) {
 	evs := new(identityEvents)
 
 	p.RegisterEventHandler(func(e events.PlayerNameChange) { evs.nameChanges = append(evs.nameChanges, e) })
+	p.RegisterEventHandler(func(e events.PlayerConnect) { evs.connects = append(evs.connects, e) })
+	p.RegisterEventHandler(func(e events.PlayerDisconnected) { evs.disconnects = append(evs.disconnects, e) })
 	p.RegisterEventHandler(func(e events.PlayerInfo) { evs.infos = append(evs.infos, e) })
 	p.RegisterEventHandler(func(e events.StringTablePlayerUpdateApplied) { evs.stApplied = append(evs.stApplied, e) })
 
@@ -118,7 +170,7 @@ func TestPlayerIdentity_NameAndSteamIDFromControllerOnBind(t *testing.T) {
 	p.setRawPlayer(3, common.PlayerInfo{XUID: testSteamIDA, Name: "steam name", UserID: 3})
 
 	ctrl := newFakeController(4, testSteamIDA, "FACEIT name")
-	p.bindNewPlayerControllerS2(ctrl)
+	createController(p, ctrl)
 
 	pl := p.gameState.playersByEntityID[4]
 	require.NotNil(t, pl)
@@ -137,7 +189,7 @@ func TestPlayerIdentity_NameFromControllerWithoutUserInfo(t *testing.T) {
 
 	// no userinfo yet (e.g. at the start of some GOTV demos)
 	ctrl := newFakeController(1, testSteamIDA, "name")
-	p.bindNewPlayerControllerS2(ctrl)
+	createController(p, ctrl)
 
 	pl := p.gameState.playersByEntityID[1]
 	require.NotNil(t, pl)
@@ -163,10 +215,10 @@ func TestPlayerIdentity_RenameOnControllerNameUpdate(t *testing.T) {
 	p.setRawPlayer(0, common.PlayerInfo{XUID: testSteamIDA, Name: "old", UserID: 0})
 
 	ctrl := newFakeController(1, testSteamIDA, "old")
-	p.bindNewPlayerControllerS2(ctrl)
+	createController(p, ctrl)
 	pl := p.gameState.playersByEntityID[1]
 
-	ctrl.set("m_iszPlayerName", "new")
+	ctrl.update("m_iszPlayerName", "new")
 
 	assert.Same(t, pl, p.gameState.playersByEntityID[1])
 	assert.Equal(t, "new", pl.Name)
@@ -186,11 +238,11 @@ func TestPlayerIdentity_NoNameChangeEventWhenUnchanged(t *testing.T) {
 	p.setRawPlayer(0, common.PlayerInfo{XUID: testSteamIDA, Name: "name", UserID: 0})
 
 	ctrl := newFakeController(1, testSteamIDA, "name")
-	p.bindNewPlayerControllerS2(ctrl)
+	createController(p, ctrl)
 
-	ctrl.set("m_iszPlayerName", "name")
-	ctrl.set("m_steamID", testSteamIDA)
-	ctrl.set("m_iConnected", uint32(0))
+	ctrl.update("m_iszPlayerName", "name")
+	ctrl.update("m_steamID", testSteamIDA)
+	ctrl.update("m_iConnected", uint32(0))
 
 	assert.Equal(t, "name", p.gameState.playersByEntityID[1].Name)
 	assert.Empty(t, evs.nameChanges)
@@ -202,11 +254,11 @@ func TestPlayerIdentity_BotRenameDoesNotDispatchNameChange(t *testing.T) {
 	p.setRawPlayer(0, common.PlayerInfo{Name: "Bot A", UserID: 0, IsFakePlayer: true})
 
 	ctrl := newFakeController(1, 0, "Bot A")
-	p.bindNewPlayerControllerS2(ctrl)
+	createController(p, ctrl)
 	bot := p.gameState.playersByEntityID[1]
 	require.True(t, bot.IsBot)
 
-	ctrl.set("m_iszPlayerName", "Bot B")
+	ctrl.update("m_iszPlayerName", "Bot B")
 
 	assert.Same(t, bot, p.gameState.playersByEntityID[1])
 	assert.Equal(t, "Bot B", bot.Name)
@@ -218,7 +270,7 @@ func TestPlayerIdentity_NewPlayerWhenDifferentPersonTakesOverSlot(t *testing.T) 
 		p, evs := newIdentityTestParser(t)
 
 		p.setRawPlayer(4, common.PlayerInfo{XUID: testSteamIDA, Name: "A", UserID: 4})
-		p.bindNewPlayerControllerS2(newFakeController(5, testSteamIDA, "A"))
+		createController(p, newFakeController(5, testSteamIDA, "A"))
 		a := p.gameState.playersByEntityID[5]
 
 		// the GOTV proxy's state dump may contain the slot's next occupant before they connect
@@ -229,7 +281,7 @@ func TestPlayerIdentity_NewPlayerWhenDifferentPersonTakesOverSlot(t *testing.T) 
 		assert.Equal(t, testSteamIDA, a.SteamID64)
 
 		// B connects - the controller entity is re-created for the slot
-		p.bindNewPlayerControllerS2(newFakeController(5, testSteamIDB, "B"))
+		createController(p, newFakeController(5, testSteamIDB, "B"))
 		b := p.gameState.playersByEntityID[5]
 
 		assert.NotSame(t, a, b)
@@ -248,21 +300,30 @@ func TestPlayerIdentity_NewPlayerWhenDifferentPersonTakesOverSlot(t *testing.T) 
 		p.setRawPlayer(4, common.PlayerInfo{XUID: testSteamIDA, Name: "A", UserID: 4})
 
 		ctrl := newFakeController(5, testSteamIDA, "A")
-		p.bindNewPlayerControllerS2(ctrl)
+		createController(p, ctrl)
 		a := p.gameState.playersByEntityID[5]
 
-		ctrl.set("m_steamID", testSteamIDB, "m_iszPlayerName", "B")
+		ctrl.update("m_steamID", testSteamIDB, "m_iszPlayerName", "B")
 		b := p.gameState.playersByEntityID[5]
 
 		assert.NotSame(t, a, b)
 		assert.Equal(t, "B", b.Name)
 		assert.Equal(t, testSteamIDB, b.SteamID64)
+		assert.True(t, b.IsConnected)
+		assert.Same(t, ctrl, b.Entity)
 		assert.Equal(t, "A", a.Name)
 		assert.Equal(t, testSteamIDA, a.SteamID64)
 		assert.Empty(t, evs.nameChanges)
 
+		// the previous occupant is disconnected & no longer reads the controller's (now B's) data
+		assert.False(t, a.IsConnected)
+		assert.Nil(t, a.Entity)
+		assert.Equal(t, 5, a.EntityID)
+		assert.Equal(t, []events.PlayerDisconnected{{Player: a}}, evs.disconnects)
+		assert.Equal(t, []events.PlayerConnect{{Player: a}, {Player: b}}, evs.connects)
+
 		// controller prop updates now apply to the new player
-		ctrl.set("m_iTeamNum", uint64(common.TeamCounterTerrorists))
+		ctrl.update("m_iTeamNum", uint64(common.TeamCounterTerrorists))
 		assert.Equal(t, common.TeamCounterTerrorists, b.Team)
 		assert.Equal(t, common.TeamTerrorists, a.Team)
 	})
@@ -271,10 +332,10 @@ func TestPlayerIdentity_NewPlayerWhenDifferentPersonTakesOverSlot(t *testing.T) 
 		p, evs := newIdentityTestParser(t)
 
 		p.setRawPlayer(4, common.PlayerInfo{XUID: testSteamIDA, Name: "A", UserID: 4})
-		p.bindNewPlayerControllerS2(newFakeController(5, testSteamIDA, "A"))
+		createController(p, newFakeController(5, testSteamIDA, "A"))
 		a := p.gameState.playersByEntityID[5]
 
-		p.bindNewPlayerControllerS2(newFakeController(5, testSteamIDA, "A2"))
+		createController(p, newFakeController(5, testSteamIDA, "A2"))
 
 		assert.Same(t, a, p.gameState.playersByEntityID[5])
 		assert.Equal(t, "A2", a.Name)
@@ -285,7 +346,7 @@ func TestPlayerIdentity_NewPlayerWhenDifferentPersonTakesOverSlot(t *testing.T) 
 func TestPlayerIdentity_PlayerInfoOnlyOnChange(t *testing.T) {
 	p, evs := newIdentityTestParser(t)
 
-	p.bindNewPlayerControllerS2(newFakeController(1, testSteamIDA, "name"))
+	createController(p, newFakeController(1, testSteamIDA, "name"))
 
 	info := common.PlayerInfo{XUID: testSteamIDA, Name: "name", UserID: 0}
 
@@ -309,4 +370,192 @@ func TestPlayerIdentity_PlayerInfoOnlyOnChange(t *testing.T) {
 	p.setRawPlayer(0, info)
 
 	assert.Len(t, evs.infos, 2)
+}
+
+// The real entity applies a packet's prop changes field by field (m_iConnected before m_iszPlayerName
+// before m_steamID) and fires each prop's handlers right away. A take-over must only be resolved once
+// the whole packet is applied, otherwise the previous occupant gets renamed / re-connected.
+func TestPlayerIdentity_InPlaceTakeoverInFieldOrder(t *testing.T) {
+	p, evs := newIdentityTestParser(t)
+
+	p.setRawPlayer(4, common.PlayerInfo{XUID: testSteamIDA, Name: "A", UserID: 4})
+
+	ctrl := newFakeController(5, testSteamIDA, "A")
+	ctrl.props["m_iConnected"] = uint32(2) // connecting
+	createController(p, ctrl)
+	a := p.gameState.playersByEntityID[5]
+	require.False(t, a.IsConnected)
+
+	ctrl.update("m_iConnected", uint32(0))
+	require.True(t, a.IsConnected)
+	require.Equal(t, []events.PlayerConnect{{Player: a}}, evs.connects)
+
+	// the pawn's weapons, bound to A
+	knife := common.NewEquipment(common.EqKnife, 1)
+	knife.Owner = a
+	a.Inventory[100] = knife
+	flash := common.NewEquipment(common.EqFlash, 2)
+	flash.Owner = a
+	a.Inventory[101] = flash
+
+	// B takes over the slot (on the other team) while A's connection state is re-sent in the same packet
+	p.setRawPlayer(4, common.PlayerInfo{XUID: testSteamIDB, Name: "B", UserID: 4})
+	ctrl.update("m_iTeamNum", uint64(common.TeamCounterTerrorists), "m_iConnected", uint32(0),
+		"m_iszPlayerName", "B", "m_steamID", testSteamIDB)
+
+	b := p.gameState.playersByEntityID[5]
+	require.NotSame(t, a, b)
+	assert.Empty(t, p.dirtyControllers)
+
+	assert.Equal(t, common.TeamTerrorists, a.Team, "the previous occupant's team must not change")
+	assert.Equal(t, common.TeamCounterTerrorists, b.Team)
+
+	assert.Empty(t, a.Inventory)
+	assert.Equal(t, map[int]*common.Equipment{100: knife, 101: flash}, b.Inventory, "the pawn's weapons belong to the new occupant")
+	assert.Same(t, b, knife.Owner)
+	assert.Same(t, flash, p.gameState.lastKnownGrenadeWeapon(b, common.EqFlash), "grenade fallback (#580) for the new occupant")
+
+	assert.Equal(t, "A", a.Name, "the previous occupant must not be renamed")
+	assert.Equal(t, testSteamIDA, a.SteamID64)
+	assert.False(t, a.IsConnected)
+	assert.Nil(t, a.Entity)
+
+	assert.Equal(t, "B", b.Name)
+	assert.Equal(t, testSteamIDB, b.SteamID64)
+	assert.True(t, b.IsConnected)
+	assert.Same(t, b, p.gameState.playersByUserID[4])
+
+	assert.Empty(t, evs.nameChanges)
+	assert.Equal(t, []events.PlayerConnect{{Player: a}, {Player: b}}, evs.connects)
+	assert.Equal(t, []events.PlayerDisconnected{{Player: a}}, evs.disconnects)
+}
+
+func TestPlayerIdentity_UnknownUntilNamed(t *testing.T) {
+	p, evs := newIdentityTestParser(t)
+
+	ctrl := newFakeController(1, testSteamIDA, "")
+	createController(p, ctrl)
+	pl := p.gameState.playersByEntityID[1]
+
+	assert.Equal(t, "unknown", pl.Name)
+	assert.True(t, pl.IsUnknown)
+
+	// the connection state alone doesn't name the player
+	ctrl.update("m_iConnected", uint32(0))
+
+	assert.Equal(t, "unknown", pl.Name)
+	assert.True(t, pl.IsUnknown, "must stay unknown until the player has a name")
+
+	ctrl.update("m_iszPlayerName", "real")
+
+	assert.Same(t, pl, p.gameState.playersByEntityID[1])
+	assert.Equal(t, "real", pl.Name)
+	assert.False(t, pl.IsUnknown)
+	assert.Empty(t, evs.nameChanges, "an unknown player getting its name isn't a name change")
+}
+
+// Some servers create the controller with the SteamID64 as a placeholder name (e.g. arsham_infernocs2_1stSept23.dem).
+func TestPlayerIdentity_SteamIDPlaceholderName(t *testing.T) {
+	placeholder := strconv.FormatUint(testSteamIDA, 10)
+
+	t.Run("userinfo name until the controller is named", func(t *testing.T) {
+		p, evs := newIdentityTestParser(t)
+
+		p.setRawPlayer(0, common.PlayerInfo{XUID: testSteamIDA, Name: "steam name", UserID: 0})
+
+		ctrl := newFakeController(1, testSteamIDA, placeholder)
+		createController(p, ctrl)
+		pl := p.gameState.playersByEntityID[1]
+
+		assert.Equal(t, "steam name", pl.Name)
+		assert.False(t, pl.IsUnknown)
+
+		ctrl.update("m_iszPlayerName", "FACEIT name")
+
+		assert.Same(t, pl, p.gameState.playersByEntityID[1])
+		assert.Equal(t, "FACEIT name", pl.Name)
+		assert.Empty(t, evs.nameChanges, "replacing a provisional name isn't a name change")
+
+		// later renames are
+		ctrl.update("m_iszPlayerName", "renamed")
+
+		assert.Equal(t, []events.PlayerNameChange{{Player: pl, OldName: "FACEIT name", NewName: "renamed"}}, evs.nameChanges)
+	})
+
+	t.Run("placeholder without userinfo", func(t *testing.T) {
+		p, evs := newIdentityTestParser(t)
+
+		ctrl := newFakeController(1, testSteamIDA, placeholder)
+		createController(p, ctrl)
+		pl := p.gameState.playersByEntityID[1]
+
+		assert.Equal(t, placeholder, pl.Name)
+
+		ctrl.update("m_iszPlayerName", "real")
+
+		assert.Equal(t, "real", pl.Name)
+		assert.Empty(t, evs.nameChanges)
+	})
+
+	t.Run("placeholder never replaces a real name", func(t *testing.T) {
+		p, evs := newIdentityTestParser(t)
+
+		ctrl := newFakeController(1, testSteamIDA, "real")
+		createController(p, ctrl)
+		pl := p.gameState.playersByEntityID[1]
+
+		ctrl.update("m_iszPlayerName", placeholder)
+
+		assert.Equal(t, "real", pl.Name)
+		assert.Empty(t, evs.nameChanges)
+
+		ctrl.update("m_iszPlayerName", "real 2")
+
+		assert.Equal(t, []events.PlayerNameChange{{Player: pl, OldName: "real", NewName: "real 2"}}, evs.nameChanges)
+	})
+}
+
+func TestPlayerIdentity_ControllerDestroyedInSamePacket(t *testing.T) {
+	p, _ := newIdentityTestParser(t)
+
+	ctrl := newFakeController(1, testSteamIDA, "A")
+	createController(p, ctrl)
+	pl := p.gameState.playersByEntityID[1]
+
+	// a prop update and the deletion in the same packet
+	ctrl.props["m_iszPlayerName"] = "A2"
+	for _, h := range ctrl.handlers["m_iszPlayerName"] {
+		h(st.PropertyValue{Any: "A2"})
+	}
+
+	ctrl.destroy()
+	p.flushPlayerControllerUpdates()
+
+	assert.Nil(t, p.gameState.playersByEntityID[1], "a destroyed controller must not be re-bound")
+	assert.False(t, pl.IsConnected)
+	assert.Equal(t, "A", pl.Name)
+}
+
+// The per-entity flush is the norm; the end-of-packet flush is a backstop for controllers whose
+// update-finished delegates didn't run.
+func TestPlayerIdentity_EndOfPacketBackstop(t *testing.T) {
+	p, evs := newIdentityTestParser(t)
+
+	ctrl := newFakeController(1, testSteamIDA, "A")
+	createController(p, ctrl)
+	pl := p.gameState.playersByEntityID[1]
+
+	// prop handlers fire, but the update-finished delegates don't
+	ctrl.props["m_iszPlayerName"] = "A2"
+	for _, h := range ctrl.handlers["m_iszPlayerName"] {
+		h(st.PropertyValue{Any: "A2"})
+	}
+
+	assert.Equal(t, "A", pl.Name, "applied only once the controller's updates are finished")
+
+	p.flushPlayerControllerUpdates()
+
+	assert.Equal(t, "A2", pl.Name)
+	assert.Empty(t, p.dirtyControllers)
+	assert.Len(t, evs.nameChanges, 1)
 }

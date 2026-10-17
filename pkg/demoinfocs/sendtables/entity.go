@@ -19,6 +19,7 @@ type entity struct {
 	props       []property
 
 	onCreateFinished   []func()
+	onUpdateFinished   []func()
 	onDestroy          []func()
 	position           func() r3.Vector
 	positionPropNameXY string
@@ -127,6 +128,10 @@ func (e *entity) ApplyUpdate(reader *bit.BitReader) {
 	// For instance the entity's position
 	for _, idx := range *updatedPropIndices {
 		e.props[idx].firePropertyUpdate()
+	}
+
+	for _, f := range e.onUpdateFinished {
+		f()
 	}
 
 	// Reset length to 0 before pooling
@@ -320,6 +325,12 @@ func (e *entity) Destroy() {
 // i.e. once all property updates have been sent out.
 func (e *entity) OnCreateFinished(delegate func()) {
 	e.onCreateFinished = append(e.onCreateFinished, delegate)
+}
+
+// OnUpdateFinished registers a function to be called once all property updates of an entity update
+// have been applied and their update handlers fired.
+func (e *entity) OnUpdateFinished(delegate func()) {
+	e.onUpdateFinished = append(e.onUpdateFinished, delegate)
 }
 
 // property wraps a flattenedPropEntry and allows registering handlers

@@ -55,4 +55,23 @@ type Entity interface {
 	// OnCreateFinished registers a function to be called once the entity is fully created -
 	// i.e. once all property updates have been sent out.
 	OnCreateFinished(delegate func())
+	// OnUpdateFinished registers a function to be called once all property updates of the entity
+	// in an entity packet have been applied and their update handlers fired.
+	//
+	// Update handlers fire per property in field-path order while the entity's data is read, so a
+	// handler can see some of the packet's updates of the entity but not others yet.
+	// Use this to act on the entity's consistent state.
+	//
+	// For updated entities it is called right after the entity's data is read - before entities
+	// later in the packet are read and before the parser's entity handlers run for this entity.
+	// For created entities it is called after the initial firing of all update handlers, which
+	// happens after the parser's entity handlers. It isn't called when an entity leaves the PVS
+	// or is deleted, for skipped updates, or if the packet fails to parse.
+	//
+	// The parser applies player controllers' changes (e.g. Player.Name, SteamID64, Team, IsConnected)
+	// here too, so inside a controller's own update handlers the bound Player isn't updated yet.
+	//
+	// CS:GO: called after each update of the entity, update handlers already fire once all
+	// of an update's properties are decoded there.
+	OnUpdateFinished(delegate func())
 }
