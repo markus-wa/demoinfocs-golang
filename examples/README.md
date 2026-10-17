@@ -2,6 +2,8 @@
 
 Here you can find a overview of examples on how to use demoinfocs-golang.
 
+:information_source: The examples are a separate Go module (`examples/go.mod`) so that their dependencies (image rendering, heatmaps etc.) aren't pulled in by users of the library. Run them from within the `examples` directory, e.g. `go run ./print-events -demo /path/to/demo.dem`.
+
 :information_source: Example code may not be production ready - specifically error handling and such is done in a simplified way and should not be used in critical systems as-is.
 
 |Example|Description
