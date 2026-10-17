@@ -43,7 +43,12 @@ type Entity struct {
 	handlerLog   []handlerRegistration
 	handlersByFP map[uint64][]st.PropertyUpdateHandler
 	hasHandlers  bool // cached: len(updateHandlers) > 0
-	propCache    map[string]st.Property
+	propCache    map[string]*property
+	// cacheGen is bumped whenever the per-entity caches are invalidated (see applyPolyUpdate), so that
+	// properties handed out before can tell their cached field path is stale.
+	cacheGen uint32
+	// positionProps caches the six properties Position() reads, nil until resolved.
+	positionProps *[6]*property
 }
 
 // handlerRegistration records a single update-handler registration so that
@@ -81,14 +86,31 @@ func (e *Entity) Properties() (out []st.Property) {
 type property struct {
 	entity *Entity
 	name   string
+	// fp is the field path resolved for name as of gen, see fieldPath().
+	fp  *fieldPath
+	gen uint32
 }
 
-func (p property) Name() string {
+func (p *property) Name() string {
 	return p.name
 }
 
-func (p property) Value() st.PropertyValue {
-	v := p.entity.Get(p.name)
+// fieldPath returns the property's field path (nil if the property doesn't exist for the entity's active
+// type), cached on the property so Value() doesn't look it up by name on every call.
+func (p *property) fieldPath() *fieldPath {
+	if p.fp == nil || p.gen != p.entity.cacheGen {
+		p.fp = p.entity.fieldPathForName(p.name)
+		p.gen = p.entity.cacheGen
+	}
+
+	return p.fp
+}
+
+func (p *property) Value() st.PropertyValue {
+	var v any
+	if fp := p.fieldPath(); fp != nil {
+		v = p.entity.state.get(fp)
+	}
 
 	fs, ok := v.(*fieldState)
 	if ok {
@@ -107,15 +129,15 @@ func (p property) Value() st.PropertyValue {
 	}
 }
 
-func (p property) Type() st.PropertyType {
+func (p *property) Type() st.PropertyType {
 	panic("not implemented")
 }
 
-func (p property) ArrayElementType() st.PropertyType {
+func (p *property) ArrayElementType() st.PropertyType {
 	panic("not implemented")
 }
 
-func (p property) OnUpdate(handler st.PropertyUpdateHandler) {
+func (p *property) OnUpdate(handler st.PropertyUpdateHandler) {
 	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], handler)
 	p.entity.handlerLog = append(p.entity.handlerLog, handlerRegistration{name: p.name, handler: handler})
 	p.entity.addHandlerByFP(p.name, handler)
@@ -165,6 +187,8 @@ func (e *Entity) applyPolyUpdate(pu *polyUpdate) {
 	clear(e.fpCache)
 	clear(e.fpNoop)
 	clear(e.propCache)
+	e.cacheGen++
+	e.positionProps = nil
 
 	e.rebuildHandlersByFP()
 }
@@ -246,7 +270,7 @@ var bindFactoryByType = map[st.PropertyValueType]bindFactory{
 	},
 }
 
-func (p property) Bind(variable any, t st.PropertyValueType) {
+func (p *property) Bind(variable any, t st.PropertyValueType) {
 	h := bindFactoryByType[t](variable)
 	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], h)
 	p.entity.handlerLog = append(p.entity.handlerLog, handlerRegistration{name: p.name, handler: h})
@@ -255,6 +279,15 @@ func (p property) Bind(variable any, t st.PropertyValueType) {
 }
 
 func (e *Entity) Property(name string) st.Property {
+	if prop := e.property(name); prop != nil {
+		return prop
+	}
+
+	return nil
+}
+
+// property is Property() returning the concrete type, nil if the entity has no property of that name.
+func (e *Entity) property(name string) *property {
 	if prop := e.propCache[name]; prop != nil {
 		return prop
 	}
@@ -288,12 +321,13 @@ func (e *Entity) Property(name string) st.Property {
 		return nil
 	}
 
-	e.propCache[name] = property{
+	prop := &property{
 		entity: e,
 		name:   name,
 	}
+	e.propCache[name] = prop
 
-	return e.propCache[name]
+	return prop
 }
 
 func (e *Entity) BindProperty(prop string, variable any, t st.PropertyValueType) {
@@ -356,12 +390,35 @@ var positionPropPairs = [...][2]string{
 
 // positionProp returns the position-related property for this entity's
 // body-component type, or nil if the entity has neither variant.
-func (e *Entity) positionProp(skeleton string, point string) st.Property {
-	if prop := e.Property(skeleton); prop != nil {
+func (e *Entity) positionProp(skeleton string, point string) *property {
+	if prop := e.property(skeleton); prop != nil {
 		return prop
 	}
 
-	return e.Property(point)
+	return e.property(point)
+}
+
+// resolvePositionProps returns the six properties Position() reads, nil if the entity has no body component.
+// They are resolved once per entity, Position() is called a lot (e.g. for every player on every frame).
+func (e *Entity) resolvePositionProps() *[6]*property {
+	if e.positionProps != nil {
+		return e.positionProps
+	}
+
+	var props [6]*property
+
+	for i, names := range positionPropPairs {
+		prop := e.positionProp(names[0], names[1])
+		if prop == nil {
+			return nil
+		}
+
+		props[i] = prop
+	}
+
+	e.positionProps = &props
+
+	return e.positionProps
 }
 
 // Returns a coordinate from a cell + offset
@@ -377,23 +434,17 @@ func coordFromCell(cell uint64, offset float32) float64 {
 }
 
 func (e *Entity) Position() r3.Vector {
-	cellXProp := e.positionProp(propCellX, propCellXPoint)
-	cellYProp := e.positionProp(propCellY, propCellYPoint)
-	cellZProp := e.positionProp(propCellZ, propCellZPoint)
-	offsetXProp := e.positionProp(propVecX, propVecXPoint)
-	offsetYProp := e.positionProp(propVecY, propVecYPoint)
-	offsetZProp := e.positionProp(propVecZ, propVecZPoint)
-
-	if cellXProp == nil || cellYProp == nil || cellZProp == nil || offsetXProp == nil || offsetYProp == nil || offsetZProp == nil {
+	props := e.resolvePositionProps()
+	if props == nil {
 		return r3.Vector{} // entity without a body component
 	}
 
-	cellXVal := cellXProp.Value()
-	cellYVal := cellYProp.Value()
-	cellZVal := cellZProp.Value()
-	offsetXVal := offsetXProp.Value()
-	offsetYVal := offsetYProp.Value()
-	offsetZVal := offsetZProp.Value()
+	cellXVal := props[0].Value()
+	cellYVal := props[1].Value()
+	cellZVal := props[2].Value()
+	offsetXVal := props[3].Value()
+	offsetYVal := props[4].Value()
+	offsetZVal := props[5].Value()
 
 	if cellXVal.Any == nil || cellYVal.Any == nil || cellZVal.Any == nil || offsetXVal.Any == nil || offsetYVal.Any == nil || offsetZVal.Any == nil {
 		return r3.Vector{} // CS2 POV demos
@@ -495,7 +546,7 @@ func newEntity(index, serial int32, class *class) *Entity {
 		onCreateFinished: nil,
 		onDestroy:        nil,
 		updateHandlers:   make(map[string][]st.PropertyUpdateHandler),
-		propCache:        map[string]st.Property{},
+		propCache:        map[string]*property{},
 	}
 }
 
@@ -523,8 +574,19 @@ func (e *Entity) Map() map[string]any {
 
 // Get returns the current value of the Entity state for the given key
 func (e *Entity) Get(name string) any {
+	fp := e.fieldPathForName(name)
+	if fp == nil {
+		return nil
+	}
+
+	return e.state.get(fp)
+}
+
+// fieldPathForName returns the field path of the named property for the entity's active type,
+// nil if there is none. Resolutions are cached per entity until the active type changes.
+func (e *Entity) fieldPathForName(name string) *fieldPath {
 	if fp, ok := e.fpCache[name]; ok {
-		return e.state.get(fp)
+		return fp
 	}
 
 	if e.fpNoop[name] {
@@ -542,7 +604,7 @@ func (e *Entity) Get(name string) any {
 
 	e.fpCache[name] = fp
 
-	return e.state.get(fp)
+	return fp
 }
 
 // Exists returns true if the given key exists in the Entity state

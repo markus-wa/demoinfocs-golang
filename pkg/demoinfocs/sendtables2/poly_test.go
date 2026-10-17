@@ -598,3 +598,29 @@ func TestPolyPropertyEntries(t *testing.T) {
 
 	assert.Equal(t, []string{"m_iHealth", "CModeA.m_aField", "CModeB.m_bField"}, cls.PropertyEntries())
 }
+
+// TestPolyTypeSwitchStaleProperty asserts that a property handed out before a
+// type switch doesn't keep reading its old field path: m_aField and m_bField
+// share the numeric path, so a stale path would return the other type's value.
+func TestPolyTypeSwitchStaleProperty(t *testing.T) {
+	t.Parallel()
+
+	cls, modeA, modeB := polyTestClass(t)
+
+	e := newEntity(1, 1, cls)
+	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeA})
+	e.state.set(polySubPath(), int32(5))
+
+	aField := e.Property("m_pMode.m_aField")
+	require.NotNil(t, aField)
+	assert.Equal(t, int32(5), aField.Value().Any)
+
+	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeB})
+
+	assert.Nil(t, aField.Value().Any, "old-type property must not read the new type's field")
+	assert.Equal(t, int32(5), e.Property("m_pMode.m_bField").Value().Any)
+
+	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeA})
+
+	assert.Equal(t, int32(5), aField.Value().Any)
+}
