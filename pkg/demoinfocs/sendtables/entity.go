@@ -570,7 +570,7 @@ func newEntity(index, serial int32, class *ServerClass) *Entity {
 		serial:           serial,
 		class:            class,
 		active:           true,
-		state:            &fieldState{state: make([]any, 0, 16)},
+		state:            &fieldState{state: make([]any, 0, entityInitialStateSlots)},
 		fpCache:          make(map[string]*fieldPath),
 		fpNoop:           make(map[string]bool),
 		polySerializers:  polySerializers,
@@ -662,22 +662,24 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath, budget *entityBudget
 
 			if fs == nil {
 				// First update: allocate once and store the pointer.
-				initCap := newLen
-				if initCap < 8 {
-					initCap = 8
-				}
+				// Without headroom, growing reallocates with doubling capacity (see below).
+				initCap := max(int(newLen), 8)
 
-				budget.spendState(e, int(initCap), fp)
+				budget.spendState(e, initCap, 0, fp)
 
 				fs = &fieldState{state: make([]any, newLen, initCap)}
 
-				if n := e.state.set(fp, fs); n > 0 {
-					budget.spendState(e, n, fp)
+				// fs is stored: there's no *fieldState at fp yet
+				if allocated, freed := e.state.set(fp, fs); allocated > 0 {
+					budget.spendState(e, allocated, freed, fp)
 				}
 			} else {
 				// Subsequent updates: resize the existing slice in place.
 				curLen := uint64(len(fs.state))
 				if newLen < curLen {
+					// the nested field states of the removed elements are dropped
+					budget.release(e, slotsOf(fs.state[newLen:curLen]))
+
 					clear(fs.state[newLen:curLen])
 					fs.state = fs.state[:newLen]
 				} else if newLen > curLen {
@@ -685,12 +687,9 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath, budget *entityBudget
 						fs.state = fs.state[:newLen]
 					} else {
 						// Exponential growth to avoid repeated reallocations.
-						newCap := uint64(cap(fs.state)) * 2
-						if newCap < newLen {
-							newCap = newLen
-						}
+						newCap := grownCap(cap(fs.state), int(newLen))
 
-						budget.spendState(e, int(newCap), fp)
+						budget.spendState(e, newCap, cap(fs.state), fp)
 
 						newState := make([]any, newLen, newCap)
 						copy(newState, fs.state)
@@ -700,8 +699,8 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath, budget *entityBudget
 			}
 
 			val = fs.state
-		} else if n := e.state.set(fp, val); n > 0 {
-			budget.spendState(e, n, fp)
+		} else if allocated, freed := e.state.set(fp, val); allocated > 0 {
+			budget.spendState(e, allocated, freed, fp)
 		}
 
 		if e.hasHandlers {
@@ -712,12 +711,17 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath, budget *entityBudget
 
 // growPolySerializers grows e.polySerializers to the polyCount of its class,
 // which grows if the class's serializer is replaced by one with more polymorphic fields (see Parser.ParsePacket()).
+// The live budget is charged for the added slots, the allocated budget for the new slice.
 func (e *Entity) growPolySerializers(budget *entityBudget) {
-	if exceeded := budget.spendSlots(e, polySerializersSlots(e.class.polyCount)); exceeded != "" {
+	allocated, freed := polySerializersSlots(e.class.polyCount), polySerializersSlots(len(e.polySerializers))
+
+	if exceeded := budget.spendSlots(e, allocated, freed); exceeded != "" {
 		_panicf("entities exceed the budget of %s per byte of entity data (class %d): corrupt demo", exceeded, e.class.classId)
 	}
 
-	e.polySerializers = append(e.polySerializers, make([]*serializer, e.class.polyCount-len(e.polySerializers))...)
+	ps := make([]*serializer, e.class.polyCount)
+	copy(ps, e.polySerializers)
+	e.polySerializers = ps
 }
 
 // dispatchUpdate fires any registered update handlers for the given field path.
@@ -745,13 +749,16 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 // It has two parts, each bounded by base + perByte * (entity data bytes):
 //
 //   - live: the memory of the entities in Parser.entities, in state slots (16 bytes):
-//     their state (see fieldState.set()), plus entityFixedSlots and the polySerializers of each entity.
+//     the capacity of their state (see fieldState.slots()), plus entityFixedSlots and the polySerializers of each entity.
+//     Slices that are replaced by larger ones and nested states that are dropped (shrinking collections) are credited back,
+//     so an entity's charge (Entity.budgetSlots) is what it holds.
 //     It's refunded when an entity is dropped from Parser.entities (a new entity is created at its index),
 //     so entity churn doesn't add up over long demos. Destroyed entities keep their state and stay in
 //     Parser.entities until their index is reused, so they're still charged.
 //   - work: what was decoded and allocated in total, never refunded - the instance baselines (in bytes)
-//     and the allocated slots (same as live). It bounds the CPU time: re-creating an entity at the same index
-//     costs a few bytes of entity data, but can decode a large baseline and allocate a lot of state each time.
+//     and the allocated slots (the capacity of every allocation charged to live). It bounds the CPU time:
+//     re-creating an entity at the same index costs a few bytes of entity data,
+//     but can decode a large baseline and allocate a lot of state each time.
 //
 // The limits are far above what real demos need, see the constants.
 type entityBudget struct {
@@ -766,11 +773,11 @@ type entityBudget struct {
 
 // The limits, measured across 50 real demos (2023-2026, incl. POV, deathmatch and long matches) at every point of the parse.
 // The ratios peak at the first entity message (the full snapshot of ~6 KB of entity data), the base covers that:
-//   - live: at most 714,702 slots (~11 MiB, 6381816.dem), at most 11.0 slots per byte (2.1 after 256 KB of entity data).
-//   - allocated: at most 11.0 slots per byte (2.8 after 256 KB), 16.6M slots in total (6381816.dem).
+//   - live: at most 465,768 slots (~7 MiB), at most 7.6 slots per byte (1.3 after 256 KB of entity data).
+//   - allocated: at most 10.1 slots per byte (2.4 after 256 KB), 15.2M slots in total (6381816.dem).
 //   - baselines: at most 6.3 bytes per byte (1.4 after 256 KB), 8.7 MB in total.
 //
-// With these constants, every demo stays at least 10.9x (live), 18.9x (allocated) and 33.5x (baselines)
+// With these constants, every demo stays at least 16.1x (live), 21.1x (allocated) and 33.5x (baselines)
 // below the limit at every point of the parse.
 const (
 	entityBudgetBaseLiveSlots         = 1 << 20 // 16 MiB
@@ -782,6 +789,10 @@ const (
 
 	// entityFixedSlots is charged for each entity (the Entity, its initial state and maps), in state slots.
 	entityFixedSlots = 64
+
+	// entityInitialStateSlots is the capacity of a new entity's state, part of entityFixedSlots.
+	// It's credited back when the state grows (see fieldState.set()).
+	entityInitialStateSlots = 16
 )
 
 func newEntityBudget() entityBudget {
@@ -799,9 +810,10 @@ func (b *entityBudget) credit(n int) {
 	b.maxBaselineBytes += int64(n) * entityBudgetBaselineBytesPerByte
 }
 
-// spendState records that n state slots were allocated (or are about to be) for e's update at fp.
-func (b *entityBudget) spendState(e *Entity, n int, fp *fieldPath) {
-	if exceeded := b.spendSlots(e, n); exceeded != "" {
+// spendState records that allocated state slots were allocated (or are about to be) for e's update at fp,
+// replacing slices with freed slots.
+func (b *entityBudget) spendState(e *Entity, allocated, freed int, fp *fieldPath) {
+	if exceeded := b.spendSlots(e, allocated, freed); exceeded != "" {
 		_panicf("entity state exceeds the budget of %s per byte of entity data (path %v): corrupt or desynced demo bitstream",
 			exceeded, fp.path[:fp.last+1])
 	}
@@ -809,7 +821,7 @@ func (b *entityBudget) spendState(e *Entity, n int, fp *fieldPath) {
 
 // spendEntity records the allocation of the entity e (see entityFixedSlots), incl. its polySerializers of the given length.
 func (b *entityBudget) spendEntity(e *Entity, polySerializers int) {
-	if exceeded := b.spendSlots(e, entityFixedSlots+polySerializersSlots(polySerializers)); exceeded != "" {
+	if exceeded := b.spendSlots(e, entityFixedSlots+polySerializersSlots(polySerializers), 0); exceeded != "" {
 		_panicf("entities exceed the budget of %s per byte of entity data (class %d): corrupt demo", exceeded, e.class.classId)
 	}
 }
@@ -819,12 +831,13 @@ func polySerializersSlots(n int) int {
 	return (n + 1) / 2
 }
 
-// spendSlots charges n slots to e (live) and to the allocated slots.
+// spendSlots charges the allocated slots to the allocated slots,
+// and to e (live) without the freed slots of the slices they replace.
 // It returns which of them exceeds the budget, or "".
-func (b *entityBudget) spendSlots(e *Entity, n int) (exceeded string) {
-	e.budgetSlots += int64(n)
-	b.liveSlots += int64(n)
-	b.allocatedSlots += int64(n)
+func (b *entityBudget) spendSlots(e *Entity, allocated, freed int) (exceeded string) {
+	e.budgetSlots += int64(allocated - freed)
+	b.liveSlots += int64(allocated - freed)
+	b.allocatedSlots += int64(allocated)
 
 	switch {
 	case b.liveSlots > b.maxLiveSlots:
@@ -834,6 +847,12 @@ func (b *entityBudget) spendSlots(e *Entity, n int) (exceeded string) {
 	}
 
 	return ""
+}
+
+// release credits n live slots of e that were freed.
+func (b *entityBudget) release(e *Entity, n int) {
+	e.budgetSlots -= int64(n)
+	b.liveSlots -= int64(n)
 }
 
 // refund releases the live slots of e, which was dropped from Parser.entities.

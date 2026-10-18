@@ -11,7 +11,6 @@ import (
 
 	"github.com/golang/geo/r3"
 	dp "github.com/markus-wa/godispatch"
-	"google.golang.org/protobuf/proto"
 
 	bit "github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
@@ -139,7 +138,7 @@ type Parser struct {
 	delayedEventHandlers  []func()                                                 // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 	pendingMessagesCache  []pendingMessage                                         // Cache for pending messages that need to be dispatched after the current tick
 	pendingMsgBufs        []*[]byte                                                // Pool entries backing pendingMessagesCache's buffers, returned to msgBufPool when the packet is done
-	pendingMsgs           []proto.Message                                          // The decoded net-messages of the current packet, see decodeDemoPacket()
+	pendingMsgs           []any                                                    // The decoded net-messages (and warnings) of the current packet, see decodeDemoPacket()
 	snappyScratch         []byte                                                   // Reusable snappy decode destination for compressed frames (single-threaded frame parsing)
 	userCmdStates         map[int32]*userCmdPlayerState                            // Per-player command-number ring reconstructed from full + delta updates
 	userCmdButtonStates   map[int32]*userCmdButtonPlayerState                      // Per-player command-number ring containing buttonstate1 only

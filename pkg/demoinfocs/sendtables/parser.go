@@ -72,23 +72,31 @@ type Parser struct {
 	entityHandlers    []EntityHandler
 	pathCache         []*fieldPath
 	tuplesCache       []tuple
-	// nextPolyID assigns unique polySerializerIDs to the polymorphic fixed-table fields
-	// of a schema as they are encountered during ParsePacket.
-	// It restarts at 0 for each schema (DEM_SendTables carries the complete schema), so a schema that's
-	// sent again gets the same IDs and neither the IDs nor the per-entity polySerializers slices grow.
+	// nextPolyID is a global counter for assigning unique polySerializerIDs to
+	// polymorphic fixed-table fields as they are encountered during ParsePacket.
+	// It isn't reset for later schemas: their fields can reference serializers of earlier ones
+	// (which keep their IDs), and existing entities keep the slots of earlier IDs,
+	// so only globally unique IDs can't collide. See maxPolymorphicFields and maxPolySerializerIDs for the bounds.
 	nextPolyID int
 	// polyMaxCache memoizes, per serializer, the highest polySerializerID
 	// reachable from it. Used to size per-class polySerializers slices.
-	// It's cleared for each schema, so it doesn't keep the serializers of previous ones.
+	// A serializer's fields (and their IDs) don't change after ParsePacket created them, so the cached values stay valid;
+	// it's still cleared for each schema, so it doesn't keep the serializers of previous ones alive.
 	polyMaxCache map[*serializer]int
 	// entityBudget bounds the work of decoding entities, see entityBudget.
 	entityBudget entityBudget
 }
 
-// maxPolymorphicFields bounds the number of polymorphic pointer fields of a schema (see Parser.nextPolyID),
-// and thereby the size of an entity's polySerializers slice.
-// Real demos have one (m_pGameRules.m_pGameModeRules).
-const maxPolymorphicFields = 64
+// Bounds for the polymorphic pointer fields (see Parser.nextPolyID), and thereby the size of an entity's polySerializers slice
+// (which is also charged to the entity budget). Real demos have one per schema (m_pGameRules.m_pGameModeRules).
+const (
+	// maxPolymorphicFields bounds the number of polymorphic fields a schema (ParsePacket()) adds.
+	maxPolymorphicFields = 64
+
+	// maxPolySerializerIDs bounds the number of polymorphic fields of all schemas of a demo,
+	// so a stream that sends lots of schemas can't grow the polySerializers slices without bound.
+	maxPolySerializerIDs = 4096
+)
 
 // ServerClasses is a searchable list of ServerClasses.
 //
@@ -228,9 +236,10 @@ func (p *Parser) ParsePacket(b []byte) error {
 		return err
 	}
 
-	// The IDs are per schema, see Parser.nextPolyID.
-	p.nextPolyID = 0
+	// So the cache doesn't keep the serializers of previous schemas alive, see Parser.polyMaxCache.
 	clear(p.polyMaxCache)
+
+	firstPolyID := p.nextPolyID
 
 	fields := map[int32]*field{}
 	fieldTypes := map[string]*fieldType{}
@@ -280,8 +289,12 @@ func (p *Parser) ParsePacket(b []byte) error {
 						if len(field.polyTypes) > 0 {
 							// Every entity of a class with polymorphic fields allocates a slot for each ID,
 							// so a corrupt schema with lots of them would allocate a lot per entity.
-							if p.nextPolyID >= maxPolymorphicFields {
+							if p.nextPolyID-firstPolyID >= maxPolymorphicFields {
 								_panicf("more than %d polymorphic fields: corrupt schema", maxPolymorphicFields)
+							}
+
+							if p.nextPolyID >= maxPolySerializerIDs {
+								_panicf("more than %d polymorphic fields in all schemas: corrupt demo", maxPolySerializerIDs)
 							}
 
 							// Assign a unique per-entity slot BEFORE calling setModel,

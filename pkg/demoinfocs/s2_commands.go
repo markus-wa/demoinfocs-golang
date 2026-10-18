@@ -357,38 +357,42 @@ func remainingBits(r *bitread.BitReader, totalBits uint64) uint64 {
 	return totalBits - pos
 }
 
-// decodeDemoPacket decodes the net-messages of a demo packet, it's called on the parsing goroutine.
-// They're returned in the order they must be queued in. The slice is reused, it's only valid until the next call.
-// Nothing is returned if the packet can't be decoded completely, so the caller can skip it as a whole.
+// decodeDemoPacket decodes the net-messages of pack, the packet of frame (a DEM_Packet or DEM_FullPacket),
+// it's called on the parsing goroutine.
+// If the packet can be decoded completely, frame and the net-messages are queued (see queueFrame()).
+// Otherwise nothing is queued (and no warning is dispatched), so the caller can skip the frame as a whole.
 //
 // It has its own recover boundary because it reads pack.Data with a nested bit reader:
 // if that runs out of data (corrupt sizes), it panics with io.EOF / io.ErrUnexpectedEOF, which must not be
-// mistaken for the end of the demo stream. Such failures are returned as error, handler panics
-// (e.g. of a ParserWarn handler) propagate.
+// mistaken for the end of the demo stream. Such failures are returned as error.
 //
 //nolint:funlen
-func (p *Parser) decodeDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) (msgs []proto.Message, err error) {
+func (p *Parser) decodeDemoPacket(frame proto.Message, pack *msg.CDemoPacket, isFullPacket bool) (err error) {
 	defer panics.RecoverDecode(&err)
-
-	b := pack.GetData()
-
-	if len(b) == 0 {
-		return nil, nil
-	}
 
 	p.pendingMessagesCache = p.pendingMessagesCache[:0]
 	p.pendingMsgBufs = p.pendingMsgBufs[:0]
 	p.pendingMsgs = p.pendingMsgs[:0]
 
-	// All buffers are consumed by the unmarshal loop below; make sure they go
-	// back to the pool no matter how the function ends.
+	// All buffers are consumed by the unmarshal loop below, and the decoded messages are queued (or dropped)
+	// by the time it returns: make sure the buffers go back to the pool and nothing keeps the messages
+	// no matter how the function ends (incl. recovered panics).
 	defer func() {
 		for _, bp := range p.pendingMsgBufs {
 			putMsgBuf(bp)
 		}
 
 		clear(p.pendingMessagesCache)
+		clear(p.pendingMsgs)
 	}()
+
+	b := pack.GetData()
+
+	if len(b) == 0 {
+		p.queueFrame(frame)
+
+		return nil
+	}
 
 	r := bitread.NewSmallBitReader(bytes.NewReader(b))
 	defer p.poolBitReader(r)
@@ -402,7 +406,7 @@ func (p *Parser) decodeDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) (msg
 		// Checked before allocating, so a corrupt size can't make it allocate more than the packet's size.
 		// The bit reader doesn't always panic right away when it reads past the end of b, the position can exceed totalBits.
 		if remainingBits := remainingBits(r, totalBits); uint64(size)<<3 > remainingBits {
-			return nil, fmt.Errorf("size %d of net-message of type %d exceeds the remaining %d bytes of the packet", size, t, remainingBits>>3) //nolint:err113 // only used as cause of a DecodeError
+			return fmt.Errorf("size %d of net-message of type %d exceeds the remaining %d bytes of the packet", size, t, remainingBits>>3) //nolint:err113 // only used as cause of a DecodeError
 		}
 
 		bp := getMsgBuf(int(size))
@@ -411,7 +415,7 @@ func (p *Parser) decodeDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) (msg
 		r.ReadBytesInto(bp, int(size))
 
 		if len(*bp) != int(size) {
-			return nil, fmt.Errorf("net-message of type %d is truncated", t) //nolint:err113 // only used as cause of a DecodeError
+			return fmt.Errorf("net-message of type %d is truncated", t) //nolint:err113 // only used as cause of a DecodeError
 		}
 
 		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, *bp})
@@ -432,7 +436,9 @@ func (p *Parser) decodeDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) (msg
 		msgCreator := msgCreatorForType(m.t)
 
 		if msgCreator == nil {
-			p.msgDispatcher.Dispatch(events.ParserWarn{
+			// Queued in order with the net-messages, so it's only dispatched if the packet can be decoded completely.
+			// It's dispatched by the net-message dispatcher (like before it was queued), on the message-handling goroutine.
+			p.pendingMsgs = append(p.pendingMsgs, events.ParserWarn{
 				Message: fmt.Sprintf("unknown message type: %d", m.t),
 				Type:    events.WarnTypeUnknownProtobufMessage,
 			})
@@ -444,15 +450,29 @@ func (p *Parser) decodeDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) (msg
 
 		err := proto.Unmarshal(m.buf, msg)
 		if err != nil {
-			clear(p.pendingMsgs)
-
-			return nil, fmt.Errorf("failed to unmarshal net-message of type %d: %w", m.t, err)
+			return fmt.Errorf("failed to unmarshal net-message of type %d: %w", m.t, err)
 		}
 
 		p.pendingMsgs = append(p.pendingMsgs, msg)
 	}
 
-	return p.pendingMsgs, nil
+	p.queueFrame(frame)
+
+	return nil
+}
+
+// queueFrame queues the frame message m (a DEM_Packet or DEM_FullPacket), followed by the string tables of full packets
+// and the net-messages (and warnings) decoded from its packet (p.pendingMsgs).
+func (p *Parser) queueFrame(m proto.Message) {
+	p.msgQueue <- m
+
+	if m, ok := m.(*msg.CDemoFullPacket); ok {
+		p.msgQueue <- m.StringTable
+	}
+
+	for _, nm := range p.pendingMsgs {
+		p.msgQueue <- nm
+	}
 }
 
 func (p *Parser) handleFileInfo(msg *msg.CDemoFileInfo) {

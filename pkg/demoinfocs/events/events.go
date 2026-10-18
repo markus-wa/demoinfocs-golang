@@ -697,13 +697,16 @@ const (
 	// option.EagerVelocityTracking(true) to record from the start.
 	WarnTypeVelocityTrackingStartedLazily
 
-	// WarnTypeBrokenFullPacket occurs when a DEM_FullPacket frame can't be decoded (too large, corrupt compression,
+	// WarnTypeBrokenFullPacket occurs when the content of a DEM_FullPacket frame can't be decoded (corrupt compression,
 	// protobuf or embedded net-messages), it's skipped. Some Valve matchmaking demos (~10% in 2023) contain one,
 	// the game skips them as well, see https://github.com/markus-wa/demoinfocs-golang/issues/409.
+	// Skipping drops the whole full packet, incl. its embedded string tables and entity snapshot (like the game does).
 	// Full packets are snapshots of the game state that's also sent with the regular packets: in the demos we tested,
-	// skipping one (also the first one) didn't change any other event - but that may not hold for all demos.
+	// skipping one didn't change any other event - but that may not hold for all demos, especially if the very first
+	// full packet is broken (string tables and entities may then be missing until they're sent again).
 	// The frame is still counted (FrameDone is dispatched), ParserWarn.Err is a *demoinfocs.DecodeError.
-	// Other frames that can't be decoded make parsing fail with demoinfocs.ErrDecodeFailed.
+	// A full packet that's larger than the frame size limit isn't skipped: its size is corrupt, so the rest of the demo
+	// can't be read. Like other frames that can't be decoded, it makes parsing fail with demoinfocs.ErrDecodeFailed.
 	WarnTypeBrokenFullPacket
 )
 

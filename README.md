@@ -146,8 +146,8 @@ Check out the [examples](examples) folder for more examples, like [how to genera
 
 Corrupt or crafted demos fail with one of these errors, sizes read from the demo are checked before memory is allocated for them:
 e.g. frames are limited to 16 MiB (64 MiB for `DEM_AnimationData`), far above what real demos use.
-The exception are broken `DEM_FullPacket` frames, which some Valve matchmaking demos contain ([#409](https://github.com/markus-wa/demoinfocs-golang/issues/409)):
-they are skipped with a `ParserWarn` of type `WarnTypeBrokenFullPacket`.
+The exception are `DEM_FullPacket` frames with broken content, which some Valve matchmaking demos contain ([#409](https://github.com/markus-wa/demoinfocs-golang/issues/409)):
+they are skipped with a `ParserWarn` of type `WarnTypeBrokenFullPacket` (full packets that exceed the size limit still fail).
 
 If a handler panics, parsing stops and `ParseToEnd()` / `ParseNextFrame()` panic with a `*PanicError` on the calling goroutine.
 It contains the original panic value (`errors.Is()` / `errors.As()` work if it's an error) and the stack trace of the handler.

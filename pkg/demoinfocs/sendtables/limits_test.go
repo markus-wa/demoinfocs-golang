@@ -35,12 +35,40 @@ func TestFieldStateSet_Allocated(t *testing.T) {
 
 	s := &fieldState{}
 
-	assert.Equal(t, 101, s.set(&fieldPath{path: []int{99}}, 1)) // z+2
-	assert.Zero(t, s.set(&fieldPath{path: []int{99}}, 1))
-	assert.Equal(t, 200, s.set(&fieldPath{path: []int{100}}, 1)) // 2x
-	assert.Zero(t, s.set(&fieldPath{path: []int{150}}, 1))
-	assert.Equal(t, newFieldStateSlots, s.set(&fieldPath{path: []int{1, 2}, last: 1}, 1))
-	assert.Equal(t, 1002+newFieldStateSlots, s.set(&fieldPath{path: []int{2, 1000}, last: 1}, 1))
+	set := func(path ...int) [2]int {
+		allocated, freed := s.set(&fieldPath{path: path, last: len(path) - 1}, 1)
+
+		return [2]int{allocated, freed}
+	}
+
+	assert.Equal(t, [2]int{101, 0}, set(99)) // z+2
+	assert.Equal(t, [2]int{0, 0}, set(99))
+	assert.Equal(t, [2]int{202, 101}, set(100)) // 2x
+	assert.Equal(t, [2]int{0, 0}, set(150))
+	assert.Equal(t, [2]int{newFieldStateSlots, 0}, set(1, 2))                            // replaces the scalar at 1
+	assert.Equal(t, [2]int{newFieldStateSlots + 1002, newFieldStateSlots}, set(2, 1000)) // nested state grows
+	assert.Equal(t, 202+2*newFieldStateSlots+1002-newFieldStateSlots, s.slots())
+}
+
+// Slices that grow one slot at a time are reallocated O(log n) times, up to maxStateCap.
+func TestFieldStateSet_AmortisedGrowth(t *testing.T) {
+	t.Parallel()
+
+	s := &fieldState{}
+	reallocs := 0
+
+	for i := range maxFieldIndex + 1 {
+		if allocated, _ := s.set(&fieldPath{path: []int{i}}, 1); allocated > 0 {
+			reallocs++
+		}
+	}
+
+	assert.Less(t, reallocs, 20)
+	assert.Equal(t, maxStateCap, cap(s.state))
+
+	assert.Equal(t, maxStateCap, grownCap(maxStateCap-1, maxStateCap))
+	assert.Equal(t, maxStateCap+1, grownCap(maxStateCap, maxStateCap+1))
+	assert.Equal(t, 16, grownCap(8, 9))
 }
 
 func TestEntityBudget(t *testing.T) {
@@ -50,11 +78,11 @@ func TestEntityBudget(t *testing.T) {
 	e := &Entity{class: &ServerClass{classId: 7}}
 
 	b := newEntityBudget()
-	b.spendState(e, entityBudgetBaseLiveSlots, fp)
+	b.spendState(e, entityBudgetBaseLiveSlots, 0, fp)
 	b.spendBaseline(entityBudgetBaseBaselineBytes, 1)
 
 	assert.PanicsWithValue(t, "entity state exceeds the budget of live slots per byte of entity data (path [1]): corrupt or desynced demo bitstream", func() {
-		b.spendState(e, 1, fp)
+		b.spendState(e, 1, 0, fp)
 	})
 	assert.PanicsWithValue(t, "decoded instance baselines exceed the budget of 64 bytes per byte of entity data (class 1): corrupt demo", func() {
 		b.spendBaseline(1, 1)
@@ -64,13 +92,17 @@ func TestEntityBudget(t *testing.T) {
 	e = &Entity{class: &ServerClass{classId: 7}}
 	b = newEntityBudget()
 	b.credit(10)
-	b.spendState(e, 1000, fp)
+	b.spendState(e, 1000, 0, fp)
+	b.spendState(e, 2000, 1000, fp) // reallocation
+	assert.EqualValues(t, 2000, b.liveSlots)
+	b.release(e, 500)
+	assert.EqualValues(t, 1500, e.budgetSlots)
 	b.refund(e)
 	assert.Zero(t, b.liveSlots)
 	assert.Zero(t, e.budgetSlots)
-	assert.EqualValues(t, 1000, b.allocatedSlots)
+	assert.EqualValues(t, 3000, b.allocatedSlots)
 
-	b.spendState(e, int(b.maxAllocatedSlots-b.allocatedSlots), fp)
+	b.spendState(e, int(b.maxAllocatedSlots-b.allocatedSlots), 0, fp)
 	b.refund(e)
 
 	assert.PanicsWithValue(t, "entities exceed the budget of allocated slots per byte of entity data (class 7): corrupt demo", func() {
@@ -398,7 +430,8 @@ func TestEntityGrowsPolySerializers(t *testing.T) {
 	r.release()
 
 	assert.Len(t, e.polySerializers, 3)
-	assert.EqualValues(t, polySerializersSlots(3), budget.liveSlots)
+	assert.EqualValues(t, polySerializersSlots(3)-polySerializersSlots(1), budget.liveSlots, "only the added slots are live")
+	assert.EqualValues(t, polySerializersSlots(3), budget.allocatedSlots)
 }
 
 // manyPolyFieldsFSV returns a FlattenedSerializer message with n polymorphic fields, length-prefixed as ParsePacket expects.
@@ -460,10 +493,64 @@ func TestParsePacket_MaxPolymorphicFields(t *testing.T) {
 	assert.PanicsWithValue(t, "more than 64 polymorphic fields: corrupt schema", func() {
 		_ = p.ParsePacket(manyPolyFieldsFSV(t, maxPolymorphicFields+1))
 	})
+
+	// the limit is per schema, the IDs of all schemas are bounded by maxPolySerializerIDs
+	p = NewParser()
+	b := manyPolyFieldsFSV(t, maxPolymorphicFields)
+
+	for range maxPolySerializerIDs / maxPolymorphicFields {
+		require.NoError(t, p.ParsePacket(b))
+	}
+
+	assert.Equal(t, maxPolySerializerIDs, p.nextPolyID)
+	assert.PanicsWithValue(t, "more than 4096 polymorphic fields in all schemas: corrupt demo", func() {
+		_ = p.ParsePacket(b)
+	})
 }
 
-// A schema that's sent again (e.g. by a stream that repeats DEM_SendTables) gets the same polymorphic IDs,
-// the entities created with the previous one keep working.
+// polyFieldIDs returns the polymorphic fields reachable from the serializers by their ID.
+// It fails if two different fields have the same ID.
+func polyFieldIDs(t *testing.T, sers map[string]*serializer) map[int]*field {
+	t.Helper()
+
+	ids := map[int]*field{}
+	seen := map[*serializer]bool{}
+
+	var walk func(s *serializer)
+
+	walk = func(s *serializer) {
+		if s == nil || seen[s] {
+			return
+		}
+
+		seen[s] = true
+
+		for _, f := range s.fields {
+			if f.polySerializerID >= 0 {
+				if other, ok := ids[f.polySerializerID]; ok && other != f {
+					t.Errorf("polymorphic fields %s.%s and %s share ID %d", s.name, f.name, other.name, f.polySerializerID)
+				}
+
+				ids[f.polySerializerID] = f
+			}
+
+			walk(f.serializer)
+
+			for _, pt := range f.polyTypes {
+				walk(pt)
+			}
+		}
+	}
+
+	for _, s := range sers {
+		walk(s)
+	}
+
+	return ids
+}
+
+// A schema that's sent again (e.g. by a stream that repeats DEM_SendTables) gets new polymorphic IDs (they're globally unique,
+// see Parser.nextPolyID), the entities created with the previous ones keep working.
 func TestParsePacket_Resent(t *testing.T) {
 	t.Parallel()
 
@@ -476,23 +563,240 @@ func TestParsePacket_Resent(t *testing.T) {
 	require.NoError(t, applyPacketEntities(p, msgs[:10]))
 
 	polyIDs := p.nextPolyID
-	polyCounts := map[string]int{}
+	require.Positive(t, polyIDs)
 
-	for name, c := range p.classesByName {
-		polyCounts[name] = c.polyCount
-	}
+	rest := msgs[10:]
 
-	for range 100 {
+	for i := range 100 {
 		require.NoError(t, p.ParsePacket(sendTables))
+		assert.Equal(t, polyIDs*(i+2), p.nextPolyID)
+
+		// entity updates between the schemas
+		if i%10 == 9 {
+			require.NoError(t, applyPacketEntities(p, rest[:1]), "re-send %d", i)
+			rest = rest[1:]
+		}
 	}
 
-	assert.Equal(t, polyIDs, p.nextPolyID)
 	assert.LessOrEqual(t, len(p.polyMaxCache), len(p.serializers)*2, "the cache doesn't keep the serializers of previous schemas")
 
+	ids := polyFieldIDs(t, p.serializers)
+	assert.Len(t, ids, polyIDs, "the current schema references only its own polymorphic fields")
+
 	for name, c := range p.classesByName {
-		assert.Equal(t, polyCounts[name], c.polyCount, name)
+		assert.Equal(t, c.serializer.maxPolyID(map[*serializer]int{})+1, c.polyCount, name)
 	}
 
-	require.NoError(t, applyPacketEntities(p, msgs[10:]))
+	require.NoError(t, applyPacketEntities(p, rest))
 	require.Len(t, p.entities, 161)
+}
+
+// fsvBytes returns the FlattenedSerializer message, length-prefixed as ParsePacket expects.
+func fsvBytes(t *testing.T, m *msg.CSVCMsg_FlattenedSerializer) []byte {
+	t.Helper()
+
+	b, err := proto.Marshal(m)
+	require.NoError(t, err)
+
+	return append(binary.AppendUvarint(nil, uint64(len(b))), b...)
+}
+
+// A later schema can reference serializers of an earlier one (which keep their polymorphic IDs),
+// its new polymorphic fields get different IDs.
+func TestParsePacket_PolyIDsUniqueAcrossSchemas(t *testing.T) {
+	t.Parallel()
+
+	sym := func(i int) *int32 { return proto.Int32(int32(i)) }
+	symbols := []string{"CModeA", "CModeB", "CHolder", "CMode*", "int32", "m_a", "m_b", "m_pMode", "CEnt2", "CHolder*", "m_holder", "m_pMode2"}
+	polyTypes := []*msg.ProtoFlattenedSerializerFieldTPolymorphicFieldT{
+		{PolymorphicFieldSerializerNameSym: sym(0)},
+		{PolymorphicFieldSerializerNameSym: sym(1)},
+	}
+
+	p := NewParser()
+
+	require.NoError(t, p.ParsePacket(fsvBytes(t, &msg.CSVCMsg_FlattenedSerializer{
+		Symbols: symbols,
+		Fields: []*msg.ProtoFlattenedSerializerFieldT{
+			{VarNameSym: sym(5), VarTypeSym: sym(4)},
+			{VarNameSym: sym(6), VarTypeSym: sym(4)},
+			{VarNameSym: sym(7), VarTypeSym: sym(3), FieldSerializerNameSym: sym(0), PolymorphicTypes: polyTypes},
+		},
+		Serializers: []*msg.ProtoFlattenedSerializerT{
+			{SerializerNameSym: sym(0), FieldsIndex: []int32{0}},
+			{SerializerNameSym: sym(1), FieldsIndex: []int32{1}},
+			{SerializerNameSym: sym(2), FieldsIndex: []int32{2}},
+		},
+	})))
+
+	holder := p.serializers["CHolder"]
+
+	// CHolder isn't sent again, CEnt2 references the one of the first schema
+	require.NoError(t, p.ParsePacket(fsvBytes(t, &msg.CSVCMsg_FlattenedSerializer{
+		Symbols: symbols,
+		Fields: []*msg.ProtoFlattenedSerializerFieldT{
+			{VarNameSym: sym(10), VarTypeSym: sym(9), FieldSerializerNameSym: sym(2)},
+			{VarNameSym: sym(11), VarTypeSym: sym(3), FieldSerializerNameSym: sym(0), PolymorphicTypes: polyTypes},
+		},
+		Serializers: []*msg.ProtoFlattenedSerializerT{
+			{SerializerNameSym: sym(8), FieldsIndex: []int32{0, 1}},
+		},
+	})))
+
+	ent := p.serializers["CEnt2"]
+	require.Same(t, holder, ent.fields[0].serializer)
+
+	ids := polyFieldIDs(t, map[string]*serializer{"CEnt2": ent})
+	require.Len(t, ids, 2)
+	assert.NotEqual(t, holder.fields[0].polySerializerID, ent.fields[1].polySerializerID)
+	assert.Equal(t, 1, ent.maxPolyID(p.polyMaxCache))
+}
+
+// vecElemField is the index of the field of the elements of m_vec that vecUpdate() sets, see vecTestClass().
+const vecElemField = 19
+
+// vecTestClass returns a class with one field, m_vec, a vector of structs with vecElemField+1 int32 fields.
+func vecTestClass(t *testing.T) *ServerClass {
+	t.Helper()
+
+	elem := newSerializer("CElem", 0)
+
+	for i := range vecElemField + 1 {
+		f := &field{
+			varName:          fmt.Sprintf("m_x%d", i),
+			name:             fmt.Sprintf("m_x%d", i),
+			varType:          "int32",
+			fieldType:        newFieldType("int32"),
+			polySerializerID: -1,
+		}
+		f.setModel(fieldModelSimple)
+		elem.addField(f)
+	}
+
+	vec := &field{
+		varName:          "m_vec",
+		name:             "m_vec",
+		varType:          "CUtlVectorEmbeddedNetworkVar< CElem >",
+		fieldType:        newFieldType("CUtlVectorEmbeddedNetworkVar< CElem >"),
+		serializer:       elem,
+		polySerializerID: -1,
+	}
+	vec.setModel(fieldModelVariableTable)
+
+	ser := newSerializer("CVec", 0)
+	ser.addField(vec)
+
+	return &ServerClass{
+		classId:     0,
+		name:        "CVec",
+		serializer:  ser,
+		fpNameCache: &fpNameTreeCache{},
+		fpFlatCache: make(map[uint64]string),
+	}
+}
+
+// vecUpdate returns the entity data of an update of m_vec (see vecTestClass()) to n elements (at most 32),
+// which sets field vecElemField of each element.
+func vecUpdate(t *testing.T, n int) []byte {
+	t.Helper()
+
+	w := &bitWriter{}
+	w.fieldPathOp(t, "PlusOne") // [0]: the length
+
+	for i := range n {
+		if i == 0 {
+			w.fieldPathOp(t, "PushTwoPack5LeftDeltaZero") // [0 0 vecElemField]
+			w.bits(0, 5)
+			w.bits(vecElemField, 5)
+
+			continue
+		}
+
+		w.fieldPathOp(t, "NonTopoPenultimatePlusOne") // [0 i vecElemField]
+	}
+
+	w.fieldPathOp(t, "FieldPathEncodeFinish")
+	w.varUint(uint64(n))
+
+	for range n {
+		w.varUint(0)
+	}
+
+	// padded, the reader reads ahead
+	return append(w.buf, make([]byte, 8)...)
+}
+
+// heldSlots returns the slots e holds, see entityBudget.
+func heldSlots(e *Entity) int64 {
+	return int64(entityFixedSlots - entityInitialStateSlots + e.state.slots() + polySerializersSlots(len(e.polySerializers)))
+}
+
+// The live charge of an entity is what it holds: replaced slices and dropped nested states are credited back,
+// so a long-lived entity's charge doesn't drift upwards. The allocated slots aren't credited.
+func TestEntityBudget_LiveChargeMatchesHeld(t *testing.T) {
+	t.Parallel()
+
+	e := newEntity(1, 1, vecTestClass(t))
+	budget := newEntityBudget()
+	budget.credit(1 << 20)
+	budget.spendEntity(e, len(e.polySerializers))
+
+	require.Equal(t, heldSlots(e), e.budgetSlots)
+
+	var (
+		paths   []*fieldPath
+		maxHeld int64
+	)
+
+	// grows (reallocating m_vec and the root state), shrinks (dropping the nested states of the elements) and regrows
+	sizes := []int{3, 20, 1, 32, 0, 17, 32, 2, 9}
+
+	for round := range 1000 {
+		n := sizes[round%len(sizes)]
+
+		r := newReader(vecUpdate(t, n))
+		e.readFields(r, &paths, &budget)
+		r.release()
+
+		vec, ok := e.state.get(&fieldPath{path: []int{0}}).(*fieldState)
+		require.True(t, ok)
+		require.Len(t, vec.state, n)
+
+		require.Equal(t, heldSlots(e), e.budgetSlots, "round %d", round)
+		require.Equal(t, e.budgetSlots, budget.liveSlots)
+
+		if e.budgetSlots > maxHeld {
+			maxHeld = e.budgetSlots
+		}
+	}
+
+	assert.Less(t, maxHeld, int64(entityFixedSlots+2*32*(vecElemField+2)), "the charge doesn't drift beyond what the entity holds")
+	assert.Greater(t, budget.allocatedSlots, 100*maxHeld, "the allocated slots aren't credited")
+}
+
+// Collections that grow one element at a time are reallocated O(log n) times.
+func TestReadFields_AmortisedCollectionGrowth(t *testing.T) {
+	t.Parallel()
+
+	p := budgetTestParser(t)
+	e := newEntity(1, 1, p.classesById[0])
+	budget := newEntityBudget()
+	budget.credit(1 << 20)
+	budget.spendEntity(e, 0)
+
+	var paths []*fieldPath
+
+	const n = 10_000
+
+	for i := 1; i <= n; i++ {
+		w := &bitWriter{}
+		w.arrayFieldUpdate(t, uint64(i))
+
+		r := newReader(append(w.buf, make([]byte, 8)...))
+		e.readFields(r, &paths, &budget)
+		r.release()
+	}
+
+	assert.Less(t, budget.allocatedSlots, int64(entityFixedSlots+4*n))
+	assert.Equal(t, heldSlots(e), e.budgetSlots)
 }

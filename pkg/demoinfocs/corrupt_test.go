@@ -9,7 +9,6 @@ import (
 	"io"
 	"math"
 	"runtime"
-	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -244,53 +243,45 @@ func TestOversizeFrame(t *testing.T) {
 	}
 }
 
-// A DEM_FullPacket that's too large is skipped like other broken full packets (see TestBrokenFullPacket),
-// without reading its payload into memory.
+// A DEM_FullPacket that's too large isn't skipped like other broken full packets (see TestBrokenFullPacket):
+// its size is corrupt, so the rest of the demo can't be read. It fails without reading its payload into memory.
 // Not parallel, see fuzzcheck.AllocatedBytes().
 //
 //nolint:paralleltest
 func TestOversizeFullPacket(t *testing.T) {
-	demo := func(fullPacket ...[]byte) []byte {
-		frames := slices.Concat([][]byte{fileHeaderFrame(t), packetFrame(t, 1, netTick(t, 1))}, fullPacket,
-			[][]byte{packetFrame(t, 3, netTick(t, 3)), stopFrame()})
-
-		return handmadeDemo(frames...)
-	}
-
-	want := parseRecorded(t, demo(fullPacketFrame(t, 2, netTick(t, 2))))
-	require.NoError(t, want.err)
-
-	for _, cmd := range []msg.EDemoCommands{
-		msg.EDemoCommands_DEM_FullPacket,
-		msg.EDemoCommands_DEM_FullPacket | msg.EDemoCommands_DEM_IsCompressed,
+	for _, tc := range []struct {
+		name    string
+		cmd     msg.EDemoCommands
+		payload int
+	}{
+		{"uncompressed", msg.EDemoCommands_DEM_FullPacket, maxFramePayload + 1},
+		{"compressed", msg.EDemoCommands_DEM_FullPacket | msg.EDemoCommands_DEM_IsCompressed, maxFramePayload + 1},
+		{"truncated", msg.EDemoCommands_DEM_FullPacket, 100},
 	} {
-		t.Run(fmt.Sprint("compressed=", cmd != msg.EDemoCommands_DEM_FullPacket), func(t *testing.T) {
-			oversize := demo(frameHeader(cmd, 2, maxFramePayload+1), make([]byte, maxFramePayload+1))
+		t.Run(tc.name, func(t *testing.T) {
+			demo := handmadeDemo(fileHeaderFrame(t), packetFrame(t, 1, netTick(t, 1)),
+				frameHeader(tc.cmd, 2, maxFramePayload+1), make([]byte, tc.payload),
+				packetFrame(t, 3, netTick(t, 3)), stopFrame())
 
 			var got parseRecord
 
-			allocated := fuzzcheck.AllocatedBytes(func() { got = parseRecorded(t, oversize) })
+			allocated := fuzzcheck.AllocatedBytes(func() { got = parseRecorded(t, demo) })
 
-			require.NoError(t, got.err)
-			assert.Equal(t, want.frames, got.frames, "FrameDone count")
-			assert.Equal(t, want.currentFrame, got.currentFrame, "CurrentFrame()")
-			assert.Equal(t, want.ticks, got.ticks, "ticks")
-			assert.Zero(t, got.fullPacketsSeen)
+			require.ErrorIs(t, got.err, ErrDecodeFailed)
+			assert.ErrorIs(t, got.err, errFrameTooLarge)
+			assert.NotErrorIs(t, got.err, ErrUnexpectedEndOfDemo)
+			assert.Contains(t, got.err.Error(), fmt.Sprintf("payload of %d bytes exceeds the limit", maxFramePayload+1))
+
+			var de *DecodeError
+			if assert.ErrorAs(t, got.err, &de) {
+				assert.Equal(t, 2, de.Frame)
+			}
+
+			assert.Empty(t, got.warns)
+			assert.Equal(t, 2, got.frames, "the frames before are handled")
 			assert.Less(t, allocated, uint64(4<<20))
-
-			require.Len(t, got.warns, 1)
-			assert.EqualValues(t, events.WarnTypeBrokenFullPacket, got.warns[0].Type)
-			assert.ErrorIs(t, got.warns[0].Err, errFrameTooLarge)
-			assert.Equal(t, []int{2}, got.warnFrames)
 		})
 	}
-
-	t.Run("truncated", func(t *testing.T) {
-		truncated := handmadeDemo(fileHeaderFrame(t), frameHeader(msg.EDemoCommands_DEM_FullPacket, 2, maxFramePayload+1), make([]byte, 100))
-
-		_, err := parse(t, truncated)
-		assertTruncated(t, err)
-	})
 }
 
 // skipBitsInSteps must not overflow int on 32-bit platforms (GOARCH=386), not even for the largest size.
@@ -442,11 +433,14 @@ func brokenFullPacketDemos(t testing.TB) (valid []byte, broken map[string][]byte
 	fpPayload := fp[len(frameHeader(msg.EDemoCommands_DEM_FullPacket, 2, 0)):] // the size has one byte
 
 	return demo(fp), map[string][]byte{
-		"snappy":           demo(frame(msg.EDemoCommands_DEM_FullPacket|msg.EDemoCommands_DEM_IsCompressed, 2, []byte{10, 0xff, 0xff, 0xff})),
-		"snappy limit":     demo(frame(msg.EDemoCommands_DEM_FullPacket|msg.EDemoCommands_DEM_IsCompressed, 2, binary.AppendUvarint(nil, maxFramePayload+1))),
-		"proto":            demo(frame(msg.EDemoCommands_DEM_FullPacket, 2, fpPayload[:len(fpPayload)-1])),
-		"nested size":      demo(protoFrame(t, msg.EDemoCommands_DEM_FullPacket, 2, &msg.CDemoFullPacket{Packet: &msg.CDemoPacket{Data: corruptPacketData}})),
-		"nested proto":     demo(fullPacketFrame(t, 2, netTick(t, 2), nestedMessage{t: int32(msg.NET_Messages_net_Tick), data: []byte{0x0a, 0xff}})),
+		"snappy":       demo(frame(msg.EDemoCommands_DEM_FullPacket|msg.EDemoCommands_DEM_IsCompressed, 2, []byte{10, 0xff, 0xff, 0xff})),
+		"snappy limit": demo(frame(msg.EDemoCommands_DEM_FullPacket|msg.EDemoCommands_DEM_IsCompressed, 2, binary.AppendUvarint(nil, maxFramePayload+1))),
+		"proto":        demo(frame(msg.EDemoCommands_DEM_FullPacket, 2, fpPayload[:len(fpPayload)-1])),
+		"nested size":  demo(protoFrame(t, msg.EDemoCommands_DEM_FullPacket, 2, &msg.CDemoFullPacket{Packet: &msg.CDemoPacket{Data: corruptPacketData}})),
+		"nested proto": demo(fullPacketFrame(t, 2, netTick(t, 2), nestedMessage{t: int32(msg.NET_Messages_net_Tick), data: []byte{0x0a, 0xff}})),
+		// the unknown message is decoded (and sorted) before the corrupt PacketEntities, its warning must not be dispatched
+		"unknown and nested proto": demo(fullPacketFrame(t, 2, netTick(t, 2), nestedMessage{t: unknownNetMessageType(t)},
+			nestedMessage{t: int32(msg.SVC_Messages_svc_PacketEntities), data: []byte{0x0a, 0xff}})),
 		"compressed valid": demo(compressedFrame(msg.EDemoCommands_DEM_FullPacket, 2, fpPayload)), // not broken, see below
 	}
 }
@@ -457,8 +451,10 @@ type parseRecord struct {
 	currentFrame    int
 	ticks           []int // ingame tick at each FrameDone
 	warns           []events.ParserWarn
-	warnFrames      []int // CurrentFrame() when the warnings were dispatched
-	sameGoroutine   bool  // whether the warnings were dispatched on the goroutine of the FrameDone handlers
+	warnFrames      []int               // CurrentFrame() when the warnings were dispatched
+	netWarns        []events.ParserWarn // warnings dispatched to net-message handlers (e.g. WarnTypeUnknownProtobufMessage)
+	netWarnsSameGo  bool                // whether netWarns were dispatched on the goroutine of the FrameDone handlers
+	sameGoroutine   bool                // whether the warnings were dispatched on the goroutine of the FrameDone handlers
 	fullPacketsSeen int
 }
 
@@ -469,7 +465,7 @@ func parseRecorded(t *testing.T, demo []byte) parseRecord {
 	defer p.Close()
 
 	var (
-		rec       = parseRecord{sameGoroutine: true}
+		rec       = parseRecord{sameGoroutine: true, netWarnsSameGo: true}
 		handlerID uint64
 	)
 
@@ -488,10 +484,26 @@ func parseRecorded(t *testing.T, demo []byte) parseRecord {
 		rec.warnFrames = append(rec.warnFrames, p.CurrentFrame())
 	})
 
-	p.RegisterNetMessageHandler(func(*msg.CDemoFullPacket) { rec.fullPacketsSeen++ })
+	p.RegisterNetMessageHandler(func(*msg.CDemoFullPacket) {
+		handlerID = goroutineID()
+		rec.fullPacketsSeen++
+	})
+
+	var netWarnGoroutines []uint64
+
+	p.RegisterNetMessageHandler(func(w events.ParserWarn) {
+		netWarnGoroutines = append(netWarnGoroutines, goroutineID())
+		rec.netWarns = append(rec.netWarns, w)
+	})
 
 	rec.err = p.ParseToEnd(t.Context())
 	rec.currentFrame = p.CurrentFrame()
+
+	for _, id := range netWarnGoroutines {
+		if id != handlerID {
+			rec.netWarnsSameGo = false
+		}
+	}
 
 	return rec
 }
@@ -526,6 +538,7 @@ func TestBrokenFullPacket(t *testing.T) {
 			}
 
 			assert.Zero(t, got.fullPacketsSeen, "the broken full packet must not be dispatched")
+			assert.Empty(t, got.netWarns, "no warnings for the net-messages of the skipped packet")
 
 			require.Len(t, got.warns, 1)
 			assert.EqualValues(t, events.WarnTypeBrokenFullPacket, got.warns[0].Type)
@@ -536,6 +549,49 @@ func TestBrokenFullPacket(t *testing.T) {
 			if assert.ErrorAs(t, got.warns[0].Err, &de) {
 				assert.Equal(t, 2, de.Frame)
 			}
+		})
+	}
+}
+
+// unknownNetMessageType returns a net-message type that isn't known.
+func unknownNetMessageType(t testing.TB) int32 {
+	t.Helper()
+
+	for typ := int32(1); typ < 1000; typ++ {
+		if msgCreatorForType(typ) == nil {
+			return typ
+		}
+	}
+
+	require.FailNow(t, "no unknown net-message type")
+
+	return 0
+}
+
+// Unknown net-messages of packets that are decoded completely are reported in order with the other net-messages,
+// on the message-handling goroutine.
+func TestUnknownNetMessage(t *testing.T) {
+	t.Parallel()
+
+	typ := unknownNetMessageType(t)
+
+	for _, fullPacket := range []bool{false, true} {
+		t.Run(fmt.Sprint("full packet=", fullPacket), func(t *testing.T) {
+			t.Parallel()
+
+			pkt := packetFrame(t, 5, netTick(t, 5), nestedMessage{t: typ})
+			if fullPacket {
+				pkt = fullPacketFrame(t, 5, netTick(t, 5), nestedMessage{t: typ})
+			}
+
+			got := parseRecorded(t, handmadeDemo(fileHeaderFrame(t), packetFrame(t, 1, netTick(t, 1)), pkt, stopFrame()))
+			require.NoError(t, got.err)
+			assert.Empty(t, got.warns)
+
+			require.Len(t, got.netWarns, 1)
+			assert.EqualValues(t, events.WarnTypeUnknownProtobufMessage, got.netWarns[0].Type)
+			assert.Equal(t, fmt.Sprint("unknown message type: ", typ), got.netWarns[0].Message)
+			assert.True(t, got.netWarnsSameGo, "the warning must be dispatched on the message-handling goroutine")
 		})
 	}
 }

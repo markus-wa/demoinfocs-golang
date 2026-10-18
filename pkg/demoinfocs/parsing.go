@@ -140,7 +140,8 @@ func msgQueueSize(ticks int) int {
 //     because it's corrupt or uses a schema / format this version doesn't support.
 //     Sizes read from the demo are limited (e.g. frames to 16 MiB, far above what real demos use),
 //     larger ones are a DecodeError too.
-//     Broken DEM_FullPacket frames are skipped with a ParserWarn instead, see events.WarnTypeBrokenFullPacket.
+//     DEM_FullPacket frames whose content can't be decoded are skipped with a ParserWarn instead,
+//     see events.WarnTypeBrokenFullPacket.
 //   - ErrInvalidFileType if the stream doesn't contain a CS2 demo.
 //   - errors returned by the demo stream (wrapped).
 //   - context.Cause(ctx), see above.
@@ -575,18 +576,15 @@ func (p *Parser) parseFrame() (bool, error) {
 		return true, nil
 	}
 
-	m, nested, err := p.decodeFrame(msgCreator(), size, msgType, msgCompressed, isCSTVBroadcast)
+	err := p.decodeFrame(msgCreator(), size, msgType, msgCompressed, isCSTVBroadcast)
 	if err != nil {
 		// Some Valve matchmaking demos (~10% in 2023) contain a broken DEM_FullPacket, which the game skips as well (#409).
 		// Full packets are snapshots of the state that's also sent with the regular packets, so they can be skipped.
 		// The frame is still counted (see queueFrameParsed()), so CurrentFrame() stays the same for all later frames.
-		if msgType != msg.EDemoCommands_DEM_FullPacket {
+		// A frame that's too large wasn't read: its size is corrupt (real full packets are far below the limit),
+		// so the rest of the demo can't be read either.
+		if msgType != msg.EDemoCommands_DEM_FullPacket || errors.Is(err, errFrameTooLarge) {
 			return false, newDecodeError(err, p.readerFrame)
-		}
-
-		// The payload of a frame that's too large wasn't read.
-		if errors.Is(err, errFrameTooLarge) {
-			p.skipPayload(size)
 		}
 
 		p.msgQueue <- &brokenFullPacket{err: newDecodeError(err, p.readerFrame)}
@@ -596,38 +594,24 @@ func (p *Parser) parseFrame() (bool, error) {
 		return true, nil
 	}
 
-	p.msgQueue <- m
-
-	if m, ok := m.(*msg.CDemoFullPacket); ok {
-		p.msgQueue <- m.StringTable
-	}
-
-	for _, nm := range nested {
-		p.msgQueue <- nm
-	}
-
-	// Drop the references, the slice is reused for the next packet.
-	clear(nested)
-
 	// Queue up some post processing
 	p.queueFrameParsed()
 
 	return msgType != msg.EDemoCommands_DEM_Stop, nil
 }
 
-// decodeFrame reads and decodes the current frame's payload into m.
-// For (full) packets, the embedded net-messages are decoded as well and returned as nested,
-// so nothing is queued for a frame that can't be decoded completely.
-// nested is only valid until the next call.
+// decodeFrame reads and decodes the current frame's payload into m and queues it.
+// For (full) packets, the embedded net-messages are decoded and queued as well (see decodeDemoPacket()),
+// nothing is queued for a frame that can't be decoded completely.
 func (p *Parser) decodeFrame(
 	m proto.Message,
 	size uint32,
 	msgType msg.EDemoCommands,
 	msgCompressed, isCSTVBroadcast bool,
-) (_ proto.Message, nested []proto.Message, err error) {
+) error {
 	buf, bp, err := p.readFramePayload(msgType, size, msgCompressed, isCSTVBroadcast)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
 	if isCSTVBroadcast {
@@ -637,7 +621,7 @@ func (p *Parser) decodeFrame(
 
 		case *msg.CDemoSpawnGroups:
 			if len(buf) == 0 {
-				return nil, nil, errors.New("empty DEM_SpawnGroups payload") //nolint:err113 // only used as cause of a DecodeError
+				return errors.New("empty DEM_SpawnGroups payload") //nolint:err113 // only used as cause of a DecodeError
 			}
 
 			m.Msgs = [][]byte{buf[1:]} // TODO: index might be a varint, also we should collect all entries into one msg
@@ -652,24 +636,20 @@ func (p *Parser) decodeFrame(
 	}
 
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
 	switch m := m.(type) {
 	case *msg.CDemoPacket:
-		nested, err = p.decodeDemoPacket(m, false)
+		return p.decodeDemoPacket(m, m, false)
 
 	case *msg.CDemoFullPacket:
-		if m.Packet.GetData() != nil {
-			nested, err = p.decodeDemoPacket(m.Packet, true)
-		}
+		return p.decodeDemoPacket(m, m.GetPacket(), true)
 	}
 
-	if err != nil {
-		return nil, nil, err
-	}
+	p.msgQueue <- m
 
-	return m, nested, nil
+	return nil
 }
 
 func (p *Parser) handlePacketEntities(m *msg.CSVCMsg_PacketEntities) {
