@@ -106,16 +106,23 @@ func (p *property) fieldPath() *fieldPath {
 	return p.fp
 }
 
-func (p *property) Value() st.PropertyValue {
+// rawValue returns the property's value as stored in the entity's field state (nil if unset or if the property
+// doesn't exist for the entity's active type), without wrapping it in a st.PropertyValue like Value() does.
+func (p *property) rawValue() any {
 	var v any
 	if fp := p.fieldPath(); fp != nil {
 		v = p.entity.state.get(fp)
 	}
 
-	fs, ok := v.(*fieldState)
-	if ok {
-		v = fs.state
+	if fs, ok := v.(*fieldState); ok {
+		return fs.state
 	}
+
+	return v
+}
+
+func (p *property) Value() st.PropertyValue {
+	v := p.rawValue()
 
 	return st.PropertyValue{
 		VectorVal: r3.Vector{},
@@ -439,28 +446,23 @@ func (e *Entity) Position() r3.Vector {
 		return r3.Vector{} // entity without a body component
 	}
 
-	cellXVal := props[0].Value()
-	cellYVal := props[1].Value()
-	cellZVal := props[2].Value()
-	offsetXVal := props[3].Value()
-	offsetYVal := props[4].Value()
-	offsetZVal := props[5].Value()
+	// The raw values are read instead of going through Value(), which wraps each in a st.PropertyValue:
+	// Position() is called for every player on every frame by consumers tracking positions.
+	cellX := props[0].rawValue()
+	cellY := props[1].rawValue()
+	cellZ := props[2].rawValue()
+	offsetX := props[3].rawValue()
+	offsetY := props[4].rawValue()
+	offsetZ := props[5].rawValue()
 
-	if cellXVal.Any == nil || cellYVal.Any == nil || cellZVal.Any == nil || offsetXVal.Any == nil || offsetYVal.Any == nil || offsetZVal.Any == nil {
+	if cellX == nil || cellY == nil || cellZ == nil || offsetX == nil || offsetY == nil || offsetZ == nil {
 		return r3.Vector{} // CS2 POV demos
 	}
 
-	cellX := cellXVal.S2UInt64()
-	cellY := cellYVal.S2UInt64()
-	cellZ := cellZVal.S2UInt64()
-	offsetX := offsetXVal.Float()
-	offsetY := offsetYVal.Float()
-	offsetZ := offsetZVal.Float()
-
 	return r3.Vector{
-		X: coordFromCell(cellX, offsetX),
-		Y: coordFromCell(cellY, offsetY),
-		Z: coordFromCell(cellZ, offsetZ),
+		X: coordFromCell(cellX.(uint64), offsetX.(float32)),
+		Y: coordFromCell(cellY.(uint64), offsetY.(float32)),
+		Z: coordFromCell(cellZ.(uint64), offsetZ.(float32)),
 	}
 }
 
