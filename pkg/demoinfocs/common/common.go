@@ -75,7 +75,7 @@ type GrenadeProjectile struct {
 	Trajectory2 []TrajectoryEntry // List of all known locations and the point in time of the grenade up to the current point
 
 	// uniqueID is used to distinguish different grenades (which potentially have the same, reused entityID) from each other.
-	uniqueID UniqueID
+	uniqueID int64
 }
 
 // Position returns the current position of the grenade projectile in world coordinates.
@@ -105,12 +105,18 @@ func (g *GrenadeProjectile) Velocity() r3.Vector {
 	}
 }
 
-// UniqueID returns the unique id of the grenade, see [UniqueID] for its guarantees.
+// UniqueID returns the unique id of the grenade.
+// The id is generated internally by this library and can be used to differentiate grenades from
+// each other. This is needed because demo-files reuse entity ids.
 //
-// Unlike WeaponInstance.UniqueID(), which identifies the thrown weapon (and may be shared by
+// Unlike WeaponInstance.UniqueID2(), which identifies the thrown weapon (and may be shared by
 // multiple throws), this identifies an individual thrown grenade. Grenade events (see events.GrenadeEvent.Projectile)
 // refer to the same projectile, so it can be used to follow a grenade from throw to effect.
-func (g *GrenadeProjectile) UniqueID() UniqueID {
+//
+// The id is unique within the Parser instance that created the grenade; ids from different Parser
+// instances (e.g. concurrently or sequentially parsed demos) may collide, so don't key data
+// across demos by it.
+func (g *GrenadeProjectile) UniqueID() int64 {
 	return g.uniqueID
 }
 
@@ -120,7 +126,7 @@ func (g *GrenadeProjectile) UniqueID() UniqueID {
 // parse and reproducible across parses of the same demo.
 //
 // Intended for internal use only.
-func NewGrenadeProjectile(id UniqueID) *GrenadeProjectile {
+func NewGrenadeProjectile(id int64) *GrenadeProjectile {
 	return &GrenadeProjectile{uniqueID: id}
 }
 

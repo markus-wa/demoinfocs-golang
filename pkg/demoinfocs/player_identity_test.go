@@ -391,10 +391,10 @@ func TestPlayerIdentity_InPlaceTakeoverInFieldOrder(t *testing.T) {
 	require.Equal(t, []events.PlayerConnect{{Player: a}}, evs.connects)
 
 	// the pawn's weapons, bound to A
-	knife := common.NewEquipment(common.EqKnife, common.UniqueID(1))
+	knife := common.NewEquipment(common.EqKnife, 1)
 	knife.Owner = a
 	a.Inventory[100] = knife
-	flash := common.NewEquipment(common.EqFlash, common.UniqueID(2))
+	flash := common.NewEquipment(common.EqFlash, 2)
 	flash.Owner = a
 	a.Inventory[101] = flash
 
