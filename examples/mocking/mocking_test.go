@@ -29,7 +29,7 @@ func TestCollectKills(t *testing.T) {
 }
 
 func kill(wep common.EquipmentType) events.Kill {
-	eq := common.NewEquipment(wep, common.UniqueID(1))
+	eq := common.NewEquipment(wep, 1)
 	return events.Kill{
 		Killer: new(common.Player),
 		Weapon: eq,
