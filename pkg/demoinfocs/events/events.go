@@ -479,11 +479,10 @@ const (
 
 // PlayerHurt signals that a player has been damaged.
 //
-// HealthDamage is the raw dmg_health of the game event, HealthDamageTaken the HP the hit actually removed.
-// On many demos a hit removes HealthDamage+1 HP (dmg_health is rounded down, the HP loss isn't).
-// This depends on the server build and is seen on demos from 2023 to 2026, but not on all of them.
-// HealthDamageTaken always equals the victim's actual HP loss, matching the game's own damage stats
-// (m_pActionTrackingServices.m_iDamage); HLTV's ADR sums HealthDamage instead.
+// HealthDamage and HealthDamageTaken are based on the raw dmg_health of the game event (what HLTV's ADR sums).
+// On many server builds a hit actually removes dmg_health+1 HP (dmg_health is rounded down, the HP loss isn't),
+// so they can be 1 less than the game's own damage stats (m_pActionTrackingServices.m_iDamage).
+// Compare Health with the victim's health before the hit to get the exact HP removed.
 type PlayerHurt struct {
 	Player            *common.Player // May be nil with POV demos or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
 	Attacker          *common.Player // May be nil if the player is taking world damage (e.g. fall damage) or if the demo is partially corrupt (player is 'unconnected', see #156 and #172).
@@ -493,7 +492,7 @@ type PlayerHurt struct {
 	WeaponString      string            // Wrong for CZ, M4A1-S etc.
 	HealthDamage      int
 	ArmorDamage       int
-	HealthDamageTaken int // HP actually removed: health before the hit minus Health. Excludes over-damage (e.g. if player has 5 health and is hit for 15 damage this would be 5 instead of 15).
+	HealthDamageTaken int // HealthDamage excluding over-damage (e.g. if player has 5 health and is hit for 15 damage this would be 5 instead of 15)
 	ArmorDamageTaken  int // ArmorDamage excluding over-damage (e.g. if player has 5 armor and is hit for 15 armor damage this would be 5 instead of 15)
 	HitGroup          HitGroup
 }

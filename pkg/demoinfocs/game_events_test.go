@@ -560,7 +560,9 @@ func newPlayerWithPawnHealth(p *parser, userID int, health int) *common.Player {
 	return victim
 }
 
-func TestPlayerHurt_HealthDamageTakenIsHealthDrop(t *testing.T) {
+// Non-fatal hits report the raw dmg_health, even though on many server builds the hit actually removed
+// dmg_health+1 HP (fractional damage): HealthDamageTaken only differs from HealthDamage by excluding over-damage.
+func TestPlayerHurt_HealthDamageTakenIsDmgHealthForNonFatalHit(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	p.gameState.ingameTick = 5000
 
@@ -571,7 +573,6 @@ func TestPlayerHurt_HealthDamageTakenIsHealthDrop(t *testing.T) {
 		got = append(got, e)
 	})
 
-	// On many server builds a hit can remove dmg_health+1 HP (fractional damage).
 	data := playerHurtEventData(int32(victim.UserID), 1, "ak47")
 	data["health"].ValByte = proto.Int32(73)
 	data["armor"].ValByte = proto.Int32(50)
@@ -581,10 +582,10 @@ func TestPlayerHurt_HealthDamageTakenIsHealthDrop(t *testing.T) {
 
 	assert.Len(t, got, 1)
 	assert.Equal(t, 26, got[0].HealthDamage)
-	assert.Equal(t, 27, got[0].HealthDamageTaken)
+	assert.Equal(t, 26, got[0].HealthDamageTaken)
 }
 
-func TestPlayerHurt_SameTickHitsMeasuredFromPriorHitHealth(t *testing.T) {
+func TestPlayerHurt_FatalHitCappedAtPriorHitHealthSameTick(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	p.currentFrame = 100
 	p.gameState.ingameTick = 5000
@@ -596,16 +597,16 @@ func TestPlayerHurt_SameTickHitsMeasuredFromPriorHitHealth(t *testing.T) {
 		got = append(got, e)
 	})
 
-	// First hit: non-fatal, dmg_health 14 but victim drops from 50 to 35.
+	// First hit: non-fatal, victim reported at 35 HP after the hit.
 	data := playerHurtEventData(int32(victim.UserID), 1, "ak47")
 	data["health"].ValByte = proto.Int32(35)
 	data["armor"].ValByte = proto.Int32(50)
-	data["dmg_health"].ValShort = proto.Int32(14)
+	data["dmg_health"].ValShort = proto.Int32(15)
 
 	p.gameEventHandler.playerHurt(data)
 
-	// Second hit, same tick: fatal (health 0). Must be measured from the victim's HP right
-	// before it (35), not the start-of-tick value (50) which would over-report.
+	// Second hit, same tick: fatal (health 0). Must be capped at the victim's remaining
+	// HP right before it (35), not the start-of-tick value (50) which would over-report.
 	data2 := playerHurtEventData(int32(victim.UserID), 1, "ak47")
 	data2["health"].ValByte = proto.Int32(0)
 	data2["armor"].ValByte = proto.Int32(50)
@@ -619,6 +620,7 @@ func TestPlayerHurt_SameTickHitsMeasuredFromPriorHitHealth(t *testing.T) {
 }
 
 // A player who took control of a bot after dying is hurt through the bot's pawn, their own pawn's health is 0.
+// Non-fatal hits aren't capped by the victim's health, so this doesn't affect them.
 func TestPlayerHurt_HealthDamageTakenIsDmgHealthIfVictimHealthIsntTheHitPawns(t *testing.T) {
 	p := NewParser(rand.Reader).(*parser)
 	p.gameState.ingameTick = 5000
