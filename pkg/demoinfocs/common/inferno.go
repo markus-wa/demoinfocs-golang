@@ -22,6 +22,21 @@ type Inferno struct {
 	uniqueID         UniqueID
 	demoInfoProvider demoInfoProvider
 	thrower          *Player
+
+	// fireCountProp & fireProps cache the property handles Fires() reads (m_fireCount and the per-fire properties
+	// by index): consumers tracking positions call it for every inferno on every frame, formatting the property
+	// names and looking them up each time was most of its cost. The entity never changes for an inferno.
+	fireCountProp st.Property
+	fireProps     []fireProps
+}
+
+// fireProps are the property handles of one fire of an inferno, see Inferno.Fires().
+type fireProps struct {
+	isBurning st.Property
+	position  st.Property // m_firePositions.X, nil on demos where the fires are networked as deltas to the origin
+	xDelta    st.Property
+	yDelta    st.Property
+	zDelta    st.Property
 }
 
 // Fire is a component of an Inferno.
@@ -61,32 +76,45 @@ func (inf *Inferno) Thrower() *Player {
 // Some are currently active and some have extinguished (see Fire.IsBurning).
 func (inf *Inferno) Fires() Fires {
 	entity := inf.Entity
-	origin := entity.Position()
+
+	if inf.fireCountProp == nil {
+		inf.fireCountProp = entity.Property("m_fireCount")
+	}
+
 	// m_fireCount is the total number of fire positions ever spawned for this inferno, not the number
 	// currently burning - it only ever increases and never returns to 0. Use Fires().Active() (gated
 	// on m_bFireIsBurning) for the fires burning right now.
-	nFires := entity.PropertyValueMust("m_fireCount").Int()
+	nFires := mustPropertyValue(inf.fireCountProp, "m_fireCount").Int()
 	fires := make([]Fire, 0, nFires)
 
-	iFormat := "%03d"
-	if inf.demoInfoProvider.IsSource2() {
-		iFormat = "%04d"
-	}
+	var (
+		origin         r3.Vector
+		originResolved bool
+	)
 
 	for i := 0; i < nFires; i++ {
-		iStr := fmt.Sprintf(iFormat, i)
-
-		fire := Fire{
-			IsBurning: entity.PropertyValueMust("m_bFireIsBurning." + iStr).BoolVal(),
+		if i >= len(inf.fireProps) {
+			inf.fireProps = append(inf.fireProps, inf.resolveFireProps(i))
 		}
 
-		if prop := entity.Property("m_firePositions." + iStr); prop != nil {
-			fire.Vector = prop.Value().R3Vec()
+		props := inf.fireProps[i]
+
+		fire := Fire{
+			IsBurning: mustPropertyValue(props.isBurning, "m_bFireIsBurning").BoolVal(),
+		}
+
+		if props.position != nil {
+			fire.Vector = props.position.Value().R3Vec()
 		} else {
+			if !originResolved {
+				origin = entity.Position()
+				originResolved = true
+			}
+
 			offset := r3.Vector{
-				X: float64(entity.PropertyValueMust("m_fireXDelta." + iStr).Int()),
-				Y: float64(entity.PropertyValueMust("m_fireYDelta." + iStr).Int()),
-				Z: float64(entity.PropertyValueMust("m_fireZDelta." + iStr).Int()),
+				X: float64(mustPropertyValue(props.xDelta, "m_fireXDelta").Int()),
+				Y: float64(mustPropertyValue(props.yDelta, "m_fireYDelta").Int()),
+				Z: float64(mustPropertyValue(props.zDelta, "m_fireZDelta").Int()),
 			}
 			fire.Vector = origin.Add(offset)
 		}
@@ -95,6 +123,34 @@ func (inf *Inferno) Fires() Fires {
 	}
 
 	return Fires{s: fires}
+}
+
+// resolveFireProps looks up the property handles of the inferno's fire i.
+func (inf *Inferno) resolveFireProps(i int) fireProps {
+	iFormat := "%03d"
+	if inf.demoInfoProvider.IsSource2() {
+		iFormat = "%04d"
+	}
+
+	iStr := fmt.Sprintf(iFormat, i)
+	entity := inf.Entity
+
+	return fireProps{
+		isBurning: entity.Property("m_bFireIsBurning." + iStr),
+		position:  entity.Property("m_firePositions." + iStr),
+		xDelta:    entity.Property("m_fireXDelta." + iStr),
+		yDelta:    entity.Property("m_fireYDelta." + iStr),
+		zDelta:    entity.Property("m_fireZDelta." + iStr),
+	}
+}
+
+// mustPropertyValue returns the property's value, panicking like Entity.PropertyValueMust() if it's nil.
+func mustPropertyValue(prop st.Property, name string) st.PropertyValue {
+	if prop == nil {
+		panic(fmt.Sprintf("property '%s' not found", name))
+	}
+
+	return prop.Value()
 }
 
 // Active returns all currently active fires (only Fire.IsBurning == true).
