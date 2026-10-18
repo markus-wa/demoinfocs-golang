@@ -127,9 +127,10 @@ func (p *parser) handleGameEventS2(ge *msgs2.CMsgSource1LegacyGameEvent) {
 }
 
 // victimTickHealthDamage records the victim's last reported health within a single game tick, so a
-// same-tick follow-up hit is measured from the victim's actual HP right before it instead of the
-// stale start-of-tick value. Tracking the server's reported post-hit health is exact, whereas
-// summing raw dmg_health under-reports the true HP drop by 1 on many hits (on many server builds).
+// same-tick fatal follow-up hit can be capped at the victim's actual remaining HP instead of the
+// stale start-of-tick value (which over-reports same-tick multi-attacker kills). Tracking the
+// server's reported post-hit health is exact, whereas summing raw dmg_health can under-report the
+// true HP drop by 1 (dmg_health is rounded down on many server builds).
 type victimTickHealthDamage struct {
 	tick       int
 	lastHealth int
@@ -555,26 +556,22 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CSVCMsg_GameEventKey
 		geh.healthDamagePerVictim[userID] = victimDamage
 	}
 
-	if player != nil {
-		// The damage actually taken is the victim's HP right before this hit minus the reported
-		// post-hit health. player.Health() reads the start-of-tick HP (entity state is applied only
-		// after the tick's events are dispatched). When an earlier hit already landed on this victim
-		// this same tick, use that hit's reported post-damage health instead - the server's own HP
-		// after it - otherwise same-tick multi-hit sequences over-report.
-		//
-		// This is not the same as dmg_health: on many server builds a hit can remove
-		// dmg_health+1 HP, and the game's own damage stats
-		// (m_pActionTrackingServices.m_iDamage) count the HP removed.
-		healthBefore := player.Health()
-		if victimDamage.hasPrior {
-			healthBefore = victimDamage.lastHealth
-		}
+	if player != nil { //nolint:nestif // fatal-hit capping + armor fallback, kept flat to mirror player_death
+		if health == 0 {
+			// Fatal hit: the damage actually taken is the victim's remaining HP right before this
+			// hit. player.Health() reads the start-of-tick HP (entity state is applied only after the
+			// tick's events are dispatched). When an earlier hit already landed on this victim this
+			// same tick, use that hit's reported post-damage health - the server's own HP after it,
+			// and exact - otherwise same-tick multi-attacker kills over-report the finishing blow.
+			if victimDamage.hasPrior {
+				healthDamageTaken = victimDamage.lastHealth
+			} else {
+				healthDamageTaken = player.Health()
+			}
 
-		// A hit can't increase the health: the victim's health isn't the one of the hit pawn, e.g. when the
-		// player took control of a bot after dying (player.Health() is the one of the player's own pawn).
-		// Keep dmg_health then.
-		if healthBefore >= health {
-			healthDamageTaken = healthBefore - health
+			if healthDamageTaken < 0 {
+				healthDamageTaken = 0
+			}
 		}
 
 		if armor == 0 {
