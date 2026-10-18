@@ -760,10 +760,13 @@ type velocityFixture struct {
 	pawnID   int
 	pawn     *stfake.Entity // re-used across frames while pawnID doesn't change, set to nil to re-create the pawn
 	pawnOfID int            // pawnID the pawn entity was created for
-	pos      r3.Vector
-	interp   uint64
-	health   int32
-	velocity *r3.Vector // networked m_vecVelocity, nil = declared but not populated (pre AnimGraph 2)
+	// pawnProps are the pawn's fake properties by name, kept across update() calls so that the handles Player
+	// caches read the current value (like real ones do).
+	pawnProps map[string]*stfake.Property
+	pos       r3.Vector
+	interp    uint64
+	health    int32
+	velocity  *r3.Vector // networked m_vecVelocity, nil = declared but not populated (pre AnimGraph 2)
 }
 
 const velocityFixtureControllerID = 2 // pawn handle is 1
@@ -839,11 +842,28 @@ func (f *velocityFixture) update() {
 	pawn.On("ID").Return(f.pawnID)
 	pawn.On("Position").Return(f.pos)
 
+	if f.pawnProps == nil {
+		f.pawnProps = make(map[string]*stfake.Property)
+	}
+
 	for _, prop := range props {
+		// Property handles are cached by Player (see cachedProps), like a real one the fake must read the
+		// current value: keep one fake property per name and refresh its value instead of creating a new one.
+		property, ok := f.pawnProps[prop.propName]
+		if !ok {
+			property = new(stfake.Property)
+			f.pawnProps[prop.propName] = property
+		}
+
+		property.ExpectedCalls = nil
+		property.On("Value").Return(prop.value)
+
+		pawn.On("Property", prop.propName).Return(property)
 		pawn.On("PropertyValue", prop.propName).Return(prop.value, true)
 		pawn.On("PropertyValueMust", prop.propName).Return(prop.value)
 	}
 
+	pawn.On("Property", mock.Anything).Return(nil)
 	pawn.On("PropertyValue", mock.Anything).Return(st.PropertyValue{}, false)
 
 	f.provider.entitiesByHandle[1] = pawn

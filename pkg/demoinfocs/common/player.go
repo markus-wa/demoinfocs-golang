@@ -54,6 +54,10 @@ type Player struct {
 		pawn       uint64
 		playerPawn uint64
 	}
+	// pawnProps & controllerProps cache the property handles of the pawn / controller properties the CS2 getters
+	// read: looking them up by name on every call was most of the getters' remaining cost, see cachedProps.
+	pawnProps       cachedProps
+	controllerProps cachedProps
 }
 
 // positionSample is a pawn position recorded at the end of a frame.
@@ -181,9 +185,8 @@ func (p *Player) IsAlive() bool {
 	}
 
 	if p.demoInfoProvider.IsSource2() {
-		pawnEntity := p.PlayerPawnEntity()
-		if pawnEntity != nil {
-			return pawnEntity.PropertyValueMust("m_lifeState").S2UInt64() == 0
+		if lifeState, ok := p.pawnValueMust(propLifeState); ok {
+			return lifeState.S2UInt64() == 0
 		}
 
 		return getBool(p.Entity, "m_bPawnIsAlive")
@@ -201,8 +204,7 @@ func (p *Player) IsBlinded() bool {
 // IsAirborne returns true if the player is jumping or falling.
 func (p *Player) IsAirborne() bool {
 	if p.demoInfoProvider.IsSource2() {
-		groundEntityHandle := getUInt64(p.PlayerPawnEntity(), "m_hGroundEntity")
-		return groundEntityHandle == constants.InvalidEntityHandleSource2
+		return p.pawnUInt64(propGroundEntity) == constants.InvalidEntityHandleSource2
 	}
 
 	if p.Entity == nil {
@@ -265,8 +267,8 @@ This isn't very conclusive but it looks like IsFlashed isn't super reliable curr
 // Used internally to set the active weapon, see ActiveWeapon()
 func (p *Player) activeWeaponID() int {
 	if p.demoInfoProvider.IsSource2() {
-		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
-			return int(pawnEntity.PropertyValueMust("m_pWeaponServices.m_hActiveWeapon").S2UInt64() & constants.EntityHandleIndexMaskSource2)
+		if activeWeapon, ok := p.pawnValueMust(propActiveWeapon); ok {
+			return int(activeWeapon.S2UInt64() & constants.EntityHandleIndexMaskSource2)
 		}
 
 		return 0
@@ -295,17 +297,12 @@ func (p *Player) Weapons() []*Equipment {
 // FlashbangCount returns the amount of flashbangs the player currently has in his inventory.
 func (p *Player) FlashbangCount() uint64 {
 	if p.demoInfoProvider.IsSource2() {
-		pawn := p.PlayerPawnEntity()
-		if pawn == nil {
-			return 0
-		}
-
-		flashCountProp, ok := pawn.PropertyValue("m_pWeaponServices.m_iAmmo.0014")
+		flashCount, ok := p.pawnValue(propFlashbangAmmo)
 		if !ok {
 			return 0
 		}
 
-		return flashCountProp.S2UInt64()
+		return flashCount.S2UInt64()
 	}
 
 	return uint64(p.Entity.PropertyValueMust("m_iAmmo.015").Int())
@@ -393,7 +390,7 @@ func (p *Player) IsInBuyZone() bool {
 // See https://github.com/markus-wa/demoinfocs-golang/issues/318
 func (p *Player) IsWalking() bool {
 	if p.demoInfoProvider.IsSource2() {
-		return getBool(p.PlayerPawnEntity(), "m_bIsWalking")
+		return p.pawnBool(propIsWalking)
 	}
 
 	return getBool(p.Entity, "m_bIsWalking")
@@ -402,7 +399,7 @@ func (p *Player) IsWalking() bool {
 // IsScoped returns whether the player is currently scoped in or not.
 func (p *Player) IsScoped() bool {
 	if p.demoInfoProvider.IsSource2() {
-		return getBool(p.PlayerPawnEntity(), "m_bIsScoped")
+		return p.pawnBool(propIsScoped)
 	}
 
 	return getBool(p.Entity, "m_bIsScoped")
@@ -463,7 +460,7 @@ func (p *Player) IsStanding() bool {
 // HasDefuseKit returns true if the player currently has a defuse kit in his inventory.
 func (p *Player) HasDefuseKit() bool {
 	if p.demoInfoProvider.IsSource2() {
-		return getBool(p.PlayerPawnEntity(), "m_pItemServices.m_bHasDefuser")
+		return p.pawnBool(propHasDefuser)
 	}
 
 	return getBool(p.Entity, "m_bHasDefuser")
@@ -472,7 +469,7 @@ func (p *Player) HasDefuseKit() bool {
 // HasHelmet returns true if the player is currently wearing head armor.
 func (p *Player) HasHelmet() bool {
 	if p.demoInfoProvider.IsSource2() {
-		return getBool(p.PlayerPawnEntity(), "m_pItemServices.m_bHasHelmet")
+		return p.pawnBool(propHasHelmet)
 	}
 
 	return getBool(p.Entity, "m_bHasHelmet")
@@ -509,7 +506,7 @@ func (p *Player) ControlledBot() *Player {
 // Health returns the player's health points, normally 0-100.
 func (p *Player) Health() int {
 	if p.demoInfoProvider.IsSource2() {
-		return getInt(p.PlayerPawnEntity(), "m_iHealth")
+		return p.pawnInt(propHealth)
 	}
 
 	return getInt(p.Entity, "m_iHealth")
@@ -518,7 +515,7 @@ func (p *Player) Health() int {
 // Armor returns the player's armor points, normally 0-100.
 func (p *Player) Armor() int {
 	if p.demoInfoProvider.IsSource2() {
-		return getInt(p.PlayerPawnEntity(), "m_ArmorValue")
+		return p.pawnInt(propArmor)
 	}
 
 	return getInt(p.Entity, "m_ArmorValue")
@@ -574,7 +571,11 @@ func (p *Player) CompetitiveWins() int {
 // Money returns the amount of money in the player's bank.
 func (p *Player) Money() int {
 	if p.demoInfoProvider.IsSource2() {
-		return getInt(p.Entity, "m_pInGameMoneyServices.m_iAccount")
+		if money, ok := p.controllerValueMust(propMoney); ok {
+			return money.Int()
+		}
+
+		return 0
 	}
 
 	return getInt(p.Entity, "m_iAccount")
@@ -622,8 +623,8 @@ func (p *Player) EquipmentValueFreezeTimeEnd() int {
 // ViewDirectionX returns the Yaw value in degrees, 0 to 360.
 func (p *Player) ViewDirectionX() float32 {
 	if p.demoInfoProvider.IsSource2() {
-		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
-			return float32(pawnEntity.PropertyValueMust("m_angEyeAngles").R3Vec().Y)
+		if eyeAngles, ok := p.pawnValueMust(propEyeAngles); ok {
+			return float32(eyeAngles.R3Vec().Y)
 		}
 
 		return 0
@@ -635,8 +636,8 @@ func (p *Player) ViewDirectionX() float32 {
 // ViewDirectionY returns the Pitch value in degrees, 270 to 90 (270=-90).
 func (p *Player) ViewDirectionY() float32 {
 	if p.demoInfoProvider.IsSource2() {
-		if pawnEntity := p.PlayerPawnEntity(); pawnEntity != nil {
-			return float32(pawnEntity.PropertyValueMust("m_angEyeAngles").R3Vec().X)
+		if eyeAngles, ok := p.pawnValueMust(propEyeAngles); ok {
+			return float32(eyeAngles.R3Vec().X)
 		}
 
 		return 0
@@ -753,9 +754,9 @@ func (p *Player) velocityS2() r3.Vector {
 		return p.positionDeltaVelocity(pawnEntity)
 	}
 
-	x, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
-	y, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecY")
-	z, _ := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecZ")
+	x, _ := p.pawnFloatIfExists(pawnEntity, propVelocityX)
+	y, _ := p.pawnFloatIfExists(pawnEntity, propVelocityY)
+	z, _ := p.pawnFloatIfExists(pawnEntity, propVelocityZ)
 
 	return r3.Vector{
 		X: float64(x),
@@ -778,7 +779,7 @@ func (p *Player) isVelocityNetworked(pawnEntity st.Entity) bool {
 		return false
 	}
 
-	_, ok := getFloatIfExists(pawnEntity, "m_vecVelocity.m_vecX")
+	_, ok := p.pawnFloatIfExists(pawnEntity, propVelocityX)
 
 	return ok
 }
@@ -953,7 +954,7 @@ func (pf PlayerFlags) DuckingKeyPressed() bool {
 // Flags returns flags currently set on m_fFlags.
 func (p *Player) Flags() PlayerFlags {
 	if p.demoInfoProvider.IsSource2() {
-		return PlayerFlags(getUInt64(p.PlayerPawnEntity(), "m_fFlags"))
+		return PlayerFlags(p.pawnUInt64(propFlags))
 	}
 
 	return PlayerFlags(getInt(p.Entity, "m_fFlags"))
@@ -1034,7 +1035,11 @@ func (p *Player) ViewmodelFOV() float32 {
 func (p *Player) Ping() int {
 	// TODO change this func return type to uint64? (small BC)
 	if p.demoInfoProvider.IsSource2() {
-		return int(getUInt64(p.Entity, "m_iPing"))
+		if ping, ok := p.controllerValueMust(propPing); ok {
+			return int(ping.S2UInt64())
+		}
+
+		return 0
 	}
 
 	return getInt(p.resourceEntity(), "m_iPing."+p.entityIDStr())
@@ -1194,7 +1199,7 @@ func (p *Player) LastPlaceName() string {
 // IsGrabbingHostage returns true if the player is currently grabbing a hostage.
 func (p *Player) IsGrabbingHostage() bool {
 	if p.demoInfoProvider.IsSource2() {
-		return getBool(p.PlayerPawnEntity(), "m_bIsGrabbingHostage")
+		return p.pawnBool(propIsGrabbingHostage)
 	}
 
 	return getBool(p.Entity, "m_bIsGrabbingHostage")

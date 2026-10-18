@@ -328,8 +328,6 @@ func entityWithProperty(propName string, value st.PropertyValue) *stfake.Entity 
 func entityWithProperties(properties []fakeProp) *stfake.Entity {
 	entity := entityWithID(1)
 
-	entity.On("Property", mock.Anything).Return(nil)
-
 	for _, prop := range properties {
 		if prop.isNil {
 			entity.On("Property", prop.propName).Return(nil)
@@ -345,8 +343,9 @@ func entityWithProperties(properties []fakeProp) *stfake.Entity {
 		entity.On("PropertyValueMust", prop.propName).Return(prop.value)
 	}
 
-	// testify matches expectations in registration order, so the catch-all for
+	// testify matches expectations in registration order, so the catch-alls for
 	// unknown properties must come after the specific ones
+	entity.On("Property", mock.Anything).Return(nil)
 	entity.On("PropertyValue", mock.Anything).Return(st.PropertyValue{}, false)
 
 	return entity
