@@ -1,10 +1,10 @@
 package demoinfocs
 
 import (
+	"cmp"
 	"errors"
 	"maps"
 	"slices"
-	"sort"
 	"strconv"
 	"time"
 
@@ -596,13 +596,8 @@ func (ptcp Participants) All() []*common.Player {
 // (they are built by ranging maps, whose iteration order Go randomises). SteamID64 is stable across
 // demos; UserID breaks ties (e.g. between bots, whose SteamID64 is 0).
 func sortPlayers(players []*common.Player) {
-	sort.Slice(players, func(i, j int) bool {
-		a, b := players[i], players[j]
-		if a.SteamID64 != b.SteamID64 {
-			return a.SteamID64 < b.SteamID64
-		}
-
-		return a.UserID < b.UserID
+	slices.SortFunc(players, func(a, b *common.Player) int {
+		return cmp.Or(cmp.Compare(a.SteamID64, b.SteamID64), cmp.Compare(a.UserID, b.UserID))
 	})
 }
 
