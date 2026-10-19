@@ -200,10 +200,11 @@ func TestThrownGrenadeWeapon_Flashbang(t *testing.T) {
 			pickedUp: true,
 		},
 		{
-			name:   "last one thrown & one picked up the tick before",
+			// the thrown one leaves the inventory but isn't destroyed (yet)
+			name:   "last one thrown & one picked up, weapon not destroyed",
 			prime:  (*thrownGrenadeTest).releaseA,
 			update: func(gt *thrownGrenadeTest) { gt.setSlot(3, testFlashB) },
-			tick:   11,
+			tick:   10,
 			want:   testFlashA,
 		},
 		{
@@ -363,7 +364,7 @@ func TestThrownGrenadeWeapon_PrimedWeaponGone(t *testing.T) {
 			// still the thrown one on the tick it went (last of type: destroyed with the projectile)
 			assert.Same(t, gt.weapons[testFlashA], gt.throw(t))
 
-			gt.p.gameState.ingameTick = 11
+			gt.p.gameState.ingameTick = 10 + grenadeThrowEndedGraceTicks + 1
 			assert.Same(t, gt.weapons[testFlashB], gt.throwFrom(t, 201, testThrowerPawnID, testItemFlash).Entity)
 		})
 	}
@@ -386,7 +387,8 @@ func TestThrownGrenadeWeapon_NewerPrimingReplacesOlder(t *testing.T) {
 	assert.Same(t, gt.weapons[testFlashB], gt.throw(t))
 }
 
-// POV demos re-create the same projectile entity on the ticks after the throw: every creation is the thrown weapon's.
+// POV demos re-create the same projectile entity on the ticks after the throw: every creation is the thrown weapon's,
+// even if another grenade of the type was picked up with the throw.
 func TestThrownGrenadeWeapon_ProjectileRecreated(t *testing.T) {
 	gt := newThrownGrenadeTest(t)
 	gt.setSlot(3, testFlashA)
@@ -395,13 +397,37 @@ func TestThrownGrenadeWeapon_ProjectileRecreated(t *testing.T) {
 	gt.release(testFlashA)
 
 	gt.p.gameState.ingameTick = 10
-	gt.setSlot(3, constants.InvalidEntityHandleSource2)
+	gt.setSlot(3, testFlashB)
 	stfake.Destroy(gt.weapons[testFlashA])
 
-	for tick := 10; tick <= 12; tick++ {
+	for tick := 10; tick <= 10+grenadeThrowEndedGraceTicks; tick++ {
 		gt.p.gameState.ingameTick = tick
 		assert.Same(t, gt.weapons[testFlashA], gt.throw(t), "tick %d", tick)
 	}
+}
+
+// A weapon entity re-created with the same serial (PVS re-entry on POV demos) is bound again for the same
+// equipment; the pawn's record for it must still end when the weapon goes.
+func TestThrownGrenadeWeapon_WeaponRecreated(t *testing.T) {
+	gt := newThrownGrenadeTest(t)
+	gt.setSlot(3, testFlashA)
+
+	gt.p.gameState.ingameTick = 4
+	gt.pullPin(testFlashA)
+	stfake.Update(gt.weapons[testFlashA], stfake.P("m_bPinPulled", false)) // cancelled
+
+	recreated := gt.newWeapon(testFlashA, testItemFlash, testThrowerPawnID)
+	assert.Same(t, recreated, gt.pl.Inventory[testFlashA].Entity, "same equipment, new entity")
+
+	gt.p.gameState.ingameTick = 100
+	gt.setSlot(3, constants.InvalidEntityHandleSource2) // dropped
+	stfake.Destroy(recreated)
+
+	gt.p.gameState.ingameTick = 500
+	gt.setSlot(3, testFlashB) // picked up
+
+	gt.p.gameState.ingameTick = 1000
+	assert.Same(t, gt.weapons[testFlashB], gt.throw(t), "no priming seen: the inventory's, not the long gone one")
 }
 
 // Molotovs and incendiaries may be reported as each other, the primed one is the thrown one.
