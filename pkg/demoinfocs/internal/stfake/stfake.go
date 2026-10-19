@@ -153,7 +153,6 @@ func Set(e *st.Entity, props ...Prop) {
 // each property is set and its update handlers fire before the next one is set, in field-path
 // (declaration) order regardless of the order given. Then the OnUpdateFinished delegates
 // and the parser's entity handlers (Updated, plus Entered if the entity had been destroyed or left the PVS) fire.
-// If the entity had left the PVS (see Leave), its OnEnterPVS delegates fire before the entity handlers.
 // Setting a property that wasn't declared panics.
 func Update(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
@@ -161,7 +160,7 @@ func Update(e *st.Entity, props ...Prop) {
 }
 
 // UpdateUnfinished is like Update, but stops after the update handlers fired:
-// neither the OnUpdateFinished and OnEnterPVS delegates nor the parser's entity handlers are called.
+// neither the OnUpdateFinished delegates nor the parser's entity handlers are called.
 func UpdateUnfinished(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
 	stbridge.Set(e, parserOf(e), names, values, true, false)

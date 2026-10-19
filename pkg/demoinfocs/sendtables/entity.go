@@ -38,7 +38,6 @@ type Entity struct {
 	onUpdateFinished []func()
 	onDestroy        []func()
 	onLeavePVS       []func()
-	onEnterPVS       []func()
 	updateHandlers   map[string][]PropertyUpdateHandler
 	// handlerLog preserves the global registration order of update handlers.
 	// updateHandlers remains the name-keyed index for lookup; this log is the
@@ -530,9 +529,11 @@ func (e *Entity) InPVS() bool {
 
 // OnLeavePVS registers a function to be called when the entity leaves the snapshot (the PVS) without being deleted.
 // The entity isn't destroyed yet, its properties keep their last values.
-// Afterwards exactly one of OnEnterPVS (it comes back with an update - rare) or OnDestroy (it's deleted, or
-// re-created at its index as a new object, see Replaced(), which shows up via ServerClass.OnEntityCreated())
-// follows, unless the demo ends first.
+// Afterwards, unless the demo ends first, the entity is either destroyed (OnDestroy) - because it's deleted,
+// or because it re-enters the PVS, which is sent as a re-create at its index: Replaced() is true then
+// and the new object shows up via ServerClass.OnEntityCreated() -
+// or, rarely, it's updated again without a re-create, in which case InPVS() is true again
+// (check e.g. in OnUpdateFinished).
 // It isn't called when the entity is deleted, only OnDestroy is.
 //
 // Like OnDestroy, it's called while the entity packet is parsed: other entities of the packet may not be updated yet.
@@ -545,20 +546,6 @@ func (e *Entity) leavePVS() {
 	e.inPVS = false
 
 	for _, delegate := range e.onLeavePVS {
-		delegate()
-	}
-}
-
-// OnEnterPVS registers a function to be called when an entity that left the snapshot (see OnLeavePVS)
-// comes back with an update. This is rare: entities usually come back as a new object, see OnLeavePVS.
-// It's called after the update's property update handlers and OnUpdateFinished delegates,
-// while the entity packet is parsed: entities later in the packet aren't updated yet.
-func (e *Entity) OnEnterPVS(delegate func()) {
-	e.onEnterPVS = append(e.onEnterPVS, guardDelegate(delegate))
-}
-
-func (e *Entity) fireEnterPVS() {
-	for _, delegate := range e.onEnterPVS {
 		delegate()
 	}
 }
@@ -1041,12 +1028,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 				op = EntityOpUpdated
 
 				// The entity left the PVS or was destroyed (destroy() clears inPVS too).
-				// OnEnterPVS only fires for entities that left without being deleted (OnLeavePVS fired),
-				// not for destroyed entities that are re-activated.
-				reentered := false
-
 				if !e.inPVS {
-					reentered = e.active
 					e.active = true
 					e.inPVS = true
 					op |= EntityOpEntered
@@ -1054,10 +1036,6 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 
 				e.readFields(r, &p.pathCache, &p.entityBudget)
 				e.fireUpdateFinished()
-
-				if reentered {
-					e.fireEnterPVS()
-				}
 			}
 		} else {
 			e = p.entities[index]
@@ -1080,7 +1058,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 			case !e.inPVS:
 				continue // entity has already left the PVS
 			default:
-				// the entity isn't destroyed, it may re-enter the PVS with an update (see OnEnterPVS)
+				// the entity isn't destroyed, it may re-enter the PVS (see OnLeavePVS)
 				e.leavePVS()
 			}
 		}

@@ -9,7 +9,7 @@ import (
 )
 
 // pvsTestParser returns a budgetTestParser that logs the entity handlers' ops and the
-// OnLeavePVS, OnEnterPVS and OnDestroy delegates of all its entities.
+// OnLeavePVS and OnDestroy delegates of all its entities.
 func pvsTestParser(t *testing.T) (*Parser, *[]string) {
 	t.Helper()
 
@@ -25,7 +25,6 @@ func pvsTestParser(t *testing.T) (*Parser, *[]string) {
 
 	p.classesById[0].OnEntityCreated(func(e *Entity) {
 		e.OnLeavePVS(func() { log = append(log, fmt.Sprintf("%d/%d leave", e.index, e.serial)) })
-		e.OnEnterPVS(func() { log = append(log, fmt.Sprintf("%d/%d enter in-pvs=%v", e.index, e.serial, e.InPVS())) })
 		e.OnDestroy(func() { log = append(log, fmt.Sprintf("%d/%d destroy", e.index, e.serial)) })
 	})
 
@@ -59,7 +58,8 @@ func TestPVS_LeaveAndReenter(t *testing.T) {
 	// leaving again does nothing
 	assert.Empty(t, pvsPacket(t, p, log, entityOp{index: 5, leave: true}))
 
-	assert.Equal(t, []string{"5/1 enter in-pvs=true", "5/1 Updated+Entered"}, pvsPacket(t, p, log, entityOp{index: 5, update: true, arrSize: 2}))
+	// rare: an update without a re-create brings the same object back into the PVS
+	assert.Equal(t, []string{"5/1 Updated+Entered"}, pvsPacket(t, p, log, entityOp{index: 5, update: true, arrSize: 2}))
 	assert.True(t, e.InPVS())
 	assert.Same(t, e, p.entities[5])
 	assert.Len(t, e.PropertyValueMust("m_arr").Any, 2)
@@ -100,7 +100,7 @@ func TestPVS_DeleteDoesntFireLeave(t *testing.T) {
 	assert.Equal(t, []string{"5/1 destroy", "5/1 Deleted+Left"}, pvsPacket(t, p, log, entityOp{index: 5, delete: true}))
 	assert.False(t, p.entities[5].InPVS())
 
-	// an update re-activates the destroyed entity (Entered), but it didn't leave the PVS, so OnEnterPVS doesn't fire
+	// an update re-activates the destroyed entity (Entered)
 	assert.Equal(t, []string{"5/1 Updated+Entered"}, pvsPacket(t, p, log, entityOp{index: 5, update: true}))
 	assert.True(t, p.entities[5].InPVS())
 }
@@ -164,18 +164,6 @@ func TestGuards_OnLeavePVS(t *testing.T) {
 	e.OnLeavePVS(userCallbackThatPanics)
 
 	requireTagged(t, recoverPanic(func() { syntheticLeave(e, p) }))
-}
-
-func TestGuards_OnEnterPVS(t *testing.T) {
-	reenter := func(e *Entity, p *Parser) {
-		syntheticLeave(e, p)
-		syntheticSet(e, p, []string{"m_x"}, []any{2}, true, true)
-	}
-
-	p, e := newGuardTestEntity()
-	e.OnEnterPVS(userCallbackThatPanics)
-
-	requireTagged(t, recoverPanic(func() { reenter(e, p) }))
 }
 
 // User panics in OnLeavePVS are tagged as user-code panics by the real parser too.

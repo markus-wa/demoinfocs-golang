@@ -173,12 +173,10 @@ func syntheticSet(e *Entity, p *Parser, names []string, values []any, fire, fini
 
 	// Like Parser.OnPacketEntities, an update re-activates a destroyed entity and brings back an entity that left
 	// the PVS before its fields are read, also without finish (so Destroy and Leave work again afterwards).
-	// Only finish fires the OnEnterPVS delegates and the entity handlers (Entered).
+	// Only finish fires the entity handlers (Entered).
 	op := EntityOpUpdated
-	reentered := false
 
 	if !e.inPVS { // destroy() clears inPVS too
-		reentered = e.active
 		e.active = true
 		e.inPVS = true
 		op |= EntityOpEntered
@@ -201,10 +199,6 @@ func syntheticSet(e *Entity, p *Parser, names []string, values []any, fire, fini
 	}
 
 	e.fireUpdateFinished()
-
-	if reentered {
-		e.fireEnterPVS()
-	}
 
 	fireSyntheticEntityHandlers(p, e, op)
 }

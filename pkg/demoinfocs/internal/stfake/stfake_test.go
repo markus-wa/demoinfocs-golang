@@ -345,7 +345,6 @@ func TestLeave(t *testing.T) {
 
 	e := stfake.New(stfake.Spec{Parser: p, Class: "CFoo", ID: 1, Props: []stfake.Prop{stfake.P("m_a", int32(0))}})
 	e.OnLeavePVS(func() { log = append(log, "left") })
-	e.OnEnterPVS(func() { log = append(log, "entered") })
 	e.OnUpdateFinished(func() { log = append(log, "update finished") })
 	e.OnDestroy(func() { log = append(log, "destroyed") })
 
@@ -364,7 +363,7 @@ func TestLeave(t *testing.T) {
 
 	stfake.Update(e, stfake.P("m_a", int32(1)))
 
-	assert.Equal(t, []string{"update finished", "entered", "entity handler Updated+Entered"}, log)
+	assert.Equal(t, []string{"update finished", "entity handler Updated+Entered"}, log)
 	assert.True(t, e.InPVS())
 
 	log = nil
