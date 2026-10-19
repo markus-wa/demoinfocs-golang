@@ -105,44 +105,41 @@ func TestPVS_DeleteDoesntFireLeave(t *testing.T) {
 	assert.True(t, p.entities[5].InPVS())
 }
 
-// An entity that left the PVS is destroyed (Replaced) when a new entity is created at its index (#712).
-func TestPVS_LeaveThenReplaced(t *testing.T) {
+// An entity that left the PVS is destroyed (Replaced) when it's re-created at its index (#712), with a new serial
+// or with the same serial (how entities usually re-enter the PVS on POV demos). The new object is in the PVS.
+func TestPVS_LeaveThenRecreated(t *testing.T) {
 	t.Parallel()
 
-	p, log := pvsTestParser(t)
+	for _, tc := range []struct {
+		name   string
+		serial uint64
+	}{
+		{"same serial", 1},
+		{"new serial", 2},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	pvsPacket(t, p, log, entityOp{index: 5, serial: 1})
-	assert.Equal(t, []string{"5/1 leave", "5/1 Left"}, pvsPacket(t, p, log, entityOp{index: 5, leave: true}))
+			p, log := pvsTestParser(t)
 
-	old := p.entities[5]
+			pvsPacket(t, p, log, entityOp{index: 5, serial: 1})
+			assert.Equal(t, []string{"5/1 leave", "5/1 Left"}, pvsPacket(t, p, log, entityOp{index: 5, leave: true}))
 
-	assert.Equal(t, []string{"5/1 destroy", "5/1 Deleted+Left", "5/2 Created+Entered"}, pvsPacket(t, p, log, entityOp{index: 5, serial: 2}))
-	assert.True(t, old.Replaced())
-	assert.False(t, old.InPVS())
-	assert.True(t, p.entities[5].InPVS())
-}
+			old := p.entities[5]
 
-// An entity that left the PVS and is re-created at its index with the same serial (how entities usually
-// re-enter the PVS on POV demos) is destroyed (Replaced), the new object is in the PVS.
-func TestPVS_LeaveThenRecreatedSameSerial(t *testing.T) {
-	t.Parallel()
+			assert.Equal(t, []string{"5/1 destroy", "5/1 Deleted+Left", fmt.Sprintf("5/%d Created+Entered", tc.serial)},
+				pvsPacket(t, p, log, entityOp{index: 5, serial: tc.serial}))
+			assert.True(t, old.Replaced())
+			assert.False(t, old.active)
+			assert.False(t, old.InPVS())
 
-	p, log := pvsTestParser(t)
-
-	pvsPacket(t, p, log, entityOp{index: 5, serial: 1})
-	assert.Equal(t, []string{"5/1 leave", "5/1 Left"}, pvsPacket(t, p, log, entityOp{index: 5, leave: true}))
-
-	old := p.entities[5]
-
-	assert.Equal(t, []string{"5/1 destroy", "5/1 Deleted+Left", "5/1 Created+Entered"}, pvsPacket(t, p, log, entityOp{index: 5, serial: 1}))
-	assert.True(t, old.Replaced())
-	assert.False(t, old.active)
-	assert.False(t, old.InPVS())
-
-	e := p.entities[5]
-	require.NotSame(t, old, e)
-	assert.True(t, e.InPVS())
-	assert.False(t, e.Replaced())
+			e := p.entities[5]
+			require.NotSame(t, old, e)
+			assert.True(t, e.InPVS())
+			assert.False(t, e.Replaced())
+			assert.Equal(t, int32(tc.serial), e.serial)
+		})
+	}
 }
 
 // A same-serial re-create of an entity that didn't leave the PVS doesn't destroy the old object.
@@ -167,11 +164,6 @@ func TestGuards_OnLeavePVS(t *testing.T) {
 	e.OnLeavePVS(userCallbackThatPanics)
 
 	requireTagged(t, recoverPanic(func() { syntheticLeave(e, p) }))
-
-	p, e = newGuardTestEntity()
-	e.addOnLeavePVS(userCallbackThatPanics)
-
-	requireUntagged(t, recoverPanic(func() { syntheticLeave(e, p) }))
 }
 
 func TestGuards_OnEnterPVS(t *testing.T) {
@@ -184,11 +176,6 @@ func TestGuards_OnEnterPVS(t *testing.T) {
 	e.OnEnterPVS(userCallbackThatPanics)
 
 	requireTagged(t, recoverPanic(func() { reenter(e, p) }))
-
-	p, e = newGuardTestEntity()
-	e.addOnEnterPVS(userCallbackThatPanics)
-
-	requireUntagged(t, recoverPanic(func() { reenter(e, p) }))
 }
 
 // User panics in OnLeavePVS are tagged as user-code panics by the real parser too.

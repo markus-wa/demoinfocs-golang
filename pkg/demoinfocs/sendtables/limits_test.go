@@ -272,24 +272,18 @@ func entitiesMsg(t *testing.T, size int, ops ...entityOp) *msg.CSVCMsg_PacketEnt
 		switch {
 		case op.delete:
 			w.bits(3, 2)
-
-			continue
 		case op.leave:
 			w.bits(1, 2)
-
-			continue
 		case op.update:
 			w.bits(0, 2)
 			w.arrayFieldUpdate(t, op.arrSize)
-
-			continue
+		default:
+			w.bits(2, 2) // create
+			w.bits(0, 1) // class ID
+			w.bits(op.serial, 17)
+			w.varUint(0)
+			w.arrayFieldUpdate(t, op.arrSize)
 		}
-
-		w.bits(2, 2) // create
-		w.bits(0, 1) // class ID
-		w.bits(op.serial, 17)
-		w.varUint(0)
-		w.arrayFieldUpdate(t, op.arrSize)
 	}
 
 	require.LessOrEqual(t, len(w.buf), size)

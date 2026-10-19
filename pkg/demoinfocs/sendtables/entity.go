@@ -537,12 +537,7 @@ func (e *Entity) InPVS() bool {
 //
 // Like OnDestroy, it's called while the entity packet is parsed: other entities of the packet may not be updated yet.
 func (e *Entity) OnLeavePVS(delegate func()) {
-	e.addOnLeavePVS(guardDelegate(delegate))
-}
-
-// addOnLeavePVS is OnLeavePVS without tagging the delegate's panics as user-code panics.
-func (e *Entity) addOnLeavePVS(delegate func()) {
-	e.onLeavePVS = append(e.onLeavePVS, delegate)
+	e.onLeavePVS = append(e.onLeavePVS, guardDelegate(delegate))
 }
 
 // leavePVS marks the entity as not in the PVS and triggers all via OnLeavePVS() registered functions.
@@ -559,12 +554,7 @@ func (e *Entity) leavePVS() {
 // It's called after the update's property update handlers and OnUpdateFinished delegates,
 // while the entity packet is parsed: entities later in the packet aren't updated yet.
 func (e *Entity) OnEnterPVS(delegate func()) {
-	e.addOnEnterPVS(guardDelegate(delegate))
-}
-
-// addOnEnterPVS is OnEnterPVS without tagging the delegate's panics as user-code panics.
-func (e *Entity) addOnEnterPVS(delegate func()) {
-	e.onEnterPVS = append(e.onEnterPVS, delegate)
+	e.onEnterPVS = append(e.onEnterPVS, guardDelegate(delegate))
 }
 
 func (e *Entity) fireEnterPVS() {

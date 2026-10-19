@@ -375,19 +375,11 @@ func TestLeave(t *testing.T) {
 	assert.Equal(t, []string{"left", "entity handler Left", "destroyed", "entity handler Deleted+Left"}, log)
 	assert.False(t, e.InPVS())
 	assert.False(t, e.Replaced())
-}
 
-func TestLeave_Destroyed(t *testing.T) {
-	e := stfake.NewEntity(1, stfake.P("m_a", int32(0)))
+	log = nil
 
-	left := 0
-
-	e.OnLeavePVS(func() { left++ })
-
-	stfake.Create(e)
-	stfake.Destroy(e)
 	stfake.Leave(e)
 
-	assert.Zero(t, left, "a destroyed entity doesn't leave the PVS")
+	assert.Empty(t, log, "a destroyed entity doesn't leave the PVS")
 	assert.False(t, e.InPVS())
 }
