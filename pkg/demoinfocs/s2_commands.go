@@ -338,37 +338,57 @@ func s2MsgCreatorForType(t int32) NetMessageCreator {
 	}
 }
 
-func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket, isFullPacket bool) {
+// decodeDemoPacket decodes the net-messages embedded in a (full) packet into p.pendingMsgs, see decodeFrame().
+// For full packets, a corrupt net-message size or protobuf is returned as error (the full packet is then skipped).
+//
+//nolint:funlen
+func (p *parser) decodeDemoPacket(pack *msgs2.CDemoPacket, isFullPacket bool) error {
 	b := pack.GetData()
 
 	if len(b) == 0 {
-		return
+		return nil
 	}
 
 	r := bitread.NewSmallBitReader(bytes.NewReader(b))
+	defer p.poolBitReader(r)
 
 	p.pendingMessagesCache = p.pendingMessagesCache[:0]
 	p.pendingMsgBufs = p.pendingMsgBufs[:0]
 
-	for len(b)*8-r.ActualPosition() > 7 {
-		t := int32(r.ReadUBitInt())
-		size := r.ReadVarInt32()
-		bp := getMsgBuf(int(size))
-		r.ReadBytesInto(bp, int(size))
-
-		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, *bp})
-		p.pendingMsgBufs = append(p.pendingMsgBufs, bp)
-	}
-
 	// All buffers are consumed by the unmarshal loop below; make sure they go
-	// back to the pool no matter how the loop ends.
+	// back to the pool no matter how the function ends (incl. panics).
 	defer func() {
 		for _, bp := range p.pendingMsgBufs {
 			putMsgBuf(bp)
 		}
+
+		clear(p.pendingMessagesCache)
 	}()
 
-	p.poolBitReader(r)
+	totalBits := uint64(len(b)) << 3
+
+	for len(b)*8-r.ActualPosition() > 7 {
+		t := int32(r.ReadUBitInt())
+		size := r.ReadVarInt32()
+
+		// Checked before allocating, so a corrupt size of a broken full packet can't make it allocate more than the packet's size.
+		if isFullPacket {
+			if remaining := remainingBits(r, totalBits); uint64(size)<<3 > remaining {
+				return fmt.Errorf("size %d of net-message of type %d exceeds the remaining %d bytes of the packet", size, t, remaining>>3) //nolint:err113 // only used for the ParserWarn message
+			}
+		}
+
+		bp := getMsgBuf(int(size))
+		p.pendingMsgBufs = append(p.pendingMsgBufs, bp)
+
+		r.ReadBytesInto(bp, int(size))
+
+		if isFullPacket && len(*bp) != int(size) {
+			return fmt.Errorf("net-message of type %d is truncated", t) //nolint:err113 // only used for the ParserWarn message
+		}
+
+		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, *bp})
+	}
 
 	slices.SortStableFunc(p.pendingMessagesCache, func(a, b pendingMessage) int {
 		return a.priority() - b.priority()
@@ -385,7 +405,9 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket, isFullPacket bool) {
 		msgCreator := s2MsgCreatorForType(m.t)
 
 		if msgCreator == nil {
-			p.msgDispatcher.Dispatch(events.ParserWarn{
+			// Queued in order with the net-messages, so it's only dispatched if the packet can be decoded completely.
+			// It's dispatched by the net-message dispatcher (as before it was queued), on the message-handling goroutine.
+			p.pendingMsgs = append(p.pendingMsgs, events.ParserWarn{
 				Message: fmt.Sprintf("unknown message type: %d", m.t),
 				Type:    events.WarnTypeUnknownProtobufMessage,
 			})
@@ -397,11 +419,25 @@ func (p *parser) handleDemoPacket(pack *msgs2.CDemoPacket, isFullPacket bool) {
 
 		err := proto.Unmarshal(m.buf, msg)
 		if err != nil {
-			panic(err) // FIXME: avoid panic
+			return fmt.Errorf("failed to unmarshal net-message of type %d: %w", m.t, err)
 		}
 
-		p.msgQueue <- msg
+		p.pendingMsgs = append(p.pendingMsgs, msg)
 	}
+
+	return nil
+}
+
+// remainingBits returns the number of bits of the data left after r's position.
+// The bit reader doesn't always panic right away when it reads past the end of the data,
+// its position can then exceed totalBits.
+func remainingBits(r *bitread.BitReader, totalBits uint64) uint64 {
+	pos := uint64(r.ActualPosition())
+	if pos >= totalBits {
+		return 0
+	}
+
+	return totalBits - pos
 }
 
 func (p *parser) handleFileInfo(msg *msgs2.CDemoFileInfo) {

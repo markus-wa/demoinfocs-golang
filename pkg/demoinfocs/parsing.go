@@ -29,7 +29,7 @@ const maxOsPath = 260
 // msgBufPool recycles the byte slices that hold frame and embedded-message
 // payloads. proto.Unmarshal always copies bytes fields into the message, so
 // the input buffers are dead once the message is unmarshaled and can be
-// returned to this pool. See parseFrame() and handleDemoPacket().
+// returned to this pool. See parseFrameS2() and decodeDemoPacket().
 var msgBufPool = sync.Pool{
 	New: func() any {
 		b := make([]byte, 0, 1024)
@@ -377,13 +377,15 @@ var demoCommandMsgsCreators = map[msgs2.EDemoCommands]NetMessageCreator{
 // is reused as the decompression destination; the pool entry is returned so
 // the caller can put it back after proto.Unmarshal (which copies everything
 // it needs). bp is nil whenever buf is not pool-backed.
-func (p *parser) readFramePayload(size int, msgCompressed bool) (buf []byte, bp *[]byte) {
+// A compressed payload that can't be decompressed is consumed from the demo stream
+// and the error is returned (the caller decides what to do, see parseFrameS2()).
+func (p *parser) readFramePayload(size int, msgCompressed bool) (buf []byte, bp *[]byte, err error) {
 	bp = getMsgBuf(size)
 	p.bitReader.ReadBytesInto(bp, size)
 	buf = *bp
 
 	if !msgCompressed {
-		return buf, bp
+		return buf, bp, nil
 	}
 
 	// Reuse the per-parser scratch as the snappy destination: the decoded
@@ -392,8 +394,6 @@ func (p *parser) readFramePayload(size int, msgCompressed bool) (buf []byte, bp 
 	// snappy.Decode only keeps dst when len(dst) >= decoded length, so grow
 	// the scratch's length (capacity permitting) instead of passing a
 	// zero-length slice — otherwise every call allocates a fresh buffer.
-	var err error
-
 	if dLen, _ := snappy.DecodedLen(buf); dLen <= cap(p.snappyScratch) {
 		p.snappyScratch = p.snappyScratch[:dLen]
 	}
@@ -405,16 +405,12 @@ func (p *parser) readFramePayload(size int, msgCompressed bool) (buf []byte, bp 
 	putMsgBuf(bp)
 
 	if err != nil {
-		buf = nil
-
-		p.handleSnappyError(err)
-
-		return buf, nil
+		return nil, nil, err
 	}
 
 	p.snappyScratch = buf[:0]
 
-	return buf, nil
+	return buf, nil, nil
 }
 
 func (p *parser) handleSnappyError(err error) {
@@ -463,39 +459,109 @@ func (p *parser) parseFrameS2() bool {
 		return true
 	}
 
-	buf, bp := p.readFramePayload(int(size), msgCompressed)
-
 	msg := msgCreator()
 
 	if msg == nil {
 		panic(fmt.Sprintf("Unknown demo command: %d", msgType))
 	}
 
-	err := proto.Unmarshal(buf, msg)
-	if err != nil {
-		panic(err) // FIXME: avoid panic
+	isFullPacket := msgType == msgs2.EDemoCommands_DEM_FullPacket
+
+	// Read outside of decodeFrame() so a demo that ends within the payload is still a truncated demo.
+	buf, bp, err := p.readFramePayload(int(size), msgCompressed)
+	if err != nil && !isFullPacket {
+		// other frames are decoded from an empty payload, as before
+		p.handleSnappyError(err)
+
+		err = nil
+	}
+
+	if err == nil {
+		err = p.decodeFrame(msg, buf, isFullPacket)
 	}
 
 	putMsgBuf(bp)
 
+	if err != nil {
+		// Some Valve matchmaking demos (~10% in 2023) contain a broken DEM_FullPacket, which the game skips as well (#409).
+		// Full packets are snapshots of the state that's also sent with the regular packets, so they can be skipped.
+		// The frame is still counted, so CurrentFrame() stays the same for all later frames.
+		if !isFullPacket {
+			panic(err) // FIXME: avoid panic
+		}
+
+		p.msgQueue <- &brokenFullPacket{err: err}
+
+		p.msgQueue <- frameParsedToken
+
+		return true
+	}
+
 	p.msgQueue <- msg
 
-	switch m := msg.(type) {
-	case *msgs2.CDemoPacket:
-		p.handleDemoPacket(m, false)
-
-	case *msgs2.CDemoFullPacket:
+	if m, ok := msg.(*msgs2.CDemoFullPacket); ok {
 		p.msgQueue <- m.StringTable
-
-		if m.Packet.GetData() != nil {
-			p.handleDemoPacket(m.Packet, true)
-		}
 	}
+
+	for _, m := range p.pendingMsgs {
+		p.msgQueue <- m
+	}
+
+	clear(p.pendingMsgs)
 
 	// Queue up some post processing
 	p.msgQueue <- frameParsedToken
 
 	return msgType != msgs2.EDemoCommands_DEM_Stop
+}
+
+// decodeFrame unmarshals the current frame's payload into msg.
+// For (full) packets, the embedded net-messages are decoded into p.pendingMsgs (see decodeDemoPacket()):
+// nothing is queued, so a frame that can't be decoded completely can be skipped.
+// For DEM_FullPacket, panics while decoding the content are returned as error.
+func (p *parser) decodeFrame(msg proto.Message, buf []byte, isFullPacket bool) (err error) {
+	p.pendingMsgs = p.pendingMsgs[:0]
+
+	defer func() {
+		if isFullPacket {
+			if r := recover(); r != nil {
+				err = fmt.Errorf("%v", r) //nolint:err113 // only used for the ParserWarn message
+			}
+		}
+
+		if err != nil {
+			clear(p.pendingMsgs)
+			p.pendingMsgs = p.pendingMsgs[:0]
+		}
+	}()
+
+	err = proto.Unmarshal(buf, msg)
+	if err != nil {
+		return err
+	}
+
+	switch m := msg.(type) {
+	case *msgs2.CDemoPacket:
+		return p.decodeDemoPacket(m, false)
+
+	case *msgs2.CDemoFullPacket:
+		return p.decodeDemoPacket(m.Packet, true)
+	}
+
+	return nil
+}
+
+// brokenFullPacket is queued instead of a DEM_FullPacket frame that couldn't be decoded, see parseFrameS2().
+// The ParserWarn is dispatched when it's handled (on the message-handling goroutine), in order with the other events.
+type brokenFullPacket struct {
+	err error
+}
+
+func (p *parser) handleBrokenFullPacket(b *brokenFullPacket) {
+	p.eventDispatcher.Dispatch(events.ParserWarn{
+		Message: fmt.Sprintf("skipped broken DEM_FullPacket: %v", b.err),
+		Type:    events.WarnTypeBrokenFullPacket,
+	})
 }
 
 // FIXME: refactor to interface instead of switch

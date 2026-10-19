@@ -114,6 +114,7 @@ type parser struct {
 	delayedEventHandlers  []func()                                        // Contains event handlers that need to be executed at the end of a tick (e.g. flash events because FlashDuration isn't updated before that)
 	pendingMessagesCache  []pendingMessage                                // Cache for pending messages that need to be dispatched after the current tick
 	pendingMsgBufs        []*[]byte                                       // Pool entries backing pendingMessagesCache's buffers, returned to msgBufPool when the packet is done
+	pendingMsgs           []any                                           // Decoded net-messages of the current packet, queued once the whole frame could be decoded
 	snappyScratch         []byte                                          // Reusable snappy decode destination for compressed frames (single-threaded frame parsing)
 	userCmdStates         map[int32]*userCmdPlayerState                   // Per-player command-number ring reconstructed from full + delta updates
 	userCmdButtonStates   map[int32]*userCmdButtonPlayerState             // Per-player command-number ring containing buttonstate1 only
@@ -518,6 +519,7 @@ func NewParserWithConfig(demostream io.Reader, config ParserConfig) Parser {
 	p.msgDispatcher.RegisterHandler(p.handleStringTables)
 	p.msgDispatcher.RegisterHandler(p.handleFrameParsed)
 	p.msgDispatcher.RegisterHandler(p.handleUserCommands)
+	p.msgDispatcher.RegisterHandler(p.handleBrokenFullPacket)
 
 	if config.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(config.MsgQueueBufferSize)

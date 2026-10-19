@@ -696,6 +696,16 @@ const (
 	// vector for that player until the next entity snapshot has been applied; set
 	// ParserConfig.EagerVelocityTracking to record from the start.
 	WarnTypeVelocityTrackingStartedLazily
+
+	// WarnTypeBrokenFullPacket occurs when the content of a DEM_FullPacket frame can't be decoded (corrupt compression,
+	// protobuf or embedded net-messages), it's skipped. Some Valve matchmaking demos (~10% in 2023) contain one,
+	// the game skips them as well, see https://github.com/markus-wa/demoinfocs-golang/issues/409.
+	// Skipping drops the whole full packet, incl. its embedded string tables and entity snapshot (like the game does).
+	// Full packets are snapshots of the game state that's also sent with the regular packets: in the demos we tested,
+	// skipping one didn't change any other event - but that may not hold for all demos, especially if the very first
+	// full packet is broken (string tables and entities may then be missing until they're sent again).
+	// The frame is still counted (FrameDone is dispatched).
+	WarnTypeBrokenFullPacket
 )
 
 // WarnTypeUnknownDemoCommandMessageType occurs when a demo-command message type is unknown - contact a maintainer.
