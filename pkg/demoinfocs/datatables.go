@@ -932,7 +932,7 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 	playerInventory := make(map[int]eq)
 
 	// the pawn's inventory as of the last setPlayerInventory() call - pl.Inventory is modified in place below
-	var previousInventory map[int]*common.Equipment
+	var previousInventory []inventoryEntry
 
 	getWep := func(wepSlotPropertyValue st.PropertyValue) (uint64, *common.Equipment) {
 		handle := wepSlotPropertyValue.UInt64()
@@ -972,7 +972,11 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 		pl.Inventory = inventory
 
 		p.gameState.recordRemovedGrenadeWeapons(pl, previousInventory, inventory)
-		previousInventory = maps.Clone(inventory)
+
+		previousInventory = previousInventory[:0]
+		for entityID, wep := range inventory {
+			previousInventory = append(previousInventory, inventoryEntry{entityID: entityID, wep: wep})
+		}
 
 		// Track grenades for the fallback in bindGrenadeProjectiles (#580).
 		// Not deleted when a grenade disappears from the inventory - see

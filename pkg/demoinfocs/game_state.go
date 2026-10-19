@@ -2,7 +2,6 @@ package demoinfocs
 
 import (
 	"errors"
-	"maps"
 	"slices"
 	"sort"
 	"strconv"
@@ -284,21 +283,59 @@ func (gs *GameState) EntityByHandle(handle uint64) *st.Entity {
 //
 // Entries are only ever overwritten, never deleted: a weapon disappearing from the inventory
 // is exactly the case this cache exists for.
+//
+// If there are several of a type (e.g. one was just picked up), the choice is the one
+// findPlayerWeapon() makes. Called every frame for every player, so it's a single pass
+// over the inventory that doesn't allocate (besides creating the player's cache).
 func (gs *GameState) updateLastKnownGrenadeWeapons(pl *common.Player) {
-	for _, wep := range pl.Inventory {
+	type candidate struct {
+		wep      *common.Equipment
+		entityID int
+		several  bool
+	}
+
+	// the lowest entity ID per grenade type
+	candidates := make([]candidate, 0, 8)
+
+	for entityID, wep := range pl.Inventory {
 		if wep.Class() != common.EqClassGrenade {
 			continue
 		}
 
-		perType, ok := gs.lastKnownGrenadeWeapons[pl]
-		if !ok {
-			perType = make(map[common.EquipmentType]*common.Equipment)
-			gs.lastKnownGrenadeWeapons[pl] = perType
+		i := slices.IndexFunc(candidates, func(c candidate) bool { return c.wep.Type == wep.Type })
+		if i < 0 {
+			candidates = append(candidates, candidate{wep: wep, entityID: entityID})
+
+			continue
 		}
 
-		// the same choice getPlayerWeapon() makes if there are several of the type (e.g. one was just picked up)
-		wepType := wep.Type
-		perType[wepType] = findPlayerWeapon(pl, func(w *common.Equipment) bool { return w.Type == wepType })
+		candidates[i].several = true
+
+		if entityID < candidates[i].entityID {
+			candidates[i].wep, candidates[i].entityID = wep, entityID
+		}
+	}
+
+	if len(candidates) == 0 {
+		return
+	}
+
+	perType, ok := gs.lastKnownGrenadeWeapons[pl]
+	if !ok {
+		perType = make(map[common.EquipmentType]*common.Equipment)
+		gs.lastKnownGrenadeWeapons[pl] = perType
+	}
+
+	for _, c := range candidates {
+		wep := c.wep
+
+		if c.several {
+			if active := activeWeapon(pl); active != nil && active.Type == wep.Type {
+				wep = active
+			}
+		}
+
+		perType[wep.Type] = wep
 	}
 }
 
@@ -308,19 +345,35 @@ type removedGrenade struct {
 	tick int
 }
 
+// inventoryEntry is a weapon in a player's inventory with its entity ID.
+type inventoryEntry struct {
+	entityID int
+	wep      *common.Equipment
+}
+
 // recordRemovedGrenadeWeapons remembers the grenade weapons that just left the player's inventory,
-// i.e. that are in the previous but not in the current inventory (both by entity ID).
+// i.e. that are in the previous but not in the current inventory (by entity ID).
 //
 // CS2 removes the weapon of a thrown grenade from the inventory when the last grenade of the type
 // is thrown. If the player picks up a grenade of the same type on the same tick, the picked up one
 // is the only one of the type left in the inventory - but the projectile is still the removed one's.
-func (gs *GameState) recordRemovedGrenadeWeapons(pl *common.Player, previous, current map[int]*common.Equipment) {
-	// sorted so the same one is recorded if several of a type are removed at once
-	for _, entityID := range slices.Sorted(maps.Keys(previous)) {
-		wep := previous[entityID]
-		if wep.Class() == common.EqClassGrenade && current[entityID] != wep {
-			gs.recordRemovedGrenadeWeapon(pl, wep)
+// Sometimes CS2 keeps the thrown grenade's weapon entity instead (the pickup tops it up), then nothing
+// is removed and the weapon is found in the inventory.
+func (gs *GameState) recordRemovedGrenadeWeapons(pl *common.Player, previous []inventoryEntry, current map[int]*common.Equipment) {
+	var removed []inventoryEntry
+
+	for _, e := range previous {
+		if e.wep.Class() == common.EqClassGrenade && current[e.entityID] != e.wep {
+			removed = append(removed, e)
 		}
+	}
+
+	// if several of a type are removed at once, the one with the lowest entity ID is recorded (last), like
+	// findPlayerWeapon() would choose
+	slices.SortFunc(removed, func(a, b inventoryEntry) int { return b.entityID - a.entityID })
+
+	for _, e := range removed {
+		gs.recordRemovedGrenadeWeapon(pl, e.wep)
 	}
 }
 
@@ -334,16 +387,28 @@ func (gs *GameState) recordRemovedGrenadeWeapon(pl *common.Player, wep *common.E
 	perType[wep.Type] = removedGrenade{wep: wep, tick: gs.ingameTick}
 }
 
-// takeRemovedGrenadeWeapon returns and forgets the grenade weapon of the given type (molotovs and incendiaries
-// are treated as the same) that left the player's inventory on the current or the previous tick.
-// Returns nil if there is none.
+// takeRemovedGrenadeWeapon returns and forgets the grenade weapon of the given type that left the player's
+// inventory on the current or the previous tick. Returns nil if there is none.
+// Molotovs and incendiaries are treated as the same, but one of the exact type is preferred.
 func (gs *GameState) takeRemovedGrenadeWeapon(pl *common.Player, wepType common.EquipmentType) *common.Equipment {
-	for removedType, removed := range gs.removedGrenadeWeapons[pl] {
-		if !isSameGrenadeType(removedType, wepType) {
+	alternative := common.EqUnknown
+
+	switch wepType { //nolint:exhaustive // only fire grenades have an alternative
+	case common.EqMolotov:
+		alternative = common.EqIncendiary
+	case common.EqIncendiary:
+		alternative = common.EqMolotov
+	}
+
+	perType := gs.removedGrenadeWeapons[pl]
+
+	for _, removedType := range [2]common.EquipmentType{wepType, alternative} {
+		removed, ok := perType[removedType]
+		if !ok {
 			continue
 		}
 
-		delete(gs.removedGrenadeWeapons[pl], removedType)
+		delete(perType, removedType)
 
 		// older ones were dropped or used up otherwise, not thrown now
 		if age := gs.ingameTick - removed.tick; age >= 0 && age <= 1 {

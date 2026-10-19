@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
@@ -1313,9 +1314,9 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawNam
 // so the choice doesn't depend on the inventory's (map) iteration order.
 func findPlayerWeapon(player *common.Player, matches func(*common.Equipment) bool) *common.Equipment {
 	var (
-		found    *common.Equipment
-		foundID  int
-		activeID = -1 // looked up lazily, only needed if several match
+		found   *common.Equipment
+		foundID int
+		several bool
 	)
 
 	for entityID, wep := range player.Inventory {
@@ -1323,22 +1324,40 @@ func findPlayerWeapon(player *common.Player, matches func(*common.Equipment) boo
 			continue
 		}
 
-		if found == nil {
-			found, foundID = wep, entityID
+		if found != nil {
+			several = true
 
-			continue
+			if entityID > foundID {
+				continue
+			}
 		}
 
-		if activeID < 0 {
-			activeID = player.ActiveWeaponID()
-		}
+		found, foundID = wep, entityID
+	}
 
-		if foundID != activeID && (entityID == activeID || entityID < foundID) {
-			found, foundID = wep, entityID
+	if several {
+		if active := activeWeapon(player); active != nil && matches(active) {
+			return active
 		}
 	}
 
 	return found
+}
+
+// activeWeapon returns the player's active weapon if it's in the inventory, nil otherwise.
+// Unlike Player.ActiveWeapon() it doesn't panic if the pawn lacks the property.
+func activeWeapon(player *common.Player) *common.Equipment {
+	pawn := player.PlayerPawnEntity()
+	if pawn == nil {
+		return nil
+	}
+
+	val, ok := pawn.PropertyValue("m_pWeaponServices.m_hActiveWeapon")
+	if !ok || val.Any == nil {
+		return nil
+	}
+
+	return player.Inventory[int(val.Handle()&constants.EntityHandleIndexMaskSource2)]
 }
 
 func mapGameEventData(d *msg.CMsgSource1LegacyGameEventListDescriptorT, e *msg.CMsgSource1LegacyGameEvent) map[string]*msg.CMsgSource1LegacyGameEventKeyT {
