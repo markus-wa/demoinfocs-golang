@@ -359,21 +359,15 @@ type inventoryEntry struct {
 // is the only one of the type left in the inventory - but the projectile is still the removed one's.
 // Sometimes CS2 keeps the thrown grenade's weapon entity instead (the pickup tops it up), then nothing
 // is removed and the weapon is found in the inventory.
+//
+// previous must be sorted by descending entity ID: if several of a type are removed at once, the one with
+// the lowest entity ID is recorded (last), like findPlayerWeapon() would choose.
+// The class is checked here, not when previous is built: a placeholder weapon may only get its type later (bindWeapon).
 func (gs *GameState) recordRemovedGrenadeWeapons(pl *common.Player, previous []inventoryEntry, current map[int]*common.Equipment) {
-	var removed []inventoryEntry
-
 	for _, e := range previous {
 		if e.wep.Class() == common.EqClassGrenade && current[e.entityID] != e.wep {
-			removed = append(removed, e)
+			gs.recordRemovedGrenadeWeapon(pl, e.wep)
 		}
-	}
-
-	// if several of a type are removed at once, the one with the lowest entity ID is recorded (last), like
-	// findPlayerWeapon() would choose
-	slices.SortFunc(removed, func(a, b inventoryEntry) int { return b.entityID - a.entityID })
-
-	for _, e := range removed {
-		gs.recordRemovedGrenadeWeapon(pl, e.wep)
 	}
 }
 
@@ -391,18 +385,9 @@ func (gs *GameState) recordRemovedGrenadeWeapon(pl *common.Player, wep *common.E
 // inventory on the current or the previous tick. Returns nil if there is none.
 // Molotovs and incendiaries are treated as the same, but one of the exact type is preferred.
 func (gs *GameState) takeRemovedGrenadeWeapon(pl *common.Player, wepType common.EquipmentType) *common.Equipment {
-	alternative := common.EqUnknown
-
-	switch wepType { //nolint:exhaustive // only fire grenades have an alternative
-	case common.EqMolotov:
-		alternative = common.EqIncendiary
-	case common.EqIncendiary:
-		alternative = common.EqMolotov
-	}
-
 	perType := gs.removedGrenadeWeapons[pl]
 
-	for _, removedType := range [2]common.EquipmentType{wepType, alternative} {
+	for _, removedType := range [2]common.EquipmentType{wepType, fireGrenadeAlternative(wepType)} {
 		removed, ok := perType[removedType]
 		if !ok {
 			continue

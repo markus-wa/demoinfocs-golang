@@ -924,14 +924,10 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 
 	inventorySize := 64
 
-	type eq struct {
-		*common.Equipment
-		entityID int
-	}
+	playerInventory := make(map[int]inventoryEntry)
 
-	playerInventory := make(map[int]eq)
-
-	// the pawn's inventory as of the last setPlayerInventory() call - pl.Inventory is modified in place below
+	// the pawn's inventory as of the last setPlayerInventory() call, by descending entity ID (see
+	// recordRemovedGrenadeWeapons) - pl.Inventory is modified in place below
 	var previousInventory []inventoryEntry
 
 	getWep := func(wepSlotPropertyValue st.PropertyValue) (uint64, *common.Equipment) {
@@ -978,6 +974,8 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 			previousInventory = append(previousInventory, inventoryEntry{entityID: entityID, wep: wep})
 		}
 
+		slices.SortFunc(previousInventory, func(a, b inventoryEntry) int { return b.entityID - a.entityID })
+
 		// Track grenades for the fallback in bindGrenadeProjectiles (#580).
 		// Not deleted when a grenade disappears from the inventory - see
 		// updateLastKnownGrenadeWeapons.
@@ -1010,9 +1008,9 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 					}
 
 					pl.Inventory[int(entityID)] = wep
-					playerInventory[i] = eq{
-						Equipment: wep,
-						entityID:  int(entityID),
+					playerInventory[i] = inventoryEntry{
+						entityID: int(entityID),
+						wep:      wep,
 					}
 				} else {
 					delete(pl.Inventory, int(entityID))
@@ -1261,14 +1259,10 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	}
 }
 
-// thrownGrenadeWeapon returns the weapon instance of a grenade of the given type the thrower just threw.
+// thrownGrenadeWeapon returns the weapon instance of a grenade of the given type the thrower (may be nil) just threw.
 func (p *Parser) thrownGrenadeWeapon(thrower *common.Player, wepType common.EquipmentType) *common.Equipment {
 	// always taken, even if unused, so UniqueIDs don't depend on which weapon is found
 	id := p.nextUniqueID()
-
-	if thrower == nil {
-		return getPlayerWeapon(nil, wepType, "", id)
-	}
 
 	// CS2 removes the grenade from the thrower's inventory when the last grenade of the type is thrown.
 	// If a grenade of the type was picked up on the same tick, it's the only one of the type

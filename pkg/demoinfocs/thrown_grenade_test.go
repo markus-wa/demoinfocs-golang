@@ -124,42 +124,71 @@ func (gt *thrownGrenadeTest) throwItem(t *testing.T, item uint64) *st.Entity {
 	return wep.Entity
 }
 
-// A player throws their last flashbang and picks one up from the floor on the same tick:
-// the thrown one leaves the inventory and the picked up one is the only flashbang left.
-func TestThrownGrenadeWeapon_PickedUpOnThrowTick(t *testing.T) {
-	gt := newThrownGrenadeTest(t)
-	gt.setSlot(3, testFlashA)
+// Throws of flashbang A (in slot 3 until the inventory update on tick 10).
+func TestThrownGrenadeWeapon_Flashbang(t *testing.T) {
+	cases := []struct {
+		name   string
+		update func(gt *thrownGrenadeTest) // the inventory update on tick 10
+		tick   int                         // the tick the projectile is created on
+		want   int                         // entity ID of the projectile's weapon
+		// pickedUp is whether flashbang B must still be in the inventory after the throw
+		pickedUp bool
+	}{
+		{
+			// the thrown one leaves the inventory and the picked up one is the only flashbang left
+			name: "last one thrown & one picked up on the same tick",
+			update: func(gt *thrownGrenadeTest) {
+				gt.setSlot(3, testFlashB)
+				stfake.Destroy(gt.weapons[testFlashA])
+			},
+			tick:     10,
+			want:     testFlashA, // the projectile is the removed flashbang's
+			pickedUp: true,
+		},
+		{
+			name:   "picked up the tick before the projectile is created",
+			update: func(gt *thrownGrenadeTest) { gt.setSlot(3, testFlashB) },
+			tick:   11,
+			want:   testFlashA,
+		},
+		{
+			// a grenade that left the inventory long before isn't the thrown one
+			name:   "old removal ignored",
+			update: func(gt *thrownGrenadeTest) { gt.setSlot(3, testFlashB) },
+			tick:   100,
+			want:   testFlashB,
+		},
+		{
+			// the last grenade of the type is thrown and nothing is picked up (#580)
+			name:   "last of type",
+			update: func(gt *thrownGrenadeTest) { gt.setSlot(3, constants.InvalidEntityHandleSource2) },
+			tick:   10,
+			want:   testFlashA,
+		},
+		{
+			name:   "last of type, removed more than a tick before the projectile is created",
+			update: func(gt *thrownGrenadeTest) { gt.setSlot(3, constants.InvalidEntityHandleSource2) },
+			tick:   20,
+			want:   testFlashA,
+		},
+	}
 
-	gt.p.gameState.ingameTick = 10
-	gt.setSlot(3, testFlashB)
-	stfake.Destroy(gt.weapons[testFlashA])
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			gt := newThrownGrenadeTest(t)
+			gt.setSlot(3, testFlashA)
 
-	assert.Same(t, gt.weapons[testFlashA], gt.throw(t), "the projectile is the removed flashbang's")
-	assert.Same(t, gt.weapons[testFlashB], gt.pl.Inventory[testFlashB].Entity)
-}
+			gt.p.gameState.ingameTick = 10
+			tc.update(gt)
 
-// Same, but the projectile is created on the next tick.
-func TestThrownGrenadeWeapon_PickedUpTickBeforeProjectile(t *testing.T) {
-	gt := newThrownGrenadeTest(t)
-	gt.setSlot(3, testFlashA)
+			gt.p.gameState.ingameTick = tc.tick
+			assert.Same(t, gt.weapons[tc.want], gt.throw(t))
 
-	gt.p.gameState.ingameTick = 10
-	gt.setSlot(3, testFlashB)
-
-	gt.p.gameState.ingameTick = 11
-	assert.Same(t, gt.weapons[testFlashA], gt.throw(t))
-}
-
-// A grenade that left the inventory long before isn't the thrown one.
-func TestThrownGrenadeWeapon_OldRemovalIgnored(t *testing.T) {
-	gt := newThrownGrenadeTest(t)
-	gt.setSlot(3, testFlashA)
-
-	gt.p.gameState.ingameTick = 10
-	gt.setSlot(3, testFlashB)
-
-	gt.p.gameState.ingameTick = 100
-	assert.Same(t, gt.weapons[testFlashB], gt.throw(t))
+			if tc.pickedUp {
+				assert.Same(t, gt.weapons[testFlashB], gt.pl.Inventory[testFlashB].Entity)
+			}
+		})
+	}
 }
 
 // The projectile is created before the inventory update in the same packet.
@@ -183,28 +212,6 @@ func TestThrownGrenadeWeapon_InInventory(t *testing.T) {
 	gt.p.gameState.ingameTick = 10
 	assert.Same(t, gt.weapons[testFlashA], gt.throw(t))
 	assert.Equal(t, "weapon_flashbang", gt.pl.Inventory[testFlashA].OriginalString, "must not be overwritten")
-}
-
-// The last grenade of the type is thrown and nothing is picked up (#580).
-func TestThrownGrenadeWeapon_LastOfType(t *testing.T) {
-	gt := newThrownGrenadeTest(t)
-	gt.setSlot(3, testFlashA)
-
-	gt.p.gameState.ingameTick = 10
-	gt.setSlot(3, constants.InvalidEntityHandleSource2)
-	assert.Same(t, gt.weapons[testFlashA], gt.throw(t))
-}
-
-// Also with the removal more than a tick before the projectile is created.
-func TestThrownGrenadeWeapon_LastOfTypeRemovedEarlier(t *testing.T) {
-	gt := newThrownGrenadeTest(t)
-	gt.setSlot(3, testFlashA)
-
-	gt.p.gameState.ingameTick = 10
-	gt.setSlot(3, constants.InvalidEntityHandleSource2)
-
-	gt.p.gameState.ingameTick = 20
-	assert.Same(t, gt.weapons[testFlashA], gt.throw(t))
 }
 
 // With several of a type in the inventory, the active one is chosen, otherwise the one with the lowest entity ID.
