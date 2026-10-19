@@ -336,6 +336,49 @@ func TestInfernoExpired_RemovesLinkedProjectilesGrenade(t *testing.T) {
 	assert.Empty(t, p.gameState.infernoProjectiles)
 }
 
+// Leftover projectiles and infernos are destroyed at round end in ascending entity-ID order,
+// not in Go's randomised map order.
+func TestClearGrenadeProjectiles_DeterministicOrder(t *testing.T) {
+	ids := []int{30, 5, 117, 17, 64}
+
+	for range 20 {
+		p := NewParser(rand.Reader)
+		pl := &common.Player{}
+
+		for i, id := range ids {
+			he := common.NewEquipment(common.EqHE, common.UniqueID(i))
+			proj := newTestProjectile(uint64(i), pl, he)
+			proj.Entity = stfake.NewEntity(id)
+			p.gameState.grenadeProjectiles[id] = proj
+
+			infID := id + 1000
+			molotov := common.NewEquipment(common.EqMolotov, common.UniqueID(100+i))
+			p.gameState.infernos[infID] = common.NewInferno(p.demoInfoProvider, stfake.NewEntity(infID), nil, common.UniqueID(200+i))
+			p.gameState.infernoProjectiles[infID] = &common.GrenadeProjectile{WeaponInstance: molotov}
+		}
+
+		var (
+			destroyed []int
+			expired   []int
+		)
+
+		p.RegisterEventHandler(func(e events.GrenadeProjectileDestroy) {
+			assert.Empty(t, expired, "projectiles must be destroyed before infernos expire")
+			destroyed = append(destroyed, e.Projectile.Entity.ID())
+		})
+		p.RegisterEventHandler(func(e events.InfernoExpired) {
+			expired = append(expired, e.Inferno.Entity.ID())
+		})
+
+		p.gameEventHandler.clearGrenadeProjectiles()
+
+		assert.Equal(t, []int{5, 17, 30, 64, 117}, destroyed)
+		assert.Equal(t, []int{1005, 1017, 1030, 1064, 1117}, expired)
+		assert.Empty(t, p.gameState.grenadeProjectiles)
+		assert.Empty(t, p.gameState.infernos)
+	}
+}
+
 // Grenades thrown while controlling a bot are stored for the bot and deleted from there.
 func TestDeleteThrownGrenade_ControlledBot(t *testing.T) {
 	p := NewParser(rand.Reader)

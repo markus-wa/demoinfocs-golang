@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"errors"
+	"maps"
 	"slices"
 	"sort"
 	"strconv"
@@ -180,11 +181,11 @@ func (gs *GameState) Rules() *GameRules {
 	return &gs.rules
 }
 
-// Hostages returns all current hostages.
+// Hostages returns all current hostages, sorted by entity-ID.
 func (gs *GameState) Hostages() []*common.Hostage {
 	hostages := make([]*common.Hostage, 0, len(gs.hostages))
-	for _, hostage := range gs.hostages {
-		hostages = append(hostages, hostage)
+	for _, id := range slices.Sorted(maps.Keys(gs.hostages)) {
+		hostages = append(hostages, gs.hostages[id])
 	}
 
 	return hostages
@@ -693,6 +694,8 @@ func (ptcp Participants) SpottersOf(spotted *common.Player) (spotters []*common.
 		}
 	}
 
+	sortPlayers(spotters)
+
 	return
 }
 
@@ -705,6 +708,8 @@ func (ptcp Participants) SpottedBy(spotter *common.Player) (spotted []*common.Pl
 			spotted = append(spotted, other)
 		}
 	}
+
+	sortPlayers(spotted)
 
 	return
 }

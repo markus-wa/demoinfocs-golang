@@ -344,10 +344,12 @@ func newDisconnectedPlayer() *common.Player {
 func TestGameState_Hostages(t *testing.T) {
 	hostageA := common.NewHostage(nil, stfake.NewEntity(1))
 	hostageB := common.NewHostage(nil, stfake.NewEntity(2))
-	hostages := map[int]*common.Hostage{0: hostageA, 1: hostageB}
+	hostageC := common.NewHostage(nil, stfake.NewEntity(3))
+	hostages := map[int]*common.Hostage{7: hostageC, 0: hostageA, 3: hostageB}
 	gs := GameState{hostages: hostages}
 
-	// Hostages() ranges over a map, the order is undefined
-	expectedHostages := []*common.Hostage{hostageA, hostageB}
-	assert.ElementsMatch(t, expectedHostages, gs.Hostages())
+	// sorted by entity-ID, regardless of map iteration order
+	for range 20 {
+		assert.Equal(t, []*common.Hostage{hostageA, hostageB, hostageC}, gs.Hostages())
+	}
 }

@@ -3,6 +3,7 @@ package demoinfocs
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"math"
 	"slices"
 	"sort"
@@ -299,12 +300,22 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 	// We're not deleting them from entitites though as that's supposed to be as close to the actual demo data as possible.
 	// We're also not destroying the entities (firing their OnDestroy handlers) because it would - in some cases - happen twice for the same entity
 	// and it's supposed to be called when the demo actually says so (same case as with gameState.entities).
-	for _, proj := range geh.gameState().grenadeProjectiles {
-		geh.parser.nadeProjectileDestroyed(proj)
+	//
+	// Both are processed in ascending entity-ID order rather than Go's randomised map order,
+	// so the dispatched events (and inferno <-> projectile linking) are deterministic across runs.
+	// The handlers delete from the maps, hence the key snapshot and the existence check.
+	projectiles := geh.gameState().grenadeProjectiles
+	for _, id := range slices.Sorted(maps.Keys(projectiles)) {
+		if proj, ok := projectiles[id]; ok {
+			geh.parser.nadeProjectileDestroyed(proj)
+		}
 	}
 
-	for _, inf := range geh.gameState().infernos {
-		geh.parser.infernoExpired(inf)
+	infernos := geh.gameState().infernos
+	for _, id := range slices.Sorted(maps.Keys(infernos)) {
+		if inf, ok := infernos[id]; ok {
+			geh.parser.infernoExpired(inf)
+		}
 	}
 
 	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)
