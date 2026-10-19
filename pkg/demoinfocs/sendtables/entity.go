@@ -502,6 +502,8 @@ func (e *Entity) addOnDestroy(delegate func()) {
 
 // Replaced returns true if the entity was destroyed because the server created a new entity (new serial) at its index
 // without an explicit delete for it - usually because entities are re-created on a round restart or backup restore.
+// It's also set if an entity that left the PVS (see OnLeavePVS) is re-created at its index with the same serial -
+// usually how entities re-enter the PVS. The new object shows up via ServerClass.OnEntityCreated().
 // The entity may or may not have gone away in-game the usual way (e.g. a flashbang may not have detonated),
 // so OnDestroy handlers can use this to skip events derived from a regular deletion.
 func (e *Entity) Replaced() bool {
@@ -518,15 +520,22 @@ func (e *Entity) destroy() {
 	}
 }
 
-// InPVS returns true if the entity is part of the current snapshot (its PVS on POV demos).
-// It returns false after the entity left the snapshot without being deleted (see OnLeavePVS) and after its destruction.
+// InPVS returns false after the entity left the snapshot (its PVS on POV demos) without being deleted
+// (see OnLeavePVS) and after its destruction, otherwise true - i.e. it's true unless a leave op was seen.
+// On POV demos the server sometimes re-creates entities (same serial) without a leave op first,
+// the old object then stays InPVS() == true although it isn't updated anymore.
 func (e *Entity) InPVS() bool {
 	return e.inPVS
 }
 
 // OnLeavePVS registers a function to be called when the entity leaves the snapshot (the PVS) without being deleted.
-// The entity isn't destroyed, its properties keep their last values and it may come back (see OnEnterPVS).
+// The entity isn't destroyed yet, its properties keep their last values.
+// Afterwards exactly one of OnEnterPVS (it comes back with an update - rare) or OnDestroy (it's deleted, or
+// re-created at its index as a new object, see Replaced(), which shows up via ServerClass.OnEntityCreated())
+// follows, unless the demo ends first.
 // It isn't called when the entity is deleted, only OnDestroy is.
+//
+// Like OnDestroy, it's called while the entity packet is parsed: other entities of the packet may not be updated yet.
 func (e *Entity) OnLeavePVS(delegate func()) {
 	e.addOnLeavePVS(guardDelegate(delegate))
 }
@@ -546,8 +555,9 @@ func (e *Entity) leavePVS() {
 }
 
 // OnEnterPVS registers a function to be called when an entity that left the snapshot (see OnLeavePVS)
-// comes back with an update.
-// It's called after the update's property update handlers and OnUpdateFinished delegates.
+// comes back with an update. This is rare: entities usually come back as a new object, see OnLeavePVS.
+// It's called after the update's property update handlers and OnUpdateFinished delegates,
+// while the entity packet is parsed: entities later in the packet aren't updated yet.
 func (e *Entity) OnEnterPVS(delegate func()) {
 	e.addOnEnterPVS(guardDelegate(delegate))
 }
@@ -986,8 +996,10 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 				// destroy it so its OnDestroy handlers run and consumers don't keep using state bound to it
 				// (e.g. a weapon's unique id, #601).
 				// The same serial means the same entity is re-created, e.g. when it re-enters the PVS on POV demos.
+				// If it left the PVS before (see OnLeavePVS), the old object is destroyed as well, as it's never updated again.
+				// Same-serial re-creates of entities that are still in the PVS keep the old object untouched.
 				if old := p.entities[index]; old != nil {
-					if old.active && old.serial != serial {
+					if old.active && (old.serial != serial || !old.inPVS) {
 						old.replaced = true
 						old.destroy()
 

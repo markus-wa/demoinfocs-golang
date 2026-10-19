@@ -122,6 +122,46 @@ func TestPVS_LeaveThenReplaced(t *testing.T) {
 	assert.True(t, p.entities[5].InPVS())
 }
 
+// An entity that left the PVS and is re-created at its index with the same serial (how entities usually
+// re-enter the PVS on POV demos) is destroyed (Replaced), the new object is in the PVS.
+func TestPVS_LeaveThenRecreatedSameSerial(t *testing.T) {
+	t.Parallel()
+
+	p, log := pvsTestParser(t)
+
+	pvsPacket(t, p, log, entityOp{index: 5, serial: 1})
+	assert.Equal(t, []string{"5/1 leave", "5/1 Left"}, pvsPacket(t, p, log, entityOp{index: 5, leave: true}))
+
+	old := p.entities[5]
+
+	assert.Equal(t, []string{"5/1 destroy", "5/1 Deleted+Left", "5/1 Created+Entered"}, pvsPacket(t, p, log, entityOp{index: 5, serial: 1}))
+	assert.True(t, old.Replaced())
+	assert.False(t, old.active)
+	assert.False(t, old.InPVS())
+
+	e := p.entities[5]
+	require.NotSame(t, old, e)
+	assert.True(t, e.InPVS())
+	assert.False(t, e.Replaced())
+}
+
+// A same-serial re-create of an entity that didn't leave the PVS doesn't destroy the old object.
+func TestPVS_RecreatedSameSerialWithoutLeave(t *testing.T) {
+	t.Parallel()
+
+	p, log := pvsTestParser(t)
+
+	pvsPacket(t, p, log, entityOp{index: 5, serial: 1})
+
+	old := p.entities[5]
+
+	assert.Equal(t, []string{"5/1 Created+Entered"}, pvsPacket(t, p, log, entityOp{index: 5, serial: 1}))
+	assert.False(t, old.Replaced())
+	assert.True(t, old.active)
+	assert.True(t, old.InPVS())
+	assert.NotSame(t, old, p.entities[5])
+}
+
 func TestGuards_OnLeavePVS(t *testing.T) {
 	p, e := newGuardTestEntity()
 	e.OnLeavePVS(userCallbackThatPanics)
