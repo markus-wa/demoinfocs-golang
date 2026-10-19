@@ -176,6 +176,23 @@ func (geh gameEventHandler) playerByUserID32(userID int32) *common.Player {
 	return geh.playerByUserID(int(userID))
 }
 
+// playerByUserIDOrPawn returns the player from the event's userid key, or from userid_pawn if that doesn't resolve.
+// CS2 only - userid may be missing, but userid_pawn present.
+func (geh gameEventHandler) playerByUserIDOrPawn(data map[string]*msg.CSVCMsg_GameEventKeyT) *common.Player {
+	var player *common.Player
+
+	// Since GetValShort() returns 0 for nil values, the player would be the one with UserID 0, so we need to check for the existence of the key.
+	if data["userid"] != nil {
+		player = geh.playerByUserID32(data["userid"].GetValShort())
+	}
+
+	if player == nil && data["userid_pawn"] != nil {
+		player = geh.gameState().Participants().FindByPawnHandle(uint64(data["userid_pawn"].GetValLong()))
+	}
+
+	return player
+}
+
 type gameEventHandlerFunc func(map[string]*msg.CSVCMsg_GameEventKeyT)
 
 func newGameEventHandler(parser *parser, ignoreBombsiteIndexNotFound bool) gameEventHandler {
@@ -1134,8 +1151,8 @@ func (geh gameEventHandler) bombDropped(data map[string]*msg.CSVCMsg_GameEventKe
 		return
 	}
 
-	player := geh.playerByUserID32(data["userid"].GetValShort())
-	entityID := int(data["entityid"].GetValShort())
+	player := geh.playerByUserIDOrPawn(data)
+	entityID := int(data["entindex"].GetValLong())
 
 	geh.dispatch(events.BombDropped{
 		Player:   player,
@@ -1148,24 +1165,16 @@ func (geh gameEventHandler) bombPickup(data map[string]*msg.CSVCMsg_GameEventKey
 		return
 	}
 
+	// CS2 only - bomb_pickup has no userid, only userid_pawn.
 	geh.dispatch(events.BombPickup{
-		Player: geh.playerByUserID32(data["userid"].GetValShort()),
+		Player: geh.playerByUserIDOrPawn(data),
 	})
 }
 
 // Just so we can nicely create GrenadeEvents in one line
 func (geh gameEventHandler) nadeEvent(data map[string]*msg.CSVCMsg_GameEventKeyT, nadeType common.EquipmentType) events.GrenadeEvent {
-	var thrower *common.Player
 	// Sometimes only the position and the entityid are present.
-	// Since GetValShort() returns 0 for nil values, the thrower would be the player with UserID 0, so we need to check for the existence of the key.
-	if data["userid"] != nil {
-		thrower = geh.playerByUserID32(data["userid"].GetValShort())
-	}
-
-	// CS2 only - userid may be missing, but userid_pawn present.
-	if thrower == nil && data["userid_pawn"] != nil {
-		thrower = geh.gameState().Participants().FindByPawnHandle(uint64(data["userid_pawn"].GetValLong()))
-	}
+	thrower := geh.playerByUserIDOrPawn(data)
 
 	position := r3.Vector{
 		X: float64(data["x"].GetValFloat()),
