@@ -684,7 +684,7 @@ func (ptcp Participants) initializeSliceFromByUserID() ([]*common.Player, map[in
 	return make([]*common.Player, 0, len(byUserID)), byUserID
 }
 
-// SpottersOf returns a list of all players who have spotted the passed player.
+// SpottersOf returns a list of all players who have spotted the passed player, sorted like All().
 // This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
 // May not behave as expected with multiple spotters.
 func (ptcp Participants) SpottersOf(spotted *common.Player) (spotters []*common.Player) {
@@ -699,7 +699,7 @@ func (ptcp Participants) SpottersOf(spotted *common.Player) (spotters []*common.
 	return
 }
 
-// SpottedBy returns a list of all players that the passed player has spotted.
+// SpottedBy returns a list of all players that the passed player has spotted, sorted like All().
 // This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
 // May not behave as expected with multiple spotters.
 func (ptcp Participants) SpottedBy(spotter *common.Player) (spotted []*common.Player) {

@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"maps"
@@ -301,21 +302,25 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 	// We're also not destroying the entities (firing their OnDestroy handlers) because it would - in some cases - happen twice for the same entity
 	// and it's supposed to be called when the demo actually says so (same case as with gameState.entities).
 	//
-	// Both are processed in ascending entity-ID order rather than Go's randomised map order,
-	// so the dispatched events (and inferno <-> projectile linking) are deterministic across runs.
-	// The handlers delete from the maps, hence the key snapshot and the existence check.
-	projectiles := geh.gameState().grenadeProjectiles
-	for _, id := range slices.Sorted(maps.Keys(projectiles)) {
-		if proj, ok := projectiles[id]; ok {
-			geh.parser.nadeProjectileDestroyed(proj)
-		}
+	// Both are processed in ascending entity-ID order rather than Go's randomised map order, so the
+	// dispatched events (and inferno <-> projectile linking) are deterministic across runs.
+	// The sorted snapshot also makes it safe for the handlers to delete from the maps while we iterate.
+	//
+	// If several leftover molotovs / incendiaries of the same owner are destroyed here while one inferno
+	// of that owner is waiting for its projectile in the current frame, the one with the lowest entity-ID
+	// is linked to it (see linkInfernoProjectile).
+	projectiles := slices.SortedFunc(maps.Values(geh.gameState().grenadeProjectiles), func(a, b *common.GrenadeProjectile) int {
+		return cmp.Compare(a.Entity.ID(), b.Entity.ID())
+	})
+	for _, proj := range projectiles {
+		geh.parser.nadeProjectileDestroyed(proj)
 	}
 
-	infernos := geh.gameState().infernos
-	for _, id := range slices.Sorted(maps.Keys(infernos)) {
-		if inf, ok := infernos[id]; ok {
-			geh.parser.infernoExpired(inf)
-		}
+	infernos := slices.SortedFunc(maps.Values(geh.gameState().infernos), func(a, b *common.Inferno) int {
+		return cmp.Compare(a.Entity.ID(), b.Entity.ID())
+	})
+	for _, inf := range infernos {
+		geh.parser.infernoExpired(inf)
 	}
 
 	// Thrown grenades could not be deleted at the end of the round (if they are thrown at the very end, they never get destroyed)

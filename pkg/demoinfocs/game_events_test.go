@@ -379,6 +379,45 @@ func TestClearGrenadeProjectiles_DeterministicOrder(t *testing.T) {
 	}
 }
 
+// Several leftover molotovs of the same owner and one inferno of that owner waiting for its projectile
+// in the current frame: the molotov with the lowest entity-ID is linked to the inferno.
+func TestClearGrenadeProjectiles_LinksLowestLeftoverMolotov(t *testing.T) {
+	const (
+		ownerHandle = uint64(42)
+		infernoID   = 500
+	)
+
+	for range 20 {
+		p := NewParser(rand.Reader)
+		pl := &common.Player{}
+
+		for i, id := range []int{40, 12, 77} {
+			molotov := common.NewEquipment(common.EqMolotov, common.UniqueID(i))
+			proj := newTestProjectile(uint64(i), pl, molotov)
+			proj.Entity = stfake.NewEntity(id, stfake.P("m_hOwnerEntity", ownerHandle))
+			p.gameState.grenadeProjectiles[id] = proj
+		}
+
+		p.gameState.infernos[infernoID] = common.NewInferno(p.demoInfoProvider, stfake.NewEntity(infernoID), nil, common.UniqueID(100))
+		p.gameState.pendingInfernoLinks = []pendingInfernoLink{{
+			frame:           p.currentFrame,
+			ownerHandle:     ownerHandle,
+			infernoEntityID: infernoID,
+		}}
+
+		var expired []events.InfernoExpired
+		p.RegisterEventHandler(func(e events.InfernoExpired) {
+			expired = append(expired, e)
+		})
+
+		p.gameEventHandler.clearGrenadeProjectiles()
+
+		if assert.Len(t, expired, 1) && assert.NotNil(t, expired[0].Projectile) {
+			assert.Equal(t, 12, expired[0].Projectile.Entity.ID())
+		}
+	}
+}
+
 // Grenades thrown while controlling a bot are stored for the bot and deleted from there.
 func TestDeleteThrownGrenade_ControlledBot(t *testing.T) {
 	p := NewParser(rand.Reader)

@@ -353,3 +353,45 @@ func TestGameState_Hostages(t *testing.T) {
 		assert.Equal(t, []*common.Hostage{hostageA, hostageB, hostageC}, gs.Hostages())
 	}
 }
+
+// newSpottablePlayer returns a connected player with a controller and pawn entity (registered in the
+// parser's entities) whose m_bSpottedByMask is the given mask.
+func newSpottablePlayer(p *Parser, entityID int, steamID uint64, spottedByMask uint64) *common.Player {
+	pawnID := entityID + 100
+
+	p.gameState.entities[pawnID] = stfake.NewEntity(pawnID, stfake.P("m_bSpottedByMask.0000", spottedByMask))
+
+	pl := common.NewPlayer(demoInfoProvider{parser: p})
+	pl.EntityID = entityID
+	pl.SteamID64 = steamID
+	pl.UserID = entityID
+	pl.IsConnected = true
+	pl.Entity = stfake.NewEntity(entityID,
+		stfake.P("m_hPawn", uint64(pawnID)),
+		stfake.P("m_hPlayerPawn", uint64(pawnID)),
+	)
+
+	return pl
+}
+
+func TestParticipants_SpottersOf_SpottedBy_Sorted(t *testing.T) {
+	p := newParser()
+
+	// spotter (entity-ID 1, i.e. bit 0) has spotted a, b and c, which in turn have all spotted spotter
+	spotter := newSpottablePlayer(p, 1, 50, 1<<1|1<<2|1<<3)
+	a := newSpottablePlayer(p, 2, 30, 1<<0)
+	b := newSpottablePlayer(p, 3, 10, 1<<0)
+	c := newSpottablePlayer(p, 4, 40, 1<<0)
+
+	ptcp := Participants{
+		playersByUserID: map[int]*common.Player{9: c, 1: spotter, 7: a, 3: b},
+	}
+
+	// sorted like All(), regardless of map iteration order
+	expected := []*common.Player{b, a, c}
+
+	for range 20 {
+		assert.Equal(t, expected, ptcp.SpottersOf(spotter))
+		assert.Equal(t, expected, ptcp.SpottedBy(spotter))
+	}
+}
