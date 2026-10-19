@@ -52,7 +52,7 @@ linters:
         - pattern: ^demoinfocs\.Parser\.Register(NetMessage|Event)Handler$
           pkg: ^github\.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs$
           msg: public API for user handlers, use registerInternal() for the parser's own handlers
-        - pattern: ^sendtables\.(Property\.OnUpdate|Entity\.(BindProperty|OnDestroy|OnCreateFinished|OnUpdateFinished|OnPositionUpdate)|ServerClass\.OnEntityCreated)$
+        - pattern: ^sendtables\.(Property\.(OnUpdate|Bind)|Entity\.(BindProperty|OnDestroy|OnCreateFinished|OnUpdateFinished|OnPositionUpdate)|ServerClass\.OnEntityCreated)$
           pkg: ^github\.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables$
           msg: public API for user callbacks, use the st* helpers of package demoinfocs for the parser's own callbacks
     gosec:

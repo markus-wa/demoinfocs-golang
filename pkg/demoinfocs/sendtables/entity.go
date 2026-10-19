@@ -273,7 +273,11 @@ This will bind the property's value to i so every time it's updated i is updated
 The valueType indicates which field of the PropertyValue to use for the binding.
 */
 func (p *Property) Bind(variable any, t PropertyValueType) {
-	// The bound handler is library code, its panics aren't tagged as user-code panics.
+	p.onUpdate(guardUpdateHandler(bindFactoryByType[t](variable)))
+}
+
+// bind is Bind without tagging the binding's panics (e.g. a wrong pointer type) as user-code panics.
+func (p *Property) bind(variable any, t PropertyValueType) {
 	p.onUpdate(bindFactoryByType[t](variable))
 }
 
@@ -327,12 +331,12 @@ func (e *Entity) Property(name string) *Property {
 // Essentially binds a property's value to a pointer.
 // See the docs of the two individual functions for more info.
 func (e *Entity) BindProperty(prop string, variable any, t PropertyValueType) {
-	e.Property(prop).onUpdate(guardUpdateHandler(bindFactoryByType[t](variable)))
+	e.Property(prop).Bind(variable, t)
 }
 
 // bindProperty is BindProperty without tagging the binding's panics as user-code panics.
 func (e *Entity) bindProperty(prop string, variable any, t PropertyValueType) {
-	e.Property(prop).Bind(variable, t)
+	e.Property(prop).bind(variable, t)
 }
 
 // PropertyValue finds a property on the entity by name and returns its value.

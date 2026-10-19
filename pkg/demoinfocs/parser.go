@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -320,26 +321,28 @@ func (p *Parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 // Close closes any open resources used by the Parser (go routines, file handles).
 // If the demo stream passed to NewParser() implements io.Closer, it's closed too.
 // This must be called before discarding the Parser to avoid memory leaks.
-// Returns an error if closing of underlying resources fails.
+// Returns an error if closing of underlying resources fails (all of them are closed regardless).
 func (p *Parser) Close() error {
 	p.msgDispatcher.RemoveAllQueues()
+
+	var errs []error
 
 	if p.bitReader != nil {
 		// Doesn't close the demo stream, see demoReader.
 		err := p.bitReader.Close()
 		if err != nil {
-			return fmt.Errorf("failed to close BitReader: %w", err)
+			errs = append(errs, fmt.Errorf("failed to close BitReader: %w", err))
 		}
 	}
 
 	if closer, ok := p.demostream.(io.Closer); ok {
 		err := closer.Close()
 		if err != nil {
-			return fmt.Errorf("failed to close demo stream: %w", err)
+			errs = append(errs, fmt.Errorf("failed to close demo stream: %w", err))
 		}
 	}
 
-	return nil
+	return errors.Join(errs...)
 }
 
 // ensureOpen opens the demo stream for reading, unless it's open already.

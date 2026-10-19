@@ -9,12 +9,14 @@ import (
 
 // demoReader wraps the demo stream passed to NewParser() for the bit reader and normalizes its errors:
 //   - io.EOF, also wrapped (e.g. by *cstv.Reader), becomes a bare io.EOF.
-//     If it comes with data (n > 0), the data is returned without error and the next Read() returns io.EOF.
 //   - io.ErrUnexpectedEOF, also wrapped (e.g. by compress/gzip for truncated input), becomes a bare io.ErrUnexpectedEOF,
 //     so the demo still counts as truncated (ErrUnexpectedEndOfDemo).
 //   - Any other error becomes a *panics.ReadError.
 //     The bit reader panics with it. It isn't treated differently from other panics yet, it's re-panicked
 //     by ParseToEnd() / ParseNextFrame() (before, the stream's error was re-panicked as is).
+//
+// If an error comes with data (n > 0), the data is returned without error and the next Read() returns the error:
+// the bit reader drops the data of a Read() that returns an error.
 //
 // Panics of the stream itself are tagged as user-code panics.
 //
@@ -22,7 +24,7 @@ import (
 // Parser.Close() closes it instead.
 type demoReader struct {
 	r          io.Reader
-	pendingEOF bool // the last Read() of r returned data together with io.EOF
+	pendingErr error // the last Read() of r returned data together with this (normalized) error, returned by the next Read()
 }
 
 // seekingDemoReader is a demoReader for streams that implement io.Seeker,
@@ -45,10 +47,10 @@ func newDemoReader(r io.Reader) io.Reader {
 
 // Read implements io.Reader.
 func (r *demoReader) Read(b []byte) (n int, err error) {
-	if r.pendingEOF {
-		r.pendingEOF = false
+	if r.pendingErr != nil {
+		err, r.pendingErr = r.pendingErr, nil
 
-		return 0, io.EOF
+		return 0, err
 	}
 
 	defer panics.GuardUser()
@@ -60,27 +62,29 @@ func (r *demoReader) Read(b []byte) (n int, err error) {
 
 	switch {
 	case errors.Is(err, io.ErrUnexpectedEOF):
-		return n, io.ErrUnexpectedEOF
+		err = io.ErrUnexpectedEOF
 
 	case errors.Is(err, io.EOF):
-		if n > 0 {
-			r.pendingEOF = true
-
-			return n, nil
-		}
-
-		return 0, io.EOF
+		err = io.EOF
 
 	default:
-		return n, &panics.ReadError{Err: err}
+		err = &panics.ReadError{Err: err}
 	}
+
+	if n > 0 {
+		r.pendingErr = err
+
+		return n, nil
+	}
+
+	return 0, err
 }
 
 // Seek implements io.Seeker.
 func (r seekingDemoReader) Seek(offset int64, whence int) (int64, error) {
 	defer panics.GuardUser()
 
-	r.pendingEOF = false
+	r.pendingErr = nil
 
 	pos, err := r.s.Seek(offset, whence)
 	if err != nil {

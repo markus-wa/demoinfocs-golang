@@ -61,10 +61,20 @@ func TestDemoReader_WrappedEOF(t *testing.T) {
 }
 
 func TestDemoReader_WrappedUnexpectedEOF(t *testing.T) {
-	r := newDemoReader(&scriptedReader{results: []scriptedRead{{n: 2, err: fmt.Errorf("gzip: %w", io.ErrUnexpectedEOF)}}})
+	r := newDemoReader(&scriptedReader{results: []scriptedRead{
+		{n: 2, err: fmt.Errorf("gzip: %w", io.ErrUnexpectedEOF)},
+		{n: 0, err: errors.New("must not be read")},
+	}})
 
-	n, err := r.Read(make([]byte, 8))
+	b := make([]byte, 8)
+
+	// the data first, the error with the next Read()
+	n, err := r.Read(b)
 	assert.Equal(t, 2, n)
+	assert.NoError(t, err)
+
+	n, err = r.Read(b)
+	assert.Zero(t, n)
 	assert.Same(t, io.ErrUnexpectedEOF, err) // must be the bare io.ErrUnexpectedEOF
 }
 
@@ -72,6 +82,26 @@ func TestDemoReader_ReadError(t *testing.T) {
 	r := newDemoReader(iotest.ErrReader(io.ErrClosedPipe))
 
 	_, err := r.Read(make([]byte, 8))
+
+	var readErr *panics.ReadError
+	require.ErrorAs(t, err, &readErr)
+	assert.ErrorIs(t, err, io.ErrClosedPipe)
+}
+
+func TestDemoReader_ReadErrorWithData(t *testing.T) {
+	r := newDemoReader(&scriptedReader{results: []scriptedRead{
+		{n: 5, err: io.ErrClosedPipe},
+		{n: 0, err: errors.New("must not be read")},
+	}})
+
+	b := make([]byte, 8)
+
+	n, err := r.Read(b)
+	assert.Equal(t, 5, n)
+	assert.NoError(t, err)
+
+	n, err = r.Read(b)
+	assert.Zero(t, n)
 
 	var readErr *panics.ReadError
 	require.ErrorAs(t, err, &readErr)
@@ -224,4 +254,22 @@ func TestParser_Close_ClosesDemoStream(t *testing.T) {
 		require.NoError(t, p.Close())
 		assert.Equal(t, 1, stream.closed, "the stream must be closed exactly once")
 	})
+
+	t.Run("close fails", func(t *testing.T) {
+		stream := &closeFailingReader{Reader: bytes.NewReader(nil)}
+
+		p := NewParser(stream)
+
+		err := p.Close()
+		assert.ErrorIs(t, err, io.ErrClosedPipe)
+		assert.EqualError(t, err, "failed to close demo stream: "+io.ErrClosedPipe.Error())
+	})
+}
+
+type closeFailingReader struct {
+	io.Reader
+}
+
+func (closeFailingReader) Close() error {
+	return io.ErrClosedPipe
 }

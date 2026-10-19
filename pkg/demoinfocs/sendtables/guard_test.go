@@ -63,30 +63,44 @@ func TestGuards_OnUpdate(t *testing.T) {
 	requireUntagged(t, recoverPanic(func() { syntheticSet(e, nil, []string{"m_x"}, []any{2}, true, false) }))
 }
 
-func TestGuards_BindProperty(t *testing.T) {
-	var wrongType string // bound as int, the binding's type assertion panics
+// Bind and BindProperty tag the binding's panics (e.g. a wrong pointer type), bind and bindProperty don't.
+func TestGuards_Bind(t *testing.T) {
+	bindings := []struct {
+		name   string
+		public func(e *Entity, variable any)
+		intern func(e *Entity, variable any)
+	}{
+		{"Bind", func(e *Entity, v any) { e.Property("m_x").Bind(v, ValTypeInt) }, func(e *Entity, v any) { e.Property("m_x").bind(v, ValTypeInt) }},
+		{"BindProperty", func(e *Entity, v any) { e.BindProperty("m_x", v, ValTypeInt) }, func(e *Entity, v any) { e.bindProperty("m_x", v, ValTypeInt) }},
+	}
 
-	_, e := newGuardTestEntity()
-	e.BindProperty("m_x", &wrongType, ValTypeInt)
+	for _, b := range bindings {
+		t.Run(b.name, func(t *testing.T) {
+			var wrongType string // bound as int, the binding's type assertion panics
 
-	r := recoverPanic(func() { syntheticSet(e, nil, []string{"m_x"}, []any{2}, true, false) })
-	_, ok := r.(*panics.Captured)
-	assert.True(t, ok, "expected *panics.Captured, got %T", r)
+			_, e := newGuardTestEntity()
+			b.public(e, &wrongType)
 
-	_, e = newGuardTestEntity()
-	e.bindProperty("m_x", &wrongType, ValTypeInt)
+			r := recoverPanic(func() { syntheticSet(e, nil, []string{"m_x"}, []any{2}, true, false) })
+			_, ok := r.(*panics.Captured)
+			assert.True(t, ok, "expected *panics.Captured, got %T", r)
 
-	r = recoverPanic(func() { syntheticSet(e, nil, []string{"m_x"}, []any{2}, true, false) })
-	assert.NotNil(t, r)
-	assert.False(t, panics.IsTagged(r))
+			_, e = newGuardTestEntity()
+			b.intern(e, &wrongType)
 
-	var i int
+			r = recoverPanic(func() { syntheticSet(e, nil, []string{"m_x"}, []any{2}, true, false) })
+			assert.NotNil(t, r)
+			assert.False(t, panics.IsTagged(r))
 
-	_, e = newGuardTestEntity()
-	e.BindProperty("m_x", &i, ValTypeInt)
-	syntheticSet(e, nil, []string{"m_x"}, []any{int32(2)}, true, false)
+			var i int
 
-	assert.Equal(t, 2, i)
+			_, e = newGuardTestEntity()
+			b.public(e, &i)
+			syntheticSet(e, nil, []string{"m_x"}, []any{int32(2)}, true, false)
+
+			assert.Equal(t, 2, i)
+		})
+	}
 }
 
 func setPosition(e *Entity) {
