@@ -675,3 +675,22 @@ func TestGetCommunityId_Error(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "strconv.ParseUint: parsing \"abc\": invalid syntax", err.Error())
 }
+
+// CS2's bomb_dropped game-event has the C4's entity-ID in entindex.
+func TestBombDropped_EntityIDFromEntindex(t *testing.T) {
+	p := NewParser(rand.Reader)
+	p.disableMimicSource1GameEvents = true
+
+	var got []events.BombDropped
+	p.RegisterEventHandler(func(e events.BombDropped) {
+		got = append(got, e)
+	})
+
+	p.gameEventHandler.bombDropped(map[string]*msg.CMsgSource1LegacyGameEventKeyT{
+		"userid":   {ValShort: proto.Int32(3)},
+		"entindex": {ValLong: proto.Int32(586)},
+	})
+
+	assert.Len(t, got, 1)
+	assert.Equal(t, 586, got[0].EntityID)
+}

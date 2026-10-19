@@ -184,6 +184,101 @@ func TestBindBomb_BombExplode(t *testing.T) {
 	})
 }
 
+const (
+	testBombPawnID       = 10
+	testBombControllerID = 20
+)
+
+// testBombPawnHandle is the handle of the pawn of the player created by addFakeBombCarrier.
+var testBombPawnHandle = uint64(testBombPawnID)
+
+// createFakeC4 creates a (not planted) bomb entity with the given owner and returns a function to update the owner.
+func createFakeC4(stParser *st.Parser, owner uint64) func(owner uint64) {
+	entity := stfake.New(stfake.Spec{
+		Parser: stParser,
+		Class:  "CC4",
+		ID:     99,
+		Props:  []stfake.Prop{stfake.Pos(r3.Vector{}), stfake.P("m_hOwnerEntity", owner), stfake.P("m_bStartedArming", false)},
+	})
+
+	stfake.Create(entity)
+
+	return func(owner uint64) {
+		stfake.Update(entity, stfake.P("m_hOwnerEntity", owner))
+	}
+}
+
+// addFakeBombCarrier registers a player whose pawn has the handle testBombPawnHandle.
+func addFakeBombCarrier(p *Parser) *common.Player {
+	p.gameState.entities[testBombPawnID] = stfake.NewEntity(testBombPawnID)
+
+	pl := common.NewPlayer(p.demoInfoProvider)
+	pl.Entity = stfake.NewEntity(testBombControllerID,
+		stfake.P("m_hPawn", testBombPawnHandle),
+		stfake.P("m_hPlayerPawn", testBombPawnHandle),
+	)
+	pl.EntityID = testBombControllerID
+	pl.UserID = 1
+	p.gameState.playersByUserID[pl.UserID] = pl
+	p.gameState.playersByEntityID[pl.EntityID] = pl
+
+	return pl
+}
+
+func TestBindBomb_BombDropped(t *testing.T) {
+	invalid := uint64(constants.InvalidEntityHandleSource2)
+
+	t.Run("pickup then drop", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+		pl := addFakeBombCarrier(p)
+
+		var drops []events.BombDropped
+		p.RegisterEventHandler(func(e events.BombDropped) { drops = append(drops, e) })
+
+		setOwner := createFakeC4(stParser, invalid)
+		setOwner(testBombPawnHandle)
+		assert.Same(t, pl, p.gameState.bomb.Carrier)
+
+		setOwner(invalid)
+
+		assert.Equal(t, []events.BombDropped{{Player: pl, EntityID: testBombControllerID}}, drops)
+		assert.Nil(t, p.gameState.bomb.Carrier)
+	})
+
+	// e.g. the bomb is created before the players are known, then passed on during freeze time
+	t.Run("initial owner resolves only after the bomb was created", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var drops []events.BombDropped
+		p.RegisterEventHandler(func(e events.BombDropped) { drops = append(drops, e) })
+
+		setOwner := createFakeC4(stParser, testBombPawnHandle)
+		assert.Nil(t, p.gameState.bomb.Carrier)
+
+		pl := addFakeBombCarrier(p)
+
+		setOwner(invalid)
+		setOwner(invalid)
+
+		assert.Equal(t, []events.BombDropped{{Player: pl, EntityID: testBombControllerID}}, drops)
+	})
+
+	t.Run("owner change after plant", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var drops int
+		p.RegisterEventHandler(func(events.BombDropped) { drops++ })
+
+		setOwner := createFakeC4(stParser, testBombPawnHandle)
+		addFakeBombCarrier(p)
+		createFakePlantedC4(stParser, "m_bBombTicking", "m_bHasExploded", "m_hBombDefuser", "m_bBombDefused")
+
+		setOwner(invalid)
+
+		assert.Zero(t, drops)
+	})
+}
+
 // testWeaponEntityID is the entity-ID of the weapons created by fakeWeaponEntity.
 const testWeaponEntityID = 300
 

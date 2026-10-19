@@ -398,7 +398,10 @@ func (BombDefuseAborted) implementsBombEventIf() {}
 // BombDropped signals that the bomb (C4) has been dropped onto the ground.
 // Not fired if it has been dropped to another player (see BombPickup for this).
 type BombDropped struct {
-	Player   *common.Player
+	Player *common.Player
+	// EntityID depends on how the event was produced:
+	// by default (synthesized from entity updates) it's the entity-ID of the player who dropped the bomb (Player.EntityID);
+	// with option.DisableMimicSource1Events(true) it's the bomb_dropped game-event's entindex - the entity-ID of the C4.
 	EntityID int
 }
 

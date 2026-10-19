@@ -31,6 +31,10 @@ func (p *Parser) bindEntities() {
 func (p *Parser) bindBomb() {
 	bomb := &p.gameState.bomb
 
+	// The last owner handle of the C4 that didn't resolve to a player (e.g. the bomb was created before the players).
+	// Property updates only carry the new value, so we need it to detect the bomb being dropped by that owner.
+	unresolvedOwner := uint64(constants.InvalidEntityHandleSource2)
+
 	// Track bomb when it is dropped on the ground or being held by a player
 	scC4 := p.stParser.ServerClasses().FindByName("CC4")
 	stOnEntityCreated(scC4, func(bombEntity *st.Entity) {
@@ -40,15 +44,28 @@ func (p *Parser) bindBomb() {
 
 		stOnUpdate(bombEntity.Property("m_hOwnerEntity"), func(val st.PropertyValue) {
 			carrier := p.gameState.Participants().FindByPawnHandle(val.Handle())
+
+			prevCarrier := bomb.Carrier
+			if carrier == nil && prevCarrier == nil && unresolvedOwner != constants.InvalidEntityHandleSource2 {
+				// the previous owner may have become resolvable since (e.g. players weren't known yet)
+				prevCarrier = p.gameState.Participants().FindByPawnHandle(unresolvedOwner)
+			}
+
+			if carrier == nil {
+				unresolvedOwner = val.Handle()
+			} else {
+				unresolvedOwner = constants.InvalidEntityHandleSource2
+			}
+
 			if !p.disableMimicSource1GameEvents {
 				if carrier != nil {
 					p.eventDispatcher.Dispatch(events.BombPickup{
 						Player: carrier,
 					})
-				} else if bomb.Carrier != nil {
+				} else if prevCarrier != nil {
 					p.eventDispatcher.Dispatch(events.BombDropped{
-						Player:   bomb.Carrier,
-						EntityID: bomb.Carrier.EntityID,
+						Player:   prevCarrier,
+						EntityID: prevCarrier.EntityID,
 					})
 				}
 			}
@@ -126,6 +143,7 @@ func (p *Parser) bindBomb() {
 		// Player can't hold the bomb when it has been planted
 		p.gameState.bomb.Carrier = nil
 		p.gameState.currentPlanter = nil
+		unresolvedOwner = constants.InvalidEntityHandleSource2
 
 		bomb.LastOnGroundPosition = bombEntity.Position()
 

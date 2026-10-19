@@ -1059,7 +1059,7 @@ func (geh gameEventHandler) bombDropped(data map[string]*msg.CMsgSource1LegacyGa
 	}
 
 	player := geh.playerByUserID32(data["userid"].GetValShort())
-	entityID := int(data["entityid"].GetValShort())
+	entityID := int(data["entindex"].GetValLong())
 
 	geh.dispatch(events.BombDropped{
 		Player:   player,
