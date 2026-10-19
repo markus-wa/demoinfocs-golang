@@ -183,12 +183,7 @@ func (gs *GameState) Rules() *GameRules {
 
 // Hostages returns all current hostages, sorted by entity-ID.
 func (gs *GameState) Hostages() []*common.Hostage {
-	hostages := make([]*common.Hostage, 0, len(gs.hostages))
-	for _, id := range slices.Sorted(maps.Keys(gs.hostages)) {
-		hostages = append(hostages, gs.hostages[id])
-	}
-
-	return hostages
+	return valuesSortedByKey(gs.hostages)
 }
 
 // GrenadeProjectiles returns a map from entity-IDs to all live grenade projectiles.
@@ -601,6 +596,17 @@ func sortPlayers(players []*common.Player) {
 	})
 }
 
+// valuesSortedByKey returns a snapshot of m's values in ascending key order,
+// so callers don't depend on Go's randomised map iteration order.
+func valuesSortedByKey[K cmp.Ordered, V any](m map[K]V) []V {
+	res := make([]V, 0, len(m))
+	for _, k := range slices.Sorted(maps.Keys(m)) {
+		res = append(res, m[k])
+	}
+
+	return res
+}
+
 // Connected returns all currently connected players & spectators.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp Participants) Connected() []*common.Player {
@@ -683,13 +689,11 @@ func (ptcp Participants) initializeSliceFromByUserID() ([]*common.Player, map[in
 // This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
 // May not behave as expected with multiple spotters.
 func (ptcp Participants) SpottersOf(spotted *common.Player) (spotters []*common.Player) {
-	for _, other := range ptcp.playersByUserID {
+	for _, other := range ptcp.All() {
 		if spotted.IsSpottedBy(other) {
 			spotters = append(spotters, other)
 		}
 	}
-
-	sortPlayers(spotters)
 
 	return
 }
@@ -698,13 +702,11 @@ func (ptcp Participants) SpottersOf(spotted *common.Player) (spotters []*common.
 // This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
 // May not behave as expected with multiple spotters.
 func (ptcp Participants) SpottedBy(spotter *common.Player) (spotted []*common.Player) {
-	for _, other := range ptcp.playersByUserID {
+	for _, other := range ptcp.All() {
 		if other.Entity != nil && other.IsSpottedBy(spotter) {
 			spotted = append(spotted, other)
 		}
 	}
-
-	sortPlayers(spotted)
 
 	return
 }

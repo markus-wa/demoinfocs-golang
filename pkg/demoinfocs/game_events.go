@@ -1,10 +1,8 @@
 package demoinfocs
 
 import (
-	"cmp"
 	"errors"
 	"fmt"
-	"maps"
 	"math"
 	"slices"
 	"sort"
@@ -309,16 +307,12 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 	// If several leftover molotovs / incendiaries of the same owner are destroyed here while one inferno
 	// of that owner is waiting for its projectile in the current frame, the one with the lowest entity-ID
 	// is linked to it (see linkInfernoProjectile).
-	projectiles := slices.SortedFunc(maps.Values(geh.gameState().grenadeProjectiles), func(a, b *common.GrenadeProjectile) int {
-		return cmp.Compare(a.Entity.ID(), b.Entity.ID())
-	})
+	projectiles := valuesSortedByKey(geh.gameState().grenadeProjectiles)
 	for _, proj := range projectiles {
 		geh.parser.nadeProjectileDestroyed(proj)
 	}
 
-	infernos := slices.SortedFunc(maps.Values(geh.gameState().infernos), func(a, b *common.Inferno) int {
-		return cmp.Compare(a.Entity.ID(), b.Entity.ID())
-	})
+	infernos := valuesSortedByKey(geh.gameState().infernos)
 	for _, inf := range infernos {
 		geh.parser.infernoExpired(inf)
 	}

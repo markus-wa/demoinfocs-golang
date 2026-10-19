@@ -221,11 +221,7 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["worldspawn"] = EqWorld
 
 	eqNamesBySpecificity = slices.SortedFunc(maps.Keys(eqNameToWeapon), func(a, b string) int {
-		if c := cmp.Compare(len(b), len(a)); c != 0 {
-			return c
-		}
-
-		return cmp.Compare(a, b)
+		return cmp.Or(cmp.Compare(len(b), len(a)), cmp.Compare(a, b))
 	})
 }
 
