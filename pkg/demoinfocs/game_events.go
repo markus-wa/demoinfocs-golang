@@ -1072,8 +1072,18 @@ func (geh gameEventHandler) bombPickup(data map[string]*msg.CMsgSource1LegacyGam
 		return
 	}
 
+	var player *common.Player
+	if data["userid"] != nil {
+		player = geh.playerByUserID32(data["userid"].GetValShort())
+	}
+
+	// CS2 only - bomb_pickup has no userid, only userid_pawn.
+	if player == nil && data["userid_pawn"] != nil {
+		player = geh.gameState().Participants().FindByPawnHandle(uint64(data["userid_pawn"].GetValLong()))
+	}
+
 	geh.dispatch(events.BombPickup{
-		Player: geh.playerByUserID32(data["userid"].GetValShort()),
+		Player: player,
 	})
 }
 

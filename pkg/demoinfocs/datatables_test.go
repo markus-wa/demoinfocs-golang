@@ -194,6 +194,13 @@ var testBombPawnHandle = uint64(testBombPawnID)
 
 // createFakeC4 creates a (not planted) bomb entity with the given owner and returns a function to update the owner.
 func createFakeC4(stParser *st.Parser, owner uint64) func(owner uint64) {
+	setOwner, _ := createFakeC4Entity(stParser, owner)
+
+	return setOwner
+}
+
+// createFakeC4Entity is like createFakeC4 but also returns the bomb entity.
+func createFakeC4Entity(stParser *st.Parser, owner uint64) (func(owner uint64), *st.Entity) {
 	entity := stfake.New(stfake.Spec{
 		Parser: stParser,
 		Class:  "CC4",
@@ -205,7 +212,7 @@ func createFakeC4(stParser *st.Parser, owner uint64) func(owner uint64) {
 
 	return func(owner uint64) {
 		stfake.Update(entity, stfake.P("m_hOwnerEntity", owner))
-	}
+	}, entity
 }
 
 // addFakeBombCarrier registers a player whose pawn has the handle testBombPawnHandle.
@@ -277,6 +284,57 @@ func TestBindBomb_BombDropped(t *testing.T) {
 
 		assert.Zero(t, drops)
 	})
+
+	// passing the bomb to a player that isn't known yet isn't a drop
+	t.Run("initial owner passes the bomb to an unresolved owner", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var drops int
+		p.RegisterEventHandler(func(events.BombDropped) { drops++ })
+
+		setOwner := createFakeC4(stParser, testBombPawnHandle)
+		addFakeBombCarrier(p)
+
+		setOwner(testBombPawnHandle + 1)
+
+		assert.Zero(t, drops)
+	})
+
+	t.Run("bomb destroyed while its owner was unresolved", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var drops int
+		p.RegisterEventHandler(func(events.BombDropped) { drops++ })
+
+		_, oldBomb := createFakeC4Entity(stParser, testBombPawnHandle)
+		addFakeBombCarrier(p)
+		stfake.Destroy(oldBomb)
+
+		setOwner := createFakeC4(stParser, invalid)
+		setOwner(invalid)
+
+		assert.Zero(t, drops)
+	})
+}
+
+func TestBindBomb_BombPickup_RepeatedOwnerUpdate(t *testing.T) {
+	p, stParser := newBombTestParser()
+	pl := addFakeBombCarrier(p)
+
+	var pickups []events.BombPickup
+	p.RegisterEventHandler(func(e events.BombPickup) { pickups = append(pickups, e) })
+
+	setOwner := createFakeC4(stParser, uint64(constants.InvalidEntityHandleSource2))
+	setOwner(testBombPawnHandle)
+	setOwner(testBombPawnHandle)
+
+	assert.Equal(t, []events.BombPickup{{Player: pl}}, pickups)
+
+	// picking the bomb up again after dropping it is a new pickup
+	setOwner(uint64(constants.InvalidEntityHandleSource2))
+	setOwner(testBombPawnHandle)
+
+	assert.Len(t, pickups, 2)
 }
 
 // testWeaponEntityID is the entity-ID of the weapons created by fakeWeaponEntity.

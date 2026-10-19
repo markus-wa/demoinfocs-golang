@@ -694,3 +694,21 @@ func TestBombDropped_EntityIDFromEntindex(t *testing.T) {
 	assert.Len(t, got, 1)
 	assert.Equal(t, 586, got[0].EntityID)
 }
+
+// CS2's bomb_pickup has no userid, only userid_pawn.
+func TestBombPickup_PlayerFromUserIDPawn(t *testing.T) {
+	p := NewParser(rand.Reader)
+	p.disableMimicSource1GameEvents = true
+	pl := addFakeBombCarrier(p)
+
+	var got []events.BombPickup
+	p.RegisterEventHandler(func(e events.BombPickup) {
+		got = append(got, e)
+	})
+
+	p.gameEventHandler.bombPickup(map[string]*msg.CMsgSource1LegacyGameEventKeyT{
+		"userid_pawn": {ValLong: proto.Int32(int32(testBombPawnHandle))},
+	})
+
+	assert.Equal(t, []events.BombPickup{{Player: pl}}, got)
+}
