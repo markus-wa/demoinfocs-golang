@@ -312,8 +312,8 @@ type Equipment struct {
 	Type EquipmentType // The type of weapon which the equipment instantiates.
 	// The game entity instance.
 	// For the WeaponInstance of a thrown grenade this may be an entity that was just
-	// destroyed: CS2 removes the weapon from the thrower's inventory before the projectile
-	// entity is fully created, in which case the last known entity is used.
+	// destroyed: CS2 may remove the weapon from the thrower's inventory, and destroy its
+	// entity, in the packet that creates the projectile entity, before the projectile is created.
 	Entity *st.Entity
 	Owner  *Player // The player carrying the equipment, not necessarily the buyer.
 	// Holds the original string of the weapon / equipment.

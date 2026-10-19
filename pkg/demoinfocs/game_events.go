@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	common "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/common"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/constants"
 	events "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
@@ -1158,10 +1159,22 @@ func isFireGrenade(t common.EquipmentType) bool {
 	return t == common.EqIncendiary || t == common.EqMolotov
 }
 
+// fireGrenadeAlternative returns the other fire grenade type for molotovs and incendiaries, EqUnknown otherwise.
+func fireGrenadeAlternative(t common.EquipmentType) common.EquipmentType {
+	switch t { //nolint:exhaustive // only fire grenades have an alternative
+	case common.EqMolotov:
+		return common.EqIncendiary
+	case common.EqIncendiary:
+		return common.EqMolotov
+	}
+
+	return common.EqUnknown
+}
+
 // isSameGrenadeType returns whether a and b are the same grenade type,
 // treating molotovs and incendiaries as the same (they may be reported as each other in game-events).
 func isSameGrenadeType(a, b common.EquipmentType) bool {
-	return a == b || (isFireGrenade(a) && isFireGrenade(b))
+	return a == b || fireGrenadeAlternative(a) == b
 }
 
 func (geh gameEventHandler) addThrownGrenade(p *common.Player, wep *common.Equipment) {
@@ -1198,11 +1211,8 @@ func (geh gameEventHandler) getThrownGrenade(p *common.Player, wepType common.Eq
 
 		if len(grenades) == 0 {
 			// Molotovs/incendiaries may be reported as the opposite type in game-events. (i.e. incendiary reported as molotov and vice versa)
-			switch wepType { //nolint:exhaustive
-			case common.EqIncendiary:
-				grenades = playerGrenades[common.EqMolotov]
-			case common.EqMolotov:
-				grenades = playerGrenades[common.EqIncendiary]
+			if alternative := fireGrenadeAlternative(wepType); alternative != common.EqUnknown {
+				grenades = playerGrenades[alternative]
 			}
 		}
 
@@ -1281,19 +1291,24 @@ func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType 
 }
 
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
+// If the player has several of the type, the choice is the one findPlayerWeapon() makes.
 //
 // The weapon's OriginalString is set to the raw event weapon name (rawName),
-// which may be empty (e.g. for grenade projectiles).
+// unless it's empty (e.g. for grenade projectiles) - then the player's weapon keeps its OriginalString.
 // The id is used for the new instance's UniqueID (see parser.nextUniqueID).
 func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawName string, id common.UniqueID) *common.Equipment {
 	if player != nil {
 		alternateWepType := common.EquipmentAlternative(wepType)
-		for _, wep := range player.Weapons() {
-			if wep.Type == wepType || (alternateWepType != common.EqUnknown && wep.Type == alternateWepType) {
-				wep.OriginalString = rawName
 
-				return wep
+		wep := findPlayerWeapon(player, func(wep *common.Equipment) bool {
+			return wep.Type == wepType || (alternateWepType != common.EqUnknown && wep.Type == alternateWepType)
+		})
+		if wep != nil {
+			if rawName != "" {
+				wep.OriginalString = rawName
 			}
+
+			return wep
 		}
 	}
 
@@ -1301,6 +1316,55 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawNam
 	wep.OriginalString = rawName
 
 	return wep
+}
+
+// findPlayerWeapon returns the weapon in the player's inventory that matches, nil if none does.
+// If several match, the active weapon is preferred, otherwise it's the one with the lowest entity ID -
+// so the choice doesn't depend on the inventory's (map) iteration order.
+func findPlayerWeapon(player *common.Player, matches func(*common.Equipment) bool) *common.Equipment {
+	var (
+		found   *common.Equipment
+		foundID int
+		several bool
+	)
+
+	for entityID, wep := range player.Inventory {
+		if !matches(wep) {
+			continue
+		}
+
+		if found != nil {
+			several = true
+		}
+
+		if found == nil || entityID < foundID {
+			found, foundID = wep, entityID
+		}
+	}
+
+	if several {
+		if active := activeWeapon(player); active != nil && matches(active) {
+			return active
+		}
+	}
+
+	return found
+}
+
+// activeWeapon returns the player's active weapon if it's in the inventory, nil otherwise.
+// Unlike Player.ActiveWeapon() it doesn't panic if the pawn lacks the property.
+func activeWeapon(player *common.Player) *common.Equipment {
+	pawn := player.PlayerPawnEntity()
+	if pawn == nil {
+		return nil
+	}
+
+	val, ok := pawn.PropertyValue("m_pWeaponServices.m_hActiveWeapon")
+	if !ok || val.Any == nil {
+		return nil
+	}
+
+	return player.Inventory[int(val.Handle()&constants.EntityHandleIndexMaskSource2)]
 }
 
 func mapGameEventData(d *msg.CMsgSource1LegacyGameEventListDescriptorT, e *msg.CMsgSource1LegacyGameEvent) map[string]*msg.CMsgSource1LegacyGameEventKeyT {

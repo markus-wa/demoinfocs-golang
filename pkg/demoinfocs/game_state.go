@@ -2,6 +2,7 @@ package demoinfocs
 
 import (
 	"errors"
+	"slices"
 	"sort"
 	"strconv"
 	"time"
@@ -45,6 +46,7 @@ type GameState struct {
 	currentDefuser               *common.Player                                                  // Player currently defusing the bomb, if any
 	currentPlanter               *common.Player                                                  // Player currently planting the bomb, if any
 	thrownGrenades               map[*common.Player]map[common.EquipmentType][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
+	pendingGrenadeThrows         map[pendingThrowKey]pendingThrow                                // Grenade weapons about to be thrown per pawn & type, see primeGrenadeThrow
 	lastKnownGrenadeWeapons      map[*common.Player]map[common.EquipmentType]*common.Equipment   // Last-known grenade weapon per player & type, see updateLastKnownGrenadeWeapons
 	rules                        GameRules
 	demoInfo                     demoInfoProvider
@@ -273,6 +275,92 @@ func (gs *GameState) EntityByHandle(handle uint64) *st.Entity {
 	return gs.entities[entityIDFromHandle(handle)]
 }
 
+// grenadeThrowEndedGraceTicks is how many ticks after a primed grenade weapon stopped being the pawn's
+// (endGrenadeThrow) its record still counts for a projectile: the last grenade of a type is destroyed in the
+// packet that creates the projectile entity, possibly before the projectile is created, and POV demos
+// re-create the same projectile entity on the 1-2 ticks after the throw.
+const grenadeThrowEndedGraceTicks = 2
+
+// pendingThrowKey identifies a thrower's pawn and the thrown grenade type.
+type pendingThrowKey struct {
+	pawnID  int
+	wepType common.EquipmentType
+}
+
+// pendingThrow is a grenade weapon whose throw was primed, see primeGrenadeThrow.
+type pendingThrow struct {
+	wep *common.Equipment
+	// ended is whether the weapon stopped being the pawn's (destroyed or owner changed) and endedTick the
+	// ingame tick it did, see endGrenadeThrow
+	ended     bool
+	endedTick int
+}
+
+// primeGrenadeThrow remembers that the pawn's grenade weapon is about to be thrown: its pin was pulled
+// (m_bPinPulled) or its throw was released (m_fThrowTime). The projectile entity is created 6-15 ticks after
+// the release and is attributed to the weapon by grenadeThrowWeapon.
+//
+// Keyed by the pawn rather than the player: the weapon entity knows its owner pawn, so no player lookup is
+// needed, and a bot taken over in place keeps its pawn. A newer priming of the same type replaces an older one.
+//
+// The record isn't aged out: the pin may be held for any length of time, and the release isn't always
+// networked (then the pin pull is the only signal). While the weapon is still the pawn's, it is the pawn's
+// grenade of that type whether or not the throw was seen. Once it isn't (endGrenadeThrow), the record only
+// counts for the rest of that tick.
+func (gs *GameState) primeGrenadeThrow(pawnID int, wep *common.Equipment) {
+	gs.pendingGrenadeThrows[pendingThrowKey{pawnID: pawnID, wepType: wep.Type}] = pendingThrow{wep: wep}
+}
+
+// isPrimedGrenadeThrow returns whether the pawn's current record for the weapon's type is the weapon and hasn't ended.
+func (gs *GameState) isPrimedGrenadeThrow(pawnID int, wep *common.Equipment) bool {
+	pending, ok := gs.pendingGrenadeThrows[pendingThrowKey{pawnID: pawnID, wepType: wep.Type}]
+
+	return ok && pending.wep == wep && !pending.ended
+}
+
+// endGrenadeThrow records that the primed grenade weapon stopped being the pawn's: it was destroyed or its owner
+// changed. Its throw may still be attributed for grenadeThrowEndedGraceTicks, but not later.
+func (gs *GameState) endGrenadeThrow(pawnID int, wep *common.Equipment) {
+	key := pendingThrowKey{pawnID: pawnID, wepType: wep.Type}
+
+	pending, ok := gs.pendingGrenadeThrows[key]
+	if !ok || pending.wep != wep || pending.ended {
+		return
+	}
+
+	pending.ended, pending.endedTick = true, gs.ingameTick
+	gs.pendingGrenadeThrows[key] = pending
+}
+
+// grenadeThrowWeapon returns the grenade weapon of the given type that the pawn primed (primeGrenadeThrow) and
+// that is still the pawn's, or stopped being it within the last grenadeThrowEndedGraceTicks ticks. nil if there
+// is none. Molotovs and incendiaries count as the same type, but the exact type is preferred.
+//
+// The record isn't consumed: POV demos re-create the same projectile entity on the ticks after the throw.
+func (gs *GameState) grenadeThrowWeapon(pawnID int, wepType common.EquipmentType) *common.Equipment {
+	for _, t := range [2]common.EquipmentType{wepType, fireGrenadeAlternative(wepType)} {
+		if t == common.EqUnknown {
+			continue
+		}
+
+		pending, ok := gs.pendingGrenadeThrows[pendingThrowKey{pawnID: pawnID, wepType: t}]
+		if !ok {
+			continue
+		}
+
+		if !pending.ended {
+			return pending.wep
+		}
+
+		// a negative age means the ticks jumped back (e.g. a server restart on a POV demo): not the same throw
+		if age := gs.ingameTick - pending.endedTick; age >= 0 && age <= grenadeThrowEndedGraceTicks {
+			return pending.wep
+		}
+	}
+
+	return nil
+}
+
 // updateLastKnownGrenadeWeapons caches the grenade-type weapons currently in the player's inventory.
 //
 // CS2 removes a grenade from the thrower's inventory before the projectile entity is fully
@@ -281,16 +369,56 @@ func (gs *GameState) EntityByHandle(handle uint64) *st.Entity {
 //
 // Entries are only ever overwritten, never deleted: a weapon disappearing from the inventory
 // is exactly the case this cache exists for.
+//
+// If there are several of a type (e.g. one was just picked up), the choice is the one
+// findPlayerWeapon() makes. Called every frame for every player, so it's a single pass
+// over the inventory that doesn't allocate (besides creating the player's cache).
 func (gs *GameState) updateLastKnownGrenadeWeapons(pl *common.Player) {
-	for _, wep := range pl.Inventory {
+	type candidate struct {
+		wep      *common.Equipment
+		entityID int
+		several  bool
+	}
+
+	// the lowest entity ID per grenade type
+	candidates := make([]candidate, 0, 8)
+
+	for entityID, wep := range pl.Inventory {
 		if wep.Class() != common.EqClassGrenade {
 			continue
 		}
 
-		perType, ok := gs.lastKnownGrenadeWeapons[pl]
-		if !ok {
-			perType = make(map[common.EquipmentType]*common.Equipment)
-			gs.lastKnownGrenadeWeapons[pl] = perType
+		i := slices.IndexFunc(candidates, func(c candidate) bool { return c.wep.Type == wep.Type })
+		if i < 0 {
+			candidates = append(candidates, candidate{wep: wep, entityID: entityID})
+
+			continue
+		}
+
+		candidates[i].several = true
+
+		if entityID < candidates[i].entityID {
+			candidates[i].wep, candidates[i].entityID = wep, entityID
+		}
+	}
+
+	if len(candidates) == 0 {
+		return
+	}
+
+	perType, ok := gs.lastKnownGrenadeWeapons[pl]
+	if !ok {
+		perType = make(map[common.EquipmentType]*common.Equipment)
+		gs.lastKnownGrenadeWeapons[pl] = perType
+	}
+
+	for _, c := range candidates {
+		wep := c.wep
+
+		if c.several {
+			if active := activeWeapon(pl); active != nil && active.Type == wep.Type {
+				wep = active
+			}
 		}
 
 		perType[wep.Type] = wep
@@ -317,6 +445,7 @@ func newGameState(demoInfo demoInfoProvider) *GameState {
 		hostages:                 make(map[int]*common.Hostage),
 		entities:                 make(map[int]*st.Entity),
 		thrownGrenades:           make(map[*common.Player]map[common.EquipmentType][]*common.Equipment),
+		pendingGrenadeThrows:     make(map[pendingThrowKey]pendingThrow),
 		lastKnownGrenadeWeapons:  make(map[*common.Player]map[common.EquipmentType]*common.Equipment),
 		flyingFlashbangs:         make([]*FlyingFlashbang, 0),
 		lastFlash: lastFlash{
