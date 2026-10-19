@@ -38,22 +38,51 @@ func (p *Parser) bindBomb() {
 			bomb.LastOnGroundPosition = pos
 		})
 
-		stOnUpdate(bombEntity.Property("m_hOwnerEntity"), func(val st.PropertyValue) {
-			carrier := p.gameState.Participants().FindByPawnHandle(val.Handle())
-			if !p.disableMimicSource1GameEvents {
-				if carrier != nil {
-					p.eventDispatcher.Dispatch(events.BombPickup{
-						Player: carrier,
-					})
-				} else if bomb.Carrier != nil {
-					p.eventDispatcher.Dispatch(events.BombDropped{
-						Player:   bomb.Carrier,
-						EntityID: bomb.Carrier.EntityID,
-					})
-				}
+		// the last carrier of this C4, so repeated owner updates with the same value don't dispatch BombPickup again.
+		// Per C4 rather than bomb.Carrier: the next round's C4 is a new entity, and its first holder gets a BombPickup
+		// even if the same player carried the previous one.
+		var pickedUpBy *common.Player
+
+		setCarrier := func(carrier *common.Player) {
+			if carrier != nil && carrier != pickedUpBy && !p.disableMimicSource1GameEvents {
+				p.eventDispatcher.Dispatch(events.BombPickup{
+					Player: carrier,
+				})
 			}
 
+			pickedUpBy = carrier
 			bomb.Carrier = carrier
+		}
+
+		stOnUpdate(bombEntity.Property("m_hOwnerEntity"), func(val st.PropertyValue) {
+			handle := val.Handle()
+			carrier := p.gameState.Participants().FindByPawnHandle(handle)
+			dropped := handle == constants.InvalidEntityHandleSource2
+
+			if carrier == nil && !dropped {
+				// the owner's pawn may not be known yet (e.g. the C4 comes before it in the first packet), try again at the end of the frame
+				p.delayedEventHandlers = append(p.delayedEventHandlers, func() {
+					// the C4 may have been destroyed or re-created (same index, new entity) in the meantime
+					if p.gameState.entities[bombEntity.ID()] != bombEntity ||
+						bombEntity.PropertyValueMust("m_hOwnerEntity").Handle() != handle {
+						return
+					}
+
+					if carrier := p.gameState.Participants().FindByPawnHandle(handle); carrier != nil {
+						setCarrier(carrier)
+					}
+				})
+			}
+
+			// passing the bomb to a player that isn't known yet isn't a drop
+			if dropped && bomb.Carrier != nil && !p.disableMimicSource1GameEvents {
+				p.eventDispatcher.Dispatch(events.BombDropped{
+					Player:   bomb.Carrier,
+					EntityID: bombEntity.ID(),
+				})
+			}
+
+			setCarrier(carrier)
 		})
 
 		// Updated when a player starts/stops planting the bomb

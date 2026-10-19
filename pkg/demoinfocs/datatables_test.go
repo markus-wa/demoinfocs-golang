@@ -105,6 +105,7 @@ func TestBindBomb_NilEntityChecks(t *testing.T) {
 func newBombTestParser() (*Parser, *st.Parser) {
 	p := newParser()
 	stParser := stfake.NewParser("CC4", "CPlantedC4")
+	stParser.OnEntity(p.onEntity)
 	p.stParser = stParser
 	p.bindBomb()
 
@@ -182,6 +183,230 @@ func TestBindBomb_BombExplode(t *testing.T) {
 
 		assert.Equal(t, 1, explosions)
 	})
+}
+
+const (
+	testBombPawnID       = 10
+	testBombControllerID = 20
+	// testBombPawnHandle is the handle of the pawn of the player created by addFakeBombCarrier.
+	testBombPawnHandle = uint64(testBombPawnID)
+	// testBombC4ID is the entity-ID of the bomb created by createFakeC4.
+	testBombC4ID = 99
+)
+
+// createFakeC4 creates a (not planted) bomb entity with the given owner and returns a function to update the owner and the entity.
+func createFakeC4(stParser *st.Parser, owner uint64) (func(owner uint64), *st.Entity) {
+	entity := stfake.New(stfake.Spec{
+		Parser: stParser,
+		Class:  "CC4",
+		ID:     testBombC4ID,
+		Props:  []stfake.Prop{stfake.Pos(r3.Vector{}), stfake.P("m_hOwnerEntity", owner), stfake.P("m_bStartedArming", false)},
+	})
+
+	stfake.Create(entity)
+
+	return func(owner uint64) {
+		stfake.Update(entity, stfake.P("m_hOwnerEntity", owner))
+	}, entity
+}
+
+// addFakeBombCarrier registers a player whose pawn has the handle testBombPawnHandle.
+func addFakeBombCarrier(p *Parser) *common.Player {
+	p.gameState.entities[testBombPawnID] = stfake.NewEntity(testBombPawnID)
+
+	pl := common.NewPlayer(p.demoInfoProvider)
+	pl.Entity = stfake.NewEntity(testBombControllerID,
+		stfake.P("m_hPawn", testBombPawnHandle),
+		stfake.P("m_hPlayerPawn", testBombPawnHandle),
+	)
+	pl.EntityID = testBombControllerID
+	pl.UserID = 1
+	p.gameState.playersByUserID[pl.UserID] = pl
+	p.gameState.playersByEntityID[pl.EntityID] = pl
+
+	return pl
+}
+
+func TestBindBomb_BombDropped(t *testing.T) {
+	invalid := uint64(constants.InvalidEntityHandleSource2)
+
+	t.Run("pickup then drop", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+		pl := addFakeBombCarrier(p)
+
+		var drops []events.BombDropped
+		p.RegisterEventHandler(func(e events.BombDropped) { drops = append(drops, e) })
+
+		setOwner, _ := createFakeC4(stParser, invalid)
+		setOwner(testBombPawnHandle)
+		assert.Same(t, pl, p.gameState.bomb.Carrier)
+
+		setOwner(invalid)
+
+		assert.Equal(t, []events.BombDropped{{Player: pl, EntityID: testBombC4ID}}, drops)
+		assert.Nil(t, p.gameState.bomb.Carrier)
+	})
+
+	// e.g. the bomb comes before its owner's pawn in the first packet of the demo, then is dropped during freeze time
+	t.Run("initial owner resolves later in the frame", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var (
+			pickups []events.BombPickup
+			drops   []events.BombDropped
+		)
+
+		p.RegisterEventHandler(func(e events.BombPickup) { pickups = append(pickups, e) })
+		p.RegisterEventHandler(func(e events.BombDropped) { drops = append(drops, e) })
+
+		setOwner, _ := createFakeC4(stParser, testBombPawnHandle)
+		assert.Nil(t, p.gameState.bomb.Carrier)
+
+		pl := addFakeBombCarrier(p)
+		p.processFrameGameEvents()
+
+		assert.Same(t, pl, p.gameState.bomb.Carrier)
+		assert.Equal(t, []events.BombPickup{{Player: pl}}, pickups)
+
+		setOwner(invalid)
+		setOwner(invalid)
+
+		assert.Equal(t, []events.BombDropped{{Player: pl, EntityID: testBombC4ID}}, drops)
+	})
+
+	t.Run("initial owner never resolves", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var dispatched int
+		p.RegisterEventHandler(func(events.BombPickup) { dispatched++ })
+		p.RegisterEventHandler(func(events.BombDropped) { dispatched++ })
+
+		setOwner, _ := createFakeC4(stParser, testBombPawnHandle)
+		p.processFrameGameEvents()
+		setOwner(invalid)
+
+		assert.Nil(t, p.gameState.bomb.Carrier)
+		assert.Zero(t, dispatched)
+	})
+
+	t.Run("owner change after plant", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var drops int
+		p.RegisterEventHandler(func(events.BombDropped) { drops++ })
+
+		setOwner, _ := createFakeC4(stParser, testBombPawnHandle)
+		addFakeBombCarrier(p)
+		createFakePlantedC4(stParser, "m_bBombTicking", "m_bHasExploded", "m_hBombDefuser", "m_bBombDefused")
+
+		setOwner(invalid)
+
+		assert.Zero(t, drops)
+	})
+
+	// passing the bomb to a player that isn't known yet isn't a drop
+	t.Run("initial owner passes the bomb to an unresolved owner", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var drops int
+		p.RegisterEventHandler(func(events.BombDropped) { drops++ })
+
+		setOwner, _ := createFakeC4(stParser, testBombPawnHandle)
+		addFakeBombCarrier(p)
+
+		setOwner(testBombPawnHandle + 1)
+		p.processFrameGameEvents()
+
+		assert.Zero(t, drops)
+	})
+
+	t.Run("carrier passes the bomb to an unresolved owner", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+		pl := addFakeBombCarrier(p)
+
+		var drops []events.BombDropped
+		p.RegisterEventHandler(func(e events.BombDropped) { drops = append(drops, e) })
+
+		setOwner, _ := createFakeC4(stParser, testBombPawnHandle)
+		setOwner(invalid)
+		setOwner(testBombPawnHandle)
+		drops = nil
+
+		setOwner(testBombPawnHandle + 1)
+
+		assert.Empty(t, drops)
+		assert.Nil(t, p.gameState.bomb.Carrier)
+
+		// the new owner resolves (pawn index testBombPawnID+1) and drops the bomb
+		p.gameState.entities[testBombPawnID+1] = stfake.NewEntity(testBombPawnID + 1)
+		pl.Entity = stfake.NewEntity(testBombControllerID,
+			stfake.P("m_hPawn", testBombPawnHandle+1),
+			stfake.P("m_hPlayerPawn", testBombPawnHandle+1),
+		)
+		p.processFrameGameEvents()
+
+		assert.Same(t, pl, p.gameState.bomb.Carrier)
+
+		setOwner(invalid)
+
+		assert.Equal(t, []events.BombDropped{{Player: pl, EntityID: testBombC4ID}}, drops)
+	})
+
+	t.Run("bomb destroyed while its owner was unresolved", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var dispatched int
+		p.RegisterEventHandler(func(events.BombPickup) { dispatched++ })
+		p.RegisterEventHandler(func(events.BombDropped) { dispatched++ })
+
+		_, oldBomb := createFakeC4(stParser, testBombPawnHandle)
+		addFakeBombCarrier(p)
+		stfake.Destroy(oldBomb)
+		p.processFrameGameEvents()
+
+		setOwner, _ := createFakeC4(stParser, invalid)
+		setOwner(invalid)
+
+		assert.Nil(t, p.gameState.bomb.Carrier)
+		assert.Zero(t, dispatched)
+	})
+
+	// the sendtables parser re-creates an entity at the same index with the same serial without destroying the old one
+	// (e.g. when it re-enters the PVS on POV demos), so the old entity's pending resolve must not fire
+	t.Run("bomb re-created while its owner was unresolved", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var pickups []events.BombPickup
+		p.RegisterEventHandler(func(e events.BombPickup) { pickups = append(pickups, e) })
+
+		createFakeC4(stParser, testBombPawnHandle)
+		createFakeC4(stParser, testBombPawnHandle)
+		pl := addFakeBombCarrier(p)
+		p.processFrameGameEvents()
+
+		assert.Same(t, pl, p.gameState.bomb.Carrier)
+		assert.Equal(t, []events.BombPickup{{Player: pl}}, pickups)
+	})
+}
+
+func TestBindBomb_BombPickup_RepeatedOwnerUpdate(t *testing.T) {
+	p, stParser := newBombTestParser()
+	pl := addFakeBombCarrier(p)
+
+	var pickups []events.BombPickup
+	p.RegisterEventHandler(func(e events.BombPickup) { pickups = append(pickups, e) })
+
+	setOwner, _ := createFakeC4(stParser, uint64(constants.InvalidEntityHandleSource2))
+	setOwner(testBombPawnHandle)
+	setOwner(testBombPawnHandle)
+
+	assert.Equal(t, []events.BombPickup{{Player: pl}}, pickups)
+
+	// picking the bomb up again after dropping it is a new pickup
+	setOwner(uint64(constants.InvalidEntityHandleSource2))
+	setOwner(testBombPawnHandle)
+
+	assert.Len(t, pickups, 2)
 }
 
 // testWeaponEntityID is the entity-ID of the weapons created by fakeWeaponEntity.
