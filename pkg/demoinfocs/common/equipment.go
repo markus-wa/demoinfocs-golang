@@ -1,6 +1,9 @@
 package common
 
 import (
+	"cmp"
+	"maps"
+	"slices"
 	"strings"
 
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
@@ -128,6 +131,10 @@ const (
 
 var eqNameToWeapon map[string]EquipmentType
 
+// eqNamesBySpecificity contains the keys of eqNameToWeapon, longest (most specific) first, ties by name.
+// Used by MapEquipment's prefix / suffix fallback so the result doesn't depend on map iteration order.
+var eqNamesBySpecificity []string
+
 var eqElementToName map[EquipmentType]string
 
 func init() {
@@ -212,6 +219,14 @@ func initEqNameToWeapon() {
 	eqNameToWeapon["sg552"] = EqUnknown // This one still crashes the game :)
 	eqNameToWeapon["tmp"] = EqUnknown
 	eqNameToWeapon["worldspawn"] = EqWorld
+
+	eqNamesBySpecificity = slices.SortedFunc(maps.Keys(eqNameToWeapon), func(a, b string) int {
+		if c := cmp.Compare(len(b), len(a)); c != 0 {
+			return c
+		}
+
+		return cmp.Compare(a, b)
+	})
 }
 
 //nolint:funlen
@@ -270,6 +285,7 @@ func initEqElementToName() {
 const weaponPrefix = "weapon_"
 
 // MapEquipment creates an EquipmentType from the name of the weapon / equipment.
+// Names that aren't known exactly are mapped by the longest known name they start or end with.
 // Returns EqUnknown if no mapping can be found.
 func MapEquipment(eqName string) EquipmentType {
 	eqName = strings.TrimPrefix(eqName, weaponPrefix)
@@ -285,9 +301,14 @@ func MapEquipment(eqName string) EquipmentType {
 	case strings.HasPrefix(eqName, "vesthelm"):
 		wep = EqHelmet
 	default:
-		for name := range eqNameToWeapon {
+		if exact, ok := eqNameToWeapon[eqName]; ok {
+			return exact
+		}
+
+		for _, name := range eqNamesBySpecificity {
 			if strings.HasPrefix(eqName, name) || strings.HasSuffix(eqName, name) {
 				wep = eqNameToWeapon[name]
+
 				break
 			}
 		}
