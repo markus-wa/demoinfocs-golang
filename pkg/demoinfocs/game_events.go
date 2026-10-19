@@ -1174,7 +1174,7 @@ func fireGrenadeAlternative(t common.EquipmentType) common.EquipmentType {
 // isSameGrenadeType returns whether a and b are the same grenade type,
 // treating molotovs and incendiaries as the same (they may be reported as each other in game-events).
 func isSameGrenadeType(a, b common.EquipmentType) bool {
-	return a == b || (isFireGrenade(a) && isFireGrenade(b))
+	return a == b || fireGrenadeAlternative(a) == b
 }
 
 func (geh gameEventHandler) addThrownGrenade(p *common.Player, wep *common.Equipment) {
@@ -1319,21 +1319,32 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawNam
 }
 
 // findPlayerWeapon returns the weapon in the player's inventory that matches, nil if none does.
-// The active weapon is preferred if it matches, otherwise it's the one with the lowest entity ID -
+// If several match, the active weapon is preferred, otherwise it's the one with the lowest entity ID -
 // so the choice doesn't depend on the inventory's (map) iteration order.
 func findPlayerWeapon(player *common.Player, matches func(*common.Equipment) bool) *common.Equipment {
-	if active := activeWeapon(player); active != nil && matches(active) {
-		return active
-	}
-
 	var (
 		found   *common.Equipment
 		foundID int
+		several bool
 	)
 
 	for entityID, wep := range player.Inventory {
-		if matches(wep) && (found == nil || entityID < foundID) {
+		if !matches(wep) {
+			continue
+		}
+
+		if found != nil {
+			several = true
+		}
+
+		if found == nil || entityID < foundID {
 			found, foundID = wep, entityID
+		}
+	}
+
+	if several {
+		if active := activeWeapon(player); active != nil && matches(active) {
+			return active
 		}
 	}
 
