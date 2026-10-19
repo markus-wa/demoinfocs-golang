@@ -557,6 +557,11 @@ func (p *Parser) takeOverInPlace(previous, player *common.Player, controllerEnti
 
 	p.gameState.updateLastKnownGrenadeWeapons(player)
 
+	if removed, ok := p.gameState.removedGrenadeWeapons[previous]; ok {
+		p.gameState.removedGrenadeWeapons[player] = removed
+		delete(p.gameState.removedGrenadeWeapons, previous)
+	}
+
 	// update handlers don't fire the controller's current state for in-place take-overs
 	p.connectPlayerIfConnected(player, controllerEntity)
 }
@@ -926,6 +931,9 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 
 	playerInventory := make(map[int]eq)
 
+	// the pawn's inventory as of the last setPlayerInventory() call - pl.Inventory is modified in place below
+	var previousInventory map[int]*common.Equipment
+
 	getWep := func(wepSlotPropertyValue st.PropertyValue) (uint64, *common.Equipment) {
 		handle := wepSlotPropertyValue.UInt64()
 		entityID := handle & constants.EntityHandleIndexMaskSource2
@@ -962,6 +970,9 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 
 		pl := currentPlayer()
 		pl.Inventory = inventory
+
+		p.gameState.recordRemovedGrenadeWeapons(pl, previousInventory, inventory)
+		previousInventory = maps.Clone(inventory)
 
 		// Track grenades for the fallback in bindGrenadeProjectiles (#580).
 		// Not deleted when a grenade disappears from the inventory - see
@@ -1119,16 +1130,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 			}
 		}
 
-		// CS2 removes the grenade from the thrower's inventory before the projectile entity is
-		// fully created - usually when the last grenade of the type is thrown (#580). In that
-		// case getPlayerWeapon() can't find the weapon in the inventory and returns a new one
-		// without an entity, so fall back to the last-known weapon of that type.
-		wepInstance := getPlayerWeapon(proj.Thrower, wep, "", p.nextUniqueID())
-		if wepInstance.Entity == nil && proj.Thrower != nil {
-			if lastKnownWep := p.gameState.lastKnownGrenadeWeapon(proj.Thrower, wepInstance.Type); lastKnownWep != nil {
-				wepInstance = lastKnownWep
-			}
-		}
+		wepInstance := p.thrownGrenadeWeapon(proj.Thrower, wep)
 
 		// copy the weapon so it doesn't get overwritten by a new entity in parser.weapons
 		wepCopy := *wepInstance
@@ -1253,6 +1255,35 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 			})
 		})
 	}
+}
+
+// thrownGrenadeWeapon returns the weapon instance of a grenade of the given type the thrower just threw.
+func (p *Parser) thrownGrenadeWeapon(thrower *common.Player, wepType common.EquipmentType) *common.Equipment {
+	// always taken, even if unused, so UniqueIDs don't depend on which weapon is found
+	id := p.nextUniqueID()
+
+	if thrower == nil {
+		return getPlayerWeapon(nil, wepType, "", id)
+	}
+
+	// CS2 removes the grenade from the thrower's inventory when the last grenade of the type is thrown.
+	// If a grenade of the type was picked up on the same tick, it's the only one of the type
+	// left in the inventory, but it's not the thrown one.
+	if removed := p.gameState.takeRemovedGrenadeWeapon(thrower, wepType); removed != nil {
+		return removed
+	}
+
+	// The removal may also have come more than a tick before the projectile entity is fully
+	// created (#580). In that case getPlayerWeapon() can't find the weapon in the inventory and
+	// returns a new one without an entity, so fall back to the last-known weapon of that type.
+	wepInstance := getPlayerWeapon(thrower, wepType, "", id)
+	if wepInstance.Entity == nil {
+		if lastKnownWep := p.gameState.lastKnownGrenadeWeapon(thrower, wepInstance.Type); lastKnownWep != nil {
+			wepInstance = lastKnownWep
+		}
+	}
+
+	return wepInstance
 }
 
 // Separate function because we also use it in round_officially_ended (issue #42)

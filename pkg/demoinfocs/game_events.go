@@ -1281,19 +1281,24 @@ func (geh gameEventHandler) getEquipmentInstance(player *common.Player, wepType 
 }
 
 // Returns the players instance of the weapon if applicable or a new instance otherwise.
+// If the player has several of the type, the choice is the one findPlayerWeapon() makes.
 //
 // The weapon's OriginalString is set to the raw event weapon name (rawName),
-// which may be empty (e.g. for grenade projectiles).
+// unless it's empty (e.g. for grenade projectiles) - then the player's weapon keeps its OriginalString.
 // The id is used for the new instance's UniqueID (see parser.nextUniqueID).
 func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawName string, id common.UniqueID) *common.Equipment {
 	if player != nil {
 		alternateWepType := common.EquipmentAlternative(wepType)
-		for _, wep := range player.Weapons() {
-			if wep.Type == wepType || (alternateWepType != common.EqUnknown && wep.Type == alternateWepType) {
-				wep.OriginalString = rawName
 
-				return wep
+		wep := findPlayerWeapon(player, func(wep *common.Equipment) bool {
+			return wep.Type == wepType || (alternateWepType != common.EqUnknown && wep.Type == alternateWepType)
+		})
+		if wep != nil {
+			if rawName != "" {
+				wep.OriginalString = rawName
 			}
+
+			return wep
 		}
 	}
 
@@ -1301,6 +1306,39 @@ func getPlayerWeapon(player *common.Player, wepType common.EquipmentType, rawNam
 	wep.OriginalString = rawName
 
 	return wep
+}
+
+// findPlayerWeapon returns the weapon in the player's inventory that matches, nil if none does.
+// If several match, the active weapon is preferred, then the one with the lowest entity ID -
+// so the choice doesn't depend on the inventory's (map) iteration order.
+func findPlayerWeapon(player *common.Player, matches func(*common.Equipment) bool) *common.Equipment {
+	var (
+		found    *common.Equipment
+		foundID  int
+		activeID = -1 // looked up lazily, only needed if several match
+	)
+
+	for entityID, wep := range player.Inventory {
+		if !matches(wep) {
+			continue
+		}
+
+		if found == nil {
+			found, foundID = wep, entityID
+
+			continue
+		}
+
+		if activeID < 0 {
+			activeID = player.ActiveWeaponID()
+		}
+
+		if foundID != activeID && (entityID == activeID || entityID < foundID) {
+			found, foundID = wep, entityID
+		}
+	}
+
+	return found
 }
 
 func mapGameEventData(d *msg.CMsgSource1LegacyGameEventListDescriptorT, e *msg.CMsgSource1LegacyGameEvent) map[string]*msg.CMsgSource1LegacyGameEventKeyT {

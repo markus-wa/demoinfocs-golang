@@ -642,6 +642,7 @@ func TestGrenadeProjectileWeaponInstance(t *testing.T) {
 			assert.NotNil(t, wep.Entity, "WeaponInstance.Entity is nil for a thrown grenade")
 			assert.NotNil(t, wep.Owner, "WeaponInstance.Owner is nil for a thrown grenade")
 			assert.Same(t, e.Projectile.Thrower, wep.Owner, "WeaponInstance.Owner is not the thrower")
+			assert.Equal(t, common.EqClassGrenade, wep.Class(), "WeaponInstance is not a grenade")
 		}
 	})
 

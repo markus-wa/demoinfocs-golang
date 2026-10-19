@@ -2,6 +2,8 @@ package demoinfocs
 
 import (
 	"errors"
+	"maps"
+	"slices"
 	"sort"
 	"strconv"
 	"time"
@@ -46,6 +48,7 @@ type GameState struct {
 	currentPlanter               *common.Player                                                  // Player currently planting the bomb, if any
 	thrownGrenades               map[*common.Player]map[common.EquipmentType][]*common.Equipment // Information about every player's thrown grenades (from the moment they are thrown to the moment their effect is ended)
 	lastKnownGrenadeWeapons      map[*common.Player]map[common.EquipmentType]*common.Equipment   // Last-known grenade weapon per player & type, see updateLastKnownGrenadeWeapons
+	removedGrenadeWeapons        map[*common.Player]map[common.EquipmentType]removedGrenade      // Grenade weapon that last left the inventory per player & type, see recordRemovedGrenadeWeapons
 	rules                        GameRules
 	demoInfo                     demoInfoProvider
 	lastRoundStartEvent          *events.RoundStart             // Used to dispatch this event after a possible MatchStartedChanged event
@@ -293,8 +296,62 @@ func (gs *GameState) updateLastKnownGrenadeWeapons(pl *common.Player) {
 			gs.lastKnownGrenadeWeapons[pl] = perType
 		}
 
-		perType[wep.Type] = wep
+		// the same choice getPlayerWeapon() makes if there are several of the type (e.g. one was just picked up)
+		wepType := wep.Type
+		perType[wepType] = findPlayerWeapon(pl, func(w *common.Equipment) bool { return w.Type == wepType })
 	}
+}
+
+// removedGrenade is a grenade weapon that left a player's inventory at the given ingame tick.
+type removedGrenade struct {
+	wep  *common.Equipment
+	tick int
+}
+
+// recordRemovedGrenadeWeapons remembers the grenade weapons that just left the player's inventory,
+// i.e. that are in the previous but not in the current inventory (both by entity ID).
+//
+// CS2 removes the weapon of a thrown grenade from the inventory when the last grenade of the type
+// is thrown. If the player picks up a grenade of the same type on the same tick, the picked up one
+// is the only one of the type left in the inventory - but the projectile is still the removed one's.
+func (gs *GameState) recordRemovedGrenadeWeapons(pl *common.Player, previous, current map[int]*common.Equipment) {
+	// sorted so the same one is recorded if several of a type are removed at once
+	for _, entityID := range slices.Sorted(maps.Keys(previous)) {
+		wep := previous[entityID]
+		if wep.Class() == common.EqClassGrenade && current[entityID] != wep {
+			gs.recordRemovedGrenadeWeapon(pl, wep)
+		}
+	}
+}
+
+func (gs *GameState) recordRemovedGrenadeWeapon(pl *common.Player, wep *common.Equipment) {
+	perType, ok := gs.removedGrenadeWeapons[pl]
+	if !ok {
+		perType = make(map[common.EquipmentType]removedGrenade)
+		gs.removedGrenadeWeapons[pl] = perType
+	}
+
+	perType[wep.Type] = removedGrenade{wep: wep, tick: gs.ingameTick}
+}
+
+// takeRemovedGrenadeWeapon returns and forgets the grenade weapon of the given type (molotovs and incendiaries
+// are treated as the same) that left the player's inventory on the current or the previous tick.
+// Returns nil if there is none.
+func (gs *GameState) takeRemovedGrenadeWeapon(pl *common.Player, wepType common.EquipmentType) *common.Equipment {
+	for removedType, removed := range gs.removedGrenadeWeapons[pl] {
+		if !isSameGrenadeType(removedType, wepType) {
+			continue
+		}
+
+		delete(gs.removedGrenadeWeapons[pl], removedType)
+
+		// older ones were dropped or used up otherwise, not thrown now
+		if age := gs.ingameTick - removed.tick; age >= 0 && age <= 1 {
+			return removed.wep
+		}
+	}
+
+	return nil
 }
 
 // lastKnownGrenadeWeapon returns the last weapon of the given grenade type that was seen
@@ -318,6 +375,7 @@ func newGameState(demoInfo demoInfoProvider) *GameState {
 		entities:                 make(map[int]*st.Entity),
 		thrownGrenades:           make(map[*common.Player]map[common.EquipmentType][]*common.Equipment),
 		lastKnownGrenadeWeapons:  make(map[*common.Player]map[common.EquipmentType]*common.Equipment),
+		removedGrenadeWeapons:    make(map[*common.Player]map[common.EquipmentType]removedGrenade),
 		flyingFlashbangs:         make([]*FlyingFlashbang, 0),
 		lastFlash: lastFlash{
 			projectileByPlayer: make(map[*common.Player]*common.GrenadeProjectile),
