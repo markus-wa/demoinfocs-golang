@@ -557,11 +557,6 @@ func (p *Parser) takeOverInPlace(previous, player *common.Player, controllerEnti
 
 	p.gameState.updateLastKnownGrenadeWeapons(player)
 
-	if removed, ok := p.gameState.removedGrenadeWeapons[previous]; ok {
-		p.gameState.removedGrenadeWeapons[player] = removed
-		delete(p.gameState.removedGrenadeWeapons, previous)
-	}
-
 	// update handlers don't fire the controller's current state for in-place take-overs
 	p.connectPlayerIfConnected(player, controllerEntity)
 }
@@ -924,11 +919,12 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 
 	inventorySize := 64
 
-	playerInventory := make(map[int]inventoryEntry)
+	type eq struct {
+		*common.Equipment
+		entityID int
+	}
 
-	// the pawn's inventory as of the last setPlayerInventory() call, by descending entity ID (see
-	// recordRemovedGrenadeWeapons) - pl.Inventory is modified in place below
-	var previousInventory []inventoryEntry
+	playerInventory := make(map[int]eq)
 
 	getWep := func(wepSlotPropertyValue st.PropertyValue) (uint64, *common.Equipment) {
 		handle := wepSlotPropertyValue.UInt64()
@@ -967,15 +963,6 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 		pl := currentPlayer()
 		pl.Inventory = inventory
 
-		p.gameState.recordRemovedGrenadeWeapons(pl, previousInventory, inventory)
-
-		previousInventory = previousInventory[:0]
-		for entityID, wep := range inventory {
-			previousInventory = append(previousInventory, inventoryEntry{entityID: entityID, wep: wep})
-		}
-
-		slices.SortFunc(previousInventory, func(a, b inventoryEntry) int { return b.entityID - a.entityID })
-
 		// Track grenades for the fallback in bindGrenadeProjectiles (#580).
 		// Not deleted when a grenade disappears from the inventory - see
 		// updateLastKnownGrenadeWeapons.
@@ -1008,9 +995,9 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 					}
 
 					pl.Inventory[int(entityID)] = wep
-					playerInventory[i] = inventoryEntry{
-						entityID: int(entityID),
-						wep:      wep,
+					playerInventory[i] = eq{
+						Equipment: wep,
+						entityID:  int(entityID),
 					}
 				} else {
 					delete(pl.Inventory, int(entityID))
@@ -1132,7 +1119,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 			}
 		}
 
-		wepInstance := p.thrownGrenadeWeapon(proj.Thrower, wep)
+		wepInstance := p.thrownGrenadeWeapon(proj.Thrower, throwerPawnID(entity), wep)
 
 		// copy the weapon so it doesn't get overwritten by a new entity in parser.weapons
 		wepCopy := *wepInstance
@@ -1149,7 +1136,7 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 		unassert.NotNilf(proj.WeaponInstance, "couldn't find grenade instance for player")
 
 		if proj.WeaponInstance != nil {
-			unassert.NotNilf(proj.WeaponInstance.Owner, "getPlayerWeapon() returned weapon instance with Owner=nil")
+			unassert.NotNilf(proj.WeaponInstance.Owner, "thrownGrenadeWeapon() returned weapon instance with Owner=nil")
 		}
 
 		p.gameEventHandler.addThrownGrenade(proj.Thrower, proj.WeaponInstance)
@@ -1259,22 +1246,25 @@ func (p *Parser) bindGrenadeProjectiles(entity *st.Entity) {
 	}
 }
 
-// thrownGrenadeWeapon returns the weapon instance of a grenade of the given type the thrower (may be nil) just threw.
-func (p *Parser) thrownGrenadeWeapon(thrower *common.Player, wepType common.EquipmentType) *common.Equipment {
+// thrownGrenadeWeapon returns the weapon instance of the grenade of the given type that the pawn (-1 if unknown)
+// of the thrower (may be nil) just threw.
+func (p *Parser) thrownGrenadeWeapon(thrower *common.Player, pawnID int, wepType common.EquipmentType) *common.Equipment {
 	// always taken, even if unused, so UniqueIDs don't depend on which weapon is found
 	id := p.nextUniqueID()
 
-	// CS2 removes the grenade from the thrower's inventory when the last grenade of the type is thrown.
-	// If a grenade of the type was picked up on the same tick, it's the only one of the type
-	// left in the inventory, but it's not the thrown one.
-	if removed := p.gameState.takeRemovedGrenadeWeapon(thrower, wepType); removed != nil {
-		return removed
+	// The weapon primed for the throw (see bindWeapon). It's the thrown one even if the last grenade of the
+	// type left the inventory and another one was picked up on the same tick, and even if the weapon was
+	// removed or destroyed before the projectile entity was created (#580).
+	if wep := p.gameState.grenadeThrowWeapon(pawnID, wepType); wep != nil {
+		return wep
 	}
 
-	// The removal may also have come more than a tick before the projectile entity is fully
-	// created (#580). In that case getPlayerWeapon() can't find the weapon in the inventory and
-	// returns a new one without an entity, so fall back to the last-known weapon of that type.
+	// No priming seen (the weapon's updates weren't networked, e.g. out of the recording's PVS):
+	// the inventory's weapon of the type.
 	wepInstance := getPlayerWeapon(thrower, wepType, "", id)
+
+	// The weapon may also have left the inventory before the projectile entity was created (#580).
+	// Then getPlayerWeapon() returns a new one without an entity, so fall back to the last-known weapon of that type.
 	if wepInstance.Entity == nil {
 		if lastKnownWep := p.gameState.lastKnownGrenadeWeapon(thrower, wepInstance.Type); lastKnownWep != nil {
 			wepInstance = lastKnownWep
@@ -1282,6 +1272,19 @@ func (p *Parser) thrownGrenadeWeapon(thrower *common.Player, wepType common.Equi
 	}
 
 	return wepInstance
+}
+
+// throwerPawnID returns the entity ID of the projectile's thrower pawn, -1 if unknown.
+func throwerPawnID(entity *st.Entity) int {
+	for _, prop := range [2]string{"m_hOwnerEntity", "m_hThrower"} {
+		if val, ok := entity.PropertyValue(prop); ok && val.Any != nil {
+			if id := entityIDFromHandle(val.Handle()); id >= 0 {
+				return id
+			}
+		}
+	}
+
+	return -1
 }
 
 // Separate function because we also use it in round_officially_ended (issue #42)
@@ -1499,6 +1502,69 @@ func (p *Parser) bindWeapon(entity *st.Entity) {
 	stOnUpdate(entity.Property("m_iClip1"), func(val st.PropertyValue) {
 		if equipment.Owner != nil {
 			equipment.Owner.IsReloading = false
+		}
+	})
+
+	if equipment.Class() == common.EqClassGrenade {
+		p.bindGrenadeThrowPriming(entity, equipment)
+	}
+}
+
+// bindGrenadeThrowPriming records the grenade weapon as about to be thrown by its owner pawn when the pin is pulled
+// (m_bPinPulled) and when the throw is released (m_fThrowTime), see GameState.primeGrenadeThrow - and as no
+// longer the pawn's when it's destroyed or changes owner (GameState.endGrenadeThrow).
+//
+// The projectile entity is created 6-15 ticks after the release, and the weapon may leave the inventory or be
+// destroyed in the projectile's packet before the projectile is created - so the projectile can't be attributed
+// by looking at the inventory (see bindGrenadeProjectiles). Resets (pin released without throwing, throw time
+// reset when the projectile is created) are ignored. The handlers also fire with the initial value, which may be
+// stale on an entity first seen mid-throw (mid-demo start, PVS re-entry) - that record is harmless, see
+// primeGrenadeThrow.
+func (p *Parser) bindGrenadeThrowPriming(entity *st.Entity, equipment *common.Equipment) {
+	primedPawnID := -1
+
+	ownerPawnID := func() int {
+		ownerVal, ok := entity.PropertyValue("m_hOwnerEntity")
+		if !ok || ownerVal.Any == nil {
+			return -1
+		}
+
+		return entityIDFromHandle(ownerVal.Handle())
+	}
+
+	prime := func() {
+		if pawnID := ownerPawnID(); pawnID >= 0 {
+			primedPawnID = pawnID
+			p.gameState.primeGrenadeThrow(pawnID, equipment)
+		}
+	}
+
+	// optional: not all demo versions need to have these
+	if prop := entity.Property("m_bPinPulled"); prop != nil {
+		stOnUpdate(prop, func(val st.PropertyValue) {
+			if pulled, ok := val.Any.(bool); ok && pulled {
+				prime()
+			}
+		})
+	}
+
+	if prop := entity.Property("m_fThrowTime"); prop != nil {
+		stOnUpdate(prop, func(val st.PropertyValue) {
+			if throwTime, ok := val.Any.(float32); ok && throwTime != 0 {
+				prime()
+			}
+		})
+	}
+
+	stOnUpdate(entity.Property("m_hOwnerEntity"), func(st.PropertyValue) {
+		if primedPawnID >= 0 && ownerPawnID() != primedPawnID {
+			p.gameState.endGrenadeThrow(primedPawnID, equipment)
+		}
+	})
+
+	stOnDestroy(entity, func() {
+		if primedPawnID >= 0 {
+			p.gameState.endGrenadeThrow(primedPawnID, equipment)
 		}
 	})
 }

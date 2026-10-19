@@ -306,8 +306,6 @@ func TestPlayerIdentity_InPlaceTakeoverInFieldOrder(t *testing.T) {
 	flash := common.NewEquipment(common.EqFlash, common.UniqueID(2))
 	flash.Owner = a
 	a.Inventory[101] = flash
-	thrownHE := common.NewEquipment(common.EqHE, common.UniqueID(3))
-	p.gameState.recordRemovedGrenadeWeapon(a, thrownHE)
 
 	// B takes over the slot (on the other team) while A's connection state is re-sent in the same packet
 	p.setRawPlayer(4, common.PlayerInfo{XUID: testSteamIDB, Name: "B", UserID: 4})
@@ -325,8 +323,6 @@ func TestPlayerIdentity_InPlaceTakeoverInFieldOrder(t *testing.T) {
 	assert.Equal(t, map[int]*common.Equipment{100: knife, 101: flash}, b.Inventory, "the pawn's weapons belong to the new occupant")
 	assert.Same(t, b, knife.Owner)
 	assert.Same(t, flash, p.gameState.lastKnownGrenadeWeapon(b, common.EqFlash), "grenade fallback (#580) for the new occupant")
-	assert.Same(t, thrownHE, p.gameState.takeRemovedGrenadeWeapon(b, common.EqHE), "just thrown grenade of the new occupant")
-	assert.Nil(t, p.gameState.takeRemovedGrenadeWeapon(a, common.EqHE))
 
 	assert.Equal(t, "A", a.Name, "the previous occupant must not be renamed")
 	assert.Equal(t, testSteamIDA, a.SteamID64)
