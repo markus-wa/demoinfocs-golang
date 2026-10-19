@@ -151,6 +151,14 @@ func (qfd *quantizedFloatDecoder) decode(r *reader) float32 {
 	return qfd.Low + float32((qfd.High-qfd.Low)*float32(r.readBits(qfd.Bitcount))*qfd.DecMul)
 }
 
+// maxQuantizedIntegerRangeLog2 bounds the integer range of quantized floats with qff_encode_integers,
+// so the bit count stays <= 32.
+const maxQuantizedIntegerRangeLog2 = 31
+
+func isFinite(f float32) bool {
+	return !math.IsNaN(float64(f)) && !math.IsInf(float64(f), 0)
+}
+
 // Creates a new quantized float decoder based on given field
 //
 //nolint:gocognit,funlen
@@ -179,6 +187,11 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 		} else {
 			qfd.High = 1.0
 		}
+
+		// The range comes from the demo's schema, the decoder can't work with non-finite values.
+		if !isFinite(qfd.Low) || !isFinite(qfd.High) {
+			_panicf("quantized float has an invalid range [%v, %v]", qfd.Low, qfd.High)
+		}
 	}
 
 	if flags != nil {
@@ -191,7 +204,7 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 	qfd.validateFlags()
 
 	// Handle Round Up, Round Down
-	steps := (1 << uint(qfd.Bitcount))
+	steps := uint64(1) << qfd.Bitcount
 
 	Range := float32(0)
 	if (qfd.Flags & qff_rounddown) != 0 {
@@ -213,20 +226,23 @@ func newQuantizedFloatDecoder(bitCount, flags *int32, lowValue, highValue *float
 		}
 
 		deltaLog2 := math.Ceil(math.Log2(float64(delta)))
-		Range2 := (1 << uint(deltaLog2))
+
+		// The bit count must be large enough for the range, but at most 32 bits are read.
+		// Larger ranges (from a corrupt schema) made the loop below run forever.
+		if math.IsNaN(deltaLog2) || deltaLog2 > maxQuantizedIntegerRangeLog2 {
+			_panicf("quantized float has an invalid integer range [%v, %v]", qfd.Low, qfd.High)
+		}
+
+		Range2 := uint64(1) << uint(deltaLog2)
 		bc := qfd.Bitcount
 
-		for {
-			if (1 << uint(bc)) > Range2 {
-				break
-			} else { //nolint:revive
-				bc++
-			}
+		for uint64(1)<<bc <= Range2 {
+			bc++
 		}
 
 		if bc > qfd.Bitcount {
 			qfd.Bitcount = bc
-			steps = (1 << uint(qfd.Bitcount))
+			steps = uint64(1) << qfd.Bitcount
 		}
 
 		qfd.Offset = float32(Range2) / float32(steps)

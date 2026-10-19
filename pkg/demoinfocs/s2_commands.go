@@ -12,6 +12,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v6/internal/bitread"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/config"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
 
@@ -345,38 +346,80 @@ func msgCreatorForType(t int32) config.NetMessageCreator {
 	}
 }
 
-//nolint:funlen
-func (p *Parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
-	b := pack.GetData()
-
-	if len(b) == 0 {
-		return
+// remainingBits returns the number of bits r has left to read of a buffer with totalBits bits.
+// It's 0 if r read past the end already.
+func remainingBits(r *bitread.BitReader, totalBits uint64) uint64 {
+	pos := uint64(r.ActualPosition())
+	if pos > totalBits {
+		return 0
 	}
 
-	r := bitread.NewSmallBitReader(bytes.NewReader(b))
+	return totalBits - pos
+}
+
+// decodeDemoPacket decodes the net-messages of pack, the packet of frame (a DEM_Packet or DEM_FullPacket),
+// it's called on the parsing goroutine.
+// If the packet can be decoded completely, frame and the net-messages are queued (see queueFrame()).
+// Otherwise nothing is queued (and no warning is dispatched), so the caller can skip the frame as a whole.
+//
+// It has its own recover boundary because it reads pack.Data with a nested bit reader:
+// if that runs out of data (corrupt sizes), it panics with io.EOF / io.ErrUnexpectedEOF, which must not be
+// mistaken for the end of the demo stream. Such failures are returned as error.
+//
+//nolint:funlen
+func (p *Parser) decodeDemoPacket(frame proto.Message, pack *msg.CDemoPacket, isFullPacket bool) (err error) {
+	defer panics.RecoverDecode(&err)
 
 	p.pendingMessagesCache = p.pendingMessagesCache[:0]
 	p.pendingMsgBufs = p.pendingMsgBufs[:0]
+	p.pendingMsgs = p.pendingMsgs[:0]
 
-	for len(b)*8-r.ActualPosition() > 7 {
-		t := int32(r.ReadUBitInt())
-		size := r.ReadVarInt32()
-		bp := getMsgBuf(int(size))
-		r.ReadBytesInto(bp, int(size))
-
-		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, *bp})
-		p.pendingMsgBufs = append(p.pendingMsgBufs, bp)
-	}
-
-	// All buffers are consumed by the unmarshal loop below; make sure they go
-	// back to the pool no matter how the loop ends.
+	// All buffers are consumed by the unmarshal loop below, and the decoded messages are queued (or dropped)
+	// by the time it returns: make sure the buffers go back to the pool and nothing keeps the messages
+	// no matter how the function ends (incl. recovered panics).
 	defer func() {
 		for _, bp := range p.pendingMsgBufs {
 			putMsgBuf(bp)
 		}
+
+		clear(p.pendingMessagesCache)
+		clear(p.pendingMsgs)
 	}()
 
-	p.poolBitReader(r)
+	b := pack.GetData()
+
+	if len(b) == 0 {
+		p.queueFrame(frame)
+
+		return nil
+	}
+
+	r := bitread.NewSmallBitReader(bytes.NewReader(b))
+	defer p.poolBitReader(r)
+
+	totalBits := uint64(len(b)) << 3
+
+	for uint64(r.ActualPosition())+7 < totalBits {
+		t := int32(r.ReadUBitInt())
+		size := r.ReadVarInt32()
+
+		// Checked before allocating, so a corrupt size can't make it allocate more than the packet's size.
+		// The bit reader doesn't always panic right away when it reads past the end of b, the position can exceed totalBits.
+		if remainingBits := remainingBits(r, totalBits); uint64(size)<<3 > remainingBits {
+			return fmt.Errorf("size %d of net-message of type %d exceeds the remaining %d bytes of the packet", size, t, remainingBits>>3) //nolint:err113 // only used as cause of a DecodeError
+		}
+
+		bp := getMsgBuf(int(size))
+		p.pendingMsgBufs = append(p.pendingMsgBufs, bp)
+
+		r.ReadBytesInto(bp, int(size))
+
+		if len(*bp) != int(size) {
+			return fmt.Errorf("net-message of type %d is truncated", t) //nolint:err113 // only used as cause of a DecodeError
+		}
+
+		p.pendingMessagesCache = append(p.pendingMessagesCache, pendingMessage{t, *bp})
+	}
 
 	slices.SortStableFunc(p.pendingMessagesCache, func(a, b pendingMessage) int {
 		return a.priority() - b.priority()
@@ -393,7 +436,9 @@ func (p *Parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
 		msgCreator := msgCreatorForType(m.t)
 
 		if msgCreator == nil {
-			p.msgDispatcher.Dispatch(events.ParserWarn{
+			// Queued in order with the net-messages, so it's only dispatched if the packet can be decoded completely.
+			// It's dispatched by the net-message dispatcher (like before it was queued), on the message-handling goroutine.
+			p.pendingMsgs = append(p.pendingMsgs, events.ParserWarn{
 				Message: fmt.Sprintf("unknown message type: %d", m.t),
 				Type:    events.WarnTypeUnknownProtobufMessage,
 			})
@@ -405,10 +450,28 @@ func (p *Parser) handleDemoPacket(pack *msg.CDemoPacket, isFullPacket bool) {
 
 		err := proto.Unmarshal(m.buf, msg)
 		if err != nil {
-			panic(err) // FIXME: avoid panic
+			return fmt.Errorf("failed to unmarshal net-message of type %d: %w", m.t, err)
 		}
 
-		p.msgQueue <- msg
+		p.pendingMsgs = append(p.pendingMsgs, msg)
+	}
+
+	p.queueFrame(frame)
+
+	return nil
+}
+
+// queueFrame queues the frame message m (a DEM_Packet or DEM_FullPacket), followed by the string tables of full packets
+// and the net-messages (and warnings) decoded from its packet (p.pendingMsgs).
+func (p *Parser) queueFrame(m proto.Message) {
+	p.msgQueue <- m
+
+	if m, ok := m.(*msg.CDemoFullPacket); ok {
+		p.msgQueue <- m.StringTable
+	}
+
+	for _, nm := range p.pendingMsgs {
+		p.msgQueue <- nm
 	}
 }
 
@@ -417,9 +480,9 @@ func (p *Parser) handleFileInfo(msg *msg.CDemoFileInfo) {
 		return
 	}
 
-	p.header.PlaybackTicks = int(*msg.PlaybackTicks)
-	p.header.PlaybackFrames = int(*msg.PlaybackFrames)
-	p.header.PlaybackTime = time.Duration(*msg.PlaybackTime) * time.Second
+	p.header.PlaybackTicks = int(msg.GetPlaybackTicks())
+	p.header.PlaybackFrames = int(msg.GetPlaybackFrames())
+	p.header.PlaybackTime = time.Duration(msg.GetPlaybackTime()) * time.Second
 }
 
 //go:embed event-list-dump/*.bin

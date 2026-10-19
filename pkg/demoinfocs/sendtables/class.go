@@ -3,6 +3,8 @@ package sendtables
 import (
 	"fmt"
 	"strings"
+
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
 )
 
 // fpNameTreeCache is kept as fallback for rare deep/large field paths.
@@ -46,6 +48,15 @@ func (c *ServerClass) PropertyEntries() []string {
 
 // OnEntityCreated registers a function to be called when a new entity is created from this server-class.
 func (c *ServerClass) OnEntityCreated(handler EntityCreatedHandler) {
+	c.onEntityCreated(func(e *Entity) {
+		defer panics.GuardUser()
+
+		handler(e)
+	})
+}
+
+// onEntityCreated is OnEntityCreated without tagging the handler's panics as user-code panics.
+func (c *ServerClass) onEntityCreated(handler EntityCreatedHandler) {
 	c.createdHandlers = append(c.createdHandlers, handler)
 }
 

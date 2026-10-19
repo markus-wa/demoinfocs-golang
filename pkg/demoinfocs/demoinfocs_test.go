@@ -492,11 +492,11 @@ func TestInvalidFileType(t *testing.T) {
 
 	p := demoinfocs.NewParser(bytes.NewBuffer(invalidDemoData))
 	_, err = p.ParseNextFrame()
-	assert.Equal(t, demoinfocs.ErrInvalidFileType, err, msgWrongError)
+	assert.ErrorIs(t, err, demoinfocs.ErrInvalidFileType, msgWrongError)
 
 	p = demoinfocs.NewParser(bytes.NewBuffer(invalidDemoData))
 	err = p.ParseToEnd(t.Context())
-	assert.Equal(t, demoinfocs.ErrInvalidFileType, err, msgWrongError)
+	assert.ErrorIs(t, err, demoinfocs.ErrInvalidFileType, msgWrongError)
 }
 
 func TestConcurrent(t *testing.T) {

@@ -2,7 +2,7 @@
 
 A blazing fast, feature complete and production ready Go library for parsing and analysing of Counter-Strike 2 and Counter-Strike: Global Offensive (CS:GO) demos (aka replays).
 
-[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs?tab=doc)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs?tab=doc)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/markus-wa/demoinfocs-golang/ci.yml?branch=main&style=flat-square)](https://github.com/markus-wa/demoinfocs-golang/actions)
 [![codecov](https://img.shields.io/codecov/c/github/markus-wa/demoinfocs-golang?style=flat-square)](https://codecov.io/gh/markus-wa/demoinfocs-golang)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE.md)
@@ -20,7 +20,7 @@ For business inquiries please use the contact information found on the [GitHub p
 
 ### Counter-Strike 2 + Live Broadcast Parsing - aka. CSTV+
 
-	go get -u github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs
+	go get -u github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs
 
 See [broadcast example for live CSTV+ parsing](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/broadcasts)
 
@@ -34,6 +34,7 @@ See [broadcast example for live CSTV+ parsing](https://github.com/markus-wa/demo
 - [Quickstart Guide](https://github.com/markus-wa/demoinfocs-golang#quickstart-guide)
   - [Example](https://github.com/markus-wa/demoinfocs-golang#example)
   - [More Examples](https://github.com/markus-wa/demoinfocs-golang#more-examples)
+  - [Error Handling](https://github.com/markus-wa/demoinfocs-golang#error-handling)
   - [Documentation](https://github.com/markus-wa/demoinfocs-golang#documentation)
 - [Features](https://github.com/markus-wa/demoinfocs-golang#features)
 - [Performance / Benchmarks](https://github.com/markus-wa/demoinfocs-golang#performance--benchmarks)
@@ -62,7 +63,7 @@ You can download the latest version of Go [here](https://golang.org/).
 mkdir my-project
 cd my-project
 go mod init my-project
-go get -u github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs
+go get -u github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs
 ```
 
 3. Create a `main.go` file with the example below
@@ -72,9 +73,9 @@ go get -u github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs
 ### Example
 
 This is a simple example on how to handle game events using this library.
-It prints all kills in a given demo (killer, weapon, victim, was it a wallbang/headshot?) by registering a handler for [`events.Kill`]([https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#Kill](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events#Kill)).
+It prints all kills in a given demo (killer, weapon, victim, was it a wallbang/headshot?) by registering a handler for [`events.Kill`]([https://godoc.org/github.com/markus-wa/demoinfocs-golang/events#Kill](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events#Kill)).
 
-Check out the [godoc of the `events` package]([https://godoc.org/github.com/markus-wa/demoinfocs-golang/events](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events) for some information about the other available events and their purpose.
+Check out the [godoc of the `events` package]([https://godoc.org/github.com/markus-wa/demoinfocs-golang/events](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events) for some information about the other available events and their purpose.
 
 ```go
 package main
@@ -134,19 +135,50 @@ Check out the [examples](examples) folder for more examples, like [how to genera
 
 <img alt="sample heatmap" src="https://raw.githubusercontent.com/markus-wa/demoinfocs-golang/main/examples/heatmap/heatmap.jpg" width="50%">
 
+### Error Handling
+
+`ParseToEnd()` and `ParseNextFrame()` return the parser's own errors:
+
+- `ErrUnexpectedEndOfDemo` (also matches `io.ErrUnexpectedEOF`): the demo is truncated. Everything up to that point has been parsed and dispatched.
+- `ErrDecodeFailed` / `*DecodeError`: some data couldn't be decoded, either because it's corrupt or because this version doesn't support the demo's schema / format (e.g. a `*sendtables.PropertyNotFoundError` after a game update). Events dispatched before the error are valid.
+- Errors of the demo stream (e.g. the `io.Reader` you passed in), wrapped.
+- `context.Cause(ctx)` if the context passed to `ParseToEnd()` is done.
+
+Corrupt or crafted demos fail with one of these errors, sizes read from the demo are checked before memory is allocated for them:
+e.g. frames are limited to 16 MiB (64 MiB for `DEM_AnimationData`), far above what real demos use.
+The exception are `DEM_FullPacket` frames with broken content, which some Valve matchmaking demos contain ([#409](https://github.com/markus-wa/demoinfocs-golang/issues/409)):
+they are skipped with a `ParserWarn` of type `WarnTypeBrokenFullPacket`.
+Only a full packet whose raw payload size (in the frame header) exceeds the frame limit still fails: that size is corrupt, so the rest of the demo can't be read.
+
+If a handler panics, parsing stops and `ParseToEnd()` / `ParseNextFrame()` panic with a `*PanicError` on the calling goroutine.
+It contains the original panic value (`errors.Is()` / `errors.As()` work if it's an error) and the stack trace of the handler.
+
+To stop parsing from a handler, cancel the context instead of panicking:
+
+```go
+ctx, cancel := context.WithCancelCause(context.Background())
+defer cancel(nil)
+
+p.RegisterEventHandler(func(e events.RoundEnd) {
+	cancel(errEnoughRounds)
+})
+
+err := p.ParseToEnd(ctx) // errors.Is(err, errEnoughRounds)
+```
+
 ### Documentation
 
-The full API documentation is available here on [pkg.go.dev](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs).
+The full API documentation is available here on [pkg.go.dev](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs).
 
 ## Features
 
-* Game events (kills, shots, round starts/ends, footsteps etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events?tab=doc) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/print-events)
-* Tracking of game-state (players, teams, grenades, ConVars etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs?tab=doc#GameState)
-* Grenade projectiles / trajectories - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs?tab=doc#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/nade-trajectories)
+* Game events (kills, shots, round starts/ends, footsteps etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events?tab=doc) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/print-events)
+* Tracking of game-state (players, teams, grenades, ConVars etc.) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs?tab=doc#GameState)
+* Grenade projectiles / trajectories - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs?tab=doc#GameState.GrenadeProjectiles) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/nade-trajectories)
 * Access to entities, server-classes & data-tables - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables?tab=doc#ServerClasses) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/entities)
-* Access to all net-messages - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs?tab=doc#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/net-messages)
-* Chat & console messages <sup id="achat1">1</sup> - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events?tab=doc#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/print-events)
-* Matchmaking ranks (official MM demos only) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events?tab=doc#RankUpdate)
+* Access to all net-messages - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs?tab=doc#NetMessageCreator) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/net-messages)
+* Chat & console messages <sup id="achat1">1</sup> - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events?tab=doc#ChatMessage) / [example](https://github.com/markus-wa/demoinfocs-golang/tree/main/examples/print-events)
+* Matchmaking ranks (official MM demos only) - [docs](https://pkg.go.dev/github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events?tab=doc#RankUpdate)
 * Full POV demo support
 * JavaScript (browser / Node.js) support via WebAssembly - [example](https://github.com/markus-wa/demoinfocs-wasm)
 * [Easy debugging via build-flags](#debugging)
@@ -235,7 +267,7 @@ e.g.
 
 Side-note: The tag isn't called `debug` to avoid naming conflicts with other libs (and underscores in tags don't work, apparently).
 
-To change the default debugging behavior, Go's `ldflags` parameter can be used. Example for additionally printing out all server-classes with their properties: `-ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs.debugServerClasses=YES'"`.
+To change the default debugging behavior, Go's `ldflags` parameter can be used. Example for additionally printing out all server-classes with their properties: `-ldflags="-X 'github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs.debugServerClasses=YES'"`.
 
 e.g.
 

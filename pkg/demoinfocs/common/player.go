@@ -830,8 +830,12 @@ func (p *Player) Score() int {
 }
 
 var (
-	ErrDataNotAvailable   = errors.New("some data is not (yet) available (reading the same data later during parsing may work)")
-	ErrNotSupportedByDemo = errors.New("this data is not supported by the demo (this may be because the demos is too old)")
+	// ErrDataNotAvailable is returned if some data is not (yet) available.
+	// Reading the same data later during parsing may work.
+	ErrDataNotAvailable = errors.New("some data is not (yet) available")
+
+	// ErrNotSupportedByDemo is returned if some data is not supported by the demo, e.g. because the demo is too old.
+	ErrNotSupportedByDemo = errors.New("this data is not supported by the demo (this may be because the demo is too old)")
 )
 
 // ColorOrErr returns the players color as shown on the minimap.

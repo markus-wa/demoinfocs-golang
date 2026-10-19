@@ -22,8 +22,8 @@ github.com/markus-wa/go-unassert v0.1.3 h1:4N2fPLUS3929Rmkv94jbWskjsLiyNT2yQpCul
 github.com/markus-wa/go-unassert v0.1.3/go.mod h1:/pqt7a0LRmdsRNYQ2nU3SGrXfw3bLXrvIkakY/6jpPY=
 github.com/markus-wa/gobitread v0.2.5 h1:F5GxezkgQhnWsXWOf4mY1mLcSeDRI3onkIouG26nCEY=
 github.com/markus-wa/gobitread v0.2.5/go.mod h1:PcWXMH4gx7o2CKslbkFkLyJB/aHW7JVRG3MRZe3PINg=
-github.com/markus-wa/godispatch v1.4.1 h1:Cdff5x33ShuX3sDmUbYWejk7tOuoHErFYMhUc2h7sLc=
-github.com/markus-wa/godispatch v1.4.1/go.mod h1:tk8L0yzLO4oAcFwM2sABMge0HRDJMdE8E7xm4gK/+xM=
+github.com/markus-wa/godispatch v1.5.1 h1:cPLs9RKUn7EZvinLo5LDXvb7jHzukL7DNtz0bbOHvZs=
+github.com/markus-wa/godispatch v1.5.1/go.mod h1:tk8L0yzLO4oAcFwM2sABMge0HRDJMdE8E7xm4gK/+xM=
 github.com/markus-wa/ice-cipher-go v1.0.0 h1:BGOcNHBjIY+4GHysW/UR0x0597OfZEhvn1OSb5Wxs8o=
 github.com/markus-wa/ice-cipher-go v1.0.0/go.mod h1:JIsht5Oa9P50VnGJTvH2a6nkOqDFJbUeU1YRZYvdplw=
 github.com/markus-wa/quickhull-go/v2 v2.2.0 h1:rB99NLYeUHoZQ/aNRcGOGqjNBGmrOaRxdtqTnsTUPTA=

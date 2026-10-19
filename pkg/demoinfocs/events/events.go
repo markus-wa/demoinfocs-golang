@@ -671,7 +671,7 @@ const (
 	WarnTypeUnknownEquipmentIndex
 	WarnTypeMissingItemDefinitionIndex
 	WarnTypeStringTableParsingFailure // Should happen only with CS2 POV demos
-	WarnTypePacketEntitiesPanic
+	WarnTypePacketEntitiesPanic       // A PacketEntities net-message couldn't be decoded and was skipped, see option.IgnorePacketEntitiesPanic()
 	WarnTypeUnknownProtobufMessage
 	// WarnTypeUserCommandDeltaDecodeFailed occurs when a delta-encoded user command (CMsgServerUserCmd.delta_data) can't be decoded.
 	WarnTypeUserCommandDeltaDecodeFailed
@@ -696,6 +696,19 @@ const (
 	// vector for that player until the next entity snapshot has been applied; use
 	// option.EagerVelocityTracking(true) to record from the start.
 	WarnTypeVelocityTrackingStartedLazily
+
+	// WarnTypeBrokenFullPacket occurs when the content of a DEM_FullPacket frame can't be decoded (corrupt compression,
+	// protobuf or embedded net-messages), it's skipped. Some Valve matchmaking demos (~10% in 2023) contain one,
+	// the game skips them as well, see https://github.com/markus-wa/demoinfocs-golang/issues/409.
+	// Skipping drops the whole full packet, incl. its embedded string tables and entity snapshot (like the game does).
+	// Full packets are snapshots of the game state that's also sent with the regular packets: in the demos we tested,
+	// skipping one didn't change any other event - but that may not hold for all demos, especially if the very first
+	// full packet is broken (string tables and entities may then be missing until they're sent again).
+	// The frame is still counted (FrameDone is dispatched), ParserWarn.Err is a *demoinfocs.DecodeError.
+	// Only a full packet whose raw payload size (in the frame header) exceeds the frame size limit isn't skipped:
+	// that size is corrupt, so the rest of the demo can't be read, and parsing fails with demoinfocs.ErrDecodeFailed
+	// like for other frames. A decoded (snappy) length over the limit is broken content and is skipped like the other variants.
+	WarnTypeBrokenFullPacket
 )
 
 // WarnTypeUnknownDemoCommandMessageType occurs when a demo-command message type is unknown - contact a maintainer.
@@ -705,6 +718,7 @@ const WarnTypeUnknownDemoCommandMessageType = WarnUnknownDemoCommandMessageType
 type ParserWarn struct {
 	Message string
 	Type    WarnType
+	Err     error // The underlying error, if any (e.g. a *demoinfocs.DecodeError for WarnTypePacketEntitiesPanic)
 }
 
 // GenericGameEvent signals any game-event.

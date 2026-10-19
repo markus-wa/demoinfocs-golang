@@ -2,10 +2,11 @@ package sendtables
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/golang/geo/r3"
+
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/panics"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
 
@@ -28,6 +29,8 @@ type Entity struct {
 	// pointer is inactive. This slice is per-entity so that two entities of the
 	// same class can hold different active types simultaneously.
 	polySerializers []*serializer
+	// budgetSlots are the live slots charged for the entity, see entityBudget.
+	budgetSlots int64
 
 	onCreateFinished []func()
 	onUpdateFinished []func()
@@ -114,6 +117,20 @@ func (p *Property) Value() PropertyValue {
 // are called once with the initial value after the creation; handlers registered later are only
 // called on subsequent updates.
 func (p *Property) OnUpdate(handler PropertyUpdateHandler) {
+	p.onUpdate(guardUpdateHandler(handler))
+}
+
+// guardUpdateHandler tags the panics of a user's update handler as user-code panics.
+func guardUpdateHandler(handler PropertyUpdateHandler) PropertyUpdateHandler {
+	return func(v PropertyValue) {
+		defer panics.GuardUser()
+
+		handler(v)
+	}
+}
+
+// onUpdate is OnUpdate without tagging the handler's panics as user-code panics.
+func (p *Property) onUpdate(handler PropertyUpdateHandler) {
 	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], handler)
 	p.entity.handlerLog = append(p.entity.handlerLog, handlerRegistration{name: p.name, handler: handler})
 	p.entity.addHandlerByFP(p.name, handler)
@@ -257,11 +274,12 @@ This will bind the property's value to i so every time it's updated i is updated
 The valueType indicates which field of the PropertyValue to use for the binding.
 */
 func (p *Property) Bind(variable any, t PropertyValueType) {
-	h := bindFactoryByType[t](variable)
-	p.entity.updateHandlers[p.name] = append(p.entity.updateHandlers[p.name], h)
-	p.entity.handlerLog = append(p.entity.handlerLog, handlerRegistration{name: p.name, handler: h})
-	p.entity.addHandlerByFP(p.name, h)
-	p.entity.hasHandlers = true
+	p.onUpdate(guardUpdateHandler(bindFactoryByType[t](variable)))
+}
+
+// bind is Bind without tagging the binding's panics (e.g. a wrong pointer type) as user-code panics.
+func (p *Property) bind(variable any, t PropertyValueType) {
+	p.onUpdate(bindFactoryByType[t](variable))
 }
 
 // Property finds a property on the entity by name.
@@ -317,6 +335,11 @@ func (e *Entity) BindProperty(prop string, variable any, t PropertyValueType) {
 	e.Property(prop).Bind(variable, t)
 }
 
+// bindProperty is BindProperty without tagging the binding's panics as user-code panics.
+func (e *Entity) bindProperty(prop string, variable any, t PropertyValueType) {
+	e.Property(prop).bind(variable, t)
+}
+
 // PropertyValue finds a property on the entity by name and returns its value.
 //
 // Returns false as second value if the property was not found.
@@ -333,14 +356,45 @@ func (e *Entity) PropertyValue(name string) (PropertyValue, bool) {
 
 // PropertyValueMust finds a property on the entity by name and returns its value.
 //
-// Panics if the property was not found.
+// Panics with a *PropertyNotFoundError if the property was not found.
+// When this happens during parsing (also in a handler), parsing stops and demoinfocs.Parser.ParseToEnd()
+// returns a demoinfocs.DecodeError with the *PropertyNotFoundError as cause, since a missing property means
+// the demo's schema differs from what the code expects (e.g. after a game update).
+// Use PropertyValue() for properties that may be missing.
 func (e *Entity) PropertyValueMust(name string) PropertyValue {
 	val, ok := e.PropertyValue(name)
 	if !ok {
-		panic(fmt.Sprintf("property '%s' not found", name))
+		panic(newPropertyNotFoundError(e, name))
 	}
 
 	return val
+}
+
+// PropertyNotFoundError is the panic value of Entity.PropertyValueMust() if the entity has no property with the given name.
+// This usually means the demo's schema differs from what the caller expects (e.g. after a game update).
+// It's returned by demoinfocs.Parser.ParseToEnd() as the cause of a demoinfocs.DecodeError (see errors.As()).
+type PropertyNotFoundError struct {
+	Name        string // Name of the property
+	EntityID    int    // ID of the entity, see Entity.ID()
+	ServerClass string // Name of the entity's server-class, see ServerClass.Name()
+}
+
+func newPropertyNotFoundError(e *Entity, name string) *PropertyNotFoundError {
+	err := &PropertyNotFoundError{
+		Name:     name,
+		EntityID: int(e.index),
+	}
+
+	if e.class != nil {
+		err.ServerClass = e.class.name
+	}
+
+	return err
+}
+
+// Error implements error.
+func (e *PropertyNotFoundError) Error() string {
+	return fmt.Sprintf("property '%s' not found on entity %d (server-class %q)", e.Name, e.EntityID, e.ServerClass)
 }
 
 const (
@@ -396,6 +450,16 @@ func (e *Entity) Position() r3.Vector {
 //
 // See also Position()
 func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
+	// Only the user's handler is guarded, firing it is library code.
+	e.onPositionUpdate(func(pos r3.Vector) {
+		defer panics.GuardUser()
+
+		h(pos)
+	})
+}
+
+// onPositionUpdate is OnPositionUpdate without tagging the handler's panics as user-code panics.
+func (e *Entity) onPositionUpdate(h func(pos r3.Vector)) {
 	pos := new(r3.Vector)
 	firePosUpdate := func(PropertyValue) {
 		newPos := e.Position()
@@ -405,16 +469,30 @@ func (e *Entity) OnPositionUpdate(h func(pos r3.Vector)) {
 		}
 	}
 
-	e.Property(propCellX).OnUpdate(firePosUpdate)
-	e.Property(propCellY).OnUpdate(firePosUpdate)
-	e.Property(propCellZ).OnUpdate(firePosUpdate)
-	e.Property(propVecX).OnUpdate(firePosUpdate)
-	e.Property(propVecY).OnUpdate(firePosUpdate)
-	e.Property(propVecZ).OnUpdate(firePosUpdate)
+	e.Property(propCellX).onUpdate(firePosUpdate)
+	e.Property(propCellY).onUpdate(firePosUpdate)
+	e.Property(propCellZ).onUpdate(firePosUpdate)
+	e.Property(propVecX).onUpdate(firePosUpdate)
+	e.Property(propVecY).onUpdate(firePosUpdate)
+	e.Property(propVecZ).onUpdate(firePosUpdate)
 }
 
 // OnDestroy registers a function to be called on the entity's destruction.
 func (e *Entity) OnDestroy(delegate func()) {
+	e.addOnDestroy(guardDelegate(delegate))
+}
+
+// guardDelegate tags the panics of a user's delegate as user-code panics.
+func guardDelegate(delegate func()) func() {
+	return func() {
+		defer panics.GuardUser()
+
+		delegate()
+	}
+}
+
+// addOnDestroy is OnDestroy without tagging the delegate's panics as user-code panics.
+func (e *Entity) addOnDestroy(delegate func()) {
 	e.onDestroy = append(e.onDestroy, delegate)
 }
 
@@ -451,6 +529,11 @@ func (e *Entity) destroy() {
 // The parser of package demoinfocs applies player controllers' changes (e.g. Player.Name, SteamID64, Team, IsConnected)
 // here too, so inside a controller's own update handlers the bound Player isn't updated yet.
 func (e *Entity) OnUpdateFinished(delegate func()) {
+	e.addOnUpdateFinished(guardDelegate(delegate))
+}
+
+// addOnUpdateFinished is OnUpdateFinished without tagging the delegate's panics as user-code panics.
+func (e *Entity) addOnUpdateFinished(delegate func()) {
 	e.onUpdateFinished = append(e.onUpdateFinished, delegate)
 }
 
@@ -463,6 +546,11 @@ func (e *Entity) fireUpdateFinished() {
 // OnCreateFinished registers a function to be called once the entity is fully created -
 // i.e. once all property updates have been sent out.
 func (e *Entity) OnCreateFinished(delegate func()) {
+	e.addOnCreateFinished(guardDelegate(delegate))
+}
+
+// addOnCreateFinished is OnCreateFinished without tagging the delegate's panics as user-code panics.
+func (e *Entity) addOnCreateFinished(delegate func()) {
 	e.onCreateFinished = append(e.onCreateFinished, delegate)
 }
 
@@ -482,7 +570,7 @@ func newEntity(index, serial int32, class *ServerClass) *Entity {
 		serial:           serial,
 		class:            class,
 		active:           true,
-		state:            &fieldState{state: make([]any, 0, 16)},
+		state:            &fieldState{state: make([]any, 0, entityInitialStateSlots)},
 		fpCache:          make(map[string]*fieldPath),
 		fpNoop:           make(map[string]bool),
 		polySerializers:  polySerializers,
@@ -530,7 +618,11 @@ func (e *Entity) get(name string) any {
 }
 
 //nolint:gocognit,funlen
-func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
+func (e *Entity) readFields(r *reader, paths *[]*fieldPath, budget *entityBudget) {
+	if len(e.polySerializers) < e.class.polyCount {
+		e.growPolySerializers(budget)
+	}
+
 	n := readFieldPaths(r, paths)
 
 	for _, fp := range (*paths)[:n] {
@@ -570,18 +662,24 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 
 			if fs == nil {
 				// First update: allocate once and store the pointer.
-				// Use 2× initial capacity so small incremental growths don't reallocate.
-				initCap := newLen * 2
-				if initCap < 8 {
-					initCap = 8
-				}
+				// Without headroom, growing reallocates with doubling capacity (see below).
+				initCap := max(int(newLen), 8)
+
+				budget.spendState(e, initCap, 0, fp)
 
 				fs = &fieldState{state: make([]any, newLen, initCap)}
-				e.state.set(fp, fs)
+
+				// fs is stored: there's no *fieldState at fp yet
+				if allocated, freed := e.state.set(fp, fs); allocated > 0 {
+					budget.spendState(e, allocated, freed, fp)
+				}
 			} else {
 				// Subsequent updates: resize the existing slice in place.
 				curLen := uint64(len(fs.state))
 				if newLen < curLen {
+					// the nested field states of the removed elements are dropped
+					budget.release(e, slotsOf(fs.state[newLen:curLen]))
+
 					clear(fs.state[newLen:curLen])
 					fs.state = fs.state[:newLen]
 				} else if newLen > curLen {
@@ -589,10 +687,9 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 						fs.state = fs.state[:newLen]
 					} else {
 						// Exponential growth to avoid repeated reallocations.
-						newCap := uint64(cap(fs.state)) * 2
-						if newCap < newLen {
-							newCap = newLen
-						}
+						newCap := grownCap(cap(fs.state), int(newLen))
+
+						budget.spendState(e, newCap, cap(fs.state), fp)
 
 						newState := make([]any, newLen, newCap)
 						copy(newState, fs.state)
@@ -602,14 +699,29 @@ func (e *Entity) readFields(r *reader, paths *[]*fieldPath) {
 			}
 
 			val = fs.state
-		} else {
-			e.state.set(fp, val)
+		} else if allocated, freed := e.state.set(fp, val); allocated > 0 {
+			budget.spendState(e, allocated, freed, fp)
 		}
 
 		if e.hasHandlers {
 			e.dispatchUpdate(fp, val)
 		}
 	}
+}
+
+// growPolySerializers grows e.polySerializers to the polyCount of its class,
+// which grows if the class's serializer is replaced by one with more polymorphic fields (see Parser.ParsePacket()).
+// The live budget is charged for the added slots, the allocated budget for the new slice.
+func (e *Entity) growPolySerializers(budget *entityBudget) {
+	allocated, freed := polySerializersSlots(e.class.polyCount), polySerializersSlots(len(e.polySerializers))
+
+	if exceeded := budget.spendSlots(e, allocated, freed); exceeded != "" {
+		_panicf("entities exceed the budget of %s per byte of entity data (class %d): corrupt demo", exceeded, e.class.classId)
+	}
+
+	ps := make([]*serializer, e.class.polyCount)
+	copy(ps, e.polySerializers)
+	e.polySerializers = ps
 }
 
 // dispatchUpdate fires any registered update handlers for the given field path.
@@ -631,22 +743,146 @@ func (e *Entity) dispatchUpdate(fp *fieldPath, val any) {
 	}
 }
 
+// entityBudget bounds entity decoding relative to the size of the entity data read so far
+// (the bytes of the PacketEntities messages, see credit()),
+// so a few bits of corrupt or crafted entity data can't make the parser allocate GBs or run for minutes.
+// It has two parts, each bounded by base + perByte * (entity data bytes):
+//
+//   - live: the memory of the entities in Parser.entities, in state slots (16 bytes):
+//     the capacity of their state (see fieldState.slots()), plus entityFixedSlots and the polySerializers of each entity.
+//     Slices that are replaced by larger ones and nested states that are dropped (shrinking collections) are credited back,
+//     so an entity's charge (Entity.budgetSlots) is what it holds.
+//     It's refunded when an entity is dropped from Parser.entities (a new entity is created at its index),
+//     so entity churn doesn't add up over long demos. Destroyed entities keep their state and stay in
+//     Parser.entities until their index is reused, so they're still charged.
+//   - work: what was decoded and allocated in total, never refunded - the instance baselines (in bytes)
+//     and the allocated slots (the capacity of every allocation charged to live). It bounds the CPU time:
+//     re-creating an entity at the same index costs a few bytes of entity data,
+//     but can decode a large baseline and allocate a lot of state each time.
+//
+// The limits are far above what real demos need, see the constants.
+type entityBudget struct {
+	liveSlots      int64
+	allocatedSlots int64
+	baselineBytes  int64
+
+	maxLiveSlots      int64
+	maxAllocatedSlots int64
+	maxBaselineBytes  int64
+}
+
+// The limits, measured across 50 real demos (2023-2026, incl. POV, deathmatch and long matches) at every point of the parse.
+// The ratios peak at the first entity message (the full snapshot of ~6 KB of entity data), the base covers that:
+//   - live: at most 465,768 slots (~7 MiB), at most 7.6 slots per byte (1.3 after 256 KB of entity data).
+//   - allocated: at most 10.1 slots per byte (2.4 after 256 KB), 15.2M slots in total (6381816.dem).
+//   - baselines: at most 6.3 bytes per byte (1.4 after 256 KB), 8.7 MB in total.
+//
+// With these constants, every demo stays at least 16.1x (live), 21.1x (allocated) and 33.5x (baselines)
+// below the limit at every point of the parse.
+const (
+	entityBudgetBaseLiveSlots         = 1 << 20 // 16 MiB
+	entityBudgetLiveSlotsPerByte      = 64
+	entityBudgetBaseAllocatedSlots    = 1 << 20 // 16 MiB
+	entityBudgetAllocatedSlotsPerByte = 128
+	entityBudgetBaseBaselineBytes     = 4 << 20
+	entityBudgetBaselineBytesPerByte  = 64
+
+	// entityFixedSlots is charged for each entity (the Entity, its initial state and maps), in state slots.
+	entityFixedSlots = 64
+
+	// entityInitialStateSlots is the capacity of a new entity's state, part of entityFixedSlots.
+	// It's credited back when the state grows (see fieldState.set()).
+	entityInitialStateSlots = 16
+)
+
+func newEntityBudget() entityBudget {
+	return entityBudget{
+		maxLiveSlots:      entityBudgetBaseLiveSlots,
+		maxAllocatedSlots: entityBudgetBaseAllocatedSlots,
+		maxBaselineBytes:  entityBudgetBaseBaselineBytes,
+	}
+}
+
+// credit adds the budget for n bytes of entity data.
+func (b *entityBudget) credit(n int) {
+	b.maxLiveSlots += int64(n) * entityBudgetLiveSlotsPerByte
+	b.maxAllocatedSlots += int64(n) * entityBudgetAllocatedSlotsPerByte
+	b.maxBaselineBytes += int64(n) * entityBudgetBaselineBytesPerByte
+}
+
+// spendState records that allocated state slots were allocated (or are about to be) for e's update at fp,
+// replacing slices with freed slots.
+func (b *entityBudget) spendState(e *Entity, allocated, freed int, fp *fieldPath) {
+	if exceeded := b.spendSlots(e, allocated, freed); exceeded != "" {
+		_panicf("entity state exceeds the budget of %s per byte of entity data (path %v): corrupt or desynced demo bitstream",
+			exceeded, fp.path[:fp.last+1])
+	}
+}
+
+// spendEntity records the allocation of the entity e (see entityFixedSlots), incl. its polySerializers of the given length.
+func (b *entityBudget) spendEntity(e *Entity, polySerializers int) {
+	if exceeded := b.spendSlots(e, entityFixedSlots+polySerializersSlots(polySerializers), 0); exceeded != "" {
+		_panicf("entities exceed the budget of %s per byte of entity data (class %d): corrupt demo", exceeded, e.class.classId)
+	}
+}
+
+// polySerializersSlots returns the size of a polySerializers slice of length n in state slots (rounded up).
+func polySerializersSlots(n int) int {
+	return (n + 1) / 2
+}
+
+// spendSlots charges the allocated slots to the allocated slots,
+// and to e (live) without the freed slots of the slices they replace.
+// It returns which of them exceeds the budget, or "".
+func (b *entityBudget) spendSlots(e *Entity, allocated, freed int) (exceeded string) {
+	e.budgetSlots += int64(allocated - freed)
+	b.liveSlots += int64(allocated - freed)
+	b.allocatedSlots += int64(allocated)
+
+	switch {
+	case b.liveSlots > b.maxLiveSlots:
+		return "live slots"
+	case b.allocatedSlots > b.maxAllocatedSlots:
+		return "allocated slots"
+	}
+
+	return ""
+}
+
+// release credits n live slots of e that were freed.
+func (b *entityBudget) release(e *Entity, n int) {
+	e.budgetSlots -= int64(n)
+	b.liveSlots -= int64(n)
+}
+
+// refund releases the live slots of e, which was dropped from Parser.entities.
+func (b *entityBudget) refund(e *Entity) {
+	b.liveSlots -= e.budgetSlots
+	e.budgetSlots = 0
+}
+
+// spendBaseline records that a baseline of n bytes is decoded.
+func (b *entityBudget) spendBaseline(n int, classID int32) {
+	b.baselineBytes += int64(n)
+
+	if b.baselineBytes > b.maxBaselineBytes {
+		_panicf("decoded instance baselines exceed the budget of %d bytes per byte of entity data (class %d): corrupt demo",
+			entityBudgetBaselineBytesPerByte, classID)
+	}
+}
+
 // OnPacketEntities parses a CSVCMsg_PacketEntities message, applying its entity updates.
+//
+// It returns an error if the message couldn't be decoded (e.g. corrupt data or a missing property,
+// see PropertyNotFoundError). Panics of user callbacks (e.g. OnEntityCreated handlers) propagate,
+// also if they are a PropertyNotFoundError of the callback's own lookups.
+// The entities may be partially updated in both cases.
 //
 // Used internally by package demoinfocs; not covered by API stability guarantees.
 //
 //nolint:gocognit,funlen
-func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
-	defer func() {
-		if p.packetEntitiesPanicWarnFunc == nil {
-			return
-		}
-
-		r := recover()
-		if r != nil {
-			fmt.Fprintf(os.Stderr, "error in OnPacketEntities: %v\n", r)
-		}
-	}()
+func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
+	defer panics.RecoverDecode(&err)
 
 	r := newReader(m.GetEntityData())
 	defer r.release()
@@ -666,6 +902,9 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 
 		p.entityFullPackets++
 	}
+
+	// After the early return above, so data that's ignored doesn't add to the budget.
+	p.entityBudget.credit(len(m.GetEntityData()))
 
 	p.tuplesCache = p.tuplesCache[:0]
 
@@ -696,26 +935,34 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 				// destroy it so its OnDestroy handlers run and consumers don't keep using state bound to it
 				// (e.g. a weapon's unique id, #601).
 				// The same serial means the same entity is re-created, e.g. when it re-enters the PVS on POV demos.
-				if old := p.entities[index]; old != nil && old.active && old.serial != serial {
-					old.replaced = true
-					old.destroy()
+				if old := p.entities[index]; old != nil {
+					if old.active && old.serial != serial {
+						old.replaced = true
+						old.destroy()
 
-					p.tuplesCache = append(p.tuplesCache, tuple{old, EntityOpLeft | EntityOpDeleted})
+						p.tuplesCache = append(p.tuplesCache, tuple{old, EntityOpLeft | EntityOpDeleted})
+					}
+
+					p.entityBudget.refund(old)
 				}
 
 				e = newEntity(index, serial, class)
 				p.entities[index] = e
 
+				p.entityBudget.spendEntity(e, len(e.polySerializers))
+
 				baseline := p.classBaselines[classID]
 
 				if baseline != nil {
 					// POV demos are missing some baselines?
+					p.entityBudget.spendBaseline(len(baseline), classID)
+
 					br := newReader(baseline)
-					e.readFields(br, &p.pathCache)
+					e.readFields(br, &p.pathCache, &p.entityBudget)
 					br.release()
 				}
 
-				e.readFields(r, &p.pathCache)
+				e.readFields(r, &p.pathCache, &p.entityBudget)
 
 				// Fire created-handlers so update-handlers can be registered
 				for _, h := range class.createdHandlers {
@@ -745,7 +992,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) error {
 					op |= EntityOpEntered
 				}
 
-				e.readFields(r, &p.pathCache)
+				e.readFields(r, &p.pathCache, &p.entityBudget)
 				e.fireUpdateFinished()
 			}
 		} else {

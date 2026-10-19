@@ -44,7 +44,7 @@ func newSyntheticClass(id int32, name string) *ServerClass {
 }
 
 func newSyntheticParser(classes []string) *Parser {
-	p := NewParser(nil)
+	p := NewParser()
 
 	for i, name := range classes {
 		if p.classesByName[name] != nil {
@@ -182,7 +182,7 @@ func syntheticSet(e *Entity, p *Parser, names []string, values []any, fire, fini
 
 	for _, u := range updates {
 		fp.path[0] = u.index
-		e.state.set(fp, u.value)
+		_, _ = e.state.set(fp, u.value)
 
 		if fire && e.hasHandlers {
 			e.dispatchUpdate(fp, u.value)
