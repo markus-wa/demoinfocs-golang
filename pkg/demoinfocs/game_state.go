@@ -348,7 +348,12 @@ func (gs *GameState) grenadeThrowWeapon(pawnID int, wepType common.EquipmentType
 			continue
 		}
 
-		if !pending.ended || gs.ingameTick-pending.endedTick <= grenadeThrowEndedGraceTicks {
+		if !pending.ended {
+			return pending.wep
+		}
+
+		// a negative age means the ticks jumped back (e.g. a server restart on a POV demo): not the same throw
+		if age := gs.ingameTick - pending.endedTick; age >= 0 && age <= grenadeThrowEndedGraceTicks {
 			return pending.wep
 		}
 	}

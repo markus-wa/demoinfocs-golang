@@ -406,6 +406,22 @@ func TestThrownGrenadeWeapon_ProjectileRecreated(t *testing.T) {
 	}
 }
 
+// An ended record doesn't count after the ticks jumped back (e.g. a server restart on a POV demo).
+func TestThrownGrenadeWeapon_EndedBeforeTickJump(t *testing.T) {
+	gt := newThrownGrenadeTest(t)
+	gt.setSlot(3, testFlashA)
+
+	gt.p.gameState.ingameTick = 1000
+	gt.release(testFlashA)
+
+	gt.p.gameState.ingameTick = 1010
+	gt.setSlot(3, testFlashB)
+	stfake.Destroy(gt.weapons[testFlashA])
+
+	gt.p.gameState.ingameTick = 5
+	assert.Same(t, gt.weapons[testFlashB], gt.throw(t), "the inventory's")
+}
+
 // A weapon entity re-created with the same serial (PVS re-entry on POV demos) is bound again for the same
 // equipment; the pawn's record for it must still end when the weapon goes.
 func TestThrownGrenadeWeapon_WeaponRecreated(t *testing.T) {
