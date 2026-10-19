@@ -338,7 +338,7 @@ func s2MsgCreatorForType(t int32) NetMessageCreator {
 	}
 }
 
-// decodeDemoPacket decodes the net-messages embedded in a (full) packet into p.pendingMsgs, see decodeFrame().
+// decodeDemoPacket decodes the net-messages embedded in a (full) packet and queues them, see queueNetMessage().
 // For full packets, a corrupt net-message size or protobuf is returned as error (the full packet is then skipped).
 //
 //nolint:funlen
@@ -405,12 +405,12 @@ func (p *parser) decodeDemoPacket(pack *msgs2.CDemoPacket, isFullPacket bool) er
 		msgCreator := s2MsgCreatorForType(m.t)
 
 		if msgCreator == nil {
-			// Queued in order with the net-messages, so it's only dispatched if the packet can be decoded completely.
+			// Queued in order with the net-messages, so it's only dispatched if a full packet can be decoded completely.
 			// It's dispatched by the net-message dispatcher (as before it was queued), on the message-handling goroutine.
-			p.pendingMsgs = append(p.pendingMsgs, events.ParserWarn{
+			p.queueNetMessage(events.ParserWarn{
 				Message: fmt.Sprintf("unknown message type: %d", m.t),
 				Type:    events.WarnTypeUnknownProtobufMessage,
-			})
+			}, isFullPacket)
 
 			continue
 		}
@@ -422,10 +422,22 @@ func (p *parser) decodeDemoPacket(pack *msgs2.CDemoPacket, isFullPacket bool) er
 			return fmt.Errorf("failed to unmarshal net-message of type %d: %w", m.t, err)
 		}
 
-		p.pendingMsgs = append(p.pendingMsgs, msg)
+		p.queueNetMessage(msg, isFullPacket)
 	}
 
 	return nil
+}
+
+// queueNetMessage queues a decoded net-message right away, or for full packets keeps it in p.pendingMsgs:
+// they're only queued once the whole full packet could be decoded, see decodeFullPacket().
+func (p *parser) queueNetMessage(m any, isFullPacket bool) {
+	if isFullPacket {
+		p.pendingMsgs = append(p.pendingMsgs, m)
+
+		return
+	}
+
+	p.msgQueue <- m
 }
 
 // remainingBits returns the number of bits of the data left after r's position.

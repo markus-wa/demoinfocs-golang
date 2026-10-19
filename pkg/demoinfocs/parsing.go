@@ -477,10 +477,8 @@ func (p *parser) parseFrameS2() bool {
 	}
 
 	if err == nil {
-		err = p.decodeFrame(msg, buf, isFullPacket)
+		err = p.decodeFrame(msg, buf, bp, isFullPacket)
 	}
-
-	putMsgBuf(bp)
 
 	if err != nil {
 		// Some Valve matchmaking demos (~10% in 2023) contain a broken DEM_FullPacket, which the game skips as well (#409).
@@ -497,17 +495,17 @@ func (p *parser) parseFrameS2() bool {
 		return true
 	}
 
-	p.msgQueue <- msg
-
 	if m, ok := msg.(*msgs2.CDemoFullPacket); ok {
-		p.msgQueue <- m.StringTable
-	}
-
-	for _, m := range p.pendingMsgs {
 		p.msgQueue <- m
-	}
 
-	clear(p.pendingMsgs)
+		p.msgQueue <- m.StringTable
+
+		for _, m := range p.pendingMsgs {
+			p.msgQueue <- m
+		}
+
+		clear(p.pendingMsgs)
+	}
 
 	// Queue up some post processing
 	p.msgQueue <- frameParsedToken
@@ -515,18 +513,43 @@ func (p *parser) parseFrameS2() bool {
 	return msgType != msgs2.EDemoCommands_DEM_Stop
 }
 
-// decodeFrame unmarshals the current frame's payload into msg.
-// For (full) packets, the embedded net-messages are decoded into p.pendingMsgs (see decodeDemoPacket()):
-// nothing is queued, so a frame that can't be decoded completely can be skipped.
-// For DEM_FullPacket, panics while decoding the content are returned as error.
-func (p *parser) decodeFrame(msg proto.Message, buf []byte, isFullPacket bool) (err error) {
+// decodeFrame unmarshals the current frame's payload into msg and queues it.
+// The net-messages embedded in a packet are queued as they're decoded (see decodeDemoPacket()),
+// so the message-handling goroutine can start on them while the rest of the packet is decoded.
+// DEM_FullPacket frames are handled by decodeFullPacket() instead, nothing is queued for them.
+// bp (the pool entry backing buf, may be nil) is returned to the pool once buf is unmarshalled,
+// so the embedded net-messages can reuse it.
+func (p *parser) decodeFrame(msg proto.Message, buf []byte, bp *[]byte, isFullPacket bool) error {
+	if isFullPacket {
+		return p.decodeFullPacket(msg.(*msgs2.CDemoFullPacket), buf, bp)
+	}
+
+	err := proto.Unmarshal(buf, msg)
+
+	putMsgBuf(bp)
+
+	if err != nil {
+		return err
+	}
+
+	p.msgQueue <- msg
+
+	if m, ok := msg.(*msgs2.CDemoPacket); ok {
+		return p.decodeDemoPacket(m, false)
+	}
+
+	return nil
+}
+
+// decodeFullPacket unmarshals a DEM_FullPacket frame's payload into msg, and its embedded net-messages
+// into p.pendingMsgs. Nothing is queued: parseFrameS2() queues them once the whole frame could be decoded,
+// so a broken full packet can be skipped. Panics while decoding the content are returned as error.
+func (p *parser) decodeFullPacket(msg *msgs2.CDemoFullPacket, buf []byte, bp *[]byte) (err error) {
 	p.pendingMsgs = p.pendingMsgs[:0]
 
 	defer func() {
-		if isFullPacket {
-			if r := recover(); r != nil {
-				err = fmt.Errorf("%v", r) //nolint:err113 // only used for the ParserWarn message
-			}
+		if r := recover(); r != nil {
+			err = fmt.Errorf("%v", r) //nolint:err113 // only used for the ParserWarn message
 		}
 
 		if err != nil {
@@ -536,19 +559,14 @@ func (p *parser) decodeFrame(msg proto.Message, buf []byte, isFullPacket bool) (
 	}()
 
 	err = proto.Unmarshal(buf, msg)
+
+	putMsgBuf(bp)
+
 	if err != nil {
 		return err
 	}
 
-	switch m := msg.(type) {
-	case *msgs2.CDemoPacket:
-		return p.decodeDemoPacket(m, false)
-
-	case *msgs2.CDemoFullPacket:
-		return p.decodeDemoPacket(m.Packet, true)
-	}
-
-	return nil
+	return p.decodeDemoPacket(msg.Packet, true)
 }
 
 // brokenFullPacket is queued instead of a DEM_FullPacket frame that couldn't be decoded, see parseFrameS2().
