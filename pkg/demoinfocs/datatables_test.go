@@ -187,20 +187,12 @@ func TestBindBomb_BombExplode(t *testing.T) {
 const (
 	testBombPawnID       = 10
 	testBombControllerID = 20
+	// testBombPawnHandle is the handle of the pawn of the player created by addFakeBombCarrier.
+	testBombPawnHandle = uint64(testBombPawnID)
 )
 
-// testBombPawnHandle is the handle of the pawn of the player created by addFakeBombCarrier.
-var testBombPawnHandle = uint64(testBombPawnID)
-
-// createFakeC4 creates a (not planted) bomb entity with the given owner and returns a function to update the owner.
-func createFakeC4(stParser *st.Parser, owner uint64) func(owner uint64) {
-	setOwner, _ := createFakeC4Entity(stParser, owner)
-
-	return setOwner
-}
-
-// createFakeC4Entity is like createFakeC4 but also returns the bomb entity.
-func createFakeC4Entity(stParser *st.Parser, owner uint64) (func(owner uint64), *st.Entity) {
+// createFakeC4 creates a (not planted) bomb entity with the given owner and returns a function to update the owner and the entity.
+func createFakeC4(stParser *st.Parser, owner uint64) (func(owner uint64), *st.Entity) {
 	entity := stfake.New(stfake.Spec{
 		Parser: stParser,
 		Class:  "CC4",
@@ -242,7 +234,7 @@ func TestBindBomb_BombDropped(t *testing.T) {
 		var drops []events.BombDropped
 		p.RegisterEventHandler(func(e events.BombDropped) { drops = append(drops, e) })
 
-		setOwner := createFakeC4(stParser, invalid)
+		setOwner, _ := createFakeC4(stParser, invalid)
 		setOwner(testBombPawnHandle)
 		assert.Same(t, pl, p.gameState.bomb.Carrier)
 
@@ -259,7 +251,7 @@ func TestBindBomb_BombDropped(t *testing.T) {
 		var drops []events.BombDropped
 		p.RegisterEventHandler(func(e events.BombDropped) { drops = append(drops, e) })
 
-		setOwner := createFakeC4(stParser, testBombPawnHandle)
+		setOwner, _ := createFakeC4(stParser, testBombPawnHandle)
 		assert.Nil(t, p.gameState.bomb.Carrier)
 
 		pl := addFakeBombCarrier(p)
@@ -276,7 +268,7 @@ func TestBindBomb_BombDropped(t *testing.T) {
 		var drops int
 		p.RegisterEventHandler(func(events.BombDropped) { drops++ })
 
-		setOwner := createFakeC4(stParser, testBombPawnHandle)
+		setOwner, _ := createFakeC4(stParser, testBombPawnHandle)
 		addFakeBombCarrier(p)
 		createFakePlantedC4(stParser, "m_bBombTicking", "m_bHasExploded", "m_hBombDefuser", "m_bBombDefused")
 
@@ -292,7 +284,7 @@ func TestBindBomb_BombDropped(t *testing.T) {
 		var drops int
 		p.RegisterEventHandler(func(events.BombDropped) { drops++ })
 
-		setOwner := createFakeC4(stParser, testBombPawnHandle)
+		setOwner, _ := createFakeC4(stParser, testBombPawnHandle)
 		addFakeBombCarrier(p)
 
 		setOwner(testBombPawnHandle + 1)
@@ -306,11 +298,11 @@ func TestBindBomb_BombDropped(t *testing.T) {
 		var drops int
 		p.RegisterEventHandler(func(events.BombDropped) { drops++ })
 
-		_, oldBomb := createFakeC4Entity(stParser, testBombPawnHandle)
+		_, oldBomb := createFakeC4(stParser, testBombPawnHandle)
 		addFakeBombCarrier(p)
 		stfake.Destroy(oldBomb)
 
-		setOwner := createFakeC4(stParser, invalid)
+		setOwner, _ := createFakeC4(stParser, invalid)
 		setOwner(invalid)
 
 		assert.Zero(t, drops)
@@ -324,7 +316,7 @@ func TestBindBomb_BombPickup_RepeatedOwnerUpdate(t *testing.T) {
 	var pickups []events.BombPickup
 	p.RegisterEventHandler(func(e events.BombPickup) { pickups = append(pickups, e) })
 
-	setOwner := createFakeC4(stParser, uint64(constants.InvalidEntityHandleSource2))
+	setOwner, _ := createFakeC4(stParser, uint64(constants.InvalidEntityHandleSource2))
 	setOwner(testBombPawnHandle)
 	setOwner(testBombPawnHandle)
 

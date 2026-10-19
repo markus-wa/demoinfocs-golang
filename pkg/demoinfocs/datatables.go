@@ -146,11 +146,6 @@ func (p *Parser) bindBomb() {
 			}
 
 			p.gameState.currentPlanter = nil
-
-			if unresolvedOwnerOf == bombEntity {
-				unresolvedOwner = constants.InvalidEntityHandleSource2
-				unresolvedOwnerOf = nil
-			}
 		})
 	})
 
