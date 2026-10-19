@@ -38,10 +38,10 @@ func (p *Parser) bindBomb() {
 			bomb.LastOnGroundPosition = pos
 		})
 
-		// the last carrier of this C4, so repeated owner updates with the same value don't dispatch BombPickup again
+		// the last carrier of this C4, so repeated owner updates with the same value don't dispatch BombPickup again.
+		// Per C4 rather than bomb.Carrier: the next round's C4 is a new entity, and its first holder gets a BombPickup
+		// even if the same player carried the previous one.
 		var pickedUpBy *common.Player
-
-		destroyed := false
 
 		setCarrier := func(carrier *common.Player) {
 			if carrier != nil && carrier != pickedUpBy && !p.disableMimicSource1GameEvents {
@@ -62,7 +62,9 @@ func (p *Parser) bindBomb() {
 			if carrier == nil && !dropped {
 				// the owner's pawn may not be known yet (e.g. the C4 comes before it in the first packet), try again at the end of the frame
 				p.delayedEventHandlers = append(p.delayedEventHandlers, func() {
-					if destroyed || bombEntity.PropertyValueMust("m_hOwnerEntity").Handle() != handle {
+					// the C4 may have been destroyed or re-created (same index, new entity) in the meantime
+					if p.gameState.entities[bombEntity.ID()] != bombEntity ||
+						bombEntity.PropertyValueMust("m_hOwnerEntity").Handle() != handle {
 						return
 					}
 
@@ -144,7 +146,6 @@ func (p *Parser) bindBomb() {
 			}
 
 			p.gameState.currentPlanter = nil
-			destroyed = true
 		})
 	})
 

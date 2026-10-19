@@ -105,6 +105,7 @@ func TestBindBomb_NilEntityChecks(t *testing.T) {
 func newBombTestParser() (*Parser, *st.Parser) {
 	p := newParser()
 	stParser := stfake.NewParser("CC4", "CPlantedC4")
+	stParser.OnEntity(p.onEntity)
 	p.stParser = stParser
 	p.bindBomb()
 
@@ -368,6 +369,23 @@ func TestBindBomb_BombDropped(t *testing.T) {
 
 		assert.Nil(t, p.gameState.bomb.Carrier)
 		assert.Zero(t, dispatched)
+	})
+
+	// the sendtables parser re-creates an entity at the same index with the same serial without destroying the old one
+	// (e.g. when it re-enters the PVS on POV demos), so the old entity's pending resolve must not fire
+	t.Run("bomb re-created while its owner was unresolved", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var pickups []events.BombPickup
+		p.RegisterEventHandler(func(e events.BombPickup) { pickups = append(pickups, e) })
+
+		createFakeC4(stParser, testBombPawnHandle)
+		createFakeC4(stParser, testBombPawnHandle)
+		pl := addFakeBombCarrier(p)
+		p.processFrameGameEvents()
+
+		assert.Same(t, pl, p.gameState.bomb.Carrier)
+		assert.Equal(t, []events.BombPickup{{Player: pl}}, pickups)
 	})
 }
 
