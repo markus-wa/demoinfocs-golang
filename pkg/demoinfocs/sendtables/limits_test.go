@@ -251,6 +251,8 @@ func budgetTestParser(t *testing.T) *Parser {
 type entityOp struct {
 	index   int32
 	delete  bool
+	leave   bool // leave the PVS without being deleted
+	update  bool // update m_arr of an existing entity to arrSize
 	serial  uint64
 	arrSize uint64
 }
@@ -267,8 +269,18 @@ func entitiesMsg(t *testing.T, size int, ops ...entityOp) *msg.CSVCMsg_PacketEnt
 		w.uBitVar(uint32(op.index - prev - 1))
 		prev = op.index
 
-		if op.delete {
+		switch {
+		case op.delete:
 			w.bits(3, 2)
+
+			continue
+		case op.leave:
+			w.bits(1, 2)
+
+			continue
+		case op.update:
+			w.bits(0, 2)
+			w.arrayFieldUpdate(t, op.arrSize)
 
 			continue
 		}

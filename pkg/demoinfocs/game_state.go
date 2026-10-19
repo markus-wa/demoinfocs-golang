@@ -205,12 +205,20 @@ func (gs *GameState) Infernos() map[int]*common.Inferno {
 }
 
 // Weapons returns a map from entity-IDs to all weapons currently in the game.
+//
+// A weapon whose entity left the snapshot (PVS) without being deleted stays listed, with its last Owner,
+// until the entity is destroyed - e.g. on GOTV demos a player's old knife after a respawn.
+// Check Equipment.Entity.InPVS() (or use Entity.OnLeavePVS) for what's live.
+// Player.Inventory / Player.Weapons() follow the player's m_hMyWeapons instead.
 func (gs *GameState) Weapons() map[int]*common.Equipment {
 	return gs.weapons
 }
 
 // Entities returns all currently existing entities.
 // (Almost?) everything in the game is an entity, such as weapons, players, fire etc.
+//
+// Entities that left the snapshot (PVS) without being deleted stay listed until they're destroyed,
+// see Entity.InPVS() and Entity.OnLeavePVS.
 func (gs *GameState) Entities() map[int]*st.Entity {
 	return gs.entities
 }

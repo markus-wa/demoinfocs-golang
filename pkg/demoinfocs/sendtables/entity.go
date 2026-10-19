@@ -19,6 +19,8 @@ type Entity struct {
 	serial int32
 	class  *ServerClass
 	active bool
+	// inPVS is cleared when the entity leaves the snapshot (PVS) or is destroyed, see InPVS().
+	inPVS bool
 	// replaced is set if the entity was destroyed because a new entity was created at its index, see Replaced().
 	replaced bool
 	state    *fieldState
@@ -35,6 +37,8 @@ type Entity struct {
 	onCreateFinished []func()
 	onUpdateFinished []func()
 	onDestroy        []func()
+	onLeavePVS       []func()
+	onEnterPVS       []func()
 	updateHandlers   map[string][]PropertyUpdateHandler
 	// handlerLog preserves the global registration order of update handlers.
 	// updateHandlers remains the name-keyed index for lookup; this log is the
@@ -507,8 +511,54 @@ func (e *Entity) Replaced() bool {
 // destroy marks the entity as inactive and triggers all via OnDestroy() registered functions.
 func (e *Entity) destroy() {
 	e.active = false
+	e.inPVS = false
 
 	for _, delegate := range e.onDestroy {
+		delegate()
+	}
+}
+
+// InPVS returns true if the entity is part of the current snapshot (its PVS on POV demos).
+// It returns false after the entity left the snapshot without being deleted (see OnLeavePVS) and after its destruction.
+func (e *Entity) InPVS() bool {
+	return e.inPVS
+}
+
+// OnLeavePVS registers a function to be called when the entity leaves the snapshot (the PVS) without being deleted.
+// The entity isn't destroyed, its properties keep their last values and it may come back (see OnEnterPVS).
+// It isn't called when the entity is deleted, only OnDestroy is.
+func (e *Entity) OnLeavePVS(delegate func()) {
+	e.addOnLeavePVS(guardDelegate(delegate))
+}
+
+// addOnLeavePVS is OnLeavePVS without tagging the delegate's panics as user-code panics.
+func (e *Entity) addOnLeavePVS(delegate func()) {
+	e.onLeavePVS = append(e.onLeavePVS, delegate)
+}
+
+// leavePVS marks the entity as not in the PVS and triggers all via OnLeavePVS() registered functions.
+func (e *Entity) leavePVS() {
+	e.inPVS = false
+
+	for _, delegate := range e.onLeavePVS {
+		delegate()
+	}
+}
+
+// OnEnterPVS registers a function to be called when an entity that left the snapshot (see OnLeavePVS)
+// comes back with an update.
+// It's called after the update's property update handlers and OnUpdateFinished delegates.
+func (e *Entity) OnEnterPVS(delegate func()) {
+	e.addOnEnterPVS(guardDelegate(delegate))
+}
+
+// addOnEnterPVS is OnEnterPVS without tagging the delegate's panics as user-code panics.
+func (e *Entity) addOnEnterPVS(delegate func()) {
+	e.onEnterPVS = append(e.onEnterPVS, delegate)
+}
+
+func (e *Entity) fireEnterPVS() {
+	for _, delegate := range e.onEnterPVS {
 		delegate()
 	}
 }
@@ -570,6 +620,7 @@ func newEntity(index, serial int32, class *ServerClass) *Entity {
 		serial:           serial,
 		class:            class,
 		active:           true,
+		inPVS:            true,
 		state:            &fieldState{state: make([]any, 0, entityInitialStateSlots)},
 		fpCache:          make(map[string]*fieldPath),
 		fpNoop:           make(map[string]bool),
@@ -987,13 +1038,24 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 
 				op = EntityOpUpdated
 
-				if !e.active {
+				// The entity left the PVS or was destroyed (destroy() clears inPVS too).
+				// OnEnterPVS only fires for entities that left without being deleted (OnLeavePVS fired),
+				// not for destroyed entities that are re-activated.
+				reentered := false
+
+				if !e.inPVS {
+					reentered = e.active
 					e.active = true
+					e.inPVS = true
 					op |= EntityOpEntered
 				}
 
 				e.readFields(r, &p.pathCache, &p.entityBudget)
 				e.fireUpdateFinished()
+
+				if reentered {
+					e.fireEnterPVS()
+				}
 			}
 		} else {
 			e = p.entities[index]
@@ -1006,10 +1068,18 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 			}
 
 			op = EntityOpLeft
-			if cmd&0x02 != 0 {
+
+			switch {
+			case cmd&0x02 != 0:
+				// also if the entity already left the PVS, the delete still destroys it
 				op |= EntityOpDeleted
 
 				e.destroy()
+			case !e.inPVS:
+				continue // entity has already left the PVS
+			default:
+				// the entity isn't destroyed, it may re-enter the PVS with an update (see OnEnterPVS)
+				e.leavePVS()
 			}
 		}
 

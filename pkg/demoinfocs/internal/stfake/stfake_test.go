@@ -331,3 +331,63 @@ func TestWithoutParser_AllFuncs(t *testing.T) {
 	assert.Equal(t, 4, e.PropertyValueMust("m_a").Int())
 	assert.Equal(t, 2, destroyed)
 }
+
+func TestLeave(t *testing.T) {
+	p := stfake.NewParser("CFoo")
+
+	var log []string
+
+	p.OnEntity(func(e *st.Entity, op st.EntityOp) error {
+		log = append(log, "entity handler "+op.String())
+
+		return nil
+	})
+
+	e := stfake.New(stfake.Spec{Parser: p, Class: "CFoo", ID: 1, Props: []stfake.Prop{stfake.P("m_a", int32(0))}})
+	e.OnLeavePVS(func() { log = append(log, "left") })
+	e.OnEnterPVS(func() { log = append(log, "entered") })
+	e.OnUpdateFinished(func() { log = append(log, "update finished") })
+	e.OnDestroy(func() { log = append(log, "destroyed") })
+
+	stfake.Create(e)
+	require.True(t, e.InPVS())
+
+	log = nil
+
+	stfake.Leave(e)
+	stfake.Leave(e)
+
+	assert.Equal(t, []string{"left", "entity handler Left"}, log)
+	assert.False(t, e.InPVS())
+
+	log = nil
+
+	stfake.Update(e, stfake.P("m_a", int32(1)))
+
+	assert.Equal(t, []string{"update finished", "entered", "entity handler Updated+Entered"}, log)
+	assert.True(t, e.InPVS())
+
+	log = nil
+
+	stfake.Leave(e)
+	stfake.Destroy(e)
+
+	assert.Equal(t, []string{"left", "entity handler Left", "destroyed", "entity handler Deleted+Left"}, log)
+	assert.False(t, e.InPVS())
+	assert.False(t, e.Replaced())
+}
+
+func TestLeave_Destroyed(t *testing.T) {
+	e := stfake.NewEntity(1, stfake.P("m_a", int32(0)))
+
+	left := 0
+
+	e.OnLeavePVS(func() { left++ })
+
+	stfake.Create(e)
+	stfake.Destroy(e)
+	stfake.Leave(e)
+
+	assert.Zero(t, left, "a destroyed entity doesn't leave the PVS")
+	assert.False(t, e.InPVS())
+}
