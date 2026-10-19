@@ -705,8 +705,9 @@ const (
 	// skipping one didn't change any other event - but that may not hold for all demos, especially if the very first
 	// full packet is broken (string tables and entities may then be missing until they're sent again).
 	// The frame is still counted (FrameDone is dispatched), ParserWarn.Err is a *demoinfocs.DecodeError.
-	// A full packet that's larger than the frame size limit isn't skipped: its size is corrupt, so the rest of the demo
-	// can't be read. Like other frames that can't be decoded, it makes parsing fail with demoinfocs.ErrDecodeFailed.
+	// Only a full packet whose raw payload size (in the frame header) exceeds the frame size limit isn't skipped:
+	// that size is corrupt, so the rest of the demo can't be read, and parsing fails with demoinfocs.ErrDecodeFailed
+	// like for other frames. A decoded (snappy) length over the limit is broken content and is skipped like the other variants.
 	WarnTypeBrokenFullPacket
 )
 

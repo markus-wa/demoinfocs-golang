@@ -22,7 +22,7 @@ import (
 // msgBufPool recycles the byte slices that hold frame and embedded-message
 // payloads. proto.Unmarshal always copies bytes fields into the message, so
 // the input buffers are dead once the message is unmarshaled and can be
-// returned to this pool. See parseFrame() and handleDemoPacket().
+// returned to this pool. See parseFrame() and decodeDemoPacket().
 var msgBufPool = sync.Pool{
 	New: func() any {
 		b := make([]byte, 0, 1024)
@@ -292,7 +292,7 @@ func (p *Parser) readerFailure(r any) error {
 
 	case panics.KindEndOfDemo:
 		// Only the main demo stream panics with a bare io.EOF / io.ErrUnexpectedEOF here,
-		// nested readers have their own boundaries (see handleDemoPacket()).
+		// nested readers have their own boundaries (see decodeDemoPacket()).
 		return errUnexpectedEndOfDemo
 
 	case panics.KindRead:

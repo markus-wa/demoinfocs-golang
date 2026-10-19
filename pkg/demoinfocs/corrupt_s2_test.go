@@ -21,10 +21,9 @@ const s2DemPathInternal = "../../test/cs-demos/s2/s2.dem"
 
 // corruptedInput is a corrupted version of a demo.
 type corruptedInput struct {
-	name     string
-	newRead  func() io.Reader
-	wantEOF  bool // whether only ErrUnexpectedEndOfDemo is expected (otherwise ErrDecodeFailed is too)
-	inputLen int
+	name    string
+	newRead func() io.Reader
+	wantEOF bool // whether only ErrUnexpectedEndOfDemo is expected (otherwise ErrDecodeFailed is too)
 }
 
 const (
@@ -75,7 +74,6 @@ func s2Corpus(data []byte) []corruptedInput {
 			newRead: func() io.Reader {
 				return io.MultiReader(bytes.NewReader(data[:start]), bytes.NewReader(window), bytes.NewReader(data[end:cut]))
 			},
-			inputLen: cut,
 		})
 	}
 
@@ -84,10 +82,9 @@ func s2Corpus(data []byte) []corruptedInput {
 
 func truncated(data []byte, n int) corruptedInput {
 	return corruptedInput{
-		name:     fmt.Sprintf("truncated at %d", n),
-		newRead:  func() io.Reader { return bytes.NewReader(data[:n]) },
-		wantEOF:  true,
-		inputLen: n,
+		name:    fmt.Sprintf("truncated at %d", n),
+		newRead: func() io.Reader { return bytes.NewReader(data[:n]) },
+		wantEOF: true,
 	}
 }
 
