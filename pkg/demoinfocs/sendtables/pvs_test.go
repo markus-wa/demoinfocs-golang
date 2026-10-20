@@ -183,6 +183,22 @@ func TestPVS_LeaveThenRecreatedSameSerial(t *testing.T) {
 		pvsPacket(t, p, log, entityOp{index: 5, update: true, arrSize: 4}))
 }
 
+// A re-entry that fails to decode doesn't turn the entity's update handlers off:
+// with IgnorePacketEntitiesPanic, parsing goes on after the error.
+func TestPVS_CorruptReentryKeepsHandlers(t *testing.T) {
+	t.Parallel()
+
+	p, log := reentryTestParser(t)
+
+	pvsPacket(t, p, log, entityOp{index: 5, serial: 1, arrSize: 2})
+
+	*log = nil
+	require.Error(t, p.OnPacketEntities(entitiesMsg(t, 16, entityOp{index: 5, serial: 1, arrSize: maxFieldIndex + 1})))
+
+	assert.Equal(t, []string{"5/1 m_arr=4", "5/1 finished", "5/1 Updated"},
+		pvsPacket(t, p, log, entityOp{index: 5, update: true, arrSize: 4}))
+}
+
 // OnEnterPVS also fires if an entity that left re-enters through an update, after the update's handlers.
 func TestPVS_LeaveThenUpdateFiresEnter(t *testing.T) {
 	t.Parallel()
@@ -358,4 +374,37 @@ func TestGuards_OnEnterPVS_Parser(t *testing.T) {
 	require.NoError(t, p.OnPacketEntities(entitiesMsg(t, 16, entityOp{index: 5, serial: 1})))
 
 	requireTagged(t, recoverPanic(func() { _ = p.OnPacketEntities(entitiesMsg(t, 16, entityOp{index: 5, serial: 1})) }))
+}
+
+func TestSameHandlerValue(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		a, b any
+		same bool
+	}{
+		{nil, nil, true},
+		{nil, uint32(0), false},
+		{true, true, true},
+		{true, false, false},
+		{int32(-1), int32(-1), true},
+		{uint32(1), uint32(2), false},
+		{uint64(1), uint64(1), true},
+		{uint64(1), uint32(1), false},
+		{float32(1.5), float32(1.5), true},
+		{"a", "a", true},
+		{"a", "b", false},
+		{[3]float32{1, 2, 3}, [3]float32{1, 2, 3}, true},
+		{[3]float32{1, 2, 3}, [3]float32{1, 2, 4}, false},
+		{[]float32{1, 2}, []float32{1, 2}, true},
+		{[]float32{1, 2}, []float32{1, 3}, false},
+		{[]byte{1}, []byte{1}, true},
+		{[]byte{1}, []byte{2}, false},
+		{[]any{1, 2}, []any{3, 4}, true}, // arrays: only the length counts
+		{[]any{1}, []any{1, 2}, false},
+		{[]any{1}, nil, false},
+		{struct{}{}, struct{}{}, false}, // other types count as changed
+	} {
+		assert.Equal(t, tc.same, sameHandlerValue(tc.a, tc.b), "%#v vs %#v", tc.a, tc.b)
+	}
 }

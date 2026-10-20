@@ -1260,11 +1260,11 @@ func (p *Parser) thrownGrenadeWeapon(thrower *common.Player, pawnID int, wepType
 	}
 
 	// No usable priming: the weapon's updates weren't networked (e.g. out of the recording's PVS), or the record
-	// ended too long ago (e.g. a POV demo re-creating the projectile entity late). The inventory's weapon of the type.
+	// ended too long ago (e.g. the projectile entity entered a POV recording's PVS late). The inventory's weapon of the type.
 	wepInstance := getPlayerWeapon(thrower, wepType, "", id)
 
 	// The weapon may also have left the inventory before the projectile entity was created (#580), or with the
-	// throw on POV demos that re-create the projectile entity afterwards. Then getPlayerWeapon() returns a new
+	// throw on POV demos where the projectile entity entered the PVS later. Then getPlayerWeapon() returns a new
 	// one without an entity, so fall back to the last-known weapon of that type.
 	if wepInstance.Entity == nil {
 		if lastKnownWep := p.gameState.lastKnownGrenadeWeapon(thrower, wepInstance.Type); lastKnownWep != nil {
@@ -1533,8 +1533,8 @@ func (p *Parser) bindGrenadeThrowPriming(entity *st.Entity, equipment *common.Eq
 	// the pawn the weapon was primed for, -1 if none
 	primedPawnID := -1
 
-	// The entity may be re-created with the same serial (PVS re-entry on POV demos), which binds the same
-	// equipment again: keep ending the pawn's record for it.
+	// If the same equipment is bound again (a new entity for the same weapon), keep ending the pawn's record for it.
+	// PVS re-entries keep the entity (see st.Entity.OnEnterPVS) and don't bind again.
 	if pawnID := ownerPawnID(); pawnID >= 0 && p.gameState.isPrimedGrenadeThrow(pawnID, equipment) {
 		primedPawnID = pawnID
 	}

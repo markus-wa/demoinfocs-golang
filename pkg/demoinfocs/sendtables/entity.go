@@ -1,8 +1,9 @@
 package sendtables
 
 import (
+	"bytes"
 	"fmt"
-	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/golang/geo/r3"
@@ -605,8 +606,11 @@ func (e *Entity) reenter(r *reader, baseline []byte, paths *[]*fieldPath, budget
 
 	budget.spendEntity(e, len(e.polySerializers))
 
+	// Restored also if the data is corrupt: with IgnorePacketEntitiesPanic, parsing goes on after a decode error.
 	hasHandlers := e.hasHandlers
 	e.hasHandlers = false
+
+	defer func() { e.hasHandlers = hasHandlers }()
 
 	if baseline != nil {
 		budget.spendBaseline(len(baseline), e.class.classId)
@@ -618,7 +622,6 @@ func (e *Entity) reenter(r *reader, baseline []byte, paths *[]*fieldPath, budget
 
 	e.readFields(r, paths, budget)
 
-	e.hasHandlers = hasHandlers
 	e.active = true
 	e.inPVS = true
 
@@ -644,14 +647,26 @@ func (e *Entity) fireReentry(re *reentry) {
 
 // sameHandlerValue returns whether the property values a and b (see handlerValue()) are the same.
 // Arrays are the same if they have the same length (like a regular update, their elements are separate properties).
+// It covers the types the field decoders produce, values of other types count as changed.
 func sameHandlerValue(a, b any) bool {
-	if a, ok := a.([]any); ok {
+	switch a := a.(type) {
+	case []any:
 		b, ok := b.([]any)
 
 		return ok && len(a) == len(b)
+	case []float32:
+		b, ok := b.([]float32)
+
+		return ok && slices.Equal(a, b)
+	case []byte:
+		b, ok := b.([]byte)
+
+		return ok && bytes.Equal(a, b)
+	case nil, bool, int32, uint32, uint64, float32, string, [3]float32:
+		return a == b
 	}
 
-	return reflect.DeepEqual(a, b)
+	return false
 }
 
 // leavePVS marks the entity as not in the PVS and triggers all via OnLeavePVS() registered functions.
@@ -673,7 +688,8 @@ func (e *Entity) leavePVS() {
 // For updated entities it is called right after the entity's data is read - before entities
 // later in the packet are read and before the parser's entity handlers run for this entity.
 // For created entities it is called after the initial firing of all update handlers, which
-// happens after the parser's entity handlers. It isn't called when an entity leaves the PVS
+// happens after the parser's entity handlers. The same applies to entities that re-enter the PVS
+// as a re-create (reported as EntityOpUpdated|EntityOpEntered, see OnEnterPVS). It isn't called when an entity leaves the PVS
 // or is deleted, for skipped updates, or if the packet fails to parse.
 //
 // The parser of package demoinfocs applies player controllers' changes (e.g. Player.Name, SteamID64, Team, IsConnected)

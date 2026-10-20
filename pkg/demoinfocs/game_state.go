@@ -281,8 +281,9 @@ func (gs *GameState) EntityByHandle(handle uint64) *st.Entity {
 
 // grenadeThrowEndedGraceTicks is how many ticks after a primed grenade weapon stopped being the pawn's
 // (endGrenadeThrow) its record still counts for a projectile: the last grenade of a type is destroyed in the
-// packet that creates the projectile entity, possibly before the projectile is created, and POV demos
-// re-create the same projectile entity on the 1-2 ticks after the throw.
+// packet that creates the projectile entity, possibly before the projectile is created.
+// (It was set to 2 when POV demos still re-created the same projectile entity on the 1-2 ticks after the throw,
+// re-entries keep the entity since #742.)
 const grenadeThrowEndedGraceTicks = 2
 
 // pendingThrowKey identifies a thrower's pawn and the thrown grenade type.
@@ -340,7 +341,8 @@ func (gs *GameState) endGrenadeThrow(pawnID int, wep *common.Equipment) {
 // that is still the pawn's, or stopped being it within the last grenadeThrowEndedGraceTicks ticks. nil if there
 // is none. Molotovs and incendiaries count as the same type, but the exact type is preferred.
 //
-// The record isn't consumed: POV demos re-create the same projectile entity on the ticks after the throw.
+// The record isn't consumed. (Before #742 POV demos re-created the same projectile entity on the ticks after the throw,
+// re-entries keep the entity now.)
 func (gs *GameState) grenadeThrowWeapon(pawnID int, wepType common.EquipmentType) *common.Equipment {
 	for _, t := range [2]common.EquipmentType{wepType, fireGrenadeAlternative(wepType)} {
 		if t == common.EqUnknown {
