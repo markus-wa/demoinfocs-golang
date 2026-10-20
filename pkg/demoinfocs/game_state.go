@@ -3,7 +3,6 @@ package demoinfocs
 import (
 	"cmp"
 	"errors"
-	"maps"
 	"slices"
 	"strconv"
 	"time"
@@ -599,8 +598,15 @@ func sortPlayers(players []*common.Player) {
 // valuesSortedByKey returns a snapshot of m's values in ascending key order,
 // so callers don't depend on Go's randomised map iteration order.
 func valuesSortedByKey[K cmp.Ordered, V any](m map[K]V) []V {
-	res := make([]V, 0, len(m))
-	for _, k := range slices.Sorted(maps.Keys(m)) {
+	keys := make([]K, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	slices.Sort(keys)
+
+	res := make([]V, 0, len(keys))
+	for _, k := range keys {
 		res = append(res, m[k])
 	}
 

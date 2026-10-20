@@ -300,6 +300,9 @@ type GrenadeProjectileThrow struct {
 // GrenadeProjectileDestroy signals that a nade entity is being destroyed (i.e. it detonated / expired).
 // This is different from the other Grenade events because it's sent out when the projectile entity is destroyed.
 //
+// Projectiles left over at round_officially_ended are destroyed in ascending entity-ID order,
+// which isn't the order they were thrown in (entity IDs are reused).
+//
 // Mainly useful for getting the full trajectory of the projectile.
 type GrenadeProjectileDestroy struct {
 	Projectile *common.GrenadeProjectile
@@ -752,6 +755,9 @@ type InfernoFireOut struct {
 // round end - NOT when the fire actually goes out. For the true flame-out / smoke-extinguish moment
 // use InfernoFireOut instead.
 // This is different from the FireGrenadeExpire event because it's sent out when the inferno entity is destroyed instead of on the game-event.
+//
+// Infernos left over at round_officially_ended expire in ascending entity-ID order, after the leftover projectiles,
+// which isn't the order they were started in (entity IDs are reused).
 //
 // Mainly useful for getting the final area of an inferno.
 type InfernoExpired struct {

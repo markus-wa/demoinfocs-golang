@@ -302,7 +302,7 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 	//
 	// Both are processed in ascending entity-ID order rather than Go's randomised map order, so the
 	// dispatched events (and inferno <-> projectile linking) are deterministic across runs.
-	// The sorted snapshot also makes it safe for the handlers to delete from the maps while we iterate.
+	// The handlers delete from the maps, which is why the sorted snapshots are iterated rather than the maps.
 	//
 	// If several leftover molotovs / incendiaries of the same owner are destroyed here while one inferno
 	// of that owner is waiting for its projectile in the current frame, the one with the lowest entity-ID
