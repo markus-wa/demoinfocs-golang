@@ -1339,8 +1339,7 @@ func (p *Parser) nadeProjectileDestroyed(proj *common.GrenadeProjectile) {
 // side that comes first is kept as pending until the other one arrives in the same frame.
 //
 // A link is only made if exactly one counterpart from the same owner is pending in the current frame,
-// otherwise (e.g. the projectile was extinguished by a smoke and never spawned an inferno, or the
-// inferno entity was re-created after leaving the PVS in a POV demo) the inferno stays unlinked.
+// otherwise (e.g. the projectile was extinguished by a smoke and never spawned an inferno) the inferno stays unlinked.
 func (p *Parser) linkInfernoProjectile(link pendingInfernoLink) {
 	gs := p.gameState
 	kept := gs.pendingInfernoLinks[:0]

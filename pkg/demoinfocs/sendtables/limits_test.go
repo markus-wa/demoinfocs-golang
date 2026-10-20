@@ -219,7 +219,7 @@ func (w *bitWriter) arrayFieldUpdate(t *testing.T, n uint64) {
 	w.varUint(n)
 }
 
-// budgetTestParser returns a parser with one class (ID 0) with one field, the variable array m_arr.
+// budgetTestParser returns a parser with two classes (IDs 0 and 1) with one field each, the variable array m_arr.
 func budgetTestParser(t *testing.T) *Parser {
 	t.Helper()
 
@@ -237,12 +237,15 @@ func budgetTestParser(t *testing.T) *Parser {
 
 	p := NewParser()
 	p.classIdSize = 1
-	p.classesById[0] = &ServerClass{
-		classId:     0,
-		name:        "CArr",
-		serializer:  ser,
-		fpNameCache: &fpNameTreeCache{},
-		fpFlatCache: make(map[uint64]string),
+
+	for id, name := range []string{"CArr", "CArr2"} {
+		p.classesById[int32(id)] = &ServerClass{
+			classId:     int32(id),
+			name:        name,
+			serializer:  ser,
+			fpNameCache: &fpNameTreeCache{},
+			fpFlatCache: make(map[uint64]string),
+		}
 	}
 
 	return p
@@ -255,6 +258,8 @@ type entityOp struct {
 	update  bool // update m_arr of an existing entity to arrSize
 	serial  uint64
 	arrSize uint64
+	classID uint64 // of a create, see budgetTestParser()
+	noArr   bool   // create without fields (m_arr keeps its baseline value)
 }
 
 // entitiesMsg returns a delta PacketEntities message with the ops (in ascending index order),
@@ -279,10 +284,15 @@ func entitiesMsg(t *testing.T, size int, ops ...entityOp) *msg.CSVCMsg_PacketEnt
 			w.arrayFieldUpdate(t, op.arrSize)
 		default:
 			w.bits(2, 2) // create
-			w.bits(0, 1) // class ID
+			w.bits(op.classID, 1)
 			w.bits(op.serial, 17)
 			w.varUint(0)
-			w.arrayFieldUpdate(t, op.arrSize)
+
+			if op.noArr {
+				w.fieldPathOp(t, "FieldPathEncodeFinish")
+			} else {
+				w.arrayFieldUpdate(t, op.arrSize)
+			}
 		}
 	}
 

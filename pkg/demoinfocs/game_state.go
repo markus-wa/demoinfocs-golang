@@ -208,7 +208,7 @@ func (gs *GameState) Infernos() map[int]*common.Inferno {
 //
 // A weapon whose entity left the snapshot (PVS) without being deleted stays listed, with its last Owner and
 // its stale Entity, until the entity is destroyed - e.g. on GOTV demos a player's old knife after a respawn.
-// If it re-enters the PVS, the same Equipment is re-bound to the new Entity.
+// If it re-enters the PVS, it's the same Entity again (see Entity.OnEnterPVS).
 // Check Equipment.Entity != nil && !Equipment.Entity.InPVS() (or use Entity.OnLeavePVS) for what's stale.
 // Player.Inventory / Player.Weapons() follow the player's m_hMyWeapons instead.
 func (gs *GameState) Weapons() map[int]*common.Equipment {
@@ -218,8 +218,8 @@ func (gs *GameState) Weapons() map[int]*common.Equipment {
 // Entities returns all currently existing entities.
 // (Almost?) everything in the game is an entity, such as weapons, players, fire etc.
 //
-// Entities that left the snapshot (PVS) without being deleted stay listed until they're destroyed
-// or re-enter the PVS (re-created at their index), see Entity.InPVS() and Entity.OnLeavePVS.
+// Entities that left the snapshot (PVS) without being deleted stay listed (with InPVS() == false) until they're
+// destroyed. If they re-enter the PVS, they're the same Entity again, see Entity.OnLeavePVS and Entity.OnEnterPVS.
 func (gs *GameState) Entities() map[int]*st.Entity {
 	return gs.entities
 }

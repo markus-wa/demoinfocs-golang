@@ -53,6 +53,8 @@ var itemCounts = map[string]int{
 type tuple struct {
 	ent *Entity
 	op  EntityOp
+	// reentry is set if ent re-entered the PVS as a same-serial re-create, see Entity.reenter()
+	reentry *reentry
 }
 
 // Parser parses CS2 send tables (FlattenedSerializer + PacketEntities).
