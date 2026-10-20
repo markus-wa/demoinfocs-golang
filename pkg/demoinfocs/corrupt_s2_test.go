@@ -111,7 +111,7 @@ func TestCorruptS2Corpus(t *testing.T) {
 
 	var (
 		wg  sync.WaitGroup
-		sem = make(chan struct{}, max(1, runtime.NumCPU()/4))
+		sem = make(chan struct{}, max(2, runtime.NumCPU()/2))
 	)
 
 	for _, in := range inputs {
