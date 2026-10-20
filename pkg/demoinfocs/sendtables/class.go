@@ -47,6 +47,7 @@ func (c *ServerClass) PropertyEntries() []string {
 }
 
 // OnEntityCreated registers a function to be called when a new entity is created from this server-class.
+// It isn't called again when an entity re-enters the PVS, see Entity.OnEnterPVS.
 func (c *ServerClass) OnEntityCreated(handler EntityCreatedHandler) {
 	c.onEntityCreated(func(e *Entity) {
 		defer panics.GuardUser()

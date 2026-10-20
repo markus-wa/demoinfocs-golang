@@ -1,7 +1,9 @@
 package sendtables
 
 import (
+	"bytes"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/golang/geo/r3"
@@ -38,6 +40,7 @@ type Entity struct {
 	onUpdateFinished []func()
 	onDestroy        []func()
 	onLeavePVS       []func()
+	onEnterPVS       []func()
 	updateHandlers   map[string][]PropertyUpdateHandler
 	// handlerLog preserves the global registration order of update handlers.
 	// updateHandlers remains the name-keyed index for lookup; this log is the
@@ -518,9 +521,8 @@ func (e *Entity) destroy() {
 }
 
 // InPVS returns false after the entity left the snapshot (its PVS on POV demos) without being deleted
-// (see OnLeavePVS) and after its destruction, otherwise true - i.e. it's true unless a leave op was seen.
-// On POV demos most re-entries are same-serial re-creates without a leave op first,
-// the old object then stays InPVS() == true although it isn't updated anymore (#741).
+// (see OnLeavePVS) and after its destruction, otherwise true - i.e. it's true unless a leave op was seen
+// and the entity hasn't re-entered the PVS since (see OnEnterPVS).
 func (e *Entity) InPVS() bool {
 	return e.inPVS
 }
@@ -529,16 +531,142 @@ func (e *Entity) InPVS() bool {
 // The entity isn't destroyed yet, its properties keep their last values.
 // Afterwards, unless the demo ends first:
 //   - it's destroyed (OnDestroy) if it's deleted, or if its index is reused for a new entity (new serial, Replaced()),
-//   - it re-enters the PVS, which is sent as a re-create with the same serial: the old object is dropped without
-//     OnDestroy and keeps InPVS() == false, the new object shows up via ServerClass.OnEntityCreated() (see #742),
-//   - or it's updated again without a re-create (not yet seen during testing, but may occur),
-//     in which case InPVS() is true again (check e.g. in OnUpdateFinished).
+//   - or it re-enters the PVS and is the same object again, see OnEnterPVS.
 //
 // It isn't called when the entity is deleted, only OnDestroy is.
 //
 // Like OnDestroy, it's called while the entity packet is parsed: other entities of the packet may not be updated yet.
 func (e *Entity) OnLeavePVS(delegate func()) {
 	e.onLeavePVS = append(e.onLeavePVS, guardDelegate(delegate))
+}
+
+// OnEnterPVS registers a function to be called when the entity re-enters the snapshot (the PVS) - the same object,
+// its handlers and everything bound to it are kept.
+//
+// The server usually sends a re-entry as a re-create of the entity with the same serial, on POV demos also for entities
+// it never sent a leave op for (so OnLeavePVS doesn't always fire before). The entity's state is then read anew
+// (instance baseline plus the sent fields), so properties the server doesn't send fall back to their baseline value.
+// The parser's entity handlers see EntityOpUpdated|EntityOpEntered, ServerClass.OnEntityCreated() and OnCreateFinished
+// don't fire again. Property update handlers fire once with the new value of each property whose value changed
+// (for arrays: whose length changed), properties without a value don't fire. Then OnEnterPVS and OnUpdateFinished fire.
+//
+// Rarely, the server sends an update instead of a re-create (not yet seen during testing),
+// then OnEnterPVS fires after the update's handlers, before OnUpdateFinished.
+func (e *Entity) OnEnterPVS(delegate func()) {
+	e.onEnterPVS = append(e.onEnterPVS, guardDelegate(delegate))
+}
+
+func (e *Entity) fireEnterPVS() {
+	for _, delegate := range e.onEnterPVS {
+		delegate()
+	}
+}
+
+// reentry holds the values of e's update handlers' properties from before e re-entered the PVS, see reenter().
+type reentry struct {
+	values []any // per e.handlerLog entry
+}
+
+// handlerValue returns the value of the property name as it's passed to update handlers (nil if it has none).
+func (e *Entity) handlerValue(name string) any {
+	v := e.get(name)
+
+	if fs, ok := v.(*fieldState); ok {
+		return fs.state
+	}
+
+	return v
+}
+
+// reenter reads the state of e anew from the instance baseline and r, when e re-enters the PVS as a re-create
+// with the same serial (see OnEnterPVS). Update handlers don't fire while it's read: they'd see the baseline's values
+// before the sent ones. fireReentry() fires them for the changed values once the parser's entity handlers ran.
+// The caller refunded e's live budget before.
+func (e *Entity) reenter(r *reader, baseline []byte, paths *[]*fieldPath, budget *entityBudget) *reentry {
+	re := &reentry{values: make([]any, len(e.handlerLog))}
+
+	for i, h := range e.handlerLog {
+		re.values[i] = e.handlerValue(h.name)
+	}
+
+	e.state = &fieldState{state: make([]any, 0, entityInitialStateSlots)}
+
+	if e.class.polyCount > 0 {
+		// the active types are sent anew too, see applyPolyUpdate()
+		e.polySerializers = make([]*serializer, e.class.polyCount)
+
+		clear(e.fpCache)
+		clear(e.fpNoop)
+		clear(e.propCache)
+
+		e.rebuildHandlersByFP()
+	} else {
+		e.polySerializers = nil
+	}
+
+	budget.spendEntity(e, len(e.polySerializers))
+
+	// Restored also if the data is corrupt: with IgnorePacketEntitiesPanic, parsing goes on after a decode error.
+	hasHandlers := e.hasHandlers
+	e.hasHandlers = false
+
+	defer func() { e.hasHandlers = hasHandlers }()
+
+	if baseline != nil {
+		budget.spendBaseline(len(baseline), e.class.classId)
+
+		br := newReader(baseline)
+		e.readFields(br, paths, budget)
+		br.release()
+	}
+
+	e.readFields(r, paths, budget)
+
+	e.active = true
+	e.inPVS = true
+
+	return re
+}
+
+// fireReentry fires the update handlers of the properties whose value changed when e re-entered the PVS
+// (in registration order), then OnEnterPVS and OnUpdateFinished, see reenter().
+// Handlers registered after reenter() (by the parser's entity handlers) don't fire.
+func (e *Entity) fireReentry(re *reentry) {
+	for i, h := range e.handlerLog[:len(re.values)] {
+		v := e.handlerValue(h.name)
+		if v == nil || sameHandlerValue(re.values[i], v) {
+			continue
+		}
+
+		h.handler(PropertyValue{Any: v})
+	}
+
+	e.fireEnterPVS()
+	e.fireUpdateFinished()
+}
+
+// sameHandlerValue returns whether the property values a and b (see handlerValue()) are the same.
+// Arrays are the same if they have the same length (like a regular update, their elements are separate properties).
+// It covers the types the field decoders produce, values of other types count as changed.
+func sameHandlerValue(a, b any) bool {
+	switch a := a.(type) {
+	case []any:
+		b, ok := b.([]any)
+
+		return ok && len(a) == len(b)
+	case []float32:
+		b, ok := b.([]float32)
+
+		return ok && slices.Equal(a, b)
+	case []byte:
+		b, ok := b.([]byte)
+
+		return ok && bytes.Equal(a, b)
+	case nil, bool, int32, uint32, uint64, float32, string, [3]float32:
+		return a == b
+	}
+
+	return false
 }
 
 // leavePVS marks the entity as not in the PVS and triggers all via OnLeavePVS() registered functions.
@@ -560,7 +688,8 @@ func (e *Entity) leavePVS() {
 // For updated entities it is called right after the entity's data is read - before entities
 // later in the packet are read and before the parser's entity handlers run for this entity.
 // For created entities it is called after the initial firing of all update handlers, which
-// happens after the parser's entity handlers. It isn't called when an entity leaves the PVS
+// happens after the parser's entity handlers. The same applies to entities that re-enter the PVS
+// as a re-create (reported as EntityOpUpdated|EntityOpEntered, see OnEnterPVS). It isn't called when an entity leaves the PVS
 // or is deleted, for skipped updates, or if the packet fails to parse.
 //
 // The parser of package demoinfocs applies player controllers' changes (e.g. Player.Name, SteamID64, Team, IsConnected)
@@ -950,6 +1079,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 		var (
 			e  *Entity
 			op EntityOp
+			re *reentry
 		)
 
 		next := index + int32(r.readUBitVar()) + 1
@@ -972,49 +1102,30 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 				// a delete for the old one first (e.g. on round restarts). The old entity is gone either way -
 				// destroy it so its OnDestroy handlers run and consumers don't keep using state bound to it
 				// (e.g. a weapon's unique id, #601).
-				// The same serial means the same entity is re-created, e.g. when it re-enters the PVS on POV demos.
-				// The old object is left untouched then, also if it left the PVS before (it keeps InPVS() == false):
-				// destroying it would reset everything bound to it (e.g. a weapon's Equipment), see #742.
-				if old := p.entities[index]; old != nil {
+				old := p.entities[index]
+				if old != nil {
 					if old.active && old.serial != serial {
 						old.replaced = true
 						old.destroy()
 
-						p.tuplesCache = append(p.tuplesCache, tuple{old, EntityOpLeft | EntityOpDeleted})
+						p.tuplesCache = append(p.tuplesCache, tuple{ent: old, op: EntityOpLeft | EntityOpDeleted})
 					}
 
 					p.entityBudget.refund(old)
 				}
 
-				e = newEntity(index, serial, class)
-				p.entities[index] = e
-
-				p.entityBudget.spendEntity(e, len(e.polySerializers))
-
 				baseline := p.classBaselines[classID]
 
-				if baseline != nil {
-					// POV demos are missing some baselines?
-					p.entityBudget.spendBaseline(len(baseline), classID)
-
-					br := newReader(baseline)
-					e.readFields(br, &p.pathCache, &p.entityBudget)
-					br.release()
+				// The same serial means the same entity re-enters the PVS, also if no leave op was sent for it
+				// (POV demos): keep the object, so everything bound to it stays (e.g. a weapon's Equipment), see OnEnterPVS.
+				if old != nil && old.active && old.serial == serial && old.class == class {
+					e = old
+					re = e.reenter(r, baseline, &p.pathCache, &p.entityBudget)
+					op = EntityOpUpdated | EntityOpEntered
+				} else {
+					e = p.createEntity(r, index, serial, class, baseline)
+					op = EntityOpCreated | EntityOpEntered
 				}
-
-				e.readFields(r, &p.pathCache, &p.entityBudget)
-
-				// Fire created-handlers so update-handlers can be registered
-				for _, h := range class.createdHandlers {
-					h(e)
-				}
-
-				// Fire all post-creation actions
-				for _, f := range e.onCreateFinished {
-					f()
-				}
-
-				op = EntityOpCreated | EntityOpEntered
 			} else {
 				if m.GetHasPvsVisBitsDeprecated() > 0 && r.readBits(2)&0x01 != 0 {
 					continue
@@ -1035,6 +1146,11 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 				}
 
 				e.readFields(r, &p.pathCache, &p.entityBudget)
+
+				if op&EntityOpEntered != 0 {
+					e.fireEnterPVS()
+				}
+
 				e.fireUpdateFinished()
 			}
 		} else {
@@ -1063,7 +1179,7 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 			}
 		}
 
-		p.tuplesCache = append(p.tuplesCache, tuple{e, op})
+		p.tuplesCache = append(p.tuplesCache, tuple{ent: e, op: op, reentry: re})
 	}
 
 	for _, t := range p.tuplesCache {
@@ -1075,9 +1191,12 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 			}
 		}
 
-		if t.op&EntityOpCreated != 0 {
+		switch {
+		case t.op&EntityOpCreated != 0:
 			e.fireInitialUpdateHandlers()
 			e.fireUpdateFinished()
+		case t.reentry != nil:
+			e.fireReentry(t.reentry)
 		}
 	}
 
@@ -1087,6 +1206,38 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 	}
 
 	return nil
+}
+
+// createEntity creates the entity at index from the instance baseline and r, and fires the class's created-handlers
+// and the entity's OnCreateFinished delegates. The caller refunded the live budget of the entity it replaces.
+func (p *Parser) createEntity(r *reader, index, serial int32, class *ServerClass, baseline []byte) *Entity {
+	e := newEntity(index, serial, class)
+	p.entities[index] = e
+
+	p.entityBudget.spendEntity(e, len(e.polySerializers))
+
+	if baseline != nil {
+		// POV demos are missing some baselines?
+		p.entityBudget.spendBaseline(len(baseline), class.classId)
+
+		br := newReader(baseline)
+		e.readFields(br, &p.pathCache, &p.entityBudget)
+		br.release()
+	}
+
+	e.readFields(r, &p.pathCache, &p.entityBudget)
+
+	// Fire created-handlers so update-handlers can be registered
+	for _, h := range class.createdHandlers {
+		h(e)
+	}
+
+	// Fire all post-creation actions
+	for _, f := range e.onCreateFinished {
+		f()
+	}
+
+	return e
 }
 
 // OnEntity registers an EntityHandler that will be called when an entity

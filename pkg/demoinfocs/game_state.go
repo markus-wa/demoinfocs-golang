@@ -208,7 +208,7 @@ func (gs *GameState) Infernos() map[int]*common.Inferno {
 //
 // A weapon whose entity left the snapshot (PVS) without being deleted stays listed, with its last Owner and
 // its stale Entity, until the entity is destroyed - e.g. on GOTV demos a player's old knife after a respawn.
-// If it re-enters the PVS, the same Equipment is re-bound to the new Entity.
+// If it re-enters the PVS, it's the same Entity again (see Entity.OnEnterPVS).
 // Check Equipment.Entity != nil && !Equipment.Entity.InPVS() (or use Entity.OnLeavePVS) for what's stale.
 // Player.Inventory / Player.Weapons() follow the player's m_hMyWeapons instead.
 func (gs *GameState) Weapons() map[int]*common.Equipment {
@@ -218,8 +218,8 @@ func (gs *GameState) Weapons() map[int]*common.Equipment {
 // Entities returns all currently existing entities.
 // (Almost?) everything in the game is an entity, such as weapons, players, fire etc.
 //
-// Entities that left the snapshot (PVS) without being deleted stay listed until they're destroyed
-// or re-enter the PVS (re-created at their index), see Entity.InPVS() and Entity.OnLeavePVS.
+// Entities that left the snapshot (PVS) without being deleted stay listed (with InPVS() == false) until they're
+// destroyed. If they re-enter the PVS, they're the same Entity again, see Entity.OnLeavePVS and Entity.OnEnterPVS.
 func (gs *GameState) Entities() map[int]*st.Entity {
 	return gs.entities
 }
@@ -281,8 +281,9 @@ func (gs *GameState) EntityByHandle(handle uint64) *st.Entity {
 
 // grenadeThrowEndedGraceTicks is how many ticks after a primed grenade weapon stopped being the pawn's
 // (endGrenadeThrow) its record still counts for a projectile: the last grenade of a type is destroyed in the
-// packet that creates the projectile entity, possibly before the projectile is created, and POV demos
-// re-create the same projectile entity on the 1-2 ticks after the throw.
+// packet that creates the projectile entity, possibly before the projectile is created.
+// (It was set to 2 when POV demos still re-created the same projectile entity on the 1-2 ticks after the throw,
+// re-entries keep the entity since #742.)
 const grenadeThrowEndedGraceTicks = 2
 
 // pendingThrowKey identifies a thrower's pawn and the thrown grenade type.
@@ -340,7 +341,8 @@ func (gs *GameState) endGrenadeThrow(pawnID int, wep *common.Equipment) {
 // that is still the pawn's, or stopped being it within the last grenadeThrowEndedGraceTicks ticks. nil if there
 // is none. Molotovs and incendiaries count as the same type, but the exact type is preferred.
 //
-// The record isn't consumed: POV demos re-create the same projectile entity on the ticks after the throw.
+// The record isn't consumed. (Before #742 POV demos re-created the same projectile entity on the ticks after the throw,
+// re-entries keep the entity now.)
 func (gs *GameState) grenadeThrowWeapon(pawnID int, wepType common.EquipmentType) *common.Equipment {
 	for _, t := range [2]common.EquipmentType{wepType, fireGrenadeAlternative(wepType)} {
 		if t == common.EqUnknown {
