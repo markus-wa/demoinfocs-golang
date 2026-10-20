@@ -103,7 +103,7 @@ func TestFullPacketUserCmd_SeedsEmptyDecoder(t *testing.T) {
 	}
 }
 
-// A full packet's command is commonly ahead of the live stream, it must not replace the live baseline.
+// A full packet's command must not replace the live baseline, even if it's ahead of the live stream.
 func TestFullPacketUserCmd_KeepsLiveBaseline(t *testing.T) {
 	ahead := baseline()
 	ahead.Base.ClientTick = proto32(104)
@@ -213,12 +213,28 @@ func TestFullPacketUserCmd_Disabled(t *testing.T) {
 	assert.Empty(t, res.buttonUpdates)
 }
 
-// A full packet whose user commands can't be decoded is skipped like any other broken full packet.
+// A full packet whose user commands can't be decoded doesn't seed the decoder, the rest of the full packet is still used.
 func TestFullPacketUserCmd_Undecodable(t *testing.T) {
-	corrupt := nestedMessage{t: int32(msg.SVC_Messages_svc_UserCmds), data: []byte{0xff}}
+	corruptCmd := &msg.CMsgServerUserCmd{CmdNumber: proto32(100), PlayerSlot: proto32(userCmdTestSlot), Data: []byte{0xff}}
 
-	res := parseUserCmdDemo(t, option.UserCmdParsingFull, fullPacketFrame(t, 1, netTick(t, 1), corrupt))
+	cases := map[string]nestedMessage{
+		"message": {t: int32(msg.SVC_Messages_svc_UserCmds), data: []byte{0xff}},
+		"command": userCmds(t, corruptCmd),
+	}
 
-	require.Len(t, res.warns, 1)
-	assert.EqualValues(t, events.WarnTypeBrokenFullPacket, res.warns[0].Type)
+	for mname, mode := range userCmdDecodingModes {
+		for cname, corrupt := range cases {
+			t.Run(mname+"/"+cname, func(t *testing.T) {
+				res := parseUserCmdDemo(t, mode,
+					fullPacketFrame(t, 1, netTick(t, 1), corrupt),
+					packetFrame(t, 2, netTick(t, 2), userCmds(t, deltaUserCmd(101, buttonsDelta(8)))),
+				)
+
+				require.Len(t, res.warns, 1, "no WarnTypeBrokenFullPacket")
+				assert.EqualValues(t, events.WarnTypeUserCommandBaselineMissing, res.warns[0].Type)
+				assert.Empty(t, res.commands)
+				assert.Empty(t, res.buttonUpdates)
+			})
+		}
+	}
 }

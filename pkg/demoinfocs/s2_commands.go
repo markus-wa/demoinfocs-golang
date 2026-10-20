@@ -431,15 +431,13 @@ func (p *Parser) decodeDemoPacket(frame proto.Message, pack *msg.CDemoPacket, is
 			// usercmds are not transports delivered to the command handler;
 			// replaying them would duplicate the following packet stream.
 			// They only seed the decoder of players that have no command yet, see handleFullPacketUserCommands().
+			// The seed is optional: if the message can't be decoded, the live stream re-establishes the baseline.
 			if p.config.UserCmdParsing != config.UserCmdParsingDisabled {
 				commands := new(msg.CSVCMsg_UserCommands)
 
-				err := proto.Unmarshal(m.buf, commands)
-				if err != nil {
-					return fmt.Errorf("failed to unmarshal net-message of type %d: %w", m.t, err)
+				if proto.Unmarshal(m.buf, commands) == nil {
+					p.pendingMsgs = append(p.pendingMsgs, fullPacketUserCommands{commands})
 				}
-
-				p.pendingMsgs = append(p.pendingMsgs, fullPacketUserCommands{commands})
 			}
 
 			continue
@@ -534,9 +532,9 @@ type fullPacketUserCommands struct {
 // Without a seed, a player's commands can't be decoded until the live stream sends one of them in full,
 // which can take minutes after the start of the demo.
 //
-// A full packet's command is commonly ahead of the live commands that follow it,
-// so it never replaces a command the decoder already has. No events are dispatched for it,
-// the live stream still dispatches every command.
+// In the demos measured so far, a full packet's command is the player's current live command,
+// but that isn't guaranteed, so it never replaces a command the decoder already has.
+// No events are dispatched for it, the live stream still dispatches every command.
 // If a live command can't be decoded against the seed, the seed is dropped, see dropSeed().
 func (p *Parser) handleFullPacketUserCommands(m fullPacketUserCommands) {
 	for _, cmd := range m.Commands {
