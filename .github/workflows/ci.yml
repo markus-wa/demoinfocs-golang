@@ -60,10 +60,11 @@ jobs:
         id: demos
         run: |
           git submodule update --init test/cs-demos
-          echo "key=test-demos-$(git rev-parse HEAD:test/cs-demos)-s2-deathmatch" >> "$GITHUB_OUTPUT"
+          echo "key=test-demos-v2-$(git rev-parse HEAD:test/cs-demos)-s2-deathmatch" >> "$GITHUB_OUTPUT"
 
       # restore only: the race and coverage jobs save the cache with all archives extracted
       - name: Restore test demos
+        id: demos-cache
         uses: actions/cache/restore@v6
         with:
           path: |
@@ -72,6 +73,7 @@ jobs:
           key: ${{ steps.demos.outputs.key }}
 
       - name: Install 7zip
+        if: steps.demos-cache.outputs.cache-hit != 'true'
         run: sudo apt-get install -y p7zip-full
 
       - name: Examples Tests
@@ -96,9 +98,10 @@ jobs:
         id: demos
         run: |
           git submodule update --init test/cs-demos
-          echo "key=test-demos-$(git rev-parse HEAD:test/cs-demos)-s2-deathmatch" >> "$GITHUB_OUTPUT"
+          echo "key=test-demos-v2-$(git rev-parse HEAD:test/cs-demos)-s2-deathmatch" >> "$GITHUB_OUTPUT"
 
       - name: Cache test demos
+        id: demos-cache
         uses: actions/cache@v6
         with:
           path: |
@@ -107,6 +110,7 @@ jobs:
           key: ${{ steps.demos.outputs.key }}
 
       - name: Install 7zip
+        if: steps.demos-cache.outputs.cache-hit != 'true'
         run: sudo apt-get install -y p7zip-full
 
       - name: Race Tests
@@ -131,9 +135,10 @@ jobs:
         id: demos
         run: |
           git submodule update --init test/cs-demos
-          echo "key=test-demos-$(git rev-parse HEAD:test/cs-demos)-s2-deathmatch" >> "$GITHUB_OUTPUT"
+          echo "key=test-demos-v2-$(git rev-parse HEAD:test/cs-demos)-s2-deathmatch" >> "$GITHUB_OUTPUT"
 
       - name: Cache test demos
+        id: demos-cache
         uses: actions/cache@v6
         with:
           path: |
@@ -142,6 +147,7 @@ jobs:
           key: ${{ steps.demos.outputs.key }}
 
       - name: Install 7zip
+        if: steps.demos-cache.outputs.cache-hit != 'true'
         run: sudo apt-get install -y p7zip-full
 
       # Note: We run ALL tests again to get full coverage

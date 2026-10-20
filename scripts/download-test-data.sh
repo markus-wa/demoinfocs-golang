@@ -11,8 +11,9 @@ pushd test/cs-demos >/dev/null
 
 minSize=1000000
 for f in "$@"; do
-  # extracted before, e.g. restored from the CI cache
-  if [[ -f ".$f.extracted" ]]; then
+  # extracted before (e.g. restored from the CI cache) from the archive version checked out now
+  blob=$(git rev-parse "HEAD:$f")
+  if [[ -f ".$f.extracted" && "$(cat ".$f.extracted")" == "$blob" ]]; then
     echo "$f: already extracted"
     continue
   fi
@@ -21,7 +22,7 @@ for f in "$@"; do
   if (( $fileSize < $minSize)); then
 	  git lfs pull -I $f
 	  7z x $f -aoa
-	  touch ".$f.extracted"
+	  echo "$blob" > ".$f.extracted"
 	fi
 done
 
