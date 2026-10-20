@@ -205,7 +205,7 @@ jobs:
       # PRs that legitimately change CSDA's output can ship updated snapshots on a fork branch
       # with the same name as the PR branch; everything else runs against demoinfocs-v6-ci.
       # When such a PR is merged, point the fork's demoinfocs-v6-ci at that branch (a reset if they have diverged).
-      # demoinfocs-v6 is the head of the upstream CSDA PR (akiver/cs-demo-analyzer#35) and is updated separately.
+      # The upstream CSDA PRs (akiver/cs-demo-analyzer#36, #37) have their own fork branches and don't move with it.
       - name: Pick CSDA branch
         id: csda-ref
         env:
@@ -228,7 +228,8 @@ jobs:
       - name: Checkout CSDA repo
         uses: actions/checkout@v7
         with:
-          # TODO: switch back to akiver/cs-demo-analyzer@main once upstream has migrated to v6
+          # TODO: switch to akiver/cs-demo-analyzer@main once it requires demoinfocs v6 (akiver/cs-demo-analyzer#37);
+          # the fork stays for PR branches with updated snapshots. "Update CSDA mod" fails while CSDA doesn't use v6.
           repository: markus-wa/cs-demo-analyzer
           path: cs-demo-analyzer
           ref: ${{ steps.csda-ref.outputs.ref }}
@@ -242,6 +243,11 @@ jobs:
       - name: Update CSDA mod
         run: |
           cd cs-demo-analyzer
+          # without a v6 requirement the replace below does nothing and CSDA's tests wouldn't test this repo at all
+          if ! grep -Eq '^[[:space:]]*(require[[:space:]]+)?github.com/markus-wa/demoinfocs-golang/v6[[:space:]]' go.mod; then
+            echo "CSDA's go.mod doesn't require github.com/markus-wa/demoinfocs-golang/v6"
+            exit 1
+          fi
           go mod edit -replace github.com/markus-wa/demoinfocs-golang/v6=../demoinfocs-golang
           go mod tidy
 
