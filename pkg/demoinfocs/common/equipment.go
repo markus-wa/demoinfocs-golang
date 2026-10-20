@@ -332,7 +332,9 @@ type Equipment struct {
 	// destroyed: CS2 may remove the weapon from the thrower's inventory, and destroy its
 	// entity, in the packet that creates the projectile entity, before the projectile is created.
 	Entity *st.Entity
-	Owner  *Player // The player carrying the equipment, not necessarily the buyer.
+	// The player carrying the equipment, not necessarily the buyer.
+	// It's kept while the entity is out of the snapshot (left the PVS without being deleted), see st.Entity.InPVS().
+	Owner *Player
 	// Holds the original string of the weapon / equipment.
 	// E.g. the raw weapon name as provided by game events like 'knife_karambit' or 'ak47'.
 	// For entity-bound equipment that hasn't been seen in a game event it's empty.

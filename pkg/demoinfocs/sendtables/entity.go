@@ -19,6 +19,8 @@ type Entity struct {
 	serial int32
 	class  *ServerClass
 	active bool
+	// inPVS is cleared when the entity leaves the snapshot (PVS) or is destroyed, see InPVS().
+	inPVS bool
 	// replaced is set if the entity was destroyed because a new entity was created at its index, see Replaced().
 	replaced bool
 	state    *fieldState
@@ -35,6 +37,7 @@ type Entity struct {
 	onCreateFinished []func()
 	onUpdateFinished []func()
 	onDestroy        []func()
+	onLeavePVS       []func()
 	updateHandlers   map[string][]PropertyUpdateHandler
 	// handlerLog preserves the global registration order of update handlers.
 	// updateHandlers remains the name-keyed index for lookup; this log is the
@@ -507,8 +510,42 @@ func (e *Entity) Replaced() bool {
 // destroy marks the entity as inactive and triggers all via OnDestroy() registered functions.
 func (e *Entity) destroy() {
 	e.active = false
+	e.inPVS = false
 
 	for _, delegate := range e.onDestroy {
+		delegate()
+	}
+}
+
+// InPVS returns false after the entity left the snapshot (its PVS on POV demos) without being deleted
+// (see OnLeavePVS) and after its destruction, otherwise true - i.e. it's true unless a leave op was seen.
+// On POV demos most re-entries are same-serial re-creates without a leave op first,
+// the old object then stays InPVS() == true although it isn't updated anymore (#741).
+func (e *Entity) InPVS() bool {
+	return e.inPVS
+}
+
+// OnLeavePVS registers a function to be called when the entity leaves the snapshot (the PVS) without being deleted.
+// The entity isn't destroyed yet, its properties keep their last values.
+// Afterwards, unless the demo ends first:
+//   - it's destroyed (OnDestroy) if it's deleted, or if its index is reused for a new entity (new serial, Replaced()),
+//   - it re-enters the PVS, which is sent as a re-create with the same serial: the old object is dropped without
+//     OnDestroy and keeps InPVS() == false, the new object shows up via ServerClass.OnEntityCreated() (see #742),
+//   - or it's updated again without a re-create (not yet seen during testing, but may occur),
+//     in which case InPVS() is true again (check e.g. in OnUpdateFinished).
+//
+// It isn't called when the entity is deleted, only OnDestroy is.
+//
+// Like OnDestroy, it's called while the entity packet is parsed: other entities of the packet may not be updated yet.
+func (e *Entity) OnLeavePVS(delegate func()) {
+	e.onLeavePVS = append(e.onLeavePVS, guardDelegate(delegate))
+}
+
+// leavePVS marks the entity as not in the PVS and triggers all via OnLeavePVS() registered functions.
+func (e *Entity) leavePVS() {
+	e.inPVS = false
+
+	for _, delegate := range e.onLeavePVS {
 		delegate()
 	}
 }
@@ -570,6 +607,7 @@ func newEntity(index, serial int32, class *ServerClass) *Entity {
 		serial:           serial,
 		class:            class,
 		active:           true,
+		inPVS:            true,
 		state:            &fieldState{state: make([]any, 0, entityInitialStateSlots)},
 		fpCache:          make(map[string]*fieldPath),
 		fpNoop:           make(map[string]bool),
@@ -935,6 +973,8 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 				// destroy it so its OnDestroy handlers run and consumers don't keep using state bound to it
 				// (e.g. a weapon's unique id, #601).
 				// The same serial means the same entity is re-created, e.g. when it re-enters the PVS on POV demos.
+				// The old object is left untouched then, also if it left the PVS before (it keeps InPVS() == false):
+				// destroying it would reset everything bound to it (e.g. a weapon's Equipment), see #742.
 				if old := p.entities[index]; old != nil {
 					if old.active && old.serial != serial {
 						old.replaced = true
@@ -987,8 +1027,10 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 
 				op = EntityOpUpdated
 
-				if !e.active {
+				// The entity left the PVS or was destroyed (destroy() clears inPVS too).
+				if !e.inPVS {
 					e.active = true
+					e.inPVS = true
 					op |= EntityOpEntered
 				}
 
@@ -1006,10 +1048,18 @@ func (p *Parser) OnPacketEntities(m *msg.CSVCMsg_PacketEntities) (err error) {
 			}
 
 			op = EntityOpLeft
-			if cmd&0x02 != 0 {
+
+			switch {
+			case cmd&0x02 != 0:
+				// also if the entity already left the PVS, the delete still destroys it
 				op |= EntityOpDeleted
 
 				e.destroy()
+			case !e.inPVS:
+				continue // entity has already left the PVS
+			default:
+				// the entity isn't destroyed, it may re-enter the PVS (see OnLeavePVS)
+				e.leavePVS()
 			}
 		}
 

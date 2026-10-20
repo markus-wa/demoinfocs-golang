@@ -59,4 +59,8 @@ var (
 	// Destroy deletes the entity like an entity packet does.
 	// parser is the entity's *Parser (may be nil).
 	Destroy func(entity, parser any)
+
+	// Leave makes the entity leave the PVS without being deleted, like an entity packet does.
+	// parser is the entity's *Parser (may be nil).
+	Leave func(entity, parser any)
 )

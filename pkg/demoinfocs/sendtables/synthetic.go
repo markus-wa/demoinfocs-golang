@@ -28,6 +28,9 @@ func init() {
 	stbridge.Destroy = func(entity, parser any) {
 		syntheticDestroy(entity.(*Entity), parser.(*Parser))
 	}
+	stbridge.Leave = func(entity, parser any) {
+		syntheticLeave(entity.(*Entity), parser.(*Parser))
+	}
 }
 
 // syntheticPositionProps are declared by every synthetic entity, Position() needs them.
@@ -168,12 +171,14 @@ func syntheticSet(e *Entity, p *Parser, names []string, values []any, fire, fini
 		return a.index - b.index
 	})
 
-	// Like Parser.OnPacketEntities, an update re-activates a destroyed entity before its fields are read,
-	// also without finish (so Destroy works again afterwards). Only finish fires the entity handlers (Entered).
+	// Like Parser.OnPacketEntities, an update re-activates a destroyed entity and brings back an entity that left
+	// the PVS before its fields are read, also without finish (so Destroy and Leave work again afterwards).
+	// Only finish fires the entity handlers (Entered).
 	op := EntityOpUpdated
 
-	if !e.active {
+	if !e.inPVS { // destroy() clears inPVS too
 		e.active = true
+		e.inPVS = true
 		op |= EntityOpEntered
 	}
 
@@ -194,6 +199,7 @@ func syntheticSet(e *Entity, p *Parser, names []string, values []any, fire, fini
 	}
 
 	e.fireUpdateFinished()
+
 	fireSyntheticEntityHandlers(p, e, op)
 }
 
@@ -205,4 +211,14 @@ func syntheticDestroy(e *Entity, p *Parser) {
 
 	e.destroy()
 	fireSyntheticEntityHandlers(p, e, EntityOpLeft|EntityOpDeleted)
+}
+
+// syntheticLeave mirrors Parser.OnPacketEntities for an entity that leaves the PVS without being deleted.
+func syntheticLeave(e *Entity, p *Parser) {
+	if !e.active || !e.inPVS {
+		return // entity has already been destroyed or left the PVS
+	}
+
+	e.leavePVS()
+	fireSyntheticEntityHandlers(p, e, EntityOpLeft)
 }

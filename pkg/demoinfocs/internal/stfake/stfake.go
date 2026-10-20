@@ -141,7 +141,8 @@ func Create(e *st.Entity) {
 }
 
 // Set sets the given property values without firing any handlers.
-// Like an update, it re-activates a destroyed entity (without firing anything).
+// Like an update, it re-activates a destroyed entity and brings back an entity that left the PVS
+// (without firing anything).
 // Setting a property that wasn't declared panics.
 func Set(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
@@ -151,7 +152,7 @@ func Set(e *st.Entity, props ...Prop) {
 // Update applies the given property values like one entity packet updating the entity does:
 // each property is set and its update handlers fire before the next one is set, in field-path
 // (declaration) order regardless of the order given. Then the OnUpdateFinished delegates
-// and the parser's entity handlers (Updated, plus Entered if the entity had been destroyed) fire.
+// and the parser's entity handlers (Updated, plus Entered if the entity had been destroyed or left the PVS) fire.
 // Setting a property that wasn't declared panics.
 func Update(e *st.Entity, props ...Prop) {
 	names, values := flatten(props)
@@ -170,4 +171,12 @@ func UpdateUnfinished(e *st.Entity, props ...Prop) {
 // unless it was re-activated by Set, Update or UpdateUnfinished in between.
 func Destroy(e *st.Entity) {
 	stbridge.Destroy(e, parserOf(e))
+}
+
+// Leave makes the entity leave the PVS without deleting it, like an entity packet does:
+// the OnLeavePVS delegates fire, then the parser's entity handlers (Left).
+// Leaving again does nothing, unless the entity came back with Set, Update or UpdateUnfinished in between.
+// Destroying it afterwards works like for an entity in the PVS.
+func Leave(e *st.Entity) {
+	stbridge.Leave(e, parserOf(e))
 }
