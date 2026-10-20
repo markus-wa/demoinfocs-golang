@@ -393,9 +393,13 @@ var demoCommandMsgsCreators = map[msg.EDemoCommands]config.NetMessageCreator{
 // scratch as the decompression destination; the pool entry is returned so the
 // caller can put it back after proto.Unmarshal (which copies everything it
 // needs). bp is nil whenever buf is not pool-backed.
+// Payloads larger than maxPooledBuffer are read into a per-parser buffer instead, see readLargePayload().
 //
 // CSTV broadcasts retain buf in messages (m.Data = buf), so they get a plain,
 // unpooled read with a fresh snappy destination.
+//
+// Outside of CSTV broadcasts, buf is only valid until the next frame is read (it's reused, see readLargePayload()),
+// so it must not be retained, e.g. by unmarshaling with aliasing.
 //
 // A payload that's larger than the limit for msgType (see framePayloadLimit()) isn't read, errFrameTooLarge is returned.
 // A compressed payload that can't be decompressed is consumed from the demo stream, an error is returned
@@ -423,9 +427,15 @@ func (p *Parser) readFramePayload(msgType msg.EDemoCommands, size uint32, msgCom
 		return buf, nil, nil
 	}
 
-	bp = getMsgBuf(min(n, maxPreallocatedPayload))
-	p.readPayloadInto(bp, n)
-	buf = *bp
+	if n > maxPooledBuffer {
+		buf = p.readLargePayload(n)
+	} else {
+		bp = getMsgBuf(preallocSize(n, p.largestPayload))
+		p.readPayloadInto(bp, n)
+		buf = *bp
+	}
+
+	p.largestPayload = max(p.largestPayload, n)
 
 	if !msgCompressed {
 		return buf, bp, nil
@@ -444,14 +454,39 @@ func (p *Parser) readFramePayload(msgType msg.EDemoCommands, size uint32, msgCom
 		return nil, nil, err
 	}
 
+	p.largestPayload = max(p.largestPayload, len(buf))
+
 	// Large scratches (from rare large payloads) aren't kept, so they don't stay allocated.
-	if cap(buf) <= maxPooledBuffer {
+	if cap(buf) <= retainLimit(p.largestPayload) {
 		p.snappyScratch = buf[:0]
 	} else {
 		p.snappyScratch = nil
 	}
 
 	return buf, nil, nil
+}
+
+// readLargePayload reads a payload of n bytes (more than maxPooledBuffer) into p.largeFrameBuf and returns it.
+// The buffer is kept for the next large payload (up to maxRetainedBuffer), so POV demos with many ~5 MB frames
+// (DEM_AnimationData) don't allocate a new one per frame. It isn't put into msgBufPool,
+// where small nested messages would take it and drop it (#743).
+// The returned slice is only valid until the next frame is read, like the snappy scratch.
+func (p *Parser) readLargePayload(n int) []byte {
+	buf := p.largeFrameBuf[:0]
+	if cap(buf) < n {
+		buf = make([]byte, 0, preallocSize(n, p.largestPayload))
+	}
+
+	p.largeFrameBuf = nil
+
+	p.readPayloadInto(&buf, n)
+
+	// The payload was read completely, so it's real: keep the buffer, also if it grew past n while it was read.
+	if cap(buf) <= maxRetainedBuffer {
+		p.largeFrameBuf = buf[:0]
+	}
+
+	return buf
 }
 
 // readPayloadInto appends n bytes of the demo stream to buf.

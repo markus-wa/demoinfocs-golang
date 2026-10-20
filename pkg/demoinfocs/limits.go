@@ -28,11 +28,31 @@ const (
 
 	// maxPreallocatedPayload bounds the memory allocated for a payload before it was read:
 	// larger payloads grow while they're read, so a size that's larger than the rest of the demo doesn't allocate much.
+	// Once a larger payload was read completely, payloads up to its size are preallocated, see preallocSize().
 	maxPreallocatedPayload = 1 << 20
 
-	// maxPooledBuffer is the largest buffer that's kept for reuse (msgBufPool, Parser.snappyScratch).
+	// maxPooledBuffer is the largest buffer that's kept in msgBufPool, and in Parser.snappyScratch
+	// until a larger payload was read completely (see retainLimit()). Larger payloads use Parser.largeFrameBuf.
 	maxPooledBuffer = 4 << 20
+
+	// maxRetainedBuffer is the hard cap of preallocSize(), retainLimit() and Parser.largeFrameBuf,
+	// however large the payloads read so far were.
+	maxRetainedBuffer = maxFramePayload
 )
+
+// preallocSize returns how much memory to allocate for a payload of n bytes before it's read,
+// given the largest payload read completely so far.
+// It stays at maxPreallocatedPayload unless a larger payload was read, so a corrupt size can't make it allocate much
+// more than real payloads of the demo did (at most maxRetainedBuffer).
+func preallocSize(n, largestPayload int) int {
+	return min(n, max(maxPreallocatedPayload, min(largestPayload, maxRetainedBuffer)))
+}
+
+// retainLimit returns the largest buffer that's kept for reuse, given the largest payload read completely so far.
+// POV demos have payloads of ~5 MB (DEM_AnimationData) in many frames, their buffers are reused too.
+func retainLimit(largestPayload int) int {
+	return min(max(maxPooledBuffer, largestPayload), maxRetainedBuffer)
+}
 
 // errFrameTooLarge is the cause of a frame that's larger than allowed, see framePayloadLimit().
 var errFrameTooLarge = errors.New("frame too large")
