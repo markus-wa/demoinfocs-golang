@@ -42,10 +42,13 @@ func userCmdRingIndex(commandNumber int32) int {
 	return int(index)
 }
 
+// insert stores command without copying it: a stored command is never modified,
+// a delta is applied to a clone of it (see handleUserCommands()).
+// It's also dispatched as events.UserCmd.Command, which users must not modify.
 func (r *userCmdRing) insert(commandNumber int32, command *msg.CSGOUserCmdPB) {
 	r.entries[userCmdRingIndex(commandNumber)] = userCmdRingEntry{
 		commandNumber: commandNumber,
-		command:       proto.Clone(command).(*msg.CSGOUserCmdPB),
+		command:       command,
 		valid:         true,
 	}
 }

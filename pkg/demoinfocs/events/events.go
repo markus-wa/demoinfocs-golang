@@ -824,6 +824,9 @@ type PlayerButtonsStateUpdate struct {
 // snapshot, including buttons, mouse movement, weapon selection, view angles,
 // movement, subtick moves, and input history. Player may be nil when the demo
 // does not yet have a player object for the command's slot.
+//
+// Command is the decoder's baseline for the player's next delta, it must not be modified.
+// Use proto.Clone() to get a copy that can be modified.
 type UserCmd struct {
 	Player             *common.Player
 	PlayerSlot         int32

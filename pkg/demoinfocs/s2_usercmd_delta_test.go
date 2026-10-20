@@ -1,9 +1,12 @@
 package demoinfocs
 
 import (
+	"bytes"
 	"testing"
 
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/option"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/encoding/protowire"
@@ -195,6 +198,47 @@ func TestUserCmdRingRequiresExactCommandNumber(t *testing.T) {
 	if _, ok := ring.get(151); !ok {
 		t.Fatal("new command-number ring entry was not addressable")
 	}
+}
+
+// The decoder keeps the dispatched commands as baselines without copying them,
+// so decoding the following deltas must not modify a dispatched command.
+func TestUserCmdDispatchedCommandsAreNotModified(t *testing.T) {
+	full, err := proto.Marshal(baseline())
+	require.NoError(t, err)
+
+	delta := func(n int32, data []byte) *msg.CMsgServerUserCmd {
+		return &msg.CMsgServerUserCmd{CmdNumber: proto32(n), PlayerSlot: proto32(2), DeltaData: data}
+	}
+
+	commands := nested(t, int32(msg.SVC_Messages_svc_UserCmds), &msg.CSVCMsg_UserCommands{
+		Commands: []*msg.CMsgServerUserCmd{
+			{CmdNumber: proto32(100), PlayerSlot: proto32(2), Data: full},
+			delta(101, bytesField(fieldCSGOUserCmdBase, bytesField(fieldBaseUserCmdButtonsPb, varintField(fieldButtonsState1, 8)))),
+			delta(102, bytesField(fieldCSGOUserCmdBase, append(varintField(fieldBaseUserCmdClientTick, 102), resetMarker(fieldBaseUserCmdButtonsPb)...))),
+		},
+	})
+	demo := handmadeDemo(fileHeaderFrame(t), packetFrame(t, 1, netTick(t, 1), commands), stopFrame())
+
+	p := NewParser(bytes.NewReader(demo), option.UserCmdParsing(option.UserCmdParsingFull))
+	defer p.Close()
+
+	var dispatched, snapshots []*msg.CSGOUserCmdPB
+
+	p.RegisterEventHandler(func(e events.UserCmd) {
+		dispatched = append(dispatched, e.Command)
+		snapshots = append(snapshots, proto.Clone(e.Command).(*msg.CSGOUserCmdPB))
+	})
+
+	require.NoError(t, p.ParseToEnd(t.Context()))
+	require.Len(t, dispatched, 3)
+
+	for i := range dispatched {
+		assert.True(t, proto.Equal(snapshots[i], dispatched[i]), "command %d was modified after it was dispatched", 100+i)
+	}
+
+	assert.EqualValues(t, 512, dispatched[0].GetBase().GetButtonsPb().GetButtonstate1())
+	assert.EqualValues(t, 8, dispatched[1].GetBase().GetButtonsPb().GetButtonstate1())
+	assert.Nil(t, dispatched[2].GetBase().GetButtonsPb())
 }
 
 func TestServerUserCmdDeltaDataRoundTrip(t *testing.T) {
