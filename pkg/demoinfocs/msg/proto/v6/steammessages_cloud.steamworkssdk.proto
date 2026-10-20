@@ -1,0 +1,65 @@
+package com.github.markus_wa.demoinfocs_golang.v6;
+
+import "v6/steammessages_unified_base.steamworkssdk.proto";
+
+message CCloud_GetUploadServerInfo_Request {
+	optional uint32 appid = 1;
+}
+
+message CCloud_GetUploadServerInfo_Response {
+	optional string server_url = 1;
+}
+
+message CCloud_GetFileDetails_Request {
+	optional uint64 ugcid = 1;
+	optional uint32 appid = 2;
+}
+
+message CCloud_UserFile {
+	optional uint32 appid = 1;
+	optional uint64 ugcid = 2;
+	optional string filename = 3;
+	optional uint64 timestamp = 4;
+	optional uint32 file_size = 5;
+	optional string url = 6;
+	optional fixed64 steamid_creator = 7;
+}
+
+message CCloud_GetFileDetails_Response {
+	optional .com.github.markus_wa.demoinfocs_golang.v6.CCloud_UserFile details = 1;
+}
+
+message CCloud_EnumerateUserFiles_Request {
+	optional uint32 appid = 1;
+	optional bool extended_details = 2;
+	optional uint32 count = 3;
+	optional uint32 start_index = 4;
+}
+
+message CCloud_EnumerateUserFiles_Response {
+	repeated .com.github.markus_wa.demoinfocs_golang.v6.CCloud_UserFile files = 1;
+	optional uint32 total_files = 2;
+}
+
+message CCloud_Delete_Request {
+	optional string filename = 1;
+	optional uint32 appid = 2;
+}
+
+message CCloud_Delete_Response {
+}
+
+service Cloud {
+
+	rpc GetUploadServerInfo (.com.github.markus_wa.demoinfocs_golang.v6.CCloud_GetUploadServerInfo_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CCloud_GetUploadServerInfo_Response) {
+	}
+
+	rpc GetFileDetails (.com.github.markus_wa.demoinfocs_golang.v6.CCloud_GetFileDetails_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CCloud_GetFileDetails_Response) {
+	}
+
+	rpc EnumerateUserFiles (.com.github.markus_wa.demoinfocs_golang.v6.CCloud_EnumerateUserFiles_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CCloud_EnumerateUserFiles_Response) {
+	}
+
+	rpc Delete (.com.github.markus_wa.demoinfocs_golang.v6.CCloud_Delete_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CCloud_Delete_Response) {
+	}
+}

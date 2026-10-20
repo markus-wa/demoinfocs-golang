@@ -1,0 +1,22 @@
+package com.github.markus_wa.demoinfocs_golang.v6;
+
+import "v6/networkbasetypes.proto";
+import "v6/prediction_events.proto";
+
+enum ECSPredictionEvents {
+	CSPE_DamageTag = 1;
+	CSPE_PlayerTeleport = 3;
+}
+
+message CCSPredictionEvent_DamageTag {
+	optional float flinch_mod_small = 1;
+	optional float flinch_mod_large = 2;
+	optional float friendly_fire_damage_reduction_ratio = 3;
+}
+
+message CCSPredictionEvent_PlayerTeleport {
+	optional bool relative = 1;
+	optional .com.github.markus_wa.demoinfocs_golang.v6.CMsgVector origin = 2;
+	optional .com.github.markus_wa.demoinfocs_golang.v6.CMsgQAngle angles = 3;
+	optional .com.github.markus_wa.demoinfocs_golang.v6.CMsgVector velocity = 4;
+}

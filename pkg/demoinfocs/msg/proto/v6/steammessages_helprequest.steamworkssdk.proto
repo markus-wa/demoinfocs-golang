@@ -1,0 +1,22 @@
+package com.github.markus_wa.demoinfocs_golang.v6;
+
+import "v6/steammessages_unified_base.steamworkssdk.proto";
+
+option cc_generic_services = true;
+
+message CHelpRequestLogs_UploadUserApplicationLog_Request {
+	optional uint32 appid = 1;
+	optional string log_type = 2;
+	optional string version_string = 3;
+	optional string log_contents = 4;
+}
+
+message CHelpRequestLogs_UploadUserApplicationLog_Response {
+	optional uint64 id = 1;
+}
+
+service HelpRequestLogs {
+
+	rpc UploadUserApplicationLog (.com.github.markus_wa.demoinfocs_golang.v6.CHelpRequestLogs_UploadUserApplicationLog_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CHelpRequestLogs_UploadUserApplicationLog_Response) {
+	}
+}

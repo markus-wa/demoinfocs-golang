@@ -1,0 +1,16 @@
+package com.github.markus_wa.demoinfocs_golang.v6;
+
+import "google/protobuf/descriptor.proto";
+
+option optimize_for = SPEED;
+option cc_generic_services = false;
+
+
+
+
+
+
+enum EProtoExecutionSite {
+	k_EProtoExecutionSiteUnknown = 0;
+	k_EProtoExecutionSiteSteamClient = 3;
+}

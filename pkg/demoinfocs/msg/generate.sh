@@ -1,42 +1,43 @@
 #!/bin/bash
 
-# sed -i '1i\package com.github.markus_wa.demoinfocs_golang;\n' proto/*.proto
-# sed -i 's/ \.(?!google)/ com.github.markus_wa.demoinfocs_golang./g' proto/*.proto
+# The protos live in proto/v6 with package com.github.markus_wa.demoinfocs_golang.v6 and without Valve's custom
+# options, so they don't clash with demoinfocs v4's protos when a program imports both versions
+# (e.g. CS Demo Analyzer). After updating them from upstream, run ./prepare-protos.py first.
 
 protoc -Iproto \
        --go_out=. \
-       --go_opt=Mcs_usercmd.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Musercmd.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mcstrike15_usermessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mcstrike15_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mengine_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mnetmessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Msteammessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mgcsdk_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mnetworkbasetypes.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mnetwork_connection.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mdemo.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mgameevents.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Musermessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mcs_gameevents.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mte.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Msource2_steam_stats.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       --go_opt=Mvalveextensions.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/cs_usercmd.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/usercmd.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/cstrike15_usermessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/cstrike15_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/engine_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/netmessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/steammessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/gcsdk_gcmessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/networkbasetypes.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/network_connection.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/demo.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/gameevents.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/usermessages.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/cs_gameevents.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/te.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/source2_steam_stats.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
+       --go_opt=Mv6/valveextensions.proto=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
        --go_opt=module=github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg \
-       cs_usercmd.proto \
-       cstrike15_gcmessages.proto \
-       cstrike15_usermessages.proto \
-       engine_gcmessages.proto \
-       netmessages.proto \
-       steammessages.proto \
-       gcsdk_gcmessages.proto \
-       networkbasetypes.proto \
-       network_connection.proto \
-       demo.proto \
-       gameevents.proto \
-       usermessages.proto \
-       cs_gameevents.proto \
-       te.proto \
-       source2_steam_stats.proto \
-       usercmd.proto \
-       valveextensions.proto
+       v6/cs_usercmd.proto \
+       v6/cstrike15_gcmessages.proto \
+       v6/cstrike15_usermessages.proto \
+       v6/engine_gcmessages.proto \
+       v6/netmessages.proto \
+       v6/steammessages.proto \
+       v6/gcsdk_gcmessages.proto \
+       v6/networkbasetypes.proto \
+       v6/network_connection.proto \
+       v6/demo.proto \
+       v6/gameevents.proto \
+       v6/usermessages.proto \
+       v6/cs_gameevents.proto \
+       v6/te.proto \
+       v6/source2_steam_stats.proto \
+       v6/usercmd.proto \
+       v6/valveextensions.proto
