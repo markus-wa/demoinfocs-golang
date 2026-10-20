@@ -11,7 +11,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  ci:
+  # build, lint and examples, race tests and all tests + coverage run in parallel jobs
+
+  lint-build:
     runs-on: ubuntu-latest
 
     # reviewdog github-check reporter requires check-run write access
@@ -37,21 +39,14 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Download Go Deps
-        run: go mod download
-
       - name: Install golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
           version: v2.13.2
           install-only: true
 
-      - name: Install Tools
+      - name: Fetch refs for linter
         run: |
-          # install 7zip for decompressing test demos
-          sudo apt-get install -y p7zip-full
-
-          # Fetch refs for linter
           git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
           git fetch
 
@@ -61,11 +56,99 @@ jobs:
       - name: Lint Changed Code
         run: scripts/lint-changes.sh
 
-      - name: Race Tests
-        run: scripts/race-tests.sh
+      - name: Checkout test demos
+        id: demos
+        run: |
+          git submodule update --init test/cs-demos
+          echo "key=test-demos-v2-$(git rev-parse HEAD:test/cs-demos)-s2-deathmatch" >> "$GITHUB_OUTPUT"
+
+      # restore only: the race and coverage jobs save the cache with all archives extracted
+      - name: Restore test demos
+        id: demos-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            test/cs-demos/s2
+            test/cs-demos/.*.extracted
+          key: ${{ steps.demos.outputs.key }}
+
+      - name: Install 7zip
+        if: steps.demos-cache.outputs.cache-hit != 'true'
+        run: sudo apt-get install -y p7zip-full
 
       - name: Examples Tests
         run: scripts/examples-tests.sh
+
+  race:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - name: Checkout test demos
+        id: demos
+        run: |
+          git submodule update --init test/cs-demos
+          echo "key=test-demos-v2-$(git rev-parse HEAD:test/cs-demos)-s2-deathmatch" >> "$GITHUB_OUTPUT"
+
+      - name: Cache test demos
+        id: demos-cache
+        uses: actions/cache@v6
+        with:
+          path: |
+            test/cs-demos/s2
+            test/cs-demos/.*.extracted
+          key: ${{ steps.demos.outputs.key }}
+
+      - name: Install 7zip
+        if: steps.demos-cache.outputs.cache-hit != 'true'
+        run: sudo apt-get install -y p7zip-full
+
+      - name: Race Tests
+        run: scripts/race-tests.sh
+
+  coverage:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - name: Checkout test demos
+        id: demos
+        run: |
+          git submodule update --init test/cs-demos
+          echo "key=test-demos-v2-$(git rev-parse HEAD:test/cs-demos)-s2-deathmatch" >> "$GITHUB_OUTPUT"
+
+      - name: Cache test demos
+        id: demos-cache
+        uses: actions/cache@v6
+        with:
+          path: |
+            test/cs-demos/s2
+            test/cs-demos/.*.extracted
+          key: ${{ steps.demos.outputs.key }}
+
+      - name: Install 7zip
+        if: steps.demos-cache.outputs.cache-hit != 'true'
+        run: sudo apt-get install -y p7zip-full
 
       # Note: We run ALL tests again to get full coverage
       #       Race tests are too slow and skip the regression set
