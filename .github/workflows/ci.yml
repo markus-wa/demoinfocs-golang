@@ -204,7 +204,7 @@ jobs:
 
       # PRs that legitimately change CSDA's output can ship updated snapshots on a fork branch
       # with the same name as the PR branch; everything else runs against demoinfocs-v6.
-      # When such a PR is merged, fast-forward the fork's demoinfocs-v6 to that branch.
+      # When such a PR is merged, point the fork's demoinfocs-v6 at that branch (a reset if they have diverged).
       - name: Pick CSDA branch
         id: csda-ref
         env:
@@ -244,9 +244,9 @@ jobs:
           go mod edit -replace github.com/markus-wa/demoinfocs-golang/v6=../demoinfocs-golang
           go mod tidy
 
-      # every other CS2 test case of tests/demos_test.go (test name, demo name) goes to this shard
       # every SHARDS-th test case of the game in tests/demos_test.go (test name, demo name) goes to this shard,
-      # with the demo's .dem.info file if demos.txt lists one (Valve demos)
+      # with the demo's .dem.info file if demos.txt lists one (Valve CS:GO demos; no CS2 demo has one, so cs2 shards
+      # skip the lookup and don't need GitLab on a cache hit)
       - name: Pick shard demos
         id: shard
         env:
@@ -255,7 +255,6 @@ jobs:
           SHARDS: ${{ matrix.shards }}
         run: |
           cd cs-demo-analyzer
-          curl -fsSL --retry 3 --retry-all-errors -o demos.txt https://gitlab.com/akiver/cs-demos/-/raw/main/demos.txt
           block='$1 == "var" && $2 == var {in_cases = 1; next} in_cases && /^}/ {exit}'
           awk -v var="${GAME}DemoTestCases" "$block"'
             in_cases && match($0, /^[[:space:]]*\{"[^"]+", "[^"]+"/) {
@@ -274,7 +273,10 @@ jobs:
           fi
           awk -v shard="$SHARD" -v shards="$SHARDS" '(NR - 1) % shards == shard' game-cases.txt > shard-cases.txt
           awk -v game="$GAME" '{print game "/" $2 ".dem"}' shard-cases.txt > demos-shard.txt
-          awk '{print $0 ".info"}' demos-shard.txt | grep -Fx -f - demos.txt >> demos-shard.txt || true
+          if [[ "$GAME" == csgo ]]; then
+            curl -fsSL --retry 3 --retry-all-errors -o demos.txt https://gitlab.com/akiver/cs-demos/-/raw/main/demos.txt
+            awk '{print $0 ".info"}' demos-shard.txt | grep -Fx -f - demos.txt >> demos-shard.txt || true
+          fi
           echo "run=^TestDemos$/^${GAME}$/^($(awk '{print $1}' shard-cases.txt | paste -sd'|'))$" >> "$GITHUB_OUTPUT"
           echo "$(wc -l < shard-cases.txt) of $(wc -l < game-cases.txt) $GAME demos in shard $SHARD:"
           cat demos-shard.txt
