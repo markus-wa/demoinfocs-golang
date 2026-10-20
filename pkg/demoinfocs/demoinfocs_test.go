@@ -23,6 +23,7 @@ import (
 	dispatch "github.com/markus-wa/godispatch"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
 	demoinfocs "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs"
@@ -607,6 +608,51 @@ func TestDemoSetS2(t *testing.T) {
 	t.Parallel()
 
 	testDemoSet(t, demSetPathS2)
+}
+
+// TestRoundEndDestroyOrder_Deterministic parses a demo three times and asserts that the GrenadeProjectileDestroy
+// and InfernoExpired events come out in the same order: the ones left over at round_officially_ended are
+// dispatched from map snapshots (see clearGrenadeProjectiles), which must not depend on map iteration order.
+//
+// The 2v2 demo has leftover projectiles and infernos at several round ends.
+func TestRoundEndDestroyOrder_Deterministic(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test due to -short flag")
+	}
+
+	t.Parallel()
+
+	const demPath = demSetPathS2 + "/1_2v2_6thAug23_64cf951f9b4ce6b86c73b089.dem"
+
+	parse := func() []string {
+		f, err := os.Open(demPath)
+		require.NoError(t, err, "error opening demo %q", demPath)
+
+		defer mustClose(t, f)
+
+		p := demoinfocs.NewParser(f)
+
+		var order []string
+
+		p.RegisterEventHandler(func(e events.GrenadeProjectileDestroy) {
+			order = append(order, fmt.Sprintf("%d destroy %d", p.GameState().IngameTick(), e.Projectile.Entity.ID()))
+		})
+		p.RegisterEventHandler(func(e events.InfernoExpired) {
+			order = append(order, fmt.Sprintf("%d expired %d", p.GameState().IngameTick(), e.Inferno.Entity.ID()))
+		})
+
+		require.NoError(t, p.ParseToEnd(t.Context()))
+
+		return order
+	}
+
+	first := parse()
+	require.NotEmpty(t, first)
+
+	// map iteration order happens to match between two parses about a third of the time
+	for range 2 {
+		assert.Equal(t, first, parse(), "event order differs between parses of the same demo")
+	}
 }
 
 // TestGrenadeProjectileWeaponInstance asserts that the WeaponInstance of thrown grenades

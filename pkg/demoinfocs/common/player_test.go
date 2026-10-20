@@ -33,12 +33,14 @@ func TestPlayerWeapons(t *testing.T) {
 	ak47 := NewEquipment(EqAK47, UniqueID(3))
 
 	pl := newPlayer(0)
+	pl.Inventory[30] = ak47
 	pl.Inventory[1] = knife
 	pl.Inventory[2] = glock
-	pl.Inventory[3] = ak47
 
-	expected := []*Equipment{knife, glock, ak47}
-	assert.ElementsMatch(t, expected, pl.Weapons(), "Should have expected weapons")
+	// sorted by entity-ID, regardless of map iteration order
+	for range 20 {
+		assert.Equal(t, []*Equipment{knife, glock, ak47}, pl.Weapons(), "Should have expected weapons")
+	}
 }
 
 func TestPlayerAlive(t *testing.T) {

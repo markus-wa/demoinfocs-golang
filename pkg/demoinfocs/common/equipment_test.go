@@ -37,6 +37,19 @@ func TestWeirdCS2Values(t *testing.T) {
 	assert.Equal(t, EqDeagle, MapEquipment("5e_default_deagle"), "'5e_default_deagle' should be mapped to EqDeagle")
 }
 
+// A name matching several known names of different types maps to the longest (most specific) one,
+// not to whichever comes first in map iteration order.
+func TestMapEquipment_AmbiguousPrefixSuffix(t *testing.T) {
+	for range 20 {
+		// prefix "mac10" (EqMac10) and suffix "ak47" (EqAK47) - longer wins
+		assert.Equal(t, EqMac10, MapEquipment("weapon_mac10_ak47"))
+		// prefix "usp_silencer" (EqUSP) beats suffix "awp" (EqAWP)
+		assert.Equal(t, EqUSP, MapEquipment("usp_silencer_awp"))
+		// prefix "ak47" and suffix "m249" have the same length - ties are broken by name
+		assert.Equal(t, EqAK47, MapEquipment("ak47_m249"))
+	}
+}
+
 func TestEquipment_Class(t *testing.T) {
 	assert.Equal(t, EqClassUnknown, NewEquipment(EqUnknown, UniqueID(1)).Class(), "EqUnknown should have the class EqClassUnknown")
 	assert.Equal(t, EqClassPistols, NewEquipment(EqP2000, UniqueID(1)).Class(), "EqP2000 should have the class EqClassPistols")

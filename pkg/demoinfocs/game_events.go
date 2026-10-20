@@ -299,11 +299,21 @@ func (geh gameEventHandler) clearGrenadeProjectiles() {
 	// We're not deleting them from entitites though as that's supposed to be as close to the actual demo data as possible.
 	// We're also not destroying the entities (firing their OnDestroy handlers) because it would - in some cases - happen twice for the same entity
 	// and it's supposed to be called when the demo actually says so (same case as with gameState.entities).
-	for _, proj := range geh.gameState().grenadeProjectiles {
+	//
+	// Both are processed in ascending entity-ID order rather than Go's randomised map order, so the
+	// dispatched events (and inferno <-> projectile linking) are deterministic across runs.
+	// The handlers delete from the maps, which is why the sorted snapshots are iterated rather than the maps.
+	//
+	// If several leftover molotovs / incendiaries of the same owner are destroyed here while one inferno
+	// of that owner is waiting for its projectile in the current frame, the one with the lowest entity-ID
+	// is linked to it (see linkInfernoProjectile).
+	projectiles := valuesSortedByKey(geh.gameState().grenadeProjectiles)
+	for _, proj := range projectiles {
 		geh.parser.nadeProjectileDestroyed(proj)
 	}
 
-	for _, inf := range geh.gameState().infernos {
+	infernos := valuesSortedByKey(geh.gameState().infernos)
+	for _, inf := range infernos {
 		geh.parser.infernoExpired(inf)
 	}
 

@@ -3,6 +3,7 @@ package common
 import (
 	"errors"
 	"math"
+	"slices"
 	"time"
 
 	"github.com/golang/geo/r3"
@@ -220,11 +221,18 @@ func (p *Player) ActiveWeapon() *Equipment {
 }
 
 // Weapons returns all weapons in the player's possession.
-// Contains all entries from Player.Inventory but as a slice instead of a map.
+// Contains all entries from Player.Inventory but as a slice instead of a map, sorted by entity-ID.
 func (p *Player) Weapons() []*Equipment {
-	res := make([]*Equipment, 0, len(p.Inventory))
-	for _, w := range p.Inventory {
-		res = append(res, w)
+	ids := make([]int, 0, len(p.Inventory))
+	for id := range p.Inventory {
+		ids = append(ids, id)
+	}
+
+	slices.Sort(ids)
+
+	res := make([]*Equipment, 0, len(ids))
+	for _, id := range ids {
+		res = append(res, p.Inventory[id])
 	}
 
 	return res

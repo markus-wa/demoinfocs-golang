@@ -1,9 +1,9 @@
 package demoinfocs
 
 import (
+	"cmp"
 	"errors"
 	"slices"
-	"sort"
 	"strconv"
 	"time"
 
@@ -180,14 +180,9 @@ func (gs *GameState) Rules() *GameRules {
 	return &gs.rules
 }
 
-// Hostages returns all current hostages.
+// Hostages returns all current hostages, sorted by entity-ID.
 func (gs *GameState) Hostages() []*common.Hostage {
-	hostages := make([]*common.Hostage, 0, len(gs.hostages))
-	for _, hostage := range gs.hostages {
-		hostages = append(hostages, hostage)
-	}
-
-	return hostages
+	return valuesSortedByKey(gs.hostages)
 }
 
 // GrenadeProjectiles returns a map from entity-IDs to all live grenade projectiles.
@@ -595,14 +590,27 @@ func (ptcp Participants) All() []*common.Player {
 // (they are built by ranging maps, whose iteration order Go randomises). SteamID64 is stable across
 // demos; UserID breaks ties (e.g. between bots, whose SteamID64 is 0).
 func sortPlayers(players []*common.Player) {
-	sort.Slice(players, func(i, j int) bool {
-		a, b := players[i], players[j]
-		if a.SteamID64 != b.SteamID64 {
-			return a.SteamID64 < b.SteamID64
-		}
-
-		return a.UserID < b.UserID
+	slices.SortFunc(players, func(a, b *common.Player) int {
+		return cmp.Or(cmp.Compare(a.SteamID64, b.SteamID64), cmp.Compare(a.UserID, b.UserID))
 	})
+}
+
+// valuesSortedByKey returns a snapshot of m's values in ascending key order,
+// so callers don't depend on Go's randomised map iteration order.
+func valuesSortedByKey[K cmp.Ordered, V any](m map[K]V) []V {
+	keys := make([]K, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	slices.Sort(keys)
+
+	res := make([]V, 0, len(keys))
+	for _, k := range keys {
+		res = append(res, m[k])
+	}
+
+	return res
 }
 
 // Connected returns all currently connected players & spectators.
@@ -683,11 +691,11 @@ func (ptcp Participants) initializeSliceFromByUserID() ([]*common.Player, map[in
 	return make([]*common.Player, 0, len(byUserID)), byUserID
 }
 
-// SpottersOf returns a list of all players who have spotted the passed player.
+// SpottersOf returns a list of all players who have spotted the passed player, sorted like All().
 // This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
 // May not behave as expected with multiple spotters.
 func (ptcp Participants) SpottersOf(spotted *common.Player) (spotters []*common.Player) {
-	for _, other := range ptcp.playersByUserID {
+	for _, other := range ptcp.All() {
 		if spotted.IsSpottedBy(other) {
 			spotters = append(spotters, other)
 		}
@@ -696,11 +704,11 @@ func (ptcp Participants) SpottersOf(spotted *common.Player) (spotters []*common.
 	return
 }
 
-// SpottedBy returns a list of all players that the passed player has spotted.
+// SpottedBy returns a list of all players that the passed player has spotted, sorted like All().
 // This is NOT "Line of Sight" / FOV - look up "CSGO TraceRay" for that.
 // May not behave as expected with multiple spotters.
 func (ptcp Participants) SpottedBy(spotter *common.Player) (spotted []*common.Player) {
-	for _, other := range ptcp.playersByUserID {
+	for _, other := range ptcp.All() {
 		if other.Entity != nil && other.IsSpottedBy(spotter) {
 			spotted = append(spotted, other)
 		}
