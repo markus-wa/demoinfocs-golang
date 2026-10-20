@@ -3,6 +3,8 @@ on:
     branches: [main, 'v[0-9]*'] # main + release/backport branches (v5, ...)
     tags: ['v*']
   pull_request:
+    # docs-only changes don't need CI (pushes to main still run it)
+    paths-ignore: ['**.md', 'docs/**']
 
 name: CI
 
@@ -122,6 +124,19 @@ jobs:
     permissions:
       contents: read
 
+    # TestCorruptS2Corpus is the long tail of the coverage run, so it gets its own job.
+    # Codecov merges the uploads of a commit (see codecov.yml: after_n_builds).
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - part: main
+            args: -skip TestCorruptS2Corpus
+          - part: corrupt-corpus
+            args: -run ^TestCorruptS2Corpus$
+
+    name: coverage (${{ matrix.part }})
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -153,12 +168,12 @@ jobs:
       # Note: We run ALL tests again to get full coverage
       #       Race tests are too slow and skip the regression set
       - name: All Tests + Coverage
-        run: scripts/coverage.sh
+        run: scripts/coverage.sh coverage-${{ matrix.part }}.txt ${{ matrix.args }}
 
       - name: Upload Coverage
         uses: codecov/codecov-action@v7
         with:
-          files: coverage.txt
+          files: coverage-${{ matrix.part }}.txt
           # secrets aren't available to fork PRs; the action falls back to tokenless upload there
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -167,6 +182,15 @@ jobs:
 
     permissions:
       contents: read
+
+    # The CS2 demos are split across shards, so each restores only part of the ~3 GB demo cache.
+    # CS:GO demos are skipped by CSDA's tests (demoinfocs v5+ can't parse them), so they aren't downloaded.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1]
+
+    name: test-csda (${{ matrix.shard }})
 
     steps:
       - name: Checkout demoinfocs-golang repo
@@ -216,25 +240,55 @@ jobs:
           go mod edit -replace github.com/markus-wa/demoinfocs-golang/v6=../demoinfocs-golang
           go mod tidy
 
-      - name: Download demos cache file
+      # every other CS2 test case of tests/demos_test.go (test name, demo name) goes to this shard
+      - name: Pick shard demos
+        id: shard
+        env:
+          SHARD: ${{ matrix.shard }}
+          SHARDS: 2
         run: |
           cd cs-demo-analyzer
-          curl -L -o demos.txt https://gitlab.com/akiver/cs-demos/-/raw/main/demos.txt
+          awk '/^var cs2DemoTestCases/ {in_cases = 1; next} in_cases && /^}/ {exit}
+            in_cases && match($0, /^[[:space:]]*\{"[^"]+", "[^"]+"/) {
+              split(substr($0, RSTART, RLENGTH), f, "\"")
+              print f[2], f[4]
+            }' tests/demos_test.go > cs2-cases.txt
+          if [[ ! -s cs2-cases.txt ]]; then
+            echo "no CS2 test cases found in tests/demos_test.go"
+            exit 1
+          fi
+          awk -v shard="$SHARD" -v shards="$SHARDS" '(NR - 1) % shards == shard' cs2-cases.txt > shard-cases.txt
+          awk '{print "cs2/" $2 ".dem"}' shard-cases.txt > demos-shard.txt
+          echo "run=^TestDemos$/^cs2$/^($(awk '{print $1}' shard-cases.txt | paste -sd'|'))$" >> "$GITHUB_OUTPUT"
+          echo "$(wc -l < shard-cases.txt) of $(wc -l < cs2-cases.txt) CS2 demos in shard $SHARD:"
+          cat demos-shard.txt
 
       - name: Restore demos cache
         uses: actions/cache@v6
         id: demos-cache
         with:
           path: cs-demo-analyzer/cs-demos
-          key: demos-${{ hashFiles('cs-demo-analyzer/demos.txt') }}
+          key: csda-demos-${{ hashFiles('cs-demo-analyzer/demos-shard.txt') }}
 
       - name: Download demos
         if: steps.demos-cache.outputs.cache-hit != 'true'
         run: |
           cd cs-demo-analyzer
-          ./download-demos.sh
+          while read -r file; do
+            echo "Downloading demo $file"
+            curl -fsSL -o "cs-demos/$file" --create-dirs "https://gitlab.com/akiver/cs-demos/-/raw/main/$file"
+          done < demos-shard.txt
 
       - name: Test
+        env:
+          RUN: ${{ steps.shard.outputs.run }}
         run: |
+          set -o pipefail
           cd cs-demo-analyzer
-          go test ./tests
+          go test -v -run "$RUN" ./tests | tee test.log
+          want=$(wc -l < shard-cases.txt)
+          got=$(grep -c -E -- '--- PASS: TestDemos/cs2/' test.log || true)
+          if [[ "$got" != "$want" ]]; then
+            echo "expected $want passing CS2 demo tests, got $got"
+            exit 1
+          fi
