@@ -531,8 +531,8 @@ func (e *Entity) InPVS() bool {
 //   - it's destroyed (OnDestroy) if it's deleted, or if its index is reused for a new entity (new serial, Replaced()),
 //   - it re-enters the PVS, which is sent as a re-create with the same serial: the old object is dropped without
 //     OnDestroy and keeps InPVS() == false, the new object shows up via ServerClass.OnEntityCreated() (see #742),
-//   - or, rarely, it's updated again without a re-create, in which case InPVS() is true again
-//     (check e.g. in OnUpdateFinished).
+//   - or it's updated again without a re-create (not yet seen during testing, but may occur),
+//     in which case InPVS() is true again (check e.g. in OnUpdateFinished).
 //
 // It isn't called when the entity is deleted, only OnDestroy is.
 //

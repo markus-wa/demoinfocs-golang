@@ -41,6 +41,8 @@ func pvsPacket(t *testing.T, p *Parser, log *[]string, ops ...entityOp) []string
 	return *log
 }
 
+// An update after a leave brings the entity back (Entered). Not yet seen during testing, but may occur:
+// in real demos entities re-enter the PVS as same-serial re-creates.
 func TestPVS_LeaveAndReenter(t *testing.T) {
 	t.Parallel()
 
