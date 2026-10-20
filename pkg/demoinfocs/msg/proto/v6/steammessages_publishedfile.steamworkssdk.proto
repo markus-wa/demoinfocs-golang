@@ -1,0 +1,225 @@
+package com.github.markus_wa.demoinfocs_golang.v6;
+
+message CPublishedFile_Subscribe_Request {
+	optional uint64 publishedfileid = 1;
+	optional uint32 list_type = 2;
+	optional int32 appid = 3;
+	optional bool notify_client = 4;
+}
+
+message CPublishedFile_Subscribe_Response {
+}
+
+message CPublishedFile_Unsubscribe_Request {
+	optional uint64 publishedfileid = 1;
+	optional uint32 list_type = 2;
+	optional int32 appid = 3;
+	optional bool notify_client = 4;
+}
+
+message CPublishedFile_Unsubscribe_Response {
+}
+
+message CPublishedFile_Publish_Request {
+	optional uint32 appid = 1;
+	optional uint32 consumer_appid = 2;
+	optional string cloudfilename = 3;
+	optional string preview_cloudfilename = 4;
+	optional string title = 5;
+	optional string file_description = 6;
+	optional uint32 file_type = 7;
+	optional string consumer_shortcut_name = 8;
+	optional string youtube_username = 9;
+	optional string youtube_videoid = 10;
+	optional uint32 visibility = 11;
+	optional string redirect_uri = 12;
+	repeated string tags = 13;
+	optional string collection_type = 14;
+	optional string game_type = 15;
+	optional string url = 16;
+}
+
+message CPublishedFile_Publish_Response {
+	optional uint64 publishedfileid = 1;
+	optional string redirect_uri = 2;
+}
+
+message CPublishedFile_GetDetails_Request {
+	repeated fixed64 publishedfileids = 1;
+	optional bool includetags = 2;
+	optional bool includeadditionalpreviews = 3;
+	optional bool includechildren = 4;
+	optional bool includekvtags = 5;
+	optional bool includevotes = 6;
+	optional bool short_description = 8;
+}
+
+message PublishedFileDetails {
+	message Tag {
+		optional string tag = 1;
+		optional bool adminonly = 2;
+	}
+
+	message Preview {
+		optional uint64 previewid = 1;
+		optional uint32 sortorder = 2;
+		optional string url = 3;
+		optional uint32 size = 4;
+		optional string filename = 5;
+		optional string youtubevideoid = 6;
+	}
+
+	message Child {
+		optional uint64 publishedfileid = 1;
+		optional uint32 sortorder = 2;
+		optional uint32 file_type = 3;
+	}
+
+	message KVTag {
+		optional string key = 1;
+		optional string value = 2;
+	}
+
+	message VoteData {
+		optional float score = 1;
+		optional uint32 votes_up = 2;
+		optional uint32 votes_down = 3;
+	}
+
+	optional uint32 result = 1;
+	optional uint64 publishedfileid = 2;
+	optional fixed64 creator = 3;
+	optional uint32 creator_appid = 4;
+	optional uint32 consumer_appid = 5;
+	optional uint32 consumer_shortcutid = 6;
+	optional string filename = 7;
+	optional uint64 file_size = 8;
+	optional uint64 preview_file_size = 9;
+	optional string file_url = 10;
+	optional string preview_url = 11;
+	optional string youtubevideoid = 12;
+	optional string url = 13;
+	optional fixed64 hcontent_file = 14;
+	optional fixed64 hcontent_preview = 15;
+	optional string title = 16;
+	optional string file_description = 17;
+	optional string short_description = 18;
+	optional uint32 time_created = 19;
+	optional uint32 time_updated = 20;
+	optional uint32 visibility = 21;
+	optional uint32 flags = 22;
+	optional bool workshop_file = 23;
+	optional bool workshop_accepted = 24;
+	optional bool show_subscribe_all = 25;
+	optional int32 num_comments_developer = 26;
+	optional int32 num_comments_public = 27;
+	optional bool banned = 28;
+	optional string ban_reason = 29;
+	optional fixed64 banner = 30;
+	optional bool can_be_deleted = 31;
+	optional bool incompatible = 32;
+	optional string app_name = 33;
+	optional uint32 file_type = 34;
+	optional bool can_subscribe = 35;
+	optional uint32 subscriptions = 36;
+	optional uint32 favorited = 37;
+	optional uint32 followers = 38;
+	optional uint32 lifetime_subscriptions = 39;
+	optional uint32 lifetime_favorited = 40;
+	optional uint32 lifetime_followers = 41;
+	optional uint32 views = 42;
+	optional uint32 image_width = 43;
+	optional uint32 image_height = 44;
+	optional string image_url = 45;
+	optional bool spoiler_tag = 46;
+	optional uint32 shortcutid = 47;
+	optional string shortcutname = 48;
+	optional uint32 num_children = 49;
+	optional uint32 num_reports = 50;
+	repeated .com.github.markus_wa.demoinfocs_golang.v6.PublishedFileDetails.Preview previews = 51;
+	repeated .com.github.markus_wa.demoinfocs_golang.v6.PublishedFileDetails.Tag tags = 52;
+	repeated .com.github.markus_wa.demoinfocs_golang.v6.PublishedFileDetails.Child children = 53;
+	repeated .com.github.markus_wa.demoinfocs_golang.v6.PublishedFileDetails.KVTag kvtags = 54;
+	optional .com.github.markus_wa.demoinfocs_golang.v6.PublishedFileDetails.VoteData vote_data = 55;
+	optional uint32 time_subscribed = 56;
+}
+
+message CPublishedFile_GetDetails_Response {
+	repeated .com.github.markus_wa.demoinfocs_golang.v6.PublishedFileDetails publishedfiledetails = 1;
+}
+
+message CPublishedFile_GetUserFiles_Request {
+	optional uint32 appid = 1;
+	optional uint32 page = 3 [default = 1];
+	optional uint32 numperpage = 4 [default = 1];
+	optional string sortmethod = 6 [default = "lastupdated"];
+	optional bool totalonly = 7;
+	optional uint32 privacy = 9;
+	optional bool ids_only = 10;
+	repeated string requiredtags = 11;
+	repeated string excludedtags = 12;
+}
+
+message CPublishedFile_GetUserFiles_Response {
+	message App {
+		optional uint32 appid = 1;
+		optional string name = 2;
+		optional uint32 shortcutid = 3;
+		optional bool private = 4;
+	}
+
+	optional uint32 total = 1;
+	optional uint32 startindex = 2;
+	repeated .com.github.markus_wa.demoinfocs_golang.v6.PublishedFileDetails publishedfiledetails = 3;
+	repeated .com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_GetUserFiles_Response.App apps = 4;
+}
+
+message CPublishedFile_Update_Request {
+	optional uint32 appid = 1;
+	optional fixed64 publishedfileid = 2;
+	optional string title = 3;
+	optional string file_description = 4;
+	optional uint32 visibility = 5;
+	repeated string tags = 6;
+	optional string filename = 7;
+	optional string preview_filename = 8;
+}
+
+message CPublishedFile_Update_Response {
+}
+
+message CPublishedFile_RefreshVotingQueue_Request {
+	optional uint32 appid = 1;
+	optional uint32 matching_file_type = 2;
+	repeated string tags = 3;
+	optional bool match_all_tags = 4 [default = true];
+	repeated string excluded_tags = 5;
+	optional uint32 desired_queue_size = 6;
+}
+
+message CPublishedFile_RefreshVotingQueue_Response {
+}
+
+service PublishedFile {
+
+	rpc Subscribe (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_Subscribe_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_Subscribe_Response) {
+	}
+
+	rpc Unsubscribe (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_Unsubscribe_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_Unsubscribe_Response) {
+	}
+
+	rpc Publish (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_Publish_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_Publish_Response) {
+	}
+
+	rpc GetDetails (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_GetDetails_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_GetDetails_Response) {
+	}
+
+	rpc GetUserFiles (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_GetUserFiles_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_GetUserFiles_Response) {
+	}
+
+	rpc Update (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_Update_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_Update_Response) {
+	}
+
+	rpc RefreshVotingQueue (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_RefreshVotingQueue_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.CPublishedFile_RefreshVotingQueue_Response) {
+	}
+}

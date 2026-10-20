@@ -1,0 +1,16 @@
+package com.github.markus_wa.demoinfocs_golang.v6;
+
+message COAuthToken_ImplicitGrantNoPrompt_Request {
+	optional string clientid = 1;
+}
+
+message COAuthToken_ImplicitGrantNoPrompt_Response {
+	optional string access_token = 1;
+	optional string redirect_uri = 2;
+}
+
+service OAuthToken {
+
+	rpc ImplicitGrantNoPrompt (.com.github.markus_wa.demoinfocs_golang.v6.COAuthToken_ImplicitGrantNoPrompt_Request) returns (.com.github.markus_wa.demoinfocs_golang.v6.COAuthToken_ImplicitGrantNoPrompt_Response) {
+	}
+}
