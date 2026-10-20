@@ -203,15 +203,16 @@ jobs:
           path: demoinfocs-golang
 
       # PRs that legitimately change CSDA's output can ship updated snapshots on a fork branch
-      # with the same name as the PR branch; everything else runs against demoinfocs-v6.
-      # When such a PR is merged, point the fork's demoinfocs-v6 at that branch (a reset if they have diverged).
+      # with the same name as the PR branch; everything else runs against demoinfocs-v6-ci.
+      # When such a PR is merged, point the fork's demoinfocs-v6-ci at that branch (a reset if they have diverged).
+      # demoinfocs-v6 is the head of the upstream CSDA PR (akiver/cs-demo-analyzer#35) and is updated separately.
       - name: Pick CSDA branch
         id: csda-ref
         env:
           # head_ref on pull_request events, the branch name on push events
           HEAD_REF: ${{ github.head_ref || github.ref_name }}
         run: |
-          ref=demoinfocs-v6
+          ref=demoinfocs-v6-ci
           case "$HEAD_REF" in
             # the fork's main/master track upstream CSDA, which isn't on v6
             ""|main|master) ;;
