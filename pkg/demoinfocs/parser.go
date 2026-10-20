@@ -140,6 +140,7 @@ type Parser struct {
 	pendingMsgBufs        []*[]byte                                                // Pool entries backing pendingMessagesCache's buffers, returned to msgBufPool when the packet is done
 	pendingMsgs           []any                                                    // The decoded net-messages (and warnings) of the current packet, see decodeDemoPacket()
 	snappyScratch         []byte                                                   // Reusable snappy decode destination for compressed frames (single-threaded frame parsing)
+	largestPayload        int                                                      // Largest frame payload (raw or decoded) read completely so far, see retainLimit()
 	userCmdStates         map[int32]*userCmdPlayerState                            // Per-player command-number ring reconstructed from full + delta updates
 	userCmdButtonStates   map[int32]*userCmdButtonPlayerState                      // Per-player command-number ring containing buttonstate1 only
 	hasUserCmdMessages    bool                                                     // True once a CSVCMsg_UserCommands message has been seen; replace the legacy m_nButtonDownMaskPrev prop

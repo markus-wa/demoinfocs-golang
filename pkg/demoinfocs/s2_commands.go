@@ -379,7 +379,7 @@ func (p *Parser) decodeDemoPacket(frame proto.Message, pack *msg.CDemoPacket, is
 	// no matter how the function ends (incl. recovered panics).
 	defer func() {
 		for _, bp := range p.pendingMsgBufs {
-			putMsgBuf(bp)
+			putMsgBuf(bp, maxPooledBuffer)
 		}
 
 		clear(p.pendingMessagesCache)

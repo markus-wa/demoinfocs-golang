@@ -41,9 +41,10 @@ func getMsgBuf(n int) *[]byte {
 	return bp
 }
 
-func putMsgBuf(bp *[]byte) {
+// putMsgBuf returns bp to msgBufPool, unless it's larger than limit (see retainLimit()).
+func putMsgBuf(bp *[]byte, limit int) {
 	// Large buffers (from rare large payloads) aren't kept, so they don't stay allocated.
-	if bp != nil && cap(*bp) <= maxPooledBuffer {
+	if bp != nil && cap(*bp) <= limit {
 		msgBufPool.Put(bp)
 	}
 }
@@ -423,9 +424,11 @@ func (p *Parser) readFramePayload(msgType msg.EDemoCommands, size uint32, msgCom
 		return buf, nil, nil
 	}
 
-	bp = getMsgBuf(min(n, maxPreallocatedPayload))
+	bp = getMsgBuf(preallocSize(n, p.largestPayload))
 	p.readPayloadInto(bp, n)
 	buf = *bp
+
+	p.largestPayload = max(p.largestPayload, n)
 
 	if !msgCompressed {
 		return buf, bp, nil
@@ -438,14 +441,16 @@ func (p *Parser) readFramePayload(msgType msg.EDemoCommands, size uint32, msgCom
 
 	// The pooled input is consumed either way; only the decoded scratch
 	// carries data from here on.
-	putMsgBuf(bp)
+	putMsgBuf(bp, retainLimit(p.largestPayload))
 
 	if err != nil {
 		return nil, nil, err
 	}
 
+	p.largestPayload = max(p.largestPayload, len(buf))
+
 	// Large scratches (from rare large payloads) aren't kept, so they don't stay allocated.
-	if cap(buf) <= maxPooledBuffer {
+	if cap(buf) <= retainLimit(p.largestPayload) {
 		p.snappyScratch = buf[:0]
 	} else {
 		p.snappyScratch = nil
@@ -632,7 +637,7 @@ func (p *Parser) decodeFrame(
 	} else {
 		err = proto.Unmarshal(buf, m)
 
-		putMsgBuf(bp)
+		putMsgBuf(bp, retainLimit(p.largestPayload))
 	}
 
 	if err != nil {
