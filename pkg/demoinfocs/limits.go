@@ -35,7 +35,8 @@ const (
 	// until a larger payload was read completely (see retainLimit()). Larger payloads use Parser.largeFrameBuf.
 	maxPooledBuffer = 4 << 20
 
-	// maxRetainedBuffer is the hard cap of preallocSize() and retainLimit(), however large the payloads read so far were.
+	// maxRetainedBuffer is the hard cap of preallocSize(), retainLimit() and Parser.largeFrameBuf,
+	// however large the payloads read so far were.
 	maxRetainedBuffer = maxFramePayload
 )
 

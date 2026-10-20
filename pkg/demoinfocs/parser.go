@@ -330,6 +330,10 @@ func (p *Parser) UnregisterNetMessageHandler(identifier dp.HandlerIdentifier) {
 func (p *Parser) Close() error {
 	p.msgDispatcher.RemoveAllQueues()
 
+	// Release the reused frame buffers (up to maxRetainedBuffer each), callers may keep the Parser around.
+	p.largeFrameBuf = nil
+	p.snappyScratch = nil
+
 	var errs []error
 
 	if p.bitReader != nil {

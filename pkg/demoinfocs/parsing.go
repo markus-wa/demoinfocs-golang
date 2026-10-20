@@ -398,6 +398,9 @@ var demoCommandMsgsCreators = map[msg.EDemoCommands]config.NetMessageCreator{
 // CSTV broadcasts retain buf in messages (m.Data = buf), so they get a plain,
 // unpooled read with a fresh snappy destination.
 //
+// Outside of CSTV broadcasts, buf is only valid until the next frame is read (it's reused, see readLargePayload()),
+// so it must not be retained, e.g. by unmarshaling with aliasing.
+//
 // A payload that's larger than the limit for msgType (see framePayloadLimit()) isn't read, errFrameTooLarge is returned.
 // A compressed payload that can't be decompressed is consumed from the demo stream, an error is returned
 // (the caller decides what to do, see parseFrame()).
@@ -464,7 +467,7 @@ func (p *Parser) readFramePayload(msgType msg.EDemoCommands, size uint32, msgCom
 }
 
 // readLargePayload reads a payload of n bytes (more than maxPooledBuffer) into p.largeFrameBuf and returns it.
-// The buffer is kept for the next large payload (up to retainLimit()), so POV demos with many ~5 MB frames
+// The buffer is kept for the next large payload (up to maxRetainedBuffer), so POV demos with many ~5 MB frames
 // (DEM_AnimationData) don't allocate a new one per frame. It isn't put into msgBufPool,
 // where small nested messages would take it and drop it (#743).
 // The returned slice is only valid until the next frame is read, like the snappy scratch.
@@ -478,7 +481,8 @@ func (p *Parser) readLargePayload(n int) []byte {
 
 	p.readPayloadInto(&buf, n)
 
-	if cap(buf) <= retainLimit(max(p.largestPayload, n)) {
+	// The payload was read completely, so it's real: keep the buffer, also if it grew past n while it was read.
+	if cap(buf) <= maxRetainedBuffer {
 		p.largeFrameBuf = buf[:0]
 	}
 

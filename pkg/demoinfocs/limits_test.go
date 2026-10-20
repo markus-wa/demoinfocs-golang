@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	"bytes"
 	"fmt"
 	"math/rand/v2"
 	"testing"
@@ -12,6 +13,32 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/fuzzcheck"
 	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/msg"
 )
+
+func TestCloseReleasesFrameBuffers(t *testing.T) {
+	t.Parallel()
+
+	// random, so the compressed payload is larger than maxPooledBuffer too
+	data := make([]byte, maxPooledBuffer+1)
+	rng := rand.New(rand.NewPCG(1, 2))
+
+	for i := range data {
+		data[i] = byte(rng.Uint32())
+	}
+
+	payload, err := proto.Marshal(&msg.CDemoAnimationData{Data: data})
+	require.NoError(t, err)
+
+	p := NewParser(bytes.NewReader(handmadeDemo(fileHeaderFrame(t),
+		compressedFrame(msg.EDemoCommands_DEM_AnimationData, 0, payload), stopFrame())))
+
+	require.NoError(t, p.ParseToEnd(t.Context()))
+	assert.NotNil(t, p.largeFrameBuf)
+	assert.NotNil(t, p.snappyScratch)
+
+	require.NoError(t, p.Close())
+	assert.Nil(t, p.largeFrameBuf)
+	assert.Nil(t, p.snappyScratch)
+}
 
 func TestPreallocSize(t *testing.T) {
 	t.Parallel()
