@@ -1,9 +1,5 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "google/protobuf/descriptor.proto";
-
-
-
 enum GCProtoBufMsgSrc {
 	GCProtoBufMsgSrc_Unspecified = 0;
 	GCProtoBufMsgSrc_FromSystem = 1;

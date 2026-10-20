@@ -1,10 +1,5 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "google/protobuf/descriptor.proto";
-
-
-
-
 enum EProtoDebugVisiblity {
 	k_EProtoDebugVisibility_Always = 0;
 	k_EProtoDebugVisibility_Server = 70;

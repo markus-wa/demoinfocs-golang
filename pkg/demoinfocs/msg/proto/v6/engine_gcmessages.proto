@@ -1,7 +1,5 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "google/protobuf/descriptor.proto";
-
 message CEngineGotvSyncPacket {
 	optional uint64 match_id = 1;
 	optional uint32 instance_id = 2;

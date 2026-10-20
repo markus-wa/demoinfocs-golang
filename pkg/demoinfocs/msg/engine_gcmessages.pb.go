@@ -9,7 +9,6 @@ package msg
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/descriptorpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -142,7 +141,7 @@ var File_v6_engine_gcmessages_proto protoreflect.FileDescriptor
 
 const file_v6_engine_gcmessages_proto_rawDesc = "" +
 	"\n" +
-	"\x1av6/engine_gcmessages.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a google/protobuf/descriptor.proto\"\xd0\x02\n" +
+	"\x1av6/engine_gcmessages.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\"\xd0\x02\n" +
 	"\x15CEngineGotvSyncPacket\x12\x19\n" +
 	"\bmatch_id\x18\x01 \x01(\x04R\amatchId\x12\x1f\n" +
 	"\vinstance_id\x18\x02 \x01(\rR\n" +

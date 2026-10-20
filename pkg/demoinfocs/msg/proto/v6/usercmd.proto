@@ -1,6 +1,5 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "v6/valveextensions.proto";
 import "v6/networkbasetypes.proto";
 
 message CInButtonStatePB {

@@ -313,15 +313,16 @@ Please don't update the `.golden` file if you are not sure it's required. Maybe 
 
 ### Generating Protobuf Code
 
-Should you need to re-generate the protobuf generated code in the `msg` package, you will need the following tools:
+Should you need to re-generate the protobuf generated code in the `msg` package, you will need `protoc`, `protoc-gen-go` and `python3`:
 
 ```
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 ```
 
-Make sure both are inside your `PATH` variable.
+Make sure they're inside your `PATH` variable.
 
-After installing these use `go generate ./msg` to generate the protobuf code. If you're on Windows you'll need to run go generate from CMD, not Bash.
+The protos live in `pkg/demoinfocs/msg/proto/v6`. After copying updated protos there, run `pkg/demoinfocs/msg/generate.sh` (from Bash).
+It first runs `prepare-protos.py`, which gives them the package `com.github.markus_wa.demoinfocs_golang.v6` and removes Valve's custom options, so they don't clash with demoinfocs v4's protos in programs that import both versions.
 
 ### Git Hooks
 

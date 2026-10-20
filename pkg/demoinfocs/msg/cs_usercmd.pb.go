@@ -412,7 +412,7 @@ var File_v6_cs_usercmd_proto protoreflect.FileDescriptor
 
 const file_v6_cs_usercmd_proto_rawDesc = "" +
 	"\n" +
-	"\x13v6/cs_usercmd.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a\x18v6/valveextensions.proto\x1a\x19v6/networkbasetypes.proto\x1a\x10v6/usercmd.proto\"n\n" +
+	"\x13v6/cs_usercmd.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a\x19v6/networkbasetypes.proto\x1a\x10v6/usercmd.proto\"n\n" +
 	"\x17CSGOInterpolationInfoPB\x12\x1d\n" +
 	"\bsrc_tick\x18\x01 \x01(\x05:\x02-1R\asrcTick\x12\x1d\n" +
 	"\bdst_tick\x18\x02 \x01(\x05:\x02-1R\adstTick\x12\x15\n" +
@@ -494,7 +494,6 @@ func file_v6_cs_usercmd_proto_init() {
 	if File_v6_cs_usercmd_proto != nil {
 		return
 	}
-	file_v6_valveextensions_proto_init()
 	file_v6_networkbasetypes_proto_init()
 	file_v6_usercmd_proto_init()
 	type x struct{}

@@ -9,7 +9,6 @@ package msg
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/descriptorpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -439,7 +438,7 @@ var File_v6_network_connection_proto protoreflect.FileDescriptor
 
 const file_v6_network_connection_proto_rawDesc = "" +
 	"\n" +
-	"\x1bv6/network_connection.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a google/protobuf/descriptor.proto*\xe6(\n" +
+	"\x1bv6/network_connection.proto\x12)com.github.markus_wa.demoinfocs_golang.v6*\xe6(\n" +
 	"\x1bENetworkDisconnectionReason\x12\x1e\n" +
 	"\x1aNETWORK_DISCONNECT_INVALID\x10\x00\x12\x1f\n" +
 	"\x1bNETWORK_DISCONNECT_SHUTDOWN\x10\x01\x12)\n" +

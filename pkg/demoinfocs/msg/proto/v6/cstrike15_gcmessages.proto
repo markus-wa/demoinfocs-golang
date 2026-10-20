@@ -1,6 +1,5 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "v6/steammessages.proto";
 import "v6/engine_gcmessages.proto";
 import "v6/gcsdk_gcmessages.proto";
 

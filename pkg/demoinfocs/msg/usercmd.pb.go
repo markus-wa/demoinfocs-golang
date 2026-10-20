@@ -458,7 +458,7 @@ var File_v6_usercmd_proto protoreflect.FileDescriptor
 
 const file_v6_usercmd_proto_rawDesc = "" +
 	"\n" +
-	"\x10v6/usercmd.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a\x18v6/valveextensions.proto\x1a\x19v6/networkbasetypes.proto\"~\n" +
+	"\x10v6/usercmd.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a\x19v6/networkbasetypes.proto\"~\n" +
 	"\x10CInButtonStatePB\x12\"\n" +
 	"\fbuttonstate1\x18\x01 \x01(\x04R\fbuttonstate1\x12\"\n" +
 	"\fbuttonstate2\x18\x02 \x01(\x04R\fbuttonstate2\x12\"\n" +
@@ -542,7 +542,6 @@ func file_v6_usercmd_proto_init() {
 	if File_v6_usercmd_proto != nil {
 		return
 	}
-	file_v6_valveextensions_proto_init()
 	file_v6_networkbasetypes_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{

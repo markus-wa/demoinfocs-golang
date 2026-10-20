@@ -1,8 +1,5 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "google/protobuf/descriptor.proto";
-import "v6/steammessages.proto";
-
 message CMsgWebAPIKey {
 	optional uint32 status = 1 [default = 255];
 	optional uint32 account_id = 2 [default = 0];

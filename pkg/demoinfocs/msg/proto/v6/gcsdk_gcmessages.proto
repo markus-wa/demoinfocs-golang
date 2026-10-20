@@ -1,7 +1,5 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "v6/steammessages.proto";
-
 enum GCClientLauncherType {
 	GCClientLauncherType_DEFAULT = 0;
 	GCClientLauncherType_PERFECTWORLD = 1;

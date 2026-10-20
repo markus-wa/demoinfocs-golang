@@ -1,7 +1,5 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "v6/steammessages_unified_base.steamworkssdk.proto";
-
 message COAuthToken_ImplicitGrantNoPrompt_Request {
 	optional string clientid = 1;
 }

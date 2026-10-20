@@ -9,7 +9,6 @@ package msg
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/descriptorpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -91,7 +90,7 @@ var File_v6_valveextensions_proto protoreflect.FileDescriptor
 
 const file_v6_valveextensions_proto_rawDesc = "" +
 	"\n" +
-	"\x18v6/valveextensions.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a google/protobuf/descriptor.proto*\xca\x01\n" +
+	"\x18v6/valveextensions.proto\x12)com.github.markus_wa.demoinfocs_golang.v6*\xca\x01\n" +
 	"\x14EProtoDebugVisiblity\x12\"\n" +
 	"\x1ek_EProtoDebugVisibility_Always\x10\x00\x12\"\n" +
 	"\x1ek_EProtoDebugVisibility_Server\x10F\x12'\n" +

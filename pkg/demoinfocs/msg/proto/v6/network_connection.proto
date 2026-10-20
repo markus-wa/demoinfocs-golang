@@ -1,8 +1,5 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "google/protobuf/descriptor.proto";
-
-
 enum ENetworkDisconnectionReason {
 	NETWORK_DISCONNECT_INVALID = 0;
 	NETWORK_DISCONNECT_SHUTDOWN = 1;

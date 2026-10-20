@@ -2,7 +2,12 @@
 
 # The protos live in proto/v6 with package com.github.markus_wa.demoinfocs_golang.v6 and without Valve's custom
 # options, so they don't clash with demoinfocs v4's protos when a program imports both versions
-# (e.g. CS Demo Analyzer). After updating them from upstream, run ./prepare-protos.py first.
+# (e.g. CS Demo Analyzer). prepare-protos.py does that to protos copied from upstream.
+
+set -e
+cd "$(dirname "$0")"
+
+python3 prepare-protos.py
 
 protoc -Iproto \
        --go_out=. \

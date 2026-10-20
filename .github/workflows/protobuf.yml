@@ -19,7 +19,9 @@ jobs:
       - name: Download latest Protobufs
         run: |
           git clone --depth=1 https://github.com/SteamDatabase/GameTracking-CSGO.git $GameTracking_dir
-          cp $GameTracking_dir/Protobufs/{cstrike15_*.proto,engine_gcmessages.proto,netmessages.proto,steammessages.proto,gcsdk_gcmessages.proto,networkbasetypes.proto,network_connection.proto} pkg/demoinfocs/msg/proto
+          cp $GameTracking_dir/Protobufs/{cstrike15_*.proto,engine_gcmessages.proto,netmessages.proto,steammessages.proto,gcsdk_gcmessages.proto,networkbasetypes.proto,network_connection.proto} pkg/demoinfocs/msg/proto/v6
+          # give them the package and strip the custom options, as committed (see generate.sh)
+          (cd pkg/demoinfocs/msg && python3 prepare-protos.py)
 
           if [[ ! `git status --porcelain` ]]; then
               echo "PROTOBUFS_CHANGED=false" >> $GITHUB_ENV
@@ -40,10 +42,10 @@ jobs:
             sudo apt-get update
             sudo apt-get install unzip
 
-            wget -O /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v21.3/protoc-21.3-linux-x86_64.zip
+            wget -O /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v36.0/protoc-36.0-linux-x86_64.zip
             unzip /tmp/protoc.zip -d /tmp/protoc
 
-            go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+            go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
 
       - name: Generate Go code
         if: env.PROTOBUFS_CHANGED == 'true'

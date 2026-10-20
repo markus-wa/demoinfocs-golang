@@ -1,7 +1,5 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "v6/steammessages_unified_base.steamworkssdk.proto";
-
 option cc_generic_services = true;
 
 enum ENotificationSetting {

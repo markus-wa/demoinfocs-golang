@@ -9,7 +9,6 @@ package msg
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/descriptorpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -2213,7 +2212,7 @@ var File_v6_networkbasetypes_proto protoreflect.FileDescriptor
 
 const file_v6_networkbasetypes_proto_rawDesc = "" +
 	"\n" +
-	"\x19v6/networkbasetypes.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a\x18v6/valveextensions.proto\x1a google/protobuf/descriptor.proto\x1a\x1bv6/network_connection.proto\"D\n" +
+	"\x19v6/networkbasetypes.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\"D\n" +
 	"\n" +
 	"CMsgVector\x12\f\n" +
 	"\x01x\x18\x01 \x01(\x02R\x01x\x12\f\n" +
@@ -2484,8 +2483,6 @@ func file_v6_networkbasetypes_proto_init() {
 	if File_v6_networkbasetypes_proto != nil {
 		return
 	}
-	file_v6_valveextensions_proto_init()
-	file_v6_network_connection_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

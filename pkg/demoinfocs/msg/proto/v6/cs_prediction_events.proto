@@ -1,7 +1,6 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
 import "v6/networkbasetypes.proto";
-import "v6/prediction_events.proto";
 
 enum ECSPredictionEvents {
 	CSPE_DamageTag = 1;

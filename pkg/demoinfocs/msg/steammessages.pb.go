@@ -9,7 +9,6 @@ package msg
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/descriptorpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -327,7 +326,7 @@ var File_v6_steammessages_proto protoreflect.FileDescriptor
 
 const file_v6_steammessages_proto_rawDesc = "" +
 	"\n" +
-	"\x16v6/steammessages.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a google/protobuf/descriptor.proto\"\xa4\x04\n" +
+	"\x16v6/steammessages.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\"\xa4\x04\n" +
 	"\x12CMsgProtoBufHeader\x12&\n" +
 	"\x0fclient_steam_id\x18\x01 \x01(\x06R\rclientSteamId\x12*\n" +
 	"\x11client_session_id\x18\x02 \x01(\x05R\x0fclientSessionId\x12\"\n" +

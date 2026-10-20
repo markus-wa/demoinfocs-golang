@@ -3215,7 +3215,7 @@ var File_v6_gcsdk_gcmessages_proto protoreflect.FileDescriptor
 
 const file_v6_gcsdk_gcmessages_proto_rawDesc = "" +
 	"\n" +
-	"\x19v6/gcsdk_gcmessages.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a\x16v6/steammessages.proto\"3\n" +
+	"\x19v6/gcsdk_gcmessages.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\"3\n" +
 	"\rCMsgSOIDOwner\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\rR\x04type\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\x04R\x02id\"\xc1\x01\n" +
@@ -3573,7 +3573,6 @@ func file_v6_gcsdk_gcmessages_proto_init() {
 	if File_v6_gcsdk_gcmessages_proto != nil {
 		return
 	}
-	file_v6_steammessages_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

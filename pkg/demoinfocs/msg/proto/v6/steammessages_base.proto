@@ -1,12 +1,7 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "google/protobuf/descriptor.proto";
-
 option optimize_for = SPEED;
 option cc_generic_services = true;
-
-
-
 
 enum EBanContentCheckResult {
 	k_EBanContentCheckResult_NotScanned = 0;

@@ -1,7 +1,5 @@
 package com.github.markus_wa.demoinfocs_golang.v6;
 
-import "v6/steammessages_unified_base.steamworkssdk.proto";
-
 message CCloud_GetUploadServerInfo_Request {
 	optional uint32 appid = 1;
 }

@@ -14123,7 +14123,7 @@ var File_v6_cstrike15_gcmessages_proto protoreflect.FileDescriptor
 
 const file_v6_cstrike15_gcmessages_proto_rawDesc = "" +
 	"\n" +
-	"\x1dv6/cstrike15_gcmessages.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a\x16v6/steammessages.proto\x1a\x1av6/engine_gcmessages.proto\x1a\x19v6/gcsdk_gcmessages.proto\"R\n" +
+	"\x1dv6/cstrike15_gcmessages.proto\x12)com.github.markus_wa.demoinfocs_golang.v6\x1a\x1av6/engine_gcmessages.proto\x1a\x19v6/gcsdk_gcmessages.proto\"R\n" +
 	"\x0eGameServerPing\x12\x12\n" +
 	"\x04ping\x18\x02 \x01(\x05R\x04ping\x12\x0e\n" +
 	"\x02ip\x18\x03 \x01(\rR\x02ip\x12\x1c\n" +
@@ -15803,7 +15803,6 @@ func file_v6_cstrike15_gcmessages_proto_init() {
 	if File_v6_cstrike15_gcmessages_proto != nil {
 		return
 	}
-	file_v6_steammessages_proto_init()
 	file_v6_engine_gcmessages_proto_init()
 	file_v6_gcsdk_gcmessages_proto_init()
 	type x struct{}
