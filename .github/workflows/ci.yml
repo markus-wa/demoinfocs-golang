@@ -131,7 +131,7 @@ jobs:
       matrix:
         include:
           - part: main
-            args: -skip TestCorruptS2Corpus
+            args: -skip ^TestCorruptS2Corpus$
           - part: corrupt-corpus
             args: -run ^TestCorruptS2Corpus$
 
@@ -183,7 +183,7 @@ jobs:
     permissions:
       contents: read
 
-    # The CS2 demos are split across shards, so each restores only part of the ~3 GB demo cache.
+    # The CS2 demos are split across shards, so each restores only part of the ~3.5 GB demo cache.
     # CS:GO demos are skipped by CSDA's tests (demoinfocs v5+ can't parse them), so they aren't downloaded.
     strategy:
       fail-fast: false
@@ -257,6 +257,13 @@ jobs:
             echo "no CS2 test cases found in tests/demos_test.go"
             exit 1
           fi
+          # every entry of the block must have been parsed, otherwise a reformatted one would silently not run
+          entries=$(awk '/^var cs2DemoTestCases/ {in_cases = 1; next} in_cases && /^}/ {exit}
+            in_cases && /^[[:space:]]*\{/' tests/demos_test.go | wc -l)
+          if [[ "$entries" != "$(wc -l < cs2-cases.txt)" ]]; then
+            echo "parsed $(wc -l < cs2-cases.txt) of $entries CS2 test cases in tests/demos_test.go, update the awk above"
+            exit 1
+          fi
           awk -v shard="$SHARD" -v shards="$SHARDS" '(NR - 1) % shards == shard' cs2-cases.txt > shard-cases.txt
           awk '{print "cs2/" $2 ".dem"}' shard-cases.txt > demos-shard.txt
           echo "run=^TestDemos$/^cs2$/^($(awk '{print $1}' shard-cases.txt | paste -sd'|'))$" >> "$GITHUB_OUTPUT"
@@ -276,7 +283,7 @@ jobs:
           cd cs-demo-analyzer
           while read -r file; do
             echo "Downloading demo $file"
-            curl -fsSL -o "cs-demos/$file" --create-dirs "https://gitlab.com/akiver/cs-demos/-/raw/main/$file"
+            curl -fsSL --retry 3 --retry-all-errors -o "cs-demos/$file" --create-dirs "https://gitlab.com/akiver/cs-demos/-/raw/main/$file"
           done < demos-shard.txt
 
       - name: Test
@@ -292,3 +299,11 @@ jobs:
             echo "expected $want passing CS2 demo tests, got $got"
             exit 1
           fi
+
+      # everything in ./tests except the CS2 demos of the shards (today only the skipped CS:GO cases), so new tests
+      # and un-skipped cases don't silently stop running
+      - name: Test (rest)
+        if: matrix.shard == 0
+        run: |
+          cd cs-demo-analyzer
+          go test -skip '^TestDemos$/^cs2$' ./tests
