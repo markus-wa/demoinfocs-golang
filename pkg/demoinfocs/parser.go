@@ -540,6 +540,7 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
 	registerInternal(&p, p.handleBrokenFullPacket)
 	registerInternal(&p, p.gameState.handleIngameTickNumber)
 	registerInternal(&p, p.handleUserCommands)
+	registerInternal(&p, p.handleFullPacketUserCommands)
 
 	if cfg.MsgQueueBufferSize >= 0 {
 		p.initMsgQueue(cfg.MsgQueueBufferSize)
