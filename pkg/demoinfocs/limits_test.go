@@ -41,10 +41,15 @@ func TestRetainLimit(t *testing.T) {
 // Payloads larger than maxPooledBuffer (DEM_AnimationData of POV demos, ~5 MB in many frames)
 // reuse the read and snappy buffers of the frames before (#743):
 // each further frame only allocates about its payload (proto.Unmarshal copies bytes fields).
+// Packets with nested messages between them must not take the buffers (msgBufPool).
 // Not parallel, see fuzzcheck.AllocatedBytes().
 //
 //nolint:paralleltest
 func TestLargePayloadBuffersReused(t *testing.T) {
+	if raceEnabled {
+		t.Skip("the race detector makes sync.Pool drop buffers at random")
+	}
+
 	const payloadSize = 5 << 20
 
 	data := make([]byte, payloadSize)
@@ -62,7 +67,9 @@ func TestLargePayloadBuffersReused(t *testing.T) {
 			demo := func(frames int) []byte {
 				fs := [][]byte{fileHeaderFrame(t)}
 
-				for range frames {
+				for i := range frames {
+					fs = append(fs, packetFrame(t, uint32(i), netTick(t, uint32(i))))
+
 					if compressed {
 						fs = append(fs, compressedFrame(msg.EDemoCommands_DEM_AnimationData, 0, payload))
 					} else {
@@ -84,7 +91,8 @@ func TestLargePayloadBuffersReused(t *testing.T) {
 			assert.NoError(t, errFive)
 
 			perFrame := (allocatedFive - allocatedOne) / 4
-			assert.Less(t, perFrame, uint64(payloadSize*3/2), "allocated bytes per further frame")
+			// main (before #743) allocated 6-8x the payload per frame
+			assert.Less(t, perFrame, uint64(payloadSize*2), "allocated bytes per further frame")
 		})
 	}
 }

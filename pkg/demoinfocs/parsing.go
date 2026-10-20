@@ -41,10 +41,9 @@ func getMsgBuf(n int) *[]byte {
 	return bp
 }
 
-// putMsgBuf returns bp to msgBufPool, unless it's larger than limit (see retainLimit()).
-func putMsgBuf(bp *[]byte, limit int) {
+func putMsgBuf(bp *[]byte) {
 	// Large buffers (from rare large payloads) aren't kept, so they don't stay allocated.
-	if bp != nil && cap(*bp) <= limit {
+	if bp != nil && cap(*bp) <= maxPooledBuffer {
 		msgBufPool.Put(bp)
 	}
 }
@@ -394,6 +393,7 @@ var demoCommandMsgsCreators = map[msg.EDemoCommands]config.NetMessageCreator{
 // scratch as the decompression destination; the pool entry is returned so the
 // caller can put it back after proto.Unmarshal (which copies everything it
 // needs). bp is nil whenever buf is not pool-backed.
+// Payloads larger than maxPooledBuffer are read into a per-parser buffer instead, see readLargePayload().
 //
 // CSTV broadcasts retain buf in messages (m.Data = buf), so they get a plain,
 // unpooled read with a fresh snappy destination.
@@ -424,9 +424,13 @@ func (p *Parser) readFramePayload(msgType msg.EDemoCommands, size uint32, msgCom
 		return buf, nil, nil
 	}
 
-	bp = getMsgBuf(preallocSize(n, p.largestPayload))
-	p.readPayloadInto(bp, n)
-	buf = *bp
+	if n > maxPooledBuffer {
+		buf = p.readLargePayload(n)
+	} else {
+		bp = getMsgBuf(preallocSize(n, p.largestPayload))
+		p.readPayloadInto(bp, n)
+		buf = *bp
+	}
 
 	p.largestPayload = max(p.largestPayload, n)
 
@@ -441,7 +445,7 @@ func (p *Parser) readFramePayload(msgType msg.EDemoCommands, size uint32, msgCom
 
 	// The pooled input is consumed either way; only the decoded scratch
 	// carries data from here on.
-	putMsgBuf(bp, retainLimit(p.largestPayload))
+	putMsgBuf(bp)
 
 	if err != nil {
 		return nil, nil, err
@@ -457,6 +461,28 @@ func (p *Parser) readFramePayload(msgType msg.EDemoCommands, size uint32, msgCom
 	}
 
 	return buf, nil, nil
+}
+
+// readLargePayload reads a payload of n bytes (more than maxPooledBuffer) into p.largeFrameBuf and returns it.
+// The buffer is kept for the next large payload (up to retainLimit()), so POV demos with many ~5 MB frames
+// (DEM_AnimationData) don't allocate a new one per frame. It isn't put into msgBufPool,
+// where small nested messages would take it and drop it (#743).
+// The returned slice is only valid until the next frame is read, like the snappy scratch.
+func (p *Parser) readLargePayload(n int) []byte {
+	buf := p.largeFrameBuf[:0]
+	if cap(buf) < n {
+		buf = make([]byte, 0, preallocSize(n, p.largestPayload))
+	}
+
+	p.largeFrameBuf = nil
+
+	p.readPayloadInto(&buf, n)
+
+	if cap(buf) <= retainLimit(max(p.largestPayload, n)) {
+		p.largeFrameBuf = buf[:0]
+	}
+
+	return buf
 }
 
 // readPayloadInto appends n bytes of the demo stream to buf.
@@ -637,7 +663,7 @@ func (p *Parser) decodeFrame(
 	} else {
 		err = proto.Unmarshal(buf, m)
 
-		putMsgBuf(bp, retainLimit(p.largestPayload))
+		putMsgBuf(bp)
 	}
 
 	if err != nil {
