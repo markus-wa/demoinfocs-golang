@@ -1,0 +1,7 @@
+# CI uploads coverage in two parts (see the coverage job in .github/workflows/ci.yml):
+# wait for both before reporting statuses and comments.
+codecov:
+  notify:
+    after_n_builds: 2
+comment:
+  after_n_builds: 2
