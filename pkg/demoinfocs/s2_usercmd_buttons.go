@@ -159,7 +159,7 @@ func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 		var buttons uint64
 		if data := cmd.GetData(); len(data) > 0 {
 			if err := mergeUserCmdButtons(data, 0, &buttons); err != nil {
-				p.msgDispatcher.Dispatch(events.ParserWarn{
+				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: err.Error(),
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})
@@ -170,7 +170,7 @@ func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 			}
 		} else if len(cmd.GetDeltaData()) > 0 {
 			if !state.hasCurrentCommand {
-				p.msgDispatcher.Dispatch(events.ParserWarn{
+				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: fmt.Sprintf("user command %d has no baseline for player slot %d", cmd.GetCmdNumber(), slot),
 					Type:    events.WarnTypeUserCommandBaselineMissing,
 				})
@@ -180,7 +180,7 @@ func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 
 			requestedBaseline := state.currentCommandNumber
 			if cmd.GetCmdNumber() < requestedBaseline {
-				p.msgDispatcher.Dispatch(events.ParserWarn{
+				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: fmt.Sprintf("user command %d precedes its current baseline %d for player slot %d", cmd.GetCmdNumber(), requestedBaseline, slot),
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
@@ -194,7 +194,7 @@ func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 
 			buttons, found = state.ring.get(requestedBaseline)
 			if !found {
-				p.msgDispatcher.Dispatch(events.ParserWarn{
+				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: fmt.Sprintf("user command %d has a baseline ring mismatch for player slot %d (requested %d)", cmd.GetCmdNumber(), slot, requestedBaseline),
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
@@ -209,7 +209,7 @@ func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 
 		if deltaData := cmd.GetDeltaData(); len(deltaData) > 0 {
 			if err := mergeUserCmdButtons(deltaData, 0, &buttons); err != nil {
-				p.msgDispatcher.Dispatch(events.ParserWarn{
+				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: err.Error(),
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})

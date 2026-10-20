@@ -3,6 +3,8 @@ on:
     branches: [main, 'v[0-9]*'] # main + release/backport branches (v5, ...)
     tags: ['v*']
   pull_request:
+    # docs-only changes don't need CI (pushes to main still run it)
+    paths-ignore: ['**.md', 'docs/**']
 
 name: CI
 
@@ -122,6 +124,19 @@ jobs:
     permissions:
       contents: read
 
+    # TestCorruptS2Corpus is the long tail of the coverage run, so it gets its own job.
+    # Codecov merges the uploads of a commit (see codecov.yml: after_n_builds).
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - part: main
+            args: -skip ^TestCorruptS2Corpus$
+          - part: corrupt-corpus
+            args: -run ^TestCorruptS2Corpus$
+
+    name: coverage (${{ matrix.part }})
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -153,12 +168,12 @@ jobs:
       # Note: We run ALL tests again to get full coverage
       #       Race tests are too slow and skip the regression set
       - name: All Tests + Coverage
-        run: scripts/coverage.sh
+        run: scripts/coverage.sh coverage-${{ matrix.part }}.txt ${{ matrix.args }}
 
       - name: Upload Coverage
         uses: codecov/codecov-action@v7
         with:
-          files: coverage.txt
+          files: coverage-${{ matrix.part }}.txt
           # secrets aren't available to fork PRs; the action falls back to tokenless upload there
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -168,6 +183,19 @@ jobs:
     permissions:
       contents: read
 
+    # The demos are split across shards, so each restores only part of the demo cache: the CS2 demos (parsed with
+    # this demoinfocs version) in two shards, the CS:GO demos (parsed with demoinfocs v4 by CSDA, so a smoke test of
+    # CSDA's combined v4 + v6 build rather than of this repo's parser) in one.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { game: cs2, shard: 0, shards: 2 }
+          - { game: cs2, shard: 1, shards: 2 }
+          - { game: csgo, shard: 0, shards: 1 }
+
+    name: test-csda (${{ matrix.game }}, ${{ matrix.shard }})
+
     steps:
       - name: Checkout demoinfocs-golang repo
         uses: actions/checkout@v7
@@ -176,7 +204,7 @@ jobs:
 
       # PRs that legitimately change CSDA's output can ship updated snapshots on a fork branch
       # with the same name as the PR branch; everything else runs against demoinfocs-v6.
-      # When such a PR is merged, fast-forward the fork's demoinfocs-v6 to that branch.
+      # When such a PR is merged, point the fork's demoinfocs-v6 at that branch (a reset if they have diverged).
       - name: Pick CSDA branch
         id: csda-ref
         env:
@@ -216,25 +244,77 @@ jobs:
           go mod edit -replace github.com/markus-wa/demoinfocs-golang/v6=../demoinfocs-golang
           go mod tidy
 
-      - name: Download demos cache file
+      # every SHARDS-th test case of the game in tests/demos_test.go (test name, demo name) goes to this shard,
+      # with the demo's .dem.info file if demos.txt lists one (Valve CS:GO demos; no CS2 demo has one, so cs2 shards
+      # skip the lookup and don't need GitLab on a cache hit)
+      - name: Pick shard demos
+        id: shard
+        env:
+          GAME: ${{ matrix.game }}
+          SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ matrix.shards }}
         run: |
           cd cs-demo-analyzer
-          curl -L -o demos.txt https://gitlab.com/akiver/cs-demos/-/raw/main/demos.txt
+          block='$1 == "var" && $2 == var {in_cases = 1; next} in_cases && /^}/ {exit}'
+          awk -v var="${GAME}DemoTestCases" "$block"'
+            in_cases && match($0, /^[[:space:]]*\{"[^"]+", "[^"]+"/) {
+              split(substr($0, RSTART, RLENGTH), f, "\"")
+              print f[2], f[4]
+            }' tests/demos_test.go > game-cases.txt
+          if [[ ! -s game-cases.txt ]]; then
+            echo "no $GAME test cases found in tests/demos_test.go"
+            exit 1
+          fi
+          # every entry of the block must have been parsed, otherwise a reformatted one would silently not run
+          entries=$(awk -v var="${GAME}DemoTestCases" "$block"' in_cases && /^[[:space:]]*\{/' tests/demos_test.go | wc -l)
+          if [[ "$entries" != "$(wc -l < game-cases.txt)" ]]; then
+            echo "parsed $(wc -l < game-cases.txt) of $entries $GAME test cases in tests/demos_test.go, update the awk above"
+            exit 1
+          fi
+          awk -v shard="$SHARD" -v shards="$SHARDS" '(NR - 1) % shards == shard' game-cases.txt > shard-cases.txt
+          awk -v game="$GAME" '{print game "/" $2 ".dem"}' shard-cases.txt > demos-shard.txt
+          if [[ "$GAME" == csgo ]]; then
+            curl -fsSL --retry 3 --retry-all-errors -o demos.txt https://gitlab.com/akiver/cs-demos/-/raw/main/demos.txt
+            awk '{print $0 ".info"}' demos-shard.txt | grep -Fx -f - demos.txt >> demos-shard.txt || true
+          fi
+          echo "run=^TestDemos$/^${GAME}$/^($(awk '{print $1}' shard-cases.txt | paste -sd'|'))$" >> "$GITHUB_OUTPUT"
+          echo "$(wc -l < shard-cases.txt) of $(wc -l < game-cases.txt) $GAME demos in shard $SHARD:"
+          cat demos-shard.txt
 
       - name: Restore demos cache
         uses: actions/cache@v6
         id: demos-cache
         with:
           path: cs-demo-analyzer/cs-demos
-          key: demos-${{ hashFiles('cs-demo-analyzer/demos.txt') }}
+          key: csda-demos-${{ hashFiles('cs-demo-analyzer/demos-shard.txt') }}
 
       - name: Download demos
         if: steps.demos-cache.outputs.cache-hit != 'true'
         run: |
           cd cs-demo-analyzer
-          ./download-demos.sh
+          while read -r file; do
+            echo "Downloading demo $file"
+            curl -fsSL --retry 3 --retry-all-errors -o "cs-demos/$file" --create-dirs "https://gitlab.com/akiver/cs-demos/-/raw/main/$file"
+          done < demos-shard.txt
 
       - name: Test
+        env:
+          GAME: ${{ matrix.game }}
+          RUN: ${{ steps.shard.outputs.run }}
+        run: |
+          set -o pipefail
+          cd cs-demo-analyzer
+          go test -v -run "$RUN" ./tests | tee test.log
+          want=$(wc -l < shard-cases.txt)
+          got=$(grep -c -E -- "--- PASS: TestDemos/${GAME}/" test.log || true)
+          if [[ "$got" != "$want" ]]; then
+            echo "expected $want passing $GAME demo tests, got $got"
+            exit 1
+          fi
+
+      # everything in ./tests except the demos of the shards, so new tests don't silently stop running
+      - name: Test (rest)
+        if: matrix.game == 'cs2' && matrix.shard == 0
         run: |
           cd cs-demo-analyzer
-          go test ./tests
+          go test -skip '^TestDemos$/^(cs2|csgo)$' ./tests

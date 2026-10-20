@@ -624,7 +624,7 @@ func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 			// Full payloads replace the current command snapshot.
 			next = &msg.CSGOUserCmdPB{}
 			if err := proto.Unmarshal(data, next); err != nil {
-				p.msgDispatcher.Dispatch(events.ParserWarn{
+				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: err.Error(),
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})
@@ -638,7 +638,7 @@ func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 			// number, then validates the command-number ring slot. A modulo
 			// collision is not a usable baseline.
 			if !state.hasCurrentCommand {
-				p.msgDispatcher.Dispatch(events.ParserWarn{
+				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: fmt.Sprintf("user command %d has no baseline for player slot %d", cmd.GetCmdNumber(), slot),
 					Type:    events.WarnTypeUserCommandBaselineMissing,
 				})
@@ -648,7 +648,7 @@ func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 
 			requestedBaseline := state.currentCommandNumber
 			if cmd.GetCmdNumber() < requestedBaseline {
-				p.msgDispatcher.Dispatch(events.ParserWarn{
+				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: fmt.Sprintf("user command %d precedes its current baseline %d for player slot %d", cmd.GetCmdNumber(), requestedBaseline, slot),
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
@@ -660,7 +660,7 @@ func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 
 			baseline, found := state.ring.get(requestedBaseline)
 			if !found {
-				p.msgDispatcher.Dispatch(events.ParserWarn{
+				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: fmt.Sprintf("user command %d has a baseline ring mismatch for player slot %d (requested %d)", cmd.GetCmdNumber(), slot, requestedBaseline),
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
@@ -679,7 +679,7 @@ func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 			if err := applyUserCmdDelta(next, deltaData); err != nil {
 				// next is a clone, so a malformed delta cannot mutate the ring
 				// baseline. The next full payload can re-establish the stream.
-				p.msgDispatcher.Dispatch(events.ParserWarn{
+				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: err.Error(),
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})
