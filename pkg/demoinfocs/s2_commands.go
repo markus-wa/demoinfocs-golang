@@ -430,6 +430,16 @@ func (p *Parser) decodeDemoPacket(frame proto.Message, pack *msg.CDemoPacket, is
 			// Full packets are seek/checkpoint snapshots. Their embedded
 			// usercmds are not transports delivered to the command handler;
 			// replaying them would duplicate the following packet stream.
+			// They only seed the decoder of players that have no command yet, see handleFullPacketUserCommands().
+			// The seed is optional: if the message can't be decoded, the live stream re-establishes the baseline.
+			if p.config.UserCmdParsing != config.UserCmdParsingDisabled {
+				commands := new(msg.CSVCMsg_UserCommands)
+
+				if proto.Unmarshal(m.buf, commands) == nil {
+					p.pendingMsgs = append(p.pendingMsgs, fullPacketUserCommands{commands})
+				}
+			}
+
 			continue
 		}
 
@@ -510,6 +520,71 @@ func getGameEventListBinForProtocol(networkProtocol int) ([]byte, error) {
 	}
 }
 
+// fullPacketUserCommands are the user commands of a DEM_FullPacket, see handleFullPacketUserCommands().
+type fullPacketUserCommands struct {
+	*msg.CSVCMsg_UserCommands
+}
+
+// handleFullPacketUserCommands seeds the user command decoder of each player that has no command yet
+// with the player's full command from a DEM_FullPacket.
+//
+// Live user commands are mostly delta-encoded, and a delta can only be decoded against the player's previous command.
+// Without a seed, a player's commands can't be decoded until the live stream sends one of them in full,
+// which can take minutes after the start of the demo.
+//
+// In the demos measured so far, a full packet's command is the player's current live command,
+// but that isn't guaranteed, so it never replaces a command the decoder already has.
+// No events are dispatched for it, the live stream still dispatches every command.
+// If a live command can't be decoded against the seed, the seed is dropped, see dropSeed().
+func (p *Parser) handleFullPacketUserCommands(m fullPacketUserCommands) {
+	for _, cmd := range m.Commands {
+		if cmd == nil || cmd.CmdNumber == nil || cmd.GetPlayerSlot() < 0 || len(cmd.GetData()) == 0 {
+			continue
+		}
+
+		if p.config.UserCmdParsing == config.UserCmdParsingButtonsOnly {
+			p.seedUserCmdButtons(cmd)
+		} else {
+			p.seedUserCmd(cmd)
+		}
+	}
+}
+
+// seedUserCmd seeds the decoder of cmd's player with cmd, see handleFullPacketUserCommands().
+// A command that can't be decoded is skipped, the live stream reports its own decoding failures.
+func (p *Parser) seedUserCmd(cmd *msg.CMsgServerUserCmd) {
+	slot := cmd.GetPlayerSlot()
+
+	state := p.userCmdStates[slot]
+	if state != nil && state.hasCurrentCommand {
+		return
+	}
+
+	command := new(msg.CSGOUserCmdPB)
+
+	err := proto.Unmarshal(cmd.GetData(), command)
+	if err != nil {
+		return
+	}
+
+	if deltaData := cmd.GetDeltaData(); len(deltaData) > 0 {
+		err = applyUserCmdDelta(command, deltaData)
+		if err != nil {
+			return
+		}
+	}
+
+	if state == nil {
+		state = &userCmdPlayerState{}
+		p.userCmdStates[slot] = state
+	}
+
+	state.ring.insert(cmd.GetCmdNumber(), command)
+	state.currentCommandNumber = cmd.GetCmdNumber()
+	state.hasCurrentCommand = true
+	state.seeded = true
+}
+
 //nolint:gocognit,nestif,funlen
 func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 	if p.config.UserCmdParsing == config.UserCmdParsingDisabled {
@@ -552,6 +627,8 @@ func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})
 
+				state.dropSeed()
+
 				continue
 			}
 		} else if len(cmd.GetDeltaData()) > 0 {
@@ -574,6 +651,8 @@ func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
 
+				state.dropSeed()
+
 				continue
 			}
 
@@ -583,6 +662,8 @@ func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 					Message: fmt.Sprintf("user command %d has a baseline ring mismatch for player slot %d (requested %d)", cmd.GetCmdNumber(), slot, requestedBaseline),
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
+
+				state.dropSeed()
 
 				continue
 			}
@@ -601,6 +682,8 @@ func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})
 
+				state.dropSeed()
+
 				continue
 			}
 		}
@@ -609,6 +692,7 @@ func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 		state.ring.insert(commandNumber, next)
 		state.currentCommandNumber = commandNumber
 		state.hasCurrentCommand = true
+		state.seeded = state.seeded && len(cmd.GetData()) == 0
 
 		// Player slots map to controller entities: slot N is entity N+1
 		// (getOrCreatePlayerFromControllerEntity relies on the same convention).

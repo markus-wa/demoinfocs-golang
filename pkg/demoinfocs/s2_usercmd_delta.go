@@ -72,6 +72,17 @@ type userCmdPlayerState struct {
 	ring                 userCmdRing
 	currentCommandNumber int32
 	hasCurrentCommand    bool
+	seeded               bool // decoding is based on a full packet's command, see handleFullPacketUserCommands()
+}
+
+// dropSeed forgets the full packet's command a decoder is based on after a live command couldn't be decoded
+// or didn't match its baseline (e.g. the command numbers started over): the live commands that follow aren't relative to it.
+// A decoder based on a live full command keeps its baseline.
+func (s *userCmdPlayerState) dropSeed() {
+	if s.seeded {
+		s.hasCurrentCommand = false
+		s.seeded = false
+	}
 }
 
 // applyUserCmdDelta reconstructs a full user-command state by applying a delta

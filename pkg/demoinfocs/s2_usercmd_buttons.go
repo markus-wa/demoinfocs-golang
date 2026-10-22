@@ -43,6 +43,15 @@ type userCmdButtonPlayerState struct {
 	ring                 userCmdButtonRing
 	currentCommandNumber int32
 	hasCurrentCommand    bool
+	seeded               bool // decoding is based on a full packet's command, see handleFullPacketUserCommands()
+}
+
+// dropSeed is userCmdPlayerState.dropSeed() for the button decoder.
+func (s *userCmdButtonPlayerState) dropSeed() {
+	if s.seeded {
+		s.hasCurrentCommand = false
+		s.seeded = false
+	}
 }
 
 // The buttonstate1 path is CSGOUserCmdPB.base.buttons_pb.buttonstate1.
@@ -155,6 +164,8 @@ func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})
 
+				state.dropSeed()
+
 				continue
 			}
 		} else if len(cmd.GetDeltaData()) > 0 {
@@ -174,6 +185,8 @@ func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
 
+				state.dropSeed()
+
 				continue
 			}
 
@@ -185,6 +198,8 @@ func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 					Message: fmt.Sprintf("user command %d has a baseline ring mismatch for player slot %d (requested %d)", cmd.GetCmdNumber(), slot, requestedBaseline),
 					Type:    events.WarnTypeUserCommandBaselineMismatch,
 				})
+
+				state.dropSeed()
 
 				continue
 			}
@@ -199,6 +214,8 @@ func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 					Type:    events.WarnTypeUserCommandDeltaDecodeFailed,
 				})
 
+				state.dropSeed()
+
 				continue
 			}
 		}
@@ -207,6 +224,7 @@ func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 		state.ring.insert(commandNumber, buttons)
 		state.currentCommandNumber = commandNumber
 		state.hasCurrentCommand = true
+		state.seeded = state.seeded && len(cmd.GetData()) == 0
 
 		// Player slots map to controller entities: slot N is entity N+1
 		// (getOrCreatePlayerFromControllerEntity relies on the same convention).
@@ -223,4 +241,39 @@ func (p *Parser) handleUserCommandButtons(m *msg.CSVCMsg_UserCommands) {
 			})
 		}
 	}
+}
+
+// seedUserCmdButtons seeds the button decoder of cmd's player with cmd, see handleFullPacketUserCommands().
+// A command that can't be decoded is skipped, the live stream reports its own decoding failures.
+func (p *Parser) seedUserCmdButtons(cmd *msg.CMsgServerUserCmd) {
+	slot := cmd.GetPlayerSlot()
+
+	state := p.userCmdButtonStates[slot]
+	if state != nil && state.hasCurrentCommand {
+		return
+	}
+
+	var buttons uint64
+
+	err := mergeUserCmdButtons(cmd.GetData(), 0, &buttons)
+	if err != nil {
+		return
+	}
+
+	if deltaData := cmd.GetDeltaData(); len(deltaData) > 0 {
+		err = mergeUserCmdButtons(deltaData, 0, &buttons)
+		if err != nil {
+			return
+		}
+	}
+
+	if state == nil {
+		state = &userCmdButtonPlayerState{}
+		p.userCmdButtonStates[slot] = state
+	}
+
+	state.ring.insert(cmd.GetCmdNumber(), buttons)
+	state.currentCommandNumber = cmd.GetCmdNumber()
+	state.hasCurrentCommand = true
+	state.seeded = true
 }
