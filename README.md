@@ -237,6 +237,7 @@ There is one caveat however: Beta features - which are marked as such via commen
 - [CS2VoiceData](https://github.com/DandrewsDev/CS2VoiceData) - Extract voice communications from demos
 - [CSC](https://csconfederation.com/) - A free league in NA providing a casual yet competitive environment
 - [csskill.com](https://csskill.com/) - A CS2 performance and analytics platform featuring live demo parsing, 2D replay visualization, achievement tracking, and engagement-driven competitive features.
+- [setpos.gg](https://setpos.gg/) - CS2 instant smokes and molotovs pros throw from spawn, pulled from their demos, each with a short video guide and the setpos command.
 
 ### CS:GO projects (may no longer work with CS2)
 
