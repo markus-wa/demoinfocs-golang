@@ -813,3 +813,52 @@ func TestBombPickup_PlayerFromUserIDPawn(t *testing.T) {
 
 	assert.Equal(t, []events.BombPickup{{Player: pl}}, got)
 }
+
+// Inferno fire properties that are missing or not decoded yet (seen on POV demos) don't panic and
+// don't count as a flame-out, InfernoFireOut still fires once the flags are known.
+func TestProcessInfernoFireOut_UndecodedFireProperties(t *testing.T) {
+	p := NewParser(rand.Reader)
+
+	const infernoID = 77
+
+	infEntity := stfake.NewEntity(infernoID,
+		stfake.P("m_fireCount", nil),
+		stfake.P("m_bFireIsBurning.0000", nil),
+		stfake.P("m_bFireIsBurning.0001", nil),
+	)
+
+	inf := common.NewInferno(p.demoInfoProvider, infEntity, nil, common.UniqueID(1))
+	p.gameState.infernos[infernoID] = inf
+
+	var got []events.InfernoFireOut
+	p.RegisterEventHandler(func(e events.InfernoFireOut) {
+		got = append(got, e)
+	})
+
+	assert.NotPanics(t, p.processInfernoFireOut, "undecoded m_fireCount")
+
+	stfake.Set(infEntity, stfake.P("m_fireCount", int32(2)), stfake.P("m_bFireIsBurning.0000", true))
+	assert.NotPanics(t, p.processInfernoFireOut, "undecoded m_bFireIsBurning.0001")
+	assert.True(t, p.gameState.infernoFireStates[infernoID].wasBurning)
+
+	stfake.Set(infEntity, stfake.P("m_bFireIsBurning.0000", false))
+	p.processInfernoFireOut()
+	assert.Empty(t, got, "a fire whose flag isn't decoded yet must not be taken for a flame-out")
+
+	stfake.Set(infEntity, stfake.P("m_bFireIsBurning.0001", false))
+	p.processInfernoFireOut()
+	p.processInfernoFireOut()
+	assert.Len(t, got, 1)
+	assert.Same(t, inf, got[0].Inferno)
+}
+
+func TestProcessInfernoFireOut_MissingFireCount(t *testing.T) {
+	p := NewParser(rand.Reader)
+
+	const infernoID = 77
+
+	p.gameState.infernos[infernoID] = common.NewInferno(p.demoInfoProvider, stfake.NewEntity(infernoID), nil, common.UniqueID(1))
+
+	assert.NotPanics(t, p.processInfernoFireOut)
+	assert.False(t, p.gameState.infernoFireStates[infernoID].wasBurning)
+}

@@ -1554,7 +1554,12 @@ func (p *Parser) processInfernoFireOut() {
 			continue
 		}
 
-		if infernoHasBurningFire(inf.Entity) {
+		burning, known := infernoHasBurningFire(inf.Entity)
+		if !known {
+			continue
+		}
+
+		if burning {
 			state.wasBurning = true
 		} else if state.wasBurning {
 			state.firedOut = true
@@ -1565,18 +1570,45 @@ func (p *Parser) processInfernoFireOut() {
 }
 
 // infernoHasBurningFire reports whether any of the inferno's fires is still burning.
+// known is false if that can't be told yet because m_fireCount or one of the not-burning fires'
+// m_bFireIsBurning flags is missing or not decoded (seen on POV demos), so a fire whose flag
+// hasn't arrived yet isn't mistaken for a flame-out.
 //
 // Cheaper than Inferno.Fires().Active() because it reads only the m_bFireIsBurning flags and
 // stops at the first burning one, instead of also reading every fire's position and building
 // the full Fire slice.
-func infernoHasBurningFire(entity *st.Entity) bool {
-	nFires := entity.PropertyValueMust("m_fireCount").Int()
+func infernoHasBurningFire(entity *st.Entity) (burning, known bool) {
+	countVal, ok := entity.PropertyValue("m_fireCount")
+	if !ok {
+		return false, false
+	}
 
-	for i := 0; i < nFires; i++ {
-		if entity.PropertyValueMust(fmt.Sprintf("m_bFireIsBurning.%04d", i)).BoolVal() {
-			return true
+	nFires, ok := countVal.Any.(int32)
+	if !ok {
+		return false, false
+	}
+
+	known = true
+
+	for i := 0; i < int(nFires); i++ {
+		burningVal, ok := entity.PropertyValue(fmt.Sprintf("m_bFireIsBurning.%04d", i))
+		if !ok {
+			known = false
+
+			continue
+		}
+
+		isBurning, ok := burningVal.Any.(bool)
+		if !ok {
+			known = false
+
+			continue
+		}
+
+		if isBurning {
+			return true, true
 		}
 	}
 
-	return false
+	return false, known
 }
