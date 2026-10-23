@@ -175,6 +175,28 @@ func TestInferno_Fires_UndecodedProperties(t *testing.T) {
 
 		assert.Equal(t, expected, NewInferno(nil, entity, nil, UniqueID(1)).Fires().List())
 	})
+
+	t.Run("undecoded deltas count as 0", func(t *testing.T) {
+		entity := stfake.NewEntity(1,
+			stfake.Pos(r3.Vector{X: 10, Y: 20, Z: 30}),
+			stfake.P("m_fireCount", int32(2)),
+			stfake.P("m_bFireIsBurning.0000", true),
+			stfake.P("m_fireXDelta.0000", nil),
+			stfake.P("m_fireYDelta.0000", nil),
+			stfake.P("m_fireZDelta.0000", nil),
+			stfake.P("m_bFireIsBurning.0001", true),
+			stfake.P("m_fireXDelta.0001", int32(1)),
+			stfake.P("m_fireYDelta.0001", nil),
+			stfake.P("m_fireZDelta.0001", int32(-2)),
+		)
+
+		expected := []Fire{
+			{Vector: r3.Vector{X: 10, Y: 20, Z: 30}, IsBurning: true},
+			{Vector: r3.Vector{X: 11, Y: 20, Z: 28}, IsBurning: true},
+		}
+
+		assert.Equal(t, expected, NewInferno(nil, entity, nil, UniqueID(1)).Fires().List())
+	})
 }
 
 func TestInferno_List(t *testing.T) {

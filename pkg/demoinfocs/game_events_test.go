@@ -814,8 +814,8 @@ func TestBombPickup_PlayerFromUserIDPawn(t *testing.T) {
 	assert.Equal(t, []events.BombPickup{{Player: pl}}, got)
 }
 
-// Inferno fire properties that are missing or not decoded yet (seen on POV demos) don't panic and
-// don't count as a flame-out, InfernoFireOut still fires once the flags are known.
+// Inferno fire properties without a value hold the default (not burning), e.g. the flag of an
+// extinguished fire after a re-entry into the PVS on POV demos. They don't panic and don't block InfernoFireOut.
 func TestProcessInfernoFireOut_UndecodedFireProperties(t *testing.T) {
 	p := NewParser(rand.Reader)
 
@@ -836,19 +836,17 @@ func TestProcessInfernoFireOut_UndecodedFireProperties(t *testing.T) {
 	})
 
 	assert.NotPanics(t, p.processInfernoFireOut, "undecoded m_fireCount")
+	assert.False(t, p.gameState.infernoFireStates[infernoID].wasBurning)
 
-	stfake.Set(infEntity, stfake.P("m_fireCount", int32(2)), stfake.P("m_bFireIsBurning.0000", true))
-	assert.NotPanics(t, p.processInfernoFireOut, "undecoded m_bFireIsBurning.0001")
+	stfake.Set(infEntity, stfake.P("m_fireCount", int32(2)), stfake.P("m_bFireIsBurning.0001", true))
+	assert.NotPanics(t, p.processInfernoFireOut, "undecoded m_bFireIsBurning.0000")
 	assert.True(t, p.gameState.infernoFireStates[infernoID].wasBurning)
-
-	stfake.Set(infEntity, stfake.P("m_bFireIsBurning.0000", false))
-	p.processInfernoFireOut()
-	assert.Empty(t, got, "a fire whose flag isn't decoded yet must not be taken for a flame-out")
+	assert.Empty(t, got)
 
 	stfake.Set(infEntity, stfake.P("m_bFireIsBurning.0001", false))
 	p.processInfernoFireOut()
 	p.processInfernoFireOut()
-	assert.Len(t, got, 1)
+	assert.Len(t, got, 1, "an undecoded flag counts as not burning")
 	assert.Same(t, inf, got[0].Inferno)
 }
 

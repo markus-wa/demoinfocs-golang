@@ -70,12 +70,10 @@ func (inf *Inferno) Fires() Fires {
 	// m_fireCount is the total number of fire positions ever spawned for this inferno, not the number
 	// currently burning - it only ever increases and never returns to 0. Use Fires().Active() (gated
 	// on m_bFireIsBurning) for the fires burning right now.
-	// The fire properties can be missing or not decoded yet (seen on POV demos), so all reads are checked.
-	// A fire whose position can't be read is left out, an unreadable burning flag counts as not burning.
-	nFires, ok := propertyInt(entity, "m_fireCount")
-	if !ok {
-		return Fires{}
-	}
+	// Properties without a value were never sent and hold the default (e.g. after a re-entry into the
+	// PVS on POV demos), so a missing count, flag or delta counts as 0 / not burning.
+	// Only a fire without an absolute position is left out, since there is no meaningful default.
+	nFires := propertyInt(entity, "m_fireCount")
 
 	fires := make([]Fire, 0, nFires)
 	iFormat := "%04d"
@@ -97,15 +95,12 @@ func (inf *Inferno) Fires() Fires {
 
 			fire.Vector = *pos
 		} else {
-			x, okX := propertyInt(entity, "m_fireXDelta."+iStr)
-			y, okY := propertyInt(entity, "m_fireYDelta."+iStr)
-			z, okZ := propertyInt(entity, "m_fireZDelta."+iStr)
-
-			if !okX || !okY || !okZ {
-				continue
+			offset := r3.Vector{
+				X: float64(propertyInt(entity, "m_fireXDelta."+iStr)),
+				Y: float64(propertyInt(entity, "m_fireYDelta."+iStr)),
+				Z: float64(propertyInt(entity, "m_fireZDelta."+iStr)),
 			}
-
-			fire.Vector = origin.Add(r3.Vector{X: float64(x), Y: float64(y), Z: float64(z)})
+			fire.Vector = origin.Add(offset)
 		}
 
 		fires = append(fires, fire)
@@ -114,16 +109,12 @@ func (inf *Inferno) Fires() Fires {
 	return Fires{s: fires}
 }
 
-// propertyInt returns the value of an int32 property, ok is false if it's missing or has no value.
-func propertyInt(entity *st.Entity, name string) (int, bool) {
-	val, ok := entity.PropertyValue(name)
-	if !ok {
-		return 0, false
-	}
+// propertyInt returns the value of an int32 property, or 0 if it's missing or has no value.
+func propertyInt(entity *st.Entity, name string) int {
+	val, _ := entity.PropertyValue(name)
+	i, _ := val.Any.(int32)
 
-	i, ok := val.Any.(int32)
-
-	return int(i), ok
+	return int(i)
 }
 
 // Active returns all currently active fires (only Fire.IsBurning == true).

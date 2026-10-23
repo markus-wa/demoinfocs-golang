@@ -1554,12 +1554,7 @@ func (p *Parser) processInfernoFireOut() {
 			continue
 		}
 
-		burning, known := infernoHasBurningFire(inf.Entity)
-		if !known {
-			continue
-		}
-
-		if burning {
+		if infernoHasBurningFire(inf.Entity) {
 			state.wasBurning = true
 		} else if state.wasBurning {
 			state.firedOut = true
@@ -1570,45 +1565,25 @@ func (p *Parser) processInfernoFireOut() {
 }
 
 // infernoHasBurningFire reports whether any of the inferno's fires is still burning.
-// known is false if that can't be told yet because m_fireCount or one of the not-burning fires'
-// m_bFireIsBurning flags is missing or not decoded (seen on POV demos), so a fire whose flag
-// hasn't arrived yet isn't mistaken for a flame-out.
+//
+// A missing m_fireCount or m_bFireIsBurning value counts as 0 / not burning: properties without a
+// value were never sent and hold the default, e.g. after a re-entry into the PVS on POV demos
+// (an extinguished fire's flag isn't sent again).
 //
 // Cheaper than Inferno.Fires().Active() because it reads only the m_bFireIsBurning flags and
 // stops at the first burning one, instead of also reading every fire's position and building
 // the full Fire slice.
-func infernoHasBurningFire(entity *st.Entity) (burning, known bool) {
-	countVal, ok := entity.PropertyValue("m_fireCount")
-	if !ok {
-		return false, false
-	}
-
-	nFires, ok := countVal.Any.(int32)
-	if !ok {
-		return false, false
-	}
-
-	known = true
+func infernoHasBurningFire(entity *st.Entity) bool {
+	countVal, _ := entity.PropertyValue("m_fireCount")
+	nFires, _ := countVal.Any.(int32)
 
 	for i := 0; i < int(nFires); i++ {
-		burningVal, ok := entity.PropertyValue(fmt.Sprintf("m_bFireIsBurning.%04d", i))
-		if !ok {
-			known = false
+		burningVal, _ := entity.PropertyValue(fmt.Sprintf("m_bFireIsBurning.%04d", i))
 
-			continue
-		}
-
-		isBurning, ok := burningVal.Any.(bool)
-		if !ok {
-			known = false
-
-			continue
-		}
-
-		if isBurning {
-			return true, true
+		if burning, _ := burningVal.Any.(bool); burning {
+			return true
 		}
 	}
 
-	return false, known
+	return false
 }
