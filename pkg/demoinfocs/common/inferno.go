@@ -49,9 +49,17 @@ func (inf *Inferno) Thrower() *Player {
 		return inf.thrower
 	}
 
-	handleProp := inf.Entity.Property("m_hOwnerEntity").Value()
+	ownerVal, ok := inf.Entity.PropertyValue("m_hOwnerEntity")
+	if !ok {
+		return nil
+	}
 
-	return inf.demoInfoProvider.FindPlayerByPawnHandle(handleProp.Handle())
+	handle, ok := ownerVal.Any.(uint64)
+	if !ok {
+		return nil
+	}
+
+	return inf.demoInfoProvider.FindPlayerByPawnHandle(handle)
 }
 
 // Fires returns all fires (past + present).
@@ -62,24 +70,35 @@ func (inf *Inferno) Fires() Fires {
 	// m_fireCount is the total number of fire positions ever spawned for this inferno, not the number
 	// currently burning - it only ever increases and never returns to 0. Use Fires().Active() (gated
 	// on m_bFireIsBurning) for the fires burning right now.
-	nFires := entity.PropertyValueMust("m_fireCount").Int()
+	// Properties without a value were never sent and hold the default (e.g. after a re-entry into the
+	// PVS on POV demos), so a missing count, flag or delta counts as 0 / not burning.
+	// Only a fire without an absolute position is left out, since there is no meaningful default.
+	nFires := propertyInt(entity, "m_fireCount")
+
 	fires := make([]Fire, 0, nFires)
 	iFormat := "%04d"
 
 	for i := 0; i < nFires; i++ {
 		iStr := fmt.Sprintf(iFormat, i)
 
-		fire := Fire{
-			IsBurning: entity.PropertyValueMust("m_bFireIsBurning." + iStr).BoolVal(),
+		var fire Fire
+
+		if burningVal, ok := entity.PropertyValue("m_bFireIsBurning." + iStr); ok {
+			fire.IsBurning, _ = burningVal.Any.(bool)
 		}
 
-		if prop := entity.Property("m_firePositions." + iStr); prop != nil {
-			fire.Vector = prop.Value().R3Vec()
+		if posVal, ok := entity.PropertyValue("m_firePositions." + iStr); ok {
+			pos := posVal.R3VecOrNil()
+			if pos == nil {
+				continue
+			}
+
+			fire.Vector = *pos
 		} else {
 			offset := r3.Vector{
-				X: float64(entity.PropertyValueMust("m_fireXDelta." + iStr).Int()),
-				Y: float64(entity.PropertyValueMust("m_fireYDelta." + iStr).Int()),
-				Z: float64(entity.PropertyValueMust("m_fireZDelta." + iStr).Int()),
+				X: float64(propertyInt(entity, "m_fireXDelta."+iStr)),
+				Y: float64(propertyInt(entity, "m_fireYDelta."+iStr)),
+				Z: float64(propertyInt(entity, "m_fireZDelta."+iStr)),
 			}
 			fire.Vector = origin.Add(offset)
 		}
@@ -88,6 +107,14 @@ func (inf *Inferno) Fires() Fires {
 	}
 
 	return Fires{s: fires}
+}
+
+// propertyInt returns the value of an int32 property, or 0 if it's missing or has no value.
+func propertyInt(entity *st.Entity, name string) int {
+	val, _ := entity.PropertyValue(name)
+	i, _ := val.Any.(int32)
+
+	return int(i)
 }
 
 // Active returns all currently active fires (only Fire.IsBurning == true).

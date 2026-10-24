@@ -7,6 +7,7 @@ import (
 	"github.com/golang/geo/r3"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/internal/stfake"
 	st "github.com/markus-wa/demoinfocs-golang/v6/pkg/demoinfocs/sendtables"
 )
 
@@ -119,6 +120,83 @@ func TestInferno_Thrower(t *testing.T) {
 	}
 
 	assert.Equal(t, player, NewInferno(provider, entity, nil, UniqueID(1)).Thrower())
+}
+
+func TestInferno_Thrower_UnreadableOwner(t *testing.T) {
+	provider := demoInfoProviderMock{
+		playersByHandle: map[uint64]*Player{1: new(Player)},
+	}
+
+	entities := map[string]*st.Entity{
+		"missing":     entityWithoutProperty("m_hOwnerEntity"),
+		"not decoded": stfake.NewEntity(1, stfake.P("m_hOwnerEntity", nil)),
+		"wrong type":  entityWithProperty("m_hOwnerEntity", st.PropertyValue{Any: int32(1)}),
+	}
+
+	for name, entity := range entities {
+		t.Run(name, func(t *testing.T) {
+			assert.Nil(t, NewInferno(provider, entity, nil, UniqueID(1)).Thrower())
+		})
+	}
+}
+
+func TestInferno_Thrower_Cached(t *testing.T) {
+	thrower := new(Player)
+
+	assert.Same(t, thrower, NewInferno(nil, nil, thrower, UniqueID(1)).Thrower())
+}
+
+func TestInferno_Fires_UndecodedProperties(t *testing.T) {
+	t.Run("missing count", func(t *testing.T) {
+		assert.Empty(t, NewInferno(nil, entityWithID(1), nil, UniqueID(1)).Fires().List())
+	})
+
+	t.Run("undecoded count", func(t *testing.T) {
+		entity := stfake.NewEntity(1, stfake.P("m_fireCount", nil))
+
+		assert.Empty(t, NewInferno(nil, entity, nil, UniqueID(1)).Fires().List())
+	})
+
+	t.Run("undecoded fire properties", func(t *testing.T) {
+		entity := stfake.NewEntity(1,
+			stfake.P("m_fireCount", int32(3)),
+			stfake.P("m_bFireIsBurning.0000", nil),
+			stfake.P("m_firePositions.0000", [3]float32{1, 2, 3}),
+			stfake.P("m_bFireIsBurning.0001", true),
+			stfake.P("m_firePositions.0001", nil),
+			stfake.P("m_bFireIsBurning.0002", true),
+			stfake.P("m_firePositions.0002", [3]float32{4, 5, 6}),
+		)
+
+		expected := []Fire{
+			{Vector: r3.Vector{X: 1, Y: 2, Z: 3}},
+			{Vector: r3.Vector{X: 4, Y: 5, Z: 6}, IsBurning: true},
+		}
+
+		assert.Equal(t, expected, NewInferno(nil, entity, nil, UniqueID(1)).Fires().List())
+	})
+
+	t.Run("undecoded deltas count as 0", func(t *testing.T) {
+		entity := stfake.NewEntity(1,
+			stfake.Pos(r3.Vector{X: 10, Y: 20, Z: 30}),
+			stfake.P("m_fireCount", int32(2)),
+			stfake.P("m_bFireIsBurning.0000", true),
+			stfake.P("m_fireXDelta.0000", nil),
+			stfake.P("m_fireYDelta.0000", nil),
+			stfake.P("m_fireZDelta.0000", nil),
+			stfake.P("m_bFireIsBurning.0001", true),
+			stfake.P("m_fireXDelta.0001", int32(1)),
+			stfake.P("m_fireYDelta.0001", nil),
+			stfake.P("m_fireZDelta.0001", int32(-2)),
+		)
+
+		expected := []Fire{
+			{Vector: r3.Vector{X: 10, Y: 20, Z: 30}, IsBurning: true},
+			{Vector: r3.Vector{X: 11, Y: 20, Z: 28}, IsBurning: true},
+		}
+
+		assert.Equal(t, expected, NewInferno(nil, entity, nil, UniqueID(1)).Fires().List())
+	})
 }
 
 func TestInferno_List(t *testing.T) {

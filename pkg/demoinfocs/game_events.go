@@ -1566,14 +1566,21 @@ func (p *Parser) processInfernoFireOut() {
 
 // infernoHasBurningFire reports whether any of the inferno's fires is still burning.
 //
+// A missing m_fireCount or m_bFireIsBurning value counts as 0 / not burning: properties without a
+// value were never sent and hold the default, e.g. after a re-entry into the PVS on POV demos
+// (an extinguished fire's flag isn't sent again).
+//
 // Cheaper than Inferno.Fires().Active() because it reads only the m_bFireIsBurning flags and
 // stops at the first burning one, instead of also reading every fire's position and building
 // the full Fire slice.
 func infernoHasBurningFire(entity *st.Entity) bool {
-	nFires := entity.PropertyValueMust("m_fireCount").Int()
+	countVal, _ := entity.PropertyValue("m_fireCount")
+	nFires, _ := countVal.Any.(int32)
 
-	for i := 0; i < nFires; i++ {
-		if entity.PropertyValueMust(fmt.Sprintf("m_bFireIsBurning.%04d", i)).BoolVal() {
+	for i := 0; i < int(nFires); i++ {
+		burningVal, _ := entity.PropertyValue(fmt.Sprintf("m_bFireIsBurning.%04d", i))
+
+		if burning, _ := burningVal.Any.(bool); burning {
 			return true
 		}
 	}
