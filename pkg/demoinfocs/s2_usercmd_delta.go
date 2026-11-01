@@ -113,10 +113,12 @@ func copyUserCmd(command *msg.CSGOUserCmdPB) *msg.CSGOUserCmdPB {
 // Everything else is merged like proto.Unmarshal with Merge would: a nested
 // message's delta is merged into the existing nested message (created when
 // absent), a scalar value replaces the field's value, a field number the message
-// doesn't have is skipped, and the value of a known field with the wrong wire
-// type is kept as an unknown field. The values of a delta are applied after its
-// reset markers: a reset marker that follows a value of the same field in one
-// delta leaves that value in place.
+// doesn't have is skipped with its value (except under the reserved wire type 6
+// or a stray end-group marker, which are errors, as they are for proto.Unmarshal),
+// and the value of a known field with the wrong wire type is kept as an unknown
+// field. The values of a delta are applied after its reset markers: a reset
+// marker that follows a value of the same field in one delta leaves that value
+// in place.
 //
 // The merge is typed, generated per message by internal/usercmdgen into
 // s2_usercmd_typed.go. The protobuf-reflection merge it replaced is the
