@@ -101,6 +101,10 @@ func TestPropertyValueAcrossTypeSwitch(t *testing.T) {
 
 // A re-entry resets the active polymorphic types (see TestPVS_ReentryResetsPolymorphicTypes):
 // a held *Property has no value until its type is active again, then reads the new state.
+//
+// The new state is written before the type is active again: a handle that kept its old path
+// across the re-entry would read it too early (the re-entry itself must invalidate the path,
+// not only the type switch that follows).
 func TestPropertyValueAcrossReentry(t *testing.T) {
 	t.Parallel()
 
@@ -126,11 +130,15 @@ func TestPropertyValueAcrossReentry(t *testing.T) {
 	e.reenter(r, nil, &paths, &budget)
 
 	assert.Nil(t, e.polySerializers[0])
+
+	// the new state arrives at the sub-field's slot while no type is active: the name doesn't
+	// resolve, so the held handle has no value, whatever its old path would read there
+	e.state.set(polySubPath(), int32(9))
+
 	assertHeldReadsLikeLookup(t, e, a, nil)
 
-	// the type is sent anew, with a new value
+	// the type is sent anew: the handle resolves again and reads the new state
 	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeA})
-	e.state.set(polySubPath(), int32(9))
 
 	assertHeldReadsLikeLookup(t, e, a, int32(9))
 }
