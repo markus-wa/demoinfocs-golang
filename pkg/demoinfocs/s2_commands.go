@@ -668,14 +668,14 @@ func (p *Parser) handleUserCommands(m *msg.CSVCMsg_UserCommands) {
 				continue
 			}
 
-			next = proto.Clone(baseline).(*msg.CSGOUserCmdPB)
+			next = copyUserCmd(baseline)
 		} else {
 			continue
 		}
 
 		if deltaData := cmd.GetDeltaData(); len(deltaData) > 0 {
 			if err := applyUserCmdDelta(next, deltaData); err != nil {
-				// next is a clone, so a malformed delta cannot mutate the ring
+				// next is a copy, so a malformed delta cannot mutate the ring
 				// baseline. The next full payload can re-establish the stream.
 				p.eventDispatcher.Dispatch(events.ParserWarn{
 					Message: err.Error(),
