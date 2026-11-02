@@ -115,7 +115,12 @@ func (p *Property) Name() string {
 //
 // A held *Property reads without looking its name up again: it keeps the name's field path, and resolves
 // it anew only after the entity's active polymorphic types changed (the name may resolve to another field
-// then, or to none: the value is nil then, like that of a property without a value).
+// then, or to none: the value is nil then, like that of a property without a value). A class's serializer
+// replaced by a later CSVCMsg_FlattenedSerializer is not such a change: the kept path stays the old
+// serializer's then, as the entity's own name caches do.
+//
+// Value records the resolved path in the Property, so like the rest of the parser's state, a Property
+// isn't safe to read from several goroutines at once, also after the parse.
 func (p *Property) Value() PropertyValue {
 	e := p.entity
 
