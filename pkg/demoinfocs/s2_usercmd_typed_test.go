@@ -1,6 +1,7 @@
 package demoinfocs
 
 import (
+	"bytes"
 	"fmt"
 	"math"
 	"math/rand/v2"
@@ -473,13 +474,7 @@ func fixed32Field(field protowire.Number, v float32) []byte {
 }
 
 func concat(parts ...[]byte) []byte {
-	var b []byte
-
-	for _, p := range parts {
-		b = append(b, p...)
-	}
-
-	return b
+	return bytes.Join(parts, nil)
 }
 
 // hasUnknownFields reports whether m or a message in it has unknown fields.

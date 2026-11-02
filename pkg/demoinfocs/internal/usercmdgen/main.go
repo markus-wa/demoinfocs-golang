@@ -155,6 +155,12 @@ func describeMessage(t reflect.Type) (*message, error) {
 	}
 
 	desc := pm.ProtoReflect().Descriptor()
+
+	// proto.Unmarshal validates the UTF-8 of a proto3 string, which the merge doesn't
+	if desc.Syntax() != protoreflect.Proto2 {
+		return nil, fmt.Errorf("%s is %s, only proto2 messages are supported", t.Name(), desc.Syntax())
+	}
+
 	m := &message{goType: t}
 
 	for i := 0; i < t.NumField(); i++ {
@@ -203,6 +209,11 @@ func describeField(sf reflect.StructField, tag string, desc protoreflect.Message
 	num, err := strconv.Atoi(parts[1])
 	if err != nil {
 		return field{}, fmt.Errorf("unexpected field number in protobuf tag %q: %w", tag, err)
+	}
+
+	// proto.Unmarshal fails a message whose required field is unset, which the merge doesn't
+	if parts[2] == "req" {
+		return field{}, fmt.Errorf("required fields aren't supported")
 	}
 
 	fd := desc.Fields().ByNumber(protowire.Number(num))
@@ -427,7 +438,16 @@ func (g *generator) writeHeader(messages []*message) {
 func (g *generator) writeCopy(m *message) {
 	n := m.name()
 
-	if m.set > 0 {
+	// m.set counts the bytes fields too, which the copy doesn't keep in the values struct
+	scalars := 0
+
+	for _, f := range m.fields {
+		if f.kind == kindScalar {
+			scalars++
+		}
+	}
+
+	if scalars > 0 {
 		g.pf("")
 		g.pf("// %s holds the scalar values of a copy of %s, see copy%s.", m.valuesName(), n, n)
 		g.pf("type %s struct {", m.valuesName())
@@ -450,7 +470,7 @@ func (g *generator) writeCopy(m *message) {
 	g.pf("")
 	g.pf("dst := &msg.%s{}", n)
 
-	if m.set > 0 {
+	if scalars > 0 {
 		g.pf("vals := &%s{}", m.valuesName())
 	}
 
