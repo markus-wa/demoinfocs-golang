@@ -115,6 +115,87 @@ func TestUserCmdTypedMergeMatchesReflect(t *testing.T) {
 	}
 }
 
+// Every message the command reaches is merged the same way by both merges, also the ones random deltas reach too rarely
+// to try each of their fields: a delta that sets every field, cut short at each of its bytes; a reset marker for each
+// field, and for each scalar field one that follows a value of it; each field under every other wire type; and a field
+// the message doesn't have, as a reset marker and under every wire type, cut short at each byte of its record (its tag
+// takes more than one byte, so the cut falls inside the tag too). Each delta is put where the command's delta has the
+// message, and applied to an empty command and to one with every field set.
+func TestUserCmdTypedMergeMatchesReflect_EveryMessage(t *testing.T) {
+	r := rand.New(rand.NewPCG(2026, 1102))
+	cmd := (&msg.CSGOUserCmdPB{}).ProtoReflect().Descriptor()
+
+	full := &msg.CSGOUserCmdPB{}
+	require.NoError(t, applyUserCmdDeltaReflect(full, fullDelta(r, cmd)))
+
+	var merged, failed int
+
+	bases := []struct {
+		name string
+		cmd  *msg.CSGOUserCmdPB
+	}{{"the empty command", &msg.CSGOUserCmdPB{}}, {"the full command", full}}
+
+	check := func(what string, delta []byte) {
+		for _, base := range bases {
+			ref := proto.Clone(base.cmd).(*msg.CSGOUserCmdPB)
+			typed := copyUserCmd(base.cmd)
+
+			errRef := applyUserCmdDeltaReflect(ref, delta)
+			errTyped := applyUserCmdDelta(typed, delta)
+			require.Equal(t, errText(errRef), errText(errTyped), "%s on %s: the errors differ, delta %x", what, base.name, delta)
+
+			if errRef != nil {
+				failed++
+
+				continue
+			}
+
+			merged++
+
+			require.Equal(t, mustMarshal(t, ref), mustMarshal(t, typed), "%s on %s: the results differ, delta %x", what, base.name, delta)
+		}
+	}
+
+	wireTypes := []protowire.Type{protowire.VarintType, protowire.Fixed32Type, protowire.Fixed64Type, protowire.BytesType, protowire.StartGroupType, protowire.EndGroupType, 6}
+
+	userCmdMessages(cmd, func(d []byte) []byte { return d }, func(md protoreflect.MessageDescriptor, at func([]byte) []byte) {
+		name := string(md.Name())
+
+		d := fullDelta(r, md)
+		for n := 0; n <= len(d); n++ {
+			check(fmt.Sprintf("%s cut at %d of %d bytes", name, n, len(d)), at(d[:n]))
+		}
+
+		fields := md.Fields()
+		for i := 0; i < fields.Len(); i++ {
+			fd := fields.Get(i)
+			check(fmt.Sprintf("%s.%s reset", name, fd.Name()), at(resetMarker(fd.Number())))
+
+			if fd.Message() == nil {
+				check(fmt.Sprintf("%s.%s value then reset", name, fd.Name()), at(concat(fieldRecord(fd.Number(), deltaWireType(fd)), resetMarker(fd.Number()))))
+			}
+
+			for _, typ := range wireTypes {
+				if typ != deltaWireType(fd) {
+					check(fmt.Sprintf("%s.%s as wire type %d", name, fd.Name(), typ), at(fieldRecord(fd.Number(), typ)))
+				}
+			}
+		}
+
+		unknown := unknownNumber(r, md)
+		check(fmt.Sprintf("%s unknown field %d reset", name, unknown), at(resetMarker(unknown)))
+
+		for _, typ := range wireTypes {
+			rec := fieldRecord(unknown, typ)
+			for n := 0; n <= len(rec); n++ {
+				check(fmt.Sprintf("%s unknown field %d as wire type %d, cut at %d of %d bytes", name, unknown, typ, n, len(rec)), at(rec[:n]))
+			}
+		}
+	})
+
+	t.Logf("%d merges compared: %d merged, %d failed with the same error", merged+failed, merged, failed)
+}
+
 func TestCopyUserCmd_MatchesClone(t *testing.T) {
 	assert.Nil(t, copyUserCmd(nil))
 
@@ -752,10 +833,7 @@ func (g *deltaGen) value(b []byte, fd protoreflect.FieldDescriptor, depth int) [
 
 // wrongWireType appends a record of the field with another wire type than the field's.
 func (g *deltaGen) wrongWireType(b []byte, fd protoreflect.FieldDescriptor) []byte {
-	want := protowire.BytesType
-	if !fd.IsList() && fd.Message() == nil {
-		want = scalarWireType(fd)
-	}
+	want := deltaWireType(fd)
 
 	typ := want
 	for typ == want {
@@ -856,4 +934,85 @@ func (g *deltaGen) repeated(fd protoreflect.FieldDescriptor, depth int) []byte {
 	}
 
 	return b
+}
+
+// deltaWireType is the wire type of fd's records in a delta: a nested message's and a repeated field's are
+// length-delimited.
+func deltaWireType(fd protoreflect.FieldDescriptor) protowire.Type {
+	if fd.IsList() || fd.Message() != nil {
+		return protowire.BytesType
+	}
+
+	return scalarWireType(fd)
+}
+
+// fieldRecord returns a record of the field with a value of the wire type that takes more than one byte, so the
+// record cut short can end inside its value: for StartGroupType a group that holds one such value, for EndGroupType
+// and the reserved wire type 6, which have no value, the tag alone.
+//
+//nolint:exhaustive // the end group and the reserved wire type are the tag alone
+func fieldRecord(num protowire.Number, typ protowire.Type) []byte {
+	b := protowire.AppendTag(nil, num, typ)
+
+	switch typ {
+	case protowire.VarintType:
+		return protowire.AppendVarint(b, 300)
+	case protowire.Fixed32Type:
+		return protowire.AppendFixed32(b, 1)
+	case protowire.Fixed64Type:
+		return protowire.AppendFixed64(b, 1)
+	case protowire.BytesType:
+		return protowire.AppendBytes(b, []byte("ab"))
+	case protowire.StartGroupType:
+		b = protowire.AppendVarint(protowire.AppendTag(b, 1, protowire.VarintType), 300)
+
+		return protowire.AppendTag(b, num, protowire.EndGroupType)
+	default:
+		return b
+	}
+}
+
+// fullDelta returns a delta of md that sets every field: each scalar to a random value, each nested message with its
+// own fullDelta, and each repeated field to one element, set with its fullDelta.
+func fullDelta(r *rand.Rand, md protoreflect.MessageDescriptor) []byte {
+	var b []byte
+
+	fields := md.Fields()
+	for i := 0; i < fields.Len(); i++ {
+		fd := fields.Get(i)
+
+		switch {
+		case fd.IsList():
+			b = append(b, bytesField(fd.Number(), oneElement(fullDelta(r, fd.Message())))...)
+		case fd.Message() != nil:
+			b = append(b, bytesField(fd.Number(), fullDelta(r, fd.Message()))...)
+		default:
+			b = appendRandomValue(r, b, fd.Number(), scalarWireType(fd))
+		}
+	}
+
+	return b
+}
+
+// oneElement returns the repeated operations that make a list of one element and apply delta to it.
+func oneElement(delta []byte) []byte {
+	return concat(protowire.AppendVarint(nil, 1<<3|uint64(wireTypeReset)), repeatedPatch(0, delta))
+}
+
+// userCmdMessages calls f with md and with every message md reaches, each with at, which puts a delta of the message
+// where md's delta has it: inside the records of the fields that lead to it, as a repeated field's one element.
+func userCmdMessages(md protoreflect.MessageDescriptor, at func([]byte) []byte, f func(protoreflect.MessageDescriptor, func([]byte) []byte)) {
+	f(md, at)
+
+	fields := md.Fields()
+	for i := 0; i < fields.Len(); i++ {
+		fd := fields.Get(i)
+
+		switch {
+		case fd.IsList():
+			userCmdMessages(fd.Message(), func(d []byte) []byte { return at(bytesField(fd.Number(), oneElement(d))) }, f)
+		case fd.Message() != nil:
+			userCmdMessages(fd.Message(), func(d []byte) []byte { return at(bytesField(fd.Number(), d)) }, f)
+		}
+	}
 }
