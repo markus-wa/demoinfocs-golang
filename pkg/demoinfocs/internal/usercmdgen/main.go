@@ -206,17 +206,19 @@ func describeField(sf reflect.StructField, tag string, desc protoreflect.Message
 		return field{}, fmt.Errorf("unexpected protobuf tag %q", tag)
 	}
 
-	num, err := strconv.Atoi(parts[1])
+	n, err := strconv.ParseInt(parts[1], 10, 32)
 	if err != nil {
 		return field{}, fmt.Errorf("unexpected field number in protobuf tag %q: %w", tag, err)
 	}
+
+	num := protowire.Number(n)
 
 	// proto.Unmarshal fails a message whose required field is unset, which the merge doesn't
 	if parts[2] == "req" {
 		return field{}, fmt.Errorf("required fields aren't supported")
 	}
 
-	fd := desc.Fields().ByNumber(protowire.Number(num))
+	fd := desc.Fields().ByNumber(num)
 	if fd == nil {
 		return field{}, fmt.Errorf("field %d isn't in the descriptor of %s", num, desc.FullName())
 	}
@@ -227,7 +229,7 @@ func describeField(sf reflect.StructField, tag string, desc protoreflect.Message
 	}
 
 	f := field{
-		num:       protowire.Number(num),
+		num:       num,
 		goName:    sf.Name,
 		protoName: string(fd.Name()),
 		fullName:  string(fd.FullName()),
