@@ -63,30 +63,58 @@ var cachedPropNames = [cachedPropCount]string{
 // the next call - the entity's own lookup handles that case cheaply and may start resolving it later.
 type cachedProps struct {
 	entity st.Entity
-	props  [cachedPropCount]st.Property
+	props  [cachedPropCount]rawValuer
 }
 
-// value returns the entity's property idx, false if the entity doesn't have it.
-func (c *cachedProps) value(entity st.Entity, idx cachedProp) (st.PropertyValue, bool) {
+// rawValuer is implemented by the CS2 properties: RawValue() is Value().Any.
+// The cache reads raw values because st.PropertyValue is a large struct, copying it through every call of the
+// getters is noticeable for consumers calling them for every player on every frame.
+type rawValuer interface {
+	RawValue() any
+}
+
+// propertyRawValuer adapts properties that aren't rawValuers (e.g. mocks). The cached properties are CS2
+// properties, so their Value() is st.PropertyValue{Any: Value().Any, S2: true}.
+type propertyRawValuer struct {
+	st.Property
+}
+
+func (p propertyRawValuer) RawValue() any {
+	return p.Value().Any
+}
+
+// s2Value wraps a raw value as the st.PropertyValue a CS2 property's Value() returns.
+func s2Value(v any) st.PropertyValue {
+	return st.PropertyValue{Any: v, S2: true}
+}
+
+// value returns the raw value of the entity's property idx, false if the entity doesn't have it.
+func (c *cachedProps) value(entity st.Entity, idx cachedProp) (any, bool) {
 	if c.entity != entity {
 		*c = cachedProps{entity: entity}
 	}
 
 	prop := c.props[idx]
 	if prop == nil {
-		prop = entity.Property(cachedPropNames[idx])
-		if prop == nil {
-			return st.PropertyValue{S2: true}, false
+		property := entity.Property(cachedPropNames[idx])
+		if property == nil {
+			return nil, false
+		}
+
+		var ok bool
+		prop, ok = property.(rawValuer)
+		if !ok {
+			prop = propertyRawValuer{property}
 		}
 
 		c.props[idx] = prop
 	}
 
-	return prop.Value(), true
+	return prop.RawValue(), true
 }
 
 // mustValue is value() panicking if the entity doesn't have the property, like Entity.PropertyValueMust().
-func (c *cachedProps) mustValue(entity st.Entity, idx cachedProp) st.PropertyValue {
+func (c *cachedProps) mustValue(entity st.Entity, idx cachedProp) any {
 	v, ok := c.value(entity, idx)
 	if !ok {
 		panic(fmt.Sprintf("property '%s' not found", cachedPropNames[idx]))
@@ -95,65 +123,75 @@ func (c *cachedProps) mustValue(entity st.Entity, idx cachedProp) st.PropertyVal
 	return v
 }
 
-// pawnValue returns the pawn's property idx, false if the player has no pawn or the pawn doesn't have it.
-func (p *Player) pawnValue(idx cachedProp) (st.PropertyValue, bool) {
-	pawn := p.PlayerPawnEntity()
-	if pawn == nil {
-		return st.PropertyValue{S2: true}, false
-	}
-
-	return p.pawnProps.value(pawn, idx)
-}
-
-// pawnValueMust returns the pawn's property idx, false if the player has no pawn.
+// pawnRawMust returns the raw value of the pawn's property idx, false if the player has no pawn.
 // Like the getXXX helpers it panics if the pawn doesn't have the property.
-func (p *Player) pawnValueMust(idx cachedProp) (st.PropertyValue, bool) {
+func (p *Player) pawnRawMust(idx cachedProp) (any, bool) {
 	pawn := p.PlayerPawnEntity()
 	if pawn == nil {
-		return st.PropertyValue{S2: true}, false
+		return nil, false
 	}
 
 	return p.pawnProps.mustValue(pawn, idx), true
 }
 
+// pawnValue returns the pawn's property idx, false if the player has no pawn or the pawn doesn't have it.
+func (p *Player) pawnValue(idx cachedProp) (st.PropertyValue, bool) {
+	pawn := p.PlayerPawnEntity()
+	if pawn == nil {
+		return s2Value(nil), false
+	}
+
+	v, ok := p.pawnProps.value(pawn, idx)
+
+	return s2Value(v), ok
+}
+
+// pawnValueMust returns the pawn's property idx, false if the player has no pawn.
+// Like the getXXX helpers it panics if the pawn doesn't have the property.
+func (p *Player) pawnValueMust(idx cachedProp) (st.PropertyValue, bool) {
+	v, ok := p.pawnRawMust(idx)
+
+	return s2Value(v), ok
+}
+
 // pawnInt is getInt(p.PlayerPawnEntity(), ...) through the property cache.
 func (p *Player) pawnInt(idx cachedProp) int {
-	v, ok := p.pawnValueMust(idx)
+	v, ok := p.pawnRawMust(idx)
 	if !ok {
 		return 0
 	}
 
-	return v.Int()
+	return s2Value(v).Int()
 }
 
 // pawnUInt64 is getUInt64(p.PlayerPawnEntity(), ...) through the property cache.
 func (p *Player) pawnUInt64(idx cachedProp) uint64 {
-	v, ok := p.pawnValueMust(idx)
+	v, ok := p.pawnRawMust(idx)
 	if !ok {
 		return 0
 	}
 
-	return v.S2UInt64()
+	return s2Value(v).S2UInt64()
 }
 
 // pawnBool is getBool(p.PlayerPawnEntity(), ...) through the property cache.
 func (p *Player) pawnBool(idx cachedProp) bool {
-	v, ok := p.pawnValueMust(idx)
+	v, ok := p.pawnRawMust(idx)
 	if !ok {
 		return false
 	}
 
-	return v.BoolVal()
+	return s2Value(v).BoolVal()
 }
 
 // pawnFloatIfExists is getFloatIfExists(pawn, ...) through the property cache, for a pawn already resolved.
 func (p *Player) pawnFloatIfExists(pawn st.Entity, idx cachedProp) (float32, bool) {
 	v, ok := p.pawnProps.value(pawn, idx)
-	if !ok || v.Any == nil {
+	if !ok || v == nil {
 		return 0, false
 	}
 
-	floatVal, ok := v.Any.(float32)
+	floatVal, ok := v.(float32)
 	if !ok {
 		return 0, false
 	}
@@ -165,8 +203,8 @@ func (p *Player) pawnFloatIfExists(pawn st.Entity, idx cachedProp) (float32, boo
 // Like the getXXX helpers it panics if the controller doesn't have the property.
 func (p *Player) controllerValueMust(idx cachedProp) (st.PropertyValue, bool) {
 	if p.Entity == nil {
-		return st.PropertyValue{S2: true}, false
+		return s2Value(nil), false
 	}
 
-	return p.controllerProps.mustValue(p.Entity, idx), true
+	return s2Value(p.controllerProps.mustValue(p.Entity, idx)), true
 }

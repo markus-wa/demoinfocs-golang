@@ -121,6 +121,12 @@ func (p *property) rawValue() any {
 	return v
 }
 
+// RawValue returns Value().Any without building the st.PropertyValue, a large struct to copy for callers
+// reading properties on every frame.
+func (p *property) RawValue() any {
+	return p.rawValue()
+}
+
 func (p *property) Value() st.PropertyValue {
 	v := p.rawValue()
 

@@ -21,7 +21,7 @@ func TestCachedProps_ResolvesOncePerEntity(t *testing.T) {
 		v, ok := c.value(entity, propHealth)
 
 		assert.True(t, ok)
-		assert.Equal(t, 100, v.Int())
+		assert.Equal(t, int32(100), v)
 	}
 
 	entity.AssertNumberOfCalls(t, "Property", 1)
@@ -38,13 +38,13 @@ func TestCachedProps_ResetsOnNewEntity(t *testing.T) {
 	var c cachedProps
 
 	v, _ := c.value(first, propHealth)
-	assert.Equal(t, 100, v.Int())
+	assert.Equal(t, int32(100), v)
 
 	v, _ = c.value(second, propHealth)
-	assert.Equal(t, 37, v.Int())
+	assert.Equal(t, int32(37), v)
 
 	v, _ = c.value(first, propHealth)
-	assert.Equal(t, 100, v.Int())
+	assert.Equal(t, int32(100), v)
 
 	first.AssertNumberOfCalls(t, "Property", 2)
 	second.AssertNumberOfCalls(t, "Property", 1)
