@@ -1,8 +1,9 @@
 package demoinfocs
 
 import (
+	"cmp"
 	"errors"
-	"sort"
+	"slices"
 	"strconv"
 	"time"
 
@@ -498,57 +499,53 @@ func (ptcp participants) All() []*common.Player {
 // (they are built by ranging maps, whose iteration order Go randomises). SteamID64 is stable across
 // demos; UserID breaks ties (e.g. between bots, whose SteamID64 is 0).
 func sortPlayers(players []*common.Player) {
-	sort.Slice(players, func(i, j int) bool {
-		a, b := players[i], players[j]
-		if a.SteamID64 != b.SteamID64 {
-			return a.SteamID64 < b.SteamID64
+	slices.SortFunc(players, func(a, b *common.Player) int {
+		if c := cmp.Compare(a.SteamID64, b.SteamID64); c != 0 {
+			return c
 		}
 
-		return a.UserID < b.UserID
+		return cmp.Compare(a.UserID, b.UserID)
 	})
+}
+
+// connected returns the currently connected players (see ByUserID()) for which keep returns true, sorted.
+// It filters playersByUserID directly rather than ranging a ByUserID() copy, these accessors are called on every
+// frame by some consumers.
+func (ptcp participants) connected(keep func(p *common.Player) bool) []*common.Player {
+	res := make([]*common.Player, 0, len(ptcp.playersByUserID))
+	for _, p := range ptcp.playersByUserID {
+		if p.IsConnected && p.Entity != nil && keep(p) {
+			res = append(res, p)
+		}
+	}
+
+	sortPlayers(res)
+
+	return res
 }
 
 // Connected returns all currently connected players & spectators.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp participants) Connected() []*common.Player {
-	res, original := ptcp.initializeSliceFromByUserID()
-	for _, p := range original {
-		res = append(res, p)
-	}
-
-	sortPlayers(res)
-
-	return res
+	return ptcp.connected(func(*common.Player) bool {
+		return true
+	})
 }
 
 // Playing returns all players that aren't spectating or unassigned.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp participants) Playing() []*common.Player {
-	res, original := ptcp.initializeSliceFromByUserID()
-	for _, p := range original {
-		if p.Team != common.TeamSpectators && p.Team != common.TeamUnassigned {
-			res = append(res, p)
-		}
-	}
-
-	sortPlayers(res)
-
-	return res
+	return ptcp.connected(func(p *common.Player) bool {
+		return p.Team != common.TeamSpectators && p.Team != common.TeamUnassigned
+	})
 }
 
 // TeamMembers returns all players belonging to the requested team at this time.
 // The returned slice is a snapshot and is not updated on changes.
 func (ptcp participants) TeamMembers(team common.Team) []*common.Player {
-	res, original := ptcp.initializeSliceFromByUserID()
-	for _, p := range original {
-		if p.Team == team {
-			res = append(res, p)
-		}
-	}
-
-	sortPlayers(res)
-
-	return res
+	return ptcp.connected(func(p *common.Player) bool {
+		return p.Team == team
+	})
 }
 
 // FindByPawnHandle attempts to find a player by his pawn entity-handle.
@@ -589,11 +586,6 @@ func (ptcp participants) FindByHandle64(handle uint64) *common.Player {
 // Deprecated: Use FindByHandle64 instead.
 func (ptcp participants) FindByHandle(handle int) *common.Player {
 	return ptcp.FindByHandle64(uint64(handle))
-}
-
-func (ptcp participants) initializeSliceFromByUserID() ([]*common.Player, map[int]*common.Player) {
-	byUserID := ptcp.ByUserID()
-	return make([]*common.Player, 0, len(byUserID)), byUserID
 }
 
 // SpottersOf returns a list of all players who have spotted the passed player.
