@@ -28,6 +28,10 @@ type Entity struct {
 	state    *fieldState
 	fpCache  map[string]*fieldPath
 	fpNoop   map[string]bool
+	// fpGen counts the invalidations of fpCache and fpNoop (the active polymorphic types changed,
+	// see invalidateNameCaches()), so a Property knows whether the field path it holds is current,
+	// see Property.Value().
+	fpGen uint64
 	// polySerializers holds the currently active serializer for each polymorphic
 	// pointer field, indexed by field.polySerializerID. Nil entries mean the
 	// pointer is inactive. This slice is per-entity so that two entities of the
@@ -96,6 +100,10 @@ func (e *Entity) Properties() (out []*Property) {
 type Property struct {
 	entity *Entity
 	name   string
+	// fp is the field path of name as resolved at the entity's fpGen gen: nil before the first read,
+	// and while the name doesn't resolve under the entity's active polymorphic types. See Value().
+	fp  *fieldPath
+	gen uint64
 }
 
 // Name returns the property's name.
@@ -104,11 +112,29 @@ func (p *Property) Name() string {
 }
 
 // Value returns the current value of the property.
+//
+// A held *Property reads without looking its name up again: it keeps the name's field path, and resolves
+// it anew only after the entity's active polymorphic types changed (the name may resolve to another field
+// then, or to none: the value is nil then, like that of a property without a value). A class's serializer
+// replaced by a later CSVCMsg_FlattenedSerializer is not such a change: the kept path stays the old
+// serializer's then, as the entity's own name caches do.
+//
+// Value records the resolved path in the Property, so like the rest of the parser's state, a Property
+// isn't safe to read from several goroutines at once, also after the parse.
 func (p *Property) Value() PropertyValue {
-	v := p.entity.get(p.name)
+	e := p.entity
 
-	fs, ok := v.(*fieldState)
-	if ok {
+	if p.fp == nil || p.gen != e.fpGen {
+		p.fp, p.gen = e.fieldPathFor(p.name), e.fpGen
+	}
+
+	if p.fp == nil {
+		return PropertyValue{}
+	}
+
+	v := e.state.get(p.fp)
+
+	if fs, ok := v.(*fieldState); ok {
 		v = fs.state
 	}
 
@@ -183,9 +209,19 @@ func (e *Entity) applyPolyUpdate(pu *polyUpdate) {
 
 	// Invalidate per-entity caches: the active type changed, so cached field
 	// paths, name-to-path resolutions and property lookups may no longer be valid.
+	e.invalidateNameCaches()
+}
+
+// invalidateNameCaches drops everything the entity resolved from property names under its previous
+// active polymorphic types: the field paths of names (fpCache and fpNoop, and the paths held by
+// Property values, through fpGen), the property lookups (propCache) and the fp-keyed update handlers,
+// which are rebuilt from the name-keyed ones.
+func (e *Entity) invalidateNameCaches() {
 	clear(e.fpCache)
 	clear(e.fpNoop)
 	clear(e.propCache)
+
+	e.fpGen++
 
 	e.rebuildHandlersByFP()
 }
@@ -595,11 +631,7 @@ func (e *Entity) reenter(r *reader, baseline []byte, paths *[]*fieldPath, budget
 		// the active types are sent anew too, see applyPolyUpdate()
 		e.polySerializers = make([]*serializer, e.class.polyCount)
 
-		clear(e.fpCache)
-		clear(e.fpNoop)
-		clear(e.propCache)
-
-		e.rebuildHandlersByFP()
+		e.invalidateNameCaches()
 	} else {
 		e.polySerializers = nil
 	}
@@ -762,8 +794,20 @@ func (e *Entity) String() string {
 
 // get returns the current value of the Entity state for the given key
 func (e *Entity) get(name string) any {
+	fp := e.fieldPathFor(name)
+	if fp == nil {
+		return nil
+	}
+
+	return e.state.get(fp)
+}
+
+// fieldPathFor returns the field path of the property name under the entity's active polymorphic types,
+// nil if the name doesn't resolve. Both answers are cached (fpCache, fpNoop) until the active types change.
+// The path returned is the cached one, it must not be modified or released.
+func (e *Entity) fieldPathFor(name string) *fieldPath {
 	if fp, ok := e.fpCache[name]; ok {
-		return e.state.get(fp)
+		return fp
 	}
 
 	if e.fpNoop[name] {
@@ -781,7 +825,7 @@ func (e *Entity) get(name string) any {
 
 	e.fpCache[name] = fp
 
-	return e.state.get(fp)
+	return fp
 }
 
 //nolint:gocognit,funlen
