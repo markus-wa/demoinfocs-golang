@@ -572,14 +572,14 @@ func TestPolyStateSlotSemantics(t *testing.T) {
 	modePath.path[0] = 1 // m_pMode
 	e.state.set(modePath, true)
 
-	val := e.get("m_pMode")
+	val := e.state.get(e.fieldPathFor("m_pMode"))
 	require.NotNil(t, val)
 	assert.Equal(t, true, val) // bool while no sub-fields
 
 	// Writing a sub-field replaces the bool with a *fieldState.
 	e.state.set(polySubPath(), int32(5))
 
-	val = e.get("m_pMode")
+	val = e.state.get(e.fieldPathFor("m_pMode"))
 	require.NotNil(t, val)
 	_, isFS := val.(*fieldState)
 	assert.True(t, isFS, "expected *fieldState, got %T", val)
@@ -594,4 +594,29 @@ func TestPolyPropertyEntries(t *testing.T) {
 	cls, _, _ := polyTestClass(t)
 
 	assert.Equal(t, []string{"m_iHealth", "CModeA.m_aField", "CModeB.m_bField"}, cls.PropertyEntries())
+}
+
+// On a re-entry, update handlers are passed values read by name (handlerValue, see fireReentry).
+// Like a held *Property, such a read follows the active polymorphic type: none while the name
+// doesn't resolve, though the slot its path had under the old type still holds a value, and the
+// value again once the name's type is active again.
+func TestHandlerValueAcrossTypeSwitch(t *testing.T) {
+	t.Parallel()
+
+	cls, modeA, modeB := polyTestClass(t)
+
+	e := newEntity(1, 1, cls)
+	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeA})
+	e.state.set(polySubPath(), int32(5))
+
+	assert.Equal(t, int32(5), e.handlerValue("m_pMode.m_aField"))
+
+	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeB})
+
+	assert.Nil(t, e.handlerValue("m_pMode.m_aField"), "the name doesn't resolve under mode B")
+	assert.Equal(t, int32(5), e.handlerValue("m_pMode.m_bField"), "the slot still holds the value, as mode B's field")
+
+	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeA})
+
+	assert.Equal(t, int32(5), e.handlerValue("m_pMode.m_aField"))
 }

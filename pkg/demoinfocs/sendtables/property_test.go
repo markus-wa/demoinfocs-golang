@@ -99,31 +99,6 @@ func TestPropertyValueAcrossTypeSwitch(t *testing.T) {
 	assertHeldReadsLikeLookup(t, e, a, int32(7))
 }
 
-// On a re-entry, update handlers are passed values read by name (handlerValue, see fireReentry).
-// Like a held *Property, such a read follows the active polymorphic type: none while the name
-// doesn't resolve, though the slot its path had under the old type still holds a value, and the
-// value again once the name's type is active again.
-func TestHandlerValueAcrossTypeSwitch(t *testing.T) {
-	t.Parallel()
-
-	cls, modeA, modeB := polyTestClass(t)
-
-	e := newEntity(1, 1, cls)
-	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeA})
-	e.state.set(polySubPath(), int32(5))
-
-	assert.Equal(t, int32(5), e.handlerValue("m_pMode.m_aField"))
-
-	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeB})
-
-	assert.Nil(t, e.handlerValue("m_pMode.m_aField"), "the name doesn't resolve under mode B")
-	assert.Equal(t, int32(5), e.handlerValue("m_pMode.m_bField"), "the slot still holds the value, as mode B's field")
-
-	e.applyPolyUpdate(&polyUpdate{id: 0, ser: modeA})
-
-	assert.Equal(t, int32(5), e.handlerValue("m_pMode.m_aField"))
-}
-
 // A re-entry resets the active polymorphic types (see TestPVS_ReentryResetsPolymorphicTypes):
 // a held *Property has no value until its type is active again, then reads the new state.
 //
