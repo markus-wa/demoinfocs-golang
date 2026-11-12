@@ -3,9 +3,8 @@ package sendtablescs2
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	st "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/sendtables"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestFindDecoder_Fixed8ReadsRawBytes verifies that "fixed8" fields are read as 8 raw bits. Read as

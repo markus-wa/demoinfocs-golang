@@ -484,7 +484,7 @@ func fixedWidthFactory(f *field, baseType string) fieldDecoder {
 		shift := 32 - n
 
 		return func(r *reader) any {
-			return int32(r.readBits(n)<<shift) >> shift
+			return int32(r.readBits(n)<<shift) >> shift //nolint:gosec // sign-extends the N-bit value
 		}
 	case sameDecoder(varint, unsignedDecoder):
 		return func(r *reader) any {
