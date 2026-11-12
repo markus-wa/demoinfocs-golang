@@ -2,6 +2,7 @@ package sendtables
 
 import (
 	"math"
+	"reflect"
 )
 
 // simTimeCache holds pre-boxed any values for simulationTimeDecoder.
@@ -493,7 +494,11 @@ func qangleFactory(f *field) fieldDecoder {
 }
 
 func unsignedDecoder(r *reader) any {
-	v := r.readVarUint32()
+	return boxUint64(r.readVarUint32())
+}
+
+// boxUint64 returns v as a boxed uint64, from smallUintCache when possible.
+func boxUint64(v uint32) any {
 	if v < uint32(len(smallUintCache)) {
 		return smallUintCache[v]
 	}
@@ -509,48 +514,66 @@ func componentDecoder(r *reader) any {
 	return r.readBits(1)
 }
 
-// fixedWidthDecoder handles the fixedN encoders of integers: N raw bits instead of a varint.
+// fixedWidthBits maps the fixedN encoders of integers to their width in bits.
+var fixedWidthBits = map[string]uint32{
+	"fixed8":  8,
+	"fixed16": 16,
+	"fixed32": 32,
+}
+
+// fixedWidthFactory handles the fixedN encoders of integers: N raw bits instead of a varint.
 // Since the 2026-11-11 update CS2 sends most 8-bit fields with "fixed8" (e.g.
 // CCSPlayerController.m_recentKillQueue, m_iTeamNum, m_iCompetitiveRankType). Read as a varint,
 // any value >= 128 consumes an extra byte and misaligns the rest of the packet.
 //
 // The value keeps the type the varint decoder of baseType returns, so property getters don't
-// change: signed types are sign-extended to int32 (signedDecoder), everything else is uint64.
-func fixedWidthDecoder(f *field, baseType string) (fieldDecoder, bool) {
-	var n uint32
-
-	switch f.encoder {
-	case "fixed8":
-		n = 8
-	case "fixed16":
-		n = 16
-	case "fixed32":
-		n = 32
-	default:
-		return nil, false
+// change: int32 (sign-extended) for signedDecoder, uint64 for unsignedDecoder and uint32 for
+// defaultDecoder (base types without a decoder of their own).
+// Returns nil if f has no fixedN encoder or baseType isn't an integer type (floats, vectors,
+// bools, strings, ...), which then keep their own decoder.
+//
+// The encoder decides the wire width, so this must run before fieldNameDecoders and
+// fieldTypeDecoders, which would read a varint.
+func fixedWidthFactory(f *field, baseType string) fieldDecoder {
+	n, ok := fixedWidthBits[f.encoder]
+	if !ok {
+		return nil
 	}
 
-	switch baseType {
-	case "int8", "int16", "int32", "HSequence":
+	if _, ok := fieldTypeFactories[baseType]; ok {
+		return nil
+	}
+
+	varint, ok := fieldTypeDecoders[baseType]
+
+	switch {
+	case !ok:
+		return func(r *reader) any {
+			return r.readBits(n)
+		}
+	case sameDecoder(varint, signedDecoder):
 		shift := 32 - n
 
 		return func(r *reader) any {
 			return int32(r.readBits(n)<<shift) >> shift
-		}, true
+		}
+	case sameDecoder(varint, unsignedDecoder):
+		return func(r *reader) any {
+			return boxUint64(r.readBits(n))
+		}
 	}
 
-	return func(r *reader) any {
-		v := r.readBits(n)
-		if v < uint32(len(smallUintCache)) {
-			return smallUintCache[v]
-		}
+	return nil
+}
 
-		return uint64(v)
-	}, true
+// sameDecoder reports whether a and b are the same function.
+// Only used while building decoders, never per value.
+func sameDecoder(a, b fieldDecoder) bool {
+	return reflect.ValueOf(a).Pointer() == reflect.ValueOf(b).Pointer()
 }
 
 func findDecoder(f *field) fieldDecoder {
-	if d, ok := fixedWidthDecoder(f, f.fieldType.baseType); ok {
+	if d := fixedWidthFactory(f, f.fieldType.baseType); d != nil {
 		return d
 	}
 
@@ -570,7 +593,7 @@ func findDecoder(f *field) fieldDecoder {
 }
 
 func findDecoderByBaseType(f *field) fieldDecoder {
-	if d, ok := fixedWidthDecoder(f, f.fieldType.genericType.baseType); ok {
+	if d := fixedWidthFactory(f, f.fieldType.genericType.baseType); d != nil {
 		return d
 	}
 
