@@ -100,10 +100,10 @@ func (e *Entity) Properties() (out []*Property) {
 type Property struct {
 	entity *Entity
 	name   string
-	// fp is the field path of name as resolved at the entity's fpGen gen: nil before the first read,
-	// and while the name doesn't resolve under the entity's active polymorphic types. See Value().
-	fp  *fieldPath
-	gen uint64
+	// fp is the field path of name, nil before the first read and while the name doesn't resolve under the
+	// entity's active polymorphic types. fpGen is the entity's fpGen when fp was resolved. See Value().
+	fp    *fieldPath
+	fpGen uint64
 }
 
 // Name returns the property's name.
@@ -112,34 +112,28 @@ func (p *Property) Name() string {
 }
 
 // Value returns the current value of the property.
+// It's nil while the property has no value, or doesn't exist under the entity's active polymorphic types.
 //
-// A held *Property reads without looking its name up again: it keeps the name's field path, and resolves
-// it anew only after the entity's active polymorphic types changed (the name may resolve to another field
-// then, or to none: the value is nil then, like that of a property without a value). A class's serializer
-// replaced by a later CSVCMsg_FlattenedSerializer is not such a change: the kept path stays the old
-// serializer's then, as the entity's own name caches do.
+// Holding on to a *Property and calling Value repeatedly is cheaper than looking the property up by name each time.
 //
-// Value records the resolved path in the Property, so like the rest of the parser's state, a Property
-// isn't safe to read from several goroutines at once, also after the parse.
+// Like the rest of the parser's state, a Property isn't safe to read from several goroutines at once,
+// also after the parse.
 func (p *Property) Value() PropertyValue {
 	e := p.entity
 
-	if p.fp == nil || p.gen != e.fpGen {
-		p.fp, p.gen = e.fieldPathFor(p.name), e.fpGen
+	// The field path of the name is kept, and resolved anew only after the active polymorphic types changed
+	// (see Entity.invalidateNameCaches()). A class's serializer replaced by a later CSVCMsg_FlattenedSerializer
+	// isn't such a change: the kept path stays the old serializer's then, as the entity's fpCache does.
+	if p.fp == nil || p.fpGen != e.fpGen {
+		p.fp, p.fpGen = e.fieldPathFor(p.name), e.fpGen
 	}
 
 	if p.fp == nil {
 		return PropertyValue{}
 	}
 
-	v := e.state.get(p.fp)
-
-	if fs, ok := v.(*fieldState); ok {
-		v = fs.state
-	}
-
 	return PropertyValue{
-		Any: v,
+		Any: unwrapFieldState(e.state.get(p.fp)),
 	}
 }
 
@@ -207,8 +201,6 @@ func (e *Entity) applyPolyUpdate(pu *polyUpdate) {
 
 	e.polySerializers[pu.id] = pu.ser
 
-	// Invalidate per-entity caches: the active type changed, so cached field
-	// paths, name-to-path resolutions and property lookups may no longer be valid.
 	e.invalidateNameCaches()
 }
 
@@ -605,8 +597,17 @@ type reentry struct {
 
 // handlerValue returns the value of the property name as it's passed to update handlers (nil if it has none).
 func (e *Entity) handlerValue(name string) any {
-	v := e.get(name)
+	fp := e.fieldPathFor(name)
+	if fp == nil {
+		return nil
+	}
 
+	return unwrapFieldState(e.state.get(fp))
+}
+
+// unwrapFieldState returns a value of the entity state as properties expose it: a sub-tree's own value
+// (fieldState.state) instead of the sub-tree.
+func unwrapFieldState(v any) any {
 	if fs, ok := v.(*fieldState); ok {
 		return fs.state
 	}
@@ -790,16 +791,6 @@ func (e *Entity) String() string {
 	}
 
 	return fmt.Sprintf("%d <%s>\n %s", e.index, e.class.name, strings.Join(props, "\n "))
-}
-
-// get returns the current value of the Entity state for the given key
-func (e *Entity) get(name string) any {
-	fp := e.fieldPathFor(name)
-	if fp == nil {
-		return nil
-	}
-
-	return e.state.get(fp)
 }
 
 // fieldPathFor returns the field path of the property name under the entity's active polymorphic types,
