@@ -122,3 +122,42 @@ func TestFindDecoderByBaseType_Fixed8VectorElements(t *testing.T) {
 	assert.Equal(t, uint64(0x80), dec(r))
 	assert.Zero(t, r.remBytes())
 }
+
+// TestFindDecoder_FixedKeepsVarintType verifies that fixedN fields keep the Go type the varint
+// decoder of their base type returns, including base types outside the int8/16/32 and uint8/16/32
+// basics: signed enums and indices (signedDecoder), unsigned handles (unsignedDecoder) and
+// unmapped enums such as EKillTypes_t (defaultDecoder, uint32).
+func TestFindDecoder_FixedKeepsVarintType(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		baseType string
+		in       []byte
+		want     any
+	}{
+		{baseType: "CEntityIndex", in: []byte{0xFF}, want: int32(-1)},
+		{baseType: "AmmoIndex_t", in: []byte{0x80}, want: int32(-128)},
+		{baseType: "AttachmentHandle_t", in: []byte{0xFF}, want: uint64(0xFF)},
+		{baseType: "EKillTypes_t", in: []byte{0xFF}, want: uint32(0xFF)},
+	}
+
+	for _, tc := range tests {
+		f := field{varName: "m_x", varType: tc.baseType, encoder: "fixed8", fieldType: newFieldType(tc.baseType)}
+		r := newReader(tc.in)
+
+		assert.Equal(t, tc.want, findDecoder(&f)(r), tc.baseType)
+		assert.Zero(t, r.remBytes(), tc.baseType)
+	}
+}
+
+// TestFindDecoder_FixedIgnoredForNonIntegers verifies that a fixedN encoder doesn't replace the
+// decoder of non-integer base types.
+func TestFindDecoder_FixedIgnoredForNonIntegers(t *testing.T) {
+	t.Parallel()
+
+	fBool := field{varName: "m_b", varType: "bool", encoder: "fixed8", fieldType: newFieldType("bool")}
+	assert.Equal(t, true, findDecoder(&fBool)(newReader([]byte{0x01})))
+
+	fFloat := field{varName: "m_f", varType: "float32", encoder: "fixed32", fieldType: newFieldType("float32")}
+	assert.Equal(t, float32(1), findDecoder(&fFloat)(newReader([]byte{0x00, 0x00, 0x80, 0x3F})))
+}
