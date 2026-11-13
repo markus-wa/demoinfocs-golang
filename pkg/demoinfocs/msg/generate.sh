@@ -46,3 +46,9 @@ protoc -Iproto \
        v6/source2_steam_stats.proto \
        v6/usercmd.proto \
        v6/valveextensions.proto
+
+# The typed user-command copy and merge (../s2_usercmd_typed.go) are generated from the message types protoc
+# just wrote, so a proto update regenerates them in the same change; TestGeneratedCodeIsCurrent fails while
+# that file is stale. The generator (../internal/usercmdgen) rejects a field kind it doesn't handle, which
+# stops this script: extend the generator, then run it again.
+(cd .. && go generate .)
