@@ -100,6 +100,7 @@ type Parser struct {
 	msgDispatcher                   *dp.Dispatcher                   // Net-message dispatcher
 	decryptionKey                   []byte                           // Stored in `match730_*.dem.info` see MatchInfoDecryptionKey().
 	gameEventHandler                gameEventHandler
+	stateBinder                     stateBinder
 	eventDispatcher                 *dp.Dispatcher
 	currentFrame                    int     // Demo-frame, not ingame-tick
 	readerFrame                     int     // Like currentFrame, but counted on the parsing goroutine, see queueFrameParsed()
@@ -547,6 +548,14 @@ func newParserFromConfig(demostream io.Reader, cfg config.Config) *Parser {
 	}
 
 	p.additionalNetMessageCreators = cfg.AdditionalNetMessageCreators
+
+	p.stateBinder = newStateBinder(stateBinderDeps{
+		gameState:                     p.gameState,
+		eventDispatcher:               p.eventDispatcher,
+		serverClasses:                 p.ServerClasses,
+		disableMimicSource1GameEvents: p.disableMimicSource1GameEvents,
+		clearGrenadeProjectiles:       func() { p.gameEventHandler.clearGrenadeProjectiles() },
+	})
 
 	return &p
 }
