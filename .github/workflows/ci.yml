@@ -34,7 +34,7 @@ jobs:
       - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
         with:
-          reviewdog_version: v0.21.0
+          reviewdog_version: v0.21.3
 
       - name: Install Go
         uses: actions/setup-go@v7
