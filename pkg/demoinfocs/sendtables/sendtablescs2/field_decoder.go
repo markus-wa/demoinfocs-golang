@@ -2,6 +2,7 @@ package sendtablescs2
 
 import (
 	"math"
+	"reflect"
 )
 
 // simTimeCache holds pre-boxed interface{} values for simulationTimeDecoder.
@@ -442,7 +443,69 @@ func componentDecoder(r *reader) interface{} {
 	return r.readBits(1)
 }
 
+// fixedWidthBits maps the fixedN encoders of integers to their width in bits.
+var fixedWidthBits = map[string]uint32{
+	"fixed8":  8,
+	"fixed16": 16,
+	"fixed32": 32,
+}
+
+// fixedWidthFactory handles the fixedN encoders of integers: N raw bits instead of a varint.
+// Since the 2026-11-11 update CS2 sends most 8-bit fields with "fixed8" (e.g.
+// CCSPlayerController.m_recentKillQueue, m_iTeamNum, m_iCompetitiveRankType). Read as a varint,
+// any value >= 128 consumes an extra byte and misaligns the rest of the packet.
+//
+// The value keeps the type the varint decoder of baseType returns, so property getters don't
+// change: int32 (sign-extended) for signedDecoder, uint64 for unsignedDecoder and uint32 for
+// defaultDecoder (base types without a decoder of their own).
+// Returns nil if f has no fixedN encoder or baseType isn't an integer type (floats, vectors,
+// bools, strings, ...), which then keep their own decoder.
+//
+// The encoder decides the wire width, so this must run before fieldNameDecoders and
+// fieldTypeDecoders, which would read a varint.
+func fixedWidthFactory(f *field, baseType string) fieldDecoder {
+	n, ok := fixedWidthBits[f.encoder]
+	if !ok {
+		return nil
+	}
+
+	if _, ok := fieldTypeFactories[baseType]; ok {
+		return nil
+	}
+
+	varint, ok := fieldTypeDecoders[baseType]
+
+	switch {
+	case !ok:
+		return func(r *reader) any {
+			return r.readBits(n)
+		}
+	case sameDecoder(varint, signedDecoder):
+		shift := 32 - n
+
+		return func(r *reader) any {
+			return int32(r.readBits(n)<<shift) >> shift //nolint:gosec // sign-extends the N-bit value
+		}
+	case sameDecoder(varint, unsignedDecoder):
+		return func(r *reader) any {
+			return uint64(r.readBits(n))
+		}
+	}
+
+	return nil
+}
+
+// sameDecoder reports whether a and b are the same function.
+// Only used while building decoders, never per value.
+func sameDecoder(a, b fieldDecoder) bool {
+	return reflect.ValueOf(a).Pointer() == reflect.ValueOf(b).Pointer()
+}
+
 func findDecoder(f *field) fieldDecoder {
+	if d := fixedWidthFactory(f, f.fieldType.baseType); d != nil {
+		return d
+	}
+
 	if v, ok := fieldTypeFactories[f.fieldType.baseType]; ok {
 		return v(f)
 	}
@@ -459,6 +522,10 @@ func findDecoder(f *field) fieldDecoder {
 }
 
 func findDecoderByBaseType(f *field) fieldDecoder {
+	if d := fixedWidthFactory(f, f.fieldType.genericType.baseType); d != nil {
+		return d
+	}
+
 	if v, ok := fieldTypeFactories[f.fieldType.genericType.baseType]; ok {
 		return v(f)
 	}
