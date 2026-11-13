@@ -1,8 +1,0 @@
-# The user-command generator, the code it emits, and the reflective contract it is tested against.
-# See pkg/demoinfocs/internal/usercmdgen/README.md.
-
-/pkg/demoinfocs/internal/usercmdgen/             @markus-wa
-/pkg/demoinfocs/msg/generate.sh                  @markus-wa
-/pkg/demoinfocs/s2_usercmd_typed.go              @markus-wa
-/pkg/demoinfocs/s2_usercmd_typed_test.go         @markus-wa
-/pkg/demoinfocs/s2_usercmd_delta_reflect_test.go @markus-wa
