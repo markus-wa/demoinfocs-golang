@@ -1015,7 +1015,10 @@ func (p *parser) bindNewPlayerControllerS2(controllerEntity st.Entity) {
 		delete(p.provisionalNames, pl)
 		delete(p.gameState.playersByEntityID, controllerEntity.ID())
 		delete(p.gameState.playerControllerEntities, controllerEntity.ID())
-		delete(p.gameState.playersByUserID, pl.UserID)
+
+		if p.gameState.playersByUserID[pl.UserID] == pl {
+			delete(p.gameState.playersByUserID, pl.UserID)
+		}
 	})
 }
 

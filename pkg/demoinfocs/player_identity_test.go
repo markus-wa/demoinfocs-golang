@@ -536,6 +536,33 @@ func TestPlayerIdentity_ControllerDestroyedInSamePacket(t *testing.T) {
 	assert.Equal(t, "A", pl.Name)
 }
 
+// A controller without userinfo creates an "unknown" player that isn't added to playersByUserID,
+// destroying it must not remove the player that really owns the user-ID it was given (#772).
+func TestPlayerIdentity_DestroyedControllerKeepsUserIDOwner(t *testing.T) {
+	p, evs := newIdentityTestParser(t)
+
+	unknownCtrl := newFakeController(13, testSteamIDB, "")
+	createController(p, unknownCtrl)
+	unknown := p.gameState.playersByEntityID[13]
+	require.NotNil(t, unknown)
+	require.True(t, unknown.IsUnknown)
+	require.Nil(t, p.gameState.playersByUserID[unknown.UserID])
+
+	p.setRawPlayer(0, common.PlayerInfo{XUID: testSteamIDA, Name: "A", UserID: unknown.UserID})
+	createController(p, newFakeController(1, testSteamIDA, "A"))
+	owner := p.gameState.playersByEntityID[1]
+	require.NotSame(t, unknown, owner)
+	require.Same(t, owner, p.gameState.playersByUserID[unknown.UserID])
+
+	unknownCtrl.destroy()
+
+	assert.False(t, unknown.IsConnected)
+	assert.Nil(t, p.gameState.playersByEntityID[13])
+	assert.Same(t, owner, p.gameState.playersByUserID[owner.UserID], "the user-ID owner must be kept")
+	assert.Contains(t, p.gameState.Participants().All(), owner)
+	assert.Empty(t, evs.nameChanges)
+}
+
 // The per-entity flush is the norm; the end-of-packet flush is a backstop for controllers whose
 // update-finished delegates didn't run.
 func TestPlayerIdentity_EndOfPacketBackstop(t *testing.T) {
