@@ -48,12 +48,36 @@ jobs:
             go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
 
       - name: Generate Go code
+        id: generate
         if: env.PROTOBUFS_CHANGED == 'true'
         run: |
             cd pkg/demoinfocs/msg
 
             export PATH=/tmp/protoc/bin:$PATH
             ./generate.sh
+
+      # A field kind the generator doesn't handle stops generate.sh, and with it the whole proto update;
+      # see pkg/demoinfocs/internal/usercmdgen/README.md. Open one issue so the scheduled job doesn't
+      # fail unnoticed for days.
+      - name: Report generator gap
+        if: failure() && steps.generate.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          title="usercmdgen cannot handle a new proto field"
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --limit 1 --json number --jq '.[0].number // empty')
+
+          if [ -n "$existing" ]; then
+            echo "Issue #$existing already open, see $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+            exit 0
+          fi
+
+          gh issue create \
+            --title "$title" \
+            --body "The scheduled proto update failed in the generator step ($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID). Extend pkg/demoinfocs/internal/usercmdgen for the field named in the error (see its README.md), then re-run."
 
       - name: Commit changes
         if: env.PROTOBUFS_CHANGED == 'true'
