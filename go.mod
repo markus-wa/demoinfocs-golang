@@ -4,7 +4,7 @@ require (
 	github.com/golang/geo v0.0.0-20230421003525-6adc56603217
 	github.com/golang/snappy v1.0.0
 	github.com/markus-wa/go-unassert v0.1.3
-	github.com/markus-wa/gobitread v0.2.5
+	github.com/markus-wa/gobitread v0.2.6
 	github.com/markus-wa/godispatch v1.5.1
 	github.com/markus-wa/ice-cipher-go v1.0.0
 	github.com/markus-wa/quickhull-go/v2 v2.2.0
