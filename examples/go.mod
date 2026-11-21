@@ -17,7 +17,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/markus-wa/go-unassert v0.1.3 // indirect
-	github.com/markus-wa/gobitread v0.2.5 // indirect
+	github.com/markus-wa/gobitread v0.2.6 // indirect
 	github.com/markus-wa/ice-cipher-go v1.0.0 // indirect
 	github.com/markus-wa/quickhull-go/v2 v2.2.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
