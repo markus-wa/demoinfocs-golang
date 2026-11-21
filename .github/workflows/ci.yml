@@ -34,7 +34,9 @@ jobs:
       - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
         with:
-          reviewdog_version: v0.21.0
+          # v0.21.3 retries the check run update GitHub occasionally answers with 404 for a moment
+          # after the check run was created (reviewdog#2865); v0.21.0 fails the step on that flake.
+          reviewdog_version: v0.21.3
 
       - name: Install Go
         uses: actions/setup-go@v7
