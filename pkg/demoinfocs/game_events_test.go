@@ -604,9 +604,8 @@ func TestPlayerHurt_HealthDamageTakenIsHealthDrop(t *testing.T) {
 	assert.Equal(t, 27, got[0].HealthDamageTaken)
 }
 
-// A player who took control of a bot after dying is hit through the bot's pawn, while Player.Health()
-// reads the health of the player's own (dead) pawn - the hit must keep dmg_health.
-func TestPlayerHurt_HealthDamageTakenIsDmgHealthIfVictimHealthIsntTheHitPawns(t *testing.T) {
+// The hit pawn may be missing from the event (e.g. POV demos) or not networked: dmg_health is kept then.
+func TestPlayerHurt_HealthDamageTakenFallsBackToDmgHealthWithoutTheHitPawn(t *testing.T) {
 	p := NewParser(rand.Reader)
 	p.gameState.ingameTick = 5000
 
@@ -626,6 +625,35 @@ func TestPlayerHurt_HealthDamageTakenIsDmgHealthIfVictimHealthIsntTheHitPawns(t 
 
 	assert.Len(t, got, 1)
 	assert.Equal(t, 27, got[0].HealthDamageTaken)
+}
+
+// A player who took control of a bot after dying is hit through the bot's pawn, while the victim's own
+// (dead) pawn still reports 0 health. The event's userid_pawn is the hit pawn, so the HP removed is its
+// pre-hit health minus the reported post-hit health - also for a lethal hit (no 0, no over-damage).
+func TestPlayerHurt_HealthDamageTakenUsesTheHitPawn(t *testing.T) {
+	p := NewParser(rand.Reader)
+	p.gameState.ingameTick = 5000
+
+	victim := newPlayerWithPawnHealth(p, 42, 0) // the victim's own (dead) pawn
+
+	const hitPawnHandle = 9
+	p.gameState.entities[hitPawnHandle] = stfake.NewEntity(hitPawnHandle, stfake.P("m_iHealth", int32(30)))
+
+	var got []events.PlayerHurt
+	p.RegisterEventHandler(func(e events.PlayerHurt) {
+		got = append(got, e)
+	})
+
+	data := playerHurtEventData(int32(victim.UserID), 1, "ak47")
+	data["userid_pawn"] = &msg.CMsgSource1LegacyGameEventKeyT{ValLong: proto.Int32(hitPawnHandle)}
+	data["health"].ValByte = proto.Int32(0)        // the hit pawn died
+	data["dmg_health"].ValShort = proto.Int32(100) // ...so dmg_health includes 70 over-damage
+	data["armor"].ValByte = proto.Int32(50)
+
+	p.gameEventHandler.playerHurt(data)
+
+	assert.Len(t, got, 1)
+	assert.Equal(t, 30, got[0].HealthDamageTaken, "the hit pawn's pre-hit HP: not dmg_health, not 0")
 }
 
 func TestPlayerHurt_SameTickHitsMeasuredFromPriorHitHealth(t *testing.T) {
