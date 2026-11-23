@@ -496,6 +496,27 @@ func (geh gameEventHandler) playerDeath(data map[string]*msg.CMsgSource1LegacyGa
 	})
 }
 
+// hitPawnHealth returns the health of the pawn the event's userid_pawn refers to, or -1 if the event
+// carries no such pawn or the pawn isn't networked (POV demos). Entity state is applied only after the
+// tick's events, so it's the pawn's health before the hit.
+func (geh gameEventHandler) hitPawnHealth(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) int {
+	if data["userid_pawn"] == nil {
+		return -1
+	}
+
+	hitPawn := geh.gameState().EntityByHandle(uint64(data["userid_pawn"].GetValLong()))
+	if hitPawn == nil {
+		return -1
+	}
+
+	health, ok := hitPawn.PropertyValue("m_iHealth")
+	if !ok {
+		return -1
+	}
+
+	return health.Int()
+}
+
 //nolint:funlen // mirrors player_death's structure; splitting it would duplicate the weapon resolution
 func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGameEventKeyT) {
 	userID := data["userid"].GetValShort()
@@ -537,24 +558,24 @@ func (geh gameEventHandler) playerHurt(data map[string]*msg.CMsgSource1LegacyGam
 	}
 
 	if player != nil {
-		// The damage actually taken is the victim's HP right before this hit minus the reported
-		// post-hit health. player.Health() reads the start-of-tick HP (entity state is applied only
-		// after the tick's events are dispatched). When an earlier hit already landed on this victim
-		// this same tick, use that hit's reported post-damage health instead - the server's own HP
-		// after it - otherwise same-tick multi-hit sequences over-report.
-		//
-		// This is not the same as dmg_health: on many server builds a hit can remove
-		// dmg_health+1 HP, and the game's own damage stats
-		// (m_pActionTrackingServices.m_iDamage) count the HP removed.
+		// The removed HP is the hit pawn's health before the hit minus the reported post-hit health. The
+		// event's userid_pawn is the pawn that was hit - not necessarily the victim's own pawn, e.g.
+		// after taking over a bot (the victim's own pawn still reports the dead one).
 		healthBefore := player.Health()
+
+		if hitPawnHealth := geh.hitPawnHealth(data); hitPawnHealth >= 0 {
+			healthBefore = hitPawnHealth
+		}
+
+		// An earlier hit on this victim in the same tick is measured from its reported post-hit health.
 		if victimDamage.hasPrior {
 			healthBefore = victimDamage.lastHealth
 		}
 
-		healthDamageTaken = healthBefore - health
-
-		if healthDamageTaken < 0 {
-			healthDamageTaken = 0
+		// Not dmg_health: it can be 1 low and includes over-damage, so it's only kept when the hit
+		// pawn's health is unknown (healthBefore < health).
+		if healthBefore >= health {
+			healthDamageTaken = healthBefore - health
 		}
 
 		if armor == 0 {
