@@ -115,8 +115,14 @@ func newBombTestParser() (*Parser, *st.Parser) {
 // createFakePlantedC4 creates a planted bomb entity and returns a function to update its properties.
 // Properties not listed in props are missing from the entity, the listed ones have no value yet.
 func createFakePlantedC4(stParser *st.Parser, props ...string) func(name string, val any) {
+	return createFakePlantedC4WithOwner(stParser, nil, props...)
+}
+
+// createFakePlantedC4WithOwner is createFakePlantedC4 with m_hOwnerEntity already set at creation, e.g. for a
+// planted C4 that comes before its planter's pawn (and thus before the player) in the first packet.
+func createFakePlantedC4WithOwner(stParser *st.Parser, owner any, props ...string) func(name string, val any) {
 	entityProps := make([]stfake.Prop, 0, 2+len(props))
-	entityProps = append(entityProps, stfake.P("m_hOwnerEntity", nil), stfake.P("m_nBombSite", nil))
+	entityProps = append(entityProps, stfake.P("m_hOwnerEntity", owner), stfake.P("m_nBombSite", nil))
 
 	for _, name := range props {
 		entityProps = append(entityProps, stfake.P(name, nil))
@@ -225,6 +231,51 @@ func addFakeBombCarrier(p *Parser) *common.Player {
 	p.gameState.playersByEntityID[pl.EntityID] = pl
 
 	return pl
+}
+
+func TestBindBomb_BombPlanted(t *testing.T) {
+	plantedProps := []string{"m_bBombTicking", "m_bHasExploded", "m_hBombDefuser", "m_bBombDefused"}
+
+	t.Run("planter known at creation", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+		pl := addFakeBombCarrier(p)
+
+		var planted []events.BombPlanted
+		p.RegisterEventHandler(func(e events.BombPlanted) { planted = append(planted, e) })
+
+		createFakePlantedC4WithOwner(stParser, testBombPawnHandle, plantedProps...)
+
+		assert.Equal(t, []events.BombPlanted{{BombEvent: events.BombEvent{Player: pl}}}, planted)
+	})
+
+	// e.g. the recording starts after the plant and the planted C4 comes before the planter's pawn in the first packet
+	t.Run("planter resolves later in the frame", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var planted []events.BombPlanted
+		p.RegisterEventHandler(func(e events.BombPlanted) { planted = append(planted, e) })
+
+		createFakePlantedC4WithOwner(stParser, testBombPawnHandle, plantedProps...)
+
+		assert.Empty(t, planted, "BombPlanted must not be dispatched before the planter is resolved")
+
+		pl := addFakeBombCarrier(p)
+		p.processFrameGameEvents()
+
+		assert.Equal(t, []events.BombPlanted{{BombEvent: events.BombEvent{Player: pl}}}, planted)
+	})
+
+	t.Run("planter never resolves", func(t *testing.T) {
+		p, stParser := newBombTestParser()
+
+		var planted []events.BombPlanted
+		p.RegisterEventHandler(func(e events.BombPlanted) { planted = append(planted, e) })
+
+		createFakePlantedC4WithOwner(stParser, testBombPawnHandle, plantedProps...)
+		p.processFrameGameEvents()
+
+		assert.Equal(t, []events.BombPlanted{{BombEvent: events.BombEvent{}}}, planted)
+	})
 }
 
 func TestBindBomb_BombDropped(t *testing.T) {
