@@ -442,6 +442,31 @@ func TestPlayerIdentity_ControllerDestroyedInSamePacket(t *testing.T) {
 	assert.Equal(t, "A", pl.Name)
 }
 
+// A controller without userinfo creates an "unknown" player that isn't entered in playersByUserID.
+// Its user-ID can still belong to another, connected player - destroying the unknown controller
+// must not remove that player from Participants() (#772).
+func TestPlayerIdentity_DestroyedControllerKeepsUserIDOwner(t *testing.T) {
+	p, _ := newIdentityTestParser(t)
+
+	unknownCtrl := newFakeController(p, 13, testSteamIDB, "")
+	stfake.Create(unknownCtrl)
+	unknown := p.gameState.playersByEntityID[13]
+	require.NotNil(t, unknown)
+	require.True(t, unknown.IsUnknown)
+	require.Nil(t, p.gameState.playersByUserID[unknown.UserID])
+
+	p.setRawPlayer(0, common.PlayerInfo{XUID: testSteamIDA, Name: "A", UserID: unknown.UserID})
+	stfake.Create(newFakeController(p, 1, testSteamIDA, "A"))
+	owner := p.gameState.playersByEntityID[1]
+	require.NotSame(t, unknown, owner)
+	require.Same(t, owner, p.gameState.playersByUserID[unknown.UserID])
+
+	stfake.Destroy(unknownCtrl)
+
+	assert.Same(t, owner, p.gameState.playersByUserID[unknown.UserID],
+		"destroying the unknown controller must not take the user-ID's real owner with it")
+}
+
 // The per-entity flush is the norm; the end-of-packet flush is a backstop for controllers whose
 // update-finished delegates didn't run.
 func TestPlayerIdentity_EndOfPacketBackstop(t *testing.T) {

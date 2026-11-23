@@ -823,7 +823,12 @@ func (p *Parser) bindNewPlayerController(controllerEntity *st.Entity) {
 		delete(p.provisionalNames, pl)
 		delete(p.gameState.playersByEntityID, controllerEntity.ID())
 		delete(p.gameState.playerControllerEntities, controllerEntity.ID())
-		delete(p.gameState.playersByUserID, pl.UserID)
+
+		// A controller without userinfo creates an "unknown" player that's never entered in
+		// playersByUserID - its user-ID can belong to another, connected player.
+		if p.gameState.playersByUserID[pl.UserID] == pl {
+			delete(p.gameState.playersByUserID, pl.UserID)
+		}
 	})
 }
 
