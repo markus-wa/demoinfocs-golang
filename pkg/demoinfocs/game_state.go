@@ -265,6 +265,20 @@ func isEntityReplaced(entity *st.Entity) bool {
 	return entity != nil && entity.Replaced()
 }
 
+// isNewerSerial returns true if entity serial number a is newer than b.
+// Serial numbers have constants.EntityHandleSerialNumberBits bits (in entity handles) and wrap around,
+// so e.g. 0 is newer than 1023.
+func isNewerSerial(a, b int) bool {
+	const (
+		serialMask = 1<<constants.EntityHandleSerialNumberBits - 1
+		halfRange  = 1 << (constants.EntityHandleSerialNumberBits - 1)
+	)
+
+	diff := (a - b) & serialMask
+
+	return diff != 0 && diff < halfRange
+}
+
 func entityIDFromHandle(handle uint64) int {
 	if handle == constants.InvalidEntityHandleSource2 {
 		return -1

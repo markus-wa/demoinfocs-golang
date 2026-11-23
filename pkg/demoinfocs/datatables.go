@@ -969,8 +969,8 @@ func (p *Parser) bindPlayerWeapons(pawnEntity *st.Entity, currentPlayer func() *
 		// previous weapon when the pawn gets the new one before the new weapon entity is created in the same packet.
 		// The other way around (new weapon created first) the pawn may still reference the previous serial in
 		// slots that haven't been updated yet, so only a newer serial makes the entry stale.
-		handleSerial := handle >> constants.MaxEdictBitsSource2
-		isStale := wep != nil && wep.Entity != nil && handleSerial > uint64(wep.Entity.SerialNum())
+		handleSerial := int(handle >> constants.MaxEdictBitsSource2)
+		isStale := wep != nil && wep.Entity != nil && isNewerSerial(handleSerial, wep.Entity.SerialNum())
 
 		if wep == nil || isStale {
 			// sometimes a weapon is assigned to a player before the weapon entity is created
