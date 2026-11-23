@@ -121,11 +121,29 @@ func (p *parser) bindBomb() {
 
 		var planter *common.Player
 
-		if ownerProp.Any != nil {
-			planter = p.gameState.Participants().FindByPawnHandle(ownerProp.Handle())
+		findPlanter := func(handle uint64) {
+			planter = p.gameState.Participants().FindByPawnHandle(handle)
 
 			if planter != nil {
 				planter.IsPlanting = false
+			}
+		}
+
+		// the planter's pawn may not be known yet, e.g. when the recording started after the plant
+		// and the planted C4 comes before the pawn in the first packet
+		isPlanterPending := false
+
+		if ownerProp.Any != nil {
+			handle := ownerProp.Handle()
+			findPlanter(handle)
+
+			if planter == nil && handle != constants.InvalidEntityHandleSource2 {
+				isPlanterPending = true
+
+				// try again at the end of the frame, once all entities of the packet have been created
+				p.delayedEventHandlers = append(p.delayedEventHandlers, func() {
+					findPlanter(handle)
+				})
 			}
 		}
 
@@ -144,13 +162,24 @@ func (p *parser) bindBomb() {
 			}
 		}
 
-		if !p.disableMimicSource1GameEvents {
+		dispatchBombPlanted := func() {
+			if p.disableMimicSource1GameEvents {
+				return
+			}
+
 			p.eventDispatcher.Dispatch(events.BombPlanted{
 				BombEvent: events.BombEvent{
 					Player: planter,
 					Site:   site,
 				},
 			})
+		}
+
+		if isPlanterPending {
+			// dispatched after the planter has been looked up again (delayed handlers run in order)
+			p.delayedEventHandlers = append(p.delayedEventHandlers, dispatchBombPlanted)
+		} else {
+			dispatchBombPlanted()
 		}
 
 		// Set to true when the bomb has been planted and to false when it has been defused or has exploded.
